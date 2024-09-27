@@ -38,7 +38,7 @@ class LoginService
                     $responseErroLogin = RestResponse::createErrorResponse(401, 'Usuário ou senha inválidos.');
                 } else {
                     $request->session()->regenerate();
-                    return redirect()->intended(route('advocacia.servico.index'));
+                    return redirect()->intended(route('servico.index'));
                 }
             // } else {
 

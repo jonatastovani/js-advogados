@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\Auth\Domain;
 use App\Models\Auth\Tenant;
 use App\Models\Auth\TenantUser;
+use App\Models\Auth\UserTenantDomain;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 
@@ -29,24 +30,21 @@ trait SchemaTrait
             $table->uuid('created_user_id');
         }
         if ($createdIdReferenced && !$allNotReferenced) {
-            $table->foreign('created_user_id')->references('id')->on(TenantUser::getTableName());
-            // $table->foreign('created_user_id')->references('id')->on(User::getTableName());
+            $table->foreign('created_user_id')->references('id')->on(UserTenantDomain::getTableName());
         }
         $table->string('created_ip')->nullable();
         $table->timestamp('created_at')->useCurrent();
 
         $table->uuid('updated_user_id')->nullable();
         if ($updatedIdReferenced && !$allNotReferenced) {
-            $table->foreign('updated_user_id')->references('id')->on(TenantUser::getTableName());
-            // $table->foreign('updated_user_id')->references('id')->on(User::getTableName());
+            $table->foreign('updated_user_id')->references('id')->on(UserTenantDomain::getTableName());
         }
         $table->string('updated_ip')->nullable();
         $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
 
         $table->uuid('deleted_user_id')->nullable();
         if ($deletedIdReferenced && !$allNotReferenced) {
-            $table->foreign('deleted_user_id')->references('id')->on(TenantUser::getTableName());
-            // $table->foreign('deleted_user_id')->references('id')->on(User::getTableName());
+            $table->foreign('deleted_user_id')->references('id')->on(UserTenantDomain::getTableName());
         }
         $table->string('deleted_ip')->nullable();
         $table->softDeletes();

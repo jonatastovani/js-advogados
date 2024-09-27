@@ -2,8 +2,7 @@
 
 namespace App\Http\Middleware\Modulo;
 
-use App\Models\Auth\Tenant;
-use App\Models\Auth\TenantUser;
+use App\Models\Auth\UserTenantDomain;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +25,7 @@ class UsuarioNoTenantMiddleware
         $tenant = tenant('id');
         if ($tenant && Auth::check()) {
             $userId =  Auth::user()->id;
-            $usuarioNoTenant = TenantUser::where('tenant_id', $tenant)->where('user_id', $userId)->first();
+            $usuarioNoTenant = UserTenantDomain::where('tenant_id', $tenant)->where('user_id', $userId)->first();
             if ($usuarioNoTenant) {
                 return $next($request);
             }

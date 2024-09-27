@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\Servico();
+        $this->model = new App\Models\Financeiro\PagamentoTipoTenant();
     }
 
     /**
@@ -24,13 +24,10 @@ return new class extends Migration
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
-            $this->addDomainIDField($table);
 
-            $table->string('titulo');
-            $table->text('descricao');
-
-            $table->uuid('area_juridica_id');
-            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Referencias\AreaJuridica::getTableName());
+            $table->string('nome');
+            $table->json('configuracao');
+            $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

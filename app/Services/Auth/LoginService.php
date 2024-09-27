@@ -31,37 +31,37 @@ class LoginService
     public function session_start($request)
     {
         try {
-            if ($request->input('username') == 'admin') {
+            // if ($request->input('username') == 'admin') {
 
-                $credentials = $request->only('username', 'password');
-                if (!Auth::attempt($credentials)) {
-                    $responseErroLogin = RestResponse::createErrorResponse(401, 'Usuário ou senha inválidos.');
-                } else {
-                    $request->session()->regenerate();
-                    return redirect()->intended(route('admin.index'));
-                }
+            $credentials = $request->only('username', 'password');
+            if (!Auth::attempt($credentials)) {
+                $responseErroLogin = RestResponse::createErrorResponse(401, 'Usuário ou senha inválidos.');
             } else {
-
-                $gepenService = new ServicoGepenService();
-                $dadosUsuario = $gepenService->loginGpu($request->input('username'), $request->input('password'));
-                $dadosUsuario = new Fluent(XMLHelper::xmlToArray($dadosUsuario));
-
-                if ($dadosUsuario->status == 200) {
-                    if ($dadosUsuario->id) {
-                        if ($dadosUsuario->habilitado == 'S') {
-                            $request->session()->regenerate();
-                            return redirect()->intended(route('lobby'));
-                        }
-                    }
-                }
-
-                // Processa a "observacao" para remover o texto antes de "==>"
-                if (isset($dadosUsuario->observacao)) {
-                    $dadosUsuario->observacao = trim(preg_replace('/^.*==>\s*/', '', $dadosUsuario->observacao));
-                }
-                $responseErroLogin = RestResponse::createErrorResponse($dadosUsuario->status, $dadosUsuario->observacao);
+                $request->session()->regenerate();
+                return redirect()->intended(route('servico.index'));
             }
-            return redirect()->back()->with('error_login', ['error' => $responseErroLogin->toArray(), 'username' => $request->input('username'), 'password' => $request->input('password')]);
+            // } else {
+
+            //     $gepenService = new ServicoGepenService();
+            //     $dadosUsuario = $gepenService->loginGpu($request->input('username'), $request->input('password'));
+            //     $dadosUsuario = new Fluent(XMLHelper::xmlToArray($dadosUsuario));
+
+            //     if ($dadosUsuario->status == 200) {
+            //         if ($dadosUsuario->id) {
+            //             if ($dadosUsuario->habilitado == 'S') {
+            //                 $request->session()->regenerate();
+            //                 return redirect()->intended(route('lobby'));
+            //             }
+            //         }
+            //     }
+
+            //     // Processa a "observacao" para remover o texto antes de "==>"
+            //     if (isset($dadosUsuario->observacao)) {
+            //         $dadosUsuario->observacao = trim(preg_replace('/^.*==>\s*/', '', $dadosUsuario->observacao));
+            //     }
+            //     $responseErroLogin = RestResponse::createErrorResponse($dadosUsuario->status, $dadosUsuario->observacao);
+            // }
+            // return redirect()->back()->with('error_login', ['error' => $responseErroLogin->toArray(), 'username' => $request->input('username'), 'password' => $request->input('password')]);
         } catch (Exception $e) {
             return redirect()->back()->with('error', $e);
         }

@@ -54,13 +54,27 @@ Route::middleware([
         });
     });
 
-    require __DIR__ . '/modulos/rotas_admin.php';
 
-    require __DIR__ . '/modulos/rotas_advocacia.php';
+    Route::middleware([
+        'auth:sanctum',
+        'usuario.tenant',
+    ])->group(function () {
 
-    Route::get('test', function () {
-        return view('test');
+        Route::prefix('admin')->group(function () {
+
+            require __DIR__ . '/modulos/rotas_admin.php';
+        });
+
+        Route::prefix('adv')->group(function () {
+
+            require __DIR__ . '/modulos/rotas_servico.php';
+        });
     });
+
+
+    // Route::get('test', function () {
+    //     return view('test');
+    // });
 
     require __DIR__ . '/rotas_api.php';
 });

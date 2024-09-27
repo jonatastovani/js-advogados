@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Financeiro\ContaStatusTipoSeeder;
+use Database\Seeders\Referencia\ContaSubtipoSeeder;
+use Database\Seeders\Referencia\ContaTipoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,11 +19,15 @@ class DatabaseSeeder extends Seeder
             TenantTypeSeeder::class,
             TenantDomainSeeder::class,
             UserSeeder::class,
-            DomainUserSeeder::class,
+            UserTenantDomainSeeder::class,
             PermissionModuleSeeder::class,
             PermissionGroupSeeder::class,
             PermissionSeeder::class,
             PermissionConfigSeeder::class,
+
+            ContaStatusTipoSeeder::class,
+            ContaTipoSeeder::class,
+            ContaSubtipoSeeder::class,
         ]);
     }
 }

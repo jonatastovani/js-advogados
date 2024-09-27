@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\Servico();
+        $this->model = new App\Models\Servico\ServicoPreco();
     }
 
     /**
@@ -26,11 +26,13 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->string('titulo');
-            $table->text('descricao');
+            $table->uuid('servico_id');
+            $table->foreign('servico_id')->references('id')->on(App\Models\Servico\Servico::getTableName());
 
-            $table->uuid('area_juridica_id');
-            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Referencias\AreaJuridica::getTableName());
+            $table->string('observacao');
+            $table->enum('tipo_movimentacao_enum', ['credito', 'debito']);
+            $table->float('preco');
+            $table->float('preco_total');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

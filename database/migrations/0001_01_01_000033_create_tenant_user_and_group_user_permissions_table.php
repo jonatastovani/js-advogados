@@ -29,7 +29,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->uuid('tenant_user_id');
-            $table->foreign('tenant_user_id')->references('id')->on(App\Models\Auth\TenantUser::getTableName());
+            $table->foreign('tenant_user_id')->references('id')->on(App\Models\Auth\UserTenantDomain::getTableName());
 
             $table->unsignedBigInteger('permissao_id');
             $table->foreign('permissao_id')->references('id')->on(App\Models\Auth\Permission::getTableName());

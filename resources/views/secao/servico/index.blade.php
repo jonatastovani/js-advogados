@@ -1,7 +1,7 @@
 @php
     $sufixo = 'PageInformacaoSubjetivaIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'home' => route('advocacia.servico.index'),
+        'home' => route('servico.index'),
         'nome' => 'Serviços',
     ]);
     Session::put('paginaDados', $paginaDados);
@@ -55,7 +55,7 @@
 
 
 @push('modals')
-    <x-modal.advocacia.modalAreaJuridica.modal />
+    <x-modal.referencias.modalAreaJuridica.modal />
 @endpush
 
 @push('scripts')
@@ -68,7 +68,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('advocacia.servico.index'),
+            'baseFront' => route('servico.index'),
         ],
     ])
     @endcomponent

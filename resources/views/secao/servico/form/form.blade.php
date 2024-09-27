@@ -89,7 +89,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirect' => route('advocacia.servico.index'),
+            'frontRedirect' => route('servico.index'),
         ],
     ])
     @endcomponent

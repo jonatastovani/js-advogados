@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\Servico();
+        $this->model = new App\Models\Referencias\ContaSubtipo();
     }
 
     /**
@@ -22,15 +22,14 @@ return new class extends Migration
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
-            $this->addIDFieldAsUUID($table);
-            $this->addTenantIDField($table);
-            $this->addDomainIDField($table);
+            $table->id();
+            $table->string('nome');
+            $table->text('descricao')->nullable();
 
-            $table->string('titulo');
-            $table->text('descricao');
+            $table->unsignedBigInteger('conta_tipo_id');
+            $table->foreign('conta_tipo_id')->references('id')->on(App\Models\Referencias\ContaTipo::getTableName());
 
-            $table->uuid('area_juridica_id');
-            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Referencias\AreaJuridica::getTableName());
+            $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
