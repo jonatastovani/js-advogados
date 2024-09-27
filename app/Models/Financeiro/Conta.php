@@ -7,7 +7,7 @@ use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ContaStatusTipo extends Model
+class Conta extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 }

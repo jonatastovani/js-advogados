@@ -1,10 +1,9 @@
 <?php
 
-namespace Database\Seeders\Financeiro;
+namespace Database\Seeders\Referencia;
 
 use App\Helpers\UUIDsHelpers;
-use App\Models\Financeiro\ContaStatusTipo;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Referencias\ContaStatusTipo;
 use Illuminate\Database\Seeder;
 
 class ContaStatusTipoSeeder extends Seeder

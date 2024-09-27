@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Referencias\ContaStatusTipo();
+        $this->model = new App\Models\Financeiro\Conta();
     }
 
     /**
@@ -22,9 +22,21 @@ return new class extends Migration
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
-            $table->id();
+            $this->addIDFieldAsUUID($table);
+            $this->addTenantIDField($table);
+            $this->addDomainIDField($table);
+
             $table->string('nome');
-            $table->text('descricao')->nullable();
+            $table->string('descricao')->nullable();
+
+            $table->unsignedBigInteger('conta_subtipo_id');
+            $table->foreign('conta_subtipo_id')->references('id')->on(App\Models\Referencias\ContaSubtipo::getTableName());
+
+            $table->string('banco')->nullable();
+            $table->json('configuracao')->nullable();
+
+            $table->unsignedBigInteger('conta_status_id');
+            $table->foreign('conta_status_id')->references('id')->on(App\Models\Referencias\ContaStatusTipo::getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

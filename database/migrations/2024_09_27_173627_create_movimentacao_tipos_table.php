@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Referencias\ContaStatusTipo();
+        $this->model = new App\Models\Financeiro\MovimentacaoTipo();
     }
 
     /**
@@ -24,7 +24,7 @@ return new class extends Migration
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->text('descricao')->nullable();
+            $table->string('descricao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
