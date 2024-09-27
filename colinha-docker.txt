@@ -1,0 +1,1 @@
+docker stop gpu_app; docker build -t gpu_app .; docker rm gpu_app; docker run -d -p 80:80 --name gpu_app gpu_app;

@@ -1,0 +1,80 @@
+version: "3.7"
+
+services:
+    # Application service with 3 replicas
+    app:
+        image: app-image # Use uma imagem para a aplicação ou crie uma diretamente no Dockerfile
+        # build:
+        #     context: .
+        #     dockerfile: Dockerfile
+        deploy:
+            replicas: 3
+            restart_policy:
+                condition: on-failure
+        working_dir: /var/www/
+        depends_on:
+            - phpredis
+        networks:
+            - laravel
+        volumes:
+            - ./:/var/www
+        environment:
+            - DB_HOST=postgres
+            - REDIS_HOST=phpredis
+        # ports:
+        #     - "9000"  # Mude se a aplicação estiver expondo alguma porta interna
+
+    # Nginx service acting as reverse proxy
+    nginx:
+        image: nginx:alpine
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        ports:
+            - "8080:80"  # Nginx expõe na porta 8080 no host
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - laravel
+
+    # Redis service
+    phpredis:
+        image: redis:alpine
+        volumes:
+            - './.docker/redis:/data'
+        networks:
+            - laravel
+
+    # Postgres service
+    postgres:
+        image: postgres:16.3
+        environment:
+            POSTGRES_DB: app-js-dev
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: secret
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - laravel
+
+    # pgAdmin service
+    pgadmin:
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: "dev@example.com"
+            PGADMIN_DEFAULT_PASSWORD: "admin"
+        ports:
+            - "15432:80"
+        volumes:
+            - ./data/pgadmin:/var/lib/pgadmin
+        networks:
+            - laravel
+
+networks:
+    laravel:
+        driver: overlay  # Swarm utiliza a rede overlay para comunicação entre containers
+
+volumes:
+    postgres_data:

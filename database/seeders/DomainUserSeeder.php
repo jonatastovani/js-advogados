@@ -1,0 +1,37 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Helpers\UUIDsHelpers;
+use App\Models\Auth\TenantUser;
+use Illuminate\Database\Seeder;
+
+class DomainUserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $adminId = UUIDsHelpers::getAdmin();
+        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
+
+        $insert = [
+            [
+                'id' => $adminTenantUserId,
+                'user_id' => $adminId,
+                'tenant_id' => 'admin',
+                'domain_id' => 1,
+            ],
+            [
+                'user_id' => $adminId,
+                'tenant_id' => 'jsadvogados',
+                'domain_id' => 2,
+            ],
+        ];
+
+        foreach ($insert as $data) {
+            TenantUser::create($data);
+        }
+    }
+}
