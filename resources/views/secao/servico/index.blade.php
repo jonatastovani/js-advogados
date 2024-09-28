@@ -59,7 +59,7 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/advocacia/servico/index.js')
+    @vite('resources/js/views/servico/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseInfoSubj' => route('api.referencias.area-juridica'),

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Financeiro\ContaStatusTipoSeeder;
+use Database\Seeders\Referencia\ContaStatusTipoSeeder;
 use Database\Seeders\Referencia\ContaSubtipoSeeder;
 use Database\Seeders\Referencia\ContaTipoSeeder;
 use Illuminate\Database\Seeder;
