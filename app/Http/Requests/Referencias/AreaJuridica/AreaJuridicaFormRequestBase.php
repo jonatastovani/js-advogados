@@ -10,6 +10,7 @@ class AreaJuridicaFormRequestBase extends BaseFormRequest
     {
         return [
             'nome' => 'required|string|min:3',
+            'descricao' => 'nullable|string',
         ];
     }
 

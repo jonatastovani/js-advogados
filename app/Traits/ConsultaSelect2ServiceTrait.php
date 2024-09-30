@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Helpers\StringHelper;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Fluent;
@@ -63,11 +64,19 @@ trait ConsultaSelect2ServiceTrait
 
             if ($request->has('text') && !empty($request->input('text'))) {
                 $textoBusca = $request->input('text');
+                // $textoBusca = StringHelper::removeAccents($textoBusca);
 
                 // Adiciona os filtros de texto na query usando ILIKE
                 $query->where(function (Builder $query) use ($arrFields, $textoBusca) {
                     foreach ($arrFields as $field) {
-                        $query->orWhereRaw("{$field} ILIKE ?", ["%{$textoBusca}%"]);
+                        // $query->orWhereRaw("{$field} ILIKE ?", ["%{$textoBusca}%"]);
+                        //     $query->orWhereRaw("
+                        //     REGEXP_REPLACE(LOWER($field), '[^a-z0-9]', '', 'g') ILIKE REGEXP_REPLACE(?, '[^a-z0-9]', '', 'g')
+                        // ", ["%{$textoBusca}%"]);
+                        $query->orWhereRaw("
+                            TRANSLATE(LOWER({$field}), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn') 
+                            LIKE TRANSLATE(LOWER(?), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn')
+                        ", ["%{$textoBusca}%"]);
                     }
                 });
             }

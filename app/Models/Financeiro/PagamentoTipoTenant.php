@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class PagamentoTipoTenant extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'financeiro.pagamento_tipo_tenants';
+    protected $tableAsName = 'pag_tip_ten';
 }

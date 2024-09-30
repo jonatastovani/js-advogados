@@ -13,9 +13,9 @@ Route::group([
             Route::post('select2', 'select2');
             Route::post('consulta-filtros', 'postConsultaFiltros');
 
-            Route::get('{id}', 'show');
             Route::post('', 'store')->name('api.referencias.area-juridica');
-            Route::put('{id}', 'update');
+            Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
         });
     });
 });

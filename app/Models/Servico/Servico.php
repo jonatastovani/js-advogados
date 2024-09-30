@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class Servico extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'servico.servicos';
+    protected $tableAsName = 'serv';
 }

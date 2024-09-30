@@ -8,7 +8,7 @@ class AreaJuridicaFormRequestShow extends BaseFormRequest
 {
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Common;
 
 use App\common\RestResponse;
 use App\Helpers\UUIDsHelpers;
-use App\Models\Auth\TenantUser;
+use App\Models\Auth\UserTenantDomain;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -227,13 +227,13 @@ class CommonsFunctions
 
         $user = null;
         $userId = auth()->user()->id;
-        $user = TenantUser::where('user_id', $userId)->where('tenant_id', tenant('id'))->first();
+        $user = UserTenantDomain::where('user_id', $userId)->where('tenant_id', tenant('id'))->first();
 
         if (!$user) {
             $adminUuid = UUIDsHelpers::getAdmin();
 
             if ($userId == $adminUuid) {
-                return UUIDsHelpers::getAdminTenantUser();
+                return UUIDsHelpers::getAdminUserTenantDomain();
             }
 
             //Colocar verificação para se o usuário tem a permissão de suporte do tenant, para poder colocar o id dele que é do tenant admin

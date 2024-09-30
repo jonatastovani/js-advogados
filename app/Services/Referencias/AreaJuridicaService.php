@@ -6,7 +6,6 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\GPU\Inteligencia\InformacaoSubjetivaCategoria;
 use App\Models\Referencias\AreaJuridica;
 use App\Traits\CommonsConsultaServiceTrait;
 use App\Traits\CommonServiceMethodsTrait;
@@ -24,7 +23,7 @@ class AreaJuridicaService
     public function select2(Request $request)
     {
         $dados = new Fluent([
-            'camposFiltros' => ['nome'],
+            'camposFiltros' => ['nome', 'descricao'],
         ]);
 
         return $this->executaConsultaSelect2($request, $dados);
@@ -54,7 +53,7 @@ class AreaJuridicaService
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $permissionAsName = InformacaoSubjetivaCategoria::getTableAsName();
+        $permissionAsName = $this->model::getTableAsName();
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $permissionAsName,
         ];
@@ -131,6 +130,7 @@ class AreaJuridicaService
         }
 
         $resouce->nome = $requestData->nome;
+        $resouce->descricao = $requestData->descricao;
 
         return $resouce;
     }
@@ -138,7 +138,7 @@ class AreaJuridicaService
     public function buscarRecurso(Fluent $requestData)
     {
         $withTrashed = isset($requestData->withTrashed) && $requestData->withTrashed == true;
-        $resource = ValidationRecordsHelper::validateRecord($this->model::class, ['pess_id' => $requestData->id], !$withTrashed);
+        $resource = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $requestData->uuid], !$withTrashed);
 
         if ($resource->count() == 0) {
             // Usa o método do trait para gerar o log e lançar a exceção

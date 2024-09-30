@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServicoPagamentoTarefaPresetRelacao extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'servico.servico_pagamento_tarefa_preset_relacao';
+    protected $tableAsName = 'serv_pag_tar_pres_rel';
 }

@@ -10,4 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContaSubtipo extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'referencias.conta_subtipos';
+    protected $tableAsName = 'con_subt';
 }

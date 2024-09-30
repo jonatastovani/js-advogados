@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class TarefaTipo extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'servico.tarefa_tipos';
+    protected $tableAsName = 'tar_tipo';
 }

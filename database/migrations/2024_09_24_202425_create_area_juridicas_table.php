@@ -25,6 +25,7 @@ return new class extends Migration
             $this->addIDFieldAsUUID($table);
 
             $table->string('nome');
+            $table->string('descricao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

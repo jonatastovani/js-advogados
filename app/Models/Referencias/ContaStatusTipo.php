@@ -10,4 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContaStatusTipo extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'referencias.conta_status_tipos';
+    protected $tableAsName = 'con_sta_tipo';
 }

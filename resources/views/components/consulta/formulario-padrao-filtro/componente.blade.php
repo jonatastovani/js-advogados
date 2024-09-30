@@ -1,9 +1,29 @@
 @php
     use App\Helpers\Views\ConsultaHelper;
+
+    $col_busca = 'col-sm-6 col-xxl-5';
+    $col_personalizacao = 'col-md-6 col-xl-4';
+    $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
+
+    if (isset($dados->preset_tamanho)) {
+        switch ($variable = $dados['preset_tamanho']) {
+            case 'xl':
+                $col_busca = 'col-sm-6 col-xxl-5';
+                $col_personalizacao = 'col-md-6 col-xl-4';
+                $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
+                break;
+
+            case 'md':
+                $col_busca = 'col-12';
+                $col_personalizacao = 'col-12';
+                $row_cols_filtros = 'row-cols-1 row-cols-md-2';
+                break;
+        }
+    }
 @endphp
 <form action="#" id="formDataSearch{{ $sufixo }}" class="col-12 formDataSearch">
     <div class="row">
-        <div class="col-sm-6 col-xxl-5 mt-2">
+        <div class="{{ $col_busca }} mt-2">
             <div class="input-group">
                 <div class="input-group-text">
                     <label for="textoBusca{{ $sufixo }}">Texto de busca</label>
@@ -28,7 +48,7 @@
                 data-bs-parent="#accordionFiltros{{ $sufixo }}">
                 <div class="accordion-body py-1">
                     <div class="row">
-                        <div class="col-md-6 col-xl-4 mt-2">
+                        <div class="{{ $col_personalizacao }} mt-2">
                             <div class="row h-100 align-items-center">
                                 <div class="col-6">
                                     <div class="form-check"
@@ -50,7 +70,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-xl-4 mt-2">
+                        <div class="{{ $col_personalizacao }} mt-2">
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selTratamentoTexto'; ?>
@@ -65,11 +85,14 @@
                                         ['name' => $nomeSelect, 'id' => $idSelect],
                                         $dados->dadosSelectTratamento ?? [],
                                     );
-                                    ConsultaHelper::renderizarSelectTratamento($mergeDadosSelectTratamento, $dados->toArray());
+                                    ConsultaHelper::renderizarSelectTratamento(
+                                        $mergeDadosSelectTratamento,
+                                        $dados->toArray(),
+                                    );
                                 @endphp
                             </div>
                         </div>
-                        <div class="col-md-6 col-xl-4 mt-2">
+                        <div class="{{ $col_personalizacao }} mt-2">
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selFormaBusca'; ?>
@@ -83,14 +106,17 @@
                                         ['name' => $nomeSelect, 'id' => $idSelect],
                                         $dados->dadosSelectFormaBusca ?? [],
                                     );
-                                    ConsultaHelper::renderizarSelectFormaBusca($mergeDadosSelectFormaBusca, $dados->toArray());
+                                    ConsultaHelper::renderizarSelectFormaBusca(
+                                        $mergeDadosSelectFormaBusca,
+                                        $dados->toArray(),
+                                    );
                                 @endphp
                             </div>
                         </div>
                     </div>
-                    <span class="mt-2">Selecione os campos onde pesquisar a
-                        informa&ccedil;&atilde;o</span>
-                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 searchFields">
+                    <p class="mt-2 fw-semibold">Selecione os campos onde pesquisar a
+                        informação</p>
+                    <div class="row {{ $row_cols_filtros }} searchFields">
                         @php
                             ConsultaHelper::renderizarCheckBoxColunas($dados->camposFiltrados, [
                                 'arrayCamposChecked' => $dados->arrayCamposChecked,

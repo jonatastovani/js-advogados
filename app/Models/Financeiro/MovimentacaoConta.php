@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class MovimentacaoConta extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'financeiro.movimentacao_contas';
+    protected $tableAsName = 'mov_conta';
 }

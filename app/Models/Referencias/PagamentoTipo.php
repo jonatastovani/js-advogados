@@ -10,4 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class PagamentoTipo extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'referencias.pagamento_tipos';
+    protected $tableAsName = 'pag_tipo';
 }

@@ -1,6 +1,6 @@
 <div class="modal fade" id="modalAreaJuridica" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-lg-down">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
                 <h4 class="modal-title">Áreas Juridicas</h4>
@@ -11,12 +11,13 @@
                     $sufixo = 'ModalAreaJuridica';
                     $dados = new Illuminate\Support\Fluent([
                         'camposFiltrados' => [
-                            'id' => ['nome' => 'ID'],
                             'nome' => ['nome' => 'Nome'],
+                            'descricao' => ['nome' => 'Descrição'],
                         ],
                         'arrayCamposChecked' => ['nome', 'descricao'],
                         'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                         'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
+                        'preset_tamanho' => 'md',
                     ]);
                 @endphp
                 <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />

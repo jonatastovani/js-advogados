@@ -44,7 +44,7 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalAreaJuridica = modal.find('#formDataSearchmodalAreaJuridica');
+        const formDataSearchModalAreaJuridica = modal.find('#formDataSearchModalAreaJuridica');
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Nova Área Jurídica');
@@ -87,13 +87,14 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
             try {
                 self._clearForm();
                 self._idRegister = item.id
-                self._action = enumAction.PUT;
                 const response = await self._getRecurse();
                 if (response?.data) {
+                    self._action = enumAction.PUT;
                     const responseData = response.data;
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
                     form.find('input[name="nome"]').val(responseData.nome);
+                    form.find('textarea[name="descricao"]').val(responseData.descricao);
                     self._actionsHideShowRegistrationFields(true);
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }

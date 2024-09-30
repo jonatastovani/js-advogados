@@ -11,4 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServicoAnotacao extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
+
+    protected $table = 'servico.servico_anotacao';
+    protected $tableAsName = 'serv_anot';
 }
