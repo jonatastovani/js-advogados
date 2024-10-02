@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use App\Common\CommonsFunctions;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,6 +41,7 @@ trait CommonsConsultaServiceTrait
         }
 
         $query->where($this->model::getTableAsName() . '.deleted_at', null);
+        $this->verificaUsoScopeTenant($query, $this->model);
 
         $query->when($request, function ($query) use ($request) {
             $ordenacao = $request->has('ordenacao') ? $request->input('ordenacao') : [];
@@ -53,5 +56,14 @@ trait CommonsConsultaServiceTrait
         });
 
         return $query;
+    }
+
+    public function verificaUsoScopeTenant(Builder $query, Model $modelClass): void
+    {
+        //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
+        if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($modelClass))) {
+            $query->withoutTenancy();
+            $query->where($modelClass::getTableAsName() . '.tenant_id', tenant('id'));
+        }
     }
 }

@@ -120,4 +120,12 @@ abstract class BaseFormRequest extends FormRequest
     {
         return true; // Define como true por padrão, mas pode ser desabilitado por FormRequests específicos
     }
+
+    public function rulesShowWithTrashed(): array
+    {
+        return [
+            // Para casos de busca de registros que tenham sido excluídos
+            'withTrashed' => 'nullable|boolean',
+        ];
+    }
 }

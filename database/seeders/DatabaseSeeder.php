@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Referencia\AreaJuridicaSeeder;
 use Database\Seeders\Referencia\ContaStatusTipoSeeder;
 use Database\Seeders\Referencia\ContaSubtipoSeeder;
 use Database\Seeders\Referencia\ContaTipoSeeder;
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ContaStatusTipoSeeder::class,
             ContaTipoSeeder::class,
             ContaSubtipoSeeder::class,
+            AreaJuridicaSeeder::class,
         ]);
     }
 }

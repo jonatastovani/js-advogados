@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Referencias\AreaJuridica();
+        $this->model = new App\Models\Referencias\NumeracaoSequencial();
     }
 
     /**
@@ -24,11 +24,12 @@ return new class extends Migration
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
-            
-            $table->string('nome');
-            $table->string('descricao')->nullable();
 
-            $this->addCommonFieldsCreatedUpdatedDeleted($table);
+            $table->integer('ultimo_numero'); // Último número gerado
+            $table->integer('ano'); // Ano corrente
+            $table->string('tipo'); // Tipo de numeração (ex: 'servico')
+
+            $table->unique(['tenant_id', 'ano', 'tipo']); // Garante que cada tenant tenha uma sequência única por tipo e ano
         });
     }
 

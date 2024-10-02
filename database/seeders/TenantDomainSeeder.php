@@ -26,5 +26,12 @@ class TenantDomainSeeder extends Seeder
         ]);
         $tenant->domains()->create(['id' => 2, 'domain' => 'montecastelo.jsadvogados']);
         $tenant->domains()->create(['id' => 3, 'domain' => 'prev.jsadvogados']);
+
+        $tenant = Tenant::create([
+            'id' => 'advocaciateste',
+            'tenant_type_id' => 3,
+            'nome' => 'ADVC-Teste',
+        ]);
+        $tenant->domains()->create(['id' => 4, 'domain' => 'advcteste.advocaciateste']);
     }
 }

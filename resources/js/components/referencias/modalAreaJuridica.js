@@ -22,6 +22,7 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
      * Conteúdo a ser retornado na promisse como resolve()
     */
     #promisseReturnValue = {
+        selecteds: [],
     };
 
     constructor() {
@@ -47,7 +48,7 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
         const formDataSearchModalAreaJuridica = modal.find('#formDataSearchModalAreaJuridica');
 
         modal.find('.btn-new-register').on('click', async () => {
-            self._updateTitleRegistration('Nova Área Jurídica');
+            self._updateTitleRegistration('Nova Área de Atuação Jurídica');
         });
 
         formDataSearchModalAreaJuridica.find('.btnBuscar').on('click', async (e) => {
@@ -64,11 +65,14 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
             tbody,
         } = options;
 
+        let strBtns = self.#HtmlBtnSelect();
+        strBtns += self.#HtmlBtnEdit();
+
         $(tbody).append(`
             <tr id="${item.idTr}" data-id="${item.id}">
                 <td class="text-center">
                     <div class="btn-group btnsAcao" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></button>
+                        ${strBtns}
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.nome}">${item.nome}</td>
@@ -77,6 +81,18 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
 
         self.#addEventosRegistrosConsulta(item);
         return true;
+    }
+
+    #HtmlBtnEdit() {
+        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></button>`;
+    }
+
+    #HtmlBtnSelect() {
+        const self = this;
+        if (self._dataEnvModal?.attributes?.select) {
+            return `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
+        }
+        return '';
     }
 
     #addEventosRegistrosConsulta(item) {
@@ -102,6 +118,36 @@ export class modalAreaJuridica extends modalSearchAndFormRegistration {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading($(this), false);
+            }
+        });
+
+        $(`#${item.idTr}`).find(`.btn-select`).on('click', async function () {
+            if (self._dataEnvModal?.attributes?.select) {
+                const select = self._dataEnvModal.attributes.select;
+
+                const pushSelected = (item) => {
+                    if (self._dataEnvModal.attributes.select?.max) {
+                        self._promisseReturnValue.selected = item;
+                    } else {
+                        self._promisseReturnValue.selecteds.push(item);
+                    }
+                    self._promisseReturnValue.refresh = true;
+
+                    if (select?.autoReturn && select.autoReturn &&
+                        (select?.max && self._promisseReturnValue.selecteds.length == select.max ||
+                            select?.quantity && self._promisseReturnValue.selecteds.length == select.quantity
+                        )) {
+                        self._setEndTimer = true;
+                    }
+                }
+
+                if (select?.max && self._promisseReturnValue.selecteds.length < select.max) {
+                    pushSelected(item);
+                } else {
+                    self._promisseReturnValue.selecteds = [];
+                    pushSelected(item);
+                }
+
             }
         });
     }

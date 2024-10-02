@@ -28,6 +28,11 @@ class UserTenantDomainSeeder extends Seeder
                 'tenant_id' => 'jsadvogados',
                 'domain_id' => 2,
             ],
+            [
+                'user_id' => $adminId,
+                'tenant_id' => 'advocaciateste',
+                'domain_id' => 4,
+            ],
         ];
 
         foreach ($insert as $data) {

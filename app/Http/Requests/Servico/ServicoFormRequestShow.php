@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Referencias\AreaJuridica;
+namespace App\Http\Requests\Servico;
 
 use App\Http\Requests\BaseFormRequest;
 
-class AreaJuridicaFormRequestShow extends BaseFormRequest
+class ServicoFormRequestShow extends BaseFormRequest
 {
     public function authorize(): bool
     {

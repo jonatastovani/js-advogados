@@ -12,6 +12,8 @@
 
 @import './style-layout.css';
 
+@import 'bootstrap-custom.css';
+
 @import '@fortawesome/fontawesome-free/css/all.css';
 
 
