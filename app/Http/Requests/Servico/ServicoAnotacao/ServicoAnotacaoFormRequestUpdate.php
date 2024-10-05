@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Servico;
+namespace App\Http\Requests\Servico\ServicoAnotacao;
 
-class ServicoFormRequestUpdate extends ServicoFormRequestBase
+class ServicoAnotacaoFormRequestUpdate extends ServicoAnotacaoFormRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.

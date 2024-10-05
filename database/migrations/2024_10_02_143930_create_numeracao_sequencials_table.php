@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('tipo'); // Tipo de numeração (ex: 'servico')
 
             $table->unique(['tenant_id', 'ano', 'tipo']); // Garante que cada tenant tenha uma sequência única por tipo e ano
+            $table->timestamps();
         });
     }
 

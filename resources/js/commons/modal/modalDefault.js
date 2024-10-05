@@ -244,7 +244,7 @@ export class modalDefault {
     }
 
     //#region Metodos auxiliares
-    
+
     _updateModalTitle(html, options = {}) {
         const self = this;
         const {
@@ -253,5 +253,9 @@ export class modalDefault {
         title.html(html);
     }
 
+    async _returnPromisseResolve() {
+        const self = this;
+        return new Promise(function (resolve) { resolve(self._promisseReturnValue) });
+    }
     //#endregion
 }

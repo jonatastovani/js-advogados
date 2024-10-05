@@ -26,6 +26,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
+            $table->string('numero_servico');
             $table->string('titulo');
             $table->text('descricao');
 

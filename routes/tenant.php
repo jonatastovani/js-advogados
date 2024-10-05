@@ -37,8 +37,9 @@ Route::middleware([
         'modulo_id' => '[0-9]+',
         'grupo_id' => '[0-9]+',
         'permissao_id' => '[0-9]+',
-        'rs' => '[0-9]+',
+        'servico_uuid' => '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
     ]);
+    
     Route::get('', function () {})->middleware("auth:sanctum");
 
     #Rotas para autenticação de usuários

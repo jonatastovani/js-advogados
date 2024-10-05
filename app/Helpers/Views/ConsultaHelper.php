@@ -23,6 +23,26 @@ class ConsultaHelper
         ];
     }
 
+    public static function renderizarSelectOrdenacao(array $arrayDadosSelect, array $dados = [])
+    {
+        $arrayCampos = $dados['arrayCamposOrdenacao'] ?? [
+            'nome' => ['nome' => 'Nome'],
+        ];
+        $selecionado = isset($arrayDadosSelect['selecionado']) && $arrayDadosSelect['selecionado'] ? $arrayDadosSelect['selecionado'] : false;
+
+        $classAdd = isset($arrayDadosSelect['class_add']) && is_array($arrayDadosSelect['class_add']) ? implode(' ', $arrayDadosSelect['class_add']) : '';
+        $attrs = isset($arrayDadosSelect['attrs']) && is_array($arrayDadosSelect['attrs']) ? $arrayDadosSelect['attrs'] : []; ?>
+
+        <select name="<?= $arrayDadosSelect['name'] ?>" id="<?= $arrayDadosSelect['id'] ?>" class="form-select <?= $arrayDadosSelect['name'] ?> <?= $classAdd ?>" <?= implode(' ', $attrs) ?>>
+            <?php foreach ($arrayCampos as $campoKey => $campoDados) { ?>
+                <option value="<?= $campoKey ?>" <?= $campoKey == $selecionado ? 'selected' : '' ?>>
+                    <?= $campoDados['label'] ?? $campoDados['nome'] ?>
+                </option>
+            <?php } ?>
+        </select>
+    <?php
+    }
+
     public static function renderizarSelectTratamento(array $arrayDadosSelect, array $dados = [])
     {
         $arrayTratamentoPermitido = isset($dados['arrayTratamentoPermitido']) && is_array($dados['arrayTratamentoPermitido']) ? $dados['arrayTratamentoPermitido'] : ['*'];
@@ -95,9 +115,9 @@ class ConsultaHelper
     {
         $sufixoId = $dados['sufixoId'] ?? '';
 
-        foreach ($camposFiltrados as $campoKey => $campoDados) { 
+        foreach ($camposFiltrados as $campoKey => $campoDados) {
             $idBase = ucfirst($campoKey) . $sufixoId;
-            ?>
+        ?>
             <div class="col mt-2 colCriterio">
                 <div class="border rounded">
                     <div class="input-group">

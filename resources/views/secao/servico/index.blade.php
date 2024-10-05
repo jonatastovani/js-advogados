@@ -1,5 +1,5 @@
 @php
-    $sufixo = 'PageInformacaoSubjetivaIndex';
+    $sufixo = 'PageServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'home' => route('servico.index'),
         'nome' => 'Serviços',
@@ -22,9 +22,14 @@
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
                 ],
+                'direcaoConsultaChecked' => 'desc',
                 'arrayCamposChecked' => ['titulo', 'descricao'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
+                'arrayCamposOrdenacao' => [
+                    'created_at' => ['nome' => 'Data gerado'],
+                    'titulo' => ['nome' => 'Título'],
+                ],
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -32,7 +37,7 @@
 
     <div class="row">
         <div class="col mt-2">
-            <a href="{{ route('advocacia.servico.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+            <a href="{{ route('servico.form') }}" class="btn btn-outline-primary">Cadastrar</a>
         </div>
     </div>
 
@@ -41,8 +46,11 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
+                    <th title="Número de Serviço">N.S.</th>
                     <th>Titulo</th>
+                    <th>Área</th>
                     <th>Descrição</th>
+                    <th>Gerado em</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -62,7 +70,8 @@
     @vite('resources/js/views/servico/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseInfoSubj' => route('api.referencias.area-juridica'),
+            'baseServico' => route('api.servico'),
+            'baseAreaJuridica' => route('api.referencias.area-juridica'),
         ],
     ])
     @endcomponent

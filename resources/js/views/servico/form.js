@@ -1,7 +1,12 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
+import { modalMessage } from "../../components/comum/modalMessage";
 import { modalAreaJuridica } from "../../components/referencias/modalAreaJuridica";
+import { modalServicoAnotacao } from "../../components/servico/modalServicoAnotacao";
+import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { RedirectHelper } from "../../helpers/RedirectHelper";
+import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 
@@ -11,10 +16,10 @@ class PageServicoForm {
     #objConfigs = {
         url: {
             base: window.apiRoutes.baseServico,
+            baseAnotacao: undefined,
             baseAreaJuridica: window.apiRoutes.baseAreaJuridica,
         },
         data: {
-            pessoasEnvolvidasNaTela: []
         }
     };
     #action;
@@ -31,8 +36,9 @@ class PageServicoForm {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
+            self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
             this.#action = enumAction.PUT;
-            // self.#buscarDados();
+            self.#buscarDados();
         } else {
             this.#action = enumAction.POST;
         }
@@ -41,24 +47,22 @@ class PageServicoForm {
     #addEventosBotoes() {
         const self = this;
 
-        // $('#btnAdicionarEnvolvidos').on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalBuscaPessoas();
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh && response.selecteds.length > 0) {
-        //             console.log(response);
-        //             for (let pessoa of response.selecteds) {
-        //                 self.#inserirPessoasEnvolvidas(pessoa);
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
+        $('#btnAdicionarAnotacao').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                objModal.setFocusElementWhenClosingModal = btn;
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    self.#inserirAnotacao(response.register);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
 
         $('#btnOpenAreaJuridica').on('click', async function () {
             const btn = $(this);
@@ -107,170 +111,98 @@ class PageServicoForm {
         // // openModalTest();
     }
 
-    // async  #inserirPessoasEnvolvidas(pessoa) {
-    //     const self = this;
-    //     const divEnvolvidos = $(`#divEnvolvidos${self.#sufixo}Ligacoes`);
+    async #inserirAnotacao(item) {
+        const self = this;
+        const divEnvolvidos = $(`#divAnotacao${self.#sufixo}`);
 
-    //     const verifica = self.#verificaPessoaEnvolvidaNaTela(pessoa);
-    //     if (verifica) {
-    //         commonFunctions.generateNotification(`A pessoa <b>${pessoa.nome}</b> já consta como envolvida.`, 'warning');
-    //         $(`#${verifica.idCol}`).focus();
-    //         return
-    //     }
+        item.idCol = UUIDHelper.generateUUID();
+        let created_at = '';
+        if (item.created_at) {
+            created_at = `<span class="text-body-secondary d-block">Criado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
+            item.statusSalvo = true;
+        } else {
+            item.statusSalvo = false;
+        }
 
-    //     pessoa.idCol = UUIDHelper.generateUUID();
-    //     let campoEspecifico = '';
-    //     switch (pessoa.pessoa_tipo_tabela_id) {
-    //         case 1:
-    //             let matricula = pessoa.matricula ? funcoesPresos.retornaMatriculaFormatada(`${pessoa.matricula}${funcoesPresos.retornaDigitoMatricula(pessoa.matricula)}`, 1) : 'Sem Matrícula';
-    //             campoEspecifico = `<b>ID Preso:</b> ${pessoa.referencia_id}<br>`;
-    //             campoEspecifico += `<b>Matricula:</b> ${matricula}`;
-    //             break;
+        let strBtns = self.#HtmlBtnEdit(item);
+        strBtns += self.#HtmlBtnDelete(item);
 
-    //         case 2:
-    //             campoEspecifico = `<b>ID Pessoa:</b> ${pessoa.referencia_id}<br>`;
-    //             campoEspecifico += `<b>CPF: </b> ${commonFunctions.formatCPF(pessoa.cpf)}`;
-    //             break;
+        const strToHtml = commonFunctions.formatStringToHTML(item.descricao);
+        let strCard = `
+            <div id="${item.idCol}" class="col">
+                <div class="card">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.titulo}</h5>
+                            <div class="card-text overflow-auto scrollbar" style="max-height: 10rem;">
+                                <p>${strToHtml}</p>
+                            </div>
+                            <div class="row justify-content-end g-2 gap-2">
+                                ${strBtns}
+                            </div>
+                        </div>
+                        <div class="card-footer text-body-secondary">
+                            ${created_at}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
 
-    //         case 3:
-    //             campoEspecifico = `<b>ID Funcionário RH:</b> ${pessoa.referencia_id}<br>`;
-    //             campoEspecifico += `<b>CPF:</b> ${commonFunctions.formatCPF(pessoa.cpf)}<br>`;
-    //             campoEspecifico += `<b>RS:</b> ${pessoa.rs}`;
-    //             break;
+        divEnvolvidos.append(strCard);
+        self.#addEventosAnotacao(item);
+        SimpleBarHelper.apply();
+        return true;
+    }
 
-    //         default:
-    //             commonFunctions.generateNotification(`Tipo de pessoa não reconhecido.`, 'error', { itemsArray: [`Tipo informado: ${pessoa.pessoa.tipo_tabela_id}.`] });
-    //             return false;
-    //     }
 
-    //     const cpf = pessoa.cpf ? commonFunctions.formatCPF(pessoa.cpf) : '';
-    //     let removerPessoa = {};
-    //     // Verifica se a pessoa foi criada há menos de 1 hora
-    //     if (DateTimeHelper.ehMenosDeXHoras(pessoa.created_at, 1)) {
-    //         removerPessoa.btn = `
-    //     <button class="btn btn-outline-danger btnRemoverEnvolvido">
-    //         <i class="bi bi-trash"></i>
-    //         Remover
-    //     </button>`;
-    //         const novaData = DateTimeHelper.retornaSomaDataEHora(pessoa.created_at, 1, 4);
-    //         removerPessoa.message = `<div class="form-text fst-italic mb-0">A associação desta pessoa pode ser removida até ${DateTimeHelper.retornaDadosDataHora(novaData, 12)}.</div>`;
-    //     }
+    #HtmlBtnEdit(item) {
+        const self = this;
+        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit w-50" style="max-width: 7rem" title="Editar anotação ${item.titulo}"><i class="bi bi-pencil"></i> Editar</button>`;
+    }
 
-    //     let nomeSocial = pessoa.nome_social ? `<b>Nome social:</b> ${pessoa.nome_social}` : '';
-    //     let strCard = `
-    //         <div id="${pessoa.idCol}" class="col">
-    //             <div class="card h-100" style="max-width: 20rem;">
-    //                 <div class="card-img-top d-flex justify-content-center p-3 divFotoFrontal">
-    //                     <i class="bi bi-image-fill" style="font-size: 12rem; line-height: 2rem"></i>
-    //                 </div>
-    //                 <div class="card-body d-flex flex-column">
-    //                     <h6 class="card-title">${campoEspecifico}</h6>
-    //                     <h5 class="card-title">${pessoa.nome}</h5>
-    //                     ${nomeSocial}
-    //                     <div class="accordion mt-2" id="accordion${pessoa.idCol}">
-    //                         <div class="accordion-item">
-    //                             <div class="accordion-header">
-    //                                 <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-    //                                     data-bs-target="#collapseOne${pessoa.idCol}" aria-expanded="false"
-    //                                     aria-controls="collapseOne${pessoa.idCol}">
-    //                                     Dados da pessoa
-    //                                 </button>
-    //                             </div>
-    //                             <div id="collapseOne${pessoa.idCol}" class="accordion-collapse collapse"
-    //                                 data-bs-parent="#accordion${pessoa.idCol}">
-    //                                 <div class="accordion-body">
-    //                                     <p class="card-text"><b>Perfil(is): </b>${pessoa.perfis ?? ''}</p>
-    //                                     <p class="card-text"><b>Data nasc.: </b>${pessoa.data_nascimento ?? ''}</p>
-    //                                     <p class="card-text"><b>Mãe: </b>${pessoa.mae ?? ''}</p>
-    //                                     <p class="card-text"><b>Pai: </b>${pessoa.pai ?? ''}</p>
-    //                                     <p class="card-text"><b>RG: </b>${pessoa.rg ?? ''}</p>
-    //                                     <p class="card-text"><b>CPF: </b>${cpf}</p>
-    //                                 </div>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                     <div class="row flex-fill">
-    //                         <div class="col mt-2 justify-content-end d-flex gap-2">
-    //                             <div class="dropdown">
-    //                                 <button class="btn btn-secondary dropdown-toggle" type="button"
-    //                                     data-bs-toggle="dropdown" aria-expanded="false">
-    //                                     Sobre o preso
-    //                                 </button>
-    //                                 <ul class="dropdown-menu">
-    //                                     <li>
-    //                                         <a class="dropdown-item"
-    //                                             href="http://10.14.5.121/gpu/web/qualificativa/pdf/imprimirQualificativaCompletaPDF.php?idPreso=1191138"
-    //                                             target="_blank" rel="noopener noreferrer">
-    //                                             Qualificativa Completa
-    //                                         </a>
-    //                                     </li>
-    //                                     <li>
-    //                                         <a class="dropdown-item"
-    //                                             href="http://10.14.5.121/gpu/web/qualificativa/pdf/imprimirQualificativaPDF.php?idPreso=1191138"
-    //                                             target="_blank" rel="noopener noreferrer">
-    //                                             Qualificativa Simples
-    //                                         </a>
-    //                                     </li>
-    //                                     <li><a class="dropdown-item" href="#">Something else here</a></li>
-    //                                 </ul>
-    //                             </div>
-    //                             <div>${removerPessoa.btn ?? ''}</div>
-    //                         </div>
-    //                     </div>
-    //                     ${removerPessoa.message ?? ''}
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     `;
+    #HtmlBtnDelete(item) {
+        const self = this;
+        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete w-50" style="max-width: 7rem" title="Excluir anotação ${item.titulo}"><i class="bi bi-trash"></i> Excluir</button>`
+    }
 
-    //     if (self.#inserirDadosPessoaEnvolvidaNaTela(pessoa)) {
-    //         divEnvolvidos.append(strCard);
-    //         self.#buscaFotoPessoa(pessoa);
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    async #addEventosAnotacao(item) {
+        const self = this;
 
-    // async #buscaFotoPessoa(pessoa) {
-    //     const self = this;
+        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                objModal.setDataEnvModal = {
+                    idRegister: item.id,
+                };
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    $(`#${item.idCol}`).find('.card-title').text(response.register.titulo);
+                    $(`#${item.idCol}`).find('.card-text').text(response.register.descricao);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
 
-    //     try {
-    //         let objDataBusca = {};
-    //         switch (pessoa.pessoa_tipo_tabela_id) {
-    //             case 1:
-    //                 objDataBusca.endpoint = `foto-preso/id/${pessoa.referencia_id}`;
-    //                 objDataBusca.alt = "Foto preso";
 
-    //                 break;
-    //             case 2:
-    //                 objDataBusca.endpoint = `foto-pessoa/id/${pessoa.referencia_id}`;
-    //                 objDataBusca.alt = "Foto pessoa";
-    //                 // commonFunctions.generateNotification('Rota de busca de foto de pessoas em geral em desenvolvimento', 'warning');
-    //                 return false;
-    //                 break;
-    //             case 3:
-    //                 objDataBusca.endpoint = `foto-funcionario/id/${pessoa.referencia_id}`;
-    //                 objDataBusca.alt = "Foto funcionário";
-    //                 // commonFunctions.generateNotification('Rota de busca de foto de funcionário em desenvolvimento', 'warning');
-    //                 return false;
-    //             default:
-    //                 console.error('Tipo tabela pessoa inválido.', pessoa);
-    //                 return false;
-    //                 break;
-    //         }
+        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
+            const response = await self.#delButtonAction(item.id, item.titulo, {
+                title: `Exclusão de Anotação`,
+                message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
+                success: `Anotação excluída com sucesso!`,
+                button: this,
+                urlApi: self.#objConfigs.url.baseAnotacao,
+            });
 
-    //         const objConnFoto = new connectAjax(`${self.#objConfigs.url.foto}/${objDataBusca.endpoint}`);
-    //         const response = await objConnFoto.getRequest();
-    //         let strFoto = '';
-    //         if (response?.data?.caminhoFoto?.length > 0) {
-    //             strFoto = `<img src="${response.data.caminhoFoto[0]}" class="img-thumbnail" alt="${objDataBusca.alt} ${pessoa.nome}" style="max-height: 15rem;">`;
-    //             $(`#${pessoa.idCol}`).find('.divFotoFrontal').html(strFoto);
-    //         }
-    //     } catch (error) {
-    //         commonFunctions.generateNotificationErrorCatch(error);
-    //     }
-
-    // }
+            if (response) {
+                $(`#${item.idCol}`).remove();
+            }
+        });
+    }
 
     // /**
     //  * Função para inserir uma pessoa na lista de pessoas envolvidas.
@@ -323,7 +255,6 @@ class PageServicoForm {
     }
 
     #saveVerifications(data, formRegistration) {
-        console.log(data, formRegistration);
         const self = this;
         if (self.#action == enumAction.POST) {
             let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
@@ -349,10 +280,13 @@ class PageServicoForm {
                 obj.setParam(self.#idRegister);
             }
             const response = await obj.envRequest();
-            console.log(response);
 
             if (response) {
-                // RedirectHelper.redirectWithUUIDMessage(window.frontRoutes.frontRedirect, 'Dados enviados com sucesso!', 'success');
+                if (self.#action === enumAction.PUT) {
+                    commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
+                } else {
+                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm} / ${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
+                }
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
@@ -362,42 +296,31 @@ class PageServicoForm {
         };
     }
 
-    // async #buscarDados() {
-    //     const self = this;
+    async #buscarDados() {
+        const self = this;
 
-    //     try {
-    //         await commonFunctions.loadingModalDisplay();
-    //         const response = await self.#getRecurse();
-    //         if (response?.data) {
-    //             const responseData = response.data;
-    //             const form = $(`#formServico${self.#sufixo}`);
-    //             form.find('input[name="titulo"]').val(responseData.titulo).attr('readonly', true);
-    //             commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#sufixo}`), responseData.categoria.nome, responseData.area_juridica_id);
-    //             $(`#area_juridica_id${self.#sufixo}`).attr('disabled', true);
-    //             form.find('textarea[name="descricao"]').val(responseData.descricao).attr('readonly', true);
+        try {
+            await commonFunctions.loadingModalDisplay();
+            const response = await self.#getRecurse();
+            const form = $(`#formServico${self.#sufixo}`);
+            if (response?.data) {
+                const responseData = response.data;
+                form.find('input[name="titulo"]').val(responseData.titulo);
+                commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
+                form.find('textarea[name="descricao"]').val(responseData.descricao);
 
-    //             responseData.pessoas_envolvidas.forEach(envolvido => {
-    //                 self.#inserirPessoasEnvolvidas({
-    //                     id: envolvido.id,
-    //                     referencia_id: envolvido.referencia_id,
-    //                     pessoa_tipo_tabela_id: envolvido.pessoa_tipo_tabela_id,
-    //                     nome: envolvido.pessoa.nome,
-    //                     pai: envolvido.pessoa.pai ?? null,
-    //                     mae: envolvido.pessoa.mae ?? null,
-    //                     nome_social: envolvido.pessoa.nome_social ?? null,
-    //                     matricula: envolvido.pessoa.matricula ?? null,
-    //                     cpf: envolvido.pessoa.cpf ?? null,
-    //                     rs: envolvido.pessoa.rs ?? null,
-    //                     created_at: envolvido.created_at,
-    //                 });
-    //             });
-    //         }
-    //     } catch (error) {
-    //         commonFunctions.generateNotificationErrorCatch(error);
-    //     } finally {
-    //         await commonFunctions.loadingModalDisplay(false);
-    //     }
-    // }
+                responseData.anotacao.forEach(item => {
+                    self.#inserirAnotacao(item);
+                });
+            } else {
+                form.find('input, textarea, select, button').prop('disabled', true);
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            await commonFunctions.loadingModalDisplay(false);
+        }
+    }
 
     async #getRecurse(options = {}) {
         const self = this;
@@ -409,6 +332,53 @@ class PageServicoForm {
             const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);
             return await obj.getRequest();
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    async #delButtonAction(idDel, nameDel, options = {}) {
+        const self = this;
+        const { button = null,
+            title = 'Exclusão de Registro',
+            message = `Confirma a exclusão do registro < b > ${nameDel}</ >? `,
+            success = `Registro excluído com sucesso!`,
+        } = options;
+
+        try {
+            const obj = new modalMessage();
+            obj.setDataEnvModal = {
+                title: title,
+                message: message,
+            };
+            obj.setFocusElementWhenClosingModal = button;
+            const result = await obj.modalOpen();
+            if (result.confirmResult) {
+                if (await self._delRecurse(idDel, options)) {
+                    commonFunctions.generateNotification(success, 'success');
+                    return true;
+                }
+            }
+            return false;
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    async _delRecurse(idDel, options = {}) {
+        const self = this;
+        const {
+            urlApi = self.#objConfigs.url.base,
+        } = options;
+
+        try {
+            const obj = new connectAjax(urlApi);
+            obj.setParam(idDel);
+            obj.setAction(enumAction.DELETE)
+            await obj.deleteRequest();
+            return true;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;

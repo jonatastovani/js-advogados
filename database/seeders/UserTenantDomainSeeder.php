@@ -36,6 +36,7 @@ class UserTenantDomainSeeder extends Seeder
         ];
 
         foreach ($insert as $data) {
+            $data['created_user_id'] = $adminTenantUserId;
             UserTenantDomain::create($data);
         }
     }

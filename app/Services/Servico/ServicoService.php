@@ -22,16 +22,11 @@ class ServicoService
 
     public function __construct(public Servico $model) {}
 
-    public function postConsultaFiltros(Request $request)
+    public function postConsultaFiltros(Fluent $requestData)
     {
-        $query = $this->consultaSimplesComFiltros($request);
-
-        // RestResponse::createTestResponse([$query->toSql(),$query->getBindings()]);
-
-        // echo $query->toSql();
-        // var_dump($query->getBindings()) ;
-
-        return $query->paginate($request->input('perPage', 25))->toArray();
+        $query = $this->consultaSimplesComFiltros($requestData);
+        $query->with('area_juridica');
+        return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
     /**
@@ -49,31 +44,28 @@ class ServicoService
         $permissionAsName = $this->model::getTableAsName();
         $arrayAliasCampos = [
             'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $permissionAsName,
+            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $permissionAsName,
         ];
 
         $arrayCampos = [
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
     public function store(Fluent $requestData)
     {
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
-
-            // CommonsFunctions::inserirInfoCreated($resouce);
-            $resouce->save();
-
+            $resource->save();
             DB::commit();
-
             // $this->executarEventoWebsocket();
-
-            return $resouce->toArray();
+            return $resource->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -82,45 +74,58 @@ class ServicoService
     public function show(Fluent $requestData)
     {
         $resource = $this->buscarRecurso($requestData);
+        $resource->load('area_juridica', 'anotacao');
         return $resource->toArray();
     }
 
     public function update(Fluent $requestData)
     {
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
-
-            // CommonsFunctions::inserirInfoUpdated($resouce);
-            $resouce->save();
-
+            $resource->save();
             DB::commit();
-
             // $this->executarEventoWebsocket();
-
-            return $resouce->toArray();
+            return $resource->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
     }
 
-    private function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null) : Model
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        // Inicia a transação
+        DB::beginTransaction();
+
+        try {
+            $resource->delete();
+            DB::commit();
+            // $this->executarEventoWebsocket();
+            return $resource->toArray();
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    private function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
 
-        $resouce = null;
+        $resource = null;
         $checkDeletedAlteracaoAreaJuridica = true;
         if ($id) {
-            $resouce = $this->buscarRecurso($requestData);
+            $resource = $this->buscarRecurso($requestData);
 
-            if ($resouce->area_juridica_id == $requestData->area_juridica_id) {
+            if ($resource->area_juridica_id == $requestData->area_juridica_id) {
                 $checkDeletedAlteracaoAreaJuridica = false;
             }
         } else {
-            $resouce = new $this->model();
+            $resource = new $this->model();
         }
 
         //Verifica se a área jurídica informada existe
@@ -132,11 +137,11 @@ class ServicoService
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        $resouce->titulo = $requestData->titulo;
-        $resouce->descricao = $requestData->descricao;
-        $resouce->area_juridica_id = $requestData->area_juridica_id;
+        $resource->titulo = $requestData->titulo;
+        $resource->descricao = $requestData->descricao;
+        $resource->area_juridica_id = $requestData->area_juridica_id;
 
-        return $resouce;
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData)

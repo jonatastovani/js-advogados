@@ -52,10 +52,6 @@
     </div>
 </div>
 
-@push('modals')
-    <x-modal.admin.modal-code.modal />
-@endpush
-
 @component('components.api.api-routes', [
     'routes' => [
         'baseAreaJuridica' => route('api.referencias.area-juridica'),

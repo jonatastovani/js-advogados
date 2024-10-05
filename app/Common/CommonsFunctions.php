@@ -233,7 +233,7 @@ class CommonsFunctions
             $adminUuid = UUIDsHelpers::getAdmin();
 
             if ($userId == $adminUuid) {
-                return UUIDsHelpers::getAdminUserTenantDomain();
+                return UUIDsHelpers::getAdminTenantUser();
             }
 
             //Colocar verificação para se o usuário tem a permissão de suporte do tenant, para poder colocar o id dele que é do tenant admin
@@ -243,24 +243,30 @@ class CommonsFunctions
         return null;
     }
 
-    static function inserirInfoCreated($novo)
+    static function inserirInfoCreated($resource)
     {
-        $novo->created_user_id = self::getIdUsuarioNoTenant();
-        $novo->created_ip = UserInfo::get_ip();
-        $novo->created_at = self::formatarDataTimeZonaAmericaSaoPaulo(now());
-        $novo->updated_at = null;
+        if (!$resource->created_user_id) {
+            $resource->created_user_id = self::getIdUsuarioNoTenant();
+        }
+        $resource->created_ip = UserInfo::get_ip();
+        $resource->created_at = self::formatarDataTimeZonaAmericaSaoPaulo(now());
+        $resource->updated_at = null;
     }
 
     static function inserirInfoUpdated($resource)
     {
-        $resource->updated_user_id = self::getIdUsuarioNoTenant();
+        if (!$resource->updated_user_id) {
+            $resource->updated_user_id = self::getIdUsuarioNoTenant();
+        }
         $resource->updated_ip = UserInfo::get_ip();
         $resource->updated_at = self::formatarDataTimeZonaAmericaSaoPaulo(now());
     }
 
     static function inserirInfoDeleted($resource)
     {
-        $resource->deleted_user_id = self::getIdUsuarioNoTenant();
+        if (!$resource->deleted_user_id) {
+            $resource->deleted_user_id = self::getIdUsuarioNoTenant();
+        }
         $resource->deleted_ip = UserInfo::get_ip();
         $resource->deleted_at = self::formatarDataTimeZonaAmericaSaoPaulo(now());
     }

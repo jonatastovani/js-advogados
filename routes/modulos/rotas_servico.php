@@ -9,7 +9,7 @@ Route::controller(App\Http\Controllers\View\Servico\ServicoController::class)->g
     Route::prefix('servico')->group(function () {
 
         Route::get('', 'servicoIndex')->name('servico.index');
-        Route::get('/form', 'servicoForm')->name('advocacia.servico.form');
+        Route::get('/form', 'servicoForm')->name('servico.form');
         Route::get('/form/{uuid}', 'servicoFormEditar');
     });
 });

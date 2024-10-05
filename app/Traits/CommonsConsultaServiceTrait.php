@@ -7,12 +7,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Fluent;
+use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 trait CommonsConsultaServiceTrait
 {
-    public function consultaSimplesComFiltros(Request $request)
+
+    public function postConsultaFiltros(Fluent $requestData)
     {
-        $filtros = $request->has('filtros') ? $request->input('filtros') : [];
+        $query = $this->consultaSimplesComFiltros($requestData);
+        // RestResponse::createTestResponse([$query->toSql(),$query->getBindings()]);
+        return $query->paginate($requestData->perPage ?? 25)->toArray();
+    }
+
+    public function consultaSimplesComFiltros(Fluent $requestData)
+    {
+        $filtros = $requestData->filtros ?? [];
         $arrayCamposFiltros = $this->traducaoCampos($filtros);
 
         $query = $this->model::query()
@@ -20,8 +31,8 @@ trait CommonsConsultaServiceTrait
             ->from($this->model::getTableNameAsName())
             ->select($this->model::getTableAsName() . '.*');
 
-        $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($request->all());
-        $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($request->all());
+        $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
+        $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
 
         if (count($arrayTexto) && $arrayTexto[0] != '') {
             $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike) {
@@ -42,14 +53,15 @@ trait CommonsConsultaServiceTrait
 
         $query->where($this->model::getTableAsName() . '.deleted_at', null);
         $this->verificaUsoScopeTenant($query, $this->model);
+        $this->verificaUsoScopeDomain($query, $this->model);
 
-        $query->when($request, function ($query) use ($request) {
-            $ordenacao = $request->has('ordenacao') ? $request->input('ordenacao') : [];
+        $query->when($requestData, function ($query) use ($requestData) {
+            $ordenacao = $requestData->ordenacao ?? [];
             if (!count($ordenacao)) {
                 $query->orderBy('nome', 'asc');
             } else {
                 foreach ($ordenacao as $key => $value) {
-                    $direcao =  isset($ordenacao[$key]['direcao']) && in_array($ordenacao[$key]['direcao'], ['asc, desc, ASC, DESC']) ? $ordenacao[$key]['direcao'] : 'asc';
+                    $direcao =  isset($ordenacao[$key]['direcao']) && in_array($ordenacao[$key]['direcao'], ['asc', 'desc', 'ASC', 'DESC']) ? $ordenacao[$key]['direcao'] : 'asc';
                     $query->orderBy($ordenacao[$key]['campo'], $direcao);
                 }
             }
@@ -63,7 +75,16 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($modelClass))) {
             $query->withoutTenancy();
-            $query->where($modelClass::getTableAsName() . '.tenant_id', tenant('id'));
+            $query->where($modelClass::getTableAsName() . '.' . BelongsToTenant::$tenantIdColumn, tenant('id'));
+        }
+    }
+
+    public function verificaUsoScopeDomain(Builder $query, Model $modelClass): void
+    {
+        //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
+        if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($modelClass))) {
+            $query->withoutDomain();
+            $query->where($modelClass::getTableAsName() . '.' . BelongsToDomain::$domainIdColumn, DomainTenantResolver::$currentDomain->id);
         }
     }
 }

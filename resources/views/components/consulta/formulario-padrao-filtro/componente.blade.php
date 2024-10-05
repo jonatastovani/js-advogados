@@ -20,7 +20,24 @@
                 break;
         }
     }
+
+    $checkDirecaoAsc = 'checked';
+    $checkDirecaoDesc = '';
+    if (isset($dados->direcaoConsultaChecked)) {
+        switch ($dados->direcaoConsultaChecked) {
+            case 'desc':
+                $checkDirecaoAsc = '';
+                $checkDirecaoDesc = 'checked';
+                break;
+
+            default:
+                $checkDirecaoAsc = 'checked';
+                $checkDirecaoDesc = '';
+                break;
+        }
+    }
 @endphp
+
 <form action="#" id="formDataSearch{{ $sufixo }}" class="col-12 formDataSearch">
     <div class="row">
         <div class="{{ $col_busca }} mt-2">
@@ -49,12 +66,34 @@
                 <div class="accordion-body py-1">
                     <div class="row">
                         <div class="{{ $col_personalizacao }} mt-2">
+                            <div class="input-group">
+                                <div class="input-group-text">
+                                    <?php $nomeSelect = 'selCampoOrdenacao'; ?>
+                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <label for="<?= $idSelect ?>"
+                                        title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação.">
+                                        Campo de ordenação
+                                    </label>
+                                </div>
+                                @php
+                                    $mergeDadosSelectOrdenacao = array_merge(
+                                        ['name' => $nomeSelect, 'id' => $idSelect],
+                                        $dados->dadosSelectOrdenacao ?? [],
+                                    );
+                                    ConsultaHelper::renderizarSelectOrdenacao(
+                                        $mergeDadosSelectOrdenacao,
+                                        $dados->toArray(),
+                                    );
+                                @endphp
+                            </div>
+                        </div>
+                        <div class="{{ $col_personalizacao }} mt-2">
                             <div class="row h-100 align-items-center">
                                 <div class="col-6">
                                     <div class="form-check"
                                         title="Forma de ordenação em ordem ascendente, ou seja, do menor para o maior">
                                         <input type="radio" class="form-check-input" id="rbAsc{{ $sufixo }}"
-                                            name="direcaoConsulta" value="asc" checked>
+                                            name="direcaoConsulta" value="asc" {{ $checkDirecaoAsc }}>
                                         <label class="form-check-label"
                                             for="rbAsc{{ $sufixo }}">Ascendente</label>
                                     </div>
@@ -63,7 +102,7 @@
                                     <div class="form-check"
                                         title="Forma de ordenação em ordem descendente, ou seja, ou do maior para o menor">
                                         <input type="radio" class="form-check-input" id="rbDesc{{ $sufixo }}"
-                                            name="direcaoConsulta" value="desc">
+                                            name="direcaoConsulta" value="desc" {{ $checkDirecaoDesc }}>
                                         <label class="form-check-label"
                                             for="rbDesc{{ $sufixo }}">Descendente</label>
                                     </div>

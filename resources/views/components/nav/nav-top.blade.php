@@ -137,7 +137,7 @@
         </ul>
     </div>
 </nav>
-
+{{-- 
 @push('scripts')
     <script type="module">
         const array = $('.scrollbar');
@@ -145,4 +145,4 @@
             new SimpleBar(array[index]);
         }
     </script>
-@endpush
+@endpush --}}

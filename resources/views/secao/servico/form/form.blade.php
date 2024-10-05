@@ -1,8 +1,9 @@
 @php
     $sufixo = 'PageServicoForm';
+    $recurso = isset($recurso) ? $recurso : null;
     $paginaDados = new Illuminate\Support\Fluent([
         'home' => route('advocacia.index'),
-        'nome' => 'Cadastrar Serviço',
+        'nome' => $recurso ? 'Editar Serviço: ' . $recurso->numero_servico : 'Cadastrar Serviço',
         'descricao' => [
             [
                 'texto' => 'Cadastro de serviço e dados de pagamentos.',
@@ -10,6 +11,11 @@
         ],
     ]);
     Session::put('paginaDados', $paginaDados);
+
+    $disabledNovoRegistro = true;
+    if ($recurso) {
+        $disabledNovoRegistro = false;
+    }
 @endphp
 
 @extends('layouts.layout')
@@ -31,7 +37,16 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 disabled" aria-disabled="true" id="dadosPagamento{{ $sufixo }}-tab"
+                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
+                        aria-disabled="{{ $disabledNovoRegistro }}" id="dadosAnotacao{{ $sufixo }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#dadosAnotacao{{ $sufixo }}-tab-pane" type="button"
+                        role="tab" aria-controls="dadosAnotacao{{ $sufixo }}-tab-pane" aria-selected="false">
+                        Anotações
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
+                        aria-disabled="{{ $disabledNovoRegistro }}" id="dadosPagamento{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#dadosPagamento{{ $sufixo }}-tab-pane" type="button"
                         role="tab" aria-controls="dadosPagamento{{ $sufixo }}-tab-pane" aria-selected="false">
                         Pagamento
@@ -40,29 +55,32 @@
             </ul>
         </div>
     </div>
-    <div class="row border rounded rounded-top-0 border-top-0 flex-fill">
+    <div class="row rounded rounded-top-0 border-top-0 flex-fill">
         <div class="tab-content h-100 overflow-auto" id="myTabContent" style="min-height: 20em;">
             <div class="tab-pane fade h-100 show active" id="dadosServico{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="dadosServico{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.servico.form.painel-dados-servico')
             </div>
+            <div class="tab-pane fade h-100" id="dadosAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="dadosAnotacao{{ $sufixo }}-tab" tabindex="0">
+                @if (!$disabledNovoRegistro)
+                    @include('secao.servico.form.painel-anotacao')
+                @endif
+            </div>
             <div class="tab-pane fade h-100" id="dadosPagamento{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="dadosPagamento{{ $sufixo }}-tab" tabindex="0">
-                {{-- @include('secao.servico.form.painel-configuracao') --}}
+                @if (!$disabledNovoRegistro)
+                    @include('secao.servico.form.painel-dados-pagamento')
+                @endif
             </div>
         </div>
     </div>
 
 @endsection
 
-@php
-    $dados = new Illuminate\Support\Fluent([
-        'consultaCriterio' => true,
-    ]);
-@endphp
-
 @push('modals')
     <x-modal.referencias.modal-area-juridica.modal />
+    <x-modal.servico.modal-servico-anotacao.modal />
 @endpush
 
 @push('scripts')
@@ -77,6 +95,7 @@
     @component('components.pagina.front-routes', [
         'routes' => [
             'frontRedirect' => route('servico.index'),
+            'frontRedirectForm' => route('servico.form'),
         ],
     ])
     @endcomponent

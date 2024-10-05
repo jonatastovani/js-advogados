@@ -12,12 +12,21 @@ export class modalRegistrationAndEditing extends modalDefault {
 
     constructor(objSuper) {
         let promisseReturnValueAppend = {
-            register: {},
+            register: undefined,
         };
 
         objSuper.promisseReturnValue = Object.assign(
             promisseReturnValueAppend,
             objSuper.promisseReturnValue ?? {}
+        );
+
+        let dataEnvModalAppend = {
+            idRegister: undefined
+        };
+
+        objSuper.dataEnvModal = Object.assign(
+            dataEnvModalAppend,
+            objSuper.dataEnvModal ?? {}
         );
 
         super(objSuper);
@@ -45,7 +54,7 @@ export class modalRegistrationAndEditing extends modalDefault {
         self._action = enumAction.POST;
         formRegistration.find('select').val(0);
         formRegistration[0].reset();
-        formRegistration.find('input, select').removeClass('is-valid').removeClass('is-invalid');
+        formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
     }
 
     //#region Campos de busca padrão

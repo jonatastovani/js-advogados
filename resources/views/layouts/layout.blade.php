@@ -30,6 +30,7 @@
     @stack('modals')
 
     <x-modal.comum.modal-loading.modal />
+    <x-modal.comum.modal-message.modal />
 
     @stack('scripts')
 

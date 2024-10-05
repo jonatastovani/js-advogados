@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Requests\Servico;
+namespace App\Http\Requests\Servico\ServicoAnotacao;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoFormRequestBase extends BaseFormRequest
+class ServicoAnotacaoFormRequestBase extends BaseFormRequest
 {
     public function rules()
     {
         return [
             'titulo' => 'required|string|min:3',
-            'area_juridica_id' => 'required|uuid',
             'descricao' => 'required|string|min:3',
         ];
     }
@@ -18,7 +17,7 @@ class ServicoFormRequestBase extends BaseFormRequest
     protected function customAttributeNames(): array
     {
         return [
-            'area_juridica_id' => 'área jurídica',
+            'titulo' => 'título',
             'descricao' => 'descrição'
         ];
     }

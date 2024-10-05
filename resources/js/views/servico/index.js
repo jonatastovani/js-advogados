@@ -1,23 +1,21 @@
-import { commonFunctions } from "../../commons/commonFunctions";
 import { templateSearch } from "../../commons/templates/templateSearch";
-import { modalCode } from "../../components/admin/modalCode";
-import { modalPermissao } from "../../components/admin/modalPermissao";
+import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 
-class PagePermissoes extends templateSearch {
+class PageServico extends templateSearch {
 
     #objConfigs = {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseInfoSubj,
-                urlSearch: `${window.apiRoutes.baseInfoSubj}/consulta-filtros`,
+                url: window.apiRoutes.baseServico,
+                urlSearch: `${window.apiRoutes.baseServico}/consulta-filtros`,
                 baseFront: window.frontRoutes.baseFront,
             }
         },
     };
 
     constructor() {
-        super({ sufixo: 'PageInformacaoSubjetivaIndex' });
+        super({ sufixo: 'PageServicoIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -37,32 +35,6 @@ class PagePermissoes extends templateSearch {
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             self._generateQueryFilters()
         });
-
-        $('#btnInserirPermissao').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalPermissao();
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    self._generateQueryFilters();
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        const openModalTest = () => {
-            const objCode = new modalCode();
-            objCode.setDataEnvModal = {
-                idRegister: 5,
-                url: `${window.apiRoutes.basePermissoes}/php`,
-            };
-            objCode.modalOpen();
-        }
-        // openModalTest();
     }
 
     async insertTableData(item, options = {}) {
@@ -71,17 +43,22 @@ class PagePermissoes extends templateSearch {
             tbody,
         } = options;
 
-        const btnEditHTML = `<a href="${self._objConfigs.querys.consultaFiltros.baseFront}/form/${item.id}" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></a>`;
+        let strBtns = self.#HtmlBtnEdit(item);
+        strBtns += self.#HtmlBtnDelete(item);
 
+        const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">
                     <div class="btn-group btnsAcao" role="group">
-                        ${btnEditHTML}
+                        ${strBtns}
                     </div>
                 </td>
+                <td class="text-nowrap" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.titulo ?? ''}">${item.titulo}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.area_juridica.nome ?? ''}">${item.area_juridica.nome ?? ''}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
+                <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 
@@ -89,51 +66,30 @@ class PagePermissoes extends templateSearch {
         return true;
     }
 
-    #addEventosRegistrosConsulta(item) {
+    #HtmlBtnEdit(item) {
         const self = this;
-        // $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-        //     commonFunctions.simulateLoading($(this));
-        //     try {
-        //         const objModal = new modalPermissao();
-        //         objModal.setDataEnvModal = {
-        //             idRegister: item.id
-        //         };
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        //             self._generateQueryFilters();
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading($(this), false);
-        //     }
-        // });
-
-        // tr.find(`.btn-delete`).click(async function () {
-        //     self.#delButtonAction(item.id, item.name, this);
-        // });
-
-        // modal.find('.btnBuscarPessoas').on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const obj = new modalConsultaPessoas();
-        //         await self._modalHideShow(false);
-        //         const response = await obj.modalOpen();
-        //         console.log(response);
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         await self._modalHideShow();
-        //         commonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
-
+        return `<a href="${self._objConfigs.querys.consultaFiltros.baseFront}/form/${item.id}" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></a>`;
     }
 
+    #HtmlBtnDelete(item) {
+        const self = this;
+        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete" title="Excluir serviço ${item.numero_servico}"><i class="bi bi-trash"></i></button>`
+    }
+
+    #addEventosRegistrosConsulta(item) {
+        const self = this;
+
+        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
+            self._delButtonAction(item.id, item.name, {
+                title: `Exclusão de Serviço`,
+                message: `Confirma a exclusão do Serviço <b>${item.numero_servico}</b>?`,
+                success: `Serviço excluído com sucesso!`,
+                button: this
+            });
+        });
+    }
 }
 
 $(function () {
-    new PagePermissoes();
+    new PageServico();
 });

@@ -1,4 +1,5 @@
 import { RedirectHelper } from "../helpers/RedirectHelper";
+import SimpleBarHelper from "../helpers/SimpleBarHelper";
 
 class DefaultScriptLayout {
     constructor() {
@@ -7,6 +8,7 @@ class DefaultScriptLayout {
     initEvents() {
         // Verifica o parâmetro uuid_message e exibe a mensagem, se necessário
         RedirectHelper.checkUUIDMessage();
+        SimpleBarHelper.apply();
     }
 }
 

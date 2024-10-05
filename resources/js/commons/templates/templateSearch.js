@@ -1,3 +1,4 @@
+import { modalMessage } from "../../components/comum/modalMessage";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { commonFunctions } from "../commonFunctions";
@@ -54,10 +55,12 @@ export class templateSearch {
         let data = {
             texto: texto,
             parametros_like: self._returnQueryParameters(formDataSearch.find('select[name="selFormaBusca"]').val()),
-            ordenacao: [{
-                campo: 'nome',
-                direcao: formDataSearch.find(`input[name="direcaoConsulta"]:checked`).val()
-            },],
+            ordenacao: [
+                {
+                    campo: formDataSearch.find(`select[name="selCampoOrdenacao"]`).val() ?? 'nome',
+                    direcao: formDataSearch.find(`input[name="direcaoConsulta"]:checked`).val()
+                },
+            ],
             texto_tratamento: {
                 tratamento: formDataSearch.find('select[name="selTratamentoTexto"]').val(),
             },
@@ -291,17 +294,62 @@ export class templateSearch {
         $(selector).html(html);
     }
 
-    async _getRecurse(options = {}) {
+    // async _getRecurse(options = {}) {
+    //     const self = this;
+    //     const { idRegister = self._idRegister } = options;
+
+    //     let config = self.#getConfigType();
+    //     if (!config) { return; }
+
+    //     try {
+    //         const obj = new connectAjax(config.url);
+    //         obj.setParam(idRegister);
+    //         return await obj.getRequest();
+    //     } catch (error) {
+    //         commonFunctions.generateNotificationErrorCatch(error);
+    //         return false;
+    //     }
+    // }
+
+    async _delButtonAction(idDel, nameDel, options = {}) {
         const self = this;
-        const { idRegister = self._idRegister } = options;
+        const { button = null,
+            title = 'Exclusão de Registro',
+            message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
+            success = `Registro excluído com sucesso!`,
+        } = options;
+
+        try {
+            const obj = new modalMessage();
+            obj.setDataEnvModal = {
+                title: title,
+                message: message,
+            };
+            obj.setFocusElementWhenClosingModal = button;
+            const result = await obj.modalOpen();
+            if (result.confirmResult) {
+                if (await self._delRecurse(idDel, options)) {
+                    commonFunctions.generateNotification(success, 'success');
+                    self._generateQueryFilters();
+                }
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+    async _delRecurse(idDel, options = {}) {
+        const self = this;
 
         let config = self.#getConfigType();
         if (!config) { return; }
 
         try {
             const obj = new connectAjax(config.url);
-            obj.setParam(idRegister);
-            return await obj.getRequest();
+            obj.setParam(idDel);
+            obj.setAction(enumAction.DELETE)
+            await obj.deleteRequest();
+            return true;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;

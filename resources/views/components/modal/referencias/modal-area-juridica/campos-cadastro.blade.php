@@ -5,15 +5,14 @@
         </div>
         <div class="row">
             <div class="col">
-                <label for="nomeModalInformacaoSubjetivaCategoria" class="form-label">Nome:</label>
-                <input type="text" class="form-control focusRegister" name="nome"
-                    id="nomeModalInformacaoSubjetivaCategoria">
+                <label for="nome{{ $sufixo }}" class="form-label">Nome:</label>
+                <input type="text" class="form-control focusRegister" name="nome" id="nome{{ $sufixo }}">
             </div>
         </div>
         <div class="row">
             <div class="col mt-2">
-                <label for="descricaoModalInformacaoSubjetivaCategoria" class="form-label">Descrição (opcional)</label>
-                <textarea name="descricao" id="descricaoModalInformacaoSubjetivaCategoria" class="form-control"></textarea>
+                <label for="descricao{{ $sufixo }}" class="form-label">Descrição (opcional)</label>
+                <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control"></textarea>
             </div>
         </div>
         <div class="row">

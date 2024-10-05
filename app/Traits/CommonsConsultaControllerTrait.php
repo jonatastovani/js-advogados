@@ -3,31 +3,24 @@
 namespace App\Traits;
 
 use App\Common\CommonsFunctions;
+use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use Illuminate\Http\Request;
 
 trait CommonsConsultaControllerTrait
 {
-    public function verificacaoPadraoFormularioConsultaFiltros(Request $request, $options = [])
-    {
-        // Regras de validação
-        $rules = [
-            'texto' => 'nullable|string|min:3',
-            'parametros_like' => 'nullable|array',
-            'parametros_like.curinga_inicio_bln' => 'nullable|boolean',
-            'parametros_like.curinga_inicio_caractere' => 'nullable|in:%,_',
-            'parametros_like.curinga_final_bln' => 'nullable|boolean',
-            'parametros_like.curinga_final_caractere' => 'nullable|in:%,_',
-            'parametros_like.conectivo' => 'nullable|in:ilike,like',
-            'ordenacao' => 'nullable|array',
-            'ordenacao.*.campo' => 'nullable|string',
-            'ordenacao.*.metodo' => 'nullable|in:asc,desc,ASC,DESC',
-            'filtros' => 'nullable|array',
-            'filtros.campos_busca' => 'nullable|array',
-            'filtros.campos_busca.*' => 'nullable|string',
-            'page' => 'nullable|integer',
-            'perPage' => 'nullable|integer',
-        ];
 
-        return CommonsFunctions::validacaoRequest($request, $rules);
+    public function select2(Request $request)
+    {
+        $rules = [
+            'text' => 'required|string|min:3',
+        ];
+        CommonsFunctions::validacaoRequest($request, $rules);
+        return $this->retornoPadrao($this->service->select2($request)->toArray());
+    }
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestBase $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
     }
 }

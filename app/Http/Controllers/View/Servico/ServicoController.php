@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\View\Servico;
 
 use App\Http\Controllers\Controller;
+use App\Models\Servico\Servico;
 use Illuminate\Http\Request;
 
 class ServicoController extends Controller
@@ -23,12 +24,12 @@ class ServicoController extends Controller
         return view('secao.servico.form.form');
     }
 
-    public function servicoFormEditar()
+    public function servicoFormEditar(Request $request)
     {
-        // $recurso = InformacaoSubjetiva::find($request->uuid);
-        //     if ($recurso) {
-        //         return view('secao.servico.informacao-subjetiva.form.form');
-        //     }
+        $recurso = Servico::find($request->uuid);
+        if ($recurso) {
+            return view('secao.servico.form.form', compact('recurso'));
+        }
         return view('secao.servico.form.form');
     }
 }

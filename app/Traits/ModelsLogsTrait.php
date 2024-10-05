@@ -3,8 +3,10 @@
 namespace App\Traits;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Fluent;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -36,7 +38,7 @@ trait ModelsLogsTrait
     {
         return CommonsFunctions::formatarDataTimeZonaAmericaSaoPaulo($value);
     }
-    
+
     // Intercepta os eventos create, update e delete
     protected static function bootModelsLogsTrait()
     {
@@ -47,9 +49,32 @@ trait ModelsLogsTrait
         static::updating(function (Model $model) {
             CommonsFunctions::inserirInfoUpdated($model);
         });
+    }
 
-        static::deleting(function (Model $model) {
-            CommonsFunctions::inserirInfoDeleted($model);
+    protected function runSoftDelete()
+    {
+        $query = $this->setKeysForSaveQuery($this->newModelQuery());
+
+        // Desativa temporariamente os timestamps (updated_at e created_at)
+        static::withoutTimestamps(function () use ($query) {
+
+            $fluentData = new Fluent();
+            CommonsFunctions::inserirInfoDeleted($fluentData);
+
+            $columns = $fluentData->toArray();
+
+            foreach ($fluentData->toArray() as $key => $value) {
+                $this->{$key} = $value;
+            }
+
+            // Executa a query sem modificar o updated_at
+            $query->update($columns);
+
+            // Sincroniza os atributos originais com os novos valores
+            $this->syncOriginalAttributes(array_keys($columns));
+
+            // Dispara o evento trashed para soft delete
+            $this->fireModelEvent('trashed', false);
         });
     }
 

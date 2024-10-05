@@ -29,18 +29,6 @@ class AreaJuridicaService
         return $this->executaConsultaSelect2($request, $dados);
     }
 
-    public function postConsultaFiltros(Request $request)
-    {
-        $query = $this->consultaSimplesComFiltros($request);
-
-        // RestResponse::createTestResponse([$query->toSql(),$query->getBindings()]);
-
-        // echo $query->toSql();
-        // var_dump($query->getBindings()) ;
-
-        return $query->paginate($request->input('perPage', 25))->toArray();
-    }
-
     /**
      * Traduz os campos com base no array de dados fornecido.
      *

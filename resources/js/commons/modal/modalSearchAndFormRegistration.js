@@ -124,7 +124,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
             self._action = enumAction.POST;
             formRegistration.find('select').val(0);
             formRegistration[0].reset();
-            formRegistration.find('input, select').removeClass('is-valid').removeClass('is-invalid');
+            formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
         }
     }
 
@@ -438,6 +438,54 @@ export class modalSearchAndFormRegistration extends modalDefault {
             commonFunctions.simulateLoading(btnSave, false);
         };
     }
+
+    //#endregion
+
+    //#region Metodos de exclusão padrão
+
+    // async _delButtonAction(idDel, nameDel, options = {}) {
+    //     const self = this;
+    //     const { button = null,
+    //         title = 'Exclusão de Registro',
+    //         message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
+    //         success = `Registro excluído com sucesso!`,
+    //     } = options;
+
+    //     try {
+    //         const obj = new modalMessage();
+    //         obj.setTitle = title;
+    //         obj.setMessage = message;
+    //         obj.setFocusElementWhenClosingModal = button;
+    //         await self._modalHideShow(false);
+    //         const result = await obj.modalOpen();
+    //         if (result) {
+    //             self._delRecurse(idDel, options);
+    //         }
+    //     } catch (error) {
+    //         commonFunctions.generateNotificationErrorCatch(error);
+    //     } finally {
+    //         await self._modalHideShow(true);
+    //     }
+    // }
+
+    // async _delRecurse(idDel, options = {}) {
+    //     const self = this;
+
+    //     let config = self.#getConfigType();
+    //     if (!config) { return; }
+
+    //     try {
+    //         const obj = new connectAjax(config.url);
+    //         obj.setParam(idDel);
+    //         obj.setAction(enumAction.DELETE)
+    //         const response = await obj.deleteRequest();
+    //         commonFunctions.generateNotification(`Departamento deletado com sucesso!`, 'success');
+    //         self._modalCancel();
+    //         self._generateQueryFilters();
+    //     } catch (error) {
+    //         commonFunctions.generateNotificationErrorCatch(error);
+    //     }
+    // }
 
     //#endregion
 
