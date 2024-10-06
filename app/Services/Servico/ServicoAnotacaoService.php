@@ -8,6 +8,7 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Referencias\AreaJuridica;
 use App\Models\Servico\ServicoAnotacao;
+use App\Services\Service;
 use App\Traits\CommonsConsultaServiceTrait;
 use App\Traits\CommonServiceMethodsTrait;
 use App\Traits\ConsultaSelect2ServiceTrait;
@@ -16,10 +17,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
-class ServicoAnotacaoService
+class ServicoAnotacaoService extends Service
 {
-    use CommonServiceMethodsTrait, CommonsConsultaServiceTrait, ConsultaSelect2ServiceTrait;
-
     public function __construct(public ServicoAnotacao $model) {}
 
     /**
@@ -47,64 +46,7 @@ class ServicoAnotacaoService
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
-    public function store(Fluent $requestData)
-    {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-            $resource->save();
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    public function show(Fluent $requestData)
-    {
-        $resource = $this->buscarRecurso($requestData);
-        return $resource->toArray();
-    }
-
-    public function update(Fluent $requestData)
-    {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-            $resource->save();
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    public function destroy(Fluent $requestData)
-    {
-        $resource = $this->buscarRecurso($requestData);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-            $resource->delete();
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    private function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
+    protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $resource = null;
         if ($id) {
@@ -113,29 +55,22 @@ class ServicoAnotacaoService
             $resource = new $this->model;
             $resource->servico_id = $requestData->servico_uuid;
         }
-        
+
         $resource->titulo = $requestData->titulo;
         $resource->descricao = $requestData->descricao;
 
         return $resource;
     }
 
-    public function buscarRecurso(Fluent $requestData)
+    public function buscarRecurso(Fluent $requestData, array $options = [])
     {
-        $withTrashed = isset($requestData->withTrashed) && $requestData->withTrashed == true;
-        $resource = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $requestData->uuid, 'servico_id' => $requestData->servico_uuid], !$withTrashed);
-
-        if ($resource->count() == 0) {
-            // Usa o método do trait para gerar o log e lançar a exceção
-            return $this->gerarLogRecursoNaoEncontrado(
-                404,
-                'A Anotação não foi encontrada.',
-                $requestData,
-            );
-        }
-
-        // Retorna somente um registro
-        return $resource[0];
+        return parent::buscarRecurso($requestData, [
+            'message' => 'A Anotação não foi encontrada.',
+            'conditions' => [
+                'id' => $requestData->uuid,
+                'servico_id' => $requestData->servico_uuid
+            ]
+        ]);
     }
 
     // private function executarEventoWebsocket()

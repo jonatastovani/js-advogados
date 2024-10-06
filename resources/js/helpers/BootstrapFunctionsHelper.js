@@ -1,7 +1,7 @@
 /**
  * Classe que fornece métodos para criar notificações usando o Bootstrap.
  */
-export class bootstrapFunctions {
+export class BootstrapFunctionsHelper {
     /**
      * Cria ou obtém o container para os toasts e retorna o elemento.
      * @returns {HTMLElement} O elemento do container de toasts.
@@ -91,7 +91,7 @@ export class bootstrapFunctions {
                 </div>
             </div>`;
 
-        const container = bootstrapFunctions.#createOrGetDivToastContainer();
+        const container = BootstrapFunctionsHelper.#createOrGetDivToastContainer();
         container.insertAdjacentHTML("beforeend", toastHTML);
 
         const newToast = container.querySelector(`#${id}`);
@@ -99,7 +99,17 @@ export class bootstrapFunctions {
         if (autoShow) {
             bsToast.show();
         }
-        
+
         return id;
+    }
+
+    static addEventTooltip() {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    }
+    
+    static addEventPopover() {
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
     }
 }

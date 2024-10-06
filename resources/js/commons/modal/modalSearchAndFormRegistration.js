@@ -1,3 +1,4 @@
+import { modalMessage } from "../../components/comum/modalMessage";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { commonFunctions } from "../commonFunctions";
@@ -443,49 +444,53 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     //#region Metodos de exclusão padrão
 
-    // async _delButtonAction(idDel, nameDel, options = {}) {
-    //     const self = this;
-    //     const { button = null,
-    //         title = 'Exclusão de Registro',
-    //         message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
-    //         success = `Registro excluído com sucesso!`,
-    //     } = options;
+    async _delButtonAction(idDel, nameDel, options = {}) {
+        const self = this;
+        const { button = null,
+            title = 'Exclusão de Registro',
+            message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
+            success = `Registro excluído com sucesso!`,
+        } = options;
 
-    //     try {
-    //         const obj = new modalMessage();
-    //         obj.setTitle = title;
-    //         obj.setMessage = message;
-    //         obj.setFocusElementWhenClosingModal = button;
-    //         await self._modalHideShow(false);
-    //         const result = await obj.modalOpen();
-    //         if (result) {
-    //             self._delRecurse(idDel, options);
-    //         }
-    //     } catch (error) {
-    //         commonFunctions.generateNotificationErrorCatch(error);
-    //     } finally {
-    //         await self._modalHideShow(true);
-    //     }
-    // }
+        try {
+            const obj = new modalMessage();
+            obj.setDataEnvModal = {
+                title: title,
+                message: message,
+            };
+            obj.setFocusElementWhenClosingModal = button;
+            await self._modalHideShow(false);
+            const result = await obj.modalOpen();
+            if (result) {
+                if (await self._delRecurse(idDel, options)) {
+                    commonFunctions.generateNotification(success, 'success');
+                    self.modalCancel();
+                    self._generateQueryFilters();
+                };
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            await self._modalHideShow(true);
+        }
+    }
 
-    // async _delRecurse(idDel, options = {}) {
-    //     const self = this;
+    async _delRecurse(idDel, options = {}) {
+        const self = this;
 
-    //     let config = self.#getConfigType();
-    //     if (!config) { return; }
+        let config = self.#getConfigType();
+        if (!config) { return; }
 
-    //     try {
-    //         const obj = new connectAjax(config.url);
-    //         obj.setParam(idDel);
-    //         obj.setAction(enumAction.DELETE)
-    //         const response = await obj.deleteRequest();
-    //         commonFunctions.generateNotification(`Departamento deletado com sucesso!`, 'success');
-    //         self._modalCancel();
-    //         self._generateQueryFilters();
-    //     } catch (error) {
-    //         commonFunctions.generateNotificationErrorCatch(error);
-    //     }
-    // }
+        try {
+            const obj = new connectAjax(config.url);
+            obj.setParam(idDel);
+            const response = await obj.deleteRequest();
+            return true;
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
 
     //#endregion
 

@@ -13,4 +13,9 @@ class PagamentoTipo extends Model
 
     protected $table = 'referencias.pagamento_tipos';
     protected $tableAsName = 'pag_tipo';
+
+    protected $casts = [
+        // O campo configuracao será tratado como um array
+        'configuracao' => 'array',
+    ];
 }

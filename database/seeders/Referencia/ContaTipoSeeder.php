@@ -4,7 +4,6 @@ namespace Database\Seeders\Referencia;
 
 use App\Helpers\UUIDsHelpers;
 use App\Models\Referencias\ContaTipo;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ContaTipoSeeder extends Seeder

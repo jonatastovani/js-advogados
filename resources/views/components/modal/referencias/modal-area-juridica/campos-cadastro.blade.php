@@ -5,7 +5,7 @@
         </div>
         <div class="row">
             <div class="col">
-                <label for="nome{{ $sufixo }}" class="form-label">Nome:</label>
+                <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
                 <input type="text" class="form-control focusRegister" name="nome" id="nome{{ $sufixo }}">
             </div>
         </div>

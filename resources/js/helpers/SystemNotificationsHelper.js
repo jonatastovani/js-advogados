@@ -1,6 +1,6 @@
-import { bootstrapFunctions } from "./bootstrapFunctions";
+import { BootstrapFunctionsHelper } from "./BootstrapFunctionsHelper";
 
-export class systemNotifications {
+export class SystemNotificationsHelper {
 
     #message;
     #title;
@@ -47,7 +47,7 @@ export class systemNotifications {
         const self = this;
 
         return new Promise(async function (resolve) {
-            resolve(await bootstrapFunctions.createNotification(self.#message, { type: self.#type, title: self.#title, traceId: self.#traceId }));
+            resolve(await BootstrapFunctionsHelper.createNotification(self.#message, { type: self.#type, title: self.#title, traceId: self.#traceId }));
         })
     }
 }

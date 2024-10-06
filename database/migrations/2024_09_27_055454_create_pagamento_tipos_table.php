@@ -24,7 +24,11 @@ return new class extends Migration
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('nome');
+            $table->string('descricao');
             $table->json('configuracao');
+            $table->boolean('ativo_bln')->default(true);
+
+            $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }
 

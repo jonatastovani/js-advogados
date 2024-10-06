@@ -15,7 +15,7 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col">
-                                <label for="titulo{{ $sufixo }}" class="form-label">Titulo:</label>
+                                <label for="titulo{{ $sufixo }}" class="form-label">Titulo</label>
                                 <input type="text" class="form-control focusRegister" name="titulo"
                                     id="titulo{{ $sufixo }}" autocomplete="off">
                             </div>

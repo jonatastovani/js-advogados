@@ -107,7 +107,8 @@ export class connectAjax {
 
     async deleteRequest() {
         const param = this.#param ? `/${this.#param}` : '';
-
+        this.#action = enumAction.DELETE;
+        
         this.#debug(`URL = ${this.#urlApi + param}`, `Param = ${param}`, `Method = ${this.#action}`, `Data = ${JSON.stringify(this.#data)}`);
 
         try {

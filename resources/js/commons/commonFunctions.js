@@ -1,10 +1,10 @@
 // import 'select2';
 // import '../commons/select2-4.0.2';
 import { modalLoading } from "../components/comum/modalLoading";
+import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
 import { connectAjax } from "./connectAjax";
 import { enumAction } from "./enumAction";
 import instanceManager from "./instanceManager";
-import { systemNotifications } from "./systemNotifications";
 
 export class commonFunctions {
 
@@ -1280,7 +1280,7 @@ export class commonFunctions {
         }
 
         return new Promise(async function (resolve) {
-            const notification = new systemNotifications(message, type);
+            const notification = new SystemNotificationsHelper(message, type);
             notification.setTraceId = traceId;
             resolve(await notification.render());
         })

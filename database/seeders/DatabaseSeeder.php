@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Financeiro\ContaSeeder;
 use Database\Seeders\Referencia\AreaJuridicaSeeder;
 use Database\Seeders\Referencia\ContaStatusTipoSeeder;
 use Database\Seeders\Referencia\ContaSubtipoSeeder;
 use Database\Seeders\Referencia\ContaTipoSeeder;
+use Database\Seeders\Referencia\PagamentoTipoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -30,6 +32,8 @@ class DatabaseSeeder extends Seeder
             ContaTipoSeeder::class,
             ContaSubtipoSeeder::class,
             AreaJuridicaSeeder::class,
+            PagamentoTipoSeeder::class,
+            ContaSeeder::class,
         ]);
     }
 }

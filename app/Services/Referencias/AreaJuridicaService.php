@@ -7,16 +7,18 @@ use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Referencias\AreaJuridica;
+use App\Services\Service;
 use App\Traits\CommonsConsultaServiceTrait;
 use App\Traits\CommonServiceMethodsTrait;
 use App\Traits\ConsultaSelect2ServiceTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
-class AreaJuridicaService
+class AreaJuridicaService extends Service
 {
-    use CommonServiceMethodsTrait, CommonsConsultaServiceTrait, ConsultaSelect2ServiceTrait;
+    use ConsultaSelect2ServiceTrait;
 
     public function __construct(public AreaJuridica $model) {}
 
@@ -41,68 +43,20 @@ class AreaJuridicaService
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $permissionAsName = $this->model::getTableAsName();
+        $modelAsName = $this->model::getTableAsName();
         $arrayAliasCampos = [
-            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $permissionAsName,
+            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
+            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
         ];
 
         $arrayCampos = [
             'col_nome' => ['campo' => $arrayAliasCampos['col_nome'] . '.nome'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_nome'] . '.descricao'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
     }
 
-    public function store(Fluent $requestData)
-    {
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-
-            CommonsFunctions::inserirInfoCreated($resouce);
-            $resouce->save();
-
-            DB::commit();
-
-            // $this->executarEventoWebsocket();
-
-            return $resouce->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    public function show(Fluent $requestData)
-    {
-        $resource = $this->buscarRecurso($requestData);
-        return $resource->toArray();
-    }
-
-    public function update(Fluent $requestData)
-    {
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-
-            CommonsFunctions::inserirInfoUpdated($resouce);
-            $resouce->save();
-
-            DB::commit();
-
-            // $this->executarEventoWebsocket();
-
-            return $resouce->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    private function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null)
+    protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
@@ -122,25 +76,14 @@ class AreaJuridicaService
 
         return $resouce;
     }
-
-    public function buscarRecurso(Fluent $requestData)
+    
+    public function buscarRecurso(Fluent $requestData, array $options = [])
     {
-        $withTrashed = isset($requestData->withTrashed) && $requestData->withTrashed == true;
-        $resource = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $requestData->uuid], !$withTrashed);
-
-        if ($resource->count() == 0) {
-            // Usa o método do trait para gerar o log e lançar a exceção
-            return $this->gerarLogRecursoNaoEncontrado(
-                404,
-                'A Área Jurídica não foi encontrada.',
-                $requestData,
-            );
-        }
-
-        // Retorna somente um registro
-        return $resource[0];
+        return parent::buscarRecurso($requestData, [
+            'message' => 'A Área Jurídica não foi encontrada.',
+        ]);
     }
-
+    
     // private function executarEventoWebsocket()
     // {
     //     event(new EntradasPresos);

@@ -25,6 +25,8 @@ class Servico extends Model
     protected $table = 'servico.servicos';
     protected $tableAsName = 'serv';
 
+    protected $fillable = ['titulo', 'descricao', 'area_juridica_id'];
+
     // Variável estática para armazenar a sequência temporariamente
     protected static $sequenciaTemporaria;
 

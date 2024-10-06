@@ -4,6 +4,7 @@ import { enumAction } from "../../commons/enumAction";
 import { modalMessage } from "../../components/comum/modalMessage";
 import { modalAreaJuridica } from "../../components/referencias/modalAreaJuridica";
 import { modalServicoAnotacao } from "../../components/servico/modalServicoAnotacao";
+import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
@@ -17,6 +18,7 @@ class PageServicoForm {
         url: {
             base: window.apiRoutes.baseServico,
             baseAnotacao: undefined,
+            baseValor: undefined,
             baseAreaJuridica: window.apiRoutes.baseAreaJuridica,
         },
         data: {
@@ -37,6 +39,7 @@ class PageServicoForm {
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
             self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
+            self.#objConfigs.url.baseValor = `${self.#objConfigs.url.base}/${self.#idRegister}/valor`;
             this.#action = enumAction.PUT;
             self.#buscarDados();
         } else {
@@ -47,24 +50,7 @@ class PageServicoForm {
     #addEventosBotoes() {
         const self = this;
 
-        $('#btnAdicionarAnotacao').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
-                objModal.setFocusElementWhenClosingModal = btn;
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    self.#inserirAnotacao(response.register);
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $('#btnOpenAreaJuridica').on('click', async function () {
+        $(`#btnOpenAreaJuridica${self.#sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -104,11 +90,46 @@ class PageServicoForm {
             self.#saveButtonAction();
         });
 
+        $(`#btnAdicionarAnotacao${self.#sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                objModal.setFocusElementWhenClosingModal = btn;
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    self.#inserirAnotacao(response.register);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#btnInserirPagamento${self.#sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoPagamento(self.#objConfigs.url.baseValor);
+                objModal.setFocusElementWhenClosingModal = btn;
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    // self.#inserirAnotacao(response.register);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        })
+            .trigger('click');
+
         // const openModalTest = () => {
-        //     const objCode = new modalBuscaPessoas();
+        //     const objCode = new modalConta();
         //     objCode.modalOpen();
         // }
-        // // openModalTest();
+        // openModalTest();
     }
 
     async #inserirAnotacao(item) {
@@ -153,7 +174,6 @@ class PageServicoForm {
         SimpleBarHelper.apply();
         return true;
     }
-
 
     #HtmlBtnEdit(item) {
         const self = this;
@@ -285,7 +305,7 @@ class PageServicoForm {
                 if (self.#action === enumAction.PUT) {
                     commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
                 } else {
-                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm} / ${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
+                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
                 }
             }
         } catch (error) {
@@ -300,7 +320,7 @@ class PageServicoForm {
         const self = this;
 
         try {
-            await commonFunctions.loadingModalDisplay();
+            // await commonFunctions.loadingModalDisplay();
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#sufixo}`);
             if (response?.data) {
@@ -318,7 +338,7 @@ class PageServicoForm {
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            // await commonFunctions.loadingModalDisplay(false);
         }
     }
 
@@ -355,7 +375,7 @@ class PageServicoForm {
             obj.setFocusElementWhenClosingModal = button;
             const result = await obj.modalOpen();
             if (result.confirmResult) {
-                if (await self._delRecurse(idDel, options)) {
+                if (await self.#delRecurse(idDel, options)) {
                     commonFunctions.generateNotification(success, 'success');
                     return true;
                 }
@@ -367,7 +387,7 @@ class PageServicoForm {
         }
     }
 
-    async _delRecurse(idDel, options = {}) {
+    async #delRecurse(idDel, options = {}) {
         const self = this;
         const {
             urlApi = self.#objConfigs.url.base,

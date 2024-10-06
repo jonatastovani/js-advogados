@@ -13,4 +13,9 @@ class ContaStatusTipo extends Model
 
     protected $table = 'referencias.conta_status_tipos';
     protected $tableAsName = 'con_sta_tipo';
+
+    protected $fillable = [
+        'nome',
+        'descricao',
+    ];
 }

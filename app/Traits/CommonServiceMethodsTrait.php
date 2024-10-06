@@ -2,16 +2,9 @@
 
 namespace App\Traits;
 
-use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
-use Exception;
-use Illuminate\Support\Facades\DB;
-
 trait CommonServiceMethodsTrait
 {
-    use ServiceLogTrait;
-    
-    private function tratamentoDeTextoPorTipoDeCampo(string $texto, array $dados): array
+    protected function tratamentoDeTextoPorTipoDeCampo(string $texto, array $dados): array
     {
         $tratamento = $dados['tratamento'] ?? [];
         $campo = $dados['campo'] ?? '';
@@ -55,7 +48,7 @@ trait CommonServiceMethodsTrait
         return ['texto' => $texto, 'campo' => $campo];
     }
 
-    private function tratamentoCamposTraducao(array $arrayCampos, array $arrayCamposPadroes, array $dados): array
+    protected function tratamentoCamposTraducao(array $arrayCampos, array $arrayCamposPadroes, array $dados): array
     {
         $todosCampos = $dados['campos_busca_todos'] ?? false;
         $camposRequisitados = !$todosCampos ? ($dados['campos_busca'] ?? $arrayCamposPadroes) : [];
@@ -68,19 +61,5 @@ trait CommonServiceMethodsTrait
         }
 
         return $retorno;
-    }
-
-    private function gerarLogExceptionErroSalvar(Exception $e)
-    {
-        // Se ocorrer algum erro, fazer o rollback da transação
-        DB::rollBack();
-
-        // Gerar um log
-        $codigo = 422;
-        $mensagem = "A requisição não pôde ser processada.";
-        $traceId = CommonsFunctions::generateLog("$codigo | $mensagem | Errors: " . json_encode($e->getMessage()));
-
-        $response = RestResponse::createGenericResponse(['error' => $e->getMessage()], 422, $mensagem, $traceId);
-        return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
     }
 }

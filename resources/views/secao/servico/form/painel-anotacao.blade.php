@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col mt-3 text-end">
-        <button type="button" class="btn btn-outline-primary" id="btnAdicionarAnotacao">Adicionar
+        <button type="button" class="btn btn-outline-primary" id="btnAdicionarAnotacao{{ $sufixo }}">Adicionar
             Anotação</button>
     </div>
 </div>

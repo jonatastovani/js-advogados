@@ -12,7 +12,7 @@
                         style="width: 100%">
                     </select>
                 </div>
-                <button id="btnOpenAreaJuridica" type="button" class="btn btn-outline-primary">
+                <button id="btnOpenAreaJuridica{{ $sufixo }}" type="button" class="btn btn-outline-primary">
                     <i class="bi bi-search"></i>
                 </button>
             </div>

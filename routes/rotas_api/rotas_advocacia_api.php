@@ -35,5 +35,16 @@ Route::group([
                 Route::delete('{uuid}', 'destroy');
             });
         });
+
+        Route::prefix('{servico_uuid}/valor')->group(function () {
+
+            Route::controller(App\Http\Controllers\Servico\ServicoAnotacaoController::class)->group(function () {
+                Route::get('', 'index');
+                Route::post('', 'store');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
+            });
+        });
     });
 });
