@@ -4,9 +4,12 @@ namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Referencias\AreaJuridica;
+use App\Scopes\Servico\ValorServicoAguardandoScope;
+use App\Scopes\Servico\ValorServicoInadimplenteScope;
+use App\Scopes\Servico\ValorServicoLiquidadoScope;
+use App\Scopes\Servico\ValorServicoScope;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
-use App\Traits\DomainIdentificationTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,12 +43,45 @@ class Servico extends Model
         return $this->hasMany(ServicoAnotacao::class, 'servico_id');
     }
 
+    public function pagamento()
+    {
+        return $this->hasMany(ServicoPagamento::class, 'servico_id');
+    }
+
+    /**
+     * Acessor para obter a soma total dos pagamentos associados a um serviço.
+     *
+     * @return float
+     */
+    public function getValorServicoAttribute()
+    {
+        // Usa a relação 'pagamento' para calcular a soma dos valores
+        return $this->pagamento()->sum('valor_total');
+    }
+
+    // Relacionamento direto para ServicoPagamentoLancamento
+    public function lancamentos()
+    {
+        return $this->hasManyThrough(
+            ServicoPagamentoLancamento::class, // Modelo de destino
+            ServicoPagamento::class,           // Modelo intermediário
+            'servico_id',                      // Chave estrangeira na tabela intermediária (ServicoPagamento)
+            'pagamento_id',                    // Chave estrangeira na tabela de destino (ServicoPagamentoLancamento)
+            'id',                              // Chave local na tabela Servico
+            'id'                               // Chave local na tabela ServicoPagamento
+        );
+    }
+
     /**
      * Intercepta o evento de criação para adicionar o numero de servico, se aplicável.
      */
     protected static function boot()
     {
         parent::boot();
+        static::addGlobalScope(new ValorServicoScope);
+        static::addGlobalScope(new ValorServicoAguardandoScope);
+        static::addGlobalScope(new ValorServicoLiquidadoScope);
+        static::addGlobalScope(new ValorServicoInadimplenteScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano

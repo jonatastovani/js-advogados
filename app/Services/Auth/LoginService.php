@@ -4,7 +4,7 @@ namespace App\Services\Auth;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
-use App\Helpers\EnumPermissionModulesHelper;
+use App\Enums\PermissionModulesEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\PermissionHelper;
 use App\Helpers\ValidationRecordsHelper;

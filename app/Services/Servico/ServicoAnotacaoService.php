@@ -2,19 +2,9 @@
 
 namespace App\Services\Servico;
 
-use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
-use App\Helpers\LogHelper;
-use App\Helpers\ValidationRecordsHelper;
-use App\Models\Referencias\AreaJuridica;
 use App\Models\Servico\ServicoAnotacao;
 use App\Services\Service;
-use App\Traits\CommonsConsultaServiceTrait;
-use App\Traits\CommonServiceMethodsTrait;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class ServicoAnotacaoService extends Service

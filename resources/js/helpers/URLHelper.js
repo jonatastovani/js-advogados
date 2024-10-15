@@ -48,4 +48,19 @@ export class URLHelper {
         // Retorna o segmento no índice fornecido, ou null se não existir
         return segments[index] || null;
     }
+
+    /**
+     * Verifica se a URL fornecida contém um domínio. Se não, adiciona o domínio base atual da página.
+     * 
+     * @param {string} endpoint - O endpoint fornecido, que pode ser relativo ou absoluto.
+     * @returns {string} - O endpoint com o domínio completo, se necessário.
+     */
+    static formatEndpointUrl(endpoint) {
+        const currentDomain = window.location.origin;
+        if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+            return endpoint;
+        } else {
+            return `${currentDomain}/${endpoint}`;
+        }
+    }
 }

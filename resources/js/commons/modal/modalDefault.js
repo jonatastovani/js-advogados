@@ -34,6 +34,8 @@ export class modalDefault {
      */
     _objConfigs = {
         modalInitialized: false,
+        sufixo: undefined,
+        data: undefined
     };
 
     /**
@@ -234,7 +236,9 @@ export class modalDefault {
     async _modalClose() {
         const self = this;
         const modal = $(self.getIdModal);
-        await self._modalHideShow(false);
+        if (modal.css('display') != 'none') {
+            await self._modalHideShow(false);
+        }
         modal.find("*").off();
         modal.off('keydown, click');
         if (typeof self._modalReset === 'function') {
@@ -257,5 +261,6 @@ export class modalDefault {
         const self = this;
         return new Promise(function (resolve) { resolve(self._promisseReturnValue) });
     }
+
     //#endregion
 }

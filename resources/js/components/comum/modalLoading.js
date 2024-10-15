@@ -22,7 +22,7 @@ export class modalLoading extends modalDefault {
 
     async modalOpen() {
         const self = this;
-        self.initEvents();
+        await self.initEvents();
         await self._modalHideShow();
         return new Promise(function (resolve) {
             // const checkConfirmation = setInterval(function () {
@@ -49,7 +49,7 @@ export class modalLoading extends modalDefault {
         });
     }
 
-    initEvents() {
+    async initEvents() {
         const self = this;
         self.#inserirTitulo();
         self.#inserirMensagem();

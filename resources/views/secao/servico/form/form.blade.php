@@ -30,10 +30,9 @@
         <div class="col mt-2 px-0">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="dadosServico{{ $sufixo }}-tab"
-                        data-bs-toggle="tab" data-bs-target="#dadosServico{{ $sufixo }}-tab-pane" type="button"
-                        role="tab" aria-controls="dadosServico{{ $sufixo }}-tab-pane"
-                        aria-selected="false">
+                    <button class="nav-link px-2" id="dadosServico{{ $sufixo }}-tab" data-bs-toggle="tab"
+                        data-bs-target="#dadosServico{{ $sufixo }}-tab-pane" type="button" role="tab"
+                        aria-controls="dadosServico{{ $sufixo }}-tab-pane" aria-selected="false">
                         Serviço
                     </button>
                 </li>
@@ -58,8 +57,8 @@
     </div>
     <div class="row rounded rounded-top-0 border-top-0 flex-fill">
         <div class="tab-content h-100 overflow-auto" id="myTabContent" style="min-height: 20em;">
-            <div class="tab-pane fade h-100" id="dadosServico{{ $sufixo }}-tab-pane"
-                role="tabpanel" aria-labelledby="dadosServico{{ $sufixo }}-tab" tabindex="0">
+            <div class="tab-pane fade h-100" id="dadosServico{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="dadosServico{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.servico.form.painel-dados-servico')
             </div>
             <div class="tab-pane fade h-100" id="dadosAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
@@ -83,6 +82,7 @@
     <x-modal.referencias.modal-area-juridica.modal />
     <x-modal.servico.modal-servico-anotacao.modal />
     <x-modal.servico.modal-servico-pagamento.modal />
+    <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
 @endpush
 
 @push('scripts')

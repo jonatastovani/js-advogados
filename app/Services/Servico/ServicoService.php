@@ -18,7 +18,7 @@ class ServicoService extends Service
     public function postConsultaFiltros(Fluent $requestData)
     {
         $query = $this->consultaSimplesComFiltros($requestData);
-        $query->with('area_juridica');
+        $query->with($this->loadFull());
         return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
@@ -50,7 +50,7 @@ class ServicoService extends Service
     public function show(Fluent $requestData)
     {
         $resource = $this->buscarRecurso($requestData);
-        $resource->load('area_juridica', 'anotacao');
+        $resource->load($this->loadFull());
         return $resource->toArray();
     }
 
@@ -89,6 +89,18 @@ class ServicoService extends Service
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, ['message' => 'O Serviço não foi encontrado.']);
+    }
+
+    private function loadFull(): array
+    {
+        return [
+            'area_juridica',
+            'anotacao',
+            'pagamento.pagamento_tipo_tenant.pagamento_tipo',
+            'pagamento.conta',
+            'pagamento.lancamentos.status',
+            'pagamento.lancamentos.conta'
+        ];
     }
 
     // private function executarEventoWebsocket()

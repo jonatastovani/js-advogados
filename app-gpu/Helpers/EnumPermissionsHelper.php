@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-enum EnumPermissionsHelper: int
+enum PermissionsEnum: int
 {
     case DESENVOLVEDOR = 1;
     case ADMINISTRADOR = 2;

@@ -20,25 +20,14 @@
                                         data-bs-toggle="tab"
                                         data-bs-target="#dados-pagamento{{ $sufixo }}-tab-pane" type="button"
                                         role="tab" aria-controls="dados-pagamento{{ $sufixo }}-tab-pane"
-                                        aria-selected="true" style="color: inherit">Dados do pagamento</button>
+                                        aria-selected="true">Dados do pagamento</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link px-2" id="simulacao{{ $sufixo }}-tab"
-                                        data-bs-toggle="tab" data-bs-target="#simulacao{{ $sufixo }}-tab-pane"
+                                    <button class="nav-link px-2" id="lancamentos{{ $sufixo }}-tab"
+                                        data-bs-toggle="tab" data-bs-target="#lancamentos{{ $sufixo }}-tab-pane"
                                         type="button" role="tab"
-                                        aria-controls="simulacao{{ $sufixo }}-tab-pane" aria-selected="false"
-                                        style="color: inherit">Simulação <i class="bi bi-question-circle"
-                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                            data-bs-title="Pagamentos simulados."></i></button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link px-2" id="lancados{{ $sufixo }}-tab"
-                                        data-bs-toggle="tab" data-bs-target="#lancados{{ $sufixo }}-tab-pane"
-                                        type="button" role="tab"
-                                        aria-controls="lancados{{ $sufixo }}-tab-pane" aria-selected="false"
-                                        style="color: inherit">Lançados <i class="bi bi-question-circle"
-                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                            data-bs-title="Pagamentos gerados."></i></button>
+                                        aria-controls="lancamentos{{ $sufixo }}-tab-pane" aria-selected="false"
+                                       >Lançamentos</button>
                                 </li>
                             </ul>
                         </div>
@@ -50,13 +39,9 @@
                                 aria-labelledby="dados-pagamento{{ $sufixo }}-tab" tabindex="0">
                                 @include('components.modal.servico.modal-servico-pagamento.painel-dados-pagamento')
                             </div>
-                            <div class="tab-pane fade h-100" id="simulacao{{ $sufixo }}-tab-pane" role="tabpanel"
-                                aria-labelledby="simulacao{{ $sufixo }}-tab" tabindex="0">
-                                @include('components.modal.servico.modal-servico-pagamento.painel-simulacao')
-                            </div>
-                            <div class="tab-pane fade h-100" id="lancados{{ $sufixo }}-tab-pane" role="tabpanel"
-                                aria-labelledby="lancados{{ $sufixo }}-tab" tabindex="0">
-                                @include('components.modal.servico.modal-servico-pagamento.painel-lancados')
+                            <div class="tab-pane fade h-100" id="lancamentos{{ $sufixo }}-tab-pane" role="tabpanel"
+                                aria-labelledby="lancamentos{{ $sufixo }}-tab" tabindex="0">
+                                @include('components.modal.servico.modal-servico-pagamento.painel-lancamentos')
                             </div>
                         </div>
                     </div>
@@ -64,7 +49,7 @@
             </div>
             <div class="modal-footer">
                 <div class="col-12 text-end">
-                    <button type="button" class="btn btn-outline-primary btn-simulacao w-50" style="max-width: 7rem">
+                    <button type="button" class="btn btn-outline-primary btn-simular w-50" style="max-width: 7rem">
                         Simular
                     </button>
                     <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
@@ -81,11 +66,13 @@
 
 @push('modals')
     <x-modal.financeiro.modal-conta.modal />
+    <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
 @endpush
 
 @component('components.api.api-routes', [
     'routes' => [
         'baseContas' => route('api.financeiro.conta'),
+        'basePagamentoTipoTenants' => route('api.financeiro.pagamento-tipo-tenant'),
     ],
 ])
 @endcomponent

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Helpers\EnumPermissionGroupsHelper;
+use App\Enums\PermissionGroupsEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Models\Auth\PermissionGroup;
 use Illuminate\Database\Seeder;
@@ -17,7 +17,7 @@ class PermissionGroupSeeder extends Seeder
     {
 
         $insert = [];
-        foreach (EnumPermissionGroupsHelper::cases() as $enumValue) {
+        foreach (PermissionGroupsEnum::cases() as $enumValue) {
             $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 

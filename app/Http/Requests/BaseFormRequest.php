@@ -28,14 +28,6 @@ abstract class BaseFormRequest extends FormRequest
 
         $response = RestResponse::createGenericResponse(["errors" => $validator->errors()], $code, $mensagem, $traceId ?? null);
 
-        // // Padrão de retorno de erro de validação
-        // $response = response()->json([
-        //     'status' => 'error',
-        //     'message' => 'Erro na validação dos dados.',
-        //     'errors' => $validator->errors(),
-        //     'trace_id' => $traceId ?? null, // Adiciona o Trace ID no retorno se existir
-        // ], 422);
-
         throw new HttpResponseException($response->autoResponse());
     }
 

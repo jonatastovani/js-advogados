@@ -55,9 +55,9 @@ trait EnumRenderTrait
     private function getEnumClassByType(string $type): string
     {
         $enumMap = [
-            'permission' => \App\Helpers\EnumPermissionsHelper::class,
-            'permission_group' => \App\Helpers\EnumPermissionGroupsHelper::class,
-            'permission_module' => \App\Helpers\EnumPermissionModulesHelper::class,
+            'permission' => \App\Enums\PermissionsEnum::class,
+            'permission_group' => \App\Enums\PermissionGroupsEnum::class,
+            'permission_module' => \App\Enums\PermissionModulesEnum::class,
         ];
 
         // Retorna a classe correspondente ao tipo ou uma exceção caso o tipo não exista

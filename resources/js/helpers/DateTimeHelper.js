@@ -1,12 +1,12 @@
 export class DateTimeHelper {
-    /**
-     * Converte uma data do formato brasileiro (DD-MM-YYYY) para o formato internacional (YYYY-MM-DD).
-     * @param {string} data - Data no formato brasileiro.
-     * @return {string} - Data convertida no formato internacional.
-     */
-    static converteDataHoraBrasileira(data) {
-        return moment(data, "DD-MM-YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
-    }
+    // /**
+    //  * Converte uma data do formato brasileiro (DD-MM-YYYY) para o formato internacional (YYYY-MM-DD).
+    //  * @param {string} data - Data no formato brasileiro.
+    //  * @return {string} - Data convertida no formato internacional.
+    //  */
+    // static converteDataHoraBrasileira(data) {
+    //     return moment(data, "DD-MM-YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+    // }
 
     /**
      * Retorna a diferença entre duas datas.

@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-enum EnumPermissionGroupsHelper: int
+enum PermissionGroupsEnum: int
 {
     case ADMINISTRADOR = 1;
     case SUPORTE = 2;
@@ -17,14 +17,14 @@ enum EnumPermissionGroupsHelper: int
                 'id' => self::ADMINISTRADOR,
                 'nome' => 'Administração do Sistema',
                 'descricao' => 'Grupo de permissões para administrar o sistema.',
-                'modulo_id' => EnumPermissionModulesHelper::ADMINISTRADOR,
+                'modulo_id' => PermissionModulesEnum::ADMINISTRADOR,
                 'individuais' => true,
             ],
             self::SUPORTE => [
                 'id' => self::SUPORTE,
                 'nome' => 'Suporte do Sistema',
                 'descricao' => 'Grupo de permissões para suporte do sistema.',
-                'modulo_id' => EnumPermissionModulesHelper::ADMINISTRADOR,
+                'modulo_id' => PermissionModulesEnum::ADMINISTRADOR,
                 'grupo_pai_id' => self::ADMINISTRADOR,
                 'individuais' => true,
             ],

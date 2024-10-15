@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Helpers\EnumPermissionConfigsHelper;
-use App\Helpers\EnumPermissionGroupsHelper;
-use App\Helpers\EnumPermissionsHelper;
+use App\Enums\PermissionGroupsEnum;
+use App\Enums\PermissionsEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Models\Auth\PermissionConfig;
 use Illuminate\Database\Seeder;
@@ -20,25 +20,25 @@ class PermissionConfigSeeder extends Seeder
 
         $insert = [
             [
-                'permissao_id' => EnumPermissionsHelper::DESENVOLVEDOR,
+                'permissao_id' => PermissionsEnum::DESENVOLVEDOR,
                 'gerencia_perm_bln' => true,
-                'grupo_id' => EnumPermissionGroupsHelper::ADMINISTRADOR,
+                'grupo_id' => PermissionGroupsEnum::ADMINISTRADOR,
             ],
             [
-                'permissao_id' => EnumPermissionsHelper::ADMINISTRADOR,
+                'permissao_id' => PermissionsEnum::ADMINISTRADOR,
                 'gerencia_perm_bln' => true,
-                'grupo_id' => EnumPermissionGroupsHelper::ADMINISTRADOR,
+                'grupo_id' => PermissionGroupsEnum::ADMINISTRADOR,
             ],
             [
-                'permissao_id' => EnumPermissionsHelper::SUPORTE_SISTEMA,
+                'permissao_id' => PermissionsEnum::SUPORTE_SISTEMA,
                 'gerencia_perm_bln' => true,
-                'grupo_id' => EnumPermissionGroupsHelper::SUPORTE,
+                'grupo_id' => PermissionGroupsEnum::SUPORTE,
             ],
             [
-                'permissao_id' => EnumPermissionsHelper::ADMIN_ADVOCACIA,
+                'permissao_id' => PermissionsEnum::ADMIN_ADVOCACIA,
                 'gerencia_perm_bln' => true,
-                'grupo_id' => EnumPermissionGroupsHelper::ADMINISTRACAO_MODULO_ADVOCACIA,
-                'permissao_pai_id' => EnumPermissionsHelper::ADMINISTRADOR,
+                'grupo_id' => PermissionGroupsEnum::ADMINISTRACAO_MODULO_ADVOCACIA,
+                'permissao_pai_id' => PermissionsEnum::ADMINISTRADOR,
             ],
         ];
 

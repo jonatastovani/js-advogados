@@ -4,7 +4,7 @@ namespace App\Services\Auth;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
-use App\Helpers\EnumPermissionModulesHelper;
+use App\Enums\PermissionModulesEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\PermissionHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -111,7 +111,7 @@ class PermissionService
                         ->from(PermissionGroup::getTableName())
                         ->where(function ($q) use ($request) {
                             $q->where('modulo_id', $request->modulo_id)
-                                ->orWhere('modulo_id', EnumPermissionModulesHelper::ADMINISTRADOR);
+                                ->orWhere('modulo_id', PermissionModulesEnum::ADMINISTRADOR);
                         });
                 });
         });

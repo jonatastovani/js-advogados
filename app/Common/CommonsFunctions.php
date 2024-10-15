@@ -19,7 +19,7 @@ class CommonsFunctions
      */
     static function generateTraceId()
     {
-        return uniqid('GPU_API|');
+        return uniqid('API|');
     }
 
     /**

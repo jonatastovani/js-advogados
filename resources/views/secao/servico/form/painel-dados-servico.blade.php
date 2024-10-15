@@ -7,11 +7,13 @@
         <div class="col-md-5 col-xl-4 mt-2">
             <label for="area_juridica_id{{ $sufixo }}" class="form-label">Área Jurídica</label>
             <div class="input-group">
-                <div class="input-group-select2">
+                {{-- <div class="input-group-select2">
                     <select name="area_juridica_id" id="area_juridica_id{{ $sufixo }}" class="select2-clear-form"
                         style="width: 100%">
                     </select>
-                </div>
+                </div> --}}
+                <select name="area_juridica_id" id="area_juridica_id{{ $sufixo }}" class="form-select">
+                </select>
                 <button id="btnOpenAreaJuridica{{ $sufixo }}" type="button" class="btn btn-outline-primary">
                     <i class="bi bi-search"></i>
                 </button>

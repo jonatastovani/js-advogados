@@ -26,6 +26,10 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->string('nome');
+
+            $table->unsignedBigInteger('pagamento_tipo_id');
+            $table->foreign('pagamento_tipo_id')->references('id')->on(App\Models\Referencias\PagamentoTipo::getTableName());
+
             $table->json('configuracao');
             $table->boolean('ativo_bln')->default(true);
 

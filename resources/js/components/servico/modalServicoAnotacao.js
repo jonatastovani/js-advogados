@@ -10,7 +10,7 @@ export class modalServicoAnotacao extends modalRegistrationAndEditing {
         });
 
         this._action = enumAction.POST;
-        this._objConfigs.url = urlApi;
+        this._objConfigs.url.base = urlApi;
     }
 
     async modalOpen() {
@@ -34,7 +34,7 @@ export class modalServicoAnotacao extends modalRegistrationAndEditing {
         let data = commonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
-            self._save(data, self._objConfigs.url);
+            self._save(data, self._objConfigs.url.base);
         }
     }
 

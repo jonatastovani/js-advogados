@@ -7,7 +7,9 @@ export class modalCode extends modalRegistrationAndEditing {
      * Configuração local do modal
      */
     #objConfigs = {
-        url: undefined,
+        url: {
+            base: undefined,
+        },
     };
 
     #dataEnvModal = {
@@ -36,7 +38,7 @@ export class modalCode extends modalRegistrationAndEditing {
     #addEventosPadrao() {
         const self = this;
         if (self._dataEnvModal.url) {
-            self._objConfigs.url = self._dataEnvModal.url;
+            self._objConfigs.url.base = self._dataEnvModal.url;
         }
 
         $(self.getIdModal).find('.btn-refresh').on('click', function () {
@@ -51,7 +53,7 @@ export class modalCode extends modalRegistrationAndEditing {
         const dataEnv = self._dataEnvModal;
         let setMessage = new Set();
 
-        if (!self._objConfigs.url) {
+        if (!self._objConfigs.url.base) {
             setMessage.add('URL não informada');
         }
 

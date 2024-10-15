@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-enum EnumPermissionModulesHelper: int
+enum PermissionModulesEnum: int
 {
     case ADMINISTRADOR = 1;
     case GPUONLINE_API = 2;

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Helpers\EnumPermissionsHelper;
+use App\Enums\PermissionsEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Models\Auth\Permission;
 use Illuminate\Database\Seeder;
@@ -16,7 +16,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $insert = [];
-        foreach (EnumPermissionsHelper::cases() as $enumValue) {
+        foreach (PermissionsEnum::cases() as $enumValue) {
             $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 

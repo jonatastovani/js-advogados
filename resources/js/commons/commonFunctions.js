@@ -339,53 +339,41 @@ export class commonFunctions {
     }
 
     /**
-     * Applies a custom mask to a numeric input element.
+     * Aplica uma máscara personalizada a um elemento de entrada de texto, removendo qualquer máscara existente primeiro.
      *
-     * @param {jQuery} elem - The input element to which the mask will be applied.
-     * @param {Object} metadata - Metadata that customizes the mask.
-     * @param {string} metadata.format - The desired format mask (default: '0,99' for numbers with two decimal places).
-     * @param {Object} metadata.before - Settings for digits before the decimal point.
-     * @param {number} metadata.before.quantity - The number of digits before the decimal point.
-     * @param {Object} metadata.after - Settings for digits after the decimal point.
-     * @param {number} metadata.after.quantity - The number of digits after the decimal point.
-     * @param {boolean} metadata.reverse - Defines whether the mask should be applied in reverse mode (from right to left).
+     * @param {jQuery} elem - O elemento de entrada ao qual a máscara será aplicada.
+     * @param {Object} metadata - Metadados que personalizam a máscara.
+     * @param {string} [metadata.format] - A máscara de formato desejada (padrão: '0,99' para números com duas casas decimais).
+     * @param {Object} [metadata.before] - Configurações para dígitos antes do ponto decimal.
+     * @param {number} [metadata.before.quantity] - O número de dígitos antes do ponto decimal.
+     * @param {Object} [metadata.after] - Configurações para dígitos depois do ponto decimal.
+     * @param {number} [metadata.after.quantity] - O número de dígitos depois do ponto decimal.
+     * @param {boolean} [metadata.reverse=false] - Define se a máscara deve ser aplicada no modo reverso (da direita para a esquerda).
      */
     static applyCustomNumberMask(elem, metadata = {}) {
-        let format = '0,99';
+        // Remover qualquer máscara anterior
+        elem.unmask();
 
-        if (metadata.format) {
-            format = metadata.format;
-        }
+        // Verifica se foi fornecido um formato customizado, caso contrário, usa o padrão '0,99'
+        let format = metadata.format || '0,99';
 
+        // Se `before.quantity` ou `after.quantity` forem fornecidos, personaliza a máscara
         if ((metadata.before && metadata.before.quantity) || (metadata.after && metadata.after.quantity)) {
-
+            // Gerar a parte antes do ponto decimal, se `before.quantity` foi fornecido
             if (metadata.before && metadata.before.quantity) {
                 const beforeDigits = '0'.repeat(metadata.before.quantity);
-                format = `${beforeDigits}`;
-            } else {
-                format = '0'
+                format = beforeDigits; // Substitui o formato padrão
             }
 
+            // Gerar a parte após o ponto decimal, se `after.quantity` foi fornecido
             if (metadata.after && metadata.after.quantity) {
                 const afterDigits = '9'.repeat(metadata.after.quantity);
-                if (afterDigits) {
-                    format += `,${afterDigits}`;
-                }
+                format += `,${afterDigits}`; // Adiciona os dígitos após a vírgula
             }
-
         }
 
-        elem.mask(format, { reverse: metadata.reverse });
-
-    }
-
-    /**
-     * Applies a currency mask to a text input field.
-     * @param {string} elem - The element of the input field where the mask should be applied.
-     */
-    static applyCurrencyMask(elem) {
-
-        elem.maskMoney({ thousands: '.', decimal: ',' });
+        // Aplicar a máscara ao elemento
+        elem.mask(format, { reverse: metadata.reverse || false });
     }
 
     /**
@@ -394,9 +382,7 @@ export class commonFunctions {
      * @returns {string} - A string in Brazilian monetary format.
      */
     static formatNumberToCurrency(number) {
-
         return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
     }
 
     /**
@@ -414,28 +400,27 @@ export class commonFunctions {
     }
 
     /**
-     * Formats a number as a currency with commas and fractions.
+     * Formata um número como moeda com vírgulas e frações.
      *
-     * @param {number} number - The number to format.
-     * @param {Object} metadata - An object containing formatting options.
-     * @param {number} metadata.decimalPlaces - The number of decimal places to display.
-     * @returns {string} The formatted currency string.
+     * @param {number|string} number - O número a ser formatado.
+     * @param {Object} metadata - Um objeto contendo opções de formatação.
+     * @param {number} metadata.decimalPlaces - O número de casas decimais a serem exibidas.
+     * @returns {string} A string de moeda formatada.
      */
     static formatWithCurrencyCommasOrFraction(number, metadata = {}) {
         const decimalPlaces = metadata.decimalPlaces || 2;
 
-        // const formattedCurrency = parseFloat(number).toFixed(decimalPlaces).replace('.', ',');
-        // console.log(formattedCurrency)
+        // Verifica se o valor é numérico, caso contrário converte
+        if (isNaN(Number(number))) {
+            number = commonFunctions.returnsOnlyNumber(number);
+        }
 
-        // return formattedCurrency;
-
-        const formattedNumber = number.toLocaleString('pt-BR', {
+        const formattedNumber = Number(number).toLocaleString('pt-BR', {
             minimumFractionDigits: decimalPlaces,
             maximumFractionDigits: decimalPlaces,
         });
 
         return formattedNumber;
-
     }
 
     /**

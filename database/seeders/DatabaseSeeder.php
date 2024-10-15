@@ -3,11 +3,13 @@
 namespace Database\Seeders;
 
 use Database\Seeders\Financeiro\ContaSeeder;
-use Database\Seeders\Referencia\AreaJuridicaSeeder;
-use Database\Seeders\Referencia\ContaStatusTipoSeeder;
-use Database\Seeders\Referencia\ContaSubtipoSeeder;
-use Database\Seeders\Referencia\ContaTipoSeeder;
-use Database\Seeders\Referencia\PagamentoTipoSeeder;
+use Database\Seeders\Financeiro\PagamentoTipoTenantSeeder;
+use Database\Seeders\Referencias\AreaJuridicaSeeder;
+use Database\Seeders\Referencias\ContaStatusTipoSeeder;
+use Database\Seeders\Referencias\ContaSubtipoSeeder;
+use Database\Seeders\Referencias\ContaTipoSeeder;
+use Database\Seeders\Referencias\PagamentoTipoSeeder;
+use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,7 +19,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
         $this->call([
             TenantTypeSeeder::class,
             TenantDomainSeeder::class,
@@ -29,10 +30,13 @@ class DatabaseSeeder extends Seeder
             PermissionConfigSeeder::class,
 
             ContaStatusTipoSeeder::class,
+            ServicoPagamentoLancamentoStatusTipoSeeder::class,
+
             ContaTipoSeeder::class,
             ContaSubtipoSeeder::class,
             AreaJuridicaSeeder::class,
             PagamentoTipoSeeder::class,
+            PagamentoTipoTenantSeeder::class,
             ContaSeeder::class,
         ]);
     }

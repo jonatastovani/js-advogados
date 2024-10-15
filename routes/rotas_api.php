@@ -19,5 +19,7 @@ Route::group(
         require __DIR__ . '/rotas_api/rotas_financeiro_api.php';
 
         require __DIR__ . '/rotas_api/rotas_referencias_api.php';
+
+        require __DIR__ . '/rotas_api/rotas_helper_api.php';
     }
 );

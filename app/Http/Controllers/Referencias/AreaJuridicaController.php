@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Referencias;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Referencias\AreaJuridica\AreaJuridicaFormRequestIndex;
 use App\Http\Requests\Referencias\AreaJuridica\AreaJuridicaFormRequestShow;
 use App\Http\Requests\Referencias\AreaJuridica\AreaJuridicaFormRequestStore;
 use App\Http\Requests\Referencias\AreaJuridica\AreaJuridicaFormRequestUpdate;
@@ -15,6 +16,12 @@ class AreaJuridicaController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public AreaJuridicaService $service) {}
+
+    public function index(AreaJuridicaFormRequestIndex $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->index($fluentData));
+    }
 
     public function store(AreaJuridicaFormRequestStore $formRequest)
     {

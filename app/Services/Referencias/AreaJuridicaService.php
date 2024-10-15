@@ -22,6 +22,12 @@ class AreaJuridicaService extends Service
 
     public function __construct(public AreaJuridica $model) {}
 
+    public function index(Fluent $requestData)
+    {
+        $resource = $this->model->all();
+        return $resource->toArray();
+    }
+    
     public function select2(Request $request)
     {
         $dados = new Fluent([

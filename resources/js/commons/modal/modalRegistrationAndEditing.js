@@ -29,6 +29,17 @@ export class modalRegistrationAndEditing extends modalDefault {
             objSuper.dataEnvModal ?? {}
         );
 
+        let objConfigs = {
+            url: {
+                base: undefined,
+            },
+        };
+
+        objSuper.objConfigs = Object.assign(
+            objConfigs,
+            objSuper.objConfigs ?? {}
+        );
+
         super(objSuper);
 
         this.#addEventsDefault();
@@ -61,9 +72,11 @@ export class modalRegistrationAndEditing extends modalDefault {
 
     async _getRecurse(options = {}) {
         const self = this;
-        const { idRegister = self._dataEnvModal.idRegister } = options;
+        const { idRegister = self._dataEnvModal.idRegister,
+            urlApi = self._objConfigs.url.base
+        } = options;
         try {
-            const obj = new connectAjax(self._objConfigs.url);
+            const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);
             return await obj.getRequest();
         } catch (error) {

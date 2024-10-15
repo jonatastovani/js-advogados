@@ -29,13 +29,6 @@ window.uuidVersion = uuidVersion;
 import moment from 'moment';
 window.moment = moment;
 
-// Importa o Select2 e vincula ao jQuery manualmente
 import 'select2';
-// select2();
 
-// import 'select2/dist/css/select2.css'; // Importa o CSS do select2
-// import 'select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.css';
-// import 'select2/dist/css/select2.css';
-// $.fn.select2 = select2;
-
-// console.log(typeof $.fn.select2); // Deve retornar "function"
+import 'jquery-mask-plugin';

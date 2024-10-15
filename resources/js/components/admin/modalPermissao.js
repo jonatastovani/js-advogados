@@ -13,7 +13,9 @@ export class modalPermissao extends modalRegistrationAndEditing {
      * Configuração local do modal
      */
     #objConfigs = {
-        url: window.apiRoutes.basePermissoes
+        url: {
+            base: window.apiRoutes.basePermissoes,
+        }
     };
 
     /** 
@@ -112,7 +114,7 @@ export class modalPermissao extends modalRegistrationAndEditing {
             return;
         };
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const url = self._dataEnvModal.idRegister ? `${window.apiRoutes.basePermissoes}/modulo/${modulo_id}/admin/exceto-permissao/${self._dataEnvModal.idRegister}` : `${window.apiRoutes.basePermissoes}/modulo/${modulo_id}/admin`;
+        const url = self._dataEnvModal.idRegister ? `${self._objConfigs.url.base}/modulo/${modulo_id}/admin/exceto-permissao/${self._dataEnvModal.idRegister}` : `${self._objConfigs.url.base}/modulo/${modulo_id}/admin`;
         await commonFunctions.fillSelect(selPermissaoPai, url, options);
     }
 
@@ -159,7 +161,7 @@ export class modalPermissao extends modalRegistrationAndEditing {
         let data = commonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
-            self._save(data, window.apiRoutes.basePermissoes);
+            self._save(data, self._objConfigs.url.base);
         }
     }
 
