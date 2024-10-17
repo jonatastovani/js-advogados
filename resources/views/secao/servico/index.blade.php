@@ -1,7 +1,6 @@
 @php
     $sufixo = 'PageServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'home' => route('servico.index'),
         'nome' => 'Serviços',
     ]);
     Session::put('paginaDados', $paginaDados);

@@ -2,7 +2,6 @@
     $sufixo = 'PageServicoForm';
     $recurso = isset($recurso) ? $recurso : null;
     $paginaDados = new Illuminate\Support\Fluent([
-        'home' => route('advocacia.index'),
         'nome' => $recurso ? 'Editar Serviço: ' . $recurso->numero_servico : 'Cadastrar Serviço',
         'descricao' => [
             [

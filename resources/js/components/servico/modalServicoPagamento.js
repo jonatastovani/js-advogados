@@ -176,7 +176,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
 
         let htmlAppend = '';
-        let btnEditar = self.#htmlBtnEdit({ title: 'Editar este lançamento' });
+        let btnEditar = '';
         lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
 
         if (lancamento.pagamento_id) {
