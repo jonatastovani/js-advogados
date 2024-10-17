@@ -172,32 +172,34 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
         const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
         const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-        const nome_conta = lancamento.conta.nome;
+        const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
+        const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
 
-        let htmlObservacao = '';
-        const idCard = UUIDHelper.generateUUID();
+        let htmlAppend = '';
+        let btnEditar = self.#htmlBtnEdit({ title: 'Editar este lançamento' });
+        lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+
         if (lancamento.pagamento_id) {
-            const observacao = lancamento.observacao ?? '';
-            htmlObservacao = `
-            <div class="row">
-                <div class="col">
-                    <label class="form-text" for="btnObservacao${idCard}">
-                        Observação (opcional)
-                        <button id="btnObservacao${idCard}" type="button" class="btn btn-sm btnObservacao" title="Clique para inserir ou alterar a observação">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </label>
-                    <p class="mb-0 text-truncate observacao-parcela" title="${observacao}">
-                        ${observacao}
-                    </p>
-                </div>
-            </div>`;
+            btnEditar = self.#htmlBtnEdit({ title: 'Editar este lançamento' });
+            if (lancamento.observacao) {
+                const observacao = lancamento.observacao ?? '';
+                htmlAppend = `
+                <div class="row">
+                    <div class="col">
+                        <label class="form-text">Observação (opcional)</label>
+                        <p class="mb-0 text-truncate observacao-parcela" title="${observacao}">
+                            ${observacao}
+                        </p>
+                    </div>
+                </div>`;
+            }
         }
 
         rowLancamentos.append(`
-            <div id="${idCard}" class="card p-0">
-                <div class="card-header">
-                    ${lancamento.descricao_automatica}
+            <div id="${lancamento.idCard}" class="card p-0">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span>${lancamento.descricao_automatica}</span>
+                    ${btnEditar}
                 </div>
                 <div class="card-body">
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
@@ -215,17 +217,49 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                         </div>
                         <div class="col">
                             <div class="form-text mt-0">Conta</div>
-                            <p class="mb-0 text-truncate" title="${nome_conta}">
+                            <p class="mb-0 text-truncate" title="${title_conta}">
                                 ${nome_conta}
                             </p>
                         </div>
                     </div>
-                    ${htmlObservacao}
+                    ${htmlAppend}
                 </div>
             </div>`);
 
-        lancamento.idCard = idCard;
+        self.#addEventosLancamentos(lancamento);
         return lancamento;
+    }
+
+    async #addEventosLancamentos(lancamento) {
+        const self = this;
+
+        $(`#${lancamento.idCard}`).find('.btn-edit').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                commonFunctions.generateNotification('Editando lancamento...', 'info');
+                // const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
+                // objModal.setDataEnvModal = {
+                //     idRegister: item.id,
+                // }
+                // const response = await objModal.modalOpen();
+                // console.log(response);
+                // if (response.refresh && response.register) {
+                //     // AtualizarRegistro
+                // }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+    }
+
+    #htmlBtnEdit(options = {}) {
+        const {
+            title = 'Editar registro',
+        } = options;
+        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" title="${title}"><i class="bi bi-pencil"></i></button>`;
     }
 
     async #buscarDadosPagamentoTipo(modo_editar_bln = false) {
@@ -290,6 +324,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 await self.#buscarDadosPagamentoTipo(true);
 
                 const form = $(self.getIdModal).find('.formRegistration');
+                form.find('select[name="conta_id"]').val(responseData.conta_id);
                 for (const campo of configuracao.campos_obrigatorios) {
                     const rules = campo.formRequestRule.split('|');
                     let valor = responseData[campo.nome];
@@ -302,23 +337,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 for (const lancamento of responseData.lancamentos) {
                     self.#inserirLancamentos(lancamento);
                 }
-                // form.find('input[name="nome"]').val(responseData.nome);
-                // form.find('input[name="nome_completo"]').val(responseData.nome_completo);
-                // form.find('textarea[name="descricao"]').val(responseData.descricao);
-                // form.find('input[name="ativo"]').prop('checked', responseData.ativo);
-
-                // form.find('input[name="permite_subst_bln"]').prop('checked', responseData.permite_subst_bln);
-                // form.find('input[name="gerencia_perm_bln"]').prop('checked', responseData.gerencia_perm_bln);
-
-                // if (responseData.config?.grupo?.modulo_id) {
-                //     await self.#buscarContas(responseData.config.grupo.modulo_id);
-                //     form.find('select[name="grupo_id"]').val(responseData.config.grupo_id);
-                //     form.find('select[name="permissao_pai_id"]').val(responseData.config.permissao_pai_id);
-                // } else {
-                //     commonFunctions.generateNotification('Esta permissão não possui configuração cadastrada. Favor completar o cadastro.', 'warning');
-                //     $(self.getIdModal).find('#configuracoesModalServicoPagamento-tab').trigger('click');
-                // }
-                // self._executeFocusElementOnModal(form.find('input[name="nome"]'));
+                form.find('input[name="observacao"]').val(responseData.observacao);
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

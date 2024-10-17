@@ -36,7 +36,7 @@ return new class extends Migration
             $table->float('valor_recebido')->nullable();
             $table->string('data_recebimento')->nullable();
 
-            $table->uuid('conta_id');
+            $table->uuid('conta_id')->nullable();
             $table->foreign('conta_id')->references('id')->on(App\Models\Financeiro\Conta::getTableName());
             
             $table->unsignedBigInteger('status_id');

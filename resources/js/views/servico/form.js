@@ -146,8 +146,8 @@ class PageServicoForm {
             item.statusSalvo = false;
         }
 
-        let strBtns = self.#HtmlBtnEdit({ title: `Editar anotação ${item.titulo}` });
-        strBtns += self.#HtmlBtnDelete({ title: `Excluir anotação ${item.titulo}` });
+        let strBtns = self.#htmlBtnEdit({ title: `Editar anotação ${item.titulo}` });
+        strBtns += self.#htmlBtnDelete({ title: `Excluir anotação ${item.titulo}` });
 
         const strToHtml = commonFunctions.formatStringToHTML(item.descricao);
         let strCard = `
@@ -180,11 +180,11 @@ class PageServicoForm {
         const self = this;
         const divPagamento = $(`#divPagamento${self.#sufixo}`);
 
-        item.idCard = UUIDHelper.generateUUID();
+        item.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
         const created_at = `<span class="text-body-secondary d-block">Pagamento lançado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
-        let strBtns = self.#HtmlBtnEdit({ title: `Editar pagamento ${item.pagamento_tipo_tenant.nome}` });
-        strBtns += self.#HtmlBtnDelete({ title: `Excluir pagamento ${item.pagamento_tipo_tenant.nome}` });
+        let strBtns = self.#htmlBtnEdit({ title: `Editar pagamento ${item.pagamento_tipo_tenant.nome}` });
+        strBtns += self.#htmlBtnDelete({ title: `Excluir pagamento ${item.pagamento_tipo_tenant.nome}` });
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
         let htmlAppend = self.#htmlAppendPagamento(item);
@@ -193,18 +193,20 @@ class PageServicoForm {
         let strCard = `
             <div id="${item.idCard}" class="card p-0">
                 <div class="card-body">
-                    <h5 class="card-title">${item.pagamento_tipo_tenant.nome}</h5>
+                    <h5 class="card-title d-flex align-items-center justify-content-between">
+                        <span>${item.pagamento_tipo_tenant.nome}</span>
+                        <div>
+                            <div class="d-grid gap-2 d-flex justify-content-end">
+                                ${strBtns}
+                            </div>
+                        </div>
+                    </h5>
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
                         ${htmlColsEspecifico}
                     </div>
                     ${htmlAppend}
                     ${htmlLancamentos}
-                    <div class="row justify-content-end g-2 gap-2 mt-2">
-                        ${strBtns}
-                    </div>
-                </div>
-                <div class="card-footer text-body-secondary">
-                    ${created_at}
+                    <div class="form-text mt-2">${created_at}</div>
                 </div>
             </div>`;
 
@@ -324,7 +326,9 @@ class PageServicoForm {
     }
 
     #htmlLancamentos(item) {
-        let lancamentos = '';
+        const self = this;
+
+        let htmlLancamentos = '';
         for (const lancamento of item.lancamentos) {
             let htmlObservacao = '';
             if (lancamento.observacao) {
@@ -333,10 +337,13 @@ class PageServicoForm {
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
             const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-            const nome_conta = lancamento.conta.nome;
+            const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
+            const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
 
-            lancamentos += `
-                <div id="${lancamento.id}" class="card p-0">
+            lancamento.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
+
+            htmlLancamentos += `
+                <div id="${lancamento.idCard}" class="card p-0">
                     <div class="card-header">
                         ${lancamento.descricao_automatica}
                     </div>
@@ -356,7 +363,7 @@ class PageServicoForm {
                             </div>
                             <div class="col">
                                 <div class="form-text mt-0">Conta</div>
-                                <p class="mb-0 text-truncate" title="${nome_conta}">
+                                <p class="mb-0 text-truncate" title="${title_conta}">
                                     ${nome_conta}
                                 </p>
                             </div>
@@ -378,7 +385,7 @@ class PageServicoForm {
                 <div id="collapseOne${item.id}" class="accordion-collapse collapse"
                     data-bs-parent="#accordionPagamento${item.id}">
                     <div class="accordion-body">
-                        <div class="row row-cols-1 g-2">${lancamentos}</div>
+                        <div class="row row-cols-1 g-2">${htmlLancamentos}</div>
                     </div>
                 </div>
             </div>
@@ -386,18 +393,18 @@ class PageServicoForm {
         return html;
     }
 
-    #HtmlBtnEdit(options = {}) {
+    #htmlBtnEdit(options = {}) {
         const {
             title = 'Editar registro',
         } = options;
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit w-50" style="max-width: 7rem" title="${title}"><i class="bi bi-pencil"></i> Editar</button>`;
+        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-pencil"></i> Editar</button>`;
     }
 
-    #HtmlBtnDelete(options = {}) {
+    #htmlBtnDelete(options = {}) {
         const {
             title = 'Editar registro',
         } = options;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete w-50" style="max-width: 7rem" title="${title}"><i class="bi bi-trash"></i> Excluir</button>`
+        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-trash"></i> Excluir</button>`
     }
 
     async #addEventosAnotacao(item) {

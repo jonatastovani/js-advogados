@@ -99,7 +99,6 @@ class ServicoPagamentoService extends Service
                 $newLancamento->data_vencimento = $lancamento->data_vencimento;
                 $newLancamento->valor_esperado = $lancamento->valor_esperado;
                 $newLancamento->status_id = ServicoPagamentoLancamentoStatusTipoEnum::statusPadraoSalvamento();
-                $newLancamento->conta_id = $lancamento->conta_id;
 
                 $newLancamento->save();
             }
@@ -175,6 +174,8 @@ class ServicoPagamentoService extends Service
         ]);
     }
 
+/*************  ✨ Codeium Command ⭐  *************/
+/******  678ba70f-5d6a-4e2e-9674-c4ad357bed7e  *******/
     private function loadFull(): array
     {
         return [
