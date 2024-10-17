@@ -32,4 +32,23 @@ class ServicoController extends Controller
         }
         return view('secao.servico.form.form');
     }
+
+    public function participacaoIndex()
+    {
+        return view('secao.servico.participacao.index');
+    }
+
+    public function participacaoForm()
+    {
+        return view('secao.servico.participacao.form.form');
+    }
+
+    public function participacaoFormEditar(Request $request)
+    {
+        $recurso = Servico::find($request->uuid);
+        if ($recurso) {
+            return view('secao.servico.participacao.form.form', compact('recurso'));
+        }
+        return view('secao.servico.participacao.form.form');
+    }
 }

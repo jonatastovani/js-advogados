@@ -30,6 +30,8 @@
                         @else
                             @component('components.nav.nav-vertical-secao.nav-servico')
                             @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-funcao-grupo-funcao')
+                            @endcomponent
                         @endif
                     </ul>
                 </div>
