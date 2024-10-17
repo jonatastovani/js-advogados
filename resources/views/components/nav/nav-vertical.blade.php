@@ -27,8 +27,8 @@
                         @if (Request::is('admin') || Request::is('admin/*'))
                             @component('components.nav.nav-admin')
                             @endcomponent
-                        @elseif (Request::is('modulo/inteligencia') || Request::is('modulo/inteligencia/*'))
-                            @component('components.nav.nav-inteligencia')
+                        @else
+                            @component('components.nav.nav-vertical-secao.nav-servico')
                             @endcomponent
                         @endif
                     </ul>

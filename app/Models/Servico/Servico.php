@@ -79,8 +79,8 @@ class Servico extends Model
     {
         parent::boot();
         static::addGlobalScope(new ValorServicoScope);
-        static::addGlobalScope(new ValorServicoAguardandoScope);
         static::addGlobalScope(new ValorServicoLiquidadoScope);
+        static::addGlobalScope(new ValorServicoAguardandoScope);
         static::addGlobalScope(new ValorServicoInadimplenteScope);
 
         static::creating(function (Model $model) {
