@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\TarefaTipo();
+        $this->model = new App\Models\Servico\ServicoParticipacaoPresetRelacaoGrupo();
     }
 
     /**
@@ -24,9 +24,13 @@ return new class extends Migration
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
+            $this->addDomainIDField($table);
 
-            $table->string('nome');
-            $table->string('descricao')->nullable();
+            $table->uuid('preset_relacao_id');
+            $table->foreign('preset_relacao_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetRelacao::getTableName());
+
+            $table->uuid('perfil_id');
+            // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

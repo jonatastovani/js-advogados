@@ -7,10 +7,10 @@ use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TarefaRegistoTipo extends Model
+class ParticipacaoRegistroTipo extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'referencias.tarefa_registo_tipos';
-    protected $tableAsName = 'tar_reg_tipo';
+    protected $table = 'referencias.participacao_registro_tipos';
+    protected $tableAsName = 'part_reg_tipos';
 }

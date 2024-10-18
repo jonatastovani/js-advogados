@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Referencias\TarefaRegistoTipo();
+        $this->model = new \App\Models\Referencias\ParticipacaoRegistroTipo();
     }
 
     /**
@@ -25,6 +25,10 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->string('descricao')->nullable();
+            $table->string('tabela_ref');
+            $table->string('tabela_model');
+
+            $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }
 

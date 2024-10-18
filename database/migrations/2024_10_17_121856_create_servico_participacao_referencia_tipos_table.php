@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoPagamentoTarefaPreset();
+        $this->model = new App\Models\Referencias\ServicoParticipacaoReferenciaTipo();
     }
 
     /**
@@ -22,12 +22,13 @@ return new class extends Migration
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
-            $this->addIDFieldAsUUID($table);
-            $this->addTenantIDField($table);
-            $this->addDomainIDField($table);
+            $table->id();
 
             $table->string('nome');
             $table->string('descricao')->nullable();
+
+            $table->string('tabela_ref');
+            $table->string('tabela_model');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

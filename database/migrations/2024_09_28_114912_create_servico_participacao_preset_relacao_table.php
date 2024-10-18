@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoPagamentoTarefaPresetRelacaoGrupo();
+        $this->model = new \App\Models\Servico\ServicoParticipacaoPresetRelacao();
     }
 
     /**
@@ -26,11 +26,22 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('preset_relacao_id');
-            $table->foreign('preset_relacao_id')->references('id')->on(App\Models\Servico\ServicoPagamentoTarefaPresetRelacao::getTableName());
+            $table->uuid('preset_id');
+            $table->foreign('preset_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPreset::getTableName());
+
+            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->foreign('participacao_registro_tipo_id')->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
 
             $table->uuid('perfil_id');
             // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
+
+            $table->uuid('participacao_tipo_id');
+            $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoTipo::getTableName());
+
+            $table->string('nome_grupo')->nullable();
+            $table->decimal('porcentagem', 5)->nullable();
+            $table->float('valor_fixo')->nullable();
+            $table->string('observacao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

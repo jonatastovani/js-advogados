@@ -9,7 +9,9 @@ use Database\Seeders\Referencias\ContaStatusTipoSeeder;
 use Database\Seeders\Referencias\ContaSubtipoSeeder;
 use Database\Seeders\Referencias\ContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
+use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
+use Database\Seeders\Referencias\ServicoParticipacaoReferenciaTipoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -38,6 +40,8 @@ class DatabaseSeeder extends Seeder
             PagamentoTipoSeeder::class,
             PagamentoTipoTenantSeeder::class,
             ContaSeeder::class,
+            ParticipacaoRegistroTipoSeeder::class,
+            ServicoParticipacaoReferenciaTipoSeeder::class,
         ]);
     }
 }

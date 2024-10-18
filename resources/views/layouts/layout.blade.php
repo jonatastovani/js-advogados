@@ -23,7 +23,7 @@
     @component('components.nav.nav-top')
     @endcomponent
 
-    <div class="content">
+    <div class="content d-flex flex-column">
         @yield('conteudo')
     </div>
 
