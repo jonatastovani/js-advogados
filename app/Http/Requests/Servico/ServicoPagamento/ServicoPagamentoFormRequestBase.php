@@ -5,7 +5,7 @@ namespace App\Http\Requests\Servico\ServicoPagamento;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
-use App\Models\Financeiro\PagamentoTipoTenant;
+use App\Models\Tenant\PagamentoTipoTenant;
 use Illuminate\Support\Fluent;
 
 class ServicoPagamentoFormRequestBase extends BaseFormRequest

@@ -55,9 +55,6 @@
                     <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
                         Salvar
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-cancel w-50" style="max-width: 7rem">
-                        Cancelar
-                    </button>
                 </div>
             </div>
         </div>

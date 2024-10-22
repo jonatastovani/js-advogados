@@ -22,25 +22,51 @@ Route::group([
             Route::delete('{uuid}', 'destroy');
         });
 
-        Route::prefix('{servico_uuid}/anotacao')->group(function () {
+        Route::prefix('{servico_uuid}')->group(function () {
 
-            Route::controller(App\Http\Controllers\Servico\ServicoAnotacaoController::class)->group(function () {
-                Route::post('', 'store');
-                Route::get('{uuid}', 'show');
-                Route::put('{uuid}', 'update');
-                Route::delete('{uuid}', 'destroy');
+            Route::prefix('anotacao')->group(function () {
+
+                Route::controller(App\Http\Controllers\Servico\ServicoAnotacaoController::class)->group(function () {
+                    Route::post('', 'store');
+                    Route::get('{uuid}', 'show');
+                    Route::put('{uuid}', 'update');
+                    Route::delete('{uuid}', 'destroy');
+                });
+            });
+
+            Route::prefix('pagamentos')->group(function () {
+
+                Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {
+
+                    Route::get('', 'index');
+                    Route::post('', 'store');
+                    Route::get('{uuid}', 'show');
+                    Route::put('{uuid}', 'update');
+                    Route::delete('{uuid}', 'destroy');
+                });
+            });
+
+            Route::prefix('relatorio/valores')->group(function () {
+
+                Route::controller(App\Http\Controllers\Servico\ServicoController::class)->group(function () {
+                    Route::get('', 'getRelatorioValores');
+                });
             });
         });
+    });
 
-        Route::prefix('{servico_uuid}/pagamentos')->group(function () {
+    Route::prefix('tenant')->group(function () {
 
-            Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {
-                
+        Route::prefix('area-juridica')->group(function () {
+
+            Route::controller(App\Http\Controllers\Tenant\AreaJuridicaTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
                 Route::get('', 'index');
-                Route::post('', 'store');
+                Route::post('', 'store')->name('api.tenant.area-juridica');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
-                Route::delete('{uuid}', 'destroy');
             });
         });
     });

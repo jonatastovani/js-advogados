@@ -5,7 +5,7 @@ namespace App\Services\Servico;
 use App\Common\CommonsFunctions;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Referencias\AreaJuridica;
+use App\Models\Tenant\AreaJuridicaTenant;
 use App\Models\Servico\Servico;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
@@ -59,20 +59,20 @@ class ServicoService extends Service
         $arrayErrors = new Fluent();
 
         $resource = null;
-        $checkDeletedAlteracaoAreaJuridica = true;
+        $checkDeletedAlteracaoAreaJuridicaTenant = true;
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
 
             if ($resource->area_juridica_id == $requestData->area_juridica_id) {
-                $checkDeletedAlteracaoAreaJuridica = false;
+                $checkDeletedAlteracaoAreaJuridicaTenant = false;
             }
         } else {
             $resource = new $this->model();
         }
 
         //Verifica se a área jurídica informada existe
-        $validacaoAreaJuridicaId = ValidationRecordsHelper::validateRecord(AreaJuridica::class, ['id' => $requestData->area_juridica_id], $checkDeletedAlteracaoAreaJuridica);
-        if (!$validacaoAreaJuridicaId->count()) {
+        $validacaoAreaJuridicaTenantId = ValidationRecordsHelper::validateRecord(AreaJuridicaTenant::class, ['id' => $requestData->area_juridica_id], $checkDeletedAlteracaoAreaJuridicaTenant);
+        if (!$validacaoAreaJuridicaTenantId->count()) {
             $arrayErrors->area_juridica_id = LogHelper::gerarLogDinamico(404, 'A Área Jurídica informada não existe ou foi excluída.', $requestData)->error;
         }
 
@@ -88,7 +88,7 @@ class ServicoService extends Service
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
-        return parent::buscarRecurso($requestData, ['message' => 'O Serviço não foi encontrado.']);
+        return parent::buscarRecurso($requestData, array_merge(['message' => 'O Serviço não foi encontrado.'], $options));
     }
 
     private function loadFull(): array
@@ -102,6 +102,18 @@ class ServicoService extends Service
             'pagamento.lancamentos.conta'
         ];
     }
+
+    public function getRelatorioValores(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData, ['conditions' => ['id' => $requestData->servico_uuid]]);
+        $data = new Fluent();
+        $data->total_aguardando = $resource->total_aguardando;
+        $data->total_inadimplente = $resource->total_inadimplente;
+        $data->total_liquidado = $resource->total_liquidado;
+        $data->valor_servico = $resource->valor_servico;
+        return $data->toArray();
+    }
+
 
     // private function executarEventoWebsocket()
     // {

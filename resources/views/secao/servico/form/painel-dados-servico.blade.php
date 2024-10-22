@@ -14,7 +14,7 @@
                 </div> --}}
                 <select name="area_juridica_id" id="area_juridica_id{{ $sufixo }}" class="form-select">
                 </select>
-                <button id="btnOpenAreaJuridica{{ $sufixo }}" type="button" class="btn btn-outline-primary">
+                <button id="btnOpenAreaJuridicaTenant{{ $sufixo }}" type="button" class="btn btn-outline-primary">
                     <i class="bi bi-search"></i>
                 </button>
             </div>

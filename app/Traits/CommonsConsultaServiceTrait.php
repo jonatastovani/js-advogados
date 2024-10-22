@@ -17,7 +17,12 @@ trait CommonsConsultaServiceTrait
     public function postConsultaFiltros(Fluent $requestData)
     {
         $query = $this->consultaSimplesComFiltros($requestData);
-        // RestResponse::createTestResponse([$query->toSql(),$query->getBindings()]);
+
+        // Verifica se o método 'loadFull' existe antes de chamar
+        if (method_exists($this, 'loadFull')) {
+            $query->with($this->loadFull());
+        }
+
         return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 

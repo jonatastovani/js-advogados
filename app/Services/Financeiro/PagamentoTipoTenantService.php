@@ -7,7 +7,7 @@ use App\Common\RestResponse;
 use App\Enums\PagamentoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\PagamentoTipoTenant;
+use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Referencias\PagamentoTipo;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;

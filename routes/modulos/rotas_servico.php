@@ -14,9 +14,9 @@ Route::controller(App\Http\Controllers\View\Servico\ServicoController::class)->g
 
         Route::prefix('participacao')->group(function () {
 
-            Route::get('', 'participacaoIndex')->name('servico.participacao.index');
-            Route::get('/form', 'participacaoForm')->name('servico.participacao.form');
-            Route::get('/form/{uuid}', 'participacaoFormEditar');
+            Route::get('', 'participacaoPresetIndex')->name('servico.participacao.index');
+            Route::get('/form', 'participacaoPresetForm')->name('servico.participacao.form');
+            Route::get('/form/{uuid}', 'participacaoPresetFormEditar');
         });
     });
 });

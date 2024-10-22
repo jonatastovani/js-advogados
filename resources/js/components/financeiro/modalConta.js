@@ -150,7 +150,7 @@ export class modalConta extends modalSearchAndFormRegistration {
                 const select = self._dataEnvModal.attributes.select;
 
                 const pushSelected = (item) => {
-                    if (self._dataEnvModal.attributes.select?.max) {
+                    if (select?.max) {
                         self._promisseReturnValue.selected = item;
                     } else {
                         self._promisseReturnValue.selecteds.push(item);

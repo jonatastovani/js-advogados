@@ -11,6 +11,7 @@ use App\Http\Requests\Servico\Servico\ServicoFormRequestUpdate;
 use App\Services\Servico\ServicoService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
+use Illuminate\Http\Request;
 
 class ServicoController extends Controller
 {
@@ -40,5 +41,11 @@ class ServicoController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->destroy($fluentData));
+    }
+
+    public function getRelatorioValores(Request $request)
+    {
+        $fluentData = $this->makeFluent($request);
+        return $this->retornoPadrao($this->service->getRelatorioValores($fluentData));
     }
 }

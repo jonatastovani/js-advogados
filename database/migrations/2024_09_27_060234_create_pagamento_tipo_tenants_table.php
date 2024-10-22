@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Financeiro\PagamentoTipoTenant();
+        $this->model = new App\Models\Tenant\PagamentoTipoTenant();
     }
 
     /**
@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->string('nome');
 
-            $table->unsignedBigInteger('pagamento_tipo_id');
+            $table->unsignedSmallInteger('pagamento_tipo_id');
             $table->foreign('pagamento_tipo_id')->references('id')->on(App\Models\Referencias\PagamentoTipo::getTableName());
 
             $table->json('configuracao');

@@ -2,10 +2,10 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalMessage } from "../../components/comum/modalMessage";
-import { modalAreaJuridica } from "../../components/referencias/modalAreaJuridica";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoAnotacao } from "../../components/servico/modalServicoAnotacao";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
+import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
@@ -20,7 +20,8 @@ class PageServicoForm {
             base: window.apiRoutes.baseServico,
             baseAnotacao: undefined,
             basePagamentos: undefined,
-            baseAreaJuridica: window.apiRoutes.baseAreaJuridica,
+            baseValores: undefined,
+            baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
         },
         data: {
         }
@@ -41,6 +42,7 @@ class PageServicoForm {
             self.#idRegister = uuid;
             self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
             self.#objConfigs.url.basePagamentos = `${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`;
+            self.#objConfigs.url.baseValores = `${self.#objConfigs.url.base}/${self.#idRegister}/relatorio/valores`;
             this.#action = enumAction.PUT;
             self.#buscarDados();
         } else {
@@ -53,11 +55,11 @@ class PageServicoForm {
     #addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenAreaJuridica${self.#sufixo}`).on('click', async function () {
+        $(`#btnOpenAreaJuridicaTenant${self.#sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAreaJuridica();
+                const objModal = new modalAreaJuridicaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -397,14 +399,14 @@ class PageServicoForm {
         const {
             title = 'Editar registro',
         } = options;
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-pencil"></i> Editar</button>`;
+        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" style="max-width: 7rem" title="${title}">Editar</button>`;
     }
 
     #htmlBtnDelete(options = {}) {
         const {
             title = 'Editar registro',
         } = options;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-trash"></i> Excluir</button>`
+        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}">Excluir</button>`
     }
 
     async #addEventosAnotacao(item) {
@@ -549,10 +551,6 @@ class PageServicoForm {
                 form.find('input[name="titulo"]').val(responseData.titulo);
                 commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
                 form.find('textarea[name="descricao"]').val(responseData.descricao);
-                self.#atualizarValorServico(responseData.valor_servico);
-                self.#atualizarTotalAguardando(responseData.total_aguardando);
-                self.#atualizarTotalLiquidado(responseData.total_liquidado);
-                self.#atualizarTotalInadimplente(responseData.total_inadimplente);
 
                 responseData.anotacao.forEach(item => {
                     self.#inserirAnotacao(item);
@@ -561,6 +559,7 @@ class PageServicoForm {
                 responseData.pagamento.forEach(item => {
                     self.#inserirPagamento(item);
                 });
+                self.#atualizaTodosValores(response.data);
             } else {
                 form.find('input, textarea, select, button').prop('disabled', true);
             }
@@ -569,6 +568,14 @@ class PageServicoForm {
         } finally {
             await commonFunctions.loadingModalDisplay(false);
         }
+    }
+
+    #atualizaTodosValores(data) {
+        const self = this;
+        self.#atualizarValorServico(data.valor_servico);
+        self.#atualizarTotalAguardando(data.total_aguardando);
+        self.#atualizarTotalLiquidado(data.total_liquidado);
+        self.#atualizarTotalInadimplente(data.total_inadimplente);
     }
 
     #atualizarValorServico(valor) {
@@ -595,7 +602,7 @@ class PageServicoForm {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
         const selArea = $(`#area_juridica_id${self.#sufixo}`);
-        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridica, options);
+        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options);
     }
 
     async #buscarPagamentos() {
@@ -605,9 +612,20 @@ class PageServicoForm {
             const response = await obj.getRequest();
             $(`#divPagamento${self.#sufixo}`).html('');
             for (const item of response.data) {
-                console.log(item);
                 self.#inserirPagamento(item);
             }
+            await self.#buscarValores();
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+    async #buscarValores() {
+        const self = this;
+        try {
+            const obj = new connectAjax(self.#objConfigs.url.baseValores);
+            const response = await obj.getRequest();
+            self.#atualizaTodosValores(response.data);
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }

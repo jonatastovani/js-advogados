@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('nome');
             $table->text('descricao')->nullable();
 
-            $table->unsignedBigInteger('conta_tipo_id');
+            $table->unsignedSmallInteger('conta_tipo_id');
             $table->foreign('conta_tipo_id')->references('id')->on(App\Models\Referencias\ContaTipo::getTableName());
 
             $table->boolean('ativo_bln')->default(true);

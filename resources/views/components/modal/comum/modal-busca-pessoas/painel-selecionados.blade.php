@@ -1,1 +1,0 @@
-@include('components.modal.comum.modal-busca-pessoas.tabela-dados', ['sufixo' => $sufixo])

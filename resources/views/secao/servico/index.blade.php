@@ -62,7 +62,7 @@
 
 
 @push('modals')
-    <x-modal.referencias.modalAreaJuridica.modal />
+    <x-modal.tenant.modalAreaJuridicaTenant.modal />
 @endpush
 
 @push('scripts')
@@ -70,7 +70,7 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseServico' => route('api.servico'),
-            'baseAreaJuridica' => route('api.referencias.area-juridica'),
+            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
         ],
     ])
     @endcomponent

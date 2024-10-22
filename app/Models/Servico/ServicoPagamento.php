@@ -3,7 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Models\Financeiro\Conta;
-use App\Models\Financeiro\PagamentoTipoTenant;
+use App\Models\Tenant\PagamentoTipoTenant;
 use App\Scopes\Servico\ValorServicoPagamentoAguardandoScope;
 use App\Scopes\Servico\ValorServicoPagamentoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoPagamentoLiquidadoScope;

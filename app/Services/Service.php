@@ -39,6 +39,12 @@ abstract class Service
     public function show(Fluent $requestData)
     {
         $resource = $this->buscarRecurso($requestData);
+
+        // Verifica se o método 'loadFull' existe antes de chamar
+        if (method_exists($this, 'loadFull')) {
+            $resource->load($this->loadFull());
+        }
+
         return $resource->toArray();
     }
 

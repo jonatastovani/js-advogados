@@ -2,25 +2,23 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalAreaJuridica } from "../../../components/referencias/modalAreaJuridica";
+import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoAnotacao } from "../../../components/servico/modalServicoAnotacao";
 import { modalServicoPagamento } from "../../../components/servico/modalServicoPagamento";
+import { modalServicoParticipacao } from "../../../components/servico/modalServicoParticipacao";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import SimpleBarHelper from "../../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageServicoParticipacaoForm {
+class PageServicoParticipacaoPresetForm {
 
-    #sufixo = 'PageServicoParticipacaoForm';
+    #sufixo = 'PageServicoParticipacaoPresetForm';
     #objConfigs = {
         url: {
-            base: window.apiRoutes.baseServico,
-            baseAnotacao: undefined,
-            basePagamentos: undefined,
-            baseAreaJuridica: window.apiRoutes.baseAreaJuridica,
+            base: window.apiRoutes.baseParticipacaoPreset,
         },
         data: {
         }
@@ -34,13 +32,11 @@ class PageServicoParticipacaoForm {
 
     initEvents() {
         const self = this;
-        this.#buscarAreasJuridicas();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
             self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
-            self.#objConfigs.url.basePagamentos = `${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`;
             this.#action = enumAction.PUT;
             // self.#buscarDados();
         } else {
@@ -53,11 +49,11 @@ class PageServicoParticipacaoForm {
     #addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenAreaJuridica${self.#sufixo}`).on('click', async function () {
+        $(`#btnInserirPessoa${self.#sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAreaJuridica();
+                const objModal = new modalPessoa();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -67,14 +63,15 @@ class PageServicoParticipacaoForm {
                     }
                 }
                 const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarAreasJuridicas(item.id);
-                    } else {
-                        self.#buscarAreasJuridicas();
-                    }
-                }
+                console.log(response);
+                // if (response.refresh) {
+                //     if (response.selecteds.length > 0) {
+                //         const item = response.selecteds[0];
+                //         self.#buscarAreasJuridicas(item.id);
+                //     } else {
+                //         self.#buscarAreasJuridicas();
+                //     }
+                // }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
@@ -87,11 +84,11 @@ class PageServicoParticipacaoForm {
             self.#saveButtonAction();
         });
 
-        $(`#btnAdicionarAnotacao${self.#sufixo}`).on('click', async function () {
+        $(`#btnAdicionarParticipacao${self.#sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                const objModal = new modalServicoParticipacao(self.#objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -595,7 +592,7 @@ class PageServicoParticipacaoForm {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
         const selArea = $(`#area_juridica_id${self.#sufixo}`);
-        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridica, options);
+        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options);
     }
 
     async #buscarPagamentos() {
@@ -678,5 +675,5 @@ class PageServicoParticipacaoForm {
 }
 
 $(function () {
-    new PageServicoParticipacaoForm();
+    new PageServicoParticipacaoPresetForm();
 });

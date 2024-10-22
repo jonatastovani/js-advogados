@@ -6,20 +6,6 @@ Route::group([
     'prefix' => 'referencias',
 ], function () {
 
-    Route::prefix('area-juridica')->group(function () {
-
-        Route::controller(App\Http\Controllers\Referencias\AreaJuridicaController::class)->group(function () {
-
-            // Route::post('select2', 'select2');
-            Route::post('consulta-filtros', 'postConsultaFiltros');
-
-            Route::get('', 'index');
-            Route::post('', 'store')->name('api.referencias.area-juridica');
-            Route::get('{uuid}', 'show');
-            Route::put('{uuid}', 'update');
-        });
-    });
-
     Route::prefix('conta-subtipo')->group(function () {
 
         Route::controller(App\Http\Controllers\Referencias\ContaSubtipoController::class)->group(function () {

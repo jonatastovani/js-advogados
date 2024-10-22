@@ -30,7 +30,7 @@ return new class extends Migration
             $table->foreign('servico_id')->references('id')->on(App\Models\Servico\Servico::getTableName());
 
             $table->uuid('pagamento_tipo_tenant_id');
-            $table->foreign('pagamento_tipo_tenant_id')->references('id')->on(App\Models\Financeiro\PagamentoTipoTenant::getTableName());
+            $table->foreign('pagamento_tipo_tenant_id')->references('id')->on(App\Models\Tenant\PagamentoTipoTenant::getTableName());
 
             $table->uuid('conta_id');
             $table->foreign('conta_id')->references('id')->on(App\Models\Financeiro\Conta::getTableName());

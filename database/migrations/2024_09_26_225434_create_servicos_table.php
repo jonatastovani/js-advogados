@@ -31,7 +31,7 @@ return new class extends Migration
             $table->text('descricao');
 
             $table->uuid('area_juridica_id');
-            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Referencias\AreaJuridica::getTableName());
+            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Tenant\AreaJuridicaTenant::getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

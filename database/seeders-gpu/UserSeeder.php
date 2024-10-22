@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Helpers\UUIDsHelpers;
-use App\Models\User;
+use App\Models\Auth\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 

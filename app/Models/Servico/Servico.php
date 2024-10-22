@@ -3,7 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
-use App\Models\Referencias\AreaJuridica;
+use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
 use App\Scopes\Servico\ValorServicoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoLiquidadoScope;
@@ -35,7 +35,7 @@ class Servico extends Model
 
     public function area_juridica()
     {
-        return $this->belongsTo(AreaJuridica::class);
+        return $this->belongsTo(AreaJuridicaTenant::class);
     }
 
     public function anotacao()

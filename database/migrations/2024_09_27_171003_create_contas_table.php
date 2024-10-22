@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('banco')->nullable();
             $table->json('configuracao')->nullable();
 
-            $table->unsignedBigInteger('conta_status_id');
+            $table->unsignedSmallInteger('conta_status_id');
             $table->foreign('conta_status_id')->references('id')->on(App\Models\Referencias\ContaStatusTipo::getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

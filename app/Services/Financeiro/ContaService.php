@@ -31,7 +31,7 @@ class ContaService extends Service
     public function postConsultaFiltros(Fluent $requestData)
     {
         $query = $this->consultaSimplesComFiltros($requestData);
-        $query->with('conta_subtipo', 'conta_status', 'ultima_movimentacao');
+        $query->with($this->loadFull());
         return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
@@ -69,13 +69,6 @@ class ContaService extends Service
             'col_banco' => ['campo' => $arrayAliasCampos['col_banco'] . '.banco'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
-    }
-
-    public function show(Fluent $requestData)
-    {
-        $resource = $this->buscarRecurso($requestData);
-        $resource->load('conta_subtipo', 'conta_status', 'ultima_movimentacao');
-        return $resource->toArray();
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
@@ -128,6 +121,15 @@ class ContaService extends Service
         return parent::buscarRecurso($requestData, [
             'message' => 'A Conta não foi encontrada.',
         ]);
+    }
+
+    private function loadFull(): array
+    {
+        return [
+            'conta_subtipo',
+            'conta_status',
+            'ultima_movimentacao'
+        ];
     }
 
     // private function executarEventoWebsocket()

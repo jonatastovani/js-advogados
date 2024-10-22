@@ -1,0 +1,1 @@
+@include('components.modal.pessoa.modal-pessoa.tabela-dados', ['sufixo' => $sufixo])

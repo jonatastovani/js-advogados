@@ -27,7 +27,7 @@ return new class extends Migration
     {
         Schema::create($this->model::getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
-            
+
             $table->foreignUuid('user_id');
 
             $this->addTenantIDField($table);

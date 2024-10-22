@@ -3,14 +3,14 @@
 namespace App\Common;
 
 use App\Models\RefPermissaoConfig;
-use App\Models\User;
+use App\Models\Auth\User;
 
 class PermissaoService
 {
     /**
      * Verifica se o usuário possui recursivamente alguma das permissões especificadas ou suas permissões pai.
      *
-     * @param \App\Models\User $user O usuário para verificar as permissões.
+     * @param \App\Models\Auth\User $user O usuário para verificar as permissões.
      * @param array $permissaoIds Um array contendo IDs das permissões a serem verificadas.
      * @return bool Retorna true se o usuário tem alguma das permissões, caso contrário, retorna false.
      */

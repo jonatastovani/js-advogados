@@ -13,9 +13,9 @@
 
 <body>
     {{ Session::put('tenantDados', \App\Models\Auth\Tenant::find(tenant('id'))) }}
-
+{{-- 
     @component('components.toggleMode')
-    @endcomponent
+    @endcomponent --}}
 
     @component('components.nav.nav-vertical')
     @endcomponent
