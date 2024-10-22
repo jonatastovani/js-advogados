@@ -15,7 +15,7 @@ class TenantUserGroup extends Model
 {
     use HasFactory, HasUuids, Notifiable, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.tenant_user_groups';
+    protected $table = 'auth.tenant_user_groups';
     protected $tableAsName = 'ten_us_group';
 
 }

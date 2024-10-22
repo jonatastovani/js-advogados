@@ -12,7 +12,7 @@ class UserTenantDomain extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.user_tenant_domains';
+    protected $table = 'auth.user_tenant_domains';
     protected $tableAsName = 'user_ten_dom';
 
     /**

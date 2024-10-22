@@ -12,7 +12,7 @@ class PermissionConfig extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.permission_configs';
+    protected $table = 'auth.permission_configs';
     protected $tableAsName = 'perm_conf';
 
     public function grupo()

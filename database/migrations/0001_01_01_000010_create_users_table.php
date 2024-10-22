@@ -9,17 +9,28 @@ return new class extends Migration
 {
     use SchemaTrait;
 
+    protected $model;
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->model = new App\Models\Auth\User();
+        $this->schema = $this->model::getSchemaName();
+    }
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('system.users', function (Blueprint $table) {
+        $this->createSchemaIfNotExists($this->schema);
+        Schema::create("{$this->schema}.users", function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
 
             $table->string('nome');
             $table->string('username')->unique();
             $table->string('password');
+
 
             $this->addTenantIDField($table);
 
@@ -30,13 +41,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('system.password_reset_tokens', function (Blueprint $table) {
+        Schema::create("{$this->schema}.password_reset_tokens", function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
-        Schema::create('system.sessions', function (Blueprint $table) {
+        Schema::create("{$this->schema}.sessions", function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
@@ -51,8 +62,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system.users');
-        Schema::dropIfExists('system.password_reset_tokens');
-        Schema::dropIfExists('system.sessions');
+        Schema::dropIfExists("{$this->schema}.users");
+        Schema::dropIfExists("{$this->schema}.password_reset_tokens");
+        Schema::dropIfExists("{$this->schema}.sessions");
     }
 };

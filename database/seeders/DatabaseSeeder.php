@@ -25,38 +25,38 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([
-        //     TenantTypeSeeder::class,
-        //     TenantDomainSeeder::class,
-        //     UserSeeder::class,
-        //     UserTenantDomainSeeder::class,
+        $this->call([
+            TenantTypeSeeder::class,
+            TenantDomainSeeder::class,
+            UserSeeder::class,
+            UserTenantDomainSeeder::class,
 
-        //     PessoaPerfilTipoSeeder::class,
-        //     PessoaTipoSeeder::class,
-        //     DocumentoTipoSeeder::class,
+            PessoaPerfilTipoSeeder::class,
+            PessoaTipoSeeder::class,
+            DocumentoTipoSeeder::class,
 
-        //     PermissionModuleSeeder::class,
-        //     PermissionGroupSeeder::class,
-        //     PermissionSeeder::class,
-        //     PermissionConfigSeeder::class,
+            PermissionModuleSeeder::class,
+            PermissionGroupSeeder::class,
+            PermissionSeeder::class,
+            PermissionConfigSeeder::class,
 
-        //     ContaStatusTipoSeeder::class,
-        //     ServicoPagamentoLancamentoStatusTipoSeeder::class,
-        // ]);
+            ContaStatusTipoSeeder::class,
+            ServicoPagamentoLancamentoStatusTipoSeeder::class,
+        ]);
 
 
-        // if (env('APP_ENV') == 'local') {
-        //     $this->call([PessoaPerfilSeeder::class]);
-        // }
+        if (env('APP_ENV') == 'local') {
+            $this->call([PessoaPerfilSeeder::class]);
+        }
 
-        // $this->call([
-        //     ContaTipoSeeder::class,
-        //     ContaSubtipoSeeder::class,
-        //     AreaJuridicaTenantSeeder::class,
-        //     PagamentoTipoSeeder::class,
-        //     PagamentoTipoTenantSeeder::class,
-        //     ContaSeeder::class,
-        // ]);
+        $this->call([
+            ContaTipoSeeder::class,
+            ContaSubtipoSeeder::class,
+            AreaJuridicaTenantSeeder::class,
+            PagamentoTipoSeeder::class,
+            PagamentoTipoTenantSeeder::class,
+            ContaSeeder::class,
+        ]);
 
         $this->call([
             // ParticipacaoRegistroTipoSeeder::class,

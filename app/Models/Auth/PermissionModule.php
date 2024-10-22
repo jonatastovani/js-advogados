@@ -13,7 +13,7 @@ class PermissionModule extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.permission_modules';
+    protected $table = 'auth.permission_modules';
     protected $tableAsName = 'perm_mod';
 
 }

@@ -9,6 +9,6 @@ class Domain extends BaseDomain
 {
     use CommonsModelsMethodsTrait;
 
-    protected $table = 'system.domains';
+    protected $table = 'auth.domains';
     protected $tableAsName = 'dom';
 }

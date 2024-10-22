@@ -14,7 +14,7 @@ class TenantUserAndGroupUserPermisson extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.tenant_user_and_group_user_permissions';
+    protected $table = 'auth.tenant_user_and_group_user_permissions';
     protected $tableAsName = 'ten_us_gr_us_perm';
 
     /**

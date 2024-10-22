@@ -14,7 +14,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     use HasDatabase, HasDomains,
         CommonsModelsMethodsTrait;
 
-    protected $table = 'system.tenants';
+    protected $table = 'auth.tenants';
     protected $tableAsName = 'ten';
 
     public static function getCustomColumns(): array

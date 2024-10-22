@@ -13,7 +13,7 @@ class TenantType extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait;
 
-    protected $table = 'system.tenant_types';
+    protected $table = 'auth.tenant_types';
     protected $tableAsName = 'ten_tip';
     public $timestamps = false;
 

@@ -11,7 +11,7 @@ class Permission extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.permissions';
+    protected $table = 'auth.permissions';
     protected $tableAsName = 'perm';
 
     // Relacionamento com PermissionConfig

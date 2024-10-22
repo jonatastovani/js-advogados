@@ -12,7 +12,7 @@ class PermissionGroup extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'system.permission_groups';
+    protected $table = 'auth.permission_groups';
     protected $tableAsName = 'perm_group';
 
     public function modulo()

@@ -17,7 +17,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasUuids, HasFactory, Notifiable, CommonsModelsMethodsTrait;
 
-    protected $table = 'system.users';
+    protected $table = 'auth.users';
     protected $tableAsName = 'user';
 
     /**
