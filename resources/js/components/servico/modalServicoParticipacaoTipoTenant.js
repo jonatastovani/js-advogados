@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 
-export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
+export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -12,10 +12,11 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseAreaJuridicaTenant,
-                urlSearch: `${window.apiRoutes.baseAreaJuridicaTenant}/consulta-filtros`,
+                url: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+                urlSearch: `${window.apiRoutes.baseServicoParticipacaoTipoTenant}/consulta-filtros`,
             }
         },
+        sufixo: 'ModalServicoParticipacaoTipoTenant',
     };
 
     /** 
@@ -27,7 +28,7 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
 
     constructor() {
         super({
-            idModal: "#modalAreaJuridicaTenant",
+            idModal: "#modalServicoParticipacaoTipoTenant",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -45,13 +46,13 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalAreaJuridicaTenant = modal.find('#formDataSearchModalAreaJuridicaTenant');
+        const formDataSearch = modal.find(`#formDataSearch${self._objConfigs.sufixo}`);
 
         modal.find('.btn-new-register').on('click', async () => {
-            self._updateTitleRegistration('Nova Área de Atuação Jurídica');
+            self._updateTitleRegistration('Novo Tipo de Participação');
         });
 
-        formDataSearchModalAreaJuridicaTenant.find('.btnBuscar').on('click', async (e) => {
+        formDataSearch.find('.btnBuscar').on('click', async (e) => {
             e.preventDefault();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             await self._generateQueryFilters();
@@ -158,7 +159,7 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da Área Jurídica deve ser informado.', setFocus: true });
+        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do Tipo de Participação deve ser informado.', setFocus: true });
         return blnSave;
     }
 }

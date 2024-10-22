@@ -151,6 +151,11 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             botoes = self.#htmlBtnSelecionar();
         }
 
+        let perfis = 'N/C';
+        if (item.pessoa.pessoa_perfil) {
+            perfis = item.pessoa.pessoa_perfil.map(item => item.perfil_tipo.nome).join(', ');
+        }
+
         $(tbody).append(`
             <tr id=${item.idTr}>
                 <td class="text-center text-nowrap">
@@ -165,7 +170,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                 <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.pai ?? ''}">${item.pai ?? ''}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.mae ?? ''}">${item.mae ?? ''}</td>
                 <td class="text-center text-nowrap ">${item.nascimento_data ?? ''}</td>
-                <td class="text-nowrap">${item.perfis ?? ''}</td>
+                <td class="text-nowrap">${perfis}</td>
             </tr>
         `);
 

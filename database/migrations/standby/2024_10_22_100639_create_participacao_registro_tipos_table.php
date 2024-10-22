@@ -25,8 +25,6 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->string('descricao')->nullable();
-            $table->string('tabela_ref');
-            $table->string('tabela_model');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

@@ -69,5 +69,18 @@ Route::group([
                 Route::put('{uuid}', 'update');
             });
         });
+
+        Route::prefix('servico-atuacao-tipo')->group(function () {
+
+            Route::controller(App\Http\Controllers\Tenant\ServicoParticipacaoTipoTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.tenant.servico-participacao-tipo');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+            });
+        });
     });
 });

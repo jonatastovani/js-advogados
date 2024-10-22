@@ -12,7 +12,7 @@ Route::controller(App\Http\Controllers\View\Servico\ServicoController::class)->g
         Route::get('/form', 'servicoForm')->name('servico.form');
         Route::get('/form/{uuid}', 'servicoFormEditar');
 
-        Route::prefix('participacao')->group(function () {
+        Route::prefix('participacao-preset')->group(function () {
 
             Route::get('', 'participacaoPresetIndex')->name('servico.participacao.index');
             Route::get('/form', 'participacaoPresetForm')->name('servico.participacao.form');

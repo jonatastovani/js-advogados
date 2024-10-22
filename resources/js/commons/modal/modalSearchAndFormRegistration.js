@@ -140,10 +140,12 @@ export class modalSearchAndFormRegistration extends modalDefault {
         let data = {
             texto: texto,
             parametros_like: self._returnQueryParameters(formDataSearch.find('select[name="selFormaBusca"]').val()),
-            ordenacao: [{
-                campo: 'nome',
-                direcao: formDataSearch.find(`input[name="direcaoConsulta"]:checked`).val()
-            },],
+            ordenacao: [
+                {
+                    campo: formDataSearch.find(`select[name="selCampoOrdenacao"]`).val() ?? 'nome',
+                    direcao: formDataSearch.find(`input[name="direcaoConsulta"]:checked`).val()
+                },
+            ],
             texto_tratamento: {
                 tratamento: formDataSearch.find('select[name="selTratamentoTexto"]').val(),
             },

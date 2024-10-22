@@ -36,7 +36,7 @@ return new class extends Migration
             // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
 
             $table->uuid('participacao_tipo_id');
-            $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoTipo::getTableName());
+            $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
 
             $table->string('nome_grupo')->nullable();
             $table->decimal('porcentagem', 5)->nullable();

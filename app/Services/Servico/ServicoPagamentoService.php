@@ -105,7 +105,7 @@ class ServicoPagamentoService extends Service
 
             DB::commit();
 
-            $resource->load('pagamento_tipo_tenant.pagamento_tipo', 'lancamentos.conta', 'lancamentos.status');
+            $resource->load($this->loadFull());
 
             // $this->executarEventoWebsocket();
             return $resource->toArray();
@@ -114,11 +114,25 @@ class ServicoPagamentoService extends Service
         }
     }
 
-    public function show(Fluent $requestData)
+    public function update(Fluent $requestData)
     {
-        $resource = $this->buscarRecurso($requestData);
-        $resource->load($this->loadFull());
-        return $resource->toArray();
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+
+        // Inicia a transação
+        DB::beginTransaction();
+
+        try {
+            $resource->save();
+
+            DB::commit();
+
+            $resource->load($this->loadFull());
+
+            // $this->executarEventoWebsocket();
+            return $resource->toArray();
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
@@ -126,14 +140,9 @@ class ServicoPagamentoService extends Service
         $arrayErrors = new Fluent();
         $resource = null;
 
-        $checkDeletedAlteracaoPagamentoTipoTenant = true;
         $checkDeletedAlteracaoConta = true;
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
-
-            if ($resource->pagamento_tipo_tenant_id == $requestData->pagamento_tipo_tenant_id) {
-                $checkDeletedAlteracaoPagamentoTipoTenant = false;
-            }
 
             if ($resource->conta_id == $requestData->conta_id) {
                 $checkDeletedAlteracaoConta = false;
@@ -141,12 +150,12 @@ class ServicoPagamentoService extends Service
         } else {
             $resource = new $this->model;
             $resource->servico_id = $requestData->servico_uuid;
-        }
 
-        //Verifica se o tipo de pagamento do tenant informado existe
-        $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id], $checkDeletedAlteracaoPagamentoTipoTenant);
-        if (!$validacaoPagamentoTipoTenantId->count()) {
-            $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
+            //Verifica se o tipo de pagamento do tenant informado existe
+            $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
+            if (!$validacaoPagamentoTipoTenantId->count()) {
+                $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
+            }
         }
 
         //Verifica se a conta informada existe
@@ -174,9 +183,7 @@ class ServicoPagamentoService extends Service
         ]);
     }
 
-/*************  ✨ Codeium Command ⭐  *************/
-/******  678ba70f-5d6a-4e2e-9674-c4ad357bed7e  *******/
-    private function loadFull(): array
+    public function loadFull(): array
     {
         return [
             'pagamento_tipo_tenant.pagamento_tipo',

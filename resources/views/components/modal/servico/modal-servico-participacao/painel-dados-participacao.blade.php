@@ -1,13 +1,13 @@
 <div class="row row-cols-1 row-cols-lg-2">
     <div class="col mt-2">
-        <label for="conta_id{{ $sufixo }}" class="form-label">Conta padrão <i class="bi bi-info-circle"
+        <label for="participacao_tipo_id{{ $sufixo }}" class="form-label">Tipo de participação <i class="bi bi-info-circle"
                 data-bs-toggle="tooltip" data-bs-placement="top"
-                data-bs-title="Conta que virá preenchida automaticamente antes de confirmar o recebimento do pagamento."></i></label>
+                data-bs-title="Tipo de participação que a pessoa ou grupo de pessoas terá no serviço."></i></label>
         <div class="input-group">
-            <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
+            <select name="participacao_tipo_id" id="participacao_tipo_id{{ $sufixo }}" class="form-select">
                 <option value="0">Selecione</option>
             </select>
-            <button type="button" class="btn btn-outline-primary openModalConta"><i class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-primary btnOpenModalTipoParticipacao"><i class="bi bi-search"></i></button>
         </div>
     </div>
 </div>

@@ -10,7 +10,7 @@ use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
 use Illuminate\Database\Seeder;
 
-class PessoaPerfilSeeder extends Seeder
+class PessoaPerfilClienteSeeder extends Seeder
 {
     /**
      * Run the database seeds.

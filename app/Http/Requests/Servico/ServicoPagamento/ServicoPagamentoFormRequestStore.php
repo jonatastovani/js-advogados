@@ -11,5 +11,4 @@ class ServicoPagamentoFormRequestStore extends ServicoPagamentoFormRequestBase
     {
         return true;
     }
-
 }

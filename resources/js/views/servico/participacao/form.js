@@ -2,6 +2,7 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { modalMessage } from "../../../components/comum/modalMessage";
+import { modalNome } from "../../../components/comum/modalNome";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoAnotacao } from "../../../components/servico/modalServicoAnotacao";
@@ -49,6 +50,17 @@ class PageServicoParticipacaoPresetForm {
     #addEventosBotoes() {
         const self = this;
 
+        const openModalServicoParticipacao = async (tipo, dadosParticipante, idRegister = undefined) => {
+            const objModal = new modalServicoParticipacao();
+            objModal.setDataEnvModal = {
+                tipo: tipo,
+                dadosParticipante: dadosParticipante,
+                idRegister: idRegister
+            }
+            const response = await objModal.modalOpen();
+            console.log(response);
+        }
+
         $(`#btnInserirPessoa${self.#sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
@@ -64,20 +76,37 @@ class PageServicoParticipacaoPresetForm {
                 }
                 const response = await objModal.modalOpen();
                 console.log(response);
-                // if (response.refresh) {
-                //     if (response.selecteds.length > 0) {
-                //         const item = response.selecteds[0];
-                //         self.#buscarAreasJuridicas(item.id);
-                //     } else {
-                //         self.#buscarAreasJuridicas();
-                //     }
-                // }
+                if (response.refresh) {
+                    await openModalServicoParticipacao(1, response.selected.nome);
+                }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
+
+        $(`#btnInserirGrupo${self.#sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModalNome = new modalNome();
+                objModalNome.setDataEnvModal = {
+                    title: 'Novo grupo',
+                    mensagem: 'Informe o nome do grupo',
+                }
+                const response = await objModalNome.modalOpen();
+                console.log(response);
+                if (response.refresh) {
+                    await openModalServicoParticipacao(2, { nome: response.name });
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        })
+        // .trigger('click');
 
         $(`#btnSave${self.#sufixo}`).on('click', async function (e) {
             e.preventDefault();
@@ -119,15 +148,13 @@ class PageServicoParticipacaoPresetForm {
         });
 
         const openModalTest = async () => {
-            const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamento`);
-            objCode._dataEnvModal = {
-
-                pagamento_tipo_tenant_id: '9d3f0306-030e-4e2b-a42a-380a87a091ae',
-            }
+            const objCode = new modalServicoParticipacao();
             const retorno = await objCode.modalOpen();
-            // console.log(retorno);
+            console.log(retorno);
         }
         // openModalTest();
+        openModalServicoParticipacao(2, { nome: 'Rachadinha' });
+
     }
 
     async #inserirAnotacao(item) {

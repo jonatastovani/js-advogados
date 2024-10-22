@@ -33,8 +33,8 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseContas' => route('api.financeiro.conta'),
-        'basePagamentoTipoTenants' => route('api.financeiro.pagamento-tipo-tenant'),
+        // 'baseContas' => route('api.financeiro.conta'),
+        'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
     ],
 ])
 @endcomponent

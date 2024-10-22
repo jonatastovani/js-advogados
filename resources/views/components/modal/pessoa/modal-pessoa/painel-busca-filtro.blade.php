@@ -7,6 +7,10 @@
             'pai' => ['nome' => 'Pai'],
             'mae' => ['nome' => 'Mãe'],
         ],
+        'arrayCamposOrdenacao' => [
+            'nome' => ['nome' => 'Nome'],
+            'created_at' => ['nome' => 'Data gerado'],
+        ],
         'arrayCamposChecked' => ['nome', 'nome_social'],
     ]);
     $dados = new Fluent(array_merge($mergeDados->toArray(), $dados->toArray()));

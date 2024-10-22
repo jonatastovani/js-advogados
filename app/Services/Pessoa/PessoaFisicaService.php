@@ -103,7 +103,8 @@ class PessoaFisicaService extends Service
     public function loadFull(): array
     {
         return [
-            'pessoa'
+            'pessoa.pessoa_tipo',
+            'pessoa.pessoa_perfil.perfil_tipo',
         ];
     }
 

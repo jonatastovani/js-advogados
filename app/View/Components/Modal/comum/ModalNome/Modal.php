@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Tenant\ModalAreaJuridicaTenant;
+namespace App\View\Components\Modal\Comum\ModalNome;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,9 +22,9 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalAreaJuridicaTenant', request('request_uuid'))) {
-            return view('components.modal.tenant.modal-area-juridica-tenant.modal');
+        if (ModalSessionHelper::registerModal('modalNome', request('request_uuid'))) {
+            return view('components.modal.comum.modal-nome.modal');
         }
         return '';
     }
-}   
+}

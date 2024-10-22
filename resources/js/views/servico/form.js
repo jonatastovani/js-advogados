@@ -203,7 +203,7 @@ class PageServicoForm {
                             </div>
                         </div>
                     </h5>
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
+                    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 align-items-end">
                         ${htmlColsEspecifico}
                     </div>
                     ${htmlAppend}
@@ -224,7 +224,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Conta Padrão</div>
-                    <p class="mb-0">${item.conta.nome}</p>
+                    <p class="text-truncate">${item.conta.nome}</p>
                 </div>`;
         }
 
@@ -233,7 +233,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Total</div>
-                    <p class="mb-0">${valorTotal}</p>
+                    <p class="">${valorTotal}</p>
                 </div>`;
         }
 
@@ -242,7 +242,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Entrada</div>
-                    <p class="mb-0">${valorEntrada}</p>
+                    <p class="">${valorEntrada}</p>
                 </div>`;
         }
 
@@ -250,7 +250,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Data Entrada</div>
-                    <p class="mb-0">${DateTimeHelper.retornaDadosDataHora(item.entrada_data, 2)}</p>
+                    <p class="">${DateTimeHelper.retornaDadosDataHora(item.entrada_data, 2)}</p>
                 </div>`;
         }
 
@@ -258,7 +258,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Primeira Parcela</div>
-                    <p class="mb-0">${DateTimeHelper.retornaDadosDataHora(item.parcela_data_inicio, 2)}</p>
+                    <p class="">${DateTimeHelper.retornaDadosDataHora(item.parcela_data_inicio, 2)}</p>
                 </div>`;
         }
 
@@ -266,7 +266,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Parcela</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.parcela_valor)}</p>
+                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.parcela_valor)}</p>
                 </div>`;
         }
 
@@ -274,7 +274,7 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Dia Vencimento</div>
-                    <p class="mb-0">${item.parcela_vencimento_dia}</p>
+                    <p class="">${item.parcela_vencimento_dia}</p>
                 </div>`;
         }
 
@@ -282,26 +282,26 @@ class PageServicoForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Qtd Parcelas</div>
-                    <p class="mb-0">${item.parcela_quantidade}</p>
+                    <p class="">${item.parcela_quantidade}</p>
                 </div>`;
         }
         if (!item.descricao_condicionado) {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Aguardando</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_aguardando ?? 0)}</p>
+                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_aguardando ?? 0)}</p>
                 </div>`;
 
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Liquidado</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_liquidado ?? 0)}</p>
+                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_liquidado ?? 0)}</p>
                 </div>`;
 
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Inadimplente</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_inadimplente ?? 0)}</p>
+                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_inadimplente ?? 0)}</p>
                 </div>`;
         }
         return htmlColsEspecifico;
@@ -460,9 +460,8 @@ class PageServicoForm {
                     idRegister: item.id,
                 }
                 const response = await objModal.modalOpen();
-                console.log(response);
                 if (response.refresh && response.register) {
-                    // AtualizarRegistro
+                    self.#buscarPagamentos();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

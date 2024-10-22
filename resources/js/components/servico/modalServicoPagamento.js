@@ -125,6 +125,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         super._modalReset();
         const self = this;
         $(self.getIdModal).find(`#dados-pagamento${self._objConfigs.sufixo}-tab`).trigger('click');
+        $(self.getIdModal).find('.btn-simular').show();
     }
 
     async #simularPagamento() {
@@ -311,9 +312,9 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
         try {
             self._clearForm();
+            $(self.getIdModal).find('.btn-simular').hide();
             self._action = enumAction.PUT;
             const response = await self._getRecurse();
-            console.log(response);
             if (response?.data) {
                 const responseData = response.data;
                 const pagamentoTipoTenant = responseData.pagamento_tipo_tenant;
@@ -365,26 +366,29 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         const configuracao = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.configuracao;
+        let blnSave = false;
 
-        let blnSave = commonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'A <b>Conta padrão</b> deve ser informada.', setFocus: true });
+        if (self._action == enumAction.POST || self._action == enumAction.PUT && tipo == 'save') {
 
-        for (const campo of configuracao.campos_obrigatorios) {
-            const rules = campo.formRequestRule.split('|');
-            if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-                data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+            blnSave = commonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'A <b>Conta padrão</b> deve ser informada.', setFocus: true });
+
+            if (self._action == enumAction.POST) {
+                for (const campo of configuracao.campos_obrigatorios) {
+                    const rules = campo.formRequestRule.split('|');
+                    if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
+                        data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+                    }
+
+                    blnSave = commonFunctions.verificationData(data[campo.nome], {
+                        field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
+                        messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
+                        setFocus: blnSave === true,
+                        returnForcedFalse: blnSave === false
+                    });
+                }
             }
-
-            blnSave = commonFunctions.verificationData(data[campo.nome], {
-                field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
-                messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
-                setFocus: blnSave === true,
-                returnForcedFalse: blnSave === false
-            });
         }
 
-        if (tipo == 'save') {
-
-        }
         return blnSave;
     }
 

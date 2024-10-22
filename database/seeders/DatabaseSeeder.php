@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Database\Seeders\Financeiro\ContaSeeder;
-use Database\Seeders\Pessoa\PessoaPerfilSeeder;
+use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
+use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
 use Database\Seeders\Tenant\PagamentoTipoTenantSeeder;
 use Database\Seeders\Tenant\AreaJuridicaTenantSeeder;
 use Database\Seeders\Referencias\ContaStatusTipoSeeder;
@@ -25,42 +26,46 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // $this->call([
+        //     TenantTypeSeeder::class,
+        //     TenantDomainSeeder::class,
+        //     UserSeeder::class,
+        //     UserTenantDomainSeeder::class,
+
+        //     PessoaPerfilTipoSeeder::class,
+        //     PessoaTipoSeeder::class,
+        //     DocumentoTipoSeeder::class,
+
+        //     PermissionModuleSeeder::class,
+        //     PermissionGroupSeeder::class,
+        //     PermissionSeeder::class,
+        //     PermissionConfigSeeder::class,
+
+        //     ContaStatusTipoSeeder::class,
+        //     ServicoPagamentoLancamentoStatusTipoSeeder::class,
+        // ]);
+
+        // if (env('APP_ENV') == 'local') {
+        //     $this->call([PessoaPerfilClienteSeeder::class]);
+        // }
+
+        // $this->call([
+        //     ContaTipoSeeder::class,
+        //     ContaSubtipoSeeder::class,
+        //     AreaJuridicaTenantSeeder::class,
+        //     PagamentoTipoSeeder::class,
+        //     PagamentoTipoTenantSeeder::class,
+        //     ContaSeeder::class,
+        // ]);
+
+
+        // if (env('APP_ENV') == 'local') {
+        //     $this->call([PessoaPerfilParceiroSeeder::class]);
+        // }
+
         $this->call([
-            TenantTypeSeeder::class,
-            TenantDomainSeeder::class,
-            UserSeeder::class,
-            UserTenantDomainSeeder::class,
-
-            PessoaPerfilTipoSeeder::class,
-            PessoaTipoSeeder::class,
-            DocumentoTipoSeeder::class,
-
-            PermissionModuleSeeder::class,
-            PermissionGroupSeeder::class,
-            PermissionSeeder::class,
-            PermissionConfigSeeder::class,
-
-            ContaStatusTipoSeeder::class,
-            ServicoPagamentoLancamentoStatusTipoSeeder::class,
-        ]);
-
-
-        if (env('APP_ENV') == 'local') {
-            $this->call([PessoaPerfilSeeder::class]);
-        }
-
-        $this->call([
-            ContaTipoSeeder::class,
-            ContaSubtipoSeeder::class,
-            AreaJuridicaTenantSeeder::class,
-            PagamentoTipoSeeder::class,
-            PagamentoTipoTenantSeeder::class,
-            ContaSeeder::class,
-        ]);
-
-        $this->call([
-            // ParticipacaoRegistroTipoSeeder::class,
-            // ServicoParticipacaoReferenciaTipoSeeder::class,
+            ParticipacaoRegistroTipoSeeder::class,
+            ServicoParticipacaoReferenciaTipoSeeder::class,
         ]);
     }
 }
