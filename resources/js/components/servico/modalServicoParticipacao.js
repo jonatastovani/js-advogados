@@ -15,7 +15,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
      */
     #objConfigs = {
         url: {
-            baseServicoParticipacaoTipoTenant: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
         },
         sufixo: 'ModalServicoParticipacao',
         data: {
@@ -116,30 +116,30 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
             }
         }
 
-        const participacao_valor = modal.find('input[name="participacao_valor"]');
-        modal.find('input[name="tipo_valor_participacao"]').on('click', async function () {
-            participacao_valor.off('input');
-            participacao_valor.val('');
-            participacao_valor.unmask();
+        const valor = modal.find('input[name="valor"]');
+        modal.find('input[name="valor_tipo"]').on('click', async function () {
+            valor.off('input');
+            valor.val('');
+            valor.unmask();
 
             if ($(this).val() == 'porcentagem') {
-                aplicarMascaraPorcentagem(participacao_valor);
+                aplicarMascaraPorcentagem(valor);
                 visibilidadeDadosPorcentagem(true);
             } else {
-                commonFunctions.applyCustomNumberMask(participacao_valor, { format: '#.##0,00', reverse: true });
+                commonFunctions.applyCustomNumberMask(valor, { format: '#.##0,00', reverse: true });
                 visibilidadeDadosPorcentagem(false);
             }
         });
 
-        aplicarMascaraPorcentagem(participacao_valor);
+        aplicarMascaraPorcentagem(valor);
 
         modal.find('.btnAplicarRestante').on('click', async function () {
             const porcentagem_livre = self._objConfigs.data.porcentagem_livre;
             console.log(porcentagem_livre);
             if (porcentagem_livre == 100) {
-                participacao_valor.val(porcentagem_livre);
+                valor.val(porcentagem_livre);
             } else if (porcentagem_livre > 0) {
-                participacao_valor.val(commonFunctions.formatWithCurrencyCommasOrFraction(porcentagem_livre));
+                valor.val(commonFunctions.formatWithCurrencyCommasOrFraction(porcentagem_livre));
             }
         });
     }
@@ -148,14 +148,17 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         const self = this;
         const modal = $(self.getIdModal);
         const dados = self._dataEnvModal.dados_participacao;
+        let nome = '';
 
         switch (dados.participacao_registro_tipo_id) {
             case 1:
                 modal.find('.lblTipoParticipante').html('Pessoa');
+                nome = dados.pessoa_perfil.pessoa.pessoa_dados.nome;
                 break;
 
             case 2:
                 modal.find('.lblTipoParticipante').html('Grupo');
+                nome = dados.nome_grupo;
                 break;
         }
 
@@ -171,8 +174,8 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
         modal.find('.lblNome').html(dados.nome);
         modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
-        modal.find(`input[name="tipo_valor_participacao"][value="${dados.tipo_valor ?? 'porcentagem'}"]`).prop('checked', true).trigger('input');
-        modal.find('input[name="participacao_valor"]').val(dados.participacao_valor ?? '').trigger('input');
+        modal.find(`input[name="valor_tipo"][value="${dados.tipo_valor ?? 'porcentagem'}"]`).prop('checked', true).trigger('input');
+        modal.find('input[name="valor"]').val(dados.valor ?? '').trigger('input');
         modal.find('input[name="observacao"]').val(dados.observacao ?? '');
         modal.find('select[name="participacao_tipo_id"]').val(dados.participacao_tipo_id ?? 0);
     }
@@ -181,7 +184,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
         const selModulo = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseServicoParticipacaoTipoTenant, options);
+        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseParticipacaoTipo, options);
     }
 
     saveButtonAction() {
@@ -202,23 +205,23 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
         let blnSave = commonFunctions.verificationData(data.participacao_tipo_id, { field: formRegistration.find('select[name="participacao_tipo_id"]'), messageInvalid: 'O <b>tipo de participação</b> deve ser informado.', setFocus: true });
 
-        data.participacao_valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.participacao_valor);
+        data.valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
 
-        if (data.participacao_valor > 0) {
-            if (data.participacao_valor > self._objConfigs.data.porcentagem_livre) {
+        if (data.valor > 0) {
+            if (data.valor > self._objConfigs.data.porcentagem_livre) {
                 commonFunctions.generateNotification('O <b>valor da participação</b> ultrapassa o valor da porcentagem livre.', 'warning');
                 if (blnSave === true) {
-                    self._executeFocusElementOnModal(formRegistration.find('input[name="participacao_valor"]'));
+                    self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
                 }
                 blnSave = false;
             } else {
-                data[data.tipo_valor_participacao] = data.participacao_valor;
+                data[data.valor_tipo] = data.valor;
             }
 
         } else {
             commonFunctions.generateNotification('O <b>valor da participação</b> deve ser informado.', 'warning');
             if (blnSave === true) {
-                self._executeFocusElementOnModal(formRegistration.find('input[name="participacao_valor"]'));
+                self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
             }
             blnSave = false;
         }

@@ -32,15 +32,15 @@ return new class extends Migration
             $table->unsignedBigInteger('participacao_registro_tipo_id');
             $table->foreign('participacao_registro_tipo_id')->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
 
-            $table->uuid('perfil_id');
-            // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
-
             $table->uuid('participacao_tipo_id');
             $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
 
+            $table->uuid('pessoa_perfil')->nullable();
+            $table->foreign('pessoa_perfil')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());
+
             $table->string('nome_grupo')->nullable();
-            $table->decimal('porcentagem', 5)->nullable();
-            $table->float('valor_fixo')->nullable();
+            $table->enum('valor_tipo', ['porcentagem', 'valor_fixo']);
+            $table->decimal('valor', 10, 2);
             $table->string('observacao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

@@ -17,14 +17,14 @@
             <div class="col-6">
                 <div class="form-check">
                     <input type="radio" class="form-check-input" id="rbPorcentagem{{ $sufixo }}"
-                        name="tipo_valor_participacao" value="porcentagem" checked>
+                        name="valor_tipo" value="porcentagem" checked>
                     <label class="form-check-label" for="rbPorcentagem{{ $sufixo }}">Porcentagem</label>
                 </div>
             </div>
             <div class="col-6">
                 <div class="form-check">
                     <input type="radio" class="form-check-input" id="rbValorFixo{{ $sufixo }}"
-                        name="tipo_valor_participacao" value="valor_fixo">
+                        name="valor_tipo" value="valor_fixo">
                     <label class="form-check-label" for="rbValorFixo{{ $sufixo }}">Valor fixo</label>
                 </div>
             </div>
@@ -34,8 +34,8 @@
 
 <div class="row row-cols-2 ">
     <div class="col mt-2">
-        <label for="participacao_valor{{ $sufixo }}" class="form-label">Valor</label>
-        <input type="text" id="participacao_valor{{ $sufixo }}" name="participacao_valor" class="form-control">
+        <label for="valor{{ $sufixo }}" class="form-label">Valor</label>
+        <input type="text" id="valor{{ $sufixo }}" name="valor" class="form-control">
     </div>
     <div class="col mt-2 d-flex align-items-end">
         <button type="button" class="btn btn-outline-primary btnAplicarRestante">Aplicar restante</button>

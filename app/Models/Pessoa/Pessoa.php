@@ -34,9 +34,13 @@ class Pessoa extends Model
 
     public function pessoa_dados()
     {
-        return $this->morphTo(__FUNCTION__, 'pessoa_tipo_id', 'id', [
-            PessoaTipoEnum::PESSOA_FISICA => PessoaFisica::class,
-            PessoaTipoEnum::PESSOA_JURIDICA => PessoaJuridica::class,
-        ]);
+        // O relacionamento condicional com base no campo 'pessoa_tipo_id'
+        if ($this->pessoa_tipo_id == 1) {
+            return $this->hasOne(PessoaFisica::class, 'pessoa_id');
+        } elseif ($this->pessoa_tipo_id == 2) {
+            return $this->hasOne(PessoaJuridica::class, 'pessoa_id');
+        }
+
+        return null; // Caso o tipo não seja mapeado
     }
 }

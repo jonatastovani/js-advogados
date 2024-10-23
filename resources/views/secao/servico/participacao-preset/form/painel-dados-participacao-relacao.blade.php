@@ -8,7 +8,7 @@
 <div class="progress mt-2" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
     <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 95%">Comprometimento 95%</div>
   </div>
-<div id="divRelacao{{ $sufixo }}" class="row row-cols-1 g-2 mt-2 flex-fill">
+<div id="divParticipantes{{ $sufixo }}" class="row row-cols-1 g-2 mt-2 flex-fill">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title d-flex align-items-center justify-content-between">

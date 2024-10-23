@@ -18,6 +18,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                 tbody: $('#tableDataModalPessoaFisica').find('tbody'),
                 footerPagination: $('#footerPaginationModalPessoaFisica'),
                 formDataSearch: $('#formDataSearchModalPessoaFisica'),
+                insertTableData: 'insertTableDataPessoaFisica',
             },
             consultaFiltrosJuridica: {
                 name: 'consulta-filtros-juridica',
@@ -50,7 +51,13 @@ export class modalPessoa extends modalSearchAndFormRegistration {
     /** 
      * Conteúdo a ser retornado na promisse como resolve()
     */
-    #promisseReturnValue = {
+    #dataEnvModal = {
+        attributes: {
+            select: {
+                quantity: 1,
+                autoReturn: true,
+            }
+        }
     };
 
     constructor() {
@@ -59,7 +66,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this.functionsCriteria = new functionsQueryCriteria(this, this._idModal);
         this.#addEventosPadrao();
     }
@@ -134,48 +141,50 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         self._paginationDefault();
     }
 
-    async insertTableData(item, options = {}) {
+    async insertTableDataPessoaFisica(item, options = {}) {
         const self = this;
         const {
             tbody,
         } = options;
 
-        const cpf = item.cpf ? commonFunctions.formatCPF(item.cpf) : '';
+        console.log(item);
+        const pessoa_dados = item.pessoa.pessoa_dados;
+        const cpf = pessoa_dados.cpf ? commonFunctions.formatCPF(pessoa_dados.cpf) : '';
 
-        const itemSelecionado = self.#verificaRegistroSelecionado(item);
+        const itemSelecionado = self.#verificaRegistroSelecionado(pessoa_dados);
         let botoes = '';
         if (itemSelecionado) {
             botoes = self.#htmlBtnRemover();
-            item['idTrSelecionado'] = itemSelecionado.idTrSelecionado;
+            pessoa_dados['idTrSelecionado'] = itemSelecionado.idTrSelecionado;
         } else {
             botoes = self.#htmlBtnSelecionar();
         }
 
         let perfis = 'N/C';
-        if (item.pessoa.pessoa_perfil) {
-            perfis = item.pessoa.pessoa_perfil.map(item => item.perfil_tipo.nome).join(', ');
+        if (pessoa_dados.pessoa.pessoa_perfil) {
+            perfis = pessoa_dados.pessoa.pessoa_perfil.map(item => item.perfil_tipo.nome).join(', ');
         }
 
         $(tbody).append(`
-            <tr id=${item.idTr}>
+            <tr id=${pessoa_dados.idTr}>
                 <td class="text-center text-nowrap">
                 <div class="btn-group btnsAcao" role="group">
                         ${botoes}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.nome}">${item.nome}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.nome_social ?? ''}">${item.nome_social ?? ''}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${pessoa_dados.nome}">${pessoa_dados.nome}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${pessoa_dados.nome_social ?? ''}">${pessoa_dados.nome_social ?? ''}</td>
                 <td class="text-center text-nowrap">${cpf}</td>
-                <td class="text-center text-nowrap">${item.rg ?? ''}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.pai ?? ''}">${item.pai ?? ''}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.mae ?? ''}">${item.mae ?? ''}</td>
-                <td class="text-center text-nowrap ">${item.nascimento_data ?? ''}</td>
+                <td class="text-center text-nowrap">${pessoa_dados.rg ?? ''}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${pessoa_dados.pai ?? ''}">${pessoa_dados.pai ?? ''}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${pessoa_dados.mae ?? ''}">${pessoa_dados.mae ?? ''}</td>
+                <td class="text-center text-nowrap ">${pessoa_dados.nascimento_data ?? ''}</td>
                 <td class="text-nowrap">${perfis}</td>
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(item);
-        return item;
+        self.#addEventosRegistrosConsulta(pessoa_dados);
+        return pessoa_dados;
     }
 
     #verificaRegistroSelecionado(item) {

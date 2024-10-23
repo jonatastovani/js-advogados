@@ -4,13 +4,9 @@ import { enumAction } from "../../../commons/enumAction";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalNome } from "../../../components/comum/modalNome";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
-import { modalSelecionarPagamentoTipo } from "../../../components/servico/modalSelecionarPagamentoTipo";
-import { modalServicoAnotacao } from "../../../components/servico/modalServicoAnotacao";
 import { modalServicoPagamento } from "../../../components/servico/modalServicoPagamento";
 import { modalServicoParticipacao } from "../../../components/servico/modalServicoParticipacao";
-import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../../helpers/RedirectHelper";
-import SimpleBarHelper from "../../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -20,6 +16,7 @@ class PageServicoParticipacaoPresetForm {
     #objConfigs = {
         url: {
             base: window.apiRoutes.baseParticipacaoPreset,
+            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
         },
         data: {
             porcentagemOcupada: 0,
@@ -48,14 +45,6 @@ class PageServicoParticipacaoPresetForm {
         self.#addEventosBotoes();
     }
 
-    async #atualizaRegistroParticipanteNaTela(item) {
-
-    }
-
-    async #atualizaPorcentagemLivre() {
-
-    }
-
     #addEventosBotoes() {
         const self = this;
 
@@ -77,17 +66,10 @@ class PageServicoParticipacaoPresetForm {
             commonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalPessoa();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
+
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 1, nome: response.name });
+                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 1, pessoa_perfil: response.selected });
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -107,7 +89,7 @@ class PageServicoParticipacaoPresetForm {
                 }
                 const response = await objModalNome.modalOpen();
                 if (response.refresh) {
-                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 2, nome: response.name });
+                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 2, nome_grupo: response.name });
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -121,40 +103,6 @@ class PageServicoParticipacaoPresetForm {
             self.#saveButtonAction();
         });
 
-        $(`#btnAdicionarParticipacao${self.#sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalServicoParticipacao(self.#objConfigs.url.baseAnotacao);
-                objModal.setFocusElementWhenClosingModal = btn;
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    self.#inserirAnotacao(response.register);
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#btnInserirPagamento${self.#sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalSelecionarPagamentoTipo(`${self.#objConfigs.url.base}/${self.#idRegister}`);
-                objModal.setFocusElementWhenClosingModal = btn;
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    await self.#buscarPagamentos();
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
         const openModalTest = async () => {
             const objCode = new modalServicoParticipacao();
             const retorno = await objCode.modalOpen();
@@ -165,264 +113,95 @@ class PageServicoParticipacaoPresetForm {
 
     }
 
-    async #inserirAnotacao(item) {
+    async #buscarParticipacaoTipo(id) {
         const self = this;
-        const divAnotacao = $(`#divAnotacao${self.#sufixo}`);
+        return self.#getRecurse({ idRegister: id, urlApi: self.#objConfigs.url.baseParticipacaoTipo });
 
-        item.idCol = UUIDHelper.generateUUID();
-        let created_at = '';
-        if (item.created_at) {
-            created_at = `<span class="text-body-secondary d-block">Criado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
-            item.statusSalvo = true;
+    }
+
+    async #atualizaRegistroParticipanteNaTela(item) {
+        const self = this;
+        const divParticipantes = $(`#divParticipantes${self.#sufixo}`);
+
+        let nome = '';
+        switch (item.participacao_registro_tipo_id) {
+            case 1:
+                nome = item.pessoa_perfil.pessoa.pessoa_dados.nome;
+                break;
+            case 2:
+                nome = item.nome_grupo;
+                break;
+            default:
+                commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
+                console.error('Tipo de registro de participação não informado.', item);
+                return false;
+        }
+
+        let participacao_tipo = item?.participacao_tipo?.nome ?? null;
+        if (!participacao_tipo && item.participacao_tipo_id) {
+            participacao_tipo = self.#buscarParticipacaoTipo(item.participacao_tipo_id) ?? { nome: 'Erro de busca' };
         } else {
-            item.statusSalvo = false;
+            commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
+            console.error('Tipo de participação não informado.', item);
+            return false;
         }
 
-        let strBtns = self.#htmlBtnEdit({ title: `Editar anotação ${item.titulo}` });
-        strBtns += self.#htmlBtnDelete({ title: `Excluir anotação ${item.titulo}` });
+        let valor_tipo = ''
+        let valor = commonFunctions.formatNumberWithLimitDecimalPlaces(item.valor);
+        switch (item.valor_tipo) {
+            case 'porcentagem':
+                valor_tipo = 'Porcentagem';
+                valor += '%';
+                break;
+            case 'valor_fixo':
+                valor_tipo = 'Valor Fixo';
+                valor = `R$ ${valor}`;
+                break;
+            default:
+                valor_tipo = 'Erro valor tipo';
+                console.error('Erro no tipo de valor', item);
+                break;
+        }
 
-        const strToHtml = commonFunctions.formatStringToHTML(item.descricao);
-        let strCard = `
-            <div id="${item.idCol}" class="col">
-                <div class="card">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="card-title">${item.titulo}</h5>
-                            <div class="card-text overflow-auto scrollbar" style="max-height: 10rem;">
-                                <p>${strToHtml}</p>
-                            </div>
-                            <div class="row justify-content-end g-2 gap-2">
-                                ${strBtns}
-                            </div>
+        const strCard = `
+            <div class="card-body">
+                <h5 class="card-title d-flex align-items-center justify-content-between">
+                    <span>${nome}</span>
+                    <div>
+                        <div class="d-grid gap-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0"
+                                style="max-width: 7rem">Editar</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0"
+                                style="max-width: 7rem">Excluir</button>
                         </div>
-                        <div class="card-footer text-body-secondary">
-                            ${created_at}
-                        </div>
+                    </div>
+                </h5>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
+                    <div class="col">
+                        <div class="form-text">Participação</div>
+                        <label class="form-label">${participacao_tipo.nome}</label>
+                    </div>
+                    <div class="col">
+                        <div class="form-text">Método</div>
+                        <label class="form-label">${valor_tipo}</label>
+                    </div>
+                    <div class="col">
+                        <div class="form-text">Valor</div>
+                        <label class="form-label">${valor}</label>
                     </div>
                 </div>
             </div>`;
 
-        divAnotacao.append(strCard);
-        self.#addEventosAnotacao(item);
-        SimpleBarHelper.apply();
-        return true;
+        if (item.idCard) {
+            $(`#${item.idCard}`).html(strCard);
+        } else {
+            item.idCard = UUIDHelper.generateUUID();
+            divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
+        }
     }
 
-    async #inserirPagamento(item) {
-        const self = this;
-        const divPagamento = $(`#divPagamento${self.#sufixo}`);
+    async #atualizaPorcentagemLivre() {
 
-        item.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
-        const created_at = `<span class="text-body-secondary d-block">Pagamento lançado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
-
-        let strBtns = self.#htmlBtnEdit({ title: `Editar pagamento ${item.pagamento_tipo_tenant.nome}` });
-        strBtns += self.#htmlBtnDelete({ title: `Excluir pagamento ${item.pagamento_tipo_tenant.nome}` });
-
-        let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
-        let htmlAppend = self.#htmlAppendPagamento(item);
-        let htmlLancamentos = self.#htmlLancamentos(item);
-
-        let strCard = `
-            <div id="${item.idCard}" class="card p-0">
-                <div class="card-body">
-                    <h5 class="card-title d-flex align-items-center justify-content-between">
-                        <span>${item.pagamento_tipo_tenant.nome}</span>
-                        <div>
-                            <div class="d-grid gap-2 d-flex justify-content-end">
-                                ${strBtns}
-                            </div>
-                        </div>
-                    </h5>
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
-                        ${htmlColsEspecifico}
-                    </div>
-                    ${htmlAppend}
-                    ${htmlLancamentos}
-                    <div class="form-text mt-2">${created_at}</div>
-                </div>
-            </div>`;
-
-        divPagamento.append(strCard);
-        self.#addEventosPagamento(item);
-        return true;
-    }
-
-    #htmlColsEspecificosPagamento(item) {
-
-        let htmlColsEspecifico = '';
-        if (item?.conta) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Conta Padrão</div>
-                    <p class="mb-0">${item.conta.nome}</p>
-                </div>`;
-        }
-
-        if (item.valor_total) {
-            const valorTotal = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_total);
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Valor Total</div>
-                    <p class="mb-0">${valorTotal}</p>
-                </div>`;
-        }
-
-        if (item.entrada_valor) {
-            const valorEntrada = commonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Valor Entrada</div>
-                    <p class="mb-0">${valorEntrada}</p>
-                </div>`;
-        }
-
-        if (item.entrada_data) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Data Entrada</div>
-                    <p class="mb-0">${DateTimeHelper.retornaDadosDataHora(item.entrada_data, 2)}</p>
-                </div>`;
-        }
-
-        if (item.parcela_data_inicio) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Primeira Parcela</div>
-                    <p class="mb-0">${DateTimeHelper.retornaDadosDataHora(item.parcela_data_inicio, 2)}</p>
-                </div>`;
-        }
-
-        if (item.parcela_valor) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Valor Parcela</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.parcela_valor)}</p>
-                </div>`;
-        }
-
-        if (item.parcela_vencimento_dia) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Dia Vencimento</div>
-                    <p class="mb-0">${item.parcela_vencimento_dia}</p>
-                </div>`;
-        }
-
-        if (item.parcela_quantidade) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Qtd Parcelas</div>
-                    <p class="mb-0">${item.parcela_quantidade}</p>
-                </div>`;
-        }
-        if (!item.descricao_condicionado) {
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Total Aguardando</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_aguardando ?? 0)}</p>
-                </div>`;
-
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Total Liquidado</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_liquidado ?? 0)}</p>
-                </div>`;
-
-            htmlColsEspecifico += `
-                <div class="col">
-                    <div class="form-text mt-0">Total Inadimplente</div>
-                    <p class="mb-0">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_inadimplente ?? 0)}</p>
-                </div>`;
-        }
-        return htmlColsEspecifico;
-    }
-
-    #htmlAppendPagamento(item) {
-        let htmlAppend = '';
-
-        if (item.descricao_condicionado) {
-            htmlAppend += `
-            <p class="mb-0 text-truncate" title="${item.descricao_condicionado}">
-               <b>Descrição condicionado:</b> ${item.descricao_condicionado}
-            </p>`;
-        }
-
-        if (item.observacao) {
-            htmlAppend += `
-            <p class="mb-0 text-truncate" title="${item.observacao}">
-               <b>Obs:</b> ${item.observacao}
-            </p>`;
-        }
-
-        return htmlAppend;
-    }
-
-    #htmlLancamentos(item) {
-        const self = this;
-
-        let htmlLancamentos = '';
-        for (const lancamento of item.lancamentos) {
-            let htmlObservacao = '';
-            if (lancamento.observacao) {
-                htmlObservacao = `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
-            }
-
-            const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
-            const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-            const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
-            const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
-
-            lancamento.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
-
-            htmlLancamentos += `
-                <div id="${lancamento.idCard}" class="card p-0">
-                    <div class="card-header">
-                        ${lancamento.descricao_automatica}
-                    </div>
-                    <div class="card-body">
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
-                            <div class="col">
-                                <div class="form-text mt-0">Data de vencimento</div>
-                                <p class="mb-0">${data_vencimento}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Valor</div>
-                                <p class="mb-0">${valor_esperado}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Status</div>
-                                <p class="mb-0">${lancamento.status.nome}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Conta</div>
-                                <p class="mb-0 text-truncate" title="${title_conta}">
-                                    ${nome_conta}
-                                </p>
-                            </div>
-                        </div>
-                        ${htmlObservacao}
-                    </div>
-                </div>`
-        }
-
-        let html = `<div class="accordion mt-2" id="accordionPagamento${item.id}">
-            <div class="accordion-item">
-                <div class="accordion-header">
-                    <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseOne${item.id}" aria-expanded="false"
-                        aria-controls="collapseOne${item.id}">
-                        Lançamentos
-                    </button>
-                </div>
-                <div id="collapseOne${item.id}" class="accordion-collapse collapse"
-                    data-bs-parent="#accordionPagamento${item.id}">
-                    <div class="accordion-body">
-                        <div class="row row-cols-1 g-2">${htmlLancamentos}</div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        return html;
     }
 
     #htmlBtnEdit(options = {}) {
@@ -437,45 +216,6 @@ class PageServicoParticipacaoPresetForm {
             title = 'Editar registro',
         } = options;
         return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-trash"></i> Excluir</button>`
-    }
-
-    async #addEventosAnotacao(item) {
-        const self = this;
-
-        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
-                objModal.setDataEnvModal = {
-                    idRegister: item.id,
-                };
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    $(`#${item.idCol}`).find('.card-title').text(response.register.titulo);
-                    $(`#${item.idCol}`).find('.card-text').text(response.register.descricao);
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-
-        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-            const response = await self.#delButtonAction(item.id, item.titulo, {
-                title: `Exclusão de Anotação`,
-                message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
-                success: `Anotação excluída com sucesso!`,
-                button: this,
-                urlApi: self.#objConfigs.url.baseAnotacao,
-            });
-
-            if (response) {
-                $(`#${item.idCol}`).remove();
-            }
-        });
     }
 
     async #addEventosPagamento(item) {
@@ -569,81 +309,81 @@ class PageServicoParticipacaoPresetForm {
         };
     }
 
-    async #buscarDados() {
-        const self = this;
+    // async #buscarDados() {
+    //     const self = this;
 
-        try {
-            await commonFunctions.loadingModalDisplay();
-            const response = await self.#getRecurse();
-            const form = $(`#formServico${self.#sufixo}`);
-            if (response?.data) {
-                const responseData = response.data;
-                form.find('input[name="titulo"]').val(responseData.titulo);
-                commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
-                form.find('textarea[name="descricao"]').val(responseData.descricao);
-                self.#atualizarValorServico(responseData.valor_servico);
-                self.#atualizarTotalAguardando(responseData.total_aguardando);
-                self.#atualizarTotalLiquidado(responseData.total_liquidado);
-                self.#atualizarTotalInadimplente(responseData.total_inadimplente);
+    //     try {
+    //         await commonFunctions.loadingModalDisplay();
+    //         const response = await self.#getRecurse();
+    //         const form = $(`#formServico${self.#sufixo}`);
+    //         if (response?.data) {
+    //             const responseData = response.data;
+    //             form.find('input[name="titulo"]').val(responseData.titulo);
+    //             commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
+    //             form.find('textarea[name="descricao"]').val(responseData.descricao);
+    //             self.#atualizarValorServico(responseData.valor_servico);
+    //             self.#atualizarTotalAguardando(responseData.total_aguardando);
+    //             self.#atualizarTotalLiquidado(responseData.total_liquidado);
+    //             self.#atualizarTotalInadimplente(responseData.total_inadimplente);
 
-                responseData.anotacao.forEach(item => {
-                    self.#inserirAnotacao(item);
-                });
+    //             responseData.anotacao.forEach(item => {
+    //                 self.#inserirAnotacao(item);
+    //             });
 
-                responseData.pagamento.forEach(item => {
-                    self.#inserirPagamento(item);
-                });
-            } else {
-                form.find('input, textarea, select, button').prop('disabled', true);
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        } finally {
-            await commonFunctions.loadingModalDisplay(false);
-        }
-    }
+    //             responseData.pagamento.forEach(item => {
+    //                 self.#inserirPagamento(item);
+    //             });
+    //         } else {
+    //             form.find('input, textarea, select, button').prop('disabled', true);
+    //         }
+    //     } catch (error) {
+    //         commonFunctions.generateNotificationErrorCatch(error);
+    //     } finally {
+    //         await commonFunctions.loadingModalDisplay(false);
+    //     }
+    // }
 
-    #atualizarValorServico(valor) {
-        const self = this;
-        $(`#valorServico${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
-    }
+    // #atualizarValorServico(valor) {
+    //     const self = this;
+    //     $(`#valorServico${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    // }
 
-    #atualizarTotalAguardando(valor) {
-        const self = this;
-        $(`#totalAguardando${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
-    }
+    // #atualizarTotalAguardando(valor) {
+    //     const self = this;
+    //     $(`#totalAguardando${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    // }
 
-    #atualizarTotalLiquidado(valor) {
-        const self = this;
-        $(`#totalLiquidado${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
-    }
+    // #atualizarTotalLiquidado(valor) {
+    //     const self = this;
+    //     $(`#totalLiquidado${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    // }
 
-    #atualizarTotalInadimplente(valor) {
-        const self = this;
-        $(`#totalInadimplente${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
-    }
+    // #atualizarTotalInadimplente(valor) {
+    //     const self = this;
+    //     $(`#totalInadimplente${self.#sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    // }
 
-    async #buscarAreasJuridicas(selected_id = null) {
-        const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selArea = $(`#area_juridica_id${self.#sufixo}`);
-        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options);
-    }
+    // async #buscarAreasJuridicas(selected_id = null) {
+    //     const self = this;
+    //     let options = selected_id ? { selectedIdOption: selected_id } : {};
+    //     const selArea = $(`#area_juridica_id${self.#sufixo}`);
+    //     await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options);
+    // }
 
-    async #buscarPagamentos() {
-        const self = this;
-        try {
-            const obj = new connectAjax(self.#objConfigs.url.basePagamentos);
-            const response = await obj.getRequest();
-            $(`#divPagamento${self.#sufixo}`).html('');
-            for (const item of response.data) {
-                console.log(item);
-                self.#inserirPagamento(item);
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        }
-    }
+    // async #buscarPagamentos() {
+    //     const self = this;
+    //     try {
+    //         const obj = new connectAjax(self.#objConfigs.url.basePagamentos);
+    //         const response = await obj.getRequest();
+    //         $(`#divPagamento${self.#sufixo}`).html('');
+    //         for (const item of response.data) {
+    //             console.log(item);
+    //             self.#inserirPagamento(item);
+    //         }
+    //     } catch (error) {
+    //         commonFunctions.generateNotificationErrorCatch(error);
+    //     }
+    // }
 
     async #getRecurse(options = {}) {
         const self = this;

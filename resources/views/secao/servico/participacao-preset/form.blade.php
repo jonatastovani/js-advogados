@@ -52,8 +52,8 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseParticipacaoPreset' => route('api.servico'),
-            // 'baseAreaJuridicaTenant' => route('api.referencias.area-juridica'),
-        ],
+            'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+            ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [

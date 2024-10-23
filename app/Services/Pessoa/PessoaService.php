@@ -27,8 +27,16 @@ class PessoaService extends Service
 
     public function postConsultaFiltros(Fluent $requestData)
     {
-        $query = $this->pessoaFisicaService->consultaSimplesComFiltros($requestData);
-        $query->with($this->pessoaFisicaService->loadFull());
+        // Construa a subconsulta para buscar os IDs das pessoas físicas que atendem aos filtros
+        $queryFisica = $this->pessoaFisicaService->consultaSimplesComFiltros($requestData, [
+            'arrayCamposSelect' => ['pessoa_id']
+        ]);
+
+        // Use a subconsulta no whereIn para filtrar diretamente na consulta principal
+        $query = $this->model::with($this->loadFull())
+            ->whereIn('id', $queryFisica);
+
+        // Paginar e retornar o resultado
         return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 

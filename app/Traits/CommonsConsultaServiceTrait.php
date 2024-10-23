@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -26,15 +27,24 @@ trait CommonsConsultaServiceTrait
         return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
-    public function consultaSimplesComFiltros(Fluent $requestData)
+    public function consultaSimplesComFiltros(Fluent $requestData, array $options = [])
     {
         $filtros = $requestData->filtros ?? [];
         $arrayCamposFiltros = $this->traducaoCampos($filtros);
+        $arrayCamposSelect = $options['arrayCamposSelect'] ?? ['*'];
 
+        $strSelect = '';
+        foreach ($arrayCamposSelect as $value) {
+            if ($strSelect != '') {
+                $strSelect .= ', ';
+            }
+            $strSelect .= "{$this->model::getTableAsName()}.$value";
+        }
+        // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
         $query = $this->model::query()
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
             ->from($this->model::getTableNameAsName())
-            ->select($this->model::getTableAsName() . '.*');
+            ->select($strSelect);
 
         $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
         $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
