@@ -390,13 +390,10 @@ export class commonFunctions {
      * @param {string} currency - The string in currency format to be unformatted.
      * @returns {number} - The deformatted number.
      */
-    static removeCommasFromCurrencyOrFraction(currency) {
-
+    static removeCommasFromCurrencyOrFraction(currency = '0') {
         const formattedCurrency = currency.replace(/[^0-9,-]+/g, '');
         const formattedCurrencyWithDecimalPoint = formattedCurrency.replace(',', '.');
-
         return Number(formattedCurrencyWithDecimalPoint);
-
     }
 
     /**

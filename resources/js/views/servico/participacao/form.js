@@ -22,6 +22,7 @@ class PageServicoParticipacaoPresetForm {
             base: window.apiRoutes.baseParticipacaoPreset,
         },
         data: {
+            porcentagemOcupada: 0,
         }
     };
     #action;
@@ -47,18 +48,28 @@ class PageServicoParticipacaoPresetForm {
         self.#addEventosBotoes();
     }
 
+    async #atualizaRegistroParticipanteNaTela(item) {
+
+    }
+
+    async #atualizaPorcentagemLivre() {
+
+    }
+
     #addEventosBotoes() {
         const self = this;
 
-        const openModalServicoParticipacao = async (tipo, dadosParticipante, idRegister = undefined) => {
+        const openModalServicoParticipacao = async (dados_participacao) => {
             const objModal = new modalServicoParticipacao();
             objModal.setDataEnvModal = {
-                tipo: tipo,
-                dadosParticipante: dadosParticipante,
-                idRegister: idRegister
+                dados_participacao: dados_participacao,
+                porcentagem_ocupada: self.#objConfigs.data.porcentagem_ocupada,
             }
             const response = await objModal.modalOpen();
-            console.log(response);
+            if (response.refresh) {
+                self.#atualizaRegistroParticipanteNaTela(response.register);
+                self.#atualizaPorcentagemLivre();
+            }
         }
 
         $(`#btnInserirPessoa${self.#sufixo}`).on('click', async function () {
@@ -75,9 +86,8 @@ class PageServicoParticipacaoPresetForm {
                     }
                 }
                 const response = await objModal.modalOpen();
-                console.log(response);
                 if (response.refresh) {
-                    await openModalServicoParticipacao(1, response.selected.nome);
+                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 1, nome: response.name });
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -96,17 +106,15 @@ class PageServicoParticipacaoPresetForm {
                     mensagem: 'Informe o nome do grupo',
                 }
                 const response = await objModalNome.modalOpen();
-                console.log(response);
                 if (response.refresh) {
-                    await openModalServicoParticipacao(2, { nome: response.name });
+                    await openModalServicoParticipacao({ participacao_registro_tipo_id: 2, nome: response.name });
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        })
-        // .trigger('click');
+        });
 
         $(`#btnSave${self.#sufixo}`).on('click', async function (e) {
             e.preventDefault();
@@ -153,7 +161,7 @@ class PageServicoParticipacaoPresetForm {
             console.log(retorno);
         }
         // openModalTest();
-        openModalServicoParticipacao(2, { nome: 'Rachadinha' });
+        // openModalServicoParticipacao({ participacao_registro_tipo_id: 2, valor: 0, tipo_valor: 'porcentagem', nome: 'Rachadinha' });
 
     }
 
