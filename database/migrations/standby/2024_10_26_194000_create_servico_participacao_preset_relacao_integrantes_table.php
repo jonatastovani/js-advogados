@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoParticipacaoPresetRelacaoIntegrante();
+        $this->model = new App\Models\Servico\ServicoParticipacaoPresetParticipanteIntegrante();
     }
 
     /**
@@ -26,8 +26,8 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('preset_relacao_id');
-            $table->foreign('preset_relacao_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetRelacao::getTableName());
+            $table->uuid('preset_participante_id');
+            $table->foreign('preset_participante_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetParticipante::getTableName());
 
             $table->uuid('pessoa_perfil_id');
             $table->foreign('pessoa_perfil_id')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());

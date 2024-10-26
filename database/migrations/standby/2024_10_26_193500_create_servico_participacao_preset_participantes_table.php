@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new \App\Models\Servico\ServicoParticipacaoPresetRelacao();
+        $this->model = new \App\Models\Servico\ServicoParticipacaoPresetParticipante();
     }
 
     /**
