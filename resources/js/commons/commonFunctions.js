@@ -1326,6 +1326,26 @@ export class commonFunctions {
         }
     }
 
+    /**
+     * Atualiza o valor da barra de progresso com base no seletor fornecido.
+     *
+     * @param {string} selector - O seletor jQuery para a barra de progresso.
+     * @param {number} valor - O valor a ser definido na barra de progresso (0 a 100).
+     */
+    static atualizarProgressBar(selector, valor) {
+        // Seleciona o elemento da barra de progresso
+        const progressBar = $(selector);
+
+        if (progressBar.length) {
+            // Limita o valor para o intervalo de 0 a 100
+            valor = Math.min(Math.max(valor, 0), 100);
+
+            // Atualiza a largura da barra de progresso e os atributos relevantes
+            progressBar.css('width', valor + '%');
+            progressBar.parent().attr('aria-valuenow', valor);
+            // progressBar.text('Comprometimento ' + valor + '%');
+        }
+    }
 
     // static async checkPermissions(arrayPermissions) {
     //     // try {

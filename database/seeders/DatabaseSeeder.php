@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Database\Seeders\Financeiro\ContaSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
+use Database\Seeders\Pessoa\PessoaPerfilParceiroClienteSeeder;
 use Database\Seeders\Tenant\PagamentoTipoTenantSeeder;
 use Database\Seeders\Tenant\AreaJuridicaTenantSeeder;
 use Database\Seeders\Referencias\ContaStatusTipoSeeder;
@@ -14,7 +15,6 @@ use Database\Seeders\Referencias\DocumentoTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
 use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
-use Database\Seeders\Referencias\PessoaTipoSeeder;
 use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\ServicoParticipacaoReferenciaTipoSeeder;
 use Illuminate\Database\Seeder;
@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
         //     UserTenantDomainSeeder::class,
 
         //     PessoaPerfilTipoSeeder::class,
-        //     PessoaTipoSeeder::class,
         //     DocumentoTipoSeeder::class,
 
         //     PermissionModuleSeeder::class,
@@ -58,14 +57,16 @@ class DatabaseSeeder extends Seeder
         //     ContaSeeder::class,
         // ]);
 
+        if (env('APP_ENV') == 'local') {
+            $this->call([
+                // PessoaPerfilParceiroSeeder::class,
+                PessoaPerfilParceiroClienteSeeder::class,
+            ]);
+        }
 
-        // if (env('APP_ENV') == 'local') {
-        //     $this->call([PessoaPerfilParceiroSeeder::class]);
-        // }
-
-        $this->call([
-            ParticipacaoRegistroTipoSeeder::class,
-            ServicoParticipacaoReferenciaTipoSeeder::class,
-        ]);
+        // $this->call([
+        //     ParticipacaoRegistroTipoSeeder::class,
+        //     ServicoParticipacaoReferenciaTipoSeeder::class,
+        // ]);
     }
 }

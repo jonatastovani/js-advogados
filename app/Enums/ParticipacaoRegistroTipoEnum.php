@@ -2,9 +2,6 @@
 
 namespace App\Enums;
 
-use App\Models\Servico\ServicoParticipacaoGrupo;
-use App\Models\Servico\ServicoParticipacaoPresetRelacaoGrupo;
-
 enum ParticipacaoRegistroTipoEnum: int
 {
     case PERFIL = 1;
@@ -25,5 +22,10 @@ enum ParticipacaoRegistroTipoEnum: int
                 'descricao' => "Grupo de perfis de pessoas CNPJ ou CPF da Participação.",
             ],
         };
+    }
+
+    public static function toArray(): array
+    {
+        return array_column(self::cases(), 'value', 'name');
     }
 }

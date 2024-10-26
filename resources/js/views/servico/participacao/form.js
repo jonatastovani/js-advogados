@@ -4,7 +4,7 @@ import { enumAction } from "../../../commons/enumAction";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalNome } from "../../../components/comum/modalNome";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
-import { modalServicoPagamento } from "../../../components/servico/modalServicoPagamento";
+import { modalSelecionarPerfil } from "../../../components/pessoas/modalSelecionarPerfil";
 import { modalServicoParticipacao } from "../../../components/servico/modalServicoParticipacao";
 import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -20,6 +20,7 @@ class PageServicoParticipacaoPresetForm {
         },
         data: {
             porcentagemOcupada: 0,
+            participantesNaTela: []
         }
     };
     #action;
@@ -56,8 +57,7 @@ class PageServicoParticipacaoPresetForm {
             }
             const response = await objModal.modalOpen();
             if (response.refresh) {
-                self.#atualizaRegistroParticipanteNaTela(response.register);
-                self.#atualizaPorcentagemLivre();
+                await self.#inserirParticipanteNaTela(Object.assign(dados_participacao, response.register));
             }
         }
 
@@ -65,10 +65,12 @@ class PageServicoParticipacaoPresetForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalPessoa();
-
+                const dataEnvModalAppend = {
+                    perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                };
+                const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
                 const response = await objModal.modalOpen();
-                if (response.refresh) {
+                if (response.refresh && response.selected) {
                     await openModalServicoParticipacao({ participacao_registro_tipo_id: 1, pessoa_perfil: response.selected });
                 }
             } catch (error) {
@@ -103,33 +105,229 @@ class PageServicoParticipacaoPresetForm {
             self.#saveButtonAction();
         });
 
+        const evento = () => {
+            self.#inserirParticipanteNaTela({
+                "participacao_registro_tipo_id": 1,
+                "pessoa_perfil": {
+                    "id": "9d53520a-ac54-404d-b8d6-0a805090d56e",
+                    "tenant_id": "jsadvogados",
+                    "pessoa_id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
+                    "perfil_tipo_id": 3,
+                    "observacao": null,
+                    "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                    "created_ip": "127.0.0.1",
+                    "created_at": "2024-10-24 20:17:22",
+                    "updated_user_id": null,
+                    "updated_ip": null,
+                    "updated_at": null,
+                    "deleted_user_id": null,
+                    "deleted_ip": null,
+                    "deleted_at": null,
+                    "perfil_tipo": {
+                        "id": 3,
+                        "nome": "Cliente",
+                        "descricao": "Perfil para clientes.",
+                        "tabela_ref": null,
+                        "tabela_model": null,
+                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "created_ip": "127.0.0.1",
+                        "created_at": "2024-10-24 20:17:22",
+                        "updated_user_id": null,
+                        "updated_ip": null,
+                        "updated_at": null,
+                        "deleted_user_id": null,
+                        "deleted_ip": null,
+                        "deleted_at": null
+                    },
+                    "pessoa": {
+                        "id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
+                        "tenant_id": "jsadvogados",
+                        "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
+                        "pessoa_dados_id": "9d53520a-a8a9-43de-b800-5758a35565e3",
+                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "created_ip": "127.0.0.1",
+                        "created_at": "2024-10-24 20:17:22",
+                        "updated_user_id": null,
+                        "updated_ip": null,
+                        "updated_at": null,
+                        "deleted_user_id": null,
+                        "deleted_ip": null,
+                        "deleted_at": null,
+                        "pessoa_perfil": [
+                            {
+                                "id": "9d53520a-ac54-404d-b8d6-0a805090d56e",
+                                "tenant_id": "jsadvogados",
+                                "pessoa_id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
+                                "perfil_tipo_id": 3,
+                                "observacao": null,
+                                "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                                "created_ip": "127.0.0.1",
+                                "created_at": "2024-10-24 20:17:22",
+                                "updated_user_id": null,
+                                "updated_ip": null,
+                                "updated_at": null,
+                                "deleted_user_id": null,
+                                "deleted_ip": null,
+                                "deleted_at": null,
+                                "perfil_tipo": {
+                                    "id": 3,
+                                    "nome": "Cliente",
+                                    "descricao": "Perfil para clientes.",
+                                    "tabela_ref": null,
+                                    "tabela_model": null,
+                                    "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                                    "created_ip": "127.0.0.1",
+                                    "created_at": "2024-10-24 20:17:22",
+                                    "updated_user_id": null,
+                                    "updated_ip": null,
+                                    "updated_at": null,
+                                    "deleted_user_id": null,
+                                    "deleted_ip": null,
+                                    "deleted_at": null
+                                }
+                            }
+                        ],
+                        "pessoa_dados": {
+                            "id": "9d53520a-a8a9-43de-b800-5758a35565e3",
+                            "tenant_id": "jsadvogados",
+                            "nome": "Dr. Kamila de Arruda",
+                            "mae": "Sofia Tamoio",
+                            "pai": "Simon Galindo",
+                            "nascimento_data": null,
+                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-24 20:17:22",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null
+                        },
+                        "idTr": "bba671d0-1a1a-4e50-b748-90f6209723bf",
+                        "idTrSelecionado": "df03d7b1-c521-4523-b059-e5c533f2ea13",
+                        "idsTrs": [
+                            "bba671d0-1a1a-4e50-b748-90f6209723bf"
+                        ]
+                    }
+                },
+                "participacao_tipo_id": "9d538aa2-1764-4cae-b157-a4408b36cb74",
+                "valor_tipo": "porcentagem",
+                "valor": 23.33,
+                "observacao": "",
+                "idCard": "f7364cbc-b39c-46c7-867b-cf79736c469f"
+            });
+            self.#inserirParticipanteNaTela(
+                {
+                    "participacao_registro_tipo_id": 2,
+                    "nome_grupo": "Rachadinha",
+                    "participacao_tipo_id": "9d538aa9-bf98-496b-8018-40f20f4afc45",
+                    "valor_tipo": "porcentagem",
+                    "valor": 23.33,
+                    "observacao": "",
+                    "idCard": "97546ae8-7a7c-4bcc-914f-b0e5dea5f962"
+                }
+            );
+        }
         const openModalTest = async () => {
-            const objCode = new modalServicoParticipacao();
+            const perfis_busca = window.Statics.PerfisPermitidoParticipacaoServico.map(item => item.id);
+            const objCode = new modalSelecionarPerfil();
+            objCode.setDataEnvModal = {
+                perfis_permitidos: perfis_busca,
+                perfis_opcoes: [
+                    {
+                        "id": "9d5426a5-bd48-4f8d-b278-f05b27f50d3c",
+                        "tenant_id": "jsadvogados",
+                        "pessoa_id": "9d5426a5-bbaa-4a88-8b99-fb021edf342c",
+                        "perfil_tipo_id": 2,
+                        "observacao": null,
+                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "created_ip": "127.0.0.1",
+                        "created_at": "2024-10-25 06:11:52",
+                        "updated_user_id": null,
+                        "updated_ip": null,
+                        "updated_at": null,
+                        "deleted_user_id": null,
+                        "deleted_ip": null,
+                        "deleted_at": null,
+                        "perfil_tipo": {
+                            "id": 2,
+                            "nome": "Parceiro",
+                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
+                            "tabela_ref": null,
+                            "tabela_model": null,
+                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-24 20:17:22",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null
+                        }
+                    },
+                    {
+                        "id": "9d5426a5-bee9-465a-a68e-ba227c420984",
+                        "tenant_id": "jsadvogados",
+                        "pessoa_id": "9d5426a5-bbaa-4a88-8b99-fb021edf342c",
+                        "perfil_tipo_id": 3,
+                        "observacao": null,
+                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "created_ip": "127.0.0.1",
+                        "created_at": "2024-10-25 06:11:52",
+                        "updated_user_id": null,
+                        "updated_ip": null,
+                        "updated_at": null,
+                        "deleted_user_id": null,
+                        "deleted_ip": null,
+                        "deleted_at": null,
+                        "perfil_tipo": {
+                            "id": 3,
+                            "nome": "Cliente",
+                            "descricao": "Perfil para clientes.",
+                            "tabela_ref": null,
+                            "tabela_model": null,
+                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-24 20:17:22",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null
+                        }
+                    }
+                ],
+            };
             const retorno = await objCode.modalOpen();
             console.log(retorno);
         }
         // openModalTest();
         // openModalServicoParticipacao({ participacao_registro_tipo_id: 2, valor: 0, tipo_valor: 'porcentagem', nome: 'Rachadinha' });
-
+        evento();
     }
 
     async #buscarParticipacaoTipo(id) {
         const self = this;
-        return self.#getRecurse({ idRegister: id, urlApi: self.#objConfigs.url.baseParticipacaoTipo });
-
+        return await self.#getRecurse({ idRegister: id, urlApi: self.#objConfigs.url.baseParticipacaoTipo });
     }
 
-    async #atualizaRegistroParticipanteNaTela(item) {
+    async #inserirParticipanteNaTela(item) {
         const self = this;
         const divParticipantes = $(`#divParticipantes${self.#sufixo}`);
+        console.log(item);
 
         let nome = '';
+        let btnsAppend = '';
         switch (item.participacao_registro_tipo_id) {
             case 1:
                 nome = item.pessoa_perfil.pessoa.pessoa_dados.nome;
                 break;
             case 2:
                 nome = item.nome_grupo;
+                btnsAppend += `<button type="button" class="btn btn-outline-primary btn-sm btn-edit-name border-0">Editar Nome</button>`;
                 break;
             default:
                 commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
@@ -139,15 +337,26 @@ class PageServicoParticipacaoPresetForm {
 
         let participacao_tipo = item?.participacao_tipo?.nome ?? null;
         if (!participacao_tipo && item.participacao_tipo_id) {
-            participacao_tipo = self.#buscarParticipacaoTipo(item.participacao_tipo_id) ?? { nome: 'Erro de busca' };
+            const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
+            if (response) {
+                participacao_tipo = response.data;
+            } else {
+                participacao_tipo = { nome: 'Erro de busca' }
+            }
         } else {
             commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
             console.error('Tipo de participação não informado.', item);
             return false;
         }
 
+        const naTela = self.#verificaRegistroNaTela(item);
+        if (naTela) {
+            commonFunctions.generateNotification(`Participante <b>${naTela.pessoa_perfil.pessoa.pessoa_dados.nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
+            return false;
+        }
+
         let valor_tipo = ''
-        let valor = commonFunctions.formatNumberWithLimitDecimalPlaces(item.valor);
+        let valor = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
         switch (item.valor_tipo) {
             case 'porcentagem':
                 valor_tipo = 'Porcentagem';
@@ -166,73 +375,110 @@ class PageServicoParticipacaoPresetForm {
         const strCard = `
             <div class="card-body">
                 <h5 class="card-title d-flex align-items-center justify-content-between">
-                    <span>${nome}</span>
+                    <span class="spanNome">${nome}</span>
                     <div>
                         <div class="d-grid gap-2 d-flex justify-content-end">
-                            <button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0"
-                                style="max-width: 7rem">Editar</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0"
-                                style="max-width: 7rem">Excluir</button>
+                            ${btnsAppend}
+                            <button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0">Editar</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0">Excluir</button>
                         </div>
                     </div>
                 </h5>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
                     <div class="col">
                         <div class="form-text">Participação</div>
-                        <label class="form-label">${participacao_tipo.nome}</label>
+                        <label class="form-label lblParticipacao">${participacao_tipo.nome}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Método</div>
-                        <label class="form-label">${valor_tipo}</label>
+                        <label class="form-label lblValorTipo">${valor_tipo}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Valor</div>
-                        <label class="form-label">${valor}</label>
+                        <label class="form-label lblValor">${valor}</label>
                     </div>
                 </div>
             </div>`;
 
-        if (item.idCard) {
-            $(`#${item.idCard}`).html(strCard);
-        } else {
-            item.idCard = UUIDHelper.generateUUID();
-            divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
-        }
+
+        item.idCard = UUIDHelper.generateUUID();
+        self.#objConfigs.data.participantesNaTela.push(item);
+
+        divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
+
+        self.#addEventoParticipante(item);
+        await self.#atualizaPorcentagemLivre(item);
     }
 
-    async #atualizaPorcentagemLivre() {
-
-    }
-
-    #htmlBtnEdit(options = {}) {
-        const {
-            title = 'Editar registro',
-        } = options;
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-pencil"></i> Editar</button>`;
-    }
-
-    #htmlBtnDelete(options = {}) {
-        const {
-            title = 'Editar registro',
-        } = options;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}"><i class="bi bi-trash"></i> Excluir</button>`
-    }
-
-    async #addEventosPagamento(item) {
+    async #atualizaParticipanteNaTela(item) {
         const self = this;
 
-        $(`#${item.idCard}`).find('.btn-edit').on('click', async function () {
+        let participacao_tipo = item?.participacao_tipo?.nome ?? null;
+        if (!participacao_tipo && item.participacao_tipo_id) {
+            const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
+            if (response) {
+                participacao_tipo = response.data;
+            } else {
+                participacao_tipo = { nome: 'Erro de busca' }
+            }
+        } else {
+            commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
+            console.error('Tipo de participação não informado.', item);
+            return false;
+        }
+
+        let valor_tipo = ''
+        let valor = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
+        switch (item.valor_tipo) {
+            case 'porcentagem':
+                valor_tipo = 'Porcentagem';
+                valor += '%';
+                break;
+            case 'valor_fixo':
+                valor_tipo = 'Valor Fixo';
+                valor = `R$ ${valor}`;
+                break;
+            default:
+                valor_tipo = 'Erro valor tipo';
+                console.error('Erro no tipo de valor', item);
+                break;
+        }
+
+        for (const element of self.#objConfigs.data.participantesNaTela) {
+            if (element.idCard == item.idCard) {
+                element.participacao_tipo_id = item.participacao_tipo_id;
+                element.valor_tipo = item.valor_tipo;
+                element.valor = item.valor;
+                break;
+            }
+        }
+
+        $(`#${item.idCard} .lblParticipacao`).text(participacao_tipo.nome);
+        $(`#${item.idCard} .lblValorTipo`).text(valor_tipo);
+        $(`#${item.idCard} .lblValor`).text(valor);
+
+        await self.#atualizaPorcentagemLivre();
+    }
+
+    async #addEventoParticipante(item) {
+        const self = this;
+
+        $(`#${item.idCard} .btn-edit`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
+                const porcentagem_ocupada = self.#objConfigs.data.porcentagem_ocupada;
+                if (item.valor_tipo == 'porcentagem') {
+                    porcentagem_ocupada -= item.valor;
+                }
+                const objModal = new modalServicoParticipacao();
                 objModal.setDataEnvModal = {
-                    idRegister: item.id,
+                    dados_participacao: item,
+                    porcentagem_ocupada: porcentagem_ocupada,
                 }
                 const response = await objModal.modalOpen();
-                console.log(response);
-                if (response.refresh && response.register) {
-                    // AtualizarRegistro
+                if (response.refresh) {
+                    await self.#atualizaParticipanteNaTela(Object.assign(item, response.register));
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -241,19 +487,87 @@ class PageServicoParticipacaoPresetForm {
             }
         });
 
-        // $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-        //     const response = await self.#delButtonAction(item.id, item.titulo, {
-        //         title: `Exclusão de Anotação`,
-        //         message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
-        //         success: `Anotação excluída com sucesso!`,
-        //         button: this,
-        //         urlApi: self.#objConfigs.url.baseAnotacao,
-        //     });
+        if (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO) {
 
-        //     if (response) {
-        //         $(`#${item.idCol}`).remove();
-        //     }
-        // });
+            $(`#${item.idCard} .btn-edit-name`).on('click', async function () {
+
+                let registro = undefined;
+                for (const element of self.#objConfigs.data.participantesNaTela) {
+                    if (element.idCard == item.idCard) {
+                        registro = element;
+                        break;
+                    }
+                }
+                console.log(registro)
+                const btn = $(this);
+                commonFunctions.simulateLoading(btn);
+                try {
+                    const objModalNome = new modalNome();
+                    objModalNome.setDataEnvModal = {
+                        title: 'Novo grupo',
+                        mensagem: 'Informe o nome do grupo',
+                        nome: registro.nome_grupo,
+                    }
+                    const response = await objModalNome.modalOpen();
+                    if (response.refresh) {
+                        registro.nome_grupo = response.name;
+                        $(`#${item.idCard} .spanNome`).text(registro.nome_grupo);
+                    }
+                } catch (error) {
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(btn, false);
+                }
+            });
+        }
+    }
+
+    #verificaRegistroNaTela(item) {
+        const self = this;
+
+        if (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.PERFIL) {
+            for (const element of self.#objConfigs.data.participantesNaTela) {
+                if (element.participacao_registro_tipo_id != window.Enums.ParticipacaoRegistroTipoEnum.PERFIL) {
+                    continue;
+                }
+
+                if (element.pessoa_perfil.id == item.pessoa_perfil.id &&
+                    element.participacao_tipo_id == item.participacao_tipo_id
+                ) {
+                    return element;
+                }
+            }
+        }
+        return null;
+    }
+
+    async #atualizaPorcentagemLivre() {
+        const self = this;
+        let porcentagemOcupada = 0;
+        let valorFixo = 0;
+
+        for (const itemTela of self.#objConfigs.data.participantesNaTela) {
+            if (itemTela.valor_tipo == 'porcentagem') {
+                porcentagemOcupada += itemTela.valor;
+            } else {
+                valorFixo += itemTela.valor;
+            }
+        }
+        self.#objConfigs.data.porcentagem_ocupada = porcentagemOcupada;
+        self.#objConfigs.data.valor_fixo = valorFixo;
+
+        let valorMinimo = 0;
+        if (porcentagemOcupada > 0 && valorFixo > 0) {
+            valorMinimo = valorFixo + 1;
+        } else if (valorFixo > 0) {
+            valorMinimo = valorFixo;
+        }
+
+        $(`#valor_fixo${self.#sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
+        $(`#porcentagem${self.#sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
+        $(`#valor_minimo${self.#sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
+
+        commonFunctions.atualizarProgressBar($(`#progressBar${self.#sufixo}`), porcentagemOcupada);
     }
 
     #saveButtonAction() {

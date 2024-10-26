@@ -21,4 +21,4 @@
 
 <x-consulta.formulario-padrao-criterio.componente :sufixo="$sufixo" :dados="$dados" />
 
-@include('components.modal.pessoa.modal-pessoa.tabela-dados', ['sufixo' => $sufixo])
+@include('components.modal.pessoa.modal-pessoa.tabela-dados-fisica', ['sufixo' => $sufixo])

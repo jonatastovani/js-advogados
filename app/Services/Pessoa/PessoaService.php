@@ -27,17 +27,19 @@ class PessoaService extends Service
 
     public function postConsultaFiltros(Fluent $requestData)
     {
-        // Construa a subconsulta para buscar os IDs das pessoas físicas que atendem aos filtros
         $queryFisica = $this->pessoaFisicaService->consultaSimplesComFiltros($requestData, [
-            'arrayCamposSelect' => ['pessoa_id']
+            'arrayCamposSelect' => ['id']
         ]);
 
-        // Use a subconsulta no whereIn para filtrar diretamente na consulta principal
-        $query = $this->model::with($this->loadFull())
-            ->whereIn('id', $queryFisica);
+        $query = $this->model::whereIn('pessoa_dados_id', $queryFisica)->whereHas('pessoa_perfil', function ($q) use ($requestData) {
+            $q->whereIn('perfil_tipo_id', $requestData->perfis_busca);
+        });
 
-        // Paginar e retornar o resultado
-        return $query->paginate($requestData->perPage ?? 25)->toArray();
+        $result = $query->paginate($requestData->perPage ?? 25);
+
+        $result->load($this->loadFull());
+
+        return $result->toArray();
     }
 
     public function postConsultaFiltrosJuridica(Fluent $requestData)
@@ -129,8 +131,7 @@ class PessoaService extends Service
     private function loadFull(): array
     {
         return [
-            'pessoa_tipo',
-            'pessoa_perfil',
+            'pessoa_perfil.perfil_tipo',
             'pessoa_dados'
         ];
     }

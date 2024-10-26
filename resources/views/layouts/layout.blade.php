@@ -27,6 +27,8 @@
         @yield('conteudo')
     </div>
 
+    @include('components.pagina.injetar-js')
+
     @stack('modals')
 
     <x-modal.comum.modal-loading.modal />

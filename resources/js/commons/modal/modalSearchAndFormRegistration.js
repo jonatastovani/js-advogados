@@ -165,6 +165,11 @@ export class modalSearchAndFormRegistration extends modalDefault {
         if (arrayMensagens.length > 0) {
             return commonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
         }
+
+        if (options.appendData) {
+            Object.assign(data, options.appendData);
+        }
+        
         await self._getData(data);
     }
 

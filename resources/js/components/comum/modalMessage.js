@@ -31,7 +31,6 @@ export class modalMessage extends modalDefault {
     async modalOpen() {
         const self = this;
         const modal = $(self.getIdModal);
-        console.log(modal)
         if (await self.fillInfo()) {
             await self._modalHideShow();
             if (([1, 2].findIndex((item) => item == self._dataEnvModal.idDefaultButton)) != -1) {

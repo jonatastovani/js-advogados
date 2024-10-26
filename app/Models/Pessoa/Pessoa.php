@@ -22,25 +22,12 @@ class Pessoa extends Model
     protected $table = 'pessoa.pessoas';
     protected $tableAsName = 'pess';
 
-    public function pessoa_tipo()
-    {
-        return $this->belongsTo(PessoaTipo::class);
-    }
-
     public function pessoa_perfil()
     {
         return $this->hasMany(PessoaPerfil::class, 'pessoa_id');
     }
 
-    public function pessoa_dados()
-    {
-        // O relacionamento condicional com base no campo 'pessoa_tipo_id'
-        if ($this->pessoa_tipo_id == 1) {
-            return $this->hasOne(PessoaFisica::class, 'pessoa_id');
-        } elseif ($this->pessoa_tipo_id == 2) {
-            return $this->hasOne(PessoaJuridica::class, 'pessoa_id');
-        }
-
-        return null; // Caso o tipo não seja mapeado
+    public function pessoa_dados(){
+        return $this->morphTo();
     }
 }

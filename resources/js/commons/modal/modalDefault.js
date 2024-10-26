@@ -35,7 +35,8 @@ export class modalDefault {
     _objConfigs = {
         modalInitialized: false,
         sufixo: undefined,
-        data: undefined
+        data: undefined,
+        modalConfig: undefined
     };
 
     /**
@@ -167,6 +168,12 @@ export class modalDefault {
     _nameClassModal = "modal";
     #addEventClickBackdrop() {
         const self = this;
+        
+        const modalCloseOnClickBackdrop = self._objConfigs?.modalConfig?.modalCloseOnClickBackdrop;
+        if(modalCloseOnClickBackdrop !== undefined || modalCloseOnClickBackdrop === false) {
+            return;
+        }
+
         $(self.getIdModal).on('click', function (e) {
             if ($(e.target).hasClass(self._nameClassModal)) {
                 self._setEndTimer = true;
@@ -176,6 +183,12 @@ export class modalDefault {
 
     #addEventKeyDownEscape() {
         const self = this;
+
+        const modalCloseOnEscape = self._objConfigs?.modalConfig?.modalCloseOnEscape;
+        if(modalCloseOnEscape !== undefined || modalCloseOnEscape === false) {
+            return;
+        }
+
         $(self.getIdModal).on('keydown', function (e) {
             if (e.key === 'Escape') {
                 e.stopPropagation();

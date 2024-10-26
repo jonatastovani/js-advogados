@@ -13,8 +13,7 @@ class PessoaFisicaFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => 'jsadvogados',
-            'pessoa_id' => null, // Esse valor será configurado dinamicamente
+            'tenant_id' => null,
             'nome' => $this->faker->name(),
             'mae' => $this->faker->name(),
             'pai' => $this->faker->name(),
@@ -24,16 +23,16 @@ class PessoaFisicaFactory extends Factory
     }
 
     /**
-     * Define o pessoa_id dinamicamente.
+     * Define o tenant_id dinamicamente.
      *
-     * @param int $pessoaId
+     * @param int $tenantId
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function comPessoaId(string $pessoaId): self
+    public function comTenantId(string $tenantId): self
     {
-        return $this->state(function () use ($pessoaId) {
+        return $this->state(function () use ($tenantId) {
             return [
-                'pessoa_id' => $pessoaId,
+                'tenant_id' => $tenantId,
             ];
         });
     }

@@ -2,6 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
+import { modalSelecionarPerfil } from "./modalSelecionarPerfil";
 
 export class modalPessoa extends modalSearchAndFormRegistration {
 
@@ -60,10 +61,14 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         }
     };
 
-    constructor() {
-        super({
+    constructor(objData = {}) {
+        const envSuper = {
             idModal: "#modalPessoa",
-        });
+        };
+        if (objData.dataEnvModal) {
+            envSuper.dataEnvModal = objData.dataEnvModal;
+        }
+        super(envSuper);
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
@@ -86,10 +91,15 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         const formFisicaCriterios = modal.find(`#formDataSearch${self._objConfigs.sufixo}FisicaCriterios`);
         const formJuridicaCriterios = modal.find(`#formDataSearch${self._objConfigs.sufixo}JuridicaCriterios`);
 
+        if (!self._dataEnvModal.perfis_busca) {
+            commonFunctions.generateNotification('Perfis de busca não definidos.', 'warning');
+            return false;
+        }
+        const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
         formPessoaFisica.find('.btnBuscar').on('click', function (e) {
             e.preventDefault();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosFisica.name;
-            self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosFisica.formDataSearch });
+            self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosFisica.formDataSearch, appendData: { perfis_busca: perfis_busca } });
         })
             .trigger('click');
 
@@ -147,26 +157,25 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             tbody,
         } = options;
 
-        console.log(item);
-        const pessoa_dados = item.pessoa.pessoa_dados;
+        const pessoa_dados = item.pessoa_dados;
         const cpf = pessoa_dados.cpf ? commonFunctions.formatCPF(pessoa_dados.cpf) : '';
 
-        const itemSelecionado = self.#verificaRegistroSelecionado(pessoa_dados);
+        const itemSelecionado = self.#verificaRegistroSelecionado(item);
         let botoes = '';
         if (itemSelecionado) {
             botoes = self.#htmlBtnRemover();
-            pessoa_dados['idTrSelecionado'] = itemSelecionado.idTrSelecionado;
+            item.idTrSelecionado = itemSelecionado.idTrSelecionado;
         } else {
             botoes = self.#htmlBtnSelecionar();
         }
 
         let perfis = 'N/C';
-        if (pessoa_dados.pessoa.pessoa_perfil) {
-            perfis = pessoa_dados.pessoa.pessoa_perfil.map(item => item.perfil_tipo.nome).join(', ');
+        if (item.pessoa_perfil) {
+            perfis = item.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
         }
 
         $(tbody).append(`
-            <tr id=${pessoa_dados.idTr}>
+            <tr id=${item.idTr}>
                 <td class="text-center text-nowrap">
                 <div class="btn-group btnsAcao" role="group">
                         ${botoes}
@@ -183,17 +192,33 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(pessoa_dados);
-        return pessoa_dados;
+        self.#addEventosRegistrosConsulta(item);
+        return item;
+    }
+
+    async insertTableDataSelecionados(item, options = {}) {
+        const self = this;
+        let result = false;
+
+        switch (item.pessoa_dados_type) {
+            case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                result = await self.insertTableDataPessoaFisica(item, { tbody: $(`#tableData${self._objConfigs.sufixo}SelecionadosFisica tbody`) });
+                break;
+
+            case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                result = await self.insertTableDataPessoaJuridica(item, { tbody: $(`#tableData${self._objConfigs.sufixo}SelecionadosJuridica tbody`) });
+                break;
+        }
+        return result;
     }
 
     #verificaRegistroSelecionado(item) {
         const self = this;
 
         for (const element of self._promisseReturnValue.selecteds) {
-            if (element.id == item.id) {
-                element.idsTrs.push(item.idTr);
-                return element; // Pessoa já está selecionada
+            if (element.pessoa.id == item.id) {
+                element.pessoa.idsTrs.push(item.idTr);
+                return element.pessoa; // Pessoa já está selecionada
             }
         }
         return null; // Pessoa não selecionada
@@ -201,9 +226,44 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
     #addEventosRegistrosConsulta(registro) {
         const self = this;
-        const tabelaSelecionados = $(`#tableData${self._objConfigs.sufixo}Selecionados tbody`);
 
         let item = JSON.parse(JSON.stringify(registro));
+
+        const selecionaUnicoPerfil = async (item) => {
+
+            const selecionaPrimeiro = (perfis) => {
+                return JSON.parse(JSON.stringify(perfis[0]));
+            }
+
+            let objPerfil = undefined;
+            if (item.pessoa_perfil.length > 1) {
+                const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
+                const perfisExibir = item.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
+                if (perfisExibir.length > 1) {
+                    try {
+                        const objModal = new modalSelecionarPerfil();
+                        objModal.setDataEnvModal = {
+                            perfis_opcoes: perfisExibir,
+                        };
+                        await self._modalHideShow(false);
+                        const response = await objModal.modalOpen();
+                        objPerfil = response.register;
+                        objPerfil.pessoa = item;
+                    } catch (error) {
+                        commonFunctions.generateNotificationErrorCatch(error);
+                    } finally {
+                        await self._modalHideShow();
+                    }
+                } else {
+                    objPerfil = selecionaPrimeiro(perfisExibir);
+                    objPerfil.pessoa = item;
+                }
+            } else {
+                objPerfil = selecionaPrimeiro(item.pessoa_perfil);
+                objPerfil.pessoa = item;
+            }
+            return objPerfil;
+        }
 
         const inserirSelecionado = (item) => {
             const select = self._dataEnvModal.attributes.select;
@@ -218,12 +278,10 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
             if (select?.autoReturn && select.autoReturn &&
                 (
-                    // select?.max && promisseReturnValue.selecteds.length == select.max ||
                     select?.quantity && promisseReturnValue.selecteds.length == select.quantity ||
                     (
                         select?.quantity && select.quantity == 1 && promisseReturnValue.selected
                     )
-                    // select?.min && promisseReturnValue.selecteds.length >= select.min
                 )
             ) {
                 self._setEndTimer = true;
@@ -232,33 +290,61 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
         //#region Eventos de botões
         const adicionaEventoSelecionar = (itemEnv) => {
-            let item = JSON.parse(JSON.stringify(itemEnv));
-            const tr = $(`#${item.idTr}`);
+            let itemSelecionar = JSON.parse(JSON.stringify(itemEnv));
+            const tr = $(`#${itemSelecionar.idTr}`);
             tr.find('.btn-select').on("click", async function () {
+
                 for (const query of Object.values(self._objConfigs.querys)) {
                     if (!query.recordsOnScreen) continue;
                     for (let element of query.recordsOnScreen) {
                         element = JSON.parse(JSON.stringify(element));
-                        if (element.id == item.id
-                        ) {
-                            const selecionado = self.#verificaRegistroSelecionado(element);
+
+                        if (element.id == itemSelecionar.id) {
+
+                            let elementPerfil = await selecionaUnicoPerfil(element);
+                            let elementPessoa = elementPerfil.pessoa;
+
+                            const selecionado = self.#verificaRegistroSelecionado(elementPerfil);
                             if (!selecionado) {
-                                element.idTrSelecionado = UUIDHelper.generateUUID();
-                                const tempIdTr = element.idTr;
-                                element.idTr = element.idTrSelecionado;
-                                const returnInsert = await self.insertTableData(element, { tbody: tabelaSelecionados });
-                                element.idTr = tempIdTr;
-                                element.idsTrs = [element.idTr];
-                                inserirSelecionado(element);
-                                $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                                adicionaEventoVisualizar(element, element.idTrSelecionado);
+                                elementPessoa.idTrSelecionado = UUIDHelper.generateUUID();
+
+                                const tempIdTr = elementPessoa.idTr;
+                                elementPessoa.idTr = elementPessoa.idTrSelecionado;
+
+                                const returnInsert = await self.insertTableDataSelecionados(elementPessoa);
+                                elementPessoa.idTr = tempIdTr;
+                                elementPessoa.idsTrs = [elementPessoa.idTr];
+
+                                inserirSelecionado(elementPerfil);
+                                $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
                             } else {
-                                element.idTrSelecionado = selecionado.idTrSelecionado;
-                                $(`#${element.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+                                elementPessoa.idTrSelecionado = selecionado.idTrSelecionado;
+                                $(`#${elementPessoa.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
                             }
 
-                            $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btn-select').remove();
-                            adicionaEventoDeletar(element);
+                            $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btn-select').remove();
+                            adicionaEventoDeletar(elementPessoa);
+
+                            // const selecionado = self.#verificaRegistroSelecionado(element);
+                            // if (!selecionado) {
+                            //     element.idTrSelecionado = UUIDHelper.generateUUID();
+
+                            //     const tempIdTr = element.idTr;
+                            //     element.idTr = element.idTrSelecionado;
+
+                            //     const returnInsert = await self.insertTableDataSelecionados(element);
+                            //     element.idTr = tempIdTr;
+                            //     element.idsTrs = [element.idTr];
+
+                            //     inserirSelecionado(element);
+                            //     $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+                            // } else {
+                            //     element.idTrSelecionado = selecionado.idTrSelecionado;
+                            //     $(`#${element.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+                            // }
+
+                            // $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btn-select').remove();
+                            // adicionaEventoDeletar(element);
                         }
                     }
                 }
@@ -267,37 +353,39 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         }
 
         const adicionaEventoDeletar = (itemEnv) => {
-            let item = JSON.parse(JSON.stringify(itemEnv));
-            $(`#${item.idTrSelecionado}`).find('.btn-delete').off('click');
-            const trs = $(`#${item.idTr}, #${item.idTrSelecionado}`);
-            trs.find('.btn-delete').on("click", async function () {
-                const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.idTrSelecionado == item.idTrSelecionado);
-                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.idTrSelecionado != item.idTrSelecionado);
+            let itemDeletar = JSON.parse(JSON.stringify(itemEnv));
 
-                $(`#${item.idTrSelecionado}`).remove();
-                $(`#${selecionado[0].idsTrs.join(', #')}`).find('.btn-delete').remove();
-                $(`#${selecionado[0].idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
-                for (const idTrConsulta of selecionado[0].idsTrs) {
+            $(`#${itemDeletar.idTrSelecionado}`).find('.btn-delete').off('click');
+            const trs = $(`#${itemDeletar.idTr}, #${itemDeletar.idTrSelecionado}`);
+            trs.find('.btn-delete').on("click", async function () {
+                const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado == itemDeletar.idTrSelecionado);
+
+                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado != itemDeletar.idTrSelecionado);
+
+                $(`#${itemDeletar.idTrSelecionado}`).remove();
+                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btn-delete').remove();
+                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
+                for (const idTrConsulta of selecionado[0].pessoa.idsTrs) {
                     if ($(`#${idTrConsulta}`).length) {
-                        item.idTr = idTrConsulta;
-                        adicionaEventoSelecionar({ ...item });
+                        itemDeletar.idTr = idTrConsulta;
+                        adicionaEventoSelecionar({ ...itemDeletar });
                     }
                 }
                 self.#atualizaBadge();
             });
         }
 
-        const adicionaEventoVisualizar = (itemEnv, idTr) => {
-            $(`#${idTr}`).find('.btn-view').on("click", async function () {
-                commonFunctions.generateNotification('Funcionalidade para visualizar detalhes do preso, em desenvolvimento.', 'warning');
-                // item['idTrSelecionado'] = await self.#inserirRegistroTabela(tabelaSelecionados, item);
-                // self.#promisseReturnValue.selecteds.push(item);
+        // const adicionaEventoVisualizar = (itemEnv, idTr) => {
+        //     $(`#${idTr}`).find('.btn-view').on("click", async function () {
+        //         commonFunctions.generateNotification('Funcionalidade para visualizar detalhes do preso, em desenvolvimento.', 'warning');
+        //         // item['idTrSelecionado'] = await self.#inserirRegistroTabela(tabelaSelecionados, item);
+        //         // self.#promisseReturnValue.selecteds.push(item);
 
-                // $(this).remove();
-                // $(`#${itemEnv.idTr}, #${item.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                // adicionaEventoDeletar(item);
-            });
-        }
+        //         // $(this).remove();
+        //         // $(`#${itemEnv.idTr}, #${item.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+        //         // adicionaEventoDeletar(item);
+        //     });
+        // }
         //#endregion
 
         if (registro.idTrSelecionado) {
@@ -305,13 +393,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         } else {
             adicionaEventoSelecionar(item);
         }
-        adicionaEventoVisualizar(item, item.idTr);
-
-        // tr.on('dblclick', function () {
-        //     self.#promisseReturnValue.selected_id = item.id;
-        //     self.#promisseReturnValue.refresh = true;
-        //     self.#endTimer = true;
-        // });
+        // adicionaEventoVisualizar(item, item.idTr);
     }
 
     #htmlBtnSelecionar() {

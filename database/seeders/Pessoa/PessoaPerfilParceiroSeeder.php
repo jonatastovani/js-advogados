@@ -18,17 +18,18 @@ class PessoaPerfilParceiroSeeder extends Seeder
     public function run(): void
     {
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-        for ($i = 0; $i < 15; $i++) {
-            $pessoa = new Pessoa();
-            $pessoa->tenant_id = 'jsadvogados';
-            $pessoa->pessoa_tipo_id = PessoaTipoEnum::PESSOA_FISICA;
-            $pessoa->created_user_id = $adminTenantUserId;
-            $pessoa->save();
+        $tenantId = 'jsadvogados';
 
-            PessoaFisica::factory()->comPessoaId($pessoa->id)->create();
+        for ($i = 0; $i < 15; $i++) {
+            $fisica = PessoaFisica::factory()->comTenantId($tenantId)->create();
+
+            $pessoa = $fisica->pessoa()->create([
+                'tenant_id' => $tenantId,
+                'created_user_id' => $adminTenantUserId
+            ]);
 
             $perfil = new PessoaPerfil();
-            $perfil->tenant_id = 'jsadvogados';
+            $perfil->tenant_id = $tenantId;
             $perfil->pessoa_id = $pessoa->id;
             $perfil->perfil_tipo_id = PessoaPerfilTipoEnum::PARCEIRO;
             $perfil->created_user_id = $adminTenantUserId;

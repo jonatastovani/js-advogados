@@ -22,6 +22,6 @@ class PessoaFisica extends Model
 
     public function pessoa()
     {
-        return $this->belongsTo(Pessoa::class);
+        return $this->morphOne(Pessoa::class, 'pessoa_dados');
     }
 }

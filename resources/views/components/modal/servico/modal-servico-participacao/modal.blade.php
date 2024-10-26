@@ -14,23 +14,14 @@
                 <div class="row row-cols-1 row-cols-sm-2">
                     <div class="col">
                         <div class="form-text">Nome</div>
-                        <label class="form-label text-truncate lblNome">Alexa Zaragoça Benez Filho</label>
+                        <label class="form-label text-truncate lblNome"></label>
                     </div>
                     <div class="col">
                         <div class="form-text">Tipo participante</div>
-                        <label class="form-label lblTipoParticipante">Pessoa</label>
+                        <label class="form-label lblTipoParticipante"></label>
                     </div>
                 </div>
-                <form class="formRegistration">
-                    @include('components.modal.servico.modal-servico-participacao.painel-dados-participacao')
-                </form>
-            </div>
-            <div class="modal-footer">
-                    <div class="col text-end">
-                        <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
-                            Salvar
-                        </button>
-                    </div>
+                @include('components.modal.servico.modal-servico-participacao.painel-dados-participacao')
             </div>
         </div>
     </div>

@@ -25,8 +25,7 @@ return new class extends Migration
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
 
-            $table->unsignedSmallInteger('pessoa_tipo_id');
-            $table->foreign('pessoa_tipo_id')->references('id')->on(App\Models\Referencias\PessoaTipo::getTableName());
+            $table->uuidMorphs('pessoa_dados');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

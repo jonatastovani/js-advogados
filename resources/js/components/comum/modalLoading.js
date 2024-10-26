@@ -25,12 +25,7 @@ export class modalLoading extends modalDefault {
         await self.initEvents();
         await self._modalHideShow();
         return new Promise(function (resolve) {
-            // const checkConfirmation = setInterval(function () {
-            // if (self.#openTimer) {
-            // clearInterval(checkConfirmation);
             resolve({ status: 'open' });
-            // }
-            // }, 250);
         });
     }
 
@@ -40,12 +35,7 @@ export class modalLoading extends modalDefault {
 
         await self._modalHideShow(false);
         return new Promise(function (resolve) {
-            // const checkConfirmation = setInterval(function () {
-            // if (self.#endTimer) {
-            // clearInterval(checkConfirmation);
             resolve({ status: 'close' });
-            // }
-            // }, 250);
         });
     }
 
