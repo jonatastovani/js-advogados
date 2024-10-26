@@ -66,10 +66,6 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
     }
 
     #addEventosPadrao() {
-        this.#eventosBotoes();
-    }
-
-    #eventosBotoes() {
         const self = this;
         const modal = $(self._idModal);
 
@@ -168,6 +164,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
             const ocupada = self._dataEnvModal.porcentagem_ocupada ?? 0;
             const livre = (100 - ocupada);
+            const valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
 
             if (!livre) {
                 modal.find('.btnAplicarRestante').attr('disabled', true);
@@ -178,8 +175,8 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
             modal.find('.lblNome').html(nome);
             modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
-            modal.find(`input[name="valor_tipo"][value="${dados.tipo_valor ?? 'porcentagem'}"]`).prop('checked', true).trigger('input');
-            modal.find('input[name="valor"]').val(dados.valor ?? '').trigger('input');
+            modal.find(`input[name="valor_tipo"][value="${dados.valor_tipo ?? 'porcentagem'}"]`).prop('checked', true).trigger('click');
+            modal.find('input[name="valor"]').val(valor).trigger('input');
             modal.find('input[name="observacao"]').val(dados.observacao ?? '');
             modal.find('select[name="participacao_tipo_id"]').val(dados.participacao_tipo_id ?? 0);
             return true;

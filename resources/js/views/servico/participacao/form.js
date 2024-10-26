@@ -106,97 +106,55 @@ class PageServicoParticipacaoPresetForm {
         });
 
         const evento = () => {
-            self.#inserirParticipanteNaTela({
-                "participacao_registro_tipo_id": 1,
-                "pessoa_perfil": {
-                    "id": "9d53520a-ac54-404d-b8d6-0a805090d56e",
-                    "tenant_id": "jsadvogados",
-                    "pessoa_id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
-                    "perfil_tipo_id": 3,
-                    "observacao": null,
-                    "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
-                    "created_ip": "127.0.0.1",
-                    "created_at": "2024-10-24 20:17:22",
-                    "updated_user_id": null,
-                    "updated_ip": null,
-                    "updated_at": null,
-                    "deleted_user_id": null,
-                    "deleted_ip": null,
-                    "deleted_at": null,
-                    "perfil_tipo": {
-                        "id": 3,
-                        "nome": "Cliente",
-                        "descricao": "Perfil para clientes.",
-                        "tabela_ref": null,
-                        "tabela_model": null,
-                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
-                        "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-24 20:17:22",
-                        "updated_user_id": null,
-                        "updated_ip": null,
-                        "updated_at": null,
-                        "deleted_user_id": null,
-                        "deleted_ip": null,
-                        "deleted_at": null
-                    },
-                    "pessoa": {
-                        "id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
+            self.#inserirParticipanteNaTela(
+                {
+                    "participacao_registro_tipo_id": 2,
+                    "nome_grupo": "Teste",
+                    "participacao_tipo_id": "9d567e4f-deb1-46c0-9868-5fd3fefc77ca",
+                    "valor_tipo": "valor_fixo",
+                    "valor": 200,
+                    "observacao": "",
+                    "idCard": "5cf371e5-d3c1-4d40-be72-546eff23257b"
+                }
+            );
+            self.#inserirParticipanteNaTela(
+                {
+                    "participacao_registro_tipo_id": 2,
+                    "nome_grupo": "Rachadinha",
+                    "participacao_tipo_id": "9d567e57-f34c-4cc3-9a5d-cbb5116b9a30",
+                    "valor_tipo": "porcentagem",
+                    "valor": 23.33,
+                    "observacao": "",
+                    "idCard": "14135fba-02d8-4343-8c04-6a59695c8504"
+                }
+            );
+            self.#inserirParticipanteNaTela(
+                {
+                    "participacao_registro_tipo_id": 1,
+                    "pessoa_perfil": {
+                        "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
                         "tenant_id": "jsadvogados",
-                        "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-                        "pessoa_dados_id": "9d53520a-a8a9-43de-b800-5758a35565e3",
-                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
+                        "perfil_tipo_id": 2,
+                        "observacao": null,
+                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
                         "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-24 20:17:22",
+                        "created_at": "2024-10-26 10:01:25",
                         "updated_user_id": null,
                         "updated_ip": null,
                         "updated_at": null,
                         "deleted_user_id": null,
                         "deleted_ip": null,
                         "deleted_at": null,
-                        "pessoa_perfil": [
-                            {
-                                "id": "9d53520a-ac54-404d-b8d6-0a805090d56e",
-                                "tenant_id": "jsadvogados",
-                                "pessoa_id": "9d53520a-aaa1-4293-b0e9-90226c240ec4",
-                                "perfil_tipo_id": 3,
-                                "observacao": null,
-                                "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
-                                "created_ip": "127.0.0.1",
-                                "created_at": "2024-10-24 20:17:22",
-                                "updated_user_id": null,
-                                "updated_ip": null,
-                                "updated_at": null,
-                                "deleted_user_id": null,
-                                "deleted_ip": null,
-                                "deleted_at": null,
-                                "perfil_tipo": {
-                                    "id": 3,
-                                    "nome": "Cliente",
-                                    "descricao": "Perfil para clientes.",
-                                    "tabela_ref": null,
-                                    "tabela_model": null,
-                                    "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-24 20:17:22",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null
-                                }
-                            }
-                        ],
-                        "pessoa_dados": {
-                            "id": "9d53520a-a8a9-43de-b800-5758a35565e3",
-                            "tenant_id": "jsadvogados",
-                            "nome": "Dr. Kamila de Arruda",
-                            "mae": "Sofia Tamoio",
-                            "pai": "Simon Galindo",
-                            "nascimento_data": null,
-                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "perfil_tipo": {
+                            "id": 2,
+                            "nome": "Parceiro",
+                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
+                            "tabela_ref": null,
+                            "tabela_model": null,
+                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
                             "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-24 20:17:22",
+                            "created_at": "2024-10-26 10:01:22",
                             "updated_user_id": null,
                             "updated_ip": null,
                             "updated_at": null,
@@ -204,31 +162,119 @@ class PageServicoParticipacaoPresetForm {
                             "deleted_ip": null,
                             "deleted_at": null
                         },
-                        "idTr": "bba671d0-1a1a-4e50-b748-90f6209723bf",
-                        "idTrSelecionado": "df03d7b1-c521-4523-b059-e5c533f2ea13",
-                        "idsTrs": [
-                            "bba671d0-1a1a-4e50-b748-90f6209723bf"
-                        ]
-                    }
-                },
-                "participacao_tipo_id": "9d538aa2-1764-4cae-b157-a4408b36cb74",
-                "valor_tipo": "porcentagem",
-                "valor": 23.33,
-                "observacao": "",
-                "idCard": "f7364cbc-b39c-46c7-867b-cf79736c469f"
-            });
-            self.#inserirParticipanteNaTela(
-                {
-                    "participacao_registro_tipo_id": 2,
-                    "nome_grupo": "Rachadinha",
-                    "participacao_tipo_id": "9d538aa9-bf98-496b-8018-40f20f4afc45",
+                        "pessoa": {
+                            "id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
+                            "tenant_id": "jsadvogados",
+                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
+                            "pessoa_dados_id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
+                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-26 10:01:25",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null,
+                            "pessoa_perfil": [
+                                {
+                                    "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
+                                    "tenant_id": "jsadvogados",
+                                    "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
+                                    "perfil_tipo_id": 2,
+                                    "observacao": null,
+                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                                    "created_ip": "127.0.0.1",
+                                    "created_at": "2024-10-26 10:01:25",
+                                    "updated_user_id": null,
+                                    "updated_ip": null,
+                                    "updated_at": null,
+                                    "deleted_user_id": null,
+                                    "deleted_ip": null,
+                                    "deleted_at": null,
+                                    "perfil_tipo": {
+                                        "id": 2,
+                                        "nome": "Parceiro",
+                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
+                                        "tabela_ref": null,
+                                        "tabela_model": null,
+                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                                        "created_ip": "127.0.0.1",
+                                        "created_at": "2024-10-26 10:01:22",
+                                        "updated_user_id": null,
+                                        "updated_ip": null,
+                                        "updated_at": null,
+                                        "deleted_user_id": null,
+                                        "deleted_ip": null,
+                                        "deleted_at": null
+                                    }
+                                },
+                                {
+                                    "id": "9d567bb9-9ed6-4725-889d-d585e2913b61",
+                                    "tenant_id": "jsadvogados",
+                                    "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
+                                    "perfil_tipo_id": 3,
+                                    "observacao": null,
+                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                                    "created_ip": "127.0.0.1",
+                                    "created_at": "2024-10-26 10:01:25",
+                                    "updated_user_id": null,
+                                    "updated_ip": null,
+                                    "updated_at": null,
+                                    "deleted_user_id": null,
+                                    "deleted_ip": null,
+                                    "deleted_at": null,
+                                    "perfil_tipo": {
+                                        "id": 3,
+                                        "nome": "Cliente",
+                                        "descricao": "Perfil para clientes.",
+                                        "tabela_ref": null,
+                                        "tabela_model": null,
+                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                                        "created_ip": "127.0.0.1",
+                                        "created_at": "2024-10-26 10:01:22",
+                                        "updated_user_id": null,
+                                        "updated_ip": null,
+                                        "updated_at": null,
+                                        "deleted_user_id": null,
+                                        "deleted_ip": null,
+                                        "deleted_at": null
+                                    }
+                                }
+                            ],
+                            "pessoa_dados": {
+                                "id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
+                                "tenant_id": "jsadvogados",
+                                "nome": "Luana Chaves Santos Neto",
+                                "mae": "Pérola Camacho",
+                                "pai": "Sra. Vanessa Maldonado",
+                                "nascimento_data": null,
+                                "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
+                                "created_ip": "127.0.0.1",
+                                "created_at": "2024-10-26 10:01:25",
+                                "updated_user_id": null,
+                                "updated_ip": null,
+                                "updated_at": null,
+                                "deleted_user_id": null,
+                                "deleted_ip": null,
+                                "deleted_at": null
+                            },
+                            "idTr": "1b472ded-679f-4c8c-bb9d-5a5dcc8cfbd5",
+                            "idTrSelecionado": "82ac194a-b814-49d5-9f1b-0c0ed9a95e25",
+                            "idsTrs": [
+                                "1b472ded-679f-4c8c-bb9d-5a5dcc8cfbd5"
+                            ]
+                        }
+                    },
+                    "participacao_tipo_id": "9d567e49-ea88-4c5e-9536-5090c3d1b219",
                     "valor_tipo": "porcentagem",
-                    "valor": 23.33,
+                    "valor": 33.34,
                     "observacao": "",
-                    "idCard": "97546ae8-7a7c-4bcc-914f-b0e5dea5f962"
+                    "idCard": "09ee5c6f-3e87-40b4-8612-a9f6f95af69d"
                 }
             );
         }
+
         const openModalTest = async () => {
             const perfis_busca = window.Statics.PerfisPermitidoParticipacaoServico.map(item => item.id);
             const objCode = new modalSelecionarPerfil();
@@ -304,8 +350,8 @@ class PageServicoParticipacaoPresetForm {
             const retorno = await objCode.modalOpen();
             console.log(retorno);
         }
+
         // openModalTest();
-        // openModalServicoParticipacao({ participacao_registro_tipo_id: 2, valor: 0, tipo_valor: 'porcentagem', nome: 'Rachadinha' });
         evento();
     }
 
@@ -317,17 +363,22 @@ class PageServicoParticipacaoPresetForm {
     async #inserirParticipanteNaTela(item) {
         const self = this;
         const divParticipantes = $(`#divParticipantes${self.#sufixo}`);
+        item.idCard = UUIDHelper.generateUUID();
+
         console.log(item);
 
         let nome = '';
         let btnsAppend = '';
+        let accordionIntegrantes = '';
         switch (item.participacao_registro_tipo_id) {
             case 1:
                 nome = item.pessoa_perfil.pessoa.pessoa_dados.nome;
                 break;
             case 2:
                 nome = item.nome_grupo;
-                btnsAppend += `<button type="button" class="btn btn-outline-primary btn-sm btn-edit-name border-0">Editar Nome</button>`;
+                btnsAppend += `<li><button type="button" class="dropdown-item fs-6 btn-add-pessoa">Inserir Pessoa</button></li>`;
+                btnsAppend += `<li><button type="button" class="dropdown-item fs-6 btn-edit-name">Editar Nome</button></li>`;
+                accordionIntegrantes = self.#accordionIntegrantesGrupo(item);
                 break;
             default:
                 commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
@@ -377,11 +428,16 @@ class PageServicoParticipacaoPresetForm {
                 <h5 class="card-title d-flex align-items-center justify-content-between">
                     <span class="spanNome">${nome}</span>
                     <div>
-                        <div class="d-grid gap-2 d-flex justify-content-end">
-                            ${btnsAppend}
-                            <button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0">Editar</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0">Excluir</button>
-                        </div>
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    ${btnsAppend}
+                                    <li><button type="button" class="dropdown-item fs-6 btn-edit">Editar</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-delete">Excluir</button></li>
+                                </ul>
+                            </div>
                     </div>
                 </h5>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
@@ -398,10 +454,9 @@ class PageServicoParticipacaoPresetForm {
                         <label class="form-label lblValor">${valor}</label>
                     </div>
                 </div>
+                ${accordionIntegrantes}
             </div>`;
 
-
-        item.idCard = UUIDHelper.generateUUID();
         self.#objConfigs.data.participantesNaTela.push(item);
 
         divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
@@ -467,7 +522,7 @@ class PageServicoParticipacaoPresetForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const porcentagem_ocupada = self.#objConfigs.data.porcentagem_ocupada;
+                let porcentagem_ocupada = self.#objConfigs.data.porcentagem_ocupada;
                 if (item.valor_tipo == 'porcentagem') {
                     porcentagem_ocupada -= item.valor;
                 }
@@ -512,6 +567,26 @@ class PageServicoParticipacaoPresetForm {
                     if (response.refresh) {
                         registro.nome_grupo = response.name;
                         $(`#${item.idCard} .spanNome`).text(registro.nome_grupo);
+                    }
+                } catch (error) {
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(btn, false);
+                }
+            });
+
+            $(`#${item.idCard} .btn-add-pessoa`).on('click', async function () {
+                const btn = $(this);
+                commonFunctions.simulateLoading(btn);
+                try {
+                    const dataEnvModalAppend = {
+                        perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                    };
+                    const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                    const response = await objModal.modalOpen();
+                    if (response.refresh && response.selected) {
+                        await self.#inserirPerfilIntegrante(item, response.selected);
+
                     }
                 } catch (error) {
                     commonFunctions.generateNotificationErrorCatch(error);
@@ -570,9 +645,106 @@ class PageServicoParticipacaoPresetForm {
         commonFunctions.atualizarProgressBar($(`#progressBar${self.#sufixo}`), porcentagemOcupada);
     }
 
+    #inserirPerfilIntegrante(item, perfil) {
+        const self = this;
+        const rowIntegrantes = $(`#accordionIntegrantes${item.idCard} .rowIntegrantes`);
+        perfil.idCard = UUIDHelper.generateUUID();
+
+        rowIntegrantes.append(`
+            <div id="${perfil.idCard}" class="card">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center justify-content-between">
+                        <span>${perfil.pessoa.pessoa_dados.nome}</span>
+                        <div>
+                            <div class="d-grid gap-2 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-delete-integrante border-0">Excluir</button>
+                            </div>
+                        </div>
+                    </h5>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-text">Perfil</div>
+                            <label class="form-label">${perfil.perfil_tipo.nome}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `);
+
+
+        let element = self.#objConfigs.data.participantesNaTela.find(item => item.idCard == item.idCard);
+        if (!element.integrantes) {
+            element.integrantes = [];
+        }
+        element.integrantes.push(perfil);
+
+        self.#atualizaQuantidadeIntegrantes(item.idCard);
+        self.#addEventoPerfilIntegrante(item, perfil);
+    }
+
+    async #addEventoPerfilIntegrante(item, perfil) {
+        const self = this;
+
+        $(`#${perfil.idCard} .btn-delete-integrante`).on('click', async function () {
+            $(`#${perfil.idCard}`).remove();
+
+            const participantes = self.#objConfigs.data.participantesNaTela;
+            const indexPart = participantes.findIndex(item => item.idCard === item.idCard);
+
+            if (indexPart > -1) {
+                const indexInt = participantes[indexPart].integrantes.findIndex(item => item.idCard === perfil.idCard);
+                if (indexInt > -1) {
+                    participantes[indexPart].integrantes.splice(indexInt, 1);
+                }
+            }
+
+            self.#atualizaQuantidadeIntegrantes(item.idCard);
+        });
+
+    }
+
+    #accordionIntegrantesGrupo(item) {
+        return `
+            <div class="accordion mt-2" id="accordionIntegrantes${item.idCard}">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne${item.idCard}" aria-expanded="true"
+                            aria-controls="collapseOne${item.idCard}">
+                            <span class="qtdIntegrantes">Nenhum integrante no grupo</span>
+                        </button>
+                    </div>
+                    <div id="collapseOne${item.idCard}" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionIntegrantes${item.idCard}">
+                        <div class="accordion-body">
+                            <div class="row rowIntegrantes row-cols-1 g-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+    }
+
+    #atualizaQuantidadeIntegrantes(idCard) {
+        const self = this;
+        let element = self.#objConfigs.data.participantesNaTela.find(item => item.idCard == idCard);
+        console.log(element)
+        const totalIntegrantes = element.integrantes.length;
+        const qtdIntegrantes = $(`#accordionIntegrantes${idCard} .qtdIntegrantes`);
+        let str = 'Nenhum integrante no grupo';
+
+        if (totalIntegrantes === 1) {
+            str = '1 integrante no grupo';
+        } else if (totalIntegrantes > 1) {
+            str = `${totalIntegrantes} integrantes no grupo`;
+        }
+        qtdIntegrantes.html(str);
+    }
+
     #saveButtonAction() {
         const self = this;
-        const formRegistration = $(`#formServico${self.#sufixo}`);
+        const formRegistration = $(`#form${self.#sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {

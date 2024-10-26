@@ -1,4 +1,4 @@
-<form id="formServicoParticipacao{{ $sufixo }}">
+<form id="form{{ $sufixo }}">
     <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-4">
         <div class="col mt-2">
             <label for="nome{{ $sufixo }}" class="form-label">Nome</label>

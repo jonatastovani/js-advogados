@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class ServicoParticipacaoPresetRelacaoGrupo extends Model
+class ServicoParticipacaoPresetRelacaoIntegrante extends Model
 {
     use HasFactory,
         HasUuids,
@@ -19,6 +19,6 @@ class ServicoParticipacaoPresetRelacaoGrupo extends Model
         BelongsToTenant,
         BelongsToDomain;
 
-    protected $table = 'servico.servico_participacao_preset_relacao_grupos';
-    protected $tableAsName = 'serv_part_preset_rel_gru';
+    protected $table = 'servico.servico_participacao_preset_relacao_integrantes';
+    protected $tableAsName = 'serv_part_preset_rel_integ';
 }

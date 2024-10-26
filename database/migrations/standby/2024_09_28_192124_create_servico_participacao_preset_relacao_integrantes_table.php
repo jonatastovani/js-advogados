@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoParticipacaoPresetRelacaoGrupo();
+        $this->model = new App\Models\Servico\ServicoParticipacaoPresetRelacaoIntegrante();
     }
 
     /**
@@ -29,8 +29,8 @@ return new class extends Migration
             $table->uuid('preset_relacao_id');
             $table->foreign('preset_relacao_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetRelacao::getTableName());
 
-            $table->uuid('perfil_id');
-            // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
+            $table->uuid('pessoa_perfil_id');
+            $table->foreign('pessoa_perfil_id')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

@@ -48,7 +48,6 @@ enum PessoaPerfilTipoEnum: int
     {
         return [
             self::PARCEIRO->detalhes(),
-            self::CLIENTE->detalhes()
         ];
     }
 }
