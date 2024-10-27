@@ -3,6 +3,7 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -74,7 +75,7 @@ class ServicoParticipacaoPresetService extends Service
                 $participante->preset_id = $resource->id;
                 $participante->save();
 
-                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO) {
+                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
                     if (!count($integrantes)) {
                         throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
                     }
@@ -87,7 +88,7 @@ class ServicoParticipacaoPresetService extends Service
 
             DB::commit();
             // $this->executarEventoWebsocket();
-            // $resource->load($this->loadFull());
+            $resource->load($this->loadFull());
             return $resource->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
@@ -131,7 +132,7 @@ class ServicoParticipacaoPresetService extends Service
             ) {
                 $integrantes = [];
                 switch ($participante->participacao_registro_tipo_id) {
-                    case ParticipacaoRegistroTipoEnum::PERFIL:
+                    case ParticipacaoRegistroTipoEnum::PERFIL->value:
                         //Verifica se o perfil informado existe
                         $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $participante->referencia_id]);
                         if (!$validacaoPessoaPerfilId->count()) {
@@ -140,7 +141,7 @@ class ServicoParticipacaoPresetService extends Service
                         $participante->referencia_type = PessoaPerfil::class;
                         break;
 
-                    case ParticipacaoRegistroTipoEnum::GRUPO:
+                    case ParticipacaoRegistroTipoEnum::GRUPO->value:
                         if (!in_array($participante->nome_grupo, $arrayNomesGrupos)) {
                             $arrayNomesGrupos[] = $participante->nome_grupo;
                         } else {
@@ -151,7 +152,7 @@ class ServicoParticipacaoPresetService extends Service
                             $integrante = new Fluent($integrante);
 
                             switch ($integrante->participacao_registro_tipo_id) {
-                                case ParticipacaoRegistroTipoEnum::PERFIL:
+                                case ParticipacaoRegistroTipoEnum::PERFIL->value:
                                     //Verifica se o perfil informado existe
                                     $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $integrante->referencia_id]);
                                     if (!$validacaoPessoaPerfilId->count()) {
@@ -174,7 +175,7 @@ class ServicoParticipacaoPresetService extends Service
                 $newParticipante->fill($participante->toArray());
                 if (
                     $participante->participacao_registro_tipo_id ==
-                    ParticipacaoRegistroTipoEnum::GRUPO
+                    ParticipacaoRegistroTipoEnum::GRUPO->value
                 ) {
                     $newParticipante->integrantes = $integrantes;
                 }
@@ -217,10 +218,10 @@ class ServicoParticipacaoPresetService extends Service
     private function loadFull(): array
     {
         return [
-            'participante.participacao_tipo',
-            'participante.integrante.referencia',
-            'participante.referencia',
-            'participante.participacao_registro_tipo',
+            'participantes.participacao_tipo',
+            'participantes.integrantes.referencia',
+            'participantes.referencia',
+            'participantes.participacao_registro_tipo',
         ];
     }
 

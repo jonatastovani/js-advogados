@@ -40,9 +40,9 @@ class ServicoParticipacaoPresetParticipante extends Model
         return $this->belongsTo(ServicoParticipacaoTipoTenant::class);
     }
 
-    public function integrante()
+    public function integrantes()
     {
-        return $this->hasMany(ServicoParticipacaoPresetParticipanteIntegrante::class);
+        return $this->hasMany(ServicoParticipacaoPresetParticipanteIntegrante::class, 'participante_id');
     }
 
     public function referencia()

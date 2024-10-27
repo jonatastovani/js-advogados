@@ -6,7 +6,6 @@ import { modalNome } from "../../../components/comum/modalNome";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalSelecionarPerfil } from "../../../components/pessoas/modalSelecionarPerfil";
 import { modalServicoParticipacao } from "../../../components/servico/modalServicoParticipacao";
-import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -224,6 +223,121 @@ class PageServicoParticipacaoPresetForm {
                     "valor": 33.34,
                     "observacao": "",
                     "idCard": "480a6d6a-d598-46ff-ae59-b21c7216137f"
+                }
+            );
+
+            self.#inserirParticipanteNaTela(
+                {
+                    "participacao_registro_tipo_id": 1,
+                    "referencia": {
+                        "id": "9d53520d-5db6-44be-bd4f-590d3037b1a5",
+                        "tenant_id": "jsadvogados",
+                        "pessoa_id": "9d53520d-5c07-4c8c-9b0c-257ba3a5e116",
+                        "perfil_tipo_id": 2,
+                        "observacao": null,
+                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                        "created_ip": "127.0.0.1",
+                        "created_at": "2024-10-24 20:17:24",
+                        "updated_user_id": null,
+                        "updated_ip": null,
+                        "updated_at": null,
+                        "deleted_user_id": null,
+                        "deleted_ip": null,
+                        "deleted_at": null,
+                        "perfil_tipo": {
+                            "id": 2,
+                            "nome": "Parceiro",
+                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
+                            "tabela_ref": null,
+                            "tabela_model": null,
+                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-24 20:17:22",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null
+                        },
+                        "pessoa": {
+                            "id": "9d53520d-5c07-4c8c-9b0c-257ba3a5e116",
+                            "tenant_id": "jsadvogados",
+                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
+                            "pessoa_dados_id": "9d53520d-5a21-464f-ab72-4c639d3832b4",
+                            "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                            "created_ip": "127.0.0.1",
+                            "created_at": "2024-10-24 20:17:24",
+                            "updated_user_id": null,
+                            "updated_ip": null,
+                            "updated_at": null,
+                            "deleted_user_id": null,
+                            "deleted_ip": null,
+                            "deleted_at": null,
+                            "pessoa_perfil": [
+                                {
+                                    "id": "9d53520d-5db6-44be-bd4f-590d3037b1a5",
+                                    "tenant_id": "jsadvogados",
+                                    "pessoa_id": "9d53520d-5c07-4c8c-9b0c-257ba3a5e116",
+                                    "perfil_tipo_id": 2,
+                                    "observacao": null,
+                                    "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                                    "created_ip": "127.0.0.1",
+                                    "created_at": "2024-10-24 20:17:24",
+                                    "updated_user_id": null,
+                                    "updated_ip": null,
+                                    "updated_at": null,
+                                    "deleted_user_id": null,
+                                    "deleted_ip": null,
+                                    "deleted_at": null,
+                                    "perfil_tipo": {
+                                        "id": 2,
+                                        "nome": "Parceiro",
+                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
+                                        "tabela_ref": null,
+                                        "tabela_model": null,
+                                        "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                                        "created_ip": "127.0.0.1",
+                                        "created_at": "2024-10-24 20:17:22",
+                                        "updated_user_id": null,
+                                        "updated_ip": null,
+                                        "updated_at": null,
+                                        "deleted_user_id": null,
+                                        "deleted_ip": null,
+                                        "deleted_at": null
+                                    }
+                                }
+                            ],
+                            "pessoa_dados": {
+                                "id": "9d53520d-5a21-464f-ab72-4c639d3832b4",
+                                "tenant_id": "jsadvogados",
+                                "nome": "Sr. Hugo Luiz Pedrosa Filho",
+                                "mae": "Dr. Rafael Valência Jr.",
+                                "pai": "Srta. Tainara Pereira Filho",
+                                "nascimento_data": null,
+                                "created_user_id": "340c0b8d-2731-472c-bd60-cc2c1fd936ba",
+                                "created_ip": "127.0.0.1",
+                                "created_at": "2024-10-24 20:17:24",
+                                "updated_user_id": null,
+                                "updated_ip": null,
+                                "updated_at": null,
+                                "deleted_user_id": null,
+                                "deleted_ip": null,
+                                "deleted_at": null
+                            },
+                            "idTr": "05616c8c-db55-4b7f-bcb0-14ede46e096f",
+                            "idTrSelecionado": "7efa83c7-0aec-40f6-b7ca-460aef98864d",
+                            "idsTrs": [
+                                "05616c8c-db55-4b7f-bcb0-14ede46e096f"
+                            ]
+                        }
+                    },
+                    "referencia_id": "9d53520d-5db6-44be-bd4f-590d3037b1a5",
+                    "participacao_tipo_id": "9d538ab3-a5ee-4170-9855-165f1115c6d9",
+                    "valor_tipo": "porcentagem",
+                    "valor": 43.33,
+                    "observacao": "",
+                    "idCard": "8f0dbac0-9f13-4d13-b837-01e482c575b3"
                 }
             );
 
@@ -1074,19 +1188,21 @@ class PageServicoParticipacaoPresetForm {
                 obj.setParam(self.#idRegister);
             }
             const response = await obj.envRequest();
+            console.log(response);
 
-            if (response) {
-                if (self.#action === enumAction.PUT) {
-                    commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
-                } else {
-                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
-                }
-            }
+            // if (response) {
+            //     if (self.#action === enumAction.PUT) {
+            //         commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
+            //     } else {
+            //         RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
+            //     }
+            // }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }
         finally {
             commonFunctions.simulateLoading(btnSave, false);
+            console.log(data);
         };
     }
 

@@ -28,8 +28,8 @@ class ServicoParticipacaoPreset extends Model
         'ativo_bln',
     ];
 
-    public function participante()
+    public function participantes()
     {
-        return $this->hasMany(ServicoParticipacaoPresetParticipante::class);
+        return $this->hasMany(ServicoParticipacaoPresetParticipante::class, 'preset_id');
     }
 }

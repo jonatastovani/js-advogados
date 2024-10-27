@@ -10,6 +10,7 @@ services:
         volumes:
             - './.docker/redis:/data'
         container_name: phpredis
+        restart: unless-stopped
         networks:
             - laravel
 

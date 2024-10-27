@@ -5,6 +5,7 @@ namespace App\Models\Pessoa;
 use App\Enums\PessoaTipoEnum;
 use App\Models\Referencias\PessoaPerfilTipo;
 use App\Models\Referencias\PessoaTipo;
+use App\Models\Servico\ServicoParticipacaoPresetParticipante;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -31,5 +32,10 @@ class PessoaPerfil extends Model
     public function perfil_tipo()
     {
         return $this->belongsTo(PessoaPerfilTipo::class);
+    }
+
+    public function servico_participacao_participante_preset()
+    {
+        return $this->morphOne(ServicoParticipacaoPresetParticipante::class, 'referencia');
     }
 }
