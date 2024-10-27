@@ -13,6 +13,7 @@ use App\Models\Servico\ServicoParticipacaoPresetParticipante;
 use App\Models\Servico\ServicoParticipacaoPresetParticipanteIntegrante;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Services\Service;
+use Exception;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -73,12 +74,15 @@ class ServicoParticipacaoPresetService extends Service
                 $participante->preset_id = $resource->id;
                 $participante->save();
 
-                // if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO) {
-                //     foreach ($integrantes as $integrante) {
-                //         $integrante['participante_id'] = $participante->id;
-                //         $newIntegrante = $this->modelIntegrante::create($integrante);
-                //     }
-                // }
+                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO) {
+                    if (!count($integrantes)) {
+                        throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
+                    }
+                    foreach ($integrantes as $integrante) {
+                        $integrante->participante_id = $participante->id;
+                        $integrante->save();
+                    }
+                }
             }
 
             DB::commit();
@@ -161,7 +165,6 @@ class ServicoParticipacaoPresetService extends Service
                                 $integrantes,
                                 (new $this->modelIntegrante)
                                     ->fill($integrante->toArray())
-                                    ->toArray()
                             );
                         }
                         break;

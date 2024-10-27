@@ -20,7 +20,7 @@ class ServicoParticipacaoPresetFormRequestBase extends BaseFormRequest
             'participantes.*.valor' => 'required|numeric|min:0.01',
             'participantes.*.observacao' => 'nullable|string',
             'participantes.*.integrantes' => 'nullable|array',
-            'participantes.*.integrantes.*.participacao_registro_tipo_id' => 'required|integer|in:1,2',
+            'participantes.*.integrantes.*.participacao_registro_tipo_id' => 'required|integer|in:1',
             'participantes.*.integrantes.*.referencia_id' => 'required|uuid',
         ];
 
