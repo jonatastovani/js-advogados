@@ -28,7 +28,8 @@ return new class extends Migration
 
             $table->string('nome');
             $table->string('descricao')->nullable();
-
+            $table->boolean('ativo_bln')->default(true);
+            
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

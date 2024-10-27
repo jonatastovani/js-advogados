@@ -26,11 +26,13 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('preset_participante_id');
-            $table->foreign('preset_participante_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetParticipante::getTableName());
+            $table->uuid('participante_id');
+            $table->foreign('participante_id', "fk_{$this->model::getTableAsName()}_participante_id")->references('id')->on(App\Models\Servico\ServicoParticipacaoPresetParticipante::getTableName());
 
-            $table->uuid('pessoa_perfil_id');
-            $table->foreign('pessoa_perfil_id')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());
+            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
+
+            $table->uuidMorphs('referencia');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

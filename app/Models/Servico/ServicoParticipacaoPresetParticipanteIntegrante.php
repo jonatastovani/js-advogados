@@ -2,6 +2,7 @@
 
 namespace App\Models\Servico;
 
+use App\Models\Referencias\ParticipacaoRegistroTipo;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -19,6 +20,28 @@ class ServicoParticipacaoPresetParticipanteIntegrante extends Model
         BelongsToTenant,
         BelongsToDomain;
 
-        protected $table = 'servico.servico_participacao_preset_participante_integrantes';
-        protected $tableAsName = 'serv_part_pres_part_integ';
+    protected $table = 'servico.servico_participacao_preset_participante_integrantes';
+    protected $tableAsName = 'serv_part_pres_part_integ';
+
+    protected $fillable = [
+        'participante_id',
+        'participacao_registro_tipo_id',
+        'referencia_id',
+        'referencia_type',
+    ];
+
+    public function referencia()
+    {
+        return $this->morphTo();
     }
+
+    public function participante()
+    {
+        return $this->belongsTo(ServicoParticipacaoPresetParticipante::class);
+    }
+
+    public function participacao_registro_tipo()
+    {
+        return $this->belongsTo(ParticipacaoRegistroTipo::class);
+    }
+}

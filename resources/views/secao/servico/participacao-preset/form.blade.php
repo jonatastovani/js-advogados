@@ -32,7 +32,8 @@
 
     <div class="row text-end">
         <div class="col mt-2">
-            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save w-50"
+                style="max-width: 7rem">
                 Salvar
             </button>
         </div>
@@ -52,9 +53,9 @@
     @vite('resources/js/views/servico/participacao/form.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseParticipacaoPreset' => route('api.servico'),
+            'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
             'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
-            ],
+        ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [

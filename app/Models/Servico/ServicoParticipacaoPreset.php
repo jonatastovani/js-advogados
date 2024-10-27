@@ -21,4 +21,15 @@ class ServicoParticipacaoPreset extends Model
 
     protected $table = 'servico.servico_participacao_presets';
     protected $tableAsName = 'serv_part_pres';
+
+    protected $fillable = [
+        'nome',
+        'descricao',
+        'ativo_bln',
+    ];
+
+    public function participante()
+    {
+        return $this->hasMany(ServicoParticipacaoPresetParticipante::class);
+    }
 }

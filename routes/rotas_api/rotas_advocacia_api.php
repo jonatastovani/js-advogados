@@ -53,6 +53,19 @@ Route::group([
                 });
             });
         });
+
+        Route::prefix('participacao-preset')->group(function () {
+
+            Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoPresetController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::post('', 'store')->name('api.servico-participacao-preset');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
+            });
+        });
     });
 
     Route::prefix('tenant')->group(function () {

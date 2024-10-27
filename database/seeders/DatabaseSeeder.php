@@ -57,16 +57,16 @@ class DatabaseSeeder extends Seeder
         //     ContaSeeder::class,
         // ]);
 
-        if (env('APP_ENV') == 'local') {
-            $this->call([
-                // PessoaPerfilParceiroSeeder::class,
-                PessoaPerfilParceiroClienteSeeder::class,
-            ]);
-        }
+        // if (env('APP_ENV') == 'local') {
+        //     $this->call([
+        //         // PessoaPerfilParceiroSeeder::class,
+        //         PessoaPerfilParceiroClienteSeeder::class,
+        //     ]);
+        // }
 
-        // $this->call([
-        //     ParticipacaoRegistroTipoSeeder::class,
-        //     ServicoParticipacaoReferenciaTipoSeeder::class,
-        // ]);
+        $this->call([
+            ParticipacaoRegistroTipoSeeder::class,
+            // ServicoParticipacaoReferenciaTipoSeeder::class,
+        ]);
     }
 }

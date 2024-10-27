@@ -2,6 +2,8 @@
 
 namespace App\Models\Servico;
 
+use App\Models\Referencias\ParticipacaoRegistroTipo;
+use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -21,4 +23,35 @@ class ServicoParticipacaoPresetParticipante extends Model
 
     protected $table = 'servico.servico_participacao_preset_participantes';
     protected $tableAsName = 'serv_part_pres_part';
+
+    protected $fillable = [
+        'participacao_tipo_id',
+        'participacao_registro_tipo_id',
+        'referencia_id',
+        'referencia_type',
+        'nome_grupo',
+        'valor_tipo',
+        'valor',
+        'observacao',
+    ];
+
+    public function participacao_tipo()
+    {
+        return $this->belongsTo(ServicoParticipacaoTipoTenant::class);
+    }
+
+    public function integrante()
+    {
+        return $this->hasMany(ServicoParticipacaoPresetParticipanteIntegrante::class);
+    }
+
+    public function referencia()
+    {
+        return $this->morphTo();
+    }
+
+    public function participacao_registro_tipo()
+    {
+        return $this->belongsTo(ParticipacaoRegistroTipo::class);
+    }
 }

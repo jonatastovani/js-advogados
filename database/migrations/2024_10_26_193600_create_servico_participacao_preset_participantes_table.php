@@ -29,14 +29,13 @@ return new class extends Migration
             $table->uuid('preset_id');
             $table->foreign('preset_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPreset::getTableName());
 
-            $table->unsignedBigInteger('participacao_registro_tipo_id');
-            $table->foreign('participacao_registro_tipo_id')->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
-
             $table->uuid('participacao_tipo_id');
-            $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
+            $table->foreign('participacao_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_tipo_id")->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
 
-            $table->uuid('pessoa_perfil')->nullable();
-            $table->foreign('pessoa_perfil')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());
+            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
+
+            $table->nullableUuidMorphs('referencia');
 
             $table->string('nome_grupo')->nullable();
             $table->enum('valor_tipo', ['porcentagem', 'valor_fixo']);
