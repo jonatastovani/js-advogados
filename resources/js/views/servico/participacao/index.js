@@ -1,4 +1,6 @@
+import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
+import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 
 class PageServicoParticipacaoIndex extends templateSearch {
@@ -7,8 +9,8 @@ class PageServicoParticipacaoIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseServico,
-                urlSearch: `${window.apiRoutes.baseServico}/consulta-filtros`,
+                url: window.apiRoutes.baseServicoParticipacaoPreset,
+                urlSearch: `${window.apiRoutes.baseServicoParticipacaoPreset}/consulta-filtros`,
                 baseFront: window.frontRoutes.baseFront,
             }
         },
@@ -46,6 +48,48 @@ class PageServicoParticipacaoIndex extends templateSearch {
         let strBtns = self.#HtmlBtnEdit(item);
         strBtns += self.#HtmlBtnDelete(item);
 
+        const arrayParticipantes = [];
+        const arrayIntegrantes = [];
+
+        for (const participante of item.participantes) {
+            let nomeParticipante = '';
+            let valor = commonFunctions.formatWithCurrencyCommasOrFraction(participante.valor);
+            let participacao = participante.participacao_tipo.nome;
+
+            switch (participante.valor_tipo) {
+                case 'porcentagem':
+                    valor = `${valor}%`;
+                    break;
+                case 'valor_fixo':
+                    valor = `R$ ${valor}`;
+                    break;
+            }
+
+            switch (participante.participacao_registro_tipo_id) {
+                case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
+                    nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+                    break;
+
+                case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
+                    nomeParticipante = `<b>Grupo</b> - ${participante.nome_grupo} > <b>${valor}</b>`;
+                    for (const integrante of participante.integrantes) {
+                        let nomeIntegrante = '';
+                        switch (integrante.participacao_registro_tipo_id) {
+                            case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
+                                nomeIntegrante = integrante.referencia.pessoa.pessoa_dados.nome;
+
+                                break;
+                        }
+
+                        arrayIntegrantes.push(`<b>${participante.nome_grupo}</b> - ${nomeIntegrante}`);
+                    }
+                    break;
+            }
+            nomeParticipante += ` > <b>${participacao}</b> - <b>${valor}</b>`;
+
+            arrayParticipantes.push(`${nomeParticipante}`);
+        }
+
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -54,14 +98,15 @@ class PageServicoParticipacaoIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.titulo ?? ''}">${item.titulo}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.area_juridica.nome ?? ''}">${item.area_juridica.nome ?? ''}</td>
+                <td class="text-nowrap" title="${item.nome ?? ''}">${item.nome}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
+                <td><button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="popover" data-bs-title="Participantes do ${item.nome}" data-bs-html="true" data-bs-content="${arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td><button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 
+        BootstrapFunctionsHelper.addEventPopover();
         self.#addEventosRegistrosConsulta(item);
         return true;
     }

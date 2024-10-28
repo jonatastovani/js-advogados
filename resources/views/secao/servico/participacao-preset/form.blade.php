@@ -60,8 +60,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirect' => route('servico.index'),
-            'frontRedirectForm' => route('servico.form'),
+            'frontRedirect' => route('servico.participacao.index'),
         ],
     ])
     @endcomponent

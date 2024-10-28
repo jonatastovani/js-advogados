@@ -22,16 +22,16 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    // 'id' => ['nome' => 'ID'],
-                    'titulo' => ['nome' => 'Título'],
+                    'nome' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
+                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
+                    'nome_participante' => ['nome' => 'Nome Participante'],
                 ],
                 'direcaoConsultaChecked' => 'desc',
                 'arrayCamposChecked' => ['nome', 'descricao'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
-                    'created_at' => ['nome' => 'Data gerado'],
                     'nome' => ['nome' => 'Nome'],
                 ],
             ]);
@@ -52,7 +52,9 @@
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th>Nome</th>
                     <th>Descrição</th>
-                    <th>Gerado em</th>
+                    <th>Participantes</th>
+                    <th>Integrantes (Grupos)</th>
+                    <th>Cadastrado em</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -65,21 +67,21 @@
 
 
 @push('modals')
-    <x-modal.referencias.modalAreaJuridicaTenant.modal />
+    {{-- <x-modal.referencias.modalAreaJuridicaTenant.modal /> --}}
 @endpush
 
 @push('scripts')
     @vite('resources/js/views/servico/participacao/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseServico' => route('api.servico'),
-            'baseAreaJuridicaTenant' => route('api.referencias.area-juridica'),
+            'baseServicoParticipacaoPreset' => route('api.servico-participacao-preset'),
+            // 'baseAreaJuridicaTenant' => route('api.referencias.area-juridica'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('servico.index'),
+            'baseFront' => route('servico.participacao.index'),
         ],
     ])
     @endcomponent

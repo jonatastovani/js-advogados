@@ -7,6 +7,8 @@ use App\Common\RestResponse;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Pessoa\Pessoa;
+use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\ParticipacaoRegistroTipo;
 use App\Models\Servico\ServicoParticipacaoPreset;
@@ -26,7 +28,7 @@ class ServicoParticipacaoPresetService extends Service
     public function __construct(
         public ServicoParticipacaoPreset $model,
         public ServicoParticipacaoPresetParticipante $modelParticipante,
-        public ServicoParticipacaoPresetParticipanteIntegrante $modelIntegrante
+        public ServicoParticipacaoPresetParticipanteIntegrante $modelIntegrante,
     ) {}
 
     /**
@@ -41,17 +43,93 @@ class ServicoParticipacaoPresetService extends Service
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $permissionAsName = $this->model::getTableAsName();
+        $modelAsName = $this->model::getTableAsName();
+        $participanteAsName = $this->modelParticipante::getTableAsName();
+        $pessoaPerfilAsName = PessoaPerfil::getTableAsName();
+        $pessoaAsName = Pessoa::getTableAsName();
+        $pessoaFisicaAsName = PessoaFisica::getTableAsName();
+
         $arrayAliasCampos = [
-            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $permissionAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $permissionAsName,
+            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
+            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
+            'col_nome_grupo' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
+            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaAsName,
+            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
         ];
 
         $arrayCampos = [
-            'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            'col_nome' => ['campo' => $arrayAliasCampos['col_nome'] . '.nome'],
             'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
+            'col_nome_grupo' => ['campo' => $arrayAliasCampos['col_nome_grupo'] . '.nome_grupo'],
+            'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
+            'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
         ];
-        return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
+        return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
+    }
+
+    public function postConsultaFiltros(Fluent $requestData)
+    {
+        $filtros = $requestData->filtros ?? [];
+        $arrayCamposFiltros = $this->traducaoCampos($filtros);
+
+        // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
+        $query = $this->model::query()
+            ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
+            ->from($this->model::getTableNameAsName())
+            ->select($this->model::getTableAsName() . '.*');
+
+        $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
+        $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
+
+        $query = $this->model::scopeJoinParticipante($query);
+
+        foreach ($filtros['campos_busca'] as $key) {
+            switch ($key) {
+                case 'col_nome_participante':
+                    $query = $this->modelParticipante::scopeJoinReferenciaPessoaPerfil($query);
+                    $query = PessoaPerfil::scopeJoinReferenciaPessoa($query);
+                    $query = Pessoa::scopeJoinReferenciaPessoaFisica($query);
+                    break;
+            }
+        }
+
+        if (count($arrayTexto) && $arrayTexto[0] != '') {
+            $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike) {
+                foreach ($arrayTexto as $texto) {
+                    foreach ($arrayCamposFiltros as $campo) {
+                        if (isset($campo['tratamento'])) {
+                            $trait = $this->tratamentoDeTextoPorTipoDeCampo($texto, $campo);
+                            $texto = $trait['texto'];
+                            $campoNome = DB::raw($trait['campo']);
+                        } else {
+                            $campoNome = DB::raw("CAST({$campo['campo']} AS TEXT)");
+                        }
+                        $subQuery->orWhere($campoNome, $parametrosLike['conectivo'], $parametrosLike['curinga_inicio_caractere'] . $texto . $parametrosLike['curinga_final_caractere']);
+                    }
+                }
+            });
+        }
+
+        $query->groupBy($this->model::getTableAsName() . '.id');
+
+        $query->where($this->model::getTableAsName() . '.deleted_at', null);
+        $this->verificaUsoScopeTenant($query, $this->model);
+        $this->verificaUsoScopeDomain($query, $this->model);
+
+        $query->when($requestData, function ($query) use ($requestData) {
+            $ordenacao = $requestData->ordenacao ?? [];
+            if (!count($ordenacao)) {
+                $query->orderBy('nome', 'asc');
+            } else {
+                foreach ($ordenacao as $key => $value) {
+                    $direcao =  isset($ordenacao[$key]['direcao']) && in_array($ordenacao[$key]['direcao'], ['asc', 'desc', 'ASC', 'DESC']) ? $ordenacao[$key]['direcao'] : 'asc';
+                    $query->orderBy($ordenacao[$key]['campo'], $direcao);
+                }
+            }
+        });
+        $query->with($this->loadFull());
+        // RestResponse::createTestResponse([$query->toSql(), $query->getBindings()]);
+        return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
     public function store(Fluent $requestData)
@@ -142,10 +220,14 @@ class ServicoParticipacaoPresetService extends Service
                         break;
 
                     case ParticipacaoRegistroTipoEnum::GRUPO->value:
-                        if (!in_array($participante->nome_grupo, $arrayNomesGrupos)) {
-                            $arrayNomesGrupos[] = $participante->nome_grupo;
+                        if (!$participante->nome_grupo) {
+                            $arrayErrors["nome_grupo"] = LogHelper::gerarLogDinamico(404, 'O Nome do Grupo de Participantes não foi informado.', $requestData)->error;
                         } else {
-                            $arrayErrors["nome_grupo_{$participante->nome_grupo}"] = LogHelper::gerarLogDinamico(409, 'O Nome do Grupo de Participantes informado está em duplicidade.', $requestData)->error;
+                            if (!in_array($participante->nome_grupo, $arrayNomesGrupos)) {
+                                $arrayNomesGrupos[] = $participante->nome_grupo;
+                            } else {
+                                $arrayErrors["nome_grupo_{$participante->nome_grupo}"] = LogHelper::gerarLogDinamico(409, 'O Nome do Grupo de Participantes informado está em duplicidade.', $requestData)->error;
+                            }
                         }
 
                         foreach ($participante->integrantes as $integrante) {
@@ -208,19 +290,21 @@ class ServicoParticipacaoPresetService extends Service
     {
         return parent::buscarRecurso($requestData, [
             'message' => 'A Anotação não foi encontrada.',
-            'conditions' => [
-                'id' => $requestData->uuid,
-                'servico_id' => $requestData->servico_uuid
-            ]
+            // 'conditions' => [
+            //     'id' => $requestData->uuid,
+            //     'servico_id' => $requestData->servico_uuid
+            // ]
         ]);
     }
 
-    private function loadFull(): array
+    public function loadFull(): array
     {
         return [
             'participantes.participacao_tipo',
-            'participantes.integrantes.referencia',
-            'participantes.referencia',
+            'participantes.integrantes.referencia.perfil_tipo',
+            'participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'participantes.referencia.perfil_tipo',
+            'participantes.referencia.pessoa.pessoa_dados',
             'participantes.participacao_registro_tipo',
         ];
     }
