@@ -71,7 +71,7 @@ class PageServicoParticipacaoIndex extends templateSearch {
                     break;
 
                 case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
-                    nomeParticipante = `<b>Grupo</b> - ${participante.nome_grupo} > <b>${valor}</b>`;
+                    nomeParticipante = `<b>Grupo</b> - ${participante.nome_grupo}</b>`;
                     for (const integrante of participante.integrantes) {
                         let nomeIntegrante = '';
                         switch (integrante.participacao_registro_tipo_id) {
@@ -118,17 +118,17 @@ class PageServicoParticipacaoIndex extends templateSearch {
 
     #HtmlBtnDelete(item) {
         const self = this;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete" title="Excluir serviço ${item.numero_servico}"><i class="bi bi-trash"></i></button>`
+        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete" title="Excluir serviço ${item.nome}"><i class="bi bi-trash"></i></button>`
     }
 
     #addEventosRegistrosConsulta(item) {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            self._delButtonAction(item.id, item.name, {
-                title: `Exclusão de Serviço`,
-                message: `Confirma a exclusão do Serviço <b>${item.numero_servico}</b>?`,
-                success: `Serviço excluído com sucesso!`,
+            self._delButtonAction(item.id, item.nome, {
+                title: `Exclusão de Preset`,
+                message: `Confirma a exclusão do Preset <b>${item.nome}</b>?`,
+                success: `Preset excluído com sucesso!`,
                 button: this
             });
         });

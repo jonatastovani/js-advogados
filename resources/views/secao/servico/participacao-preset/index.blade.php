@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <div class="table-responsive mt-2">
+    <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
