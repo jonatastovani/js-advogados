@@ -8,6 +8,7 @@ import { modalServicoPagamento } from "../../components/servico/modalServicoPaga
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
+import { RequestsHelpers } from "../../helpers/RequestsHelpers";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -185,12 +186,51 @@ class PageServicoForm {
         return true;
     }
 
+    async #addEventosAnotacao(item) {
+        const self = this;
+
+        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                objModal.setDataEnvModal = {
+                    idRegister: item.id,
+                };
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    $(`#${item.idCol}`).find('.spanTitle').html(response.register.titulo);
+                    $(`#${item.idCol}`).find('.pText').html(commonFunctions.formatStringToHTML(response.register.descricao));
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+
+        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
+            const response = await self.#delButtonAction(item.id, item.titulo, {
+                title: `Exclusão de Anotação`,
+                message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
+                success: `Anotação excluída com sucesso!`,
+                button: this,
+                urlApi: self.#objConfigs.url.baseAnotacao,
+            });
+
+            if (response) {
+                $(`#${item.idCol}`).remove();
+            }
+        });
+    }
+
     async #inserirPagamento(item) {
         const self = this;
         const divPagamento = $(`#divPagamento${self.#sufixo}`);
 
         item.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
-        const created_at = `<span class="text-body-secondary d-block">Pagamento lançado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
+        const created_at = `<span class="text-body-secondary d-block">Pagamento válido em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
         let htmlAppend = self.#htmlAppendPagamento(item);
@@ -207,7 +247,8 @@ class PageServicoForm {
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento ${item.pagamento_tipo_tenant.nome}">Editar</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
                                     <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
                                 </ul>
                             </div>
@@ -405,45 +446,6 @@ class PageServicoForm {
         return html;
     }
 
-    async #addEventosAnotacao(item) {
-        const self = this;
-
-        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
-                objModal.setDataEnvModal = {
-                    idRegister: item.id,
-                };
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    $(`#${item.idCol}`).find('.spanTitle').html(response.register.titulo);
-                    $(`#${item.idCol}`).find('.pText').html(commonFunctions.formatStringToHTML(response.register.descricao));
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-
-        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-            const response = await self.#delButtonAction(item.id, item.titulo, {
-                title: `Exclusão de Anotação`,
-                message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
-                success: `Anotação excluída com sucesso!`,
-                button: this,
-                urlApi: self.#objConfigs.url.baseAnotacao,
-            });
-
-            if (response) {
-                $(`#${item.idCol}`).remove();
-            }
-        });
-    }
-
     async #addEventosPagamento(item) {
         const self = this;
 
@@ -466,19 +468,39 @@ class PageServicoForm {
             }
         });
 
-        // $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-        //     const response = await self.#delButtonAction(item.id, item.titulo, {
-        //         title: `Exclusão de Anotação`,
-        //         message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
-        //         success: `Anotação excluída com sucesso!`,
-        //         button: this,
-        //         urlApi: self.#objConfigs.url.baseAnotacao,
-        //     });
+        $(`#${item.idCard}`).find(`.btn-delete`).on('click', async function () {
+            const response = await self.#delButtonAction(item.id, item.pagamento_tipo_tenant.nome, {
+                title: `Exclusão de Pagamento`,
+                message: `Confirma a exclusão do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
+                success: `Pagamento excluído com sucesso!`,
+                button: this,
+                urlApi: self.#objConfigs.url.basePagamentos,
+            });
 
-        //     if (response) {
-        //         $(`#${item.idCol}`).remove();
-        //     }
-        // });
+            if (response) {
+                self.#buscarValores();
+                $(`#${item.idCard}`).remove();
+            }
+        });
+
+        $(`#${item.idCard}`).find('.btn-participacao').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
+                objModal.setDataEnvModal = {
+                    idRegister: item.id,
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    self.#buscarPagamentos();
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
     }
 
     #saveButtonAction() {
@@ -678,10 +700,7 @@ class PageServicoForm {
         } = options;
 
         try {
-            const obj = new connectAjax(urlApi);
-            obj.setParam(idDel);
-            obj.setAction(enumAction.DELETE)
-            await obj.deleteRequest();
+            await RequestsHelpers.delRecurse({ idRegister: idDel, urlApi: urlApi });
             return true;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

@@ -2,7 +2,7 @@ import { commonFunctions } from "../commons/commonFunctions";
 import { modalMessage } from "../components/comum/modalMessage";
 import { modalNome } from "../components/comum/modalNome";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
-import { modalServicoParticipacao } from "../components/servico/modalServicoParticipacao";
+import { modalServicoParticipacaoParticipante } from "../components/servico/modalServicoParticipacaoParticipante";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -25,7 +25,7 @@ export class ServicoParticipacaoModule {
         const self = this;
 
         const openModalServicoParticipacao = async (dados_participacao) => {
-            const objModal = new modalServicoParticipacao();
+            const objModal = new modalServicoParticipacaoParticipante();
             objModal.setDataEnvModal = {
                 dados_participacao: dados_participacao,
                 porcentagem_ocupada: self._objConfigs.data.porcentagem_ocupada,
@@ -274,7 +274,7 @@ export class ServicoParticipacaoModule {
                 if (item.valor_tipo == 'porcentagem') {
                     porcentagem_ocupada -= item.valor;
                 }
-                const objModal = new modalServicoParticipacao();
+                const objModal = new modalServicoParticipacaoParticipante();
                 objModal.setDataEnvModal = {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,

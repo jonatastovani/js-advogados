@@ -44,7 +44,7 @@
 @push('modals')
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
-    <x-modal.servico.modal-servico-participacao.modal />
+    <x-modal.servico.modal-servico-participacao-participante.modal />
     <x-modal.tenant.modal-servico-participacao-tipo-tenant.modal />
     <x-modal.pessoa.modal-selecionar-perfil.modal />
 @endpush

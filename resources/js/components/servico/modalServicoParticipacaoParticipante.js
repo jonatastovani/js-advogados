@@ -1,10 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 import { modalServicoParticipacaoTipoTenant } from "./modalServicoParticipacaoTipoTenant";
 
-export class modalServicoParticipacao extends modalRegistrationAndEditing {
+export class modalServicoParticipacaoParticipante extends modalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
@@ -18,7 +17,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         url: {
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
         },
-        sufixo: 'ModalServicoParticipacao',
+        sufixo: 'ModalServicoParticipacaoParticipante',
         data: {
             porcentagem_livre: 0,
         },
@@ -31,11 +30,9 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         refresh: false,
     };
 
-    #functionsServicoParticipacao;
-
     constructor(urlApi) {
         super({
-            idModal: "#modalServicoParticipacao",
+            idModal: "#modalServicoParticipacaoParticipante",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -43,11 +40,6 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = urlApi;
         this._action = enumAction.POST;
-        const objData = {
-            objConfigs: this._objConfigs,
-            sufixo: this._sufixo,
-        }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }

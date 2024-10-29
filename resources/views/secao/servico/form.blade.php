@@ -82,6 +82,7 @@
     <x-modal.servico.modal-servico-anotacao.modal />
     <x-modal.servico.modal-servico-pagamento.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
+    <x-modal.servico.modal-servico-participacao.modal />
 @endpush
 
 @push('scripts')
