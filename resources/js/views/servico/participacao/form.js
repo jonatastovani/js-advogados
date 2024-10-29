@@ -40,6 +40,7 @@ class PageServicoParticipacaoPresetForm {
             self.#buscarDados();
         } else {
             this.#action = enumAction.POST;
+            $(`#nome${self.#sufixo}`).trigger('focus');
         }
 
         self.#addEventosBotoes();
@@ -201,6 +202,8 @@ class PageServicoParticipacaoPresetForm {
         let nome = '';
         let btnsAppend = '';
         let accordionIntegrantes = '';
+        let displayObservacao = 'none';
+
         switch (item.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
                 nome = item.referencia.pessoa.pessoa_dados.nome;
@@ -231,6 +234,10 @@ class PageServicoParticipacaoPresetForm {
                 console.error('Tipo de participação não informado.', item);
                 return false;
             }
+        }
+
+        if (item.observacao) {
+            displayObservacao = 'block';
         }
 
         const naTela = self.#verificaRegistroNaTela(item);
@@ -273,10 +280,10 @@ class PageServicoParticipacaoPresetForm {
                             </div>
                     </div>
                 </h5>
-                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4">
                     <div class="col">
                         <div class="form-text">Participação</div>
-                        <label class="form-label lblParticipacao">${participacao_tipo.nome}</label>
+                        <label class="form-label text-truncate lblParticipacao">${participacao_tipo.nome}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Método</div>
@@ -284,7 +291,13 @@ class PageServicoParticipacaoPresetForm {
                     </div>
                     <div class="col">
                         <div class="form-text">Valor</div>
-                        <label class="form-label lblValor">${valor}</label>
+                        <label class="form-label text-truncate lblValor">${valor}</label>
+                    </div>
+                </div>
+                <div class="row rowObservacao" style="display: ${displayObservacao};">
+                    <div class="col">
+                        <div class="form-text">Observação</div>
+                        <label class="form-label text-truncate lblObservacao" title="${item.observacao ?? ''}">${item.observacao ?? ''}</label>
                     </div>
                 </div>
                 ${accordionIntegrantes}
@@ -347,7 +360,12 @@ class PageServicoParticipacaoPresetForm {
         $(`#${item.idCard} .lblParticipacao`).text(participacao_tipo.nome);
         $(`#${item.idCard} .lblValorTipo`).text(valor_tipo);
         $(`#${item.idCard} .lblValor`).text(valor);
-
+        if (item.observacao) {
+            $(`#${item.idCard} .lblObservacao`).html(item.observacao);
+            $(`#${item.idCard} .rowObservacao`).show('fast');
+        } else {
+            $(`#${item.idCard} .rowObservacao`).hide('fast');
+        }
         await self.#atualizaPorcentagemLivre();
     }
 
@@ -615,7 +633,6 @@ class PageServicoParticipacaoPresetForm {
                 </div>
             </div>
         `;
-
     }
 
     #atualizaQuantidadeIntegrantes(idCard) {
@@ -706,7 +723,7 @@ class PageServicoParticipacaoPresetForm {
             const form = $(`#form${self.#sufixo}`);
             if (response?.data) {
                 const responseData = response.data;
-                form.find('input[name="nome"]').val(responseData.nome);
+                form.find('input[name="nome"]').val(responseData.nome).trigger('focus');
                 form.find('input[name="descricao"]').val(responseData.descricao);
 
                 await Promise.all(

@@ -29,9 +29,9 @@
         <div class="col mt-2 px-0">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="dadosServico{{ $sufixo }}-tab" data-bs-toggle="tab"
+                    <button class="nav-link px-2 active" id="dadosServico{{ $sufixo }}-tab" data-bs-toggle="tab"
                         data-bs-target="#dadosServico{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="dadosServico{{ $sufixo }}-tab-pane" aria-selected="false">
+                        aria-controls="dadosServico{{ $sufixo }}-tab-pane" aria-selected="true">
                         Serviço
                     </button>
                 </li>
@@ -44,10 +44,10 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 active {{ $disabledNovoRegistro ? 'disabled' : '' }}"
+                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="dadosPagamento{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#dadosPagamento{{ $sufixo }}-tab-pane" type="button"
-                        role="tab" aria-controls="dadosPagamento{{ $sufixo }}-tab-pane" aria-selected="true">
+                        role="tab" aria-controls="dadosPagamento{{ $sufixo }}-tab-pane" aria-selected="false">
                         Pagamento
                     </button>
                 </li>
@@ -56,7 +56,7 @@
     </div>
     <div class="row rounded rounded-top-0 border-top-0 flex-fill">
         <div class="tab-content h-100 overflow-auto" id="myTabContent" style="min-height: 20em;">
-            <div class="tab-pane fade h-100" id="dadosServico{{ $sufixo }}-tab-pane" role="tabpanel"
+            <div class="tab-pane fade h-100 show active" id="dadosServico{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="dadosServico{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.servico.form.painel-dados-servico')
             </div>
@@ -66,7 +66,7 @@
                     @include('secao.servico.form.painel-anotacao')
                 @endif
             </div>
-            <div class="tab-pane fade h-100 show active" id="dadosPagamento{{ $sufixo }}-tab-pane" role="tabpanel"
+            <div class="tab-pane fade h-100" id="dadosPagamento{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="dadosPagamento{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
                     @include('secao.servico.form.painel-dados-pagamento')
