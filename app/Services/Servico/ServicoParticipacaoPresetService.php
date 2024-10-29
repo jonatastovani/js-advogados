@@ -173,6 +173,95 @@ class ServicoParticipacaoPresetService extends Service
         }
     }
 
+    public function update(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+
+        // Inicia a transação
+        DB::beginTransaction();
+
+        try {
+            $participantes = $resource->participantes;
+            unset($resource->participantes);
+
+            // IDs dos participantes já salvos
+            $existingParticipants = $resource->participantes()->pluck('id')->toArray();
+            // IDs enviados (exclui novos participantes sem ID)
+            $submittedParticipantIds = collect($requestData->participantes)->pluck('id')->filter()->toArray();
+
+            // Participantes ausentes no PUT devem ser excluídos
+            $idsToDelete = array_diff($existingParticipants, $submittedParticipantIds);
+            if ($idsToDelete) {
+                foreach ($idsToDelete as $id) {
+                    $participanteDelete = $this->modelParticipante::find($id);
+                    if ($participanteDelete) {
+                        $participanteDelete->delete();
+                    }
+                }
+            }
+
+            $resource->save();
+
+            foreach ($participantes as $participante) {
+                if (isset($participante->integrantes)) {
+                    $integrantes = $participante->integrantes;
+                    unset($participante->integrantes);
+                }
+
+                if ($participante->id) {
+                    $participanteUpdate = $this->modelParticipante::find($participante->id);
+                    $participanteUpdate->fill($participante->toArray());
+                } else {
+                    $participanteUpdate = $participante;
+                    $participanteUpdate->preset_id = $resource->id;
+                }
+
+                $participanteUpdate->save();
+
+                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
+
+                    if (!count($integrantes)) {
+                        throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
+                    }
+
+                    // IDs dos integrantes já salvos
+                    $existingIntegrantes = $participanteUpdate->integrantes()->pluck('id')->toArray();
+                    // IDs enviados (exclui novos integrantes sem ID)
+                    $submittedIntegranteIds = collect($integrantes)->pluck('id')->filter()->toArray();
+
+                    // Integrantes ausentes no PUT devem ser excluídos
+                    $idsToDelete = array_diff($existingIntegrantes, $submittedIntegranteIds);
+                    if ($idsToDelete) {
+                        foreach ($idsToDelete as $id) {
+                            $integrante = $this->modelIntegrante::find($id);
+                            if ($integrante) {
+                                $integrante->delete();
+                            }
+                        }
+                    }
+                    foreach ($integrantes as $integrante) {
+                        if ($integrante->id) {
+                            $integranteUpdate = $this->modelIntegrante::find($integrante->id);
+                            $integranteUpdate->fill($integrante->toArray());
+                        } else {
+                            $integranteUpdate = $integrante;
+                            $integranteUpdate->participante_id = $participanteUpdate->id;
+                        }
+
+                        $integranteUpdate->save();
+                    }
+                }
+            }
+
+            DB::commit();
+            // $this->executarEventoWebsocket();
+            $resource->load($this->loadFull());
+            return $resource->toArray();
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
@@ -275,9 +364,10 @@ class ServicoParticipacaoPresetService extends Service
             }
         }
         $resource->participantes = $participantes;
+        $porcentagemOcupada = round($porcentagemOcupada, 2);
 
-        if ($porcentagemOcupada > 0 && $porcentagemOcupada < 100) {
-            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%.', $requestData)->error;
+        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
         }
 
         // Erros que impedem o processamento

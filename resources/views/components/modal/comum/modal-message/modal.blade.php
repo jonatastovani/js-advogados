@@ -7,13 +7,13 @@
             </div>
             <div class="modal-body">
                 <p class="message text-start">Mensagem para o usuário</p>
-            </div>
-            <div class="modal-footer">
-                <div class="col-12">
-                    <div class="d-flex justify-content-end">
-                        <button class="btn btn-primary w-50 confirmYes">Sim</button>
-                        <div style="width: 20px;"></div>
-                        <button class="btn btn-danger w-50 confirmNo">Não</button>
+                <div class="row">
+                    <div class="col">
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-outline-primary w-50 confirmYes">Sim</button>
+                            <div style="width: 20px;"></div>
+                            <button class="btn btn-outline-danger w-50 confirmNo">Não</button>
+                        </div>
                     </div>
                 </div>
             </div>

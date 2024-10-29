@@ -6,6 +6,7 @@ import { modalNome } from "../../../components/comum/modalNome";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalSelecionarPerfil } from "../../../components/pessoas/modalSelecionarPerfil";
 import { modalServicoParticipacao } from "../../../components/servico/modalServicoParticipacao";
+import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -109,889 +110,6 @@ class PageServicoParticipacaoPresetForm {
             self.#saveButtonAction();
         });
 
-        const evento = async () => {
-            // self.#inserirParticipanteNaTela(
-            //     {
-            //         "participacao_registro_tipo_id": 1,
-            //         "referencia": {
-            //             "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-            //             "tenant_id": "jsadvogados",
-            //             "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-            //             "perfil_tipo_id": 2,
-            //             "observacao": null,
-            //             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //             "created_ip": "127.0.0.1",
-            //             "created_at": "2024-10-26 10:01:25",
-            //             "updated_user_id": null,
-            //             "updated_ip": null,
-            //             "updated_at": null,
-            //             "deleted_user_id": null,
-            //             "deleted_ip": null,
-            //             "deleted_at": null,
-            //             "perfil_tipo": {
-            //                 "id": 2,
-            //                 "nome": "Parceiro",
-            //                 "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-            //                 "tabela_ref": null,
-            //                 "tabela_model": null,
-            //                 "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                 "created_ip": "127.0.0.1",
-            //                 "created_at": "2024-10-26 10:01:22",
-            //                 "updated_user_id": null,
-            //                 "updated_ip": null,
-            //                 "updated_at": null,
-            //                 "deleted_user_id": null,
-            //                 "deleted_ip": null,
-            //                 "deleted_at": null
-            //             },
-            //             "pessoa": {
-            //                 "id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-            //                 "tenant_id": "jsadvogados",
-            //                 "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-            //                 "pessoa_dados_id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
-            //                 "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                 "created_ip": "127.0.0.1",
-            //                 "created_at": "2024-10-26 10:01:25",
-            //                 "updated_user_id": null,
-            //                 "updated_ip": null,
-            //                 "updated_at": null,
-            //                 "deleted_user_id": null,
-            //                 "deleted_ip": null,
-            //                 "deleted_at": null,
-            //                 "pessoa_perfil": [
-            //                     {
-            //                         "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-            //                         "tenant_id": "jsadvogados",
-            //                         "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-            //                         "perfil_tipo_id": 2,
-            //                         "observacao": null,
-            //                         "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                         "created_ip": "127.0.0.1",
-            //                         "created_at": "2024-10-26 10:01:25",
-            //                         "updated_user_id": null,
-            //                         "updated_ip": null,
-            //                         "updated_at": null,
-            //                         "deleted_user_id": null,
-            //                         "deleted_ip": null,
-            //                         "deleted_at": null,
-            //                         "perfil_tipo": {
-            //                             "id": 2,
-            //                             "nome": "Parceiro",
-            //                             "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-            //                             "tabela_ref": null,
-            //                             "tabela_model": null,
-            //                             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                             "created_ip": "127.0.0.1",
-            //                             "created_at": "2024-10-26 10:01:22",
-            //                             "updated_user_id": null,
-            //                             "updated_ip": null,
-            //                             "updated_at": null,
-            //                             "deleted_user_id": null,
-            //                             "deleted_ip": null,
-            //                             "deleted_at": null
-            //                         }
-            //                     },
-            //                     {
-            //                         "id": "9d567bb9-9ed6-4725-889d-d585e2913b61",
-            //                         "tenant_id": "jsadvogados",
-            //                         "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-            //                         "perfil_tipo_id": 3,
-            //                         "observacao": null,
-            //                         "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                         "created_ip": "127.0.0.1",
-            //                         "created_at": "2024-10-26 10:01:25",
-            //                         "updated_user_id": null,
-            //                         "updated_ip": null,
-            //                         "updated_at": null,
-            //                         "deleted_user_id": null,
-            //                         "deleted_ip": null,
-            //                         "deleted_at": null,
-            //                         "perfil_tipo": {
-            //                             "id": 3,
-            //                             "nome": "Cliente",
-            //                             "descricao": "Perfil para clientes.",
-            //                             "tabela_ref": null,
-            //                             "tabela_model": null,
-            //                             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                             "created_ip": "127.0.0.1",
-            //                             "created_at": "2024-10-26 10:01:22",
-            //                             "updated_user_id": null,
-            //                             "updated_ip": null,
-            //                             "updated_at": null,
-            //                             "deleted_user_id": null,
-            //                             "deleted_ip": null,
-            //                             "deleted_at": null
-            //                         }
-            //                     }
-            //                 ],
-            //                 "pessoa_dados": {
-            //                     "id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
-            //                     "tenant_id": "jsadvogados",
-            //                     "nome": "Luana Chaves Santos Neto",
-            //                     "mae": "Pérola Camacho",
-            //                     "pai": "Sra. Vanessa Maldonado",
-            //                     "nascimento_data": null,
-            //                     "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                     "created_ip": "127.0.0.1",
-            //                     "created_at": "2024-10-26 10:01:25",
-            //                     "updated_user_id": null,
-            //                     "updated_ip": null,
-            //                     "updated_at": null,
-            //                     "deleted_user_id": null,
-            //                     "deleted_ip": null,
-            //                     "deleted_at": null
-            //                 },
-            //                 "idTr": "24b53133-86c7-4d09-841c-fc34d42c83df",
-            //                 "idTrSelecionado": "48d31235-37f8-4437-b774-039b2f071349",
-            //                 "idsTrs": [
-            //                     "24b53133-86c7-4d09-841c-fc34d42c83df"
-            //                 ]
-            //             }
-            //         },
-            //         "referencia_id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-            //         "participacao_tipo_id": "9d567e49-ea88-4c5e-9536-5090c3d1b219",
-            //         "valor_tipo": "porcentagem",
-            //         "valor": 43.33,
-            //         "observacao": "",
-            //         "idCard": "662abd88-ca00-4343-a421-e63a1107beaa"
-            //     }
-            // );
-
-            self.#inserirParticipanteNaTela(
-                {
-                    "participacao_registro_tipo_id": 1,
-                    "referencia": {
-                        "id": "9d567bb9-bbe5-44c4-ade5-1e92a8c98982",
-                        "tenant_id": "jsadvogados",
-                        "pessoa_id": "9d567bb9-b932-4698-b873-00829015d038",
-                        "perfil_tipo_id": 2,
-                        "observacao": null,
-                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                        "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-26 10:01:25",
-                        "updated_user_id": null,
-                        "updated_ip": null,
-                        "updated_at": null,
-                        "deleted_user_id": null,
-                        "deleted_ip": null,
-                        "deleted_at": null,
-                        "perfil_tipo": {
-                            "id": 2,
-                            "nome": "Parceiro",
-                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                            "tabela_ref": null,
-                            "tabela_model": null,
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:22",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null
-                        },
-                        "pessoa": {
-                            "id": "9d567bb9-b932-4698-b873-00829015d038",
-                            "tenant_id": "jsadvogados",
-                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-                            "pessoa_dados_id": "9d567bb9-b707-43fd-96b1-f7b69e888c90",
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:25",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null,
-                            "pessoa_perfil": [
-                                {
-                                    "id": "9d567bb9-bbe5-44c4-ade5-1e92a8c98982",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-b932-4698-b873-00829015d038",
-                                    "perfil_tipo_id": 2,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 2,
-                                        "nome": "Parceiro",
-                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                },
-                                {
-                                    "id": "9d567bb9-bd87-4959-ab68-c31037b1c75e",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-b932-4698-b873-00829015d038",
-                                    "perfil_tipo_id": 3,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 3,
-                                        "nome": "Cliente",
-                                        "descricao": "Perfil para clientes.",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                }
-                            ],
-                            "pessoa_dados": {
-                                "id": "9d567bb9-b707-43fd-96b1-f7b69e888c90",
-                                "tenant_id": "jsadvogados",
-                                "nome": "Ítalo Sebastião Quintana Filho",
-                                "mae": "Richard Amaral Saito",
-                                "pai": "Dr. Cristóvão Joaquin das Neves",
-                                "nascimento_data": null,
-                                "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                "created_ip": "127.0.0.1",
-                                "created_at": "2024-10-26 10:01:25",
-                                "updated_user_id": null,
-                                "updated_ip": null,
-                                "updated_at": null,
-                                "deleted_user_id": null,
-                                "deleted_ip": null,
-                                "deleted_at": null
-                            },
-                            "idTr": "106ad974-59e4-4f7a-ae1d-162cdbccd267",
-                            "idTrSelecionado": "ee7a9642-2478-42ac-9b2c-73487bd68be3",
-                            "idsTrs": [
-                                "106ad974-59e4-4f7a-ae1d-162cdbccd267"
-                            ]
-                        }
-                    },
-                    "referencia_id": "9d567bb9-bbe5-44c4-ade5-1e92a8c98982",
-                    "participacao_tipo_id": "9d5a6563-f2eb-4969-97b9-16b2d5826099",
-                    "valor_tipo": "porcentagem",
-                    "valor": 23.34,
-                    "observacao": "",
-                    "idCard": "e8e57c16-7ea8-488e-a17f-a57069f5a91e"
-                }
-            );
-
-            // self.#inserirParticipanteNaTela(
-            //     {
-            //         "participacao_registro_tipo_id": 1,
-            //         "referencia": {
-            //             "id": "9d567bb9-a718-428a-893a-3d8365954958",
-            //             "tenant_id": "jsadvogados",
-            //             "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-            //             "perfil_tipo_id": 2,
-            //             "observacao": null,
-            //             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //             "created_ip": "127.0.0.1",
-            //             "created_at": "2024-10-26 10:01:25",
-            //             "updated_user_id": null,
-            //             "updated_ip": null,
-            //             "updated_at": null,
-            //             "deleted_user_id": null,
-            //             "deleted_ip": null,
-            //             "deleted_at": null,
-            //             "perfil_tipo": {
-            //                 "id": 2,
-            //                 "nome": "Parceiro",
-            //                 "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-            //                 "tabela_ref": null,
-            //                 "tabela_model": null,
-            //                 "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                 "created_ip": "127.0.0.1",
-            //                 "created_at": "2024-10-26 10:01:22",
-            //                 "updated_user_id": null,
-            //                 "updated_ip": null,
-            //                 "updated_at": null,
-            //                 "deleted_user_id": null,
-            //                 "deleted_ip": null,
-            //                 "deleted_at": null
-            //             },
-            //             "pessoa": {
-            //                 "id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-            //                 "tenant_id": "jsadvogados",
-            //                 "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-            //                 "pessoa_dados_id": "9d567bb9-a1f1-4b5f-ad0c-347ad82885d0",
-            //                 "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                 "created_ip": "127.0.0.1",
-            //                 "created_at": "2024-10-26 10:01:25",
-            //                 "updated_user_id": null,
-            //                 "updated_ip": null,
-            //                 "updated_at": null,
-            //                 "deleted_user_id": null,
-            //                 "deleted_ip": null,
-            //                 "deleted_at": null,
-            //                 "pessoa_perfil": [
-            //                     {
-            //                         "id": "9d567bb9-a718-428a-893a-3d8365954958",
-            //                         "tenant_id": "jsadvogados",
-            //                         "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-            //                         "perfil_tipo_id": 2,
-            //                         "observacao": null,
-            //                         "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                         "created_ip": "127.0.0.1",
-            //                         "created_at": "2024-10-26 10:01:25",
-            //                         "updated_user_id": null,
-            //                         "updated_ip": null,
-            //                         "updated_at": null,
-            //                         "deleted_user_id": null,
-            //                         "deleted_ip": null,
-            //                         "deleted_at": null,
-            //                         "perfil_tipo": {
-            //                             "id": 2,
-            //                             "nome": "Parceiro",
-            //                             "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-            //                             "tabela_ref": null,
-            //                             "tabela_model": null,
-            //                             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                             "created_ip": "127.0.0.1",
-            //                             "created_at": "2024-10-26 10:01:22",
-            //                             "updated_user_id": null,
-            //                             "updated_ip": null,
-            //                             "updated_at": null,
-            //                             "deleted_user_id": null,
-            //                             "deleted_ip": null,
-            //                             "deleted_at": null
-            //                         }
-            //                     },
-            //                     {
-            //                         "id": "9d567bb9-a99f-497a-aa1a-9e20e5dddf36",
-            //                         "tenant_id": "jsadvogados",
-            //                         "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-            //                         "perfil_tipo_id": 3,
-            //                         "observacao": null,
-            //                         "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                         "created_ip": "127.0.0.1",
-            //                         "created_at": "2024-10-26 10:01:25",
-            //                         "updated_user_id": null,
-            //                         "updated_ip": null,
-            //                         "updated_at": null,
-            //                         "deleted_user_id": null,
-            //                         "deleted_ip": null,
-            //                         "deleted_at": null,
-            //                         "perfil_tipo": {
-            //                             "id": 3,
-            //                             "nome": "Cliente",
-            //                             "descricao": "Perfil para clientes.",
-            //                             "tabela_ref": null,
-            //                             "tabela_model": null,
-            //                             "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                             "created_ip": "127.0.0.1",
-            //                             "created_at": "2024-10-26 10:01:22",
-            //                             "updated_user_id": null,
-            //                             "updated_ip": null,
-            //                             "updated_at": null,
-            //                             "deleted_user_id": null,
-            //                             "deleted_ip": null,
-            //                             "deleted_at": null
-            //                         }
-            //                     }
-            //                 ],
-            //                 "pessoa_dados": {
-            //                     "id": "9d567bb9-a1f1-4b5f-ad0c-347ad82885d0",
-            //                     "tenant_id": "jsadvogados",
-            //                     "nome": "Dr. Natal de Arruda Pereira",
-            //                     "mae": "Srta. Camila Sheila Fidalgo Jr.",
-            //                     "pai": "Nelson Aranda Valentin Sobrinho",
-            //                     "nascimento_data": "1974-08-26",
-            //                     "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-            //                     "created_ip": "127.0.0.1",
-            //                     "created_at": "2024-10-26 10:01:25",
-            //                     "updated_user_id": null,
-            //                     "updated_ip": null,
-            //                     "updated_at": null,
-            //                     "deleted_user_id": null,
-            //                     "deleted_ip": null,
-            //                     "deleted_at": null
-            //                 },
-            //                 "idTr": "8b538a99-b783-44d3-bf16-2d04fd6e0200",
-            //                 "idTrSelecionado": "09c64650-749a-4f1a-9673-bbd973c43988",
-            //                 "idsTrs": [
-            //                     "8b538a99-b783-44d3-bf16-2d04fd6e0200"
-            //                 ]
-            //             }
-            //         },
-            //         "referencia_id": "9d567bb9-a718-428a-893a-3d8365954958",
-            //         "participacao_tipo_id": "9d567e4f-deb1-46c0-9868-5fd3fefc77ca",
-            //         "valor_tipo": "porcentagem",
-            //         "valor": 10,
-            //         "observacao": "",
-            //         "idCard": "ea1b6313-970b-4e65-ae8e-7b1cc836d23a"
-            //     }
-            // );
-
-            let item = await self.#inserirParticipanteNaTela(
-                {
-                    "participacao_registro_tipo_id": 2,
-                    "nome_grupo": "Rachadinha",
-                    "participacao_tipo_id": "9d567e57-f34c-4cc3-9a5d-cbb5116b9a30",
-                    "valor_tipo": "porcentagem",
-                    "valor": 23.33,
-                    "observacao": "",
-                }
-            );
-
-            await self.#inserirIntegrante(item,
-                {
-                    "participacao_registro_tipo_id": 1,
-                    "referencia": {
-                        "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-                        "tenant_id": "jsadvogados",
-                        "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-                        "perfil_tipo_id": 2,
-                        "observacao": null,
-                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                        "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-26 10:01:25",
-                        "updated_user_id": null,
-                        "updated_ip": null,
-                        "updated_at": null,
-                        "deleted_user_id": null,
-                        "deleted_ip": null,
-                        "deleted_at": null,
-                        "perfil_tipo": {
-                            "id": 2,
-                            "nome": "Parceiro",
-                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                            "tabela_ref": null,
-                            "tabela_model": null,
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:22",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null
-                        },
-                        "pessoa": {
-                            "id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-                            "tenant_id": "jsadvogados",
-                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-                            "pessoa_dados_id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:25",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null,
-                            "pessoa_perfil": [
-                                {
-                                    "id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-                                    "perfil_tipo_id": 2,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 2,
-                                        "nome": "Parceiro",
-                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                },
-                                {
-                                    "id": "9d567bb9-9ed6-4725-889d-d585e2913b61",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-9a0e-4e24-8d8b-0c92c801cd9b",
-                                    "perfil_tipo_id": 3,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 3,
-                                        "nome": "Cliente",
-                                        "descricao": "Perfil para clientes.",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                }
-                            ],
-                            "pessoa_dados": {
-                                "id": "9d567bb9-9733-4c3b-b72c-aff3ab976af0",
-                                "tenant_id": "jsadvogados",
-                                "nome": "Luana Chaves Santos Neto",
-                                "mae": "Pérola Camacho",
-                                "pai": "Sra. Vanessa Maldonado",
-                                "nascimento_data": null,
-                                "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                "created_ip": "127.0.0.1",
-                                "created_at": "2024-10-26 10:01:25",
-                                "updated_user_id": null,
-                                "updated_ip": null,
-                                "updated_at": null,
-                                "deleted_user_id": null,
-                                "deleted_ip": null,
-                                "deleted_at": null
-                            },
-                            "idTr": "67a36113-c85e-4e29-afcb-67527380a65c",
-                            "idTrSelecionado": "d6921605-8b8b-4aa3-8c5b-1f8b8bd68b1a",
-                            "idsTrs": [
-                                "67a36113-c85e-4e29-afcb-67527380a65c"
-                            ]
-                        }
-                    },
-                    "referencia_id": "9d567bb9-9ca5-43ee-af38-28ed88be646b",
-                    "idCard": "e5280ea6-0533-4e9e-bec8-4649b68b9ef3"
-                }
-            );
-
-            await self.#inserirIntegrante(item,
-                {
-                    "participacao_registro_tipo_id": 1,
-                    "referencia": {
-                        "id": "9d567bb9-a718-428a-893a-3d8365954958",
-                        "tenant_id": "jsadvogados",
-                        "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-                        "perfil_tipo_id": 2,
-                        "observacao": null,
-                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                        "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-26 10:01:25",
-                        "updated_user_id": null,
-                        "updated_ip": null,
-                        "updated_at": null,
-                        "deleted_user_id": null,
-                        "deleted_ip": null,
-                        "deleted_at": null,
-                        "perfil_tipo": {
-                            "id": 2,
-                            "nome": "Parceiro",
-                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                            "tabela_ref": null,
-                            "tabela_model": null,
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:22",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null
-                        },
-                        "pessoa": {
-                            "id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-                            "tenant_id": "jsadvogados",
-                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-                            "pessoa_dados_id": "9d567bb9-a1f1-4b5f-ad0c-347ad82885d0",
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:25",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null,
-                            "pessoa_perfil": [
-                                {
-                                    "id": "9d567bb9-a718-428a-893a-3d8365954958",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-                                    "perfil_tipo_id": 2,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 2,
-                                        "nome": "Parceiro",
-                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                },
-                                {
-                                    "id": "9d567bb9-a99f-497a-aa1a-9e20e5dddf36",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-a44a-4de9-a60f-0475d902059e",
-                                    "perfil_tipo_id": 3,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 3,
-                                        "nome": "Cliente",
-                                        "descricao": "Perfil para clientes.",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                }
-                            ],
-                            "pessoa_dados": {
-                                "id": "9d567bb9-a1f1-4b5f-ad0c-347ad82885d0",
-                                "tenant_id": "jsadvogados",
-                                "nome": "Dr. Natal de Arruda Pereira",
-                                "mae": "Srta. Camila Sheila Fidalgo Jr.",
-                                "pai": "Nelson Aranda Valentin Sobrinho",
-                                "nascimento_data": "1974-08-26",
-                                "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                "created_ip": "127.0.0.1",
-                                "created_at": "2024-10-26 10:01:25",
-                                "updated_user_id": null,
-                                "updated_ip": null,
-                                "updated_at": null,
-                                "deleted_user_id": null,
-                                "deleted_ip": null,
-                                "deleted_at": null
-                            },
-                            "idTr": "2a328cbb-2e54-4635-9fca-b4abba26d003",
-                            "idTrSelecionado": "6a867c3e-9c1c-4d02-8bac-70a379223814",
-                            "idsTrs": [
-                                "2a328cbb-2e54-4635-9fca-b4abba26d003"
-                            ]
-                        }
-                    },
-                    "referencia_id": "9d567bb9-a718-428a-893a-3d8365954958",
-                    "idCard": "9864a04d-c272-4069-a7fa-87b56ba49c1b"
-                }
-            );
-
-            await self.#inserirIntegrante(item,
-                {
-                    "participacao_registro_tipo_id": 1,
-                    "referencia": {
-                        "id": "9d567bb9-b19b-4c4b-a53b-37ec3f438d01",
-                        "tenant_id": "jsadvogados",
-                        "pessoa_id": "9d567bb9-aed6-4fbe-b581-a3b3c8feed03",
-                        "perfil_tipo_id": 2,
-                        "observacao": null,
-                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                        "created_ip": "127.0.0.1",
-                        "created_at": "2024-10-26 10:01:25",
-                        "updated_user_id": null,
-                        "updated_ip": null,
-                        "updated_at": null,
-                        "deleted_user_id": null,
-                        "deleted_ip": null,
-                        "deleted_at": null,
-                        "perfil_tipo": {
-                            "id": 2,
-                            "nome": "Parceiro",
-                            "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                            "tabela_ref": null,
-                            "tabela_model": null,
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:22",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null
-                        },
-                        "pessoa": {
-                            "id": "9d567bb9-aed6-4fbe-b581-a3b3c8feed03",
-                            "tenant_id": "jsadvogados",
-                            "pessoa_dados_type": "App\\Models\\Pessoa\\PessoaFisica",
-                            "pessoa_dados_id": "9d567bb9-ac54-4f0c-a8c5-a7d81a101374",
-                            "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                            "created_ip": "127.0.0.1",
-                            "created_at": "2024-10-26 10:01:25",
-                            "updated_user_id": null,
-                            "updated_ip": null,
-                            "updated_at": null,
-                            "deleted_user_id": null,
-                            "deleted_ip": null,
-                            "deleted_at": null,
-                            "pessoa_perfil": [
-                                {
-                                    "id": "9d567bb9-b19b-4c4b-a53b-37ec3f438d01",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-aed6-4fbe-b581-a3b3c8feed03",
-                                    "perfil_tipo_id": 2,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 2,
-                                        "nome": "Parceiro",
-                                        "descricao": "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                },
-                                {
-                                    "id": "9d567bb9-b460-442b-82ee-2804d365aa14",
-                                    "tenant_id": "jsadvogados",
-                                    "pessoa_id": "9d567bb9-aed6-4fbe-b581-a3b3c8feed03",
-                                    "perfil_tipo_id": 3,
-                                    "observacao": null,
-                                    "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                    "created_ip": "127.0.0.1",
-                                    "created_at": "2024-10-26 10:01:25",
-                                    "updated_user_id": null,
-                                    "updated_ip": null,
-                                    "updated_at": null,
-                                    "deleted_user_id": null,
-                                    "deleted_ip": null,
-                                    "deleted_at": null,
-                                    "perfil_tipo": {
-                                        "id": 3,
-                                        "nome": "Cliente",
-                                        "descricao": "Perfil para clientes.",
-                                        "tabela_ref": null,
-                                        "tabela_model": null,
-                                        "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                        "created_ip": "127.0.0.1",
-                                        "created_at": "2024-10-26 10:01:22",
-                                        "updated_user_id": null,
-                                        "updated_ip": null,
-                                        "updated_at": null,
-                                        "deleted_user_id": null,
-                                        "deleted_ip": null,
-                                        "deleted_at": null
-                                    }
-                                }
-                            ],
-                            "pessoa_dados": {
-                                "id": "9d567bb9-ac54-4f0c-a8c5-a7d81a101374",
-                                "tenant_id": "jsadvogados",
-                                "nome": "Sr. Márcio Ortega Rios",
-                                "mae": "Dr. Mauro Verdara Gomes",
-                                "pai": "Lavínia Colaço",
-                                "nascimento_data": null,
-                                "created_user_id": "49e960e1-6a30-4a2e-8cc8-5200704ebc21",
-                                "created_ip": "127.0.0.1",
-                                "created_at": "2024-10-26 10:01:25",
-                                "updated_user_id": null,
-                                "updated_ip": null,
-                                "updated_at": null,
-                                "deleted_user_id": null,
-                                "deleted_ip": null,
-                                "deleted_at": null
-                            },
-                            "idTr": "80d0abc8-e92a-45a1-a9b7-8a429ba7e906",
-                            "idTrSelecionado": "1bad0999-f024-479e-ac4c-228fef0a9664",
-                            "idsTrs": [
-                                "80d0abc8-e92a-45a1-a9b7-8a429ba7e906"
-                            ]
-                        }
-                    },
-                    "referencia_id": "9d567bb9-b19b-4c4b-a53b-37ec3f438d01",
-                    "idCard": "4c9652c2-c652-4b87-89ad-824f1003cba6"
-                }
-            );
-        }
-
         const openModalTest = async () => {
             const perfis_busca = window.Statics.PerfisPermitidoParticipacaoServico.map(item => item.id);
             const objCode = new modalSelecionarPerfil();
@@ -1068,7 +186,6 @@ class PageServicoParticipacaoPresetForm {
         }
 
         // openModalTest();
-        // evento();
     }
 
     async #buscarParticipacaoTipo(id) {
@@ -1100,7 +217,7 @@ class PageServicoParticipacaoPresetForm {
                 return false;
         }
 
-        let participacao_tipo = item?.participacao_tipo?.nome ?? null;
+        let participacao_tipo = item.participacao_tipo ?? null;
         if (!participacao_tipo) {
             if (item.participacao_tipo_id) {
                 const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
@@ -1185,18 +302,20 @@ class PageServicoParticipacaoPresetForm {
     async #atualizaParticipanteNaTela(item) {
         const self = this;
 
-        let participacao_tipo = item?.participacao_tipo?.nome ?? null;
-        if (!participacao_tipo && item.participacao_tipo_id) {
-            const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
-            if (response) {
-                participacao_tipo = response.data;
+        let participacao_tipo = item.participacao_tipo ?? null;
+        if (!participacao_tipo || participacao_tipo && (participacao_tipo.id != item.participacao_tipo_id)) {
+            if (item.participacao_tipo_id) {
+                const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
+                if (response) {
+                    participacao_tipo = response.data;
+                } else {
+                    participacao_tipo = { nome: 'Erro de busca' }
+                }
             } else {
-                participacao_tipo = { nome: 'Erro de busca' }
+                commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
+                console.error('Tipo de participação não informado.', item);
+                return false;
             }
-        } else {
-            commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
-            console.error('Tipo de participação não informado.', item);
-            return false;
         }
 
         let valor_tipo = ''
@@ -1256,6 +375,33 @@ class PageServicoParticipacaoPresetForm {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#${item.idCard} .btn-delete`).on('click', async function () {
+            try {
+                const obj = new modalMessage();
+                obj.setDataEnvModal = {
+                    title: 'Remoção de Participante',
+                    message: 'Tem certeza que deseja remover este participante?',
+                };
+                obj.setFocusElementWhenClosingModal = $(this);
+                const result = await obj.modalOpen();
+                if (result.confirmResult) {
+
+                    $(`#${item.idCard}`).remove();
+                    const participantes = self.#objConfigs.data.participantesNaTela;
+                    const indexPart = participantes.findIndex(participante => participante.idCard === item.idCard);
+
+                    if (indexPart > -1) {
+                        participantes.splice(indexPart, 1);
+                    }
+
+                    self.#atualizaPorcentagemLivre();
+                    commonFunctions.generateNotification('Participante removido.', 'success');
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
             }
         });
 
@@ -1369,7 +515,6 @@ class PageServicoParticipacaoPresetForm {
         const self = this;
         const rowIntegrantes = $(`#accordionIntegrantes${item.idCard} .rowIntegrantes`);
         integrante.idCard = UUIDHelper.generateUUID();
-        console.log(integrante);
 
         let nome = '';
         let tipoReferencia = '';
@@ -1420,21 +565,34 @@ class PageServicoParticipacaoPresetForm {
         const self = this;
 
         $(`#${integrante.idCard} .btn-delete-integrante`).on('click', async function () {
-            $(`#${integrante.idCard}`).remove();
+            try {
+                const obj = new modalMessage();
+                obj.setDataEnvModal = {
+                    title: 'Remoção de Integrante',
+                    message: 'Tem certeza que deseja remover este integrante?',
+                };
+                obj.setFocusElementWhenClosingModal = $(this);
+                const result = await obj.modalOpen();
+                if (result.confirmResult) {
 
-            const participantes = self.#objConfigs.data.participantesNaTela;
-            const indexPart = participantes.findIndex(participante => participante.idCard === item.idCard);
+                    $(`#${integrante.idCard}`).remove();
+                    const participantes = self.#objConfigs.data.participantesNaTela;
+                    const indexPart = participantes.findIndex(participante => participante.idCard === item.idCard);
 
-            if (indexPart > -1) {
-                const indexInt = participantes[indexPart].integrantes.findIndex(item => item.idCard === integrante.idCard);
-                if (indexInt > -1) {
-                    participantes[indexPart].integrantes.splice(indexInt, 1);
+                    if (indexPart > -1) {
+                        const indexInt = participantes[indexPart].integrantes.findIndex(item => item.idCard === integrante.idCard);
+                        if (indexInt > -1) {
+                            participantes[indexPart].integrantes.splice(indexInt, 1);
+                        }
+                    }
+
+                    self.#atualizaQuantidadeIntegrantes(item.idCard);
+                    commonFunctions.generateNotification('Integrante removido.', 'success');
                 }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
             }
-
-            self.#atualizaQuantidadeIntegrantes(item.idCard);
         });
-
     }
 
     #accordionIntegrantesGrupo(item) {
@@ -1480,21 +638,37 @@ class PageServicoParticipacaoPresetForm {
         const formRegistration = $(`#form${self.#sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.participantes = self.#objConfigs.data.participantesNaTela;
-        // if (self.#saveVerifications(data, formRegistration)) {
-        self.#save(data, self.#objConfigs.url.base);
-        // }
+
+        if (self.#saveVerifications(data, formRegistration)) {
+            self.#save(data, self.#objConfigs.url.base);
+        }
         return false;
     }
 
     #saveVerifications(data, formRegistration) {
         const self = this;
-        if (self.#action == enumAction.POST) {
-            let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-            blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            return blnSave;
+        console.log(data);
+        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O <b>nome</b> do preset deve ser informado.', setFocus: true });
+
+        let porcentagemOcupada = self.#objConfigs.data.porcentagem_ocupada;
+        if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
+            commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%`, 'warning');
+            blnSave = false;
         }
-        return true;
+        if (!data.participantes || data.participantes.length == 0) {
+            commonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
+            blnSave = false;
+        } else {
+            for (const participante of data.participantes) {
+                if (participante.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO && (!participante.integrantes || participante.integrantes.length == 0)) {
+                    commonFunctions.generateNotification('E necessário informar pelo menos um integrante no grupo.', 'warning');
+                    blnSave = false;
+                    break;
+                }
+            }
+        }
+
+        return blnSave;
     }
 
     async #save(data, urlApi, options = {}) {
@@ -1512,21 +686,14 @@ class PageServicoParticipacaoPresetForm {
                 obj.setParam(self.#idRegister);
             }
             const response = await obj.envRequest();
-            console.log(response);
-
-            // if (response) {
-            //     if (self.#action === enumAction.PUT) {
-            //         commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
-            //     } else {
-            //         RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
-            //     }
-            // }
+            if (response) {
+                RedirectHelper.redirectWithUUIDMessage(window.frontRoutes.frontRedirect, 'Dados enviados com sucesso!', 'success');
+            }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }
         finally {
             commonFunctions.simulateLoading(btnSave, false);
-            console.log(data);
         };
     }
 
@@ -1544,15 +711,17 @@ class PageServicoParticipacaoPresetForm {
 
                 await Promise.all(
                     responseData.participantes.map(async (participante) => {
+                        const integrantes = participante.integrantes ?? [];
+                        delete participante.integrantes;
                         const item = await self.#inserirParticipanteNaTela(participante);
                         await Promise.all(
-                            participante.integrantes.map(async (integrante) => {
+                            integrantes.map(async (integrante) => {
                                 await self.#inserirIntegrante(item, integrante);
                             })
                         );
                     })
                 );
-                
+
             } else {
                 form.find('input, textarea, select, button').prop('disabled', true);
             }
@@ -1573,53 +742,6 @@ class PageServicoParticipacaoPresetForm {
             const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);
             return await obj.getRequest();
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    async #delButtonAction(idDel, nameDel, options = {}) {
-        const self = this;
-        const { button = null,
-            title = 'Exclusão de Registro',
-            message = `Confirma a exclusão do registro < b > ${nameDel}</ >? `,
-            success = `Registro excluído com sucesso!`,
-        } = options;
-
-        try {
-            const obj = new modalMessage();
-            obj.setDataEnvModal = {
-                title: title,
-                message: message,
-            };
-            obj.setFocusElementWhenClosingModal = button;
-            const result = await obj.modalOpen();
-            if (result.confirmResult) {
-                if (await self.#delRecurse(idDel, options)) {
-                    commonFunctions.generateNotification(success, 'success');
-                    return true;
-                }
-            }
-            return false;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    async #delRecurse(idDel, options = {}) {
-        const self = this;
-        const {
-            urlApi = self.#objConfigs.url.base,
-        } = options;
-
-        try {
-            const obj = new connectAjax(urlApi);
-            obj.setParam(idDel);
-            obj.setAction(enumAction.DELETE)
-            await obj.deleteRequest();
-            return true;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;

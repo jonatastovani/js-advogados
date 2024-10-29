@@ -32,6 +32,7 @@ class ServicoParticipacaoPresetParticipante extends Model
     ];
 
     protected $fillable = [
+        'id',
         'participacao_tipo_id',
         'participacao_registro_tipo_id',
         'referencia_id',

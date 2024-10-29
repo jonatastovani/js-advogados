@@ -11,4 +11,14 @@ class ServicoParticipacaoPresetFormRequestUpdate extends ServicoParticipacaoPres
     {
         return true;
     }
+
+    public function rules()
+    {
+        $rules = parent::rules();
+        $rules =  array_merge($rules, [
+            'participantes.*.id' => 'nullable|uuid',
+            'participantes.*.integrantes.*.id' => 'nullable|uuid',
+        ]);
+        return $rules;
+    }
 }

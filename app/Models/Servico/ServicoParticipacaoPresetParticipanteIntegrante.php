@@ -24,6 +24,7 @@ class ServicoParticipacaoPresetParticipanteIntegrante extends Model
     protected $tableAsName = 'serv_part_pres_part_integ';
 
     protected $fillable = [
+        'id',
         'participante_id',
         'participacao_registro_tipo_id',
         'referencia_id',
