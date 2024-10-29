@@ -30,7 +30,6 @@ class PageServicoParticipacaoPresetForm {
         const objData = {
             objConfigs: this._objConfigs,
             sufixo: this._sufixo,
-            divParticipantes: $(`#divParticipantes${this._sufixo}`),
         }
         this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
     }

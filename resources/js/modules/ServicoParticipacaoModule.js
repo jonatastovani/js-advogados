@@ -162,16 +162,16 @@ export class ServicoParticipacaoModule {
                 <h5 class="card-title d-flex align-items-center justify-content-between">
                     <span class="spanNome">${nome}</span>
                     <div>
-                            <div class="dropdown">
-                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    ${btnsAppend}
-                                    <li><button type="button" class="dropdown-item fs-6 btn-edit">Editar</button></li>
-                                    <li><button type="button" class="dropdown-item fs-6 btn-delete">Excluir</button></li>
-                                </ul>
-                            </div>
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                ${btnsAppend}
+                                <li><button type="button" class="dropdown-item fs-6 btn-edit">Editar</button></li>
+                                <li><button type="button" class="dropdown-item fs-6 btn-delete">Excluir</button></li>
+                            </ul>
+                        </div>
                     </div>
                 </h5>
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4">
@@ -251,9 +251,9 @@ export class ServicoParticipacaoModule {
             }
         }
 
-        $(`#${item.idCard} .lblParticipacao`).text(participacao_tipo.nome);
-        $(`#${item.idCard} .lblValorTipo`).text(valor_tipo);
-        $(`#${item.idCard} .lblValor`).text(valor);
+        $(`#${item.idCard} .lblParticipacao`).html(participacao_tipo.nome);
+        $(`#${item.idCard} .lblValorTipo`).html(valor_tipo);
+        $(`#${item.idCard} .lblValor`).html(valor);
         if (item.observacao) {
             $(`#${item.idCard} .lblObservacao`).html(item.observacao);
             $(`#${item.idCard} .rowObservacao`).show('fast');
@@ -340,7 +340,7 @@ export class ServicoParticipacaoModule {
                     const response = await objModalNome.modalOpen();
                     if (response.refresh) {
                         registro.nome_grupo = response.name;
-                        $(`#${item.idCard} .spanNome`).text(registro.nome_grupo);
+                        $(`#${item.idCard} .spanNome`).html(registro.nome_grupo);
                     }
                 } catch (error) {
                     commonFunctions.generateNotificationErrorCatch(error);
@@ -416,9 +416,9 @@ export class ServicoParticipacaoModule {
             valorMinimo = valorFixo;
         }
 
-        $(`#valor_fixo${self._sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
-        $(`#porcentagem${self._sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
-        $(`#valor_minimo${self._sufixo}`).text(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
+        $(`#valor_fixo${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
+        $(`#porcentagem${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
+        $(`#valor_minimo${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
 
         commonFunctions.atualizarProgressBar($(`#progressBar${self._sufixo}`), porcentagemOcupada);
     }

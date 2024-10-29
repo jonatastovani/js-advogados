@@ -142,14 +142,11 @@ class PageServicoForm {
         item.idCol = UUIDHelper.generateUUID();
         let created_at = '';
         if (item.created_at) {
-            created_at = `<span class="text-body-secondary d-block">Criado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
+            created_at = `<span class="text-body-secondary d-block">Cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
             item.statusSalvo = true;
         } else {
             item.statusSalvo = false;
         }
-
-        let strBtns = self.#htmlBtnEdit({ title: `Editar anotação ${item.titulo}` });
-        strBtns += self.#htmlBtnDelete({ title: `Excluir anotação ${item.titulo}` });
 
         const strToHtml = commonFunctions.formatStringToHTML(item.descricao);
         let strCard = `
@@ -157,12 +154,22 @@ class PageServicoForm {
                 <div class="card">
                     <div class="card text-center">
                         <div class="card-body">
-                            <h5 class="card-title">${item.titulo}</h5>
+                            <h5 class="card-title d-flex align-items-center justify-content-between">
+                                <span class="text-truncate spanTitle">${item.titulo}</span>
+                                <div>
+                                    <div class="dropdown">
+                                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar anotação ${item.titulo}">Editar</button></li>
+                                            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir anotação ${item.titulo}">Excluir</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </h5>
                             <div class="card-text overflow-auto scrollbar" style="max-height: 10rem;">
-                                <p>${strToHtml}</p>
-                            </div>
-                            <div class="row justify-content-end g-2 gap-2">
-                                ${strBtns}
+                                <p class="my-0 pText">${strToHtml}</p>
                             </div>
                         </div>
                         <div class="card-footer text-body-secondary">
@@ -185,9 +192,6 @@ class PageServicoForm {
         item.idCard = `${UUIDHelper.generateUUID()}${self.#sufixo}`;
         const created_at = `<span class="text-body-secondary d-block">Pagamento lançado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
-        let strBtns = self.#htmlBtnEdit({ title: `Editar pagamento ${item.pagamento_tipo_tenant.nome}` });
-        strBtns += self.#htmlBtnDelete({ title: `Excluir pagamento ${item.pagamento_tipo_tenant.nome}` });
-
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
         let htmlAppend = self.#htmlAppendPagamento(item);
         let htmlLancamentos = self.#htmlLancamentos(item);
@@ -198,8 +202,14 @@ class PageServicoForm {
                     <h5 class="card-title d-flex align-items-center justify-content-between">
                         <span>${item.pagamento_tipo_tenant.nome}</span>
                         <div>
-                            <div class="d-grid gap-2 d-flex justify-content-end">
-                                ${strBtns}
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento ${item.pagamento_tipo_tenant.nome}">Editar</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
+                                </ul>
                             </div>
                         </div>
                     </h5>
@@ -395,20 +405,6 @@ class PageServicoForm {
         return html;
     }
 
-    #htmlBtnEdit(options = {}) {
-        const {
-            title = 'Editar registro',
-        } = options;
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" style="max-width: 7rem" title="${title}">Editar</button>`;
-    }
-
-    #htmlBtnDelete(options = {}) {
-        const {
-            title = 'Editar registro',
-        } = options;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete border-0" style="max-width: 7rem" title="${title}">Excluir</button>`
-    }
-
     async #addEventosAnotacao(item) {
         const self = this;
 
@@ -422,8 +418,8 @@ class PageServicoForm {
                 };
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
-                    $(`#${item.idCol}`).find('.card-title').text(response.register.titulo);
-                    $(`#${item.idCol}`).find('.card-text').text(response.register.descricao);
+                    $(`#${item.idCol}`).find('.spanTitle').html(response.register.titulo);
+                    $(`#${item.idCol}`).find('.pText').html(commonFunctions.formatStringToHTML(response.register.descricao));
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
