@@ -5,6 +5,7 @@ import { modalMessage } from "../../components/comum/modalMessage";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoAnotacao } from "../../components/servico/modalServicoAnotacao";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
+import { modalServicoParticipacao } from "../../components/servico/modalServicoParticipacao";
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
@@ -42,7 +43,7 @@ class PageServicoForm {
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
             self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
-            self.#objConfigs.url.basePagamentos = `${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`;
+            self.#objConfigs.url.basePagamentos = `${self.#objConfigs.url.base}/${self.#idRegister}/pagamento`;
             self.#objConfigs.url.baseValores = `${self.#objConfigs.url.base}/${self.#idRegister}/relatorio/valores`;
             this.#action = enumAction.PUT;
             self.#buscarDados();
@@ -487,13 +488,13 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
-                objModal.setDataEnvModal = {
-                    idRegister: item.id,
-                }
+                const objModal = new modalServicoParticipacao({
+                    urlApi: `${self.#objConfigs.url.basePagamentos}/${item.id}/participacao`
+                });
                 const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    self.#buscarPagamentos();
+                if (response.refresh && response.registers) {
+                    console.log(response);
+                    // self.#buscarPagamentos();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -563,6 +564,16 @@ class PageServicoForm {
             await commonFunctions.loadingModalDisplay();
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#sufixo}`);
+
+
+
+
+            $(`#dadosPagamento${self.#sufixo}-tab`).trigger('click');
+
+
+
+
+
             if (response?.data) {
                 const responseData = response.data;
                 form.find('input[name="titulo"]').val(responseData.titulo);

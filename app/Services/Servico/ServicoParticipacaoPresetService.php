@@ -3,32 +3,29 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
-use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
-use App\Models\Referencias\ParticipacaoRegistroTipo;
 use App\Models\Servico\ServicoParticipacaoPreset;
-use App\Models\Servico\ServicoParticipacaoPresetParticipante;
-use App\Models\Servico\ServicoParticipacaoPresetParticipanteIntegrante;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Servico\ServicoParticipacaoParticipante;
+use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
+use App\Traits\ServicoParticipacaoTrait;
 use Exception;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class ServicoParticipacaoPresetService extends Service
 {
+    use ServicoParticipacaoTrait;
+
     public function __construct(
         public ServicoParticipacaoPreset $model,
-        public ServicoParticipacaoPresetParticipante $modelParticipante,
-        public ServicoParticipacaoPresetParticipanteIntegrante $modelIntegrante,
+        public ServicoParticipacaoParticipante $modelParticipante,
+        public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
     ) {}
 
     /**
@@ -45,8 +42,6 @@ class ServicoParticipacaoPresetService extends Service
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model::getTableAsName();
         $participanteAsName = $this->modelParticipante::getTableAsName();
-        $pessoaPerfilAsName = PessoaPerfil::getTableAsName();
-        $pessoaAsName = Pessoa::getTableAsName();
         $pessoaFisicaAsName = PessoaFisica::getTableAsName();
 
         $arrayAliasCampos = [
@@ -65,6 +60,12 @@ class ServicoParticipacaoPresetService extends Service
             'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
+    }
+
+    public function index(Fluent $requestData)
+    {
+        $resource = $this->model->all();
+        return $resource->toArray();
     }
 
     public function postConsultaFiltros(Fluent $requestData)
@@ -150,7 +151,8 @@ class ServicoParticipacaoPresetService extends Service
                     unset($participante->integrantes);
                 }
 
-                $participante->preset_id = $resource->id;
+                $participante->parent_id = $resource->id;
+                $participante->parent_type = $resource->getMorphClass();
                 $participante->save();
 
                 if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
@@ -213,7 +215,8 @@ class ServicoParticipacaoPresetService extends Service
                     $participanteUpdate->fill($participante->toArray());
                 } else {
                     $participanteUpdate = $participante;
-                    $participanteUpdate->preset_id = $resource->id;
+                    $participanteUpdate->parent_id = $resource->id;
+                    $participanteUpdate->parent_type = $resource->getMorphClass();
                 }
 
                 $participanteUpdate->save();
@@ -274,97 +277,103 @@ class ServicoParticipacaoPresetService extends Service
         }
 
         $resource->fill($requestData->toArray());
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes);
 
-        $arrayNomesGrupos = [];
-        $porcentagemOcupada = 0;
-        $valorFixo = 0;
-        $participantes = [];
-        foreach ($requestData->participantes as $participante) {
-            $participante = new Fluent($participante);
-
-            //Verifica se o tipo de registro de participação informado existe
-            $validacaoServicoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ServicoParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
-            if (!$validacaoServicoParticipacaoTipoTenantId->count()) {
-                $arrayErrors["participacao_tipo_id_{$participante->participacao_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Participação informado não existe ou foi excluído.', $requestData)->error;
-            }
-
-            //Verifica se o tipo de registro de participação informado existe
-            $validacaoParticipacaoRegistroTipoId = ValidationRecordsHelper::validateRecord(ParticipacaoRegistroTipo::class, ['id' => $participante->participacao_registro_tipo_id]);
-            if (!$validacaoParticipacaoRegistroTipoId->count()) {
-                $arrayErrors["participacao_registro_tipo_id_{$participante->participacao_registro_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Registro de Participação informado não existe ou foi excluído.', $requestData)->error;
-            }
-            if (
-                $validacaoServicoParticipacaoTipoTenantId->count() &&
-                $validacaoParticipacaoRegistroTipoId->count()
-            ) {
-                $integrantes = [];
-                switch ($participante->participacao_registro_tipo_id) {
-                    case ParticipacaoRegistroTipoEnum::PERFIL->value:
-                        //Verifica se o perfil informado existe
-                        $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $participante->referencia_id]);
-                        if (!$validacaoPessoaPerfilId->count()) {
-                            $arrayErrors["referencia_id_{$participante->referencia_id}"] = LogHelper::gerarLogDinamico(404, 'A Pessoa Participante informada não existe ou foi excluída.', $requestData)->error;
-                        }
-                        $participante->referencia_type = PessoaPerfil::class;
-                        break;
-
-                    case ParticipacaoRegistroTipoEnum::GRUPO->value:
-                        if (!$participante->nome_grupo) {
-                            $arrayErrors["nome_grupo"] = LogHelper::gerarLogDinamico(404, 'O Nome do Grupo de Participantes não foi informado.', $requestData)->error;
-                        } else {
-                            if (!in_array($participante->nome_grupo, $arrayNomesGrupos)) {
-                                $arrayNomesGrupos[] = $participante->nome_grupo;
-                            } else {
-                                $arrayErrors["nome_grupo_{$participante->nome_grupo}"] = LogHelper::gerarLogDinamico(409, 'O Nome do Grupo de Participantes informado está em duplicidade.', $requestData)->error;
-                            }
-                        }
-
-                        foreach ($participante->integrantes as $integrante) {
-                            $integrante = new Fluent($integrante);
-
-                            switch ($integrante->participacao_registro_tipo_id) {
-                                case ParticipacaoRegistroTipoEnum::PERFIL->value:
-                                    //Verifica se o perfil informado existe
-                                    $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $integrante->referencia_id]);
-                                    if (!$validacaoPessoaPerfilId->count()) {
-                                        $arrayErrors["integrante_referencia_id_{$integrante->referencia_id}"] = LogHelper::gerarLogDinamico(404, "A Pessoa Integrante do Grupo $participante->nome_grupo, não existe ou foi excluída.", $requestData)->error;
-                                    }
-                                    $integrante->referencia_type = PessoaPerfil::class;
-                                    break;
-                            }
-
-                            array_push(
-                                $integrantes,
-                                (new $this->modelIntegrante)
-                                    ->fill($integrante->toArray())
-                            );
-                        }
-                        break;
-                }
-
-                $newParticipante = new $this->modelParticipante;
-                $newParticipante->fill($participante->toArray());
-                if (
-                    $participante->participacao_registro_tipo_id ==
-                    ParticipacaoRegistroTipoEnum::GRUPO->value
-                ) {
-                    $newParticipante->integrantes = $integrantes;
-                }
-
-                array_push($participantes, $newParticipante);
-
-                switch ($participante->valor_tipo) {
-                    case 'porcentagem':
-                        $porcentagemOcupada += $participante->valor;
-                        break;
-                    case 'valor_fixo':
-                        $valorFixo += $participante->valor;
-                        break;
-                }
-            }
-        }
-        $resource->participantes = $participantes;
+        $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
+        $arrayErrors = new Fluent(array_merge($arrayErrors->toArray(), $participantesData->arrayErrors->toArray()));
+        $resource->participantes = $participantesData->participantes;
+
+        // $arrayNomesGrupos = [];
+        // $porcentagemOcupada = 0;
+        // $valorFixo = 0;
+        // $participantes = [];
+        // foreach ($requestData->participantes as $participante) {
+        //     $participante = new Fluent($participante);
+
+        //     //Verifica se o tipo de registro de participação informado existe
+        //     $validacaoServicoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ServicoParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
+        //     if (!$validacaoServicoParticipacaoTipoTenantId->count()) {
+        //         $arrayErrors["participacao_tipo_id_{$participante->participacao_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Participação informado não existe ou foi excluído.', $requestData)->error;
+        //     }
+
+        //     //Verifica se o tipo de registro de participação informado existe
+        //     $validacaoParticipacaoRegistroTipoId = ValidationRecordsHelper::validateRecord(ParticipacaoRegistroTipo::class, ['id' => $participante->participacao_registro_tipo_id]);
+        //     if (!$validacaoParticipacaoRegistroTipoId->count()) {
+        //         $arrayErrors["participacao_registro_tipo_id_{$participante->participacao_registro_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Registro de Participação informado não existe ou foi excluído.', $requestData)->error;
+        //     }
+        //     if (
+        //         $validacaoServicoParticipacaoTipoTenantId->count() &&
+        //         $validacaoParticipacaoRegistroTipoId->count()
+        //     ) {
+        //         $integrantes = [];
+        //         switch ($participante->participacao_registro_tipo_id) {
+        //             case ParticipacaoRegistroTipoEnum::PERFIL->value:
+        //                 //Verifica se o perfil informado existe
+        //                 $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $participante->referencia_id]);
+        //                 if (!$validacaoPessoaPerfilId->count()) {
+        //                     $arrayErrors["referencia_id_{$participante->referencia_id}"] = LogHelper::gerarLogDinamico(404, 'A Pessoa Participante informada não existe ou foi excluída.', $requestData)->error;
+        //                 }
+        //                 $participante->referencia_type = PessoaPerfil::class;
+        //                 break;
+
+        //             case ParticipacaoRegistroTipoEnum::GRUPO->value:
+        //                 if (!$participante->nome_grupo) {
+        //                     $arrayErrors["nome_grupo"] = LogHelper::gerarLogDinamico(404, 'O Nome do Grupo de Participantes não foi informado.', $requestData)->error;
+        //                 } else {
+        //                     if (!in_array($participante->nome_grupo, $arrayNomesGrupos)) {
+        //                         $arrayNomesGrupos[] = $participante->nome_grupo;
+        //                     } else {
+        //                         $arrayErrors["nome_grupo_{$participante->nome_grupo}"] = LogHelper::gerarLogDinamico(409, 'O Nome do Grupo de Participantes informado está em duplicidade.', $requestData)->error;
+        //                     }
+        //                 }
+
+        //                 foreach ($participante->integrantes as $integrante) {
+        //                     $integrante = new Fluent($integrante);
+
+        //                     switch ($integrante->participacao_registro_tipo_id) {
+        //                         case ParticipacaoRegistroTipoEnum::PERFIL->value:
+        //                             //Verifica se o perfil informado existe
+        //                             $validacaoPessoaPerfilId = ValidationRecordsHelper::validateRecord(PessoaPerfil::class, ['id' => $integrante->referencia_id]);
+        //                             if (!$validacaoPessoaPerfilId->count()) {
+        //                                 $arrayErrors["integrante_referencia_id_{$integrante->referencia_id}"] = LogHelper::gerarLogDinamico(404, "A Pessoa Integrante do Grupo $participante->nome_grupo, não existe ou foi excluída.", $requestData)->error;
+        //                             }
+        //                             $integrante->referencia_type = PessoaPerfil::class;
+        //                             break;
+        //                     }
+
+        //                     array_push(
+        //                         $integrantes,
+        //                         (new $this->modelIntegrante)
+        //                             ->fill($integrante->toArray())
+        //                     );
+        //                 }
+        //                 break;
+        //         }
+
+        //         $newParticipante = new $this->modelParticipante;
+        //         $newParticipante->fill($participante->toArray());
+        //         if (
+        //             $participante->participacao_registro_tipo_id ==
+        //             ParticipacaoRegistroTipoEnum::GRUPO->value
+        //         ) {
+        //             $newParticipante->integrantes = $integrantes;
+        //         }
+
+        //         array_push($participantes, $newParticipante);
+
+        //         switch ($participante->valor_tipo) {
+        //             case 'porcentagem':
+        //                 $porcentagemOcupada += $participante->valor;
+        //                 break;
+        //             case 'valor_fixo':
+        //                 $valorFixo += $participante->valor;
+        //                 break;
+        //         }
+        //     }
+        // }
+        // $resource->participantes = $participantes;
+        // $porcentagemOcupada = round($porcentagemOcupada, 2);
 
         if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
             $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;

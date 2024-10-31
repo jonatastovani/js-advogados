@@ -7,9 +7,12 @@ use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
+use App\Traits\EnumTrait;
 
 enum PagamentoTipoEnum: int
 {
+    use EnumTrait;
+
     case PAGAMENTO_UNICO = 1;
     case PARCELADO = 2;
     case ENTRADA_COM_PARCELAMENTO = 3;
@@ -21,7 +24,7 @@ enum PagamentoTipoEnum: int
     {
         return match ($this) {
             self::PAGAMENTO_UNICO => [
-                'id' => self::PAGAMENTO_UNICO,
+                'id' => self::PAGAMENTO_UNICO->value,
                 'nome' => 'Pagamento Único',
                 'descricao' => 'Método para registrar uma pagamento único.',
                 'configuracao' => [
@@ -34,7 +37,7 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric',
+                            'formRequestRule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -44,7 +47,7 @@ enum PagamentoTipoEnum: int
                 ],
             ],
             self::PARCELADO => [
-                'id' => self::PARCELADO,
+                'id' => self::PARCELADO->value,
                 'nome' => 'Parcelado',
 
                 'descricao' => "Método que divide o valor total pela quantidade de parcelas informadas.",
@@ -68,7 +71,7 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric',
+                            'formRequestRule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -78,7 +81,7 @@ enum PagamentoTipoEnum: int
                 ],
             ],
             self::ENTRADA_COM_PARCELAMENTO => [
-                'id' => self::ENTRADA_COM_PARCELAMENTO,
+                'id' => self::ENTRADA_COM_PARCELAMENTO->value,
                 'nome' => 'Entrada + Parcelamento',
                 'descricao' => 'Método para registrar uma entrada com parcelamento. O valor da entrada será subtraído do valor total antes de gerar as parcelas.',
                 'configuracao' => [
@@ -86,7 +89,7 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'entrada_valor',
                             'nome_exibir' => 'Vencimento entrada',
-                            'formRequestRule' => 'required|numeric',
+                            'formRequestRule' => 'required|numeric|min:0.01',
                         ],
                         [
                             'nome' => 'entrada_data',
@@ -111,7 +114,7 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric',
+                            'formRequestRule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -121,7 +124,7 @@ enum PagamentoTipoEnum: int
                 ],
             ],
             self::RECORRENTE => [
-                'id' => self::RECORRENTE,
+                'id' => self::RECORRENTE->value,
                 'nome' => 'Recorrente',
                 'descricao' => "Método que gera as parcelas de maneira recorrente, podendo definir a data de início e o dia de vencimento das parcelas. Este método não pode ser combinado com nenhum outro.",
                 'configuracao' => [
@@ -149,7 +152,7 @@ enum PagamentoTipoEnum: int
                 ],
             ],
             self::CONDICIONADO => [
-                'id' => self::CONDICIONADO,
+                'id' => self::CONDICIONADO->value,
                 'nome' => 'Condicionado',
                 'descricao' => "Método que não espera um valor total, mas exige uma descrição da condição para o pagamento. Este método não pode ser combinado com nenhum outro.",
                 'configuracao' => [

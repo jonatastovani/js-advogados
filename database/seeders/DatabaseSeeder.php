@@ -13,6 +13,7 @@ use Database\Seeders\Referencias\ContaSubtipoSeeder;
 use Database\Seeders\Referencias\ContaTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
+use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
 use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
@@ -48,14 +49,14 @@ class DatabaseSeeder extends Seeder
         //     $this->call([PessoaPerfilClienteSeeder::class]);
         // }
 
-        // $this->call([
+        $this->call([
         //     ContaTipoSeeder::class,
         //     ContaSubtipoSeeder::class,
         //     AreaJuridicaTenantSeeder::class,
-        //     PagamentoTipoSeeder::class,
-        //     PagamentoTipoTenantSeeder::class,
+            PagamentoTipoSeeder::class,
+            PagamentoTipoTenantSeeder::class,
         //     ContaSeeder::class,
-        // ]);
+        ]);
 
         // if (env('APP_ENV') == 'local') {
         //     $this->call([
@@ -65,7 +66,7 @@ class DatabaseSeeder extends Seeder
         // }
 
         $this->call([
-            ParticipacaoRegistroTipoSeeder::class,
+            // ParticipacaoRegistroTipoSeeder::class,
             // ServicoParticipacaoReferenciaTipoSeeder::class,
         ]);
     }

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class ServicoParticipacaoPresetParticipanteIntegrante extends Model
+class ServicoParticipacaoParticipanteIntegrante extends Model
 {
     use HasFactory,
         HasUuids,
@@ -20,8 +20,8 @@ class ServicoParticipacaoPresetParticipanteIntegrante extends Model
         BelongsToTenant,
         BelongsToDomain;
 
-    protected $table = 'servico.servico_participacao_preset_participante_integrantes';
-    protected $tableAsName = 'serv_part_pres_part_integ';
+    protected $table = 'servico.servico_participacao_participante_integrantes';
+    protected $tableAsName = 'serv_part_part_integ';
 
     protected $fillable = [
         'id',
@@ -38,7 +38,7 @@ class ServicoParticipacaoPresetParticipanteIntegrante extends Model
 
     public function participante()
     {
-        return $this->belongsTo(ServicoParticipacaoPresetParticipante::class);
+        return $this->belongsTo(ServicoParticipacaoParticipante::class);
     }
 
     public function participacao_registro_tipo()

@@ -34,7 +34,7 @@ Route::group([
                 });
             });
 
-            Route::prefix('pagamentos')->group(function () {
+            Route::prefix('pagamento')->group(function () {
 
                 Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {
 
@@ -43,6 +43,15 @@ Route::group([
                     Route::get('{uuid}', 'show');
                     Route::put('{uuid}', 'update');
                     Route::delete('{uuid}', 'destroy');
+                });
+
+                Route::prefix('{pagamento_uuid}/participacao')->group(function () {
+
+                    Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+
+                        Route::get('', 'indexPagamento');
+                        Route::post('', 'storePagamento');
+                    });
                 });
             });
 
@@ -60,7 +69,8 @@ Route::group([
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
 
-                Route::post('', 'store')->name('api.servico-participacao-preset');
+                Route::get('', 'index')->name('api.servico-participacao-preset');
+                Route::post('', 'store');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
                 Route::delete('{uuid}', 'destroy');
@@ -83,7 +93,7 @@ Route::group([
             });
         });
 
-        Route::prefix('servico-atuacao-tipo')->group(function () {
+        Route::prefix('servico-participacao-tipo')->group(function () {
 
             Route::controller(App\Http\Controllers\Tenant\ServicoParticipacaoTipoTenantController::class)->group(function () {
 

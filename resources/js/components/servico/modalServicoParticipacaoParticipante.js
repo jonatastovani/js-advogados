@@ -30,7 +30,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
         refresh: false,
     };
 
-    constructor(urlApi) {
+    constructor() {
         super({
             idModal: "#modalServicoParticipacaoParticipante",
         });
@@ -38,7 +38,6 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._objConfigs.url.base = urlApi;
         this._action = enumAction.POST;
 
         this.#addEventosPadrao();
@@ -62,6 +61,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
 
         await commonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
+        $(self.getIdModal).find('select[name="participacao_tipo_id"]').trigger('focus');
         return await self._modalOpen();
     }
 

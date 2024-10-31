@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Servico\ServicoParticipacaoPreset\ServicoParticipacaoPresetFormRequestDestroy;
+use App\Http\Requests\Servico\ServicoParticipacaoPreset\ServicoParticipacaoPresetFormRequestIndex;
 use App\Http\Requests\Servico\ServicoParticipacaoPreset\ServicoParticipacaoPresetFormRequestShow;
 use App\Http\Requests\Servico\ServicoParticipacaoPreset\ServicoParticipacaoPresetFormRequestStore;
 use App\Http\Requests\Servico\ServicoParticipacaoPreset\ServicoParticipacaoPresetFormRequestUpdate;
@@ -16,6 +17,12 @@ class ServicoParticipacaoPresetController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public ServicoParticipacaoPresetService $service) {}
+
+    public function index(ServicoParticipacaoPresetFormRequestIndex $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->index($fluentData));
+    }
 
     public function store(ServicoParticipacaoPresetFormRequestStore $formRequest)
     {

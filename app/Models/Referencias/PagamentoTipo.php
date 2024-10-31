@@ -18,4 +18,12 @@ class PagamentoTipo extends Model
         // O campo configuracao será tratado como um array
         'configuracao' => 'array',
     ];
+
+    protected $fillable = [
+        'id',
+        'nome',
+        'descricao',
+        'configuracao',
+        'ativo_bln',
+    ];
 }

@@ -9,15 +9,15 @@ import { UUIDHelper } from "../helpers/UUIDHelper";
 export class ServicoParticipacaoModule {
 
     _objConfigs;
-    _sufixo;
     _parentInstance;
+    _extraConfigs;
     // _divParticipantes;
 
     constructor(parentInstance, objData) {
-        this._sufixo = objData.sufixo;
         this._objConfigs = objData.objConfigs;
         this.parentInstance = parentInstance;
         // this._divParticipantes = objData.divParticipantes;
+        this._extraConfigs = objData.extraConfigs;
         this.#addEventosBotoes();
     }
 
@@ -36,7 +36,7 @@ export class ServicoParticipacaoModule {
             }
         }
 
-        $(`#btnInserirPessoa${self._sufixo}`).on('click', async function () {
+        $(`#btnInserirPessoa${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -44,6 +44,7 @@ export class ServicoParticipacaoModule {
                     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                 };
                 const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
                     await openModalServicoParticipacao({
@@ -55,10 +56,11 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
 
-        $(`#btnInserirGrupo${self._sufixo}`).on('click', async function () {
+        $(`#btnInserirGrupo${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -67,6 +69,7 @@ export class ServicoParticipacaoModule {
                     title: 'Novo grupo',
                     mensagem: 'Informe o nome do grupo',
                 }
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                 const response = await objModalNome.modalOpen();
                 if (response.refresh) {
                     await openModalServicoParticipacao({
@@ -78,6 +81,7 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
 
@@ -90,7 +94,7 @@ export class ServicoParticipacaoModule {
 
     async _inserirParticipanteNaTela(item) {
         const self = this;
-        const divParticipantes = $(`#divParticipantes${self._sufixo}`);
+        const divParticipantes = $(`#divParticipantes${self._objConfigs.sufixo}`);
         item.idCard = UUIDHelper.generateUUID();
 
         let nome = '';
@@ -202,7 +206,7 @@ export class ServicoParticipacaoModule {
         divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
 
         self.#addEventoParticipante(item);
-        await self.#atualizaPorcentagemLivre(item);
+        await self._atualizaPorcentagemLivre(item);
         return item;
     }
 
@@ -260,7 +264,7 @@ export class ServicoParticipacaoModule {
         } else {
             $(`#${item.idCard} .rowObservacao`).hide('fast');
         }
-        await self.#atualizaPorcentagemLivre();
+        await self._atualizaPorcentagemLivre();
     }
 
     async #addEventoParticipante(item) {
@@ -279,6 +283,7 @@ export class ServicoParticipacaoModule {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,
                 }
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#atualizaParticipanteNaTela(Object.assign(item, response.register));
@@ -287,6 +292,7 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
 
@@ -298,6 +304,7 @@ export class ServicoParticipacaoModule {
                     message: 'Tem certeza que deseja remover este participante?',
                 };
                 obj.setFocusElementWhenClosingModal = $(this);
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
 
@@ -309,11 +316,13 @@ export class ServicoParticipacaoModule {
                         participantes.splice(indexPart, 1);
                     }
 
-                    self.#atualizaPorcentagemLivre();
+                    self._atualizaPorcentagemLivre();
                     commonFunctions.generateNotification('Participante removido.', 'success');
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
+            }finally {
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
 
@@ -337,6 +346,7 @@ export class ServicoParticipacaoModule {
                         mensagem: 'Informe o nome do grupo',
                         nome: registro.nome_grupo,
                     }
+                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                     const response = await objModalNome.modalOpen();
                     if (response.refresh) {
                         registro.nome_grupo = response.name;
@@ -346,6 +356,7 @@ export class ServicoParticipacaoModule {
                     commonFunctions.generateNotificationErrorCatch(error);
                 } finally {
                     commonFunctions.simulateLoading(btn, false);
+                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
                 }
             });
 
@@ -357,6 +368,7 @@ export class ServicoParticipacaoModule {
                         perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                     };
                     const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                     const response = await objModal.modalOpen();
                     if (response.refresh && response.selected) {
                         await self._inserirIntegrante(item, {
@@ -370,6 +382,7 @@ export class ServicoParticipacaoModule {
                     commonFunctions.generateNotificationErrorCatch(error);
                 } finally {
                     commonFunctions.simulateLoading(btn, false);
+                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
                 }
             });
         }
@@ -394,7 +407,7 @@ export class ServicoParticipacaoModule {
         return null;
     }
 
-    async #atualizaPorcentagemLivre() {
+    async _atualizaPorcentagemLivre() {
         const self = this;
         let porcentagemOcupada = 0;
         let valorFixo = 0;
@@ -416,11 +429,11 @@ export class ServicoParticipacaoModule {
             valorMinimo = valorFixo;
         }
 
-        $(`#valor_fixo${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
-        $(`#porcentagem${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
-        $(`#valor_minimo${self._sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
+        $(`#valor_fixo${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
+        $(`#porcentagem${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
+        $(`#valor_minimo${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
 
-        commonFunctions.atualizarProgressBar($(`#progressBar${self._sufixo}`), porcentagemOcupada);
+        commonFunctions.atualizarProgressBar($(`#progressBar${self._objConfigs.sufixo}`), porcentagemOcupada);
     }
 
     async _inserirIntegrante(item, integrante) {
@@ -484,6 +497,7 @@ export class ServicoParticipacaoModule {
                     message: 'Tem certeza que deseja remover este integrante?',
                 };
                 obj.setFocusElementWhenClosingModal = $(this);
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
 
@@ -503,6 +517,8 @@ export class ServicoParticipacaoModule {
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
     }

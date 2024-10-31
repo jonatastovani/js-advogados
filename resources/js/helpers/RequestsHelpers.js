@@ -3,6 +3,12 @@ import { enumAction } from "../commons/enumAction";
 
 export class RequestsHelpers {
 
+    static async get(options = {}) {
+        const { urlApi } = options;
+        const obj = new connectAjax(urlApi);
+        return await obj.getRequest();
+    }
+
     static async getRecurse(options = {}) {
         const { idRegister, urlApi } = options;
         const obj = new connectAjax(urlApi);

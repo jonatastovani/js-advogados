@@ -3,10 +3,9 @@
 namespace App\Http\Requests\Referencias\PagamentoTipo;
 
 use App\Enums\PagamentoTipoEnum;
-use App\Http\Requests\BaseFormRequest;
 use App\Models\Referencias\PagamentoTipo;
 
-class PagamentoTipoFormRequestRenderParcelado extends BaseFormRequest
+class PagamentoTipoFormRequestRenderParcelado extends PagamentoTipoFormRequestRenderBase
 {
     public function authorize(): bool
     {
@@ -21,8 +20,11 @@ class PagamentoTipoFormRequestRenderParcelado extends BaseFormRequest
     public function rules(): array
     {
         $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::PARCELADO->value);
-        $rules = ['conta_id' => 'required|uuid'];
+        $rules = parent::rules();
         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+            if ($value['nome'] == 'valor_total') {
+                $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['formRequestRule']);
+            }
             $rules[$value['nome']] = $value['formRequestRule'];
         }
         return $rules;

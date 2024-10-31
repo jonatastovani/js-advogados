@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoParticipacaoGrupo();
+        $this->model = new App\Models\Servico\ServicoParticipacaoParticipanteIntegrante();
     }
 
     /**
@@ -26,11 +26,13 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('servico_participacao_id');
-            $table->foreign('servico_participacao_id')->references('id')->on(App\Models\Servico\ServicoParticipacao::getTableName());
+            $table->uuid('participante_id');
+            $table->foreign('participante_id', "fk_{$this->model::getTableAsName()}_participante_id")->references('id')->on(App\Models\Servico\ServicoParticipacaoParticipante::getTableName());
 
-            $table->uuid('perfil_id');
-            // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
+            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
+
+            $table->uuidMorphs('referencia');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

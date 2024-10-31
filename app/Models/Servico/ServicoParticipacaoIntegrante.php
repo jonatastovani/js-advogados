@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class ServicoParticipacaoGrupo extends Model
+class ServicoParticipacaoIntegrante extends Model
 {
     use HasFactory,
         HasUuids,
@@ -19,6 +19,6 @@ class ServicoParticipacaoGrupo extends Model
         BelongsToTenant,
         BelongsToDomain;
 
-    protected $table = 'servico.servico_participacao_grupos';
-    protected $tableAsName = 'serv_part_gru';
+    protected $table = 'servico.servico_participacao_integrantes';
+    protected $tableAsName = 'serv_part_int';
 }

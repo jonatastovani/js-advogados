@@ -13,14 +13,14 @@ enum PermissionGroupsEnum: int
     {
         return match ($this) {
             self::ADMINISTRADOR => [
-                'id' => self::ADMINISTRADOR,
+                'id' => self::ADMINISTRADOR->value,
                 'nome' => 'Administração do Sistema',
                 'descricao' => 'Grupo de permissões para administrar o sistema.',
                 'modulo_id' => PermissionModulesEnum::ADMINISTRADOR,
                 'individuais' => true,
             ],
             self::SUPORTE => [
-                'id' => self::SUPORTE,
+                'id' => self::SUPORTE->value,
                 'nome' => 'Suporte do Sistema',
                 'descricao' => 'Grupo de permissões para suporte do sistema.',
                 'modulo_id' => PermissionModulesEnum::ADMINISTRADOR,
@@ -28,14 +28,14 @@ enum PermissionGroupsEnum: int
                 'individuais' => true,
             ],
             self::ADMINISTRACAO_MODULO_ADVOCACIA => [
-                'id' => self::ADMINISTRACAO_MODULO_ADVOCACIA,
+                'id' => self::ADMINISTRACAO_MODULO_ADVOCACIA->value,
                 'nome' => 'Administração Módulo Advocacia',
                 'descricao' => 'Grupo de Permissões para Administração do Módulo de Advogacia',
                 'modulo_id' => PermissionModulesEnum::ADVOCACIA,
                 'individuais' => true,
             ],
             // self::INFORMACAO_SUBJETIVA => [
-            //     'id' => self::INFORMACAO_SUBJETIVA,
+            //     'id' => self::INFORMACAO_SUBJETIVA->value,
             //     'nome' => 'Informação subjetiva',
             //     'descricao' => 'Grupo de Permissões relacionadas a sessão de Informação subjetiva',
             //     'modulo_id' => 4,

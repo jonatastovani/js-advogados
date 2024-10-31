@@ -3,6 +3,7 @@
         PessoaTipoEnum: @json(\App\Enums\PessoaTipoEnum::toArray()),
         PessoaPerfilTipoEnum: @json(\App\Enums\PessoaPerfilTipoEnum::toArray()),
         ParticipacaoRegistroTipoEnum: @json(\App\Enums\ParticipacaoRegistroTipoEnum::toArray()),
+        ServicoParticipacaoReferenciaTipoEnum: @json(\App\Enums\ServicoParticipacaoReferenciaTipoEnum::toArray()),
     };
 
     window.Statics = {

@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new \App\Models\Servico\ServicoParticipacaoPresetParticipante();
+        $this->model = new App\Models\Servico\ServicoParticipacaoIntegrante();
     }
 
     /**
@@ -26,21 +26,13 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('preset_id');
-            $table->foreign('preset_id')->references('id')->on(App\Models\Servico\ServicoParticipacaoPreset::getTableName());
-
-            $table->uuid('participacao_tipo_id');
-            $table->foreign('participacao_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_tipo_id")->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
+            $table->uuid('participante_id');
+            $table->foreign('participante_id', "fk_{$this->model::getTableAsName()}_participante_id")->references('id')->on(App\Models\Servico\ServicoParticipacao::getTableName());
 
             $table->unsignedBigInteger('participacao_registro_tipo_id');
             $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
 
-            $table->nullableUuidMorphs('referencia');
-
-            $table->string('nome_grupo')->nullable();
-            $table->enum('valor_tipo', ['porcentagem', 'valor_fixo']);
-            $table->decimal('valor', 10, 2);
-            $table->string('observacao')->nullable();
+            $table->uuidMorphs('referencia');
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

@@ -7,28 +7,46 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title" data-title-default="Novo Participante">Novo Participante</h4>
+                <h4 class="modal-title" data-title-default="Participação em Serviços">Participação em Serviços</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
-                <div class="row row-cols-1 row-cols-sm-2">
+                <div class="row">
                     <div class="col">
-                        <div class="form-text">Nome</div>
-                        <label class="form-label text-truncate lblNome"></label>
-                    </div>
-                    <div class="col">
-                        <div class="form-text">Tipo participante</div>
-                        <label class="form-label lblTipoParticipante"></label>
+                        <label for="preset_id{{ $sufixo }}" class="form-label">Presets</label>
+                        <div class="input-group">
+                            <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
+                                <option value="0">Selecione</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-primary btnAplicarPreset"><i
+                                class="bi bi-search"></i></button>
+                            <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao"><i
+                                    class="bi bi-search"></i></button>
+                        </div>
                     </div>
                 </div>
                 @include('components.modal.servico.modal-servico-participacao.painel-dados-participacao')
+            </div>
+            <div class="modal-footer">
+                <div class="col mt-2 text-end">
+                    <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
+                        Salvar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+@push('modals')
+    <x-modal.pessoa.modal-pessoa.modal />
+    <x-modal.comum.modal-nome.modal />
+    <x-modal.servico.modal-servico-participacao-participante.modal />
+@endpush
+
 @component('components.api.api-routes', [
     'routes' => [
+        'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
         'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
     ],
 ])

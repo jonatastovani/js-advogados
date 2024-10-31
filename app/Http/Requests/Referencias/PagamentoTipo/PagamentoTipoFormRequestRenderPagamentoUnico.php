@@ -3,10 +3,9 @@
 namespace App\Http\Requests\Referencias\PagamentoTipo;
 
 use App\Enums\PagamentoTipoEnum;
-use App\Http\Requests\BaseFormRequest;
 use App\Models\Referencias\PagamentoTipo;
 
-class PagamentoTipoFormRequestRenderPagamentoUnico extends BaseFormRequest
+class PagamentoTipoFormRequestRenderPagamentoUnico extends PagamentoTipoFormRequestRenderBase
 {
     public function authorize(): bool
     {
@@ -21,7 +20,7 @@ class PagamentoTipoFormRequestRenderPagamentoUnico extends BaseFormRequest
     public function rules(): array
     {
         $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::PAGAMENTO_UNICO->value);
-        $rules = ['conta_id' => 'required|uuid'];
+        $rules = parent::rules();
         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
             $rules[$value['nome']] = $value['formRequestRule'];
         }

@@ -94,6 +94,7 @@ export class modalRegistrationAndEditing extends modalDefault {
         const modal = $(self.getIdModal);
         const {
             btnSave = modal.find('.btn-save'),
+            fieldRegisterName = 'register',
         } = options;
 
         try {
@@ -112,7 +113,7 @@ export class modalRegistrationAndEditing extends modalDefault {
             if (response) {
                 commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
                 self._promisseReturnValue.refresh = true;
-                self._promisseReturnValue.register = response.data;
+                self._promisseReturnValue[fieldRegisterName] = response.data;
                 self._endTimer = true;
             }
         } catch (error) {

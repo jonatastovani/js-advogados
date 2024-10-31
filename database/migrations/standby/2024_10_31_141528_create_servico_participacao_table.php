@@ -26,22 +26,19 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->uuid('relacionamento_id');
-            
-            $table->foreignId('relacionamento_tipo_id')->references('id')->on(App\Models\Referencias\ServicoParticipacaoReferenciaTipo::getTableName());
-
-            // $table->unsignedBigInteger('participacao_registro_tipo_id');
-            $table->foreignId('participacao_registro_tipo_id')->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
-
-            $table->uuid('perfil_id');
-            // $table->foreign('perfil_id')->references('id')->on(App\Models\Seguranca\Perfil::getTableName());
+            $table->uuidMorphs('parent');
 
             $table->uuid('participacao_tipo_id');
-            $table->foreign('participacao_tipo_id')->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
+            $table->foreign('participacao_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_tipo_id")->references('id')->on(App\Models\Tenant\ServicoParticipacaoTipoTenant::getTableName());
+
+            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
+
+            $table->nullableUuidMorphs('referencia');
 
             $table->string('nome_grupo')->nullable();
-            $table->decimal('porcentagem', 5)->nullable();
-            $table->float('valor_fixo')->nullable();
+            $table->enum('valor_tipo', ['porcentagem', 'valor_fixo']);
+            $table->decimal('valor', 10, 2);
             $table->string('observacao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

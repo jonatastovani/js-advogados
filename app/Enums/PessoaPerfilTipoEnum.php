@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumTrait;
+
 enum PessoaPerfilTipoEnum: int
 {
+    use EnumTrait;
+
     case USUARIO = 1;
     case PARCEIRO = 2;
     case CLIENTE = 3;
@@ -13,35 +17,21 @@ enum PessoaPerfilTipoEnum: int
     {
         return match ($this) {
             self::USUARIO => [
-                'id' => self::USUARIO,
+                'id' => self::USUARIO->value,
                 'nome' => 'Usuário do Sistema',
                 'descricao' => 'Perfil para usuários do sistema.',
             ],
             self::PARCEIRO => [
-                'id' => self::PARCEIRO,
+                'id' => self::PARCEIRO->value,
                 'nome' => 'Parceiro',
                 'descricao' => "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
             ],
             self::CLIENTE => [
-                'id' => self::CLIENTE,
+                'id' => self::CLIENTE->value,
                 'nome' => 'Cliente',
                 'descricao' => "Perfil para clientes.",
             ],
         };
-    }
-
-    public static function toArray(): array
-    {
-        return array_column(self::cases(), 'value', 'name');
-    }
-
-    public static function staticDetailsToArray(): array
-    {
-        $details = [];
-        foreach (self::cases() as $enumValue) {
-            $details[] = $enumValue->detalhes();
-        }
-        return $details;
     }
 
     static public function perfisPermitidoParticipacaoServico(): array

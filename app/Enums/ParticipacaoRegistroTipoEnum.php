@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumTrait;
+
 enum ParticipacaoRegistroTipoEnum: int
 {
+    use EnumTrait;
+
     case PERFIL = 1;
     case GRUPO = 2;
 
@@ -12,12 +16,12 @@ enum ParticipacaoRegistroTipoEnum: int
     {
         return match ($this) {
             self::PERFIL => [
-                'id' => self::PERFIL,
+                'id' => self::PERFIL->value,
                 'nome' => 'Perfil',
                 'descricao' => 'Perfil de pessoa cadastrada CNPJ ou CPF.',
             ],
             self::GRUPO => [
-                'id' => self::GRUPO,
+                'id' => self::GRUPO->value,
                 'nome' => 'Grupo',
                 'descricao' => "Grupo de perfis de pessoas CNPJ ou CPF da Participação.",
             ],

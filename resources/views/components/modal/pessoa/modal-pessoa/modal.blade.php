@@ -127,6 +127,10 @@
     </div>
 </div>
 
+@push('modals')
+    <x-modal.pessoa.modal-selecionar-perfil.modal />
+@endpush
+
 @component('components.api.api-routes', [
     'routes' => [
         'basePessoas' => route('api.pessoa'),

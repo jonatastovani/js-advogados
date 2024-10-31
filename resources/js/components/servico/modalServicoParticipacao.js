@@ -1,6 +1,6 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { RequestsHelpers } from "../../helpers/RequestsHelpers";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 import { modalServicoParticipacaoTipoTenant } from "./modalServicoParticipacaoTipoTenant";
 
@@ -16,11 +16,14 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
      */
     #objConfigs = {
         url: {
+            base: undefined,
+            baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
         },
         sufixo: 'ModalServicoParticipacao',
         data: {
-            porcentagem_livre: 0,
+            porcentagemOcupada: 0,
+            participantesNaTela: [],
         },
     };
 
@@ -33,7 +36,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
     #functionsServicoParticipacao;
 
-    constructor(urlApi) {
+    constructor(options = {}) {
         super({
             idModal: "#modalServicoParticipacao",
         });
@@ -41,11 +44,12 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._objConfigs.url.base = urlApi;
-        this._action = enumAction.POST;
+        this._objConfigs.url.base = options.urlApi;
         const objData = {
             objConfigs: this._objConfigs,
-            sufixo: this._sufixo,
+            extraConfigs: {
+                typeParent: 'modal',
+            }
         }
         this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
 
@@ -57,13 +61,8 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
 
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
 
-        if (!self._dataEnvModal.dados_participacao.participacao_registro_tipo_id) {
-            commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
-            return await self._returnPromisseResolve();
-        }
-
-        await self.#buscarTipoParticipacaoTenant();
-        if (! await self.#preencherDados()) {
+        await self.#buscarPresetParticipacaoTenant();
+        if (! await self.#buscarDados()) {
             await commonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve();
         };
@@ -94,9 +93,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     if (response.selected) {
-                        self.#buscarTipoParticipacaoTenant(response.selected.id);
-                    } else {
-                        self.#buscarTipoParticipacaoTenant();
+                        $(self.getIdModal).find('select[name="preset_id"]').val(response.selected.id);
                     }
                 }
             } catch (error) {
@@ -151,11 +148,35 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         });
     }
 
-    async #preencherDados() {
+    _clearForm() {
+        const self = this;
+        $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
+        self.#functionsServicoParticipacao._atualizaPorcentagemLivre();
+    }
+
+    async #buscarDados() {
+        const self = this;
+
+        try {
+            self._clearForm();
+            const response = await RequestsHelpers.get({
+                urlApi: self._objConfigs.url.base,
+            });
+            if (response?.data) {
+                const responseData = response.data;
+                await self.#preencherDados(responseData);
+            }
+            return true;
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    async #preencherDados(dados) {
         const self = this;
         try {
             const modal = $(self.getIdModal);
-            const dados = self._dataEnvModal.dados_participacao;
             let nome = '';
 
             switch (dados.participacao_registro_tipo_id) {
@@ -194,47 +215,44 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
         }
     }
 
-    async #buscarTipoParticipacaoTenant(selected_id = null) {
+    async #buscarPresetParticipacaoTenant(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseParticipacaoTipo, options);
+        const selModulo = $(self.getIdModal).find('select[name="preset_id"]');
+        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseParticipacaoPreset, options);
     }
 
-    saveButtonAction() {
+    async saveButtonAction() {
         const self = this;
-        const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = {
+            participantes: self._objConfigs.data.participantesNaTela,
+        }
 
         if (self.#saveVerifications(data)) {
-            self._promisseReturnValue.register = data;
-            self._promisseReturnValue.refresh = true;
-            self._endTimer = true;
+            await self._save(data, self._objConfigs.url.base, { fieldRegisterName: 'registers' });
         }
     }
 
     #saveVerifications(data) {
         const self = this;
-        const formRegistration = $(self.getIdModal).find('.formRegistration');
+        let blnSave = true;
 
-        let blnSave = commonFunctions.verificationData(data.participacao_tipo_id, { field: formRegistration.find('select[name="participacao_tipo_id"]'), messageInvalid: 'O <b>tipo de participação</b> deve ser informado.', setFocus: true });
-
-        data.valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
-
-        if (data.valor > 0) {
-            if (data.valor_tipo == 'porcentagem' && data.valor > self._objConfigs.data.porcentagem_livre) {
-                commonFunctions.generateNotification('O <b>valor da participação</b> ultrapassa o valor da porcentagem livre.', 'warning');
-                if (blnSave === true) {
-                    self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
-                }
-                blnSave = false;
-            }
-        } else {
-            commonFunctions.generateNotification('O <b>valor da participação</b> deve ser informado.', 'warning');
-            if (blnSave === true) {
-                self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
-            }
+        let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
+        if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
+            commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
             blnSave = false;
+        }
+        if (!data.participantes || data.participantes.length == 0) {
+            commonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
+            blnSave = false;
+        } else {
+            for (const participante of data.participantes) {
+                if (participante.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO && (!participante.integrantes || participante.integrantes.length == 0)) {
+                    commonFunctions.generateNotification('E necessário informar pelo menos um integrante no grupo.', 'warning');
+                    blnSave = false;
+                    break;
+                }
+            }
         }
 
         return blnSave;

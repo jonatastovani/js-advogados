@@ -27,6 +27,10 @@
     </div>
 </div>
 
+@push('modals')
+    <x-modal.tenant.modal-servico-participacao-tipo-tenant.modal />
+@endpush
+
 @component('components.api.api-routes', [
     'routes' => [
         'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),

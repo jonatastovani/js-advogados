@@ -12,7 +12,7 @@ enum PermissionModulesEnum: int
     {
         return match ($this) {
             self::ADMINISTRADOR => [
-                'id' => self::ADMINISTRADOR,
+                'id' => self::ADMINISTRADOR->value,
                 'nome' => 'Módulo Administrador',
                 'descricao' => 'Administração dos Módulos',
                 'slug' => '/admin',
@@ -20,7 +20,7 @@ enum PermissionModulesEnum: int
                 'tipo_modulo' => 'tenant',
             ],
             self::ADVOCACIA => [
-                'id' => self::ADVOCACIA,
+                'id' => self::ADVOCACIA->value,
                 'nome' => 'Módulo Advocacia',
                 'descricao' => 'Sistema de Gerenciamento de Escritório de Advocacia',
                 'slug' => '/adv',
