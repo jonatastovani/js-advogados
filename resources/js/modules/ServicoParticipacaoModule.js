@@ -321,7 +321,7 @@ export class ServicoParticipacaoModule {
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
-            }finally {
+            } finally {
                 if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
             }
         });
@@ -364,19 +364,26 @@ export class ServicoParticipacaoModule {
                 const btn = $(this);
                 commonFunctions.simulateLoading(btn);
                 try {
-                    const dataEnvModalAppend = {
+                    // const dataEnvModalAppend = {
+                    //     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                    // };
+                    // const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                    const objModal = new modalPessoa();
+                    objModal.setDataEnvModal = {
                         perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
-                    };
-                    const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                    }
                     if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
                     const response = await objModal.modalOpen();
-                    if (response.refresh && response.selected) {
-                        await self._inserirIntegrante(item, {
-                            participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
-                            referencia: response.selected,
-                            referencia_id: response.selected.id,
-                        });
-
+                    if (response.refresh && response.selecteds) {
+                        await Promise.all(
+                            response.selecteds.map(async (integrante) => {
+                                await self._inserirIntegrante(item, {
+                                    participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
+                                    referencia: integrante,
+                                    referencia_id: integrante.id,
+                                });
+                            })
+                        );
                     }
                 } catch (error) {
                     commonFunctions.generateNotificationErrorCatch(error);

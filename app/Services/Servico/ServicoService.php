@@ -99,7 +99,13 @@ class ServicoService extends Service
             'pagamento.pagamento_tipo_tenant.pagamento_tipo',
             'pagamento.conta',
             'pagamento.lancamentos.status',
-            'pagamento.lancamentos.conta'
+            'pagamento.lancamentos.conta',
+            'participantes.participacao_tipo',
+            'participantes.integrantes.referencia.perfil_tipo',
+            'participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'participantes.referencia.perfil_tipo',
+            'participantes.referencia.pessoa.pessoa_dados',
+            'participantes.participacao_registro_tipo',
         ];
     }
 

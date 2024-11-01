@@ -48,6 +48,11 @@ class Servico extends Model
         return $this->hasMany(ServicoPagamento::class, 'servico_id');
     }
 
+    public function participantes()
+    {
+        return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
+    }
+    
     /**
      * Acessor para obter a soma total dos pagamentos associados a um serviço.
      *

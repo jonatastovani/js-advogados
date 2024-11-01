@@ -164,50 +164,20 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
             });
             if (response?.data) {
                 const responseData = response.data;
-                await self.#preencherDados(responseData);
+
+                await Promise.all(
+                    responseData.map(async (participante) => {
+                        const integrantes = participante.integrantes ?? [];
+                        delete participante.integrantes;
+                        const item = await self.#functionsServicoParticipacao._inserirParticipanteNaTela(participante);
+                        await Promise.all(
+                            integrantes.map(async (integrante) => {
+                                await self.#functionsServicoParticipacao._inserirIntegrante(item, integrante);
+                            })
+                        );
+                    })
+                );
             }
-            return true;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    async #preencherDados(dados) {
-        const self = this;
-        try {
-            const modal = $(self.getIdModal);
-            let nome = '';
-
-            switch (dados.participacao_registro_tipo_id) {
-                case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                    modal.find('.lblTipoParticipante').html('Pessoa');
-                    nome = dados.referencia.pessoa.pessoa_dados.nome;
-                    break;
-
-                case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
-                    modal.find('.lblTipoParticipante').html('Grupo');
-                    nome = dados.nome_grupo;
-                    break;
-            }
-
-            const ocupada = self._dataEnvModal.porcentagem_ocupada ?? 0;
-            const livre = (100 - ocupada);
-            const valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
-
-            if (!livre) {
-                modal.find('.btnAplicarRestante').attr('disabled', true);
-            } else {
-                modal.find('.btnAplicarRestante').removeAttr('disabled');
-                self._objConfigs.data.porcentagem_livre = livre;
-            }
-
-            modal.find('.lblNome').html(nome);
-            modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
-            modal.find(`input[name="valor_tipo"][value="${dados.valor_tipo ?? 'porcentagem'}"]`).prop('checked', true).trigger('click');
-            modal.find('input[name="valor"]').val(valor).trigger('input');
-            modal.find('input[name="observacao"]').val(dados.observacao ?? '');
-            modal.find('select[name="participacao_tipo_id"]').val(dados.participacao_tipo_id ?? 0);
             return true;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

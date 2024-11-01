@@ -49,16 +49,13 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         sufixo: 'ModalPessoa',
     };
 
-    /** 
-     * Conteúdo a ser retornado na promisse como resolve()
-    */
     #dataEnvModal = {
         attributes: {
             select: {
                 quantity: 1,
                 autoReturn: true,
             }
-        }
+        },
     };
 
     constructor(objData = {}) {
@@ -73,11 +70,11 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this.functionsCriteria = new functionsQueryCriteria(this, this._idModal);
-        this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
+        self.#addEventosPadrao();
         self.#atualizaBadge();
         await self._modalHideShow();
         return await self._modalOpen();
@@ -266,7 +263,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         }
 
         const inserirSelecionado = (item) => {
-            const select = self._dataEnvModal.attributes.select;
+            const select = self._dataEnvModal?.attributes?.select ?? {};
             const promisseReturnValue = self._promisseReturnValue;
 
             if (select?.quantity && select.quantity == 1) {
