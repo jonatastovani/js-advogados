@@ -7,16 +7,13 @@ FROM nginx:${NGINX_VERSION}-alpine
 COPY nginx/nginx.conf /etc/nginx/
 
 # Atualiza e instala os pacotes necessários
-# certbot certbot-nginx são os responsáveis pela geração de HTTPS
+# certbot e certbot-nginx são responsáveis pela geração de HTTPS
 RUN apk update && apk upgrade && \
     apk --update add logrotate openssl bash && \
     apk add --no-cache certbot certbot-nginx
 
 # Remove a configuração padrão do NGINX
 RUN rm -rf /etc/nginx/conf.d/default.conf
-
-# add user www-data
-RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
 # Cria diretórios para o conteúdo do site e dá suas respectivas permissões
 RUN mkdir -p /var/www && \
