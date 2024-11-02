@@ -21,15 +21,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libxml2-dev
 
-#Adicionado por Tovani
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip
-
 RUN docker-php-ext-install mysqli pdo pdo_mysql pdo_pgsql pgsql session xml
 
 # habilita instalação do Redis
@@ -38,16 +29,11 @@ RUN pecl install redis-${REDIS_LIB_VERSION} \
 
 RUN docker-php-ext-install zip iconv simplexml pcntl gd fileinfo
 
-# Install PHP extensions
-#Adicionado por Tovani
-RUN docker-php-ext-install pdo_pgsql mbstring exif bcmath sockets
-RUN docker-php-ext-install opcache
-
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY ./docker/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-# COPY /docker/supervisord/conf /etc/supervisord.d/ #Ativar essa linha se caso tiver mais configurações
+# COPY ./docker/supervisord/conf /etc/supervisord.d/
 ### Supervisor permite monitorar e controlar vários processos (LINUX)
 ### Bastante utilizado para manter processos em Daemon, ou seja, executando em segundo plano
 
@@ -62,10 +48,10 @@ COPY --chown=www-data:www-data ./app .
 # RUN rm -rf vendor
 # RUN composer install --no-interaction
 
-RUN apt-get install nginx -y
-RUN rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/sites-available/*
-COPY ./docker/nginx/sites.conf /etc/nginx/sites-enabled/default.conf
-COPY ./docker/nginx/error.html /var/www/html/error.html
+# RUN apt-get install nginx -y
+# RUN rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/sites-available/*
+# COPY ./docker/nginx/sites.conf /etc/nginx/sites-enabled/default.conf
+# COPY ./docker/nginx/error.html /var/www/html/error.html
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # RUN apt update -y && apt install nano git -y

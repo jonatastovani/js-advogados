@@ -1,0 +1,39 @@
+2024-11-02 01:34:27,591 INFO Set uid to user 0 succeeded
+2024-11-02 01:34:27,611 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2024-11-02 01:34:27,615 INFO supervisord started with pid 1
+2024-11-02 01:34:28,618 INFO spawned: 'php-fpm' with pid 7
+2024-11-02 01:34:28,664 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:34:29,668 INFO spawned: 'php-fpm' with pid 8
+2024-11-02 01:34:29,711 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:34:31,716 INFO spawned: 'php-fpm' with pid 9
+2024-11-02 01:34:31,760 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:34:34,767 INFO spawned: 'php-fpm' with pid 10
+2024-11-02 01:34:34,811 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:34:35,813 INFO gave up: php-fpm entered FATAL state, too many start retries too quickly
+2024-11-02 01:37:15,997 WARN received SIGQUIT indicating exit request
+2024-11-02 01:37:56,672 INFO Set uid to user 0 succeeded
+2024-11-02 01:37:56,685 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2024-11-02 01:37:56,694 INFO supervisord started with pid 1
+2024-11-02 01:37:57,698 INFO spawned: 'php-fpm' with pid 7
+2024-11-02 01:37:57,820 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:37:58,825 INFO spawned: 'php-fpm' with pid 8
+2024-11-02 01:37:58,965 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:00,970 INFO spawned: 'php-fpm' with pid 9
+2024-11-02 01:38:01,012 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:04,018 INFO spawned: 'php-fpm' with pid 10
+2024-11-02 01:38:04,072 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:05,074 INFO gave up: php-fpm entered FATAL state, too many start retries too quickly
+2024-11-02 01:38:13,081 WARN received SIGQUIT indicating exit request
+2024-11-02 01:38:14,176 INFO Set uid to user 0 succeeded
+2024-11-02 01:38:14,184 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2024-11-02 01:38:14,188 INFO supervisord started with pid 1
+2024-11-02 01:38:15,192 INFO spawned: 'php-fpm' with pid 7
+2024-11-02 01:38:15,237 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:16,241 INFO spawned: 'php-fpm' with pid 8
+2024-11-02 01:38:16,289 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:18,293 INFO spawned: 'php-fpm' with pid 9
+2024-11-02 01:38:18,337 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:21,343 INFO spawned: 'php-fpm' with pid 10
+2024-11-02 01:38:21,390 WARN exited: php-fpm (exit status 78; not expected)
+2024-11-02 01:38:22,392 INFO gave up: php-fpm entered FATAL state, too many start retries too quickly
+2024-11-02 01:42:33,677 WARN received SIGQUIT indicating exit request
