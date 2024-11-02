@@ -1,5 +1,4 @@
-# Atenção, este Dockerfile foi feito para ser usado em containers com ALPINE, outras versões de linux podem ser incompativeis
-# Use a versão do NGINX especificada ou use uma versão padrão
+# Defina a versão do NGINX especificada ou uma versão padrão
 ARG NGINX_VERSION=${NGINX_VERSION}
 FROM nginx:${NGINX_VERSION}-alpine
 
@@ -7,27 +6,21 @@ FROM nginx:${NGINX_VERSION}-alpine
 COPY nginx/nginx.conf /etc/nginx/
 
 # Atualiza e instala os pacotes necessários
-# certbot e certbot-nginx são responsáveis pela geração de HTTPS
-RUN apk update && apk upgrade && \
-    apk --update add logrotate openssl bash && \
-    apk add --no-cache certbot certbot-nginx
+RUN apk update && \
+    apk add --no-cache logrotate openssl bash certbot certbot-nginx
 
-# Remove a configuração padrão do NGINX
+# Remove a configuração padrão do NGINX para evitar conflitos
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
 # Cria diretórios para o conteúdo do site e dá suas respectivas permissões
-RUN mkdir -p /var/www && \
+RUN mkdir -p /var/www/app && \
     chown -R www-data:www-data /var/www && \
     chmod 755 -R /var/www
-
-# Cria diretórios para as configurações do NGINX
-RUN mkdir -p /etc/nginx/sites-available /etc/nginx/conf.d && \
-    chown -R www-data:www-data /etc/nginx/sites-available /etc/nginx/conf.d
 
 # Define o diretório de trabalho para o NGINX
 WORKDIR /etc/nginx
 
-# Limpeza: Remove pacotes não utilizados para reduzir o tamanho da imagem
+# Limpeza final para reduzir o tamanho da imagem
 RUN apk del --no-cache
 
 # Inicia o NGINX quando o contêiner é executado
