@@ -17,7 +17,7 @@ class TenantDomainSeeder extends Seeder
             'tenant_type_id' => 1,
             'nome' => 'Administrador',
         ]);
-        $tenant->domains()->create(['id' => 1, 'domain' => 'admin.ravel']);
+        $tenant->domains()->create(['id' => 1, 'domain' => 'admin.byteforge.com.br']);
 
         $tenant = Tenant::create([
             'id' => 'jsadvogados',
