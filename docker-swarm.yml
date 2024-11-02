@@ -26,6 +26,8 @@ services:
             context: ./
             args:
                 NGINX_VERSION: "1.25.2"
+                # https://hub.docker.com/_/nginx
+        image: yourusernamedockerhub/nginx
         ports:
             - 80:80
             - 443:443
