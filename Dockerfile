@@ -2,8 +2,8 @@
 ARG NGINX_VERSION=${NGINX_VERSION}
 FROM nginx:${NGINX_VERSION}-alpine
 
-# Adiciona o usuário www-data e o grupo www-data
-RUN addgroup -S www-data && adduser -S www-data -G www-data
+# Cria apenas o usuário www-data usando o grupo já existente
+RUN adduser -S www-data -G www-data
 
 # Copia o arquivo de configuração nginx.conf personalizado para o contêiner
 COPY nginx/nginx.conf /etc/nginx/
