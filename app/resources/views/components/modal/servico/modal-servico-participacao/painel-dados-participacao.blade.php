@@ -18,8 +18,6 @@
         Pessoa</button>
     <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btnInserirGrupo{{ $sufixo }}">Inserir
         Grupo</button>
-    <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="btnExcluirParticipante{{ $sufixo }}"
-        title="Excluir todos participantes deste serviço.">Excluir Participantes</button>
 </div>
 
 <div id="divParticipantes{{ $sufixo }}" class="row row-cols-1 g-2 mt-2 flex-fill"></div>
