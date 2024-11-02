@@ -15,6 +15,7 @@ services:
                     memory: 20M
             restart_policy:
                 condition: on-failure
+
         networks:
             - laravel
         environment:
@@ -22,34 +23,20 @@ services:
 
     # Serviço Nginx
     nginx:
-        build:
-            context: ./
-            args:
-                NGINX_VERSION: "1.25.2"
-                # https://hub.docker.com/_/nginx
-        image: yourusernamedockerhub/nginx
+        image: nginx:alpine
+        deploy:
+            replicas: 2
+            placement:
+                constraints: [node.role == manager] # Opcional: rodar apenas nos nodes managers
         ports:
-            - 80:80
-            - 443:443
+            - "80:80" # Porta para HTTP
+            - "443:443" # Porta para HTTPS
         volumes:
-            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-            - ./nginx/sites-available:/etc/nginx/sites-available
-            - ./nginx/conf.d:/etc/nginx/conf.d
-            - ./nginx/letsencrypt:/etc/letsencrypt
+            - ./docker/nginx/sites.conf:/etc/nginx/conf.d/default.conf
+            - ./docker/nginx/error.html:/var/www/html/error.html
             - ./app:/var/www/app
         networks:
             - laravel
-        deploy:
-            replicas: 1
-            resources:
-                limits:
-                    cpus: "1"
-                    memory: 1G
-                reservations:
-                    cpus: "0.25"
-                    memory: 20M
-            restart_policy:
-                condition: on-failure
 
     # Serviço Redis
     phpredis:
@@ -62,6 +49,7 @@ services:
             - laravel
         volumes:
             - ./.docker/redis:/data
+        # Remove as portas para manter acesso apenas pela rede interna
 
     # Serviço PostgreSQL
     postgres:
@@ -78,6 +66,7 @@ services:
             - laravel
         volumes:
             - postgres_data:/var/lib/postgresql/data
+        # Remove as portas para manter acesso apenas pela rede interna
 
     # Serviço PgAdmin
     pgadmin:
@@ -93,6 +82,7 @@ services:
             - laravel
         volumes:
             - ./app/data/pgadmin:/var/lib/pgadmin
+        # Remove as portas para manter acesso apenas pela rede interna
 
 networks:
     laravel:
