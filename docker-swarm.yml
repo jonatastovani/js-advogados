@@ -38,7 +38,7 @@ services:
             - ./nginx/letsencrypt:/etc/letsencrypt
             - ./public:/var/www/public
         networks:
-            - net_swarm
+            - laravel
         deploy:
             replicas: 1
             resources:
