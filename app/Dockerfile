@@ -27,7 +27,7 @@ ARG user=projetoroot
 ARG uid=1000
 
 ## Diretório da aplicação
-ARG APP_DIR=/var/www
+ARG APP_DIR=/var/www/app
 
 # Create system user to run Composer and Artisan Commands
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
@@ -43,7 +43,7 @@ WORKDIR $APP_DIR
 RUN cd $APP_DIR
 RUN chown www-data:www-data $APP_DIR
 
-COPY --chown=www-data:www-data . .
+COPY --chown=www-data:www-data ./app .
 # Ativar essas linhas quando quiser atualizar as dependencias do projeto
 # RUN rm -rf vendor
 # RUN composer install --no-interaction
