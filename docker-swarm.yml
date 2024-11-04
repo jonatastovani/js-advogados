@@ -34,7 +34,7 @@ services:
         volumes:
             - ./docker/nginx/sites.conf:/etc/nginx/conf.d/default.conf
             - ./docker/nginx/error.html:/var/www/html/error.html
-            - ./app:/var/www/app
+            # - ./app:/var/www/app
         networks:
             - laravel
 
