@@ -32,10 +32,6 @@ RUN docker-php-ext-install zip iconv simplexml pcntl gd fileinfo
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Instala Node.js e npm
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
-
 COPY ./docker/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # COPY ./docker/supervisord/conf /etc/supervisord.d/
 ### Supervisor permite monitorar e controlar vários processos (LINUX)
@@ -49,12 +45,8 @@ RUN cd $APP_DIR
 RUN chown www-data:www-data $APP_DIR
 
 COPY --chown=www-data:www-data ./app .
-
-# Executa npm install e npm run build
-RUN npm install && npm run build
-
-RUN rm -rf vendor
-RUN composer install --no-interaction
+# RUN rm -rf vendor
+# RUN composer install --no-interaction
 
 # RUN apt-get install nginx -y
 # RUN rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/sites-available/*
