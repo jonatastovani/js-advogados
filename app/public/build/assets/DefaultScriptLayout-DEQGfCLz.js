@@ -1,0 +1,1 @@
+import{B as t}from"./commonFunctions-iccisCSl.js";import{R as e}from"./RedirectHelper-MLdxMTBD.js";import{S as o}from"./SimpleBarHelper-CKQrGYS0.js";import"./UUIDHelper-C7Qwh3zO.js";class r{constructor(){this.initEvents()}initEvents(){e.checkUUIDMessage(),o.apply(),t.addEventPopover(),t.addEventTooltip()}}$(function(){new r});
