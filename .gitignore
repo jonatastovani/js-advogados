@@ -1,1 +1,4 @@
-app
+.docker
+data
+app/.docker
+app/data
