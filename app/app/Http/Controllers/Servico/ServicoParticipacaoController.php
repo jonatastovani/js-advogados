@@ -50,4 +50,22 @@ class ServicoParticipacaoController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->destroyPagamento($fluentData));
     }
+
+    public function indexLancamento(ServicoParticipacaoFormRequestIndex $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->indexLancamento($fluentData));
+    }
+
+    public function storeLancamento(ServicoParticipacaoFormRequestStore $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->storeLancamento($fluentData));
+    }
+
+    public function destroyLancamento(ServicoParticipacaoFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroyLancamento($fluentData));
+    }
 }

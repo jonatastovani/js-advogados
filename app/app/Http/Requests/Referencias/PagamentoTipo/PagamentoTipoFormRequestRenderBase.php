@@ -11,7 +11,6 @@ class PagamentoTipoFormRequestRenderBase extends BaseFormRequest
         return ['conta_id' => 'required|uuid'];
     }
 
-
     protected function customMessages(): array
     {
         return [

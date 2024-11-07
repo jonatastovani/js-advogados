@@ -18,6 +18,6 @@
     </div>
     <div class="col mt-2">
         <label for="entrada_data{{ $sufixo }}" class="form-label">Vencimento</label>
-        <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control" {{ $readonly }}>
+        <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control text-center" {{ $readonly }}>
     </div>
 </div>

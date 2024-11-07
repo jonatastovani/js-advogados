@@ -34,7 +34,7 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
         return await self._modalOpen();
     }
 
-    _modalReset(){
+    _modalReset() {
         const self = this;
         const modal = $(self.getIdModal);
         const formRegistration = modal.find('.formRegistration');
@@ -99,7 +99,7 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
         if (self.#saveVerifications(data, formRegistration)) {
             try {
                 await self._modalHideShow(false);
-                const objModal = new modalServicoPagamento(`${self._objConfigs.url.baseServico}/pagamentos`);
+                const objModal = new modalServicoPagamento({ urlApi: `${self._objConfigs.url.baseServico}/pagamentos` });
                 objModal._dataEnvModal = {
                     pagamento_tipo_tenant_id: data.pagamento_tipo_tenant_id,
                 }

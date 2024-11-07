@@ -42,6 +42,7 @@ class ServicoPagamentoService extends Service
      */
     public function traducaoCampos(array $dados)
     {
+        #Não está com os campos  corretos
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $permissionAsName = $this->model::getTableAsName();
         $arrayAliasCampos = [
@@ -175,7 +176,7 @@ class ServicoPagamentoService extends Service
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [
-            'message' => 'A Anotação não foi encontrada.',
+            'message' => 'O Pagamento não foi encontrado.',
             'conditions' => [
                 'id' => $requestData->uuid,
                 'servico_id' => $requestData->servico_uuid
@@ -196,6 +197,12 @@ class ServicoPagamentoService extends Service
             'participantes.referencia.perfil_tipo',
             'participantes.referencia.pessoa.pessoa_dados',
             'participantes.participacao_registro_tipo',
+            'lancamentos.participantes.participacao_tipo',
+            'lancamentos.participantes.integrantes.referencia.perfil_tipo',
+            'lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'lancamentos.participantes.referencia.perfil_tipo',
+            'lancamentos.participantes.referencia.pessoa.pessoa_dados',
+            'lancamentos.participantes.participacao_registro_tipo',
         ];
     }
 

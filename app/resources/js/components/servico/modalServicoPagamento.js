@@ -6,6 +6,7 @@ import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { modalConta } from "../financeiro/modalConta";
+import { modalServicoPagamentoLancamento } from "./modalServicoPagamentoLancamento";
 
 export class modalServicoPagamento extends modalRegistrationAndEditing {
 
@@ -20,6 +21,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     #objConfigs = {
         url: {
             base: undefined,
+            baseLancamentos: undefined,
             basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
             baseContas: window.apiRoutes.baseContas,
         },
@@ -37,7 +39,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         refresh: false,
     };
 
-    constructor(urlApi) {
+    constructor(options = {}) {
         super({
             idModal: "#modalServicoPagamento",
         });
@@ -45,7 +47,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._objConfigs.url.base = urlApi;
+        this._objConfigs.url.base = options.urlApi;
         this._action = enumAction.POST;
 
         this.#addEventosPadrao();
@@ -57,6 +59,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         await this.#buscarContas();
 
         if (self._dataEnvModal.idRegister) {
+            self._objConfigs.url.baseLancamentos = `${self._objConfigs.url.base}/${self._dataEnvModal.idRegister}/lancamentos`;
             await self.#buscarDados()
         } else {
             if (!self._dataEnvModal.pagamento_tipo_tenant_id) {
@@ -73,10 +76,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     }
 
     #addEventosPadrao() {
-        this.#eventosBotoes();
-    }
-
-    #eventosBotoes() {
         const self = this;
         const modal = $(self._idModal);
 
@@ -131,7 +130,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     async #simularPagamento() {
         const self = this;
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
-
         rowLancamentos.html('');
 
         const data = self.#obterDados();
@@ -139,8 +137,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         if (!self.#saveVerifications(data, 'simulacao')) {
             return;
         }
-
-        // let data = { "conta_id": "9d3b5146-a013-4544-ad6c-9a46587bac8d", "valor_total": 3000, "entrada_valor": 500, "entrada_data": "2024-10-18", "parcela_data_inicio": "2024-11-20", "parcela_quantidade": 7, "parcela_vencimento_dia": 10 };
 
         const response = await self.#buscarSimulacao(data);
 
@@ -177,11 +173,13 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
 
         let htmlAppend = '';
-        let btnEditar = '';
+        let btns = '';
         lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
 
         if (lancamento.pagamento_id) {
-            btnEditar = self.#htmlBtnEdit({ title: 'Editar este lançamento' });
+            btns = `
+            <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento btn-edit" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button></li>`;
+
             if (lancamento.observacao) {
                 const observacao = lancamento.observacao ?? '';
                 htmlAppend = `
@@ -196,11 +194,23 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             }
         }
 
+        let btnsDropDown = `
+            <div>
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${btns}
+                    </ul>
+                </div>
+            </div>`;
+
         rowLancamentos.append(`
             <div id="${lancamento.idCard}" class="card p-0">
-                <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="card-header d-flex align-items-center justify-content-between py-1">
                     <span>${lancamento.descricao_automatica}</span>
-                    ${btnEditar}
+                    ${btnsDropDown}
                 </div>
                 <div class="card-body">
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
@@ -238,29 +248,22 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                commonFunctions.generateNotification('Editando lancamento...', 'info');
-                // const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
-                // objModal.setDataEnvModal = {
-                //     idRegister: item.id,
-                // }
-                // const response = await objModal.modalOpen();
-                // console.log(response);
-                // if (response.refresh && response.register) {
-                //     // AtualizarRegistro
-                // }
+                const objModal = new modalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
+                objModal.setDataEnvModal = {
+                    idRegister: lancamento.id,
+                }
+                await self._modalHideShow(false);
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    self.#buscarLancamentos()
+                }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
+                await self._modalHideShow();
                 commonFunctions.simulateLoading(btn, false);
             }
         });
-    }
-
-    #htmlBtnEdit(options = {}) {
-        const {
-            title = 'Editar registro',
-        } = options;
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit border-0" title="${title}"><i class="bi bi-pencil"></i></button>`;
     }
 
     async #buscarDadosPagamentoTipo(modo_editar_bln = false) {
@@ -301,14 +304,20 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     }
 
     async #buscarContas(selected_id = null) {
-        const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(self.getIdModal).find('select[name="conta_id"]');
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const selModulo = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     async #buscarDados() {
         const self = this;
+        $(self.getIdModal).find('.row-lancamentos').html('');
 
         try {
             self._clearForm();
@@ -339,6 +348,23 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                     self.#inserirLancamentos(lancamento);
                 }
                 form.find('input[name="observacao"]').val(responseData.observacao);
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+    async #buscarLancamentos() {
+        const self = this;
+        $(self.getIdModal).find('.row-lancamentos').html('');
+
+        try {
+            const response = await self._getRecurse();
+            if (response?.data) {
+                const responseData = response.data;
+                responseData.lancamentos.map(lancamento => {
+                    self.#inserirLancamentos(lancamento);
+                })
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

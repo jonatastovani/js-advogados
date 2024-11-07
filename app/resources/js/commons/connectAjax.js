@@ -17,7 +17,7 @@ export class connectAjax {
         this.#action = null;
         this.#data = null;
         this.#param = null;
-        this.#debugMode = false;
+        this.#debugMode = true;
         this.#debugStackMode = false;
         this.#addCsrfTokenBln = true;
     }

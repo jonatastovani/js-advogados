@@ -45,13 +45,36 @@ Route::group([
                     Route::delete('{uuid}', 'destroy');
                 });
 
-                Route::prefix('{pagamento_uuid}/participacao')->group(function () {
+                Route::prefix('{pagamento_uuid}')->group(function () {
 
-                    Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+                    Route::prefix('participacao')->group(function () {
 
-                        Route::get('', 'indexPagamento');
-                        Route::post('', 'storePagamento');
-                        Route::delete('', 'destroyPagamento');
+                        Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+
+                            Route::get('', 'indexPagamento');
+                            Route::post('', 'storePagamento');
+                            Route::delete('', 'destroyPagamento');
+                        });
+                    });
+
+                    Route::prefix('lancamentos')->group(function () {
+
+                        Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
+
+                            // Route::post('', 'store');
+                            Route::get('{uuid}', 'show');
+                            Route::put('{uuid}', 'update');
+                        });
+
+                        Route::prefix('{lancamento_uuid}/participacao')->group(function () {
+
+                            Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+    
+                                Route::get('', 'indexLancamento');
+                                Route::post('', 'storeLancamento');
+                                Route::delete('', 'destroyLancamento');
+                            });
+                        });
                     });
                 });
             });

@@ -16,7 +16,7 @@ class ContaStatusTipoService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->all();
+        $resource = $this->model->orderBy('nome', 'asc')->get();
         return $resource->toArray();
     }
 

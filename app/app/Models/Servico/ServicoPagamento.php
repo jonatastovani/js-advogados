@@ -49,7 +49,7 @@ class ServicoPagamento extends Model
 
     public function lancamentos()
     {
-        return $this->hasMany(ServicoPagamentoLancamento::class, 'pagamento_id');
+        return $this->hasMany(ServicoPagamentoLancamento::class, 'pagamento_id')->orderBy('data_vencimento', 'asc');
     }
 
     public function conta()

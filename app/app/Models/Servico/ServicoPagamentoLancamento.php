@@ -24,6 +24,18 @@ class ServicoPagamentoLancamento extends Model
     protected $table = 'servico.servico_pagamento_lancamentos';
     protected $tableAsName = 'serv_pag_lanc';
 
+    protected $fillable = [
+        'pagamento_id',
+        'descricao_automatica',
+        'observacao',
+        'valor_esperado',
+        'data_vencimento',
+        'valor_recebido',
+        'data_recebimento',
+        'conta_id',
+        'status_id',
+    ];
+
     public function pagamento()
     {
         return $this->belongsTo(ServicoPagamento::class);
@@ -37,5 +49,10 @@ class ServicoPagamentoLancamento extends Model
     public function status()
     {
         return $this->belongsTo(ServicoPagamentoLancamentoStatusTipo::class);
+    }
+
+    public function participantes()
+    {
+        return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
     }
 }

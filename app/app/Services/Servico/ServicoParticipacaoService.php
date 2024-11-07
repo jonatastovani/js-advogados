@@ -6,6 +6,7 @@ use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
+use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacao;
 use App\Models\Servico\ServicoParticipacaoIntegrante;
 use App\Models\Servico\ServicoParticipacaoParticipante;
@@ -26,6 +27,7 @@ class ServicoParticipacaoService extends Service
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
         public Servico $modelServico,
         public ServicoPagamento $modelPagamento,
+        public ServicoPagamentoLancamento $modelPagamentoLancamento,
     ) {}
 
     /**
@@ -62,14 +64,19 @@ class ServicoParticipacaoService extends Service
         return $resource->toArray();
     }
 
+    public function indexServico(Fluent $requestData)
+    {
+        return $this->indexPadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+    }
+
     public function indexPagamento(Fluent $requestData)
     {
         return $this->indexPadrao($requestData, $requestData->pagamento_uuid, $this->modelPagamento);
     }
 
-    public function indexServico(Fluent $requestData)
+    public function indexLancamento(Fluent $requestData)
     {
-        return $this->indexPadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+        return $this->indexPadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 
     public function storePadrao(Fluent $requestData, string $idParent, Model $modelParent)
@@ -164,14 +171,19 @@ class ServicoParticipacaoService extends Service
         }
     }
 
+    public function storeServico(Fluent $requestData)
+    {
+        return $this->storePadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+    }
+
     public function storePagamento(Fluent $requestData)
     {
         return $this->storePadrao($requestData, $requestData->pagamento_uuid, $this->modelPagamento);
     }
 
-    public function storeServico(Fluent $requestData)
+    public function storeLancamento(Fluent $requestData)
     {
-        return $this->storePadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+        return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 
     public function destroyPadrao(Fluent $requestData, string $idParent, Model $modelParent)
@@ -191,14 +203,19 @@ class ServicoParticipacaoService extends Service
         }
     }
 
+    public function destroyServico(Fluent $requestData)
+    {
+        return $this->destroyPadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+    }
+
     public function destroyPagamento(Fluent $requestData)
     {
         return $this->destroyPadrao($requestData, $requestData->pagamento_uuid, $this->modelPagamento);
     }
 
-    public function destroyServico(Fluent $requestData)
+    public function destroyLancamento(Fluent $requestData)
     {
-        return $this->destroyPadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+        return $this->destroyPadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 
     protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData): Fluent

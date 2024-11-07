@@ -64,6 +64,7 @@
 @push('modals')
     <x-modal.financeiro.modal-conta.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
+    <x-modal.servico.modal-servico-pagamento-lancamento.modal />
 @endpush
 
 @component('components.api.api-routes', [

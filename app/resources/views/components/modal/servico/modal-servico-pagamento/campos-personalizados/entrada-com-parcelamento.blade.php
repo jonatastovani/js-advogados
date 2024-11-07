@@ -31,7 +31,7 @@
     </div>
     <div class="col mt-2">
         <label for="entrada_data{{ $sufixo }}" class="form-label">Vencimento entrada</label>
-        <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control" {{ $readonly }}>
+        <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control text-center" {{ $readonly }}>
     </div>
 </div>
 
@@ -39,7 +39,7 @@
     <div class="col mt-2">
         <label for="parcela_data_inicio{{ $sufixo }}" class="form-label">Vencimento primeira</label>
         <input type="date" id="parcela_data_inicio{{ $sufixo }}" name="parcela_data_inicio"
-            class="form-control" {{ $readonly }}>
+            class="form-control text-center" {{ $readonly }}>
     </div>
     <div class="col mt-2">
         <label for="parcela_quantidade{{ $sufixo }}" class="form-label">Quantidade de parcelas</label>

@@ -51,17 +51,18 @@ class PageServicoForm {
         this.initEvents();
     }
 
-    initEvents() {
+    async initEvents() {
         const self = this;
-        this.#buscarAreasJuridicas();
+        await this.#buscarAreasJuridicas();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
-            self.#objConfigs.url.baseAnotacao = `${self.#objConfigs.url.base}/${self.#idRegister}/anotacao`;
-            self.#objConfigs.url.basePagamentos = `${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`;
-            self.#objConfigs.url.baseParticipacao = `${self.#objConfigs.url.base}/${self.#idRegister}/participacao`;
-            self.#objConfigs.url.baseValores = `${self.#objConfigs.url.base}/${self.#idRegister}/relatorio/valores`;
+            const url = `${self.#objConfigs.url.base}/${self.#idRegister}`;
+            self.#objConfigs.url.baseAnotacao = `${url}/anotacao`;
+            self.#objConfigs.url.basePagamentos = `${url}/pagamentos`;
+            self.#objConfigs.url.baseParticipacao = `${url}/participacao`;
+            self.#objConfigs.url.baseValores = `${url}/relatorio/valores`;
             this.#action = enumAction.PUT;
             self.#buscarDados();
         } else {
@@ -167,15 +168,15 @@ class PageServicoForm {
 
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
 
-        const openModalTest = async () => {
-            const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`);
-            objCode._dataEnvModal = {
+        // const openModalTest = async () => {
+        //     const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`);
+        //     objCode._dataEnvModal = {
 
-                pagamento_tipo_tenant_id: '9d3f0306-030e-4e2b-a42a-380a87a091ae',
-            }
-            const retorno = await objCode.modalOpen();
-            // console.log(retorno);
-        }
+        //         pagamento_tipo_tenant_id: '9d3f0306-030e-4e2b-a42a-380a87a091ae',
+        //     }
+        //     const retorno = await objCode.modalOpen();
+        //     // console.log(retorno);
+        // }
         // openModalTest();
     }
 
@@ -276,7 +277,7 @@ class PageServicoForm {
         const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
-        let htmlAppend = self.#htmlParticipantes(item);
+        let htmlAppend = self.#htmlParticipantes(item, 'pagamento');
         htmlAppend += self.#htmlAppendPagamento(item);
         let htmlLancamentos = self.#htmlLancamentos(item);
 
@@ -291,7 +292,7 @@ class PageServicoForm {
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
                                     <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
                                     <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
                                 </ul>
@@ -302,7 +303,23 @@ class PageServicoForm {
                         ${htmlColsEspecifico}
                     </div>
                     ${htmlAppend}
-                    ${htmlLancamentos}
+                    <div class="accordion mt-2" id="accordionPagamento${item.id}">
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne${item.id}" aria-expanded="false"
+                                    aria-controls="collapseOne${item.id}">
+                                    Lançamentos
+                                </button>
+                            </div>
+                            <div id="collapseOne${item.id}" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionPagamento${item.id}">
+                                <div class="accordion-body d-flex flex-column gap-2">
+                                    ${htmlLancamentos}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-text mt-2">${created_at}</div>
                 </div>
             </div>`;
@@ -428,9 +445,10 @@ class PageServicoForm {
 
         let htmlLancamentos = '';
         for (const lancamento of item.lancamentos) {
-            let htmlObservacao = '';
+
+            let htmlAppend = self.#htmlParticipantes(lancamento, 'lancamento');
             if (lancamento.observacao) {
-                htmlObservacao = `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
+                htmlAppend += `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
             }
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
@@ -442,69 +460,80 @@ class PageServicoForm {
 
             htmlLancamentos += `
                 <div id="${lancamento.idCard}" class="card p-0">
-                    <div class="card-header">
-                        ${lancamento.descricao_automatica}
+                    <div class="card-header d-flex align-items-center justify-content-between py-1">
+                        <span>${lancamento.descricao_automatica}</span>
+                        <div>
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento" title="Inserir/Editar Participação ${lancamento.descricao_automatica}">Participação</button></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
                             <div class="col">
                                 <div class="form-text mt-0">Data de vencimento</div>
-                                <p class="mb-0">${data_vencimento}</p>
+                                <p>${data_vencimento}</p>
                             </div>
                             <div class="col">
                                 <div class="form-text mt-0">Valor</div>
-                                <p class="mb-0">${valor_esperado}</p>
+                                <p>${valor_esperado}</p>
                             </div>
                             <div class="col">
                                 <div class="form-text mt-0">Status</div>
-                                <p class="mb-0">${lancamento.status.nome}</p>
+                                <p>${lancamento.status.nome}</p>
                             </div>
                             <div class="col">
                                 <div class="form-text mt-0">Conta</div>
-                                <p class="mb-0 text-truncate" title="${title_conta}">
+                                <p class="text-truncate" title="${title_conta}">
                                     ${nome_conta}
                                 </p>
                             </div>
                         </div>
-                        ${htmlObservacao}
+                        ${htmlAppend}
                     </div>
                 </div>`
         }
 
-        let html = `<div class="accordion mt-2" id="accordionPagamento${item.id}">
-            <div class="accordion-item">
-                <div class="accordion-header">
-                    <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseOne${item.id}" aria-expanded="false"
-                        aria-controls="collapseOne${item.id}">
-                        Lançamentos
-                    </button>
-                </div>
-                <div id="collapseOne${item.id}" class="accordion-collapse collapse"
-                    data-bs-parent="#accordionPagamento${item.id}">
-                    <div class="accordion-body">
-                        <div class="row row-cols-1 g-2">${htmlLancamentos}</div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        return html;
+        return htmlLancamentos;
     }
 
-    #htmlParticipantes(item) {
+    #htmlParticipantes(item, tipo) {
         let html = '';
+
+        let title = ''
+        let empty = '';
+        let btnDel = '';
+        switch (tipo) {
+            case 'pagamento':
+                title = `Participantes do pagamento ${item.pagamento_tipo_tenant.nome}`;
+                empty = 'Participante(s) herdado do serviço';
+                btnDel = 'btn-delete-participante-pagamento';
+                break;
+
+            case 'lancamento':
+                title = `Participantes do lançamento ${item.descricao_automatica}`;
+                empty = 'Participante(s) herdado do pagamento';
+                btnDel = 'btn-delete-participante-lancamento';
+                break;
+        }
+
         if (item?.participantes && item.participantes.length > 0) {
             const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
             html = `
                 <p class="mb-0">
                 Participação personalizada:
-                <button type="button" class="btn btn-sm btn-outline-danger border-0 btn-delete-participante">Excluir</button>
-                <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do pagamento ${item.pagamento_tipo_tenant.nome}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver</button>
+                <button type="button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}">Excluir</button>
+                <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="${title}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver</button>
                 <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver integrantes dos grupos</button>
                 </p>`;
         } else {
             html = `
-                <p class="mb-0 fst-italic">Participantes herdado do serviço</p>`;
+                <p class="mb-0 fst-italic">${empty}</p>`;
         }
         return html;
     }
@@ -516,7 +545,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento(self.#objConfigs.url.basePagamentos);
+                const objModal = new modalServicoPagamento({ urlApi: self.#objConfigs.url.basePagamentos});
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }
@@ -546,7 +575,7 @@ class PageServicoForm {
             }
         });
 
-        $(`#${item.idCard}`).find('.btn-participacao').on('click', async function () {
+        $(`#${item.idCard}`).find('.btn-participacao-pagamento').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -564,7 +593,7 @@ class PageServicoForm {
             }
         });
 
-        $(`#${item.idCard}`).find(`.btn-delete-participante`).on('click', async function () {
+        $(`#${item.idCard}`).find(`.btn-delete-participante-pagamento`).on('click', async function () {
             const response = await self.#delButtonAction(`${item.id}/participacao`, item.pagamento_tipo_tenant.nome, {
                 title: `Exclusão de Participantes`,
                 message: `Confirma a exclusão do(s) participante(s) personalizado(s) do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
@@ -577,6 +606,68 @@ class PageServicoForm {
                 self.#buscarPagamentos();
             }
         });
+
+        if (!self.#objConfigs.data.temp) {
+            self.#objConfigs.data.temp = true;
+            setTimeout(() => {
+                $(`#${item.idCard}`).find('.btn-edit').trigger('click');
+            }, 1000);
+        }
+
+        await self.#addEventosLancamento(item);
+    }
+
+    async #addEventosLancamento(item) {
+        const self = this;
+        const accordionBody = $(`#accordionPagamento${item.id} .accordion-body`);
+        const urlLancamentos = `${self.#objConfigs.url.basePagamentos}/${item.id}/lancamentos`;
+
+        const atualizaLancamentos = async () => {
+            try {
+                const response = await self.#getRecurse({ idRegister: item.id, urlApi: self.#objConfigs.url.basePagamentos });
+                const htmlLancamentos = self.#htmlLancamentos(response.data);
+                accordionBody.html(htmlLancamentos);
+                BootstrapFunctionsHelper.addEventPopover();
+                await self.#addEventosLancamento(response.data);
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            }
+        }
+
+        item.lancamentos.map((lancamento) => {
+
+            $(`#${lancamento.idCard}`).find('.btn-participacao-lancamento').on('click', async function () {
+                const btn = $(this);
+                commonFunctions.simulateLoading(btn);
+                try {
+                    const objModal = new modalServicoParticipacao({
+                        urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
+                    });
+                    const response = await objModal.modalOpen();
+                    if (response.refresh && response.registers) {
+                        atualizaLancamentos();
+                    }
+                } catch (error) {
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(btn, false);
+                }
+            });
+
+            $(`#${lancamento.idCard}`).find(`.btn-delete-participante-lancamento`).on('click', async function () {
+                const response = await self.#delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
+                    title: `Exclusão de Participantes`,
+                    message: `Confirma a exclusão do(s) participante(s) personalizado(s) do lançamento <b>${lancamento.descricao_automatica}</b>?`,
+                    success: `Participantes excluídos com sucesso!`,
+                    button: this,
+                    urlApi: urlLancamentos
+                });
+                if (response) {
+                    atualizaLancamentos();
+                }
+            });
+
+        });
     }
 
     async #buscarDados() {
@@ -587,16 +678,20 @@ class PageServicoForm {
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#objConfigs.sufixo}`);
 
+            $(`#painelPagamento${self.#objConfigs.sufixo}-tab`).trigger('click');
+
             if (response?.data) {
                 const responseData = response.data;
                 form.find('input[name="titulo"]').val(responseData.titulo);
                 commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#objConfigs.sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
                 form.find('textarea[name="descricao"]').val(responseData.descricao);
 
+                $(`#divAnotacao${self.#objConfigs.sufixo}`).html('');
                 responseData.anotacao.forEach(item => {
                     self.#inserirAnotacao(item);
                 });
 
+                $(`#divPagamento${self.#objConfigs.sufixo}`).html('');
                 responseData.pagamento.forEach(item => {
                     self.#inserirPagamento(item);
                 });
@@ -644,10 +739,15 @@ class PageServicoForm {
     }
 
     async #buscarAreasJuridicas(selected_id = null) {
-        const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selArea = $(`#area_juridica_id${self.#objConfigs.sufixo}`);
-        await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options);
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const selArea = $(`#area_juridica_id${self.#objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options); 0
+            return true
+        } catch (error) {
+            return false;
+        }
     }
 
     async #buscarPagamentos() {

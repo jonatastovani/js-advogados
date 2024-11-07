@@ -112,7 +112,13 @@ class ServicoService extends Service
             'pagamento.participantes.referencia.perfil_tipo',
             'pagamento.participantes.referencia.pessoa.pessoa_dados',
             'pagamento.participantes.participacao_registro_tipo',
-        ];
+            'pagamento.lancamentos.participantes.participacao_tipo',
+            'pagamento.lancamentos.participantes.integrantes.referencia.perfil_tipo',
+            'pagamento.lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'pagamento.lancamentos.participantes.referencia.perfil_tipo',
+            'pagamento.lancamentos.participantes.referencia.pessoa.pessoa_dados',
+            'pagamento.lancamentos.participantes.participacao_registro_tipo',
+      ];
     }
 
     public function getRelatorioValores(Fluent $requestData)

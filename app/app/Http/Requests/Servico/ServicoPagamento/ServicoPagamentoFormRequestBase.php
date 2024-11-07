@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Servico\ServicoPagamento;
 
 use App\Common\RestResponse;
+use App\Enums\PagamentoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Tenant\PagamentoTipoTenant;
@@ -37,6 +38,18 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
 
         // Define as regras de acordo com o tipo de pagamento
         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+            switch ($pagamentoTipo->id) {
+                case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                    if ($value['nome'] == 'valor_total') {
+                        $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['formRequestRule']);
+                    }
+                    break;
+
+                case PagamentoTipoEnum::PARCELADO->value:
+                    if ($value['nome'] == 'valor_total') {
+                        $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['formRequestRule']);
+                    }
+            }
             $rules[$value['nome']] = $value['formRequestRule'];
         }
 
@@ -58,5 +71,38 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'descricao_condicionado' => 'descrição condicionada',
             'observacao' => 'observação',
         ];
+    }
+
+    
+    protected function customMessages(): array
+    {
+        return [
+            'valor_total.min' => 'O campo :attribute deve ser no mínimo :min.',
+            'entrada_valor.min' => 'O campo :attribute deve ser no mínimo :min.',
+            'parcela_valor.min' => 'O campo :attribute deve ser no mínimo :min.',
+        ];
+    }
+
+    protected function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            foreach ($validator->failed() as $field => $rules) {
+                foreach ($rules as $rule => $parameters) {
+                    if ($rule === 'Min' && in_array($field, ['valor_total', 'entrada_valor', 'parcela_valor'])) {
+                        // Formatar o valor mínimo para moeda e substituir :attribute e :min
+                        $formattedMin = number_format($parameters[0], 2, ',', '.');
+                        $attributeName = $this->attributes()[$field] ?? $field;
+                        $message = str_replace(
+                            [':attribute', ':min'],
+                            [$attributeName, 'R$ ' . $formattedMin],
+                            $this->customMessages()["{$field}.min"]
+                        );
+                        // Limpar erros anteriores e adicionar mensagem formatada
+                        $validator->errors()->forget($field);
+                        $validator->errors()->add($field, $message);
+                    }
+                }
+            }
+        });
     }
 }
