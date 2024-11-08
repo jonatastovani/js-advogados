@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Servico\ModalServicoAnotacao;
+namespace App\View\Components\Modal\Tenant\ModalAnotacaoLembreteTenant;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalServicoAnotacao', request('request_uuid'))) {
-            return view('components.modal.servico.modal-servico-anotacao.modal');
+        if (ModalSessionHelper::registerModal('modalAnotacaoLembreteTenant', request('request_uuid'))) {
+            return view('components.modal.tenant.modal-anotacao-lembrete-tenant.modal');
         }
         return '';
     }

@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
 use App\Scopes\Servico\ValorServicoInadimplenteScope;
@@ -40,7 +41,7 @@ class Servico extends Model
 
     public function anotacao()
     {
-        return $this->hasMany(ServicoAnotacao::class, 'servico_id');
+        return $this->morphMany(AnotacaoLembreteTenant::class, 'parent');
     }
 
     public function pagamento()

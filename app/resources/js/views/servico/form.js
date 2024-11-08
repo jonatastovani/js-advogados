@@ -3,9 +3,9 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalMessage } from "../../components/comum/modalMessage";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
-import { modalServicoAnotacao } from "../../components/servico/modalServicoAnotacao";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { modalServicoParticipacao } from "../../components/servico/modalServicoParticipacao";
+import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
@@ -122,7 +122,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                const objModal = new modalAnotacaoLembreteTenant(self.#objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -237,7 +237,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoAnotacao(self.#objConfigs.url.baseAnotacao);
+                const objModal = new modalAnotacaoLembreteTenant(self.#objConfigs.url.baseAnotacao);
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 };

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Servico\ServicoAnotacao;
+namespace App\Http\Requests\Tenant\AnotacaoLembreteTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoAnotacaoFormRequestBase extends BaseFormRequest
+class AnotacaoLembreteTenantFormRequestBaseAnotacao extends BaseFormRequest
 {
     public function rules()
     {

@@ -26,10 +26,10 @@ Route::group([
 
             Route::prefix('anotacao')->group(function () {
 
-                Route::controller(App\Http\Controllers\Servico\ServicoAnotacaoController::class)->group(function () {
-                    Route::post('', 'store');
+                Route::controller(App\Http\Controllers\Tenant\AnotacaoLembreteTenantController::class)->group(function () {
+                    Route::post('', 'storeAnotacaoServico');
                     Route::get('{uuid}', 'show');
-                    Route::put('{uuid}', 'update');
+                    Route::put('{uuid}', 'updateAnotacaoServico');
                     Route::delete('{uuid}', 'destroy');
                 });
             });
@@ -69,7 +69,7 @@ Route::group([
                         Route::prefix('{lancamento_uuid}/participacao')->group(function () {
 
                             Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
-    
+
                                 Route::get('', 'indexLancamento');
                                 Route::post('', 'storeLancamento');
                                 Route::delete('', 'destroyLancamento');

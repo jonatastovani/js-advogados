@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Servico\ServicoAnotacao;
+namespace App\Http\Requests\Tenant\AnotacaoLembreteTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoAnotacaoFormRequestShow extends BaseFormRequest
+class AnotacaoLembreteTenantFormRequestDestroy extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,6 @@ class ServicoAnotacaoFormRequestShow extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return [];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Servico;
+namespace App\Models\Tenant;
 
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class ServicoAnotacao extends Model
+class AnotacaoLembreteTenant extends Model
 {
     use HasFactory,
         HasUuids,
@@ -19,12 +19,17 @@ class ServicoAnotacao extends Model
         BelongsToTenant,
         BelongsToDomain;
 
-    protected $table = 'servico.servico_anotacao';
-    protected $tableAsName = 'serv_anot';
+    protected $table = 'tenant.anotacao_lembrete_tenant';
+    protected $tableAsName = 'anot_lemb_ten';
 
+    protected $fillable = [
+        'titulo',
+        'descricao',
+        'configuracao'
+    ];
 
-    public function servico()
+    public function parent()
     {
-        return $this->belongsTo(Servico::class);
+        return $this->morphTo();
     }
 }

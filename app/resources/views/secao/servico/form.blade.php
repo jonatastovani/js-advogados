@@ -108,7 +108,7 @@
 
 @push('modals')
     <x-modal.tenant.modal-area-juridica-tenant.modal />
-    <x-modal.servico.modal-servico-anotacao.modal />
+    <x-modal.tenant.modal-anotacao-lembrete-tenant.modal />
     <x-modal.servico.modal-servico-pagamento.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
     <x-modal.servico.modal-servico-participacao.modal />
