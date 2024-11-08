@@ -50,7 +50,7 @@ services:
         networks:
             - laravel
         volumes:
-            - ./.docker/redis:/data
+            - phpredis_data:/data
         # Remove as portas para manter acesso apenas pela rede interna
 
     # Serviço PostgreSQL
@@ -83,7 +83,7 @@ services:
         networks:
             - laravel
         volumes:
-            - ./app/data/pgadmin:/var/lib/pgadmin
+            - pgadmin_data:/var/lib/pgadmin
         # Remove as portas para manter acesso apenas pela rede interna
 
 networks:
@@ -94,3 +94,5 @@ networks:
 volumes:
     app-data: # Volume nomeado para compartilhar arquivos da aplicação
     postgres_data:
+    phpredis_data:
+    pgadmin_data:
