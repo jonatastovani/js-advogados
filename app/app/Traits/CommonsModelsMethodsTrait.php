@@ -100,7 +100,11 @@ trait CommonsModelsMethodsTrait
         $insertJoinClause = function (JoinClause $join) use ($first, $operator, $second, $wheres, $orderBys, $limit) {
             $join->on($first, $operator, $second);
             foreach ($wheres as $where) {
-                $join->where($where['column'], $where['operator'], $where['value']);
+                if ($where['value'] === 'null') {
+                    $join->where($where['column'], null);
+                } else {
+                    $join->where($where['column'], $where['operator'], $where['value']);
+                }
             }
 
             // Adiciona as cláusulas orderBy

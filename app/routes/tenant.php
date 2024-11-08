@@ -75,6 +75,7 @@ Route::middleware([
         Route::prefix('adv')->group(function () {
 
             require __DIR__ . '/modulos/rotas_servico.php';
+            require __DIR__ . '/modulos/rotas_financeiro.php';
         });
     });
 

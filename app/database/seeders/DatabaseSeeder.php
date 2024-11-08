@@ -18,6 +18,7 @@ use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
 use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\ServicoParticipacaoReferenciaTipoSeeder;
+use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -55,6 +56,7 @@ class DatabaseSeeder extends Seeder
             AreaJuridicaTenantSeeder::class,
             PagamentoTipoSeeder::class,
             PagamentoTipoTenantSeeder::class,
+            ServicoParticipacaoTipoTenantSeeder::class,
             ContaSeeder::class,
         ]);
 

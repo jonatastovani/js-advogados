@@ -64,7 +64,7 @@ class ServicoParticipacaoPresetService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->all();
+        $resource = $this->model->orderBy('nome', 'asc')->get();
         return $resource->toArray();
     }
 
@@ -82,7 +82,7 @@ class ServicoParticipacaoPresetService extends Service
         $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
         $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
 
-        $query = $this->model::scopeJoinParticipante($query);
+        $query = $this->modelParticipante::scopeJoinParticipanteAllModels($query, $this->model);
 
         foreach ($filtros['campos_busca'] as $key) {
             switch ($key) {
