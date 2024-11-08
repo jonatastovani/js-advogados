@@ -206,6 +206,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 </div>
             </div>`;
 
+        if (!btns) btnsDropDown = '';
+
         rowLancamentos.append(`
             <div id="${lancamento.idCard}" class="card p-0">
                 <div class="card-header d-flex align-items-center justify-content-between py-1">

@@ -1,4 +1,4 @@
-.docker
-data
+.docker/redis/*
+data/pgadmin/sessions/*
 app/.docker
 app/data

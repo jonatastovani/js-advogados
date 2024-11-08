@@ -545,7 +545,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento({ urlApi: self.#objConfigs.url.basePagamentos});
+                const objModal = new modalServicoPagamento({ urlApi: self.#objConfigs.url.basePagamentos });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }
@@ -606,13 +606,6 @@ class PageServicoForm {
                 self.#buscarPagamentos();
             }
         });
-
-        if (!self.#objConfigs.data.temp) {
-            self.#objConfigs.data.temp = true;
-            setTimeout(() => {
-                $(`#${item.idCard}`).find('.btn-edit').trigger('click');
-            }, 1000);
-        }
 
         await self.#addEventosLancamento(item);
     }
@@ -677,8 +670,6 @@ class PageServicoForm {
             await commonFunctions.loadingModalDisplay();
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#objConfigs.sufixo}`);
-
-            $(`#painelPagamento${self.#objConfigs.sufixo}-tab`).trigger('click');
 
             if (response?.data) {
                 const responseData = response.data;

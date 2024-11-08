@@ -51,10 +51,10 @@ RUN chown www-data:www-data $APP_DIR
 COPY --chown=www-data:www-data ./app .
 
 # Executa npm install e npm run build
-RUN npm install && npm run build
+# RUN npm install && npm run build
 
-RUN rm -rf vendor
-RUN composer install --no-interaction
+# RUN rm -rf vendor
+# RUN composer install --no-interaction
 
 # RUN apt-get install nginx -y
 # RUN rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/sites-available/*
