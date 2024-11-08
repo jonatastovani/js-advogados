@@ -43,7 +43,7 @@ services:
     phpredis:
         image: redis:alpine
         volumes:
-            - './.docker/redis:/data'
+            - 'phpredis_data:/data'
         networks:
             - laravel
 
@@ -68,7 +68,7 @@ services:
         ports:
             - "15432:80"
         volumes:
-            - ./data/pgadmin:/var/lib/pgadmin
+            - pgadmin_data:/var/lib/pgadmin
         networks:
             - laravel
 
@@ -78,3 +78,5 @@ networks:
 
 volumes:
     postgres_data:
+    phpredis_data:
+    pgadmin_data:
