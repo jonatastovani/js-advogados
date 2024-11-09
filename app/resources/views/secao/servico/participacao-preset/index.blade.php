@@ -26,6 +26,7 @@
                     'descricao' => ['nome' => 'Descrição'],
                     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
+                    'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
                 'direcaoConsultaChecked' => 'desc',
                 'arrayCamposChecked' => ['nome', 'descricao'],
@@ -71,7 +72,7 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/servico/participacao/index.js')
+    @vite('resources/js/views/servico/participacao-preset/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseServicoParticipacaoPreset' => route('api.servico-participacao-preset'),

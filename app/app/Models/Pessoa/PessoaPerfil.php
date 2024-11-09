@@ -52,13 +52,87 @@ class PessoaPerfil extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
-    public static function scopeJoinReferenciaPessoa(Builder $query, array $options = [])
+    public static function joinReferenciaPessoa(Builder $query, array $options = [])
     {
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? Pessoa::getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
 
-        return (new self())->scopeJoinWithConditions($query, Pessoa::getTableName(), "$aliasTable.pessoa_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, Pessoa::getTableName(), "$aliasTable.pessoa_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+    }
+
+    /**
+     * Insere uma cláusula de junção com a PessoaPerfil até os Dados da Pessoa.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param array $options O array de opcões de personalização.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
+     *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
+     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'aliasJoinPessoa' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Pessoa. Padrão é 'left'.
+     *              - 'typeJoinPessoa' (opcional) Alias da tabela Pessoa que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'aliasJoinFisica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaFisica. Padrão é 'left'.
+     *              - 'typeJoinFisica' (opcional) Alias da tabela PessoaFisica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'aliasJoinJuridica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaJuridica. Padrão é 'left'.
+     *              - 'typeJoinJuridica' (opcional) Alias da tabela PessoaJuridica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+     */
+    public static function joinPerfilPessoaCompleto(Builder $query, Model $model, array $options = [])
+    {
+
+        $modelAsName = $model::getTableAsName();
+
+        // Join com o Perfil
+        $campoFK = isset($options['campoFK']) ? $options['campoFK'] : 'perfil_id';
+        $envOptions = new Fluent([]);
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? "{$modelAsName}_" . self::getTableAsName();
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $modelAsName;
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
+
+        if (isset($options['whereAppendPerfil'])) {
+            $envOptions->wheres = array_merge($envOptions->wheres, $options['whereAppendPerfil']);
+        }
+
+        $query = (new self())->joinWithConditions($query, self::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.$campoFK", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+
+        // Join com a Pessoa
+        $aliasTable = $envOptions->aliasJoin;
+        $envOptions->aliasJoin = $options['aliasJoinPessoa'] ?? "{$modelAsName}_" . Pessoa::getTableAsName();
+        $envOptions->typeJoin = $options['typeJoinPessoa'] ?? 'left';
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
+
+        $query = (new self())->joinWithConditions($query, Pessoa::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+
+        // Join com a PessoaFisica
+        $modelTipo = new PessoaFisica();
+        $aliasTable = $envOptions->aliasJoin;
+        $envOptions->aliasJoin = $options['aliasJoinFisica'] ?? "{$modelAsName}_" . $modelTipo::getTableAsName();
+        $envOptions->typeJoin = $options['typeJoinFisica'] ?? 'left';
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => $modelTipo::class],
+        ];
+
+        $query = (new self())->joinWithConditions($query, $modelTipo::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+
+        // Ativar quando criar as colunas da pessoa juridica
+        // // Join com a PessoaJuridica
+        // $modelTipo = new PessoaJuridica();
+        // $envOptions->aliasJoin = $options['aliasJoinJuridica'] ?? "{$modelAsName}_" . $modelTipo::getTableAsName();
+        // $envOptions->typeJoin = $options['typeJoinJuridica'] ?? 'left';
+        // $envOptions->wheres = [
+        //     ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        //     ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => "{$modelAsName}_" . $modelTipo::class],
+        // ];
+
+        // $query = (new self())->joinWithConditions($query, $modelTipo::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+
+        return $query;
     }
 }

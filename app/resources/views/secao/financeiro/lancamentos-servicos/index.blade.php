@@ -17,12 +17,11 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    // 'id' => ['nome' => 'ID'],
                     'numero_servico' => ['nome' => 'Número de Serviço'],
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
-                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
+                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
@@ -30,8 +29,9 @@
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
+                    'data_vencimento' => ['nome' => 'Data Vencimento'],
+                    'data_recebimento' => ['nome' => 'Data Recebimento'],
                     'created_at' => ['nome' => 'Data cadastro'],
-                    'titulo' => ['nome' => 'Título'],
                 ],
             ]);
         @endphp

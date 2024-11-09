@@ -48,7 +48,7 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/servico/participacao/form.js')
+    @vite('resources/js/views/servico/participacao-preset/form.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseParticipacaoPreset' => route('api.servico-participacao-preset'),

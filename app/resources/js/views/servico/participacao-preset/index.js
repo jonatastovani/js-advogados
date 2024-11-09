@@ -34,6 +34,7 @@ class PageServicoParticipacaoIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
+            BootstrapFunctionsHelper.removeEventPopover();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             self._generateQueryFilters()
         });

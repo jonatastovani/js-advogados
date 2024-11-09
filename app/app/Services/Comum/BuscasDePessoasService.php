@@ -325,30 +325,30 @@ class BuscasDePessoasService
             ->groupBy('pess_id', 'pess_nome', 'pesa_nome_social.pesa_alias', 'doc_rg.docm_nm_documento', 'doc_cpf.docm_nm_documento', 'pess_dt_nascimento');
 
         // Adicionar o left join para rg
-        $query = PessoaGPU::scopeJoinDocumento($query, 1);
+        $query = PessoaGPU::joinDocumento($query, 1);
         // Adicionar o left join para cpf
-        $query = PessoaGPU::scopeJoinDocumento($query, 2);
+        $query = PessoaGPU::joinDocumento($query, 2);
         // Adicionar o left join para pai
-        $query = PessoaGPU::scopeJoinPaiMae($query, 'P');
+        $query = PessoaGPU::joinPaiMae($query, 'P');
         // Adicionar o left join para mae
-        $query = PessoaGPU::scopeJoinPaiMae($query, 'M');
+        $query = PessoaGPU::joinPaiMae($query, 'M');
         // Adicionar o left join nome social
-        $query = PessoaGPU::scopeJoinNomeSocialAlias($query, 'NS');
+        $query = PessoaGPU::joinNomeSocialAlias($query, 'NS');
 
         // Adiciona os left join para os campos que tem filtros, mas não estão no retorno da busca principal
         foreach ($camposBusca as $key) {
             switch ($key) {
                 case 'col_vulgo_alias':
                     // Adicionar o left join alias
-                    $query = PessoaGPU::scopeJoinNomeSocialAlias($query, 'ON');
+                    $query = PessoaGPU::joinNomeSocialAlias($query, 'ON');
                     break;
                 case 'col_oab':
                     // Adicionar o left join para oab
-                    $query = PessoaGPU::scopeJoinDocumento($query, 3);
+                    $query = PessoaGPU::joinDocumento($query, 3);
                     break;
                 case 'col_telefone':
                     // Adicionar o left join alias
-                    $query = PessoaGPU::scopeJoinEndereco($query, ['aliasJoin' => 'pess_end_tel']);
+                    $query = PessoaGPU::joinEndereco($query, ['aliasJoin' => 'pess_end_tel']);
                     break;
             }
         }

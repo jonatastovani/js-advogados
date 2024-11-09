@@ -73,7 +73,7 @@ trait CommonsModelsMethodsTrait
      * 
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public static function scopeJoinWithConditions(
+    public static function joinWithConditions(
         Builder $query,
         string $tableJoinName,
         string $first,

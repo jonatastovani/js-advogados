@@ -164,7 +164,11 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
 
             const ocupada = self._dataEnvModal.porcentagem_ocupada ?? 0;
             const livre = (100 - ocupada);
-            const valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
+            let valor = dados.valor ?? 0;
+
+            if (dados.valor_tipo == 'valor_fixo') {
+                valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
+            }
 
             if (!livre) {
                 modal.find('.btnAplicarRestante').attr('disabled', true);

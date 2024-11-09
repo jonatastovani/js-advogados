@@ -46,7 +46,7 @@ class ServicoParticipacaoPreset extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
-    public static function scopeJoinParticipante(Builder $query, array $options = [])
+    public static function joinParticipante(Builder $query, array $options = [])
     {
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? ServicoParticipacaoParticipante::getTableAsName();
@@ -56,6 +56,6 @@ class ServicoParticipacaoPreset extends Model
             ['column' => "{$envOptions->aliasJoin}.parent_type", 'operator' => "=", 'value' => self::class],
         ];
 
-        return (new self())->scopeJoinWithConditions($query, ServicoParticipacaoParticipante::getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, ServicoParticipacaoParticipante::getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
     }
 }

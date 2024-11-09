@@ -7,6 +7,8 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Pessoa\PessoaFisica;
+use App\Models\Pessoa\PessoaPerfil;
+use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
@@ -34,30 +36,44 @@ class ServicoPagamentoLancamentoService extends Service
      */
     public function traducaoCampos(array $dados)
     {
-        #Não está com os campos  corretos
+
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model::getTableAsName();
         $participanteAsName = $this->modelParticipante::getTableAsName();
         $pessoaFisicaAsName = PessoaFisica::getTableAsName();
+        $pessoaFisicaParticipanteAsName = "{$this->modelParticipante::getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante::getTableAsName()}_{$pessoaFisicaAsName}";
+        $servicoAsName = Servico::getTableAsName();
 
         $arrayAliasCampos = [
-            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $modelAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
-            
+            // 'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $modelAsName,
+            // 'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
+
             'col_nome_grupo' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
-            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaAsName,
             'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
+            'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
+
+            'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
         ];
 
         $arrayCampos = [
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
             'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
+
+            'col_nome_grupo' => ['campo' => $arrayAliasCampos['col_nome_grupo'] . '.nome_grupo'],
+            'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
+            'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
+            'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
+
+            'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
     public function postConsultaFiltros(Fluent $requestData)
     {
+
         $filtros = $requestData->filtros ?? [];
         $arrayCamposFiltros = $this->traducaoCampos($filtros);
 
@@ -70,15 +86,41 @@ class ServicoPagamentoLancamentoService extends Service
         $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
         $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
 
-        $query = $this->modelParticipante::scopeJoinParticipanteAllModels($query, $this->model);
-        $query = $this->modelParticipante::scopeJoinIntegrantes($query);
+        $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
+        $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
+        $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+
+        if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
+            $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);
+        }
+
+        if ($blnIntegranteFiltro) {
+            $query = $this->modelParticipante::joinIntegrantes($query);
+        }
 
         foreach ($filtros['campos_busca'] as $key) {
             switch ($key) {
                 case 'col_nome_participante':
-                    $query = $this->modelParticipante::scopeJoinReferenciaPessoaPerfil($query);
-                    $query = PessoaPerfil::scopeJoinReferenciaPessoa($query);
-                    $query = Pessoa::scopeJoinReferenciaPessoaFisica($query);
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelParticipante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+
+                    break;
+                case 'col_nome_integrante':
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelIntegrante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+
+                    break;
+                case 'col_numero_servico':
+                    $query = $this->model::joinPagamentoServicoCompleto($query);
+
                     break;
             }
         }
@@ -109,7 +151,7 @@ class ServicoPagamentoLancamentoService extends Service
         $query->when($requestData, function ($query) use ($requestData) {
             $ordenacao = $requestData->ordenacao ?? [];
             if (!count($ordenacao)) {
-                $query->orderBy('nome', 'asc');
+                $query->orderBy('data_vencimento', 'asc');
             } else {
                 foreach ($ordenacao as $key => $value) {
                     $direcao =  isset($ordenacao[$key]['direcao']) && in_array($ordenacao[$key]['direcao'], ['asc', 'desc', 'ASC', 'DESC']) ? $ordenacao[$key]['direcao'] : 'asc';

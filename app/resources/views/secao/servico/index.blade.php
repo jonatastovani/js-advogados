@@ -17,12 +17,15 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    // 'id' => ['nome' => 'ID'],
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
+                    'numero_servico' => ['nome' => 'Número de Serviço'],
+                    'nome_participante' => ['nome' => 'Nome Participante'],
+                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
+                    'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
                 'direcaoConsultaChecked' => 'desc',
-                'arrayCamposChecked' => ['titulo', 'descricao'],
+                'arrayCamposChecked' => ['titulo', 'numero_servico'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [

@@ -68,30 +68,30 @@ class ServicoParticipacaoParticipante extends Model
         return $this->belongsTo(ParticipacaoRegistroTipo::class);
     }
 
-    /**
-     * Insere uma cláusula de junção da coluna referencia_id com a tabela pessoa_perfis na consulta.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
-     * @param array $options O array de opcões de personalização.
-     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
-     *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPreset.
-     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoParticipante.
-     * 
-     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
-     */
-    public static function scopeJoinReferenciaPessoaPerfil(Builder $query, array $options = [])
-    {
-        $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? PessoaPerfil::getTableAsName();
-        $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
-        $envOptions->wheres = [
-            ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-            ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        ];
+    // /**
+    //  * Insere uma cláusula de junção da coluna referencia_id com a tabela pessoa_perfis na consulta.
+    //  * 
+    //  * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+    //  * @param array $options O array de opcões de personalização.
+    //  *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
+    //  *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPreset.
+    //  *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoParticipante.
+    //  * 
+    //  * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+    //  */
+    // public static function joinReferenciaPessoaPerfil(Builder $query, array $options = [])
+    // {
+    //     $envOptions = new Fluent([]);
+    //     $envOptions->aliasJoin = $options['aliasJoin'] ?? PessoaPerfil::getTableAsName();
+    //     $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
+    //     $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+    //     $envOptions->wheres = [
+    //         ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //         ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //     ];
 
-        return (new self())->scopeJoinWithConditions($query, PessoaPerfil::getTableName(), "$aliasTable.referencia_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
-    }
+    //     return (new self())->joinWithConditions($query, PessoaPerfil::getTableNameAsName(), "$aliasTable.referencia_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+    // }
 
     /**
      * Insere uma cláusula de junção dos Participantes em qualquer model.
@@ -104,7 +104,7 @@ class ServicoParticipacaoParticipante extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
-    public static function scopeJoinParticipanteAllModels(Builder $query, Model $model, array $options = [])
+    public static function joinParticipanteAllModels(Builder $query, Model $model, array $options = [])
     {
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? self::getTableAsName();
@@ -115,7 +115,7 @@ class ServicoParticipacaoParticipante extends Model
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        return (new self())->scopeJoinWithConditions($query, self::getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, self::getTableNameAsName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
     }
 
     /**
@@ -129,13 +129,13 @@ class ServicoParticipacaoParticipante extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
-    public static function scopeJoinIntegrantes(Builder $query, array $options = [])
+    public static function joinIntegrantes(Builder $query, array $options = [])
     {
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? ServicoParticipacaoParticipanteIntegrante::getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
 
-        return (new self())->scopeJoinWithConditions($query, ServicoParticipacaoParticipanteIntegrante::getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, ServicoParticipacaoParticipanteIntegrante::getTableNameAsName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
     }
 }
