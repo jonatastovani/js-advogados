@@ -3,8 +3,8 @@ import { commonFunctions } from "../commons/commonFunctions";
 export class ServicoParticipacaoHelpers {
 
     static htmlRenderParticipantesEIntegrantes(participantes) {
-        const arrayParticipantes = [];
-        const arrayIntegrantes = [];
+        const arrayParticipantes = ['Não há nada para ver aqui'];
+        const arrayIntegrantes = ['Não há nada para ver aqui'];
 
         for (const participante of participantes) {
             let nomeParticipante = '';

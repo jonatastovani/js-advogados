@@ -28,13 +28,6 @@ class ContaService extends Service
         return $resource->toArray();
     }
 
-    public function postConsultaFiltros(Fluent $requestData)
-    {
-        $query = $this->consultaSimplesComFiltros($requestData);
-        $query->with($this->loadFull());
-        return $query->paginate($requestData->perPage ?? 25)->toArray();
-    }
-
     public function select2(Request $request)
     {
         $dados = new Fluent([

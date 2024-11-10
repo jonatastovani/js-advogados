@@ -31,6 +31,13 @@ class Servico extends Model
 
     protected $fillable = ['titulo', 'descricao', 'area_juridica_id'];
 
+    protected $casts = [
+        'valor_servico' => 'float',
+        'total_aguardando' => 'float',
+        'total_inadimplente' => 'float',
+        'total_liquidado' => 'float',
+    ];
+
     // Variável estática para armazenar a sequência temporariamente
     protected static $sequenciaTemporaria;
 

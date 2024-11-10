@@ -82,7 +82,6 @@ export class templateSearch {
         }
         await self._getData(data);
     }
-
     _returnQueryParameters(forma) {
         switch (forma) {
             case 'iniciado_por':

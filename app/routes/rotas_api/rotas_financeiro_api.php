@@ -24,6 +24,24 @@ Route::group([
         });
     });
 
+    Route::prefix('lancamentos')->group(function () {
+
+        Route::prefix('servicos')->group(function () {
+
+            Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+                Route::get('', function () {})->name('api.financeiro.lancamentos-servicos');
+
+                // Route::get('', 'index');
+                // Route::post('', 'store')->name('api.financeiro.conta');
+                // Route::get('{uuid}', 'show');
+                // Route::put('{uuid}', 'update');
+                // Route::delete('{uuid}', 'destroy');
+            });
+        });
+    });
+
     Route::prefix('pagamento-tipo')->group(function () {
 
         Route::controller(App\Http\Controllers\Financeiro\PagamentoTipoTenantController::class)->group(function () {

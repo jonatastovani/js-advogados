@@ -13,6 +13,7 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
@@ -58,8 +59,8 @@ class ServicoPagamentoLancamentoService extends Service
         ];
 
         $arrayCampos = [
-            'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
+            // 'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            // 'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
 
             'col_nome_grupo' => ['campo' => $arrayAliasCampos['col_nome_grupo'] . '.nome_grupo'],
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
@@ -71,21 +72,46 @@ class ServicoPagamentoLancamentoService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
-    public function postConsultaFiltros(Fluent $requestData)
+    public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
+        $filtrosData = $this->extrairFiltros($requestData, $options);
+        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+        $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
+            'campoOrdenacao' => 'data_vencimento',
+        ], $options));
 
-        $filtros = $requestData->filtros ?? [];
-        $arrayCamposFiltros = $this->traducaoCampos($filtros);
+        $load = array_merge([
+            'pagamento.servico.area_juridica',
+            'pagamento.servico.participantes.participacao_tipo',
+            'pagamento.servico.participantes.integrantes.referencia.perfil_tipo',
+            'pagamento.servico.participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'pagamento.servico.participantes.referencia.perfil_tipo',
+            'pagamento.servico.participantes.referencia.pessoa.pessoa_dados',
+            'pagamento.servico.participantes.participacao_registro_tipo',
+            'pagamento.pagamento_tipo_tenant.pagamento_tipo',
+            'pagamento.conta',
+            'pagamento.participantes.participacao_tipo',
+            'pagamento.participantes.integrantes.referencia.perfil_tipo',
+            'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'pagamento.participantes.referencia.perfil_tipo',
+            'pagamento.participantes.referencia.pessoa.pessoa_dados',
+            'pagamento.participantes.participacao_registro_tipo',
+        ], $this->loadFull());
 
-        // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
-        $query = $this->model::query()
-            ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            ->from($this->model::getTableNameAsName())
-            ->select($this->model::getTableAsName() . '.*');
+        return $this->carregarRelacionamentos($query, $requestData, ['loadFull' => $load, $options]);
+    }
 
-        $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
-        $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
-
+    /**
+     * Aplica filtros específicos baseados nos campos de busca fornecidos.
+     *
+     * @param Builder $query Instância do query builder.
+     * @param array $filtros Filtros fornecidos na requisição.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
+     */
+    private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
+    {
         $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
         $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
@@ -107,7 +133,6 @@ class ServicoPagamentoLancamentoService extends Service
                             ['column' => "{$this->modelParticipante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
-
                     break;
                 case 'col_nome_integrante':
                     $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
@@ -116,52 +141,14 @@ class ServicoPagamentoLancamentoService extends Service
                             ['column' => "{$this->modelIntegrante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
-
                     break;
                 case 'col_numero_servico':
                     $query = $this->model::joinPagamentoServicoCompleto($query);
-
                     break;
             }
         }
 
-        if (count($arrayTexto) && $arrayTexto[0] != '') {
-            $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike) {
-                foreach ($arrayTexto as $texto) {
-                    foreach ($arrayCamposFiltros as $campo) {
-                        if (isset($campo['tratamento'])) {
-                            $trait = $this->tratamentoDeTextoPorTipoDeCampo($texto, $campo);
-                            $texto = $trait['texto'];
-                            $campoNome = DB::raw($trait['campo']);
-                        } else {
-                            $campoNome = DB::raw("CAST({$campo['campo']} AS TEXT)");
-                        }
-                        $subQuery->orWhere($campoNome, $parametrosLike['conectivo'], $parametrosLike['curinga_inicio_caractere'] . $texto . $parametrosLike['curinga_final_caractere']);
-                    }
-                }
-            });
-        }
-
-        $query->groupBy($this->model::getTableAsName() . '.id');
-
-        $query->where($this->model::getTableAsName() . '.deleted_at', null);
-        $this->verificaUsoScopeTenant($query, $this->model);
-        $this->verificaUsoScopeDomain($query, $this->model);
-
-        $query->when($requestData, function ($query) use ($requestData) {
-            $ordenacao = $requestData->ordenacao ?? [];
-            if (!count($ordenacao)) {
-                $query->orderBy('data_vencimento', 'asc');
-            } else {
-                foreach ($ordenacao as $key => $value) {
-                    $direcao =  isset($ordenacao[$key]['direcao']) && in_array($ordenacao[$key]['direcao'], ['asc', 'desc', 'ASC', 'DESC']) ? $ordenacao[$key]['direcao'] : 'asc';
-                    $query->orderBy($ordenacao[$key]['campo'], $direcao);
-                }
-            }
-        });
-        $query->with($this->loadFull());
-        // RestResponse::createTestResponse([$query->toSql(), $query->getBindings()]);
-        return $query->paginate($requestData->perPage ?? 25)->toArray();
+        return $query;
     }
 
     public function update(Fluent $requestData)

@@ -38,23 +38,25 @@
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
 
-    <div class="table-responsive mt-2">
+    <div class="table-responsive mt-2 flex-sm-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th title=" número de Serviço">N.S.</th>
+                    <th class="text-center" title=" número de Serviço">N.S.</th>
+                    <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Valor Esperado</th>
                     <th class="text-nowrap">Data Vencimento</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebido</th>
-                    <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Descrição Lançamento</th>
-                    <th class="text-nowrap">Valor Contrato</th>
                     <th class="text-nowrap">Observação Lançamento</th>
+                    <th class="text-nowrap">Valor Pagamento</th>
                     <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área</th>
-                    <th class="text-nowrap">Total recebido</th>
+                    <th class="text-nowrap">Área Jurídica</th>
+                    <th class="text-nowrap">Total Recebido</th>
+                    <th class="text-nowrap">Total Aguardando</th>
+                    <th class="text-nowrap">Total Inadimplente</th>
                     <th class="text-nowrap">Tipo de pagamento</th>
                     <th class="text-nowrap">Observação Pagamento</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
@@ -76,17 +78,17 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/servico/index.js')
+    @vite('resources/js/views/financeiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseServico' => route('api.servico'),
-            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
+            'baseLancamentos' => route('api.financeiro.lancamentos-servicos'),
+            // 'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('servico.index'),
+            'baseFront' => route('financeiro.index'),
         ],
     ])
     @endcomponent

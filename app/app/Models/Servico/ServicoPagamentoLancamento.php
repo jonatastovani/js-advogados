@@ -38,6 +38,11 @@ class ServicoPagamentoLancamento extends Model
         'status_id',
     ];
 
+    protected $casts = [
+        'valor_esperado' => 'float',
+        'valor_recebido' => 'float',
+    ];
+
     public function pagamento()
     {
         return $this->belongsTo(ServicoPagamento::class);

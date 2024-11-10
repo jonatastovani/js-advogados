@@ -43,12 +43,12 @@
         </div>
     </div>
 
-    <div class="table-responsive mt-2">
+    <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th title="Número de Serviço">N.S.</th>
+                    <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Titulo</th>
                     <th>Área</th>
                     <th>Descrição</th>

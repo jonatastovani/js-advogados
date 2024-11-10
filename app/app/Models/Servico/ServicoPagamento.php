@@ -42,6 +42,18 @@ class ServicoPagamento extends Model
         'observacao',
     ];
 
+    protected $casts = [
+        'valor_total' => 'float',
+        'total_aguardando' => 'float',
+        'total_inadimplente' => 'float',
+        'total_liquidado' => 'float',
+    ];
+
+    public function servico()
+    {
+        return $this->belongsTo(Servico::class);
+    }
+
     public function pagamento_tipo_tenant()
     {
         return $this->belongsTo(PagamentoTipoTenant::class);
@@ -61,7 +73,7 @@ class ServicoPagamento extends Model
     {
         return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
     }
-    
+
     protected static function boot()
     {
         parent::boot();
