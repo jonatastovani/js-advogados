@@ -21,8 +21,8 @@ class ValorServicoScope implements Scope
             $tableAlias = trim($alias); // Aplica o alias
 
             $builder->selectSub(function ($query) use ($tableAlias) {
-                $tableSubAlias = ServicoPagamento::getTableAsName();
-                $query->from(ServicoPagamento::getTableNameAsName())
+                $tableSubAlias = (new ServicoPagamento())->getTableAsName();
+                $query->from((new ServicoPagamento())->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM({$tableSubAlias}.valor_total), 0)")
                     ->whereColumn("{$tableSubAlias}.servico_id", "{$tableAlias}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")

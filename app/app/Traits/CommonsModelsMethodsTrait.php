@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 trait CommonsModelsMethodsTrait
 {
+
     /**
      * Get the name of the table associated with the model.
      *
@@ -34,13 +35,25 @@ trait CommonsModelsMethodsTrait
     }
 
     /**
-     * Get the table name with alias if defined.
+     * Retorna o nome da tabela com alias se houver.
      *
-     * @return string The table name with alias.
+     * @return string O nome da tabela com alias ou o nome padrão da tabela.
      */
-    public static function getTableAsName(): string
+    public function getTableAsName(): string
     {
-        return (new self())->tableAsName ?? (new self())->getTableName();
+        return $this->tableAsName ?? (new self())->getTableName();
+    }
+
+    /**
+     * Define um alias para o nome da tabela.
+     *
+     * @param string $alias O alias a ser definido.
+     * @return $this
+     */
+    public function setTableAsName(string $alias)
+    {
+        $this->tableAsName = $alias;
+        return $this;
     }
 
     /**
@@ -50,8 +63,8 @@ trait CommonsModelsMethodsTrait
      */
     public static function getTableNameAsName(): string
     {
-        $tableName = self::getTableName();
-        $tableAsName = self::getTableAsName();
+        $tableName = (new self())->getTableName();
+        $tableAsName = (new self())->getTableAsName();
 
         return $tableName === $tableAsName ? $tableName : "$tableName as $tableAsName";
     }

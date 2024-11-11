@@ -67,7 +67,7 @@ class PagamentoTipoService extends Service
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $modelAsName = $this->model::getTableAsName();
+        $modelAsName = $this->model->getTableAsName();
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
             'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,

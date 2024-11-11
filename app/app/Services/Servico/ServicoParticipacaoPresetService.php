@@ -41,11 +41,11 @@ class ServicoParticipacaoPresetService extends Service
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $modelAsName = $this->model::getTableAsName();
-        $participanteAsName = $this->modelParticipante::getTableAsName();
-        $pessoaFisicaAsName = PessoaFisica::getTableAsName();
-        $pessoaFisicaParticipanteAsName = "{$this->modelParticipante::getTableAsName()}_{$pessoaFisicaAsName}";
-        $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante::getTableAsName()}_{$pessoaFisicaAsName}";
+        $modelAsName = $this->model->getTableAsName();
+        $participanteAsName = $this->modelParticipante->getTableAsName();
+        $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaFisicaParticipanteAsName = "{$this->modelParticipante->getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
 
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
@@ -118,7 +118,7 @@ class ServicoParticipacaoPresetService extends Service
                     $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
                         'campoFK' => "referencia_id",
                         "whereAppendPerfil" => [
-                            ['column' => "{$this->modelParticipante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                            ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
 
@@ -127,7 +127,7 @@ class ServicoParticipacaoPresetService extends Service
                     $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
                         'campoFK' => "referencia_id",
                         "whereAppendPerfil" => [
-                            ['column' => "{$this->modelIntegrante::getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                            ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
 

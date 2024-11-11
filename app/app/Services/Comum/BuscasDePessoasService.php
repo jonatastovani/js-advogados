@@ -266,9 +266,9 @@ class BuscasDePessoasService
 
         // Consulta da tabela preso.tb_preso_sincronizacao
         $query = PresoSincronizacaoGPU::query()
-            ->from(PresoSincronizacaoGPU::getTableNameAsName())
+            ->from((new PresoSincronizacaoGPU())->getTableNameAsName())
             ->select(
-                DB::raw("'" . PresoSincronizacaoGPU::getTableName() . "' as tabela"),
+                DB::raw("'" . (new PresoSincronizacaoGPU())->getTableName() . "' as tabela"),
                 DB::raw("1 as pessoa_tipo_tabela_id"),
                 DB::raw('CAST(psi.psi_id_preso AS TEXT) as referencia_id'),
                 DB::raw('CAST(psi.psi_matricula AS TEXT) as matricula'),
@@ -304,9 +304,9 @@ class BuscasDePessoasService
 
         // Consulta da tabela pessoa.tb_pessoa
         $query = PessoaGPU::query()
-            ->from(PessoaGPU::getTableNameAsName())
+            ->from((new PessoaGPU())->getTableNameAsName())
             ->select(
-                DB::raw("'" . PessoaGPU::getTableName() . "' as tabela"),
+                DB::raw("'" . (new PessoaGPU())->getTableName() . "' as tabela"),
                 DB::raw("2 as pessoa_tipo_tabela_id"),
                 DB::raw('CAST(pess.pess_id AS TEXT) as referencia_id'),
                 DB::raw("null as matricula"),
@@ -360,9 +360,9 @@ class BuscasDePessoasService
     {
         // Consulta da tabela funcionario.tb_funcionario
         $query = FuncionarioGPU::query()
-            ->from(FuncionarioGPU::getTableNameAsName())
+            ->from((new FuncionarioGPU())->getTableNameAsName())
             ->select(
-                DB::raw("'" . FuncionarioGPU::getTableName() . "' as tabela"),
+                DB::raw("'" . (new FuncionarioGPU())->getTableName() . "' as tabela"),
                 DB::raw("3 as pessoa_tipo_tabela_id"),
                 DB::raw("CAST(func.id AS TEXT) as referencia_id"),
                 DB::raw("null as matricula"),
@@ -403,7 +403,7 @@ class BuscasDePessoasService
 
             switch ($item->tabela) {
 
-                case PessoaGPU::getTableName():
+                case (new PessoaGPU())->getTableName():
                     $perfis = PessoaRelacionamentoTipoGPU::with('tipo')
                         ->where('rtpp_id_pessoa', $item->referencia_id)
                         ->get();
@@ -424,7 +424,7 @@ class BuscasDePessoasService
                     $item->aliases = implode(', ', $arrayAliases);
                     break;
 
-                case PresoSincronizacaoGPU::getTableName():
+                case (new PresoSincronizacaoGPU())->getTableName():
 
                     // Preenche o tipo de perfil, sendo padrão o perfil preso porque é buscado na tabela de presos
                     $item->perfis = $dataEnv['perfilPreso']['tpss_no_tipo_pessoa'] ?? '';
@@ -441,7 +441,7 @@ class BuscasDePessoasService
 
                     break;
 
-                case FuncionarioGPU::getTableName():
+                case (new FuncionarioGPU())->getTableName():
 
                     // Preenche o tipo de perfil, sendo padrão o perfil FUNCIONARIO porque é buscado na tabela de funcionários
                     $item->perfis = $dataEnv['perfilFuncionario']['tpss_no_tipo_pessoa'] ?? '';

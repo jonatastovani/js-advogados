@@ -39,7 +39,7 @@ class PermissionGroupService
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = isset($dados['aliasCampos']) ? $dados['aliasCampos'] : [];
-        $permissiongroupAsName = PermissionGroup::getTableAsName();
+        $permissiongroupAsName = (new PermissionGroup())->getTableAsName();
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $permissiongroupAsName,
             'col_nome_completo' => isset($aliasCampos['col_nome_completo']) ? $aliasCampos['col_nome_completo'] : $permissiongroupAsName,

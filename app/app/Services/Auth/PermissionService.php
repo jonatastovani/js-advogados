@@ -78,7 +78,7 @@ class PermissionService
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = isset($dados['aliasCampos']) ? $dados['aliasCampos'] : [];
-        $permissionAsName = Permission::getTableAsName();
+        $permissionAsName = (new Permission())->getTableAsName();
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $permissionAsName,
             'col_nome_completo' => isset($aliasCampos['col_nome_completo']) ? $aliasCampos['col_nome_completo'] : $permissionAsName,
@@ -105,10 +105,10 @@ class PermissionService
     {
         $query = $this->model::whereIn('id', function ($subQuery) use ($request) {
             $subQuery->select('permissao_id')
-                ->from(PermissionConfig::getTableName())
+                ->from((new PermissionConfig())->getTableName())
                 ->whereIn('grupo_id', function ($subQuery2) use ($request) {
                     $subQuery2->select('id')
-                        ->from(PermissionGroup::getTableName())
+                        ->from((new PermissionGroup())->getTableName())
                         ->where(function ($q) use ($request) {
                             $q->where('modulo_id', $request->modulo_id)
                                 ->orWhere('modulo_id', PermissionModulesEnum::ADMINISTRADOR);

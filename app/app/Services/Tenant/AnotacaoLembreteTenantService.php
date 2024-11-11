@@ -29,7 +29,7 @@ class AnotacaoLembreteTenantService extends Service
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $permissionAsName = $this->model::getTableAsName();
+        $permissionAsName = $this->model->getTableAsName();
         $arrayAliasCampos = [
             'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $permissionAsName,
             'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $permissionAsName,

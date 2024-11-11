@@ -25,12 +25,12 @@ class ValorServicoInadimplenteScope implements Scope
 
             // Seleciona a subconsulta para somar os valores liquidados
             $builder->selectSub(function ($query) use ($tableAlias) {
-                $tableSubAlias = ServicoPagamentoLancamento::getTableAsName();
-                $tableAsNamePagamento = ServicoPagamento::getTableAsName();
-                $query->from(ServicoPagamentoLancamento::getTableNameAsName())
+                $tableSubAlias = (new ServicoPagamentoLancamento())->getTableAsName();
+                $tableAsNamePagamento = (new ServicoPagamento())->getTableAsName();
+                $query->from((new ServicoPagamentoLancamento())->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM(ROUND(CAST({$tableSubAlias}.valor_esperado AS numeric), 2)), 0)")
                     ->join(
-                        ServicoPagamento::getTableNameAsName(),
+                        (new ServicoPagamento())->getTableNameAsName(),
                         "{$tableAsNamePagamento}.servico_id",
                         '=',
                         "{$tableAlias}.id"

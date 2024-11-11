@@ -49,13 +49,13 @@ class ServicoParticipacaoPreset extends Model
     public static function joinParticipante(Builder $query, array $options = [])
     {
         $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? ServicoParticipacaoParticipante::getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoParticipacaoParticipante())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.parent_type", 'operator' => "=", 'value' => self::class],
         ];
 
-        return (new self())->joinWithConditions($query, ServicoParticipacaoParticipante::getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, (new ServicoParticipacaoParticipante())->getTableName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
     }
 }

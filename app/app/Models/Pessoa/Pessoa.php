@@ -48,13 +48,13 @@ class Pessoa extends Model
     // public static function joinReferenciaPessoaFisica(Builder $query, array $options = [])
     // {
     //     $envOptions = new Fluent([]);
-    //     $envOptions->aliasJoin = $options['aliasJoin'] ?? PessoaFisica::getTableAsName();
+    //     $envOptions->aliasJoin = $options['aliasJoin'] ?? (new PessoaFisica())->getTableAsName();
     //     $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-    //     $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+    //     $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
     //     $envOptions->wheres = [
     //         ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => PessoaFisica::class],
     //     ];
 
-    //     return (new self())->joinWithConditions($query, PessoaFisica::getTableName(), "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+    //     return (new self())->joinWithConditions($query, (new PessoaFisica())->getTableName(), "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
     // }
 }

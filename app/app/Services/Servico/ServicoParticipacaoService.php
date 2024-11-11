@@ -42,7 +42,7 @@ class ServicoParticipacaoService extends Service
     public function traducaoCampos(array $dados)
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
-        $modelAsName = $this->modelParticipante::getTableAsName();
+        $modelAsName = $this->modelParticipante->getTableAsName();
 
         $arrayAliasCampos = [
             'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,

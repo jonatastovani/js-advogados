@@ -63,7 +63,6 @@ class ServicoPagamentoLancamento extends Model
         return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
     }
 
-
     /**
      * Insere uma cláusula de junção com o Pagamento até o Serviço.
      * 
@@ -81,24 +80,24 @@ class ServicoPagamentoLancamento extends Model
 
         // Join com o Pagamento
         $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? ServicoPagamento::getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoPagamento())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        $query = (new self())->joinWithConditions($query, ServicoPagamento::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pagamento_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions($query, (new ServicoPagamento())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pagamento_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
 
         // Join com a Servico
         $aliasTable = $envOptions->aliasJoin;
-        $envOptions->aliasJoin = $options['aliasJoinServico'] ?? Servico::getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoinServico'] ?? (new Servico())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoinServico'] ?? 'left';
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        $query = (new self())->joinWithConditions($query, Servico::getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.servico_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions($query, (new Servico())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.servico_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
 
         return $query;
     }

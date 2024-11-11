@@ -59,12 +59,12 @@ trait CommonsConsultaServiceTrait
     //         if ($strSelect != '') {
     //             $strSelect .= ', ';
     //         }
-    //         $strSelect .= "{$this->model::getTableAsName()}.$value";
+    //         $strSelect .= "{$this->model->getTableAsName()}.$value";
     //     }
     //     // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
     //     $query = $this->model::query()
     //         ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-    //         ->from($this->model::getTableNameAsName())
+    //         ->from($this->model->getTableNameAsName())
     //         ->select($strSelect);
 
     //     $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
@@ -87,7 +87,7 @@ trait CommonsConsultaServiceTrait
     //         });
     //     }
 
-    //     $query->where($this->model::getTableAsName() . '.deleted_at', null);
+    //     $query->where($this->model->getTableAsName() . '.deleted_at', null);
     //     $this->verificaUsoScopeTenant($query, $this->model);
     //     $this->verificaUsoScopeDomain($query, $this->model);
 
@@ -111,7 +111,7 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($modelClass))) {
             $query->withoutTenancy();
-            $query->where($modelClass::getTableAsName() . '.' . BelongsToTenant::$tenantIdColumn, tenant('id'));
+            $query->where($modelClass->getTableAsName() . '.' . BelongsToTenant::$tenantIdColumn, tenant('id'));
         }
     }
 
@@ -120,7 +120,7 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($modelClass))) {
             $query->withoutDomain();
-            $query->where($modelClass::getTableAsName() . '.' . BelongsToDomain::$domainIdColumn, DomainTenantResolver::$currentDomain->id);
+            $query->where($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn, DomainTenantResolver::$currentDomain->id);
         }
     }
 
@@ -147,12 +147,12 @@ trait CommonsConsultaServiceTrait
             if ($strSelect != '') {
                 $strSelect .= ', ';
             }
-            $strSelect .= "{$this->model::getTableAsName()}.$value";
+            $strSelect .= "{$this->model->getTableAsName()}.$value";
         }
         // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
         $query = $this->model::query()
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            ->from($this->model::getTableNameAsName())
+            ->from($this->model->getTableNameAsName())
             ->select($strSelect);
 
         $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
@@ -190,7 +190,7 @@ trait CommonsConsultaServiceTrait
             });
         }
 
-        return $query->groupBy($this->model::getTableAsName() . '.id');
+        return $query->groupBy($this->model->getTableAsName() . '.id');
     }
 
     /**
@@ -205,7 +205,7 @@ trait CommonsConsultaServiceTrait
     {
         $campoOrdenacao = $options['campoOrdenacao'] ?? 'nome';
         $direcaoOrdenacao = $options['direcaoOrdenacao'] ?? 'asc';
-        $query->where($this->model::getTableAsName() . '.deleted_at', null);
+        $query->where($this->model->getTableAsName() . '.deleted_at', null);
         $this->verificaUsoScopeTenant($query, $this->model);
         $this->verificaUsoScopeDomain($query, $this->model);
 

@@ -82,15 +82,15 @@ class ServicoParticipacaoParticipante extends Model
     // public static function joinReferenciaPessoaPerfil(Builder $query, array $options = [])
     // {
     //     $envOptions = new Fluent([]);
-    //     $envOptions->aliasJoin = $options['aliasJoin'] ?? PessoaPerfil::getTableAsName();
+    //     $envOptions->aliasJoin = $options['aliasJoin'] ?? (new PessoaPerfil())->getTableAsName();
     //     $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-    //     $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+    //     $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
     //     $envOptions->wheres = [
     //         ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
     //         ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
     //     ];
 
-    //     return (new self())->joinWithConditions($query, PessoaPerfil::getTableNameAsName(), "$aliasTable.referencia_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+    //     return (new self())->joinWithConditions($query, (new PessoaPerfil())->getTableNameAsName(), "$aliasTable.referencia_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
     // }
 
     /**
@@ -106,16 +106,17 @@ class ServicoParticipacaoParticipante extends Model
      */
     public static function joinParticipanteAllModels(Builder $query, Model $model, array $options = [])
     {
+        $instanceSelf = $options['instanceSelf'] ?? new self();
         $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? self::getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? $instanceSelf->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $model::getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $model->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.parent_type", 'operator' => "=", 'value' => $model::class],
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        return (new self())->joinWithConditions($query, self::getTableNameAsName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
+        return $instanceSelf->joinWithConditions($query, $instanceSelf->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
     }
 
     /**
@@ -132,10 +133,10 @@ class ServicoParticipacaoParticipante extends Model
     public static function joinIntegrantes(Builder $query, array $options = [])
     {
         $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? ServicoParticipacaoParticipanteIntegrante::getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoParticipacaoParticipanteIntegrante())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : self::getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
 
-        return (new self())->joinWithConditions($query, ServicoParticipacaoParticipanteIntegrante::getTableNameAsName(), "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
+        return (new self())->joinWithConditions($query, (new ServicoParticipacaoParticipanteIntegrante())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
     }
 }
