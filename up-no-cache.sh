@@ -1,0 +1,1 @@
+docker stack deploy --with-registry-auth -c docker-swarm.yml application
