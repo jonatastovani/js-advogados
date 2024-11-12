@@ -149,7 +149,7 @@ trait CommonsConsultaServiceTrait
             }
             $strSelect .= "{$this->model->getTableAsName()}.$value";
         }
-        // RestResponse::createTestResponse([$strSelect, $arrayCamposSelect]);
+
         $query = $this->model::query()
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
             ->from($this->model->getTableNameAsName())

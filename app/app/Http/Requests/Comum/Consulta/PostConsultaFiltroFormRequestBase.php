@@ -24,6 +24,8 @@ class PostConsultaFiltroFormRequestBase extends BaseFormRequest
             'ordenacao' => 'nullable|array',
             'ordenacao.*.campo' => 'nullable|string',
             'ordenacao.*.direcao' => 'nullable|in:asc,desc,ASC,DESC',
+            'texto_tratamento' => 'nullable|array',
+            'texto_tratamento.tratamento' => 'nullable|string|in:texto_dividido,texto_todo',
             'filtros' => 'nullable|array',
             'filtros.campos_busca' => 'nullable|array',
             'filtros.campos_busca.*' => 'nullable|string',

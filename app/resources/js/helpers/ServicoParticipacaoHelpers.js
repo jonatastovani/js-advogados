@@ -3,8 +3,8 @@ import { commonFunctions } from "../commons/commonFunctions";
 export class ServicoParticipacaoHelpers {
 
     static htmlRenderParticipantesEIntegrantes(participantes) {
-        const arrayParticipantes = ['Não há nada para ver aqui'];
-        const arrayIntegrantes = ['Não há nada para ver aqui'];
+        const arrayParticipantes = [];
+        const arrayIntegrantes = [];
 
         for (const participante of participantes) {
             let nomeParticipante = '';
@@ -44,6 +44,9 @@ export class ServicoParticipacaoHelpers {
 
             arrayParticipantes.push(`${nomeParticipante}`);
         }
+
+        if (!arrayParticipantes.length) arrayParticipantes.push('Não há nada para ver aqui');
+        if (!arrayIntegrantes.length) arrayIntegrantes.push('Não há nada para ver aqui');
         return { arrayParticipantes: arrayParticipantes, arrayIntegrantes: arrayIntegrantes };
     }
 

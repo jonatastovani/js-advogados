@@ -26,8 +26,7 @@ class ServicoPagamentoService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->all();
-        $resource->load($this->loadFull());
+        $resource = $this->model->with($this->loadFull())->where('servico_id', $requestData->servico_uuid)->get();
         return $resource->toArray();
     }
 

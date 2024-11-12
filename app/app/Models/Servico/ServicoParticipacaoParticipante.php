@@ -97,10 +97,12 @@ class ServicoParticipacaoParticipante extends Model
      * Insere uma cláusula de junção dos Participantes em qualquer model.
      * 
      * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param \Illuminate\Database\Eloquent\Model $model A instância da model que vai juntar a uma model participante.
      * @param array $options O array de opcões de personalização.
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
-     *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPreset.
+     *              - 'aliasTable' (opcional) Alias da tabela participante. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoParticipante.
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'instanceSelf' (opcional) Instância da model participante. Padrão é a instância da model atual(self).
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
@@ -123,20 +125,23 @@ class ServicoParticipacaoParticipante extends Model
      * Insere uma cláusula de junção dos Integrantes dos Grupos com os Participantes na consulta.
      * 
      * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param \Illuminate\Database\Eloquent\Model $model A instância da model integrante que vai juntar a uma model participante.
      * @param array $options O array de opcões de personalização.
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
-     *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPreset.
+     *              - 'aliasTable' (opcional) Alias da tabela participante. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoParticipante.
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoParticipanteIntegrante.
+     *              - 'instanceSelf' (opcional) Instância da model. Padrão é a instância da model atual(self).
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
-    public static function joinIntegrantes(Builder $query, array $options = [])
+    public static function joinIntegrantes(Builder $query, Model $model, array $options = [])
     {
+        $instanceSelf = $options['instanceSelf'] ?? new self();
         $envOptions = new Fluent([]);
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoParticipacaoParticipanteIntegrante())->getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? $model->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
 
-        return (new self())->joinWithConditions($query, (new ServicoParticipacaoParticipanteIntegrante())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
+        return $instanceSelf->joinWithConditions($query, $model->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
     }
 }

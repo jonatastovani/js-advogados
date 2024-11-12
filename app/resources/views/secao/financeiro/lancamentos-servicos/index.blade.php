@@ -38,7 +38,7 @@
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
 
-    <div class="table-responsive mt-2 flex-sm-fill">
+    <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
@@ -81,9 +81,9 @@
     @vite('resources/js/views/financeiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseLancamentos' => route('api.financeiro.lancamentos-servicos'),
-            // 'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
-        ],
+            'baseLancamento' => route('api.financeiro.lancamentos-servicos'),
+            'baseServico' => route('api.servico'),
+            ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [

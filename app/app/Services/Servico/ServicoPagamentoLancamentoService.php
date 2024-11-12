@@ -30,12 +30,18 @@ class ServicoPagamentoLancamentoService extends Service
         public ServicoPagamento $modelPagamento,
         public ServicoParticipacaoParticipante $modelParticipantePagamento,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrantePagamento,
-        public ServicoPagamento $modelServico,
+        public Servico $modelServico,
         public ServicoParticipacaoParticipante $modelParticipanteServico,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegranteServico,
     ) {
-        $this->modelParticipantePagamento->setTableAsName('serv_part_part_pag');
-        $this->modelParticipanteServico->setTableAsName('serv_part_part_serv');
+        $asNameParticipante = (new ServicoParticipacaoParticipante())->getTableAsName();
+        $asNameIntegrante = (new ServicoParticipacaoParticipanteIntegrante())->getTableAsName();
+
+        $this->modelParticipantePagamento->setTableAsName("{$asNameParticipante}_pag");
+        $this->modelParticipanteServico->setTableAsName("{$asNameParticipante}_serv");
+
+        $this->modelIntegrantePagamento->setTableAsName("{$asNameIntegrante}_pag");
+        $this->modelIntegranteServico->setTableAsName("{$asNameIntegrante}_serv");
     }
 
     /**
@@ -49,43 +55,46 @@ class ServicoPagamentoLancamentoService extends Service
      */
     public function traducaoCampos(array $dados)
     {
-        $dados = $this->replicaCampos($dados);
+        $dados = $this->addCamposBuscaRequest($dados);
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
-        $participanteAsName = $this->modelParticipante->getTableAsName();
-        $participantePagamentoAsName = $this->modelParticipantePagamento->getTableAsName();
-        $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+
+        $participanteAsName = $this->modelParticipante->getTableAsName();
         $pessoaFisicaParticipanteAsName = "{$this->modelParticipante->getTableAsName()}_{$pessoaFisicaAsName}";
-        $pessoaFisicaParticipantePagamentoAsName = "{$this->modelParticipantePagamento->getTableAsName()}_{$pessoaFisicaAsName}";
-        $pessoaFisicaParticipanteServicoAsName = "{$this->modelParticipanteServico->getTableAsName()}_{$pessoaFisicaAsName}";
         $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
-        $servicoAsName = (new Servico())->getTableAsName();
+
+        $participantePagamentoAsName = $this->modelParticipantePagamento->getTableAsName();
+        $pessoaFisicaParticipantePagamentoAsName = "{$this->modelParticipantePagamento->getTableAsName()}_{$pessoaFisicaAsName}";
+
+        $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
+        $pessoaFisicaParticipanteServicoAsName = "{$this->modelParticipanteServico->getTableAsName()}_{$pessoaFisicaAsName}";
+        $servicoAsName = $this->modelServico->getTableAsName();
 
         $arrayAliasCampos = [
-            // 'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $modelAsName,
-            // 'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
 
             'col_nome_grupo' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
             'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+
             'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
             'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
 
             'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
             'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
+
             'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
-            
+
             'col_nome_grupo_servico' => isset($aliasCampos['col_nome_grupo_servico']) ? $aliasCampos['col_nome_grupo_servico'] : $participanteServicoAsName,
             'col_observacao_servico' => isset($aliasCampos['col_observacao_servico']) ? $aliasCampos['col_observacao_servico'] : $participanteServicoAsName,
+
             'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
 
+            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
+            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $servicoAsName,
             'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
         ];
 
         $arrayCampos = [
-            // 'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
-            // 'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
-
             'col_nome_grupo' => ['campo' => $arrayAliasCampos['col_nome_grupo'] . '.nome_grupo'],
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
             'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
@@ -99,13 +108,15 @@ class ServicoPagamentoLancamentoService extends Service
             'col_observacao_servico' => ['campo' => $arrayAliasCampos['col_observacao_servico'] . '.observacao'],
             'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
 
+            'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
             'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
         ];
         // RestResponse::createTestResponse($dados);
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
-    private function replicaCampos(array $dados, array $options = [])
+    private function addCamposBuscaRequest(array $dados, array $options = [])
     {
         $sufixos = ['pagamento', 'servico'];
         $camposReplica = ['col_nome_participante', 'col_nome_grupo', 'col_observacao'];
@@ -176,9 +187,9 @@ class ServicoPagamentoLancamentoService extends Service
         }
 
         if ($blnIntegranteFiltro) {
-            $query = $this->modelParticipante::joinIntegrantes($query);
-            $query = $this->modelParticipantePagamento::joinIntegrantes($query);
-            $query = $this->modelParticipanteServico::joinIntegrantes($query);
+            $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
+            $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
+            $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
         }
 
         foreach ($filtros['campos_busca'] as $key) {
@@ -199,7 +210,7 @@ class ServicoPagamentoLancamentoService extends Service
                     $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteServico, [
                         'campoFK' => "referencia_id",
                         "whereAppendPerfil" => [
-                            ['column' => "{$this->modelParticipantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                            ['column' => "{$this->modelParticipanteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
                     break;
@@ -208,6 +219,18 @@ class ServicoPagamentoLancamentoService extends Service
                         'campoFK' => "referencia_id",
                         "whereAppendPerfil" => [
                             ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrantePagamento, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelIntegrantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegranteServico, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelIntegranteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
                     break;

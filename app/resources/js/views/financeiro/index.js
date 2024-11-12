@@ -10,11 +10,14 @@ class PageLancamentoServicoIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseLancamentos,
-                urlSearch: `${window.apiRoutes.baseLancamentos}/consulta-filtros`,
+                url: window.apiRoutes.baseLancamento,
+                urlSearch: `${window.apiRoutes.baseLancamento}/consulta-filtros`,
                 baseFront: window.frontRoutes.baseFront,
             }
         },
+        url: {
+            baseServico: window.apiRoutes.baseServico,
+        }
     };
 
     constructor() {
@@ -66,7 +69,12 @@ class PageLancamentoServicoIndex extends templateSearch {
         const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.pagamento.observacao ?? '***';
 
-        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes ?? item.pagamento.participantes ?? item.pagamento.servico.participantes ?? []);
+        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+            item.participantes.length ? item.participantes :
+                (item.pagamento.participantes.length ? item.pagamento.participantes :
+                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
+                )
+        );
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
@@ -92,8 +100,8 @@ class PageLancamentoServicoIndex extends templateSearch {
                 <td class="text-nowrap text-center" title="${valorInadimplente}">${valorInadimplente}</td>
                 <td class="text-truncate" title="${pagamentoTipo}">${pagamentoTipo}</td>
                 <td class="text-truncate" title="${observacaoPagamento}">${observacaoPagamento}</td>
-                <td><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -121,7 +129,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                 </ul>
             </div>`;
 
-        strBtns += `<button type="button" class="btn btn-outline-primary btn-sm btn-view" title="Visualizar pagamento"><i class="bi bi-eye"></i></button>`;
+        // strBtns += `<button type="button" class="btn btn-outline-primary btn-sm btn-view" title="Visualizar pagamento"><i class="bi bi-eye"></i></button>`;
 
         strBtns += `
             <div class="dropdown">
