@@ -74,7 +74,7 @@
 
 
 @push('modals')
-    <x-modal.tenant.modalAreaJuridicaTenant.modal />
+    <x-modal.financeiro.modal-lancamento-movimentar.modal />
 @endpush
 
 @push('scripts')

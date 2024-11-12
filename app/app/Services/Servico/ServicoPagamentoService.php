@@ -4,7 +4,7 @@ namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
 use App\Enums\PagamentoTipoEnum;
-use App\Enums\ServicoPagamentoLancamentoStatusTipoEnum;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
@@ -98,7 +98,7 @@ class ServicoPagamentoService extends Service
                 $newLancamento->observacao = $lancamento->observacao;
                 $newLancamento->data_vencimento = $lancamento->data_vencimento;
                 $newLancamento->valor_esperado = $lancamento->valor_esperado;
-                $newLancamento->status_id = ServicoPagamentoLancamentoStatusTipoEnum::statusPadraoSalvamento();
+                $newLancamento->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamento();
 
                 $newLancamento->save();
             }

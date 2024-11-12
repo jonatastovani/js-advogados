@@ -1,5 +1,6 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { templateSearch } from "../../commons/templates/templateSearch";
+import { modalLancamentoMovimentar } from "../../components/financeiro/modalLancamentoMovimentar";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../helpers/ServicoParticipacaoHelpers";
@@ -42,6 +43,22 @@ class PageLancamentoServicoIndex extends templateSearch {
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             self._generateQueryFilters()
         });
+
+        const openModal = async () => {
+            try {
+                const objModal = new modalLancamentoMovimentar();
+                objModal.setDataEnvModal = {
+                    idRegister: "9d73c9d3-e23c-4a0f-9aa7-953cc9e4552a",
+                }
+                const response = await objModal.modalOpen();
+                console.log(response);
+
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            }
+        }
+
+        openModal();
     }
 
     async insertTableData(item, options = {}) {
@@ -115,50 +132,45 @@ class PageLancamentoServicoIndex extends templateSearch {
         const self = this;
 
         let strBtns = `
-            <div class="dropdown">
-                <button class="btn dropdown-toggle btn-sm btn-outline-success text-nowrap rounded-end-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-box-arrow-in-down"></i>
+            <div class="btn-group">
+                <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu">
+                    
                     <li>
-                        <button type="button" class="dropdown-item fs-6 btn-receber-analise" title="Receber lançamento ${item.descricao_automatica} com status Em Análise."><i class="bi bi-check2"></i> Receber Em Análise</button>
-                    </li>
-                    <li>
-                        <button type="button" class="dropdown-item fs-6 btn-receber-liquidado" title="Receber lançamento ${item.descricao_automatica} com status Liquidado."><i class="bi bi-check2-all"></i> Receber Conferido</button>
-                    </li>
-                </ul>
-            </div>`;
-
-        // strBtns += `<button type="button" class="btn btn-outline-primary btn-sm btn-view" title="Visualizar pagamento"><i class="bi bi-eye"></i></button>`;
-
-        strBtns += `
-            <div class="dropdown">
-                <button class="btn dropdown-toggle btn-sm btn-outline-warning text-nowrap rounded-start-0 rounded-end-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-exclamation-octagon"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <button type="button" class="dropdown-item fs-6 btn-receber-analise" title="Receber lançamento ${item.descricao_automatica} com status Em Análise.">
-                            <i class="bi bi-check2"></i> Parcial em Análise
+                        <button type="button" class="dropdown-item fs-6 text-success btn-receber-liquidado-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado em Análise.">
+                            <i class="bi bi-check2"></i> Liquidado em Análise
                         </button>
                     </li>
                     <li>
-                        <button type="button" class="dropdown-item fs-6 btn-receber-analise" title="Receber lançamento ${item.descricao_automatica} com status Liquidado.">
-                            <i class="bi bi-check2-all"></i> Parcial Conferido
+                        <button type="button" class="dropdown-item fs-6 text-success btn-receber-liquidado" title="Receber lancamento ${item.descricao_automatica} com status Liquidado.">
+                            <i class="bi bi-check2-all"></i> Liquidado
                         </button>
                     </li>
-                </ul>
-            </div>`;
-
-        strBtns += `
-            <div class="dropdown">
-                <button class="btn dropdown-toggle btn-sm btn-outline-danger text-nowrap rounded-start-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-dash-square"></i>
-                </button>
-                <ul class="dropdown-menu">
+                
                     <li>
-                        <button type="button" class="dropdown-item fs-6 btn-receber-analise" title="Receber lançamento ${item.descricao_automatica} com status Em Análise.">Cancelado</button>
+                        <button type="button" class="dropdown-item fs-6 text-warning btn-receber-parcial-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado Parcial em Análise.">
+                            <i class="bi bi-exclamation-lg"></i> Parcial em Análise
+                        </button>
                     </li>
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 text-warning btn-receber-parcial" title="Receber lançamento ${item.descricao_automatica} com status Liquidado Parcial.">
+                            <i class="bi bi-check2-all"></i> Parcial
+                        </button>
+                    </li>
+
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado em Análise.">
+                           <i class="bi bi-dash-circle"></i> Cancelado em Análise
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 btn-cancelado text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado.">
+                            <i class="bi bi-check2-all"></i> Cancelado
+                        </button>
+                    </li>
+
                 </ul>
             </div>`;
 

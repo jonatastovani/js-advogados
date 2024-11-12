@@ -2,7 +2,7 @@
 
 namespace App\Scopes\Servico;
 
-use App\Enums\ServicoPagamentoLancamentoStatusTipoEnum;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,8 +38,8 @@ class ValorServicoLiquidadoScope implements Scope
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
-                        ServicoPagamentoLancamentoStatusTipoEnum::LIQUIDADO->value,
-                        ServicoPagamentoLancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                        LancamentoStatusTipoEnum::LIQUIDADO->value,
+                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
@@ -48,8 +48,8 @@ class ValorServicoLiquidadoScope implements Scope
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
             $builder->withSum(['lancamentos as total_liquidado' => function ($query) {
                 $query->whereIn('status_id', [
-                    ServicoPagamentoLancamentoStatusTipoEnum::LIQUIDADO->value,
-                    ServicoPagamentoLancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                    LancamentoStatusTipoEnum::LIQUIDADO->value,
+                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
                 ]);
             }], DB::raw('ROUND(CAST(valor_recebido AS numeric), 2)'));
         }

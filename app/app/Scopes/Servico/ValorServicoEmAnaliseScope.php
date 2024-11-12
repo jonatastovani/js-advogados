@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\DB;
 use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
-class ValorServicoAguardandoScope implements Scope
+class ValorServicoEmAnaliseScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
@@ -38,18 +38,24 @@ class ValorServicoAguardandoScope implements Scope
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
-                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
-                        LancamentoStatusTipoEnum::REAGENDADO->value,
+                        LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
+                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+                        LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
+                        LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
+                        LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
-            }, 'total_aguardando');
+            }, 'total_em_analise');
         } else {
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
-            $builder->withSum(['lancamentos as total_aguardando' => function ($query) {
+            $builder->withSum(['lancamentos as total_em_analise' => function ($query) {
                 $query->whereIn('status_id', [
-                    LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
-                    LancamentoStatusTipoEnum::REAGENDADO->value,
+                    LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
+                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+                    LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
+                    LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
+                    LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }

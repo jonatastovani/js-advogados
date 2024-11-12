@@ -2,7 +2,7 @@
 
 namespace App\Scopes\Servico;
 
-use App\Enums\ServicoPagamentoLancamentoStatusTipoEnum;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,7 +38,7 @@ class ValorServicoInadimplenteScope implements Scope
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
-                        ServicoPagamentoLancamentoStatusTipoEnum::INADIMPLENTE->value,
+                        LancamentoStatusTipoEnum::INADIMPLENTE->value,
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
@@ -47,7 +47,7 @@ class ValorServicoInadimplenteScope implements Scope
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
             $builder->withSum(['lancamentos as total_inadimplente' => function ($query) {
                 $query->whereIn('status_id', [
-                    ServicoPagamentoLancamentoStatusTipoEnum::INADIMPLENTE->value,
+                    LancamentoStatusTipoEnum::INADIMPLENTE->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }

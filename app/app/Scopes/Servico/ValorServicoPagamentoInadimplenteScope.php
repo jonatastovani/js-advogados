@@ -2,7 +2,7 @@
 
 namespace App\Scopes\Servico;
 
-use App\Enums\ServicoPagamentoLancamentoStatusTipoEnum;
+use App\Enums\LancamentoStatusTipoEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -14,7 +14,7 @@ class ValorServicoPagamentoInadimplenteScope implements Scope
     {
         $builder->withSum(['lancamentos as total_inadimplente' => function ($query) {
             $query->whereIn('status_id', [
-                ServicoPagamentoLancamentoStatusTipoEnum::INADIMPLENTE->value,
+                LancamentoStatusTipoEnum::INADIMPLENTE->value,
             ]);
         }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
     }

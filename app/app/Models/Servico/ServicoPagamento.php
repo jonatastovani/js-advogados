@@ -5,6 +5,7 @@ namespace App\Models\Servico;
 use App\Models\Financeiro\Conta;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Scopes\Servico\ValorServicoPagamentoAguardandoScope;
+use App\Scopes\Servico\ValorServicoPagamentoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoPagamentoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoPagamentoLiquidadoScope;
 use App\Traits\BelongsToDomain;
@@ -80,5 +81,6 @@ class ServicoPagamento extends Model
         static::addGlobalScope(new ValorServicoPagamentoLiquidadoScope);
         static::addGlobalScope(new ValorServicoPagamentoAguardandoScope);
         static::addGlobalScope(new ValorServicoPagamentoInadimplenteScope);
+        static::addGlobalScope(new ValorServicoPagamentoEmAnaliseScope);
     }
 }

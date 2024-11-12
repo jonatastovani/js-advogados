@@ -6,6 +6,7 @@ use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
+use App\Scopes\Servico\ValorServicoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoLiquidadoScope;
 use App\Scopes\Servico\ValorServicoScope;
@@ -95,6 +96,7 @@ class Servico extends Model
         static::addGlobalScope(new ValorServicoLiquidadoScope);
         static::addGlobalScope(new ValorServicoAguardandoScope);
         static::addGlobalScope(new ValorServicoInadimplenteScope);
+        static::addGlobalScope(new ValorServicoEmAnaliseScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano
