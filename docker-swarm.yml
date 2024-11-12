@@ -3,7 +3,7 @@ version: "3.9"
 services:
     # Serviço PHP
     web:
-        image: tovanijonatas/php839-jsadvogados:v1
+        image: tovanijonatas/php839-jsadvogados:v1.0
         deploy:
             replicas: 1
             resources:
