@@ -21,18 +21,18 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
             $table->unsignedBigInteger('movimentacao_tipo_id');
-            $table->foreign('movimentacao_tipo_id')->references('id')->on(App\Models\Financeiro\MovimentacaoTipo::getTableName());
+            $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Financeiro\MovimentacaoTipo)->getTableName());
 
             $table->uuidMorphs('referencia');
 
             $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on(App\Models\Financeiro\Conta::getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
             $table->float('valor_movimentado');
             $table->float('saldo_atualizado');
@@ -52,6 +52,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

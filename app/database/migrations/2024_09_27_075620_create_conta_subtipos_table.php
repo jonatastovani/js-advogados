@@ -21,13 +21,13 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->text('descricao')->nullable();
 
             $table->unsignedSmallInteger('conta_tipo_id');
-            $table->foreign('conta_tipo_id')->references('id')->on(App\Models\Referencias\ContaTipo::getTableName());
+            $table->foreign('conta_tipo_id')->references('id')->on((new App\Models\Referencias\ContaTipo)->getTableName());
 
             $table->boolean('ativo_bln')->default(true);
 
@@ -42,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

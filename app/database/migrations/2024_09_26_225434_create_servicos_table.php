@@ -21,7 +21,7 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
@@ -31,7 +31,7 @@ return new class extends Migration
             $table->text('descricao');
 
             $table->uuid('area_juridica_id');
-            $table->foreign('area_juridica_id')->references('id')->on(App\Models\Tenant\AreaJuridicaTenant::getTableName());
+            $table->foreign('area_juridica_id')->references('id')->on((new App\Models\Tenant\AreaJuridicaTenant)->getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
@@ -44,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

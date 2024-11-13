@@ -8,12 +8,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     use SchemaTrait;
-
     protected $model;
 
     public function __construct()
     {
-        $this->model = new App\Models\Auth\PermissionGroup();
+        $this->model = new \App\Models\Referencias\ServicoPagamentoLancamentoStatusTipo();
     }
 
     /**
@@ -25,17 +24,7 @@ return new class extends Migration
         Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->string('descricao')->nullable();
-
-            $table->unsignedBigInteger('modulo_id');
-            $table->foreign('modulo_id')->references('id')->on((new App\Models\Auth\PermissionModule)->getTableName());
-            
-            $table->unsignedBigInteger('grupo_pai_id')->nullable();
-            $table->foreign('grupo_pai_id')->references('id')->on((new App\Models\Auth\PermissionGroup)->getTableName());
-
-            // Se as permissões que estão nesse grupo são atribuídas individualmente ao usuário, ou escalonadas pela ordem dentro do grupo
-            $table->boolean('individuais')->default(false);
-            $table->boolean('ativo')->default(true);
+            $table->text('descricao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
@@ -43,6 +32,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
     public function down(): void
     {

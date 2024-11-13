@@ -21,7 +21,7 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
@@ -30,13 +30,13 @@ return new class extends Migration
             $table->string('descricao')->nullable();
 
             $table->unsignedBigInteger('conta_subtipo_id');
-            $table->foreign('conta_subtipo_id')->references('id')->on(App\Models\Referencias\ContaSubtipo::getTableName());
+            $table->foreign('conta_subtipo_id')->references('id')->on((new App\Models\Referencias\ContaSubtipo)->getTableName());
 
             $table->string('banco')->nullable();
             $table->json('configuracao')->nullable();
 
             $table->unsignedSmallInteger('conta_status_id');
-            $table->foreign('conta_status_id')->references('id')->on(App\Models\Referencias\ContaStatusTipo::getTableName());
+            $table->foreign('conta_status_id')->references('id')->on((new App\Models\Referencias\ContaStatusTipo)->getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
@@ -49,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

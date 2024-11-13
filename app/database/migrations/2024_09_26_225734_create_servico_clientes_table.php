@@ -21,16 +21,16 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
             $table->uuid('servico_id');
-            $table->foreign('servico_id')->references('id')->on(App\Models\Servico\Servico::getTableName());
+            $table->foreign('servico_id')->references('id')->on((new App\Models\Servico\Servico)->getTableName());
 
             $table->uuid('pessoa_perfil_id');
-            $table->foreign('pessoa_perfil_id')->references('id')->on(App\Models\Pessoa\PessoaPerfil::getTableName());
+            $table->foreign('pessoa_perfil_id')->references('id')->on((new App\Models\Pessoa\PessoaPerfil)->getTableName());
 
             $table->string('observacao')->nullable();
 
@@ -45,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

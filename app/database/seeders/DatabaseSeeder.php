@@ -16,7 +16,7 @@ use Database\Seeders\Referencias\PagamentoTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
-use Database\Seeders\Referencias\ServicoPagamentoLancamentoStatusTipoSeeder;
+use Database\Seeders\Referencias\LancamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\ServicoParticipacaoReferenciaTipoSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Illuminate\Database\Seeder;
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             PermissionConfigSeeder::class,
 
             ContaStatusTipoSeeder::class,
-            ServicoPagamentoLancamentoStatusTipoSeeder::class,
+            LancamentoStatusTipoSeeder::class,
         ]);
 
         if (env('APP_ENV') == 'local') {

@@ -7,7 +7,7 @@ import { globSync } from 'glob'; // Use globSync com import na versão ESM
 // import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
-    base: '/build/',
+    // base: '/build/',
     plugins: [
         // nodeResolve(),
         laravel({

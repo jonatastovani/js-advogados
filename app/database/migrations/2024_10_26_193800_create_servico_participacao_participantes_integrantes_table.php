@@ -21,16 +21,16 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
             $table->uuid('participante_id');
-            $table->foreign('participante_id', "fk_{$this->model::getTableAsName()}_participante_id")->references('id')->on(App\Models\Servico\ServicoParticipacaoParticipante::getTableName());
+            $table->foreign('participante_id', "fk_{$this->model->getTableAsName()}_participante_id")->references('id')->on((new App\Models\Servico\ServicoParticipacaoParticipante)->getTableName());
 
             $table->unsignedBigInteger('participacao_registro_tipo_id');
-            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model::getTableAsName()}_participacao_registro_tipo_id")->references('id')->on(App\Models\Referencias\ParticipacaoRegistroTipo::getTableName());
+            $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model->getTableAsName()}_participacao_registro_tipo_id")->references('id')->on((new App\Models\Referencias\ParticipacaoRegistroTipo)->getTableName());
 
             $table->uuidMorphs('referencia');
 
@@ -45,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

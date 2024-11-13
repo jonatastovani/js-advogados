@@ -25,14 +25,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table($this->model::getTableName(), function (Blueprint $table) {
+        Schema::table($this->model->getTableName(), function (Blueprint $table) {
             // Adiciona a coluna 'pessoa_perfil_id' após 'user_id'
             $table->uuid('pessoa_perfil_id')->after('user_id')->nullable();
 
             // Define a chave estrangeira para a tabela de PessoaPerfil
             $table->foreign('pessoa_perfil_id')
                 ->references('id')
-                ->on(App\Models\Pessoa\PessoaPerfil::getTableName()); // Opcional: define o comportamento ao excluir
+                ->on((new App\Models\Pessoa\PessoaPerfil)->getTableName()); // Opcional: define o comportamento ao excluir
         });
     }
 
@@ -43,7 +43,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table($this->model::getTableName(), function (Blueprint $table) {
+        Schema::table($this->model->getTableName(), function (Blueprint $table) {
             // Remove a chave estrangeira e a coluna 'pessoa_perfil_id'
             $table->dropForeign(['pessoa_perfil_id']);
             $table->dropColumn('pessoa_perfil_id');

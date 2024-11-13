@@ -21,14 +21,14 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
 
             $table->string('nome');
 
             $table->unsignedSmallInteger('documento_tipo_id');
-            $table->foreign('documento_tipo_id')->references('id')->on(App\Models\Referencias\DocumentoTipo::getTableName());
+            $table->foreign('documento_tipo_id')->references('id')->on((new App\Models\Referencias\DocumentoTipo)->getTableName());
 
             $table->json('configuracao');
             $table->boolean('ativo_bln')->default(true);
@@ -44,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

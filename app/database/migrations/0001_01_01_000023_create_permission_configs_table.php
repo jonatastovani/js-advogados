@@ -22,20 +22,20 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('permissao_id')->unique();
-            $table->foreign('permissao_id')->references('id')->on(App\Models\Auth\Permission::getTableName());
+            $table->foreign('permissao_id')->references('id')->on((new App\Models\Auth\Permission)->getTableName());
 
             $table->boolean('permite_subst_bln')->default(false);
             $table->boolean('gerencia_perm_bln')->default(false);
 
             $table->unsignedBigInteger('permissao_pai_id')->nullable();
-            $table->foreign('permissao_pai_id')->references('id')->on(App\Models\Auth\Permission::getTableName());
+            $table->foreign('permissao_pai_id')->references('id')->on((new App\Models\Auth\Permission)->getTableName());
 
             $table->unsignedBigInteger('grupo_id');
-            $table->foreign('grupo_id')->references('id')->on(App\Models\Auth\PermissionGroup::getTableName());
+            $table->foreign('grupo_id')->references('id')->on((new App\Models\Auth\PermissionGroup)->getTableName());
 
             $table->integer('ordem')->nullable();
 
@@ -48,6 +48,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

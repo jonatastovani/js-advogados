@@ -26,13 +26,13 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->string('id')->primary();
 
             $table->string('nome')->nullable();
 
             $table->unsignedBigInteger('tenant_type_id');
-            $table->foreign('tenant_type_id')->references('id')->on(App\Models\Auth\TenantType::getTableName());
+            $table->foreign('tenant_type_id')->references('id')->on((new App\Models\Auth\TenantType)->getTableName());
             // fim das colunas personalizadas
 
             $table->json('data')->nullable();
@@ -47,6 +47,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

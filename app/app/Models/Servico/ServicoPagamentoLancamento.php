@@ -3,7 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Models\Financeiro\Conta;
-use App\Models\Referencias\ServicoPagamentoLancamentoStatusTipo;
+use App\Models\Referencias\LancamentoStatusTipo;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -55,7 +55,7 @@ class ServicoPagamentoLancamento extends Model
 
     public function status()
     {
-        return $this->belongsTo(ServicoPagamentoLancamentoStatusTipo::class);
+        return $this->belongsTo(LancamentoStatusTipo::class);
     }
 
     public function participantes()

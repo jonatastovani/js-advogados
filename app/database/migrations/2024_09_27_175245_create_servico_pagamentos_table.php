@@ -21,19 +21,19 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
             $table->uuid('servico_id');
-            $table->foreign('servico_id')->references('id')->on(App\Models\Servico\Servico::getTableName());
+            $table->foreign('servico_id')->references('id')->on((new App\Models\Servico\Servico)->getTableName());
 
             $table->uuid('pagamento_tipo_tenant_id');
-            $table->foreign('pagamento_tipo_tenant_id')->references('id')->on(App\Models\Tenant\PagamentoTipoTenant::getTableName());
+            $table->foreign('pagamento_tipo_tenant_id')->references('id')->on((new App\Models\Tenant\PagamentoTipoTenant)->getTableName());
 
             $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on(App\Models\Financeiro\Conta::getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
             $table->float('valor_total')->nullable();
             $table->float('entrada_valor')->nullable();
@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('descricao_condicionado')->nullable();
             $table->string('observacao')->nullable();
 
+            $table->string('status')->nullable();
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }
@@ -56,6 +57,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

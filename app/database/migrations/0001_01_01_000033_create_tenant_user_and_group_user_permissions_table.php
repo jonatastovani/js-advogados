@@ -24,16 +24,16 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
 
             $this->addTenantIDField($table);
 
             $table->uuid('tenant_user_id');
-            $table->foreign('tenant_user_id')->references('id')->on(App\Models\Auth\UserTenantDomain::getTableName());
+            $table->foreign('tenant_user_id')->references('id')->on((new App\Models\Auth\UserTenantDomain)->getTableName());
 
             $table->unsignedBigInteger('permissao_id');
-            $table->foreign('permissao_id')->references('id')->on(App\Models\Auth\Permission::getTableName());
+            $table->foreign('permissao_id')->references('id')->on((new App\Models\Auth\Permission)->getTableName());
 
             $table->boolean('substituto_bln')->default(false); // True para permissão que é substituto de alguma permissão que compete a diretor
 
@@ -51,6 +51,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };

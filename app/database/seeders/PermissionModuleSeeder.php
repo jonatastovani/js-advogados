@@ -31,7 +31,7 @@ class PermissionModuleSeeder extends Seeder
         $maxId = PermissionModule::max('id');  // Obtém o maior ID atual na tabela
         if ($maxId) {
             // Substitua "tenant_types_id_seq" pelo nome correto da sequência para sua tabela e coluna
-            $sequenceName = PermissionModule::getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
+            $sequenceName = (new PermissionModule)->getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
             DB::statement('SELECT setval(\'' . $sequenceName . '\', ' . ($maxId + 1) . ', false)');
         }
     }

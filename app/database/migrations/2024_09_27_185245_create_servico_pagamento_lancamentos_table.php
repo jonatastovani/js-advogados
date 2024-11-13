@@ -21,13 +21,13 @@ return new class extends Migration
     public function up(): void
     {
         $this->createSchemaIfNotExists($this->model::getSchemaName());
-        Schema::create($this->model::getTableName(), function (Blueprint $table) {
+        Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
             $table->uuid('pagamento_id');
-            $table->foreign('pagamento_id')->references('id')->on(App\Models\Servico\ServicoPagamento::getTableName());
+            $table->foreign('pagamento_id')->references('id')->on((new App\Models\Servico\ServicoPagamento)->getTableName());
 
             $table->string('descricao_automatica');
             $table->string('observacao')->nullable();
@@ -37,10 +37,10 @@ return new class extends Migration
             $table->string('data_recebimento')->nullable();
 
             $table->uuid('conta_id')->nullable();
-            $table->foreign('conta_id')->references('id')->on(App\Models\Financeiro\Conta::getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
             
             $table->unsignedBigInteger('status_id');
-            $table->foreign('status_id')->references('id')->on(\App\Models\Referencias\ServicoPagamentoLancamentoStatusTipo::getTableName());
+            $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
@@ -53,6 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists($this->model::getTableName());
+        Schema::dropIfExists($this->model->getTableName());
     }
 };
