@@ -47,7 +47,8 @@ class ValorServicoAguardandoScope implements Scope
         } else {
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
             $builder->withSum(['lancamentos as total_aguardando' => function ($query) {
-                $query->whereIn('status_id', [
+                $table = (new ServicoPagamentoLancamento())->getTable();
+                $query->whereIn("{$table}.status_id", [
                     LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
                     LancamentoStatusTipoEnum::REAGENDADO->value,
                 ]);

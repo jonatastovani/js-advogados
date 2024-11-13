@@ -11,6 +11,7 @@ use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
+use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
@@ -64,6 +65,10 @@ class ServicoPagamentoService extends Service
         DB::beginTransaction();
 
         try {
+            if (!$resource->status_id) {
+                $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+            }
+
             $resource->save();
 
             $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
@@ -155,6 +160,14 @@ class ServicoPagamentoService extends Service
             $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
             if (!$validacaoPagamentoTipoTenantId->count()) {
                 $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
+            }
+        }
+
+        if ($requestData->status_id) {
+            //Verifica se o status informado existe, se não existir o padrão será adicionado mais à frente
+            $validacaoStatusId = ValidationRecordsHelper::validateRecord(PagamentoStatusTipo::class, ['id' => $requestData->status_id], $checkDeletedAlteracaoConta);
+            if (!$validacaoStatusId->count()) {
+                $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status informado não existe.', $requestData)->error;
             }
         }
 

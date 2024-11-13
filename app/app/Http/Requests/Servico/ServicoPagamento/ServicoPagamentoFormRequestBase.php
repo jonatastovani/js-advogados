@@ -18,6 +18,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'pagamento_tipo_tenant_id' => 'required|uuid',
             'conta_id' => 'required|uuid',
             'observacao' => 'nullable|string',
+            'status_id' => 'nullable|integer',
         ];
 
         // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
@@ -70,10 +71,11 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'parcela_valor' => 'valor da parcela',
             'descricao_condicionado' => 'descrição condicionada',
             'observacao' => 'observação',
+            'status_id' => 'status',
         ];
     }
 
-    
+
     protected function customMessages(): array
     {
         return [

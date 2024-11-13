@@ -13,11 +13,10 @@ use Database\Seeders\Referencias\ContaSubtipoSeeder;
 use Database\Seeders\Referencias\ContaTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
-use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
 use Database\Seeders\Referencias\LancamentoStatusTipoSeeder;
-use Database\Seeders\Referencias\ServicoParticipacaoReferenciaTipoSeeder;
+use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Illuminate\Database\Seeder;
 
@@ -43,6 +42,7 @@ class DatabaseSeeder extends Seeder
             PermissionConfigSeeder::class,
 
             ContaStatusTipoSeeder::class,
+            PagamentoStatusTipoSeeder::class,
             LancamentoStatusTipoSeeder::class,
         ]);
 

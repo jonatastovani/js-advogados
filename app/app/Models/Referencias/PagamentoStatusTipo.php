@@ -7,12 +7,12 @@ use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LancamentoStatusTipo extends Model
+class PagamentoStatusTipo extends Model
 {
     use HasFactory, CommonsModelsMethodsTrait, ModelsLogsTrait;
 
-    protected $table = 'referencias.lancamento_status_tipos';
-    protected $tableAsName = 'lanc_status_tipo';
+    protected $table = 'referencias.pagamento_status_tipos';
+    protected $tableAsName = 'pag_status_tipo';
 
     protected $fillable = [
         'id',

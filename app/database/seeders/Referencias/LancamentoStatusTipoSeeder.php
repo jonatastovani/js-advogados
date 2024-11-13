@@ -2,12 +2,12 @@
 
 namespace Database\Seeders\Referencias;
 
-use App\Enums\ServicoPagamentoLancamentoStatusTipoEnum;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
-class ServicoPagamentoLancamentoStatusTipoSeeder extends Seeder
+class LancamentoStatusTipoSeeder extends Seeder
 {
     use CommonsSeederMethodsTrait;
     
@@ -15,7 +15,7 @@ class ServicoPagamentoLancamentoStatusTipoSeeder extends Seeder
 
     public function __construct()
     {
-        $this->model = new \App\Models\Referencias\ServicoPagamentoLancamentoStatusTipo();
+        $this->model = new \App\Models\Referencias\LancamentoStatusTipo();
     }
 
     /**
@@ -24,7 +24,7 @@ class ServicoPagamentoLancamentoStatusTipoSeeder extends Seeder
     public function run(): void
     {
         $insert = [];
-        foreach (ServicoPagamentoLancamentoStatusTipoEnum::cases() as $enumValue) {
+        foreach (LancamentoStatusTipoEnum::cases() as $enumValue) {
             $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 

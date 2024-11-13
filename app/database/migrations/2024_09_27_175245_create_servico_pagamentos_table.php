@@ -45,7 +45,9 @@ return new class extends Migration
             $table->string('descricao_condicionado')->nullable();
             $table->string('observacao')->nullable();
 
-            $table->string('status')->nullable();
+            $table->smallInteger('status_id');
+            $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\PagamentoStatusTipo)->getTableName());
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

@@ -46,7 +46,8 @@ class ValorServicoInadimplenteScope implements Scope
         } else {
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
             $builder->withSum(['lancamentos as total_inadimplente' => function ($query) {
-                $query->whereIn('status_id', [
+                $table = (new ServicoPagamentoLancamento())->getTable();
+                $query->whereIn("{$table}.status_id", [
                     LancamentoStatusTipoEnum::INADIMPLENTE->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));

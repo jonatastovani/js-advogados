@@ -8,21 +8,27 @@ enum LancamentoStatusTipoEnum: int
 {
     use EnumTrait;
 
-    case AGUARDANDO_PAGAMENTO = 1;
-    case LIQUIDADO_EM_ANALISE = 2;
-    case LIQUIDADO = 3;
-    case LIQUIDADO_PARCIALMENTE_EM_ANALISE = 4;
-    case LIQUIDADO_PARCIALMENTE = 5;
-    case INADIMPLENTE_EM_ANALISE = 6;
-    case INADIMPLENTE = 7;
-    case REAGENDADO_EM_ANALISE = 8;
-    case REAGENDADO = 9;
-    case CANCELADO_EM_ANALISE = 10;
-    case CANCELADO = 11;
+    case AGUARDANDO_PAGAMENTO_EM_ANALISE = 1;
+    case AGUARDANDO_PAGAMENTO = 2;
+    case LIQUIDADO_EM_ANALISE = 3;
+    case LIQUIDADO = 4;
+    case LIQUIDADO_PARCIALMENTE_EM_ANALISE = 5;
+    case LIQUIDADO_PARCIALMENTE = 6;
+    case INADIMPLENTE_EM_ANALISE = 7;
+    case INADIMPLENTE = 8;
+    case REAGENDADO_EM_ANALISE = 9;
+    case REAGENDADO = 10;
+    case CANCELADO_EM_ANALISE = 11;
+    case CANCELADO = 12;
 
     public function detalhes(): array
     {
         return match ($this) {
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE => [
+                'id' => self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+                'nome' => 'Aguardando pagamento em analise',
+                'descricao' => 'O pagamento foi lançado, mas ainda não foi confirmado.',
+            ],
             self::AGUARDANDO_PAGAMENTO => [
                 'id' => self::AGUARDANDO_PAGAMENTO->value,
                 'nome' => 'Aguardando pagamento',
@@ -83,6 +89,6 @@ enum LancamentoStatusTipoEnum: int
 
     static public function statusPadraoSalvamento(): int
     {
-        return self::AGUARDANDO_PAGAMENTO->value;
+        return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
     }
 }
