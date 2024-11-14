@@ -21,37 +21,41 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'status_id' => 'nullable|integer',
         ];
 
-        // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-        $pagamentoTipoTenantId = $this->input('pagamento_tipo_tenant_id');
+        // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
+        if ($this->isMethod('post')) {
 
-        if (!$pagamentoTipoTenantId) {
-            $log = LogHelper::gerarLogDinamico('404', 'Tipo de Pagamento do Tenant não informado. Consulte o desenvolvedor.', $this);
-            return RestResponse::createErrorResponse(404, $log->error, $log->trace_id)->throwResponse();
-        }
+            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+            $pagamentoTipoTenantId = $this->input('pagamento_tipo_tenant_id');
 
-        $consulta =  PagamentoTipoTenant::with('pagamento_tipo')->find($pagamentoTipoTenantId);
-
-        if (!$consulta) {
-            return RestResponse::createErrorResponse(404, 'Tipo de Pagamento do Tenant não encontrado.')->throwResponse();
-        }
-
-        $pagamentoTipo = $consulta->pagamento_tipo;
-
-        // Define as regras de acordo com o tipo de pagamento
-        foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
-            switch ($pagamentoTipo->id) {
-                case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                    if ($value['nome'] == 'valor_total') {
-                        $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['formRequestRule']);
-                    }
-                    break;
-
-                case PagamentoTipoEnum::PARCELADO->value:
-                    if ($value['nome'] == 'valor_total') {
-                        $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['formRequestRule']);
-                    }
+            if (!$pagamentoTipoTenantId) {
+                $log = LogHelper::gerarLogDinamico('404', 'Tipo de Pagamento do Tenant não informado. Consulte o desenvolvedor.', $this);
+                return RestResponse::createErrorResponse(404, $log->error, $log->trace_id)->throwResponse();
             }
-            $rules[$value['nome']] = $value['formRequestRule'];
+
+            $consulta =  PagamentoTipoTenant::with('pagamento_tipo')->find($pagamentoTipoTenantId);
+
+            if (!$consulta) {
+                return RestResponse::createErrorResponse(404, 'Tipo de Pagamento do Tenant não encontrado.')->throwResponse();
+            }
+
+            $pagamentoTipo = $consulta->pagamento_tipo;
+
+            // Define as regras de acordo com o tipo de pagamento
+            foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+                switch ($pagamentoTipo->id) {
+                    case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                        if ($value['nome'] == 'valor_total') {
+                            $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['formRequestRule']);
+                        }
+                        break;
+
+                    case PagamentoTipoEnum::PARCELADO->value:
+                        if ($value['nome'] == 'valor_total') {
+                            $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['formRequestRule']);
+                        }
+                }
+                $rules[$value['nome']] = $value['formRequestRule'];
+            }
         }
 
         return $rules;

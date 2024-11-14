@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Models\Financeiro\Conta;
+use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Scopes\Servico\ValorServicoPagamentoAguardandoScope;
 use App\Scopes\Servico\ValorServicoPagamentoEmAnaliseScope;
@@ -30,6 +31,7 @@ class ServicoPagamento extends Model
 
     protected $fillable = [
         'servico_id',
+        'status_id',
         'pagamento_tipo_tenant_id',
         'conta_id',
         'valor_total',
@@ -53,6 +55,11 @@ class ServicoPagamento extends Model
     public function servico()
     {
         return $this->belongsTo(Servico::class);
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(PagamentoStatusTipo::class);
     }
 
     public function pagamento_tipo_tenant()

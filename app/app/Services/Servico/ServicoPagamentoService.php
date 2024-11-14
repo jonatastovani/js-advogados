@@ -5,6 +5,7 @@ namespace App\Services\Servico;
 use App\Common\CommonsFunctions;
 use App\Enums\PagamentoTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\PagamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
@@ -66,7 +67,7 @@ class ServicoPagamentoService extends Service
 
         try {
             if (!$resource->status_id) {
-                $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+                $resource->status_id = PagamentoStatusTipoEnum::statusPadraoSalvamento();
             }
 
             $resource->save();
@@ -196,26 +197,56 @@ class ServicoPagamentoService extends Service
         ]);
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
-        return [
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
+
+        $relationships = [
+            'status',
             'pagamento_tipo_tenant.pagamento_tipo',
             'conta',
-            'lancamentos.status',
-            'lancamentos.conta',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',
             'participantes.referencia.perfil_tipo',
             'participantes.referencia.pessoa.pessoa_dados',
             'participantes.participacao_registro_tipo',
-            'lancamentos.participantes.participacao_tipo',
-            'lancamentos.participantes.integrantes.referencia.perfil_tipo',
-            'lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'lancamentos.participantes.referencia.perfil_tipo',
-            'lancamentos.participantes.referencia.pessoa.pessoa_dados',
-            'lancamentos.participantes.participacao_registro_tipo',
         ];
+
+        // Verifica se ServicoService está na lista de exclusão
+        $classImport = ServicoService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'servico.' // Adiciona um prefixo aos relacionamentos externos
+                ]
+            );
+        }
+
+        // Verifica se ServicoPagamentoLancamentoService está na lista de exclusão
+        $classImport = ServicoPagamentoLancamentoService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'lancamentos.'
+                ]
+            );
+        }
+
+        return $relationships;
     }
 
     // private function executarEventoWebsocket()

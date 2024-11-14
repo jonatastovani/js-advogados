@@ -26,7 +26,7 @@ enum LancamentoStatusTipoEnum: int
         return match ($this) {
             self::AGUARDANDO_PAGAMENTO_EM_ANALISE => [
                 'id' => self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                'nome' => 'Aguardando pagamento em analise',
+                'nome' => 'Aguardando pagamento (em análise)',
                 'descricao' => 'O pagamento foi lançado, mas ainda não foi confirmado.',
             ],
             self::AGUARDANDO_PAGAMENTO => [
@@ -36,7 +36,7 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::LIQUIDADO_EM_ANALISE => [
                 'id' => self::LIQUIDADO_EM_ANALISE->value,
-                'nome' => 'Liquidado em análise',
+                'nome' => 'Liquidado (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado, mas ainda não foi confirmado.',
             ],
             self::LIQUIDADO => [
@@ -46,7 +46,7 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::LIQUIDADO_PARCIALMENTE_EM_ANALISE => [
                 'id' => self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-                'nome' => 'Liquidado parcialmente em análise',
+                'nome' => 'Liquidado parcialmente (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado parcialmente, mas ainda não foi confirmado.',
             ],
             self::LIQUIDADO_PARCIALMENTE => [
@@ -56,7 +56,7 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::INADIMPLENTE_EM_ANALISE => [
                 'id' => self::INADIMPLENTE_EM_ANALISE->value,
-                'nome' => 'Inadimplente em análise',
+                'nome' => 'Inadimplente (em análise)',
                 'descricao' => 'O lançamento foi alterado para inadimplente, mas ainda não foi confirmado.',
             ],
             self::INADIMPLENTE => [
@@ -66,7 +66,7 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::REAGENDADO_EM_ANALISE => [
                 'id' => self::REAGENDADO_EM_ANALISE->value,
-                'nome' => 'Reagendado em análise',
+                'nome' => 'Reagendado (em análise)',
                 'descricao' => 'O lançamento foi alterado para reagendado, mas ainda não foi confirmado.',
             ],
             self::REAGENDADO => [
@@ -76,7 +76,7 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::CANCELADO_EM_ANALISE => [
                 'id' => self::CANCELADO_EM_ANALISE->value,
-                'nome' => 'Cancelado em análise',
+                'nome' => 'Cancelado (em análise)',
                 'descricao' => 'O lançamento foi alterado para cancelado, mas ainda não foi confirmado.',
             ],
             self::CANCELADO => [

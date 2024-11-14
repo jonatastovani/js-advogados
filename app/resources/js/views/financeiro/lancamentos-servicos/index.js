@@ -1,9 +1,9 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { templateSearch } from "../../commons/templates/templateSearch";
-import { modalLancamentoMovimentar } from "../../components/financeiro/modalLancamentoMovimentar";
-import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
-import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../helpers/ServicoParticipacaoHelpers";
+import { commonFunctions } from "../../../commons/commonFunctions";
+import { templateSearch } from "../../../commons/templates/templateSearch";
+import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
+import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
+import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 
 class PageLancamentoServicoIndex extends templateSearch {
 
@@ -58,7 +58,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             }
         }
 
-        openModal();
+        // openModal();
     }
 
     async insertTableData(item, options = {}) {
@@ -85,6 +85,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
         const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.pagamento.observacao ?? '***';
+        const statusPagamento = item.status.nome;
 
         const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
@@ -102,21 +103,22 @@ class PageLancamentoServicoIndex extends templateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap" title="${numero_servico}">${numero_servico}</td>
-                <td title="${status}">${status}</td>
+                <td class="text-nowrap" title="${status}">${status}</td>
                 <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-center" title="${valorRecebido}">${valorRecebido}</td>
                 <td class="text-nowrap text-center" title="${dataRecebimento}">${dataRecebimento}</td>
                 <td class="text-nowrap text-truncate" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-truncate" title="${observacaoLancamento}">${observacaoLancamento}</td>
+                <td class="text-nowrap text-truncate" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap text-center" title="${valorPagamento}">${valorPagamento}</td>
                 <td class="text-truncate" title="${tituloServico}">${tituloServico}</td>
                 <td class="text-nowrap text-truncate" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap text-center" title="${valorLiquidado}">${valorLiquidado}</td>
                 <td class="text-nowrap text-center" title="${valorAguardando}">${valorAguardando}</td>
                 <td class="text-nowrap text-center" title="${valorInadimplente}">${valorInadimplente}</td>
-                <td class="text-truncate" title="${pagamentoTipo}">${pagamentoTipo}</td>
-                <td class="text-truncate" title="${observacaoPagamento}">${observacaoPagamento}</td>
+                <td class="text-nowrap text-truncate" title="${pagamentoTipo}">${pagamentoTipo}</td>
+                <td class="text-nowrap text-truncate" title="${observacaoPagamento}">${observacaoPagamento}</td>
+                <td class="text-nowrap text-truncate" title="${statusPagamento}">${statusPagamento}</td>
                 <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>

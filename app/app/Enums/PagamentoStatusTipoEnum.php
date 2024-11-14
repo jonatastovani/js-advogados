@@ -14,7 +14,7 @@ enum PagamentoStatusTipoEnum: int
     case CANCELADO_EM_ANALISE = 4;
     case LIQUIDADO = 5;
     case LIQUIDADO_EM_ANALISE = 6;
-    
+
     public function detalhes(): array
     {
         return match ($this) {
@@ -25,7 +25,7 @@ enum PagamentoStatusTipoEnum: int
             ],
             self::ATIVO_EM_ANALISE => [
                 'id' => self::ATIVO_EM_ANALISE->value,
-                'nome' => 'Ativo em análise',
+                'nome' => 'Ativo (em análise)',
                 'descricao' => 'O pagamento foi lançado, mas ainda não foi confirmado.',
             ],
             self::CANCELADO => [
@@ -35,7 +35,7 @@ enum PagamentoStatusTipoEnum: int
             ],
             self::CANCELADO_EM_ANALISE => [
                 'id' => self::CANCELADO_EM_ANALISE->value,
-                'nome' => 'Cancelado em análise',
+                'nome' => 'Cancelado (em análise)',
                 'descricao' => 'O pagamento foi cancelado, mas ainda não foi confirmado.',
             ],
             self::LIQUIDADO => [
@@ -45,7 +45,7 @@ enum PagamentoStatusTipoEnum: int
             ],
             self::LIQUIDADO_EM_ANALISE => [
                 'id' => self::LIQUIDADO_EM_ANALISE->value,
-                'nome' => 'Liquidado em análise',
+                'nome' => 'Liquidado (em análise)',
                 'descricao' => 'O pagamento foi liquidado, mas ainda não foi confirmado.',
             ],
         };

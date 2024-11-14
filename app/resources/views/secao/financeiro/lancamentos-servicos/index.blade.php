@@ -59,6 +59,7 @@
                     <th class="text-nowrap">Total Inadimplente</th>
                     <th class="text-nowrap">Tipo de pagamento</th>
                     <th class="text-nowrap">Observação Pagamento</th>
+                    <th class="text-nowrap">Status Pagamento</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
                     <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-nowrap">Cadastro</th>
@@ -78,7 +79,7 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/index.js')
+    @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseLancamento' => route('api.financeiro.lancamentos-servicos'),

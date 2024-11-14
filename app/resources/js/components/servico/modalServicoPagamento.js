@@ -24,6 +24,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             baseLancamentos: undefined,
             basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
             baseContas: window.apiRoutes.baseContas,
+            baseStatusPagamento: window.apiRoutes.baseStatusPagamento,
         },
         sufixo: 'ModalServicoPagamento',
         data: {
@@ -57,6 +58,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const self = this;
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do pagamento...' });
         await this.#buscarContas();
+        await this.#buscarStatusPagamento();
 
         if (self._dataEnvModal.idRegister) {
             self._objConfigs.url.baseLancamentos = `${self._objConfigs.url.base}/${self._dataEnvModal.idRegister}/lancamentos`;
@@ -317,6 +319,18 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         }
     }
 
+    async #buscarStatusPagamento(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const selModulo = $(self.getIdModal).find('select[name="status_id"]');
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseStatusPagamento, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     async #buscarDados() {
         const self = this;
         $(self.getIdModal).find('.row-lancamentos').html('');
@@ -337,6 +351,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
                 const form = $(self.getIdModal).find('.formRegistration');
                 form.find('select[name="conta_id"]').val(responseData.conta_id);
+                form.find('select[name="status_id"]').val(responseData.status_id);
                 for (const campo of configuracao.campos_obrigatorios) {
                     const rules = campo.formRequestRule.split('|');
                     let valor = responseData[campo.nome];

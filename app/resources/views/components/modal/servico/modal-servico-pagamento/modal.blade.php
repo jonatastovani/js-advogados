@@ -71,6 +71,7 @@
     'routes' => [
         'baseContas' => route('api.financeiro.conta'),
         'basePagamentoTipoTenants' => route('api.financeiro.pagamento-tipo-tenant'),
+        'baseStatusPagamento' => route('api.referencias.pagamento-status-tipo'),
     ],
 ])
 @endcomponent

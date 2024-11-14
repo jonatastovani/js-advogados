@@ -33,4 +33,18 @@ Route::group([
             Route::put('{id}', 'update');
         });
     });
+
+    Route::prefix('pagamento-status-tipo')->group(function () {
+
+        Route::controller(App\Http\Controllers\Referencias\PagamentoStatusTipoController::class)->group(function () {
+
+            // Route::post('select2', 'select2');
+            // Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::get('', 'index');
+            Route::post('', 'store')->name('api.referencias.pagamento-status-tipo');
+            Route::get('{id}', 'show');
+            Route::put('{id}', 'update');
+        });
+    });
 });

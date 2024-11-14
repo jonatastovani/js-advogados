@@ -10,6 +10,12 @@
             <button type="button" class="btn btn-outline-primary openModalConta"><i class="bi bi-search"></i></button>
         </div>
     </div>
+    <div class="col mt-2">
+        <label for="status_id{{ $sufixo }}" class="form-label">Status</label>
+        <select name="status_id" id="status_id{{ $sufixo }}" class="form-select">
+            <option value="0">Selecione</option>
+        </select>
+    </div>
 </div>
 
 <div class="campos-personalizados"></div>

@@ -140,25 +140,26 @@ class ServicoPagamentoLancamentoService extends Service
             'campoOrdenacao' => 'data_vencimento',
         ], $options));
 
-        $load = array_merge([
-            'pagamento.servico.area_juridica',
-            'pagamento.servico.participantes.participacao_tipo',
-            'pagamento.servico.participantes.integrantes.referencia.perfil_tipo',
-            'pagamento.servico.participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'pagamento.servico.participantes.referencia.perfil_tipo',
-            'pagamento.servico.participantes.referencia.pessoa.pessoa_dados',
-            'pagamento.servico.participantes.participacao_registro_tipo',
-            'pagamento.pagamento_tipo_tenant.pagamento_tipo',
-            'pagamento.conta',
-            'pagamento.participantes.participacao_tipo',
-            'pagamento.participantes.integrantes.referencia.perfil_tipo',
-            'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'pagamento.participantes.referencia.perfil_tipo',
-            'pagamento.participantes.referencia.pessoa.pessoa_dados',
-            'pagamento.participantes.participacao_registro_tipo',
-        ], $this->loadFull());
+        // $load = array_merge([
+        //     'pagamento.servico.area_juridica',
+        //     'pagamento.servico.participantes.participacao_tipo',
+        //     'pagamento.servico.participantes.integrantes.referencia.perfil_tipo',
+        //     'pagamento.servico.participantes.integrantes.referencia.pessoa.pessoa_dados',
+        //     'pagamento.servico.participantes.referencia.perfil_tipo',
+        //     'pagamento.servico.participantes.referencia.pessoa.pessoa_dados',
+        //     'pagamento.servico.participantes.participacao_registro_tipo',
+        //     'pagamento.status',
+        //     'pagamento.pagamento_tipo_tenant.pagamento_tipo',
+        //     'pagamento.conta',
+        //     'pagamento.participantes.participacao_tipo',
+        //     'pagamento.participantes.integrantes.referencia.perfil_tipo',
+        //     'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
+        //     'pagamento.participantes.referencia.perfil_tipo',
+        //     'pagamento.participantes.referencia.pessoa.pessoa_dados',
+        //     'pagamento.participantes.participacao_registro_tipo',
+        // ], $this->loadFull());
 
-        return $this->carregarRelacionamentos($query, $requestData, ['loadFull' => $load, $options]);
+        return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
     /**
@@ -298,9 +299,20 @@ class ServicoPagamentoLancamentoService extends Service
         ]);
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
-        return [
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
+
+        $relationships = [
             'pagamento',
             'status',
             'conta',
@@ -311,6 +323,20 @@ class ServicoPagamentoLancamentoService extends Service
             'participantes.referencia.pessoa.pessoa_dados',
             'participantes.participacao_registro_tipo',
         ];
+
+        // Verifica se ServicoPagamentoService está na lista de exclusão
+        if (!in_array(ServicoPagamentoService::class, $withOutClass)) {
+            // Mescla relacionamentos de ServicoPagamentoService
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app(ServicoPagamentoService::class)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'pagamento.'
+                ]
+            );
+        }
+
+        return $relationships;
     }
 
     // private function executarEventoWebsocket()

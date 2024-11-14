@@ -3,12 +3,14 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Models\Servico\Servico;
+use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
@@ -92,7 +94,7 @@ class ServicoService extends Service
         }
 
         if ($blnIntegranteFiltro) {
-            $query = $this->modelParticipante::joinIntegrantes($query);
+            $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
         }
 
         foreach ($filtros['campos_busca'] as $key) {
@@ -165,34 +167,71 @@ class ServicoService extends Service
         return parent::buscarRecurso($requestData, array_merge(['message' => 'O Serviço não foi encontrado.'], $options));
     }
 
-    public function loadFull(): array
+    // public function loadFull(): array
+    // {
+    //     return [
+    //         'area_juridica',
+    //         'anotacao',
+    //         'participantes.participacao_tipo',
+    //         'participantes.integrantes.referencia.perfil_tipo',
+    //         'participantes.integrantes.referencia.pessoa.pessoa_dados',
+    //         'participantes.referencia.perfil_tipo',
+    //         'pagamento.pagamento_tipo_tenant.pagamento_tipo',
+    //         'pagamento.conta',
+    //         'pagamento.lancamentos.status',
+    //         'pagamento.lancamentos.conta',
+    //         'participantes.referencia.pessoa.pessoa_dados',
+    //         'participantes.participacao_registro_tipo',
+    //         'pagamento.participantes.participacao_tipo',
+    //         'pagamento.participantes.integrantes.referencia.perfil_tipo',
+    //         'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
+    //         'pagamento.participantes.referencia.perfil_tipo',
+    //         'pagamento.participantes.referencia.pessoa.pessoa_dados',
+    //         'pagamento.participantes.participacao_registro_tipo',
+    //         'pagamento.lancamentos.participantes.participacao_tipo',
+    //         'pagamento.lancamentos.participantes.integrantes.referencia.perfil_tipo',
+    //         'pagamento.lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
+    //         'pagamento.lancamentos.participantes.referencia.perfil_tipo',
+    //         'pagamento.lancamentos.participantes.referencia.pessoa.pessoa_dados',
+    //         'pagamento.lancamentos.participantes.participacao_registro_tipo',
+    //     ];
+    // }
+
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
-        return [
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
+
+        $relationships = [
             'area_juridica',
             'anotacao',
-            'pagamento.pagamento_tipo_tenant.pagamento_tipo',
-            'pagamento.conta',
-            'pagamento.lancamentos.status',
-            'pagamento.lancamentos.conta',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',
             'participantes.referencia.perfil_tipo',
-            'participantes.referencia.pessoa.pessoa_dados',
-            'participantes.participacao_registro_tipo',
-            'pagamento.participantes.participacao_tipo',
-            'pagamento.participantes.integrantes.referencia.perfil_tipo',
-            'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'pagamento.participantes.referencia.perfil_tipo',
-            'pagamento.participantes.referencia.pessoa.pessoa_dados',
-            'pagamento.participantes.participacao_registro_tipo',
-            'pagamento.lancamentos.participantes.participacao_tipo',
-            'pagamento.lancamentos.participantes.integrantes.referencia.perfil_tipo',
-            'pagamento.lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'pagamento.lancamentos.participantes.referencia.perfil_tipo',
-            'pagamento.lancamentos.participantes.referencia.pessoa.pessoa_dados',
-            'pagamento.lancamentos.participantes.participacao_registro_tipo',
         ];
+
+        // Verifica se ServicoPagamentoService está na lista de exclusão
+        $classImport = ServicoPagamentoService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'pagamento.'
+                ]
+            );
+        }
+
+        return $relationships;
     }
 
     public function getRelatorioValores(Fluent $requestData)

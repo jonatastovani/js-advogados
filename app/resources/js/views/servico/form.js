@@ -299,7 +299,7 @@ class PageServicoForm {
                             </div>
                         </div>
                     </h5>
-                    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 align-items-end">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
                         ${htmlColsEspecifico}
                     </div>
                     ${htmlAppend}
@@ -333,6 +333,14 @@ class PageServicoForm {
     #htmlColsEspecificosPagamento(item) {
 
         let htmlColsEspecifico = '';
+        if (item?.status) {
+            htmlColsEspecifico += `
+                <div class="col">
+                    <div class="form-text mt-0">Status</div>
+                    <p class="text-truncate" title="${item.status?.descricao ?? ''}">${item.status.nome}</p>
+                </div>`;
+        }
+
         if (item?.conta) {
             htmlColsEspecifico += `
                 <div class="col">
