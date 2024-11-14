@@ -35,7 +35,7 @@ Route::group([
 
                 // Route::get('', 'index');
                 // Route::post('', 'store')->name('api.financeiro.conta');
-                // Route::get('{uuid}', 'show');
+                Route::get('{uuid}', 'show');
                 // Route::put('{uuid}', 'update');
                 // Route::delete('{uuid}', 'destroy');
             });

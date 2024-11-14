@@ -20,9 +20,9 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
      */
     #objConfigs = {
         url: {
-            base: undefined,
-            baseLancamentos: undefined,
-            basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
+            base: window.apiRoutes.baseLancamento,
+            // baseLancamentos: undefined,
+            // basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
             baseContas: window.apiRoutes.baseContas,
         },
         sufixo: 'ModalLancamentoMovimentar',
@@ -47,7 +47,6 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._objConfigs.url.base = options.urlApi;
         this._action = enumAction.POST;
 
         this.#addEventosPadrao();
@@ -59,7 +58,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
         await this.#buscarContas();
 
         if (self._dataEnvModal.idRegister) {
-            self._objConfigs.url.baseLancamentos = `${self._objConfigs.url.base}/${self._dataEnvModal.idRegister}/lancamentos`;
+            // self._objConfigs.url.base = `${self._objConfigs.url.base}/${self._dataEnvModal.idRegister}/lancamentos`;
             await self.#buscarDados()
         } else {
             commonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
@@ -339,7 +338,6 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
             return false;
         }
     }
-
 
     async #buscarLancamentos() {
         const self = this;

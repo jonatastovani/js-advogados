@@ -46,9 +46,12 @@ class PageLancamentoServicoIndex extends templateSearch {
 
         const openModal = async () => {
             try {
-                const objModal = new modalLancamentoMovimentar();
+                const objModal = new modalLancamentoMovimentar({
+                    urlApi: `${self._objConfigs.url.baseServico}/`
+                });
                 objModal.setDataEnvModal = {
-                    idRegister: "9d73c9d3-e23c-4a0f-9aa7-953cc9e4552a",
+                    idRegister: "9d7d23cc-0958-43b7-a3c1-10ed54d9c528",
+                    pagamento_id: "9d7d23cb-f718-444f-a85d-7b0c89238716",
                 }
                 const response = await objModal.modalOpen();
                 console.log(response);
@@ -58,7 +61,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             }
         }
 
-        // openModal();
+        openModal();
     }
 
     async insertTableData(item, options = {}) {

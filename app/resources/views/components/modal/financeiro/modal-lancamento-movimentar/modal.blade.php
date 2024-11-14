@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title" data-title-default="Novo Pagamento">Novo Pagamento</h4>
+                <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
@@ -113,8 +113,8 @@
 
 @component('components.api.api-routes', [
     'routes' => [
+        'baseLancamento' => route('api.financeiro.lancamentos-servicos'),
         'baseContas' => route('api.financeiro.conta'),
-        'basePagamentoTipoTenants' => route('api.financeiro.pagamento-tipo-tenant'),
     ],
 ])
 @endcomponent

@@ -140,25 +140,6 @@ class ServicoPagamentoLancamentoService extends Service
             'campoOrdenacao' => 'data_vencimento',
         ], $options));
 
-        // $load = array_merge([
-        //     'pagamento.servico.area_juridica',
-        //     'pagamento.servico.participantes.participacao_tipo',
-        //     'pagamento.servico.participantes.integrantes.referencia.perfil_tipo',
-        //     'pagamento.servico.participantes.integrantes.referencia.pessoa.pessoa_dados',
-        //     'pagamento.servico.participantes.referencia.perfil_tipo',
-        //     'pagamento.servico.participantes.referencia.pessoa.pessoa_dados',
-        //     'pagamento.servico.participantes.participacao_registro_tipo',
-        //     'pagamento.status',
-        //     'pagamento.pagamento_tipo_tenant.pagamento_tipo',
-        //     'pagamento.conta',
-        //     'pagamento.participantes.participacao_tipo',
-        //     'pagamento.participantes.integrantes.referencia.perfil_tipo',
-        //     'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
-        //     'pagamento.participantes.referencia.perfil_tipo',
-        //     'pagamento.participantes.referencia.pessoa.pessoa_dados',
-        //     'pagamento.participantes.participacao_registro_tipo',
-        // ], $this->loadFull());
-
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
