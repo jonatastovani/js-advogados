@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Servico\ServicoPagamentoLancamento;
+namespace App\Http\Requests\Financeiro\MovimentacaoConta;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoPagamentoLancamentoFormRequestShow extends BaseFormRequest
+class MovimentacaoContaFormRequestIndex extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,10 +18,6 @@ class ServicoPagamentoLancamentoFormRequestShow extends BaseFormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'pagamento_uuid' => 'nullable|uuid',
-        ];
-
-        return array_merge($this->rulesShowWithTrashed(), $rules);
+        return $this->rulesShowWithTrashed();
     }
 }

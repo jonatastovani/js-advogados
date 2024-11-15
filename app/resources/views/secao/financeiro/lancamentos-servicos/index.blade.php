@@ -82,7 +82,7 @@
     @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseLancamento' => route('api.financeiro.lancamentos-servicos'),
+            'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseServico' => route('api.servico'),
             ],
     ])

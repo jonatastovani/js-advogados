@@ -102,12 +102,15 @@ export class modalRegistrationAndEditing extends modalDefault {
             const obj = new connectAjax(urlApi);
             obj.setAction(self._action)
             obj.setData(data);
-            if (self._dataEnvModal.idRegister) {
+            if (self._action === enumAction.PUT) {
                 obj.setParam(self._dataEnvModal.idRegister);
-                obj.setAction(enumAction.PUT);
-            } else {
-                obj.setAction(enumAction.POST);
             }
+            // if (self._dataEnvModal.idRegister) {
+            //     obj.setParam(self._dataEnvModal.idRegister);
+            //     obj.setAction(enumAction.PUT);
+            // } else {
+            //     obj.setAction(enumAction.POST);
+            // }
 
             const response = await obj.envRequest();
             if (response) {

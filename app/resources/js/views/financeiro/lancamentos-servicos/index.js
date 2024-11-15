@@ -11,8 +11,8 @@ class PageLancamentoServicoIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseLancamento,
-                urlSearch: `${window.apiRoutes.baseLancamento}/consulta-filtros`,
+                url: `${window.apiRoutes.baseLancamento}/servicos`,
+                urlSearch: `${window.apiRoutes.baseLancamento}/servicos/consulta-filtros`,
                 baseFront: window.frontRoutes.baseFront,
             }
         },
@@ -50,8 +50,9 @@ class PageLancamentoServicoIndex extends templateSearch {
                     urlApi: `${self._objConfigs.url.baseServico}/`
                 });
                 objModal.setDataEnvModal = {
-                    idRegister: "9d7d23cc-0958-43b7-a3c1-10ed54d9c528",
-                    pagamento_id: "9d7d23cb-f718-444f-a85d-7b0c89238716",
+                    idRegister: "9d7e703f-5d75-4673-9c75-1019909a553f",
+                    pagamento_id: "9d7e703f-5644-4ead-80d6-026eb41efe92",
+                    status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
                 }
                 const response = await objModal.modalOpen();
                 console.log(response);
@@ -145,7 +146,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     
                     <li>
                         <button type="button" class="dropdown-item fs-6 text-success btn-receber-liquidado-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado em Análise.">
-                            <i class="bi bi-check2"></i> Liquidado em Análise
+                            <i class="bi bi-check2"></i> Liquidado (em Análise)
                         </button>
                     </li>
                     <li>
@@ -156,7 +157,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                 
                     <li>
                         <button type="button" class="dropdown-item fs-6 text-warning btn-receber-parcial-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado Parcial em Análise.">
-                            <i class="bi bi-exclamation-lg"></i> Parcial em Análise
+                            <i class="bi bi-exclamation-lg"></i> Parcial (em Análise)
                         </button>
                     </li>
                     <li>
@@ -164,10 +165,21 @@ class PageLancamentoServicoIndex extends templateSearch {
                             <i class="bi bi-check2-all"></i> Parcial
                         </button>
                     </li>
+                
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado-analise" title="Reagendar lancamento ${item.descricao_automatica} em Análise.">
+                            <i class="bi bi-calendar-event"></i> Reagendar (em Análise)
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado" title="Reagendar lançamento ${item.descricao_automatica}.">
+                            <i class="bi bi-check2-all"></i> Reagendar
+                        </button>
+                    </li>
 
                     <li>
                         <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado em Análise.">
-                           <i class="bi bi-dash-circle"></i> Cancelado em Análise
+                           <i class="bi bi-dash-circle"></i> Cancelado (em Análise)
                         </button>
                     </li>
                     <li>
@@ -184,16 +196,15 @@ class PageLancamentoServicoIndex extends templateSearch {
     }
 
     #addEventosRegistrosConsulta(item) {
-        const self = this;
+        // const self = this;
 
-        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            self._delButtonAction(item.id, item.name, {
-                title: `Exclusão de Serviço`,
-                message: `Confirma a exclusão do Serviço <b>${item.numero_servico}</b>?`,
-                success: `Serviço excluído com sucesso!`,
-                button: this
-            });
-        });
+        // window.Enums
+        // LancamentoStatusTipoEnum
+
+
+        // $(`#${item.idTr}`).find(`.btn-receber-liquidado-analise`).click(async function () {
+           
+        // });
     }
 }
 

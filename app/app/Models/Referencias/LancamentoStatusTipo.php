@@ -19,4 +19,8 @@ class LancamentoStatusTipo extends Model
         'nome',
         'descricao',
     ];
+
+    protected $casts = [
+        'configuracao' => 'array',
+    ];
 }

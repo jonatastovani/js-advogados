@@ -162,7 +162,7 @@ class PageServicoForm {
             });
 
             if (response) {
-                self.#buscarParticipantes();
+                self.#functionsServicoParticipacao._buscarParticipantes();
             }
         });
 
@@ -759,19 +759,6 @@ class PageServicoForm {
                 self.#inserirPagamento(item);
             }
             await self.#buscarValores();
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        }
-    }
-
-    async #buscarParticipantes() {
-        const self = this;
-        try {
-            const obj = new connectAjax(self.#objConfigs.url.baseParticipacao);
-            const response = await obj.getRequest();
-            if (response.data) {
-                self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(response.data);
-            }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }

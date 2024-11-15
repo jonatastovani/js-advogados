@@ -25,24 +25,30 @@ Route::group([
     });
 
     Route::prefix('lancamentos')->group(function () {
-
+        
+        Route::get('', function () {})->name('api.financeiro.lancamentos');
+        
         Route::prefix('servicos')->group(function () {
 
             Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
-                Route::get('', function () {})->name('api.financeiro.lancamentos-servicos');
-
-                // Route::get('', 'index');
-                // Route::post('', 'store')->name('api.financeiro.conta');
-                Route::get('{uuid}', 'show');
-                // Route::put('{uuid}', 'update');
-                // Route::delete('{uuid}', 'destroy');
+                Route::post('{uuid}', 'show');
             });
         });
     });
 
-    Route::prefix('pagamento-tipo')->group(function () {
+
+    Route::prefix('movimentacao-conta/lancamentos')->group(function () {
+
+        Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
+
+            Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
+            Route::post('servicos', 'storeLancamentoServico');
+        });
+    });
+
+    Route::prefix('pagamento-tipo-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Financeiro\PagamentoTipoTenantController::class)->group(function () {
 

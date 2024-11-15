@@ -2,12 +2,12 @@
 
 namespace Database\Seeders\Referencias;
 
-use App\Enums\ContaStatusTipoEnum;
+use App\Enums\MovimentacaoContaTipoEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
-class ContaStatusTipoSeeder extends Seeder
+class MovimentacaoContaTipoSeeder extends Seeder
 {
     use CommonsSeederMethodsTrait;
 
@@ -15,13 +15,13 @@ class ContaStatusTipoSeeder extends Seeder
 
     public function __construct()
     {
-        $this->model = new \App\Models\Referencias\ContaStatusTipo();
+        $this->model = new \App\Models\Referencias\MovimentacaoContaTipo();
     }
 
     public function run(): void
     {
         $insert = [];
-        foreach (ContaStatusTipoEnum::cases() as $enumValue) {
+        foreach (MovimentacaoContaTipoEnum::cases() as $enumValue) {
             $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 

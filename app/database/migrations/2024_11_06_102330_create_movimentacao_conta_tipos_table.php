@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Financeiro\MovimentacaoTipo();
+        $this->model = new App\Models\Referencias\MovimentacaoContaTipo();
     }
 
     /**
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->string('descricao')->nullable();
+            $table->json('configuracao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

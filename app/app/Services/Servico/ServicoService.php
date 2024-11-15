@@ -167,36 +167,6 @@ class ServicoService extends Service
         return parent::buscarRecurso($requestData, array_merge(['message' => 'O Serviço não foi encontrado.'], $options));
     }
 
-    // public function loadFull(): array
-    // {
-    //     return [
-    //         'area_juridica',
-    //         'anotacao',
-    //         'participantes.participacao_tipo',
-    //         'participantes.integrantes.referencia.perfil_tipo',
-    //         'participantes.integrantes.referencia.pessoa.pessoa_dados',
-    //         'participantes.referencia.perfil_tipo',
-    //         'pagamento.pagamento_tipo_tenant.pagamento_tipo',
-    //         'pagamento.conta',
-    //         'pagamento.lancamentos.status',
-    //         'pagamento.lancamentos.conta',
-    //         'participantes.referencia.pessoa.pessoa_dados',
-    //         'participantes.participacao_registro_tipo',
-    //         'pagamento.participantes.participacao_tipo',
-    //         'pagamento.participantes.integrantes.referencia.perfil_tipo',
-    //         'pagamento.participantes.integrantes.referencia.pessoa.pessoa_dados',
-    //         'pagamento.participantes.referencia.perfil_tipo',
-    //         'pagamento.participantes.referencia.pessoa.pessoa_dados',
-    //         'pagamento.participantes.participacao_registro_tipo',
-    //         'pagamento.lancamentos.participantes.participacao_tipo',
-    //         'pagamento.lancamentos.participantes.integrantes.referencia.perfil_tipo',
-    //         'pagamento.lancamentos.participantes.integrantes.referencia.pessoa.pessoa_dados',
-    //         'pagamento.lancamentos.participantes.referencia.perfil_tipo',
-    //         'pagamento.lancamentos.participantes.referencia.pessoa.pessoa_dados',
-    //         'pagamento.lancamentos.participantes.participacao_registro_tipo',
-    //     ];
-    // }
-
     /**
      * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
      *
@@ -214,9 +184,11 @@ class ServicoService extends Service
             'area_juridica',
             'anotacao',
             'participantes.participacao_tipo',
+            'participantes.referencia.pessoa.pessoa_dados',
+            'participantes.referencia.perfil_tipo',
+            'participantes.participacao_registro_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',
-            'participantes.referencia.perfil_tipo',
         ];
 
         // Verifica se ServicoPagamentoService está na lista de exclusão

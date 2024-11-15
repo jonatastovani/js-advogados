@@ -1,4 +1,5 @@
 import { commonFunctions } from "../commons/commonFunctions";
+import { connectAjax } from "../commons/connectAjax";
 import { modalMessage } from "../components/comum/modalMessage";
 import { modalNome } from "../components/comum/modalNome";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
@@ -506,6 +507,19 @@ export class ServicoParticipacaoModule {
             }
         }
         return null;
+    }
+
+    async _buscarParticipantes() {
+        const self = this;
+        try {
+            const obj = new connectAjax(self._objConfigs.url.baseParticipacao);
+            const response = await obj.getRequest();
+            if (response.data) {
+                self._inserirParticipantesEIntegrantes(response.data);
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
     }
 
     async _atualizaPorcentagemLivre() {

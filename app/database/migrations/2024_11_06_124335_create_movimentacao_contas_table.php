@@ -27,7 +27,7 @@ return new class extends Migration
             $this->addDomainIDField($table);
 
             $table->unsignedBigInteger('movimentacao_tipo_id');
-            $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Financeiro\MovimentacaoTipo)->getTableName());
+            $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
             $table->uuidMorphs('referencia');
 

@@ -41,10 +41,20 @@ Route::group([
             // Route::post('select2', 'select2');
             // Route::post('consulta-filtros', 'postConsultaFiltros');
 
-            Route::get('', 'index');
-            Route::post('', 'store')->name('api.referencias.pagamento-status-tipo');
+            Route::get('', 'index')->name('api.referencias.pagamento-status-tipo');
             Route::get('{id}', 'show');
-            Route::put('{id}', 'update');
+        });
+    });
+
+    Route::prefix('lancamentos-status-tipo')->group(function () {
+
+        Route::controller(App\Http\Controllers\Referencias\LancamentoStatusTipoController::class)->group(function () {
+
+            // Route::post('select2', 'select2');
+            // Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::get('', 'index')->name('api.referencias.lancamento-status-tipo');
+            Route::get('{id}', 'show');
         });
     });
 });

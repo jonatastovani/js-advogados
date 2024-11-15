@@ -16,6 +16,8 @@ use Database\Seeders\Referencias\PagamentoTipoSeeder;
 use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
 use Database\Seeders\Referencias\LancamentoStatusTipoSeeder;
+use Database\Seeders\Referencias\LancamentoStatusTipoUpdateSeeder;
+use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Illuminate\Database\Seeder;
@@ -69,6 +71,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ParticipacaoRegistroTipoSeeder::class,
+            MovimentacaoContaTipoSeeder::class,
         ]);
+
+        // $this->call([
+        //     LancamentoStatusTipoUpdateSeeder::class,
+        // ]);
     }
 }

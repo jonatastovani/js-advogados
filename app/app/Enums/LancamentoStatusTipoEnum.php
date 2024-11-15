@@ -38,21 +38,83 @@ enum LancamentoStatusTipoEnum: int
                 'id' => self::LIQUIDADO_EM_ANALISE->value,
                 'nome' => 'Liquidado (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado, mas ainda não foi confirmado.',
+                'configuracao' => [
+                    'campos_obrigatorios' => [
+                        [
+                            'nome' => 'data_recebimento',
+                            'nome_exibir' => 'Data de recebimento',
+                            'formRequestRule' => 'required|date',
+                        ],
+                    ],
+                    // 'helper' => [
+                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
+                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
+                    // ]
+                ],
             ],
             self::LIQUIDADO => [
                 'id' => self::LIQUIDADO->value,
                 'nome' => 'Liquidado',
                 'descricao' => 'O pagamento foi totalmente quitado.',
+                'configuracao' => [
+                    'campos_obrigatorios' => [
+                        [
+                            'nome' => 'data_recebimento',
+                            'nome_exibir' => 'Data de recebimento',
+                            'formRequestRule' => 'required|date',
+                        ],
+                    ],
+                    // 'helper' => [
+                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
+                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
+                    // ]
+                ],
             ],
             self::LIQUIDADO_PARCIALMENTE_EM_ANALISE => [
                 'id' => self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
                 'nome' => 'Liquidado parcialmente (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado parcialmente, mas ainda não foi confirmado.',
+                'configuracao' => [
+                    'campos_obrigatorios' => [
+                        [
+                            'nome' => 'data_recebimento',
+                            'nome_exibir' => 'Data de recebimento',
+                            'formRequestRule' => 'required|date',
+                        ],
+                        [
+                            'nome' => 'valor_recebido',
+                            'nome_exibir' => 'Valor recebido',
+                            'formRequestRule' => 'nullable|numeric|min:0.01',
+                        ],
+                    ],
+                    // 'helper' => [
+                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
+                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
+                    // ]
+                ],
             ],
             self::LIQUIDADO_PARCIALMENTE => [
                 'id' => self::LIQUIDADO_PARCIALMENTE->value,
                 'nome' => 'Liquidado parcialmente',
                 'descricao' => 'Apenas uma parte do valor foi pago, e o saldo ainda está pendente. Será gerado um novo lançamento para o saldo restante.',
+                'configuracao' => [
+                    'campos_obrigatorios' => [
+                        [
+                            'nome' => 'data_recebimento',
+                            'nome_exibir' => 'Data de recebimento',
+                            'formRequestRule' => 'required|date',
+                        ],
+                        [
+                            'nome' => 'valor_recebido',
+                            'nome_exibir' => 'Valor recebido',
+                            'formRequestRule' => 'nullable|numeric|min:0.01',
+                        ],
+                    ],
+                    // 'helper' => [
+                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
+                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
+                    // ]
+                ],
             ],
             self::INADIMPLENTE_EM_ANALISE => [
                 'id' => self::INADIMPLENTE_EM_ANALISE->value,

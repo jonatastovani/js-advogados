@@ -116,7 +116,7 @@ class ContaService extends Service
         ]);
     }
 
-    private function loadFull(): array
+    public function loadFull(): array
     {
         return [
             'conta_subtipo',
