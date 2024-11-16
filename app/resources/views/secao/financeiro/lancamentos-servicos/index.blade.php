@@ -45,11 +45,11 @@
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-center" title=" número de Serviço">N.S.</th>
                     <th class="text-nowrap">Status</th>
+                    <th class="text-nowrap">Descrição Lançamento</th>
                     <th class="text-nowrap">Valor Esperado</th>
                     <th class="text-nowrap">Data Vencimento</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebido</th>
-                    <th class="text-nowrap">Descrição Lançamento</th>
                     <th class="text-nowrap">Observação Lançamento</th>
                     <th class="text-nowrap">Valor Pagamento</th>
                     <th class="text-nowrap">Titulo Serviço</th>

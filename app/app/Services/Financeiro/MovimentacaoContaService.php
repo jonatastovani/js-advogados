@@ -6,13 +6,12 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\ContaStatusTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Financeiro\MovimentacaoConta;
-use App\Models\Referencias\ContaStatusTipo;
-use App\Models\Referencias\ContaSubtipo;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
@@ -25,8 +24,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
-use PhpParser\Node\Stmt\Else_;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class MovimentacaoContaService extends Service
 {
@@ -72,123 +69,312 @@ class MovimentacaoContaService extends Service
         return $this->storePadrao($requestData, $requestData->referencia_id, $this->modelPagamentoLancamento);
     }
 
-    protected function storePadrao(Fluent $requestData, string $idParent, Model $modelReferencia)
+    protected function storePadrao(Fluent $requestData, string $idParent, Model $modelParent)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelReferencia);
-
-        // Inicia a transação
-        DB::beginTransaction();
+        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
 
         try {
-            $participantes = $resource->participantes;
-            unset($resource->participantes);
+            return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+                $participantes = $resource->participantes;
+                unset($resource->participantes);
 
-            // IDs dos participantes já salvos
-            $existingParticipants = $this->modelParticipante::where('parent_type', $modelReferencia->getMorphClass())
-                ->where('parent_id', $idParent)
-                ->pluck('id')->toArray();
-            // IDs enviados (exclui novos participantes sem ID)
-            $submittedParticipantIds = collect($participantes)->pluck('id')->filter()->toArray();
+                $lancamento = $modelParent::find($idParent);
 
-            // Participantes ausentes no PUT devem ser excluídos
-            $idsToDelete = array_diff($existingParticipants, $submittedParticipantIds);
-            if ($idsToDelete) {
-                foreach ($idsToDelete as $id) {
-                    $participanteDelete = $this->modelParticipante::find($id);
-                    if ($participanteDelete) {
-                        $participanteDelete->delete();
-                    }
-                }
-            }
+                switch ($requestData->status_id) {
+                    case LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
+                        $lancamentoCopy = $lancamento->toArray();
 
-            foreach ($participantes as $participante) {
-                if (isset($participante->integrantes)) {
-                    $integrantes = $participante->integrantes;
-                    unset($participante->integrantes);
-                }
+                        $temporaryData['participantes'] = $participantes;
 
-                if ($participante->id) {
-                    $participanteUpdate = $this->modelParticipante::find($participante->id);
-                    $participanteUpdate->fill($participante->toArray());
-                } else {
-                    $participanteUpdate = $participante;
-                    $participanteUpdate->parent_id = $idParent;
-                    $participanteUpdate->parent_type = $modelReferencia->getMorphClass();
-                }
+                        $lancamentoCopy['conta_id'] = $requestData->conta_id;
+                        $lancamentoCopy['status_id'] = $requestData->status_id;
+                        $lancamentoCopy['valor_recebido'] = $lancamentoCopy['valor_esperado'];
+                        $lancamentoCopy['data_recebimento'] = $requestData->data_recebimento;
+                        $lancamentoCopy['observacao'] = $requestData->observacao;
+                        $temporaryData['resource'] = $lancamentoCopy;
 
-                $participanteUpdate->save();
+                        $lancamento->temporary_data = $lancamentoCopy;
+                        $lancamento->status_id = $requestData->status_id;
+                        $lancamento->save();
 
-                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
+                        break;
 
-                    if (!count($integrantes)) {
-                        throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
-                    }
+                    case LancamentoStatusTipoEnum::LIQUIDADO->value:
 
-                    // IDs dos integrantes já salvos
-                    $existingIntegrantes = $participanteUpdate->integrantes()->pluck('id')->toArray();
-                    // IDs enviados (exclui novos integrantes sem ID)
-                    $submittedIntegranteIds = collect($integrantes)->pluck('id')->filter()->toArray();
+                        $this->verificarRegistrosExcluindoParticipanteNaoEnviado($this->modelParticipante, $participantes, $idParent, $modelParent);
 
-                    // Integrantes ausentes no PUT devem ser excluídos
-                    $idsToDelete = array_diff($existingIntegrantes, $submittedIntegranteIds);
-                    if ($idsToDelete) {
-                        foreach ($idsToDelete as $id) {
-                            $integrante = $this->modelIntegrante::find($id);
-                            if ($integrante) {
-                                $integrante->delete();
-                            }
-                        }
-                    }
-                    foreach ($integrantes as $integrante) {
-                        if ($integrante->id) {
-                            $integranteUpdate = $this->modelIntegrante::find($integrante->id);
-                            $integranteUpdate->fill($integrante->toArray());
-                        } else {
-                            $integranteUpdate = $integrante;
-                            $integranteUpdate->participante_id = $participanteUpdate->id;
-                        }
+                        $lancamento->conta_id = $requestData->conta_id;
+                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO->value;
+                        $lancamento->valor_recebido = $lancamento->valor_esperado;
+                        $lancamento->data_recebimento = $requestData->data_recebimento;
+                        $lancamento->observacao = $requestData->observacao;
+                        $lancamento->temporary_data = null;
+                        $lancamento->save();
 
-                        $integranteUpdate->save();
-                    }
+                        // Cria o registro de movimentação
+                        $resource->valor_movimentado = $lancamento->valor_recebido;
+                        $resource->data_movimentacao = $lancamento->data_recebimento;
+                        $resource->observacao_automatica = $lancamento->observacao_automatica;
+                        $resource->observacao = $lancamento->observacao;
+                        $resource->save;
+
+                        break;
+
+                    default:
+                        throw new Exception('Status inválido para o lançamento.');
                 }
 
-                $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
-                $arrayRetorno[] = $participanteUpdate->toArray();
-            }
-
-            $resource->save();
-            $lancamento = $modelReferencia::find($idParent);
-
-            switch ($modelReferencia->getMorphClass()) {
-                case ServicoPagamentoLancamento::class:
-                    switch ($requestData->status_id) {
-                        case LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
-                        case LancamentoStatusTipoEnum::LIQUIDADO->value:
-                            $lancamento->status_id = $requestData->status_id;
-                            $lancamento->valor_recebido = $lancamento->valor_esperado;
-                            $lancamento->data_recebimento = $requestData->data_recebimento;
-                            $lancamento->save();
-                            break;
-                    }
-
-                    break;
-
-                default:
-                    throw new Exception('Tipo de Referência de Lançamento não encontrado.');
-            }
-
-            DB::commit();
-
-            // $resource->load($this->loadFull());
-
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
+                return $resource->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
     }
 
-    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData, Model $modelReferencia): Model
+    public function verificarRegistrosExcluindoParticipanteNaoEnviado(Model $modelRegistro, array $colecao, string $idParent, Model  $modelParent, array $options = [])
+    {
+        // IDs dos registros já salvos
+        $existingRegisters = $modelRegistro::where('parent_type', $modelParent->getMorphClass())
+            ->where('parent_id', $idParent)
+            ->pluck('id')->toArray();
+
+        // IDs enviados (exclui novos registros sem ID)
+        $submittedRegisters = collect($colecao)->pluck('id')->filter()->toArray();
+
+        // Registros ausentes no PUT devem ser excluídos
+        $idsToDelete = array_diff($existingRegisters, $submittedRegisters);
+        if ($idsToDelete) {
+            foreach ($idsToDelete as $id) {
+                $registroDelete = $modelRegistro::find($id);
+                if ($registroDelete) {
+                    $registroDelete->delete();
+                }
+            }
+        }
+
+        foreach ($colecao as $participante) {
+            if (isset($participante->integrantes)) {
+                $integrantes = $participante->integrantes;
+                unset($participante->integrantes);
+            }
+
+            if ($participante->id) {
+                $participanteUpdate = $this->modelParticipante::find($participante->id);
+                $participanteUpdate->fill($participante->toArray());
+            } else {
+                $participanteUpdate = $participante;
+                $participanteUpdate->parent_id = $idParent;
+                $participanteUpdate->parent_type = $modelParent->getMorphClass();
+            }
+
+            $participanteUpdate->save();
+
+            if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
+
+                if (!count($integrantes)) {
+                    throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
+                }
+            }
+
+            // $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
+            $arrayRetorno[] = $participanteUpdate->toArray();
+        }
+    }
+
+    public function verificarRegistrosExcluindoIntegrantesNaoEnviado(Model $modelParticipante, array $colecao, array $options = [])
+    {
+        // IDs dos registros já salvos
+        $existingRegisters = $modelParticipante->integrantes()->pluck('id')->toArray();
+
+        // IDs enviados (exclui novos registros sem ID)
+        $submittedRegisters = collect($colecao)->pluck('id')->filter()->toArray();
+
+        // Registros ausentes no PUT devem ser excluídos
+        $idsToDelete = array_diff($existingRegisters, $submittedRegisters);
+        if ($idsToDelete) {
+            foreach ($idsToDelete as $id) {
+                $registroDelete = $this->modelIntegrante::find($id);
+                if ($registroDelete) {
+                    $registroDelete->delete();
+                }
+            }
+        }
+
+        foreach ($colecao as $integrante) {
+            if ($integrante->id) {
+                $integranteUpdate = $this->modelIntegrante::find($integrante->id);
+                $integranteUpdate->fill($integrante->toArray());
+            } else {
+                $integranteUpdate = $integrante;
+                $integranteUpdate->participante_id = $modelParticipante->id;
+            }
+
+            $integranteUpdate->save();
+        }
+    }
+
+    // protected function storePadrao(Fluent $requestData, string $idParent, Model $modelParent)
+    // {
+    //     $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
+
+    //     try {
+    //         // Inicia a transação
+    //         return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+
+    //             $participantes = $resource->participantes;
+    //             unset($resource->participantes);
+
+    //             // IDs dos participantes já salvos
+    //             $existingParticipants = $this->modelParticipante::where('parent_type', $modelParent->getMorphClass())
+    //                 ->where('parent_id', $idParent)
+    //                 ->pluck('id')->toArray();
+    //             // IDs enviados (exclui novos participantes sem ID)
+    //             $submittedParticipantIds = collect($participantes)->pluck('id')->filter()->toArray();
+
+    //             // Participantes ausentes no PUT devem ser excluídos
+    //             $idsToDelete = array_diff($existingParticipants, $submittedParticipantIds);
+    //             if ($idsToDelete) {
+    //                 foreach ($idsToDelete as $id) {
+    //                     $participanteDelete = $this->modelParticipante::find($id);
+    //                     if ($participanteDelete) {
+    //                         $participanteDelete->delete();
+    //                     }
+    //                 }
+    //             }
+
+    //             foreach ($participantes as $participante) {
+    //                 if (isset($participante->integrantes)) {
+    //                     $integrantes = $participante->integrantes;
+    //                     unset($participante->integrantes);
+    //                 }
+
+    //                 if ($participante->id) {
+    //                     $participanteUpdate = $this->modelParticipante::find($participante->id);
+    //                     $participanteUpdate->fill($participante->toArray());
+    //                 } else {
+    //                     $participanteUpdate = $participante;
+    //                     $participanteUpdate->parent_id = $idParent;
+    //                     $participanteUpdate->parent_type = $modelParent->getMorphClass();
+    //                 }
+
+    //                 $participanteUpdate->save();
+
+    //                 if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
+
+    //                     if (!count($integrantes)) {
+    //                         throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
+    //                     }
+
+    //                     // IDs dos integrantes já salvos
+    //                     $existingIntegrantes = $participanteUpdate->integrantes()->pluck('id')->toArray();
+    //                     // IDs enviados (exclui novos integrantes sem ID)
+    //                     $submittedIntegranteIds = collect($integrantes)->pluck('id')->filter()->toArray();
+
+    //                     // Integrantes ausentes no PUT devem ser excluídos
+    //                     $idsToDelete = array_diff($existingIntegrantes, $submittedIntegranteIds);
+    //                     if ($idsToDelete) {
+    //                         foreach ($idsToDelete as $id) {
+    //                             $integrante = $this->modelIntegrante::find($id);
+    //                             if ($integrante) {
+    //                                 $integrante->delete();
+    //                             }
+    //                         }
+    //                     }
+
+    //                     foreach ($integrantes as $integrante) {
+    //                         if ($integrante->id) {
+    //                             $integranteUpdate = $this->modelIntegrante::find($integrante->id);
+    //                             $integranteUpdate->fill($integrante->toArray());
+    //                         } else {
+    //                             $integranteUpdate = $integrante;
+    //                             $integranteUpdate->participante_id = $participanteUpdate->id;
+    //                         }
+
+    //                         $integranteUpdate->save();
+    //                     }
+    //                 }
+
+    //                 // $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
+    //                 $arrayRetorno[] = $participanteUpdate->toArray();
+    //             }
+
+    //             $lancamento = $modelParent::find($idParent);
+
+    //             switch ($modelParent->getMorphClass()) {
+    //                 case ServicoPagamentoLancamento::class:
+    //                     switch ($requestData->status_id) {
+    //                             // case LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
+    //                         case LancamentoStatusTipoEnum::LIQUIDADO->value:
+    //                             $lancamento->conta_id = $requestData->conta_id;
+    //                             $lancamento->status_id = $requestData->status_id;
+    //                             $lancamento->valor_recebido = $lancamento->valor_esperado;
+    //                             $lancamento->data_recebimento = $requestData->data_recebimento;
+    //                             $lancamento->observacao = $requestData->observacao;
+    //                             $lancamento->temporary_data = null;
+    //                             $lancamento->save();
+
+    //                             $resource->valor_movimentado = $lancamento->valor_recebido;
+    //                             $resource->data_movimentacao = $lancamento->data_recebimento;
+    //                             $resource->observacao_automatica = $lancamento->observacao_automatica;
+    //                             $resource->observacao = $lancamento->observacao;
+    //                             break;
+    //                     }
+
+    //                     break;
+
+    //                 default:
+    //                     throw new Exception('Tipo de Referência de Lançamento não encontrado.');
+    //             }
+
+    //             $resource->referencia_id = $lancamento->id;
+    //             $resource->referencia_type = $modelParent->getMorphClass();
+    //             $resource->conta_id = $requestData->conta_id;
+    //             $resource->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value;
+
+    //             // Bloqueia e realiza operações na tabela MovimentacaoConta
+    //             $ultimoSaldo = MovimentacaoConta::where('conta_id', $requestData->conta_id)
+    //                 ->orderBy('data_movimentacao', 'desc')
+    //                 ->lockForUpdate()
+    //                 ->value('saldo_atualizado') ?? 0;
+
+    //             // Realiza o cálculo do novo saldo
+    //             $novoSaldo = $this->calcularNovoSaldo(
+    //                 $ultimoSaldo,
+    //                 $resource->valor_movimentado,
+    //                 $resource->movimentacao_tipo_id
+    //             );
+    //             $resource->saldo_atualizado = $novoSaldo;
+
+    //             $resource->save();
+    //             // $resource->load($this->loadFull());
+
+    //             // $this->executarEventoWebsocket();
+    //             return $resource->toArray();
+    //         });
+    //     } catch (\Exception $e) {
+    //         return $this->gerarLogExceptionErroSalvar($e);
+    //     }
+    // }
+
+    /**
+     * Calcula o novo saldo com base no tipo de movimentação.
+     *
+     * @param float $saldoAtual
+     * @param float $valorMovimentado
+     * @param int $movimentacaoTipoId
+     * @return float
+     */
+    private function calcularNovoSaldo($saldoAtual, $valorMovimentado, $movimentacaoTipoId)
+    {
+        return match ($movimentacaoTipoId) {
+            MovimentacaoContaTipoEnum::CREDITO->value => $saldoAtual + $valorMovimentado,
+            MovimentacaoContaTipoEnum::DEBITO->value => $saldoAtual - $valorMovimentado,
+            MovimentacaoContaTipoEnum::AJUSTE->value => $valorMovimentado,
+            default => throw new \InvalidArgumentException('Tipo de movimentação inválido.')
+        };
+    }
+
+    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData, Model $modelParent): Model
     {
         $arrayErrors = new Fluent();
 
@@ -204,7 +390,7 @@ class MovimentacaoContaService extends Service
             }
         }
 
-        $validacaoReferenciaId = ValidationRecordsHelper::validateRecord($modelReferencia::class, ['id' => $requestData->referencia_id]);
+        $validacaoReferenciaId = ValidationRecordsHelper::validateRecord($modelParent::class, ['id' => $requestData->referencia_id]);
         if (!$validacaoReferenciaId->count()) {
             $arrayErrors->referencia_id = LogHelper::gerarLogDinamico(404, 'O Lançamento de referência não existe ou foi excluído.', $requestData)->error;
         }

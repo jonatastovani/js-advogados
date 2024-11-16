@@ -41,6 +41,7 @@ class ServicoPagamentoLancamento extends Model
     protected $casts = [
         'valor_esperado' => 'float',
         'valor_recebido' => 'float',
+        'temporary_data' => 'json',
     ];
 
     public function pagamento()

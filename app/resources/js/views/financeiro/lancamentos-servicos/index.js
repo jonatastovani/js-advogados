@@ -50,8 +50,8 @@ class PageLancamentoServicoIndex extends templateSearch {
                     urlApi: `${self._objConfigs.url.baseServico}/`
                 });
                 objModal.setDataEnvModal = {
-                    idRegister: "9d7e703f-5d75-4673-9c75-1019909a553f",
-                    pagamento_id: "9d7e703f-5644-4ead-80d6-026eb41efe92",
+                    idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
+                    pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
                     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
                 }
                 const response = await objModal.modalOpen();
@@ -62,7 +62,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             }
         }
 
-        openModal();
+        // openModal();
     }
 
     async insertTableData(item, options = {}) {
@@ -107,12 +107,12 @@ class PageLancamentoServicoIndex extends templateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap" title="${numero_servico}">${numero_servico}</td>
-                <td class="text-nowrap" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-center" title="${valorRecebido}">${valorRecebido}</td>
                 <td class="text-nowrap text-center" title="${dataRecebimento}">${dataRecebimento}</td>
-                <td class="text-nowrap text-truncate" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap text-truncate" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap text-center" title="${valorPagamento}">${valorPagamento}</td>
                 <td class="text-truncate" title="${tituloServico}">${tituloServico}</td>
@@ -196,15 +196,67 @@ class PageLancamentoServicoIndex extends templateSearch {
     }
 
     #addEventosRegistrosConsulta(item) {
-        // const self = this;
+        const self = this;
 
-        // window.Enums
-        // LancamentoStatusTipoEnum
+        switch (item.status_id) {
 
+            case window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE:
+            case window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO:
+            case window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE:
+            case window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE:
 
-        // $(`#${item.idTr}`).find(`.btn-receber-liquidado-analise`).click(async function () {
-           
-        // });
+                $(`#${item.idTr}`).find(`.btn-receber-liquidado-analise`).click(async function () {
+                    try {
+                        const objModal = new modalLancamentoMovimentar({
+                            urlApi: `${self._objConfigs.url.baseServico}/`
+                        });
+                        objModal.setDataEnvModal = {
+                            idRegister: item.id,
+                            pagamento_id: item.pagamento_id,
+                            status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
+                        }
+                        const response = await objModal.modalOpen();
+                        console.log(response);
+                        if (response.refresh) {
+                            await self._generateQueryFilters();
+                        }
+                    } catch (error) {
+                        commonFunctions.generateNotificationErrorCatch(error);
+                    }
+                });
+                break;
+
+            case window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE:
+            case window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO:
+            case window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE:
+            case window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE:
+            case window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE:
+
+                $(`#${item.idTr}`).find(`.btn-receber-liquidado`).click(async function () {
+                    try {
+                        const objModal = new modalLancamentoMovimentar({
+                            urlApi: `${self._objConfigs.url.baseServico}/`
+                        });
+                        objModal.setDataEnvModal = {
+                            idRegister: item.id,
+                            pagamento_id: item.pagamento_id,
+                            status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO
+                        }
+                        const response = await objModal.modalOpen();
+                        console.log(response);
+                        if (response.refresh) {
+                            await self._generateQueryFilters();
+                        }
+                    } catch (error) {
+                        commonFunctions.generateNotificationErrorCatch(error);
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
+
     }
 }
 

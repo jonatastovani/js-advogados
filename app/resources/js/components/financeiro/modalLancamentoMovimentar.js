@@ -67,21 +67,23 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
 
     async modalOpen() {
         const self = this;
+        let open = false;
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
         if (self._dataEnvModal.idRegister) {
             await this.#buscarContas();
             await self.#buscarDadosLancamentoStatusTipo();
-            await self.#buscarDados();
+            open = await self.#buscarDados();
         } else {
             commonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
-            await commonFunctions.loadingModalDisplay(false);
-            return await self._returnPromisseResolve();
         }
 
         await commonFunctions.loadingModalDisplay(false);
-        await self._modalHideShow();
-        return await self._modalOpen();
+        if (open) {
+            await self._modalHideShow();
+            return await self._modalOpen();
+        }
+        return await self._returnPromisseResolve();
     }
 
     #addEventosPadrao() {
@@ -266,7 +268,6 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
             returnForcedFalse: blnSave === false
         });
 
-        console.log(configuracao.campos_obrigatorios);
         for (const campo of configuracao.campos_obrigatorios) {
             const rules = campo.formRequestRule.split('|');
             if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
