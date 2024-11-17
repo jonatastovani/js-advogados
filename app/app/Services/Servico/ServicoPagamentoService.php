@@ -93,6 +93,11 @@ class ServicoPagamentoService extends Service
                     throw new Exception('Tipo de pagamento base não encontrado.');
             }
 
+            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+            if ($resource->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
+                $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
+            }
+
             $lancamentos = $lancamentos['lancamentos'];
 
             foreach ($lancamentos as $lancamento) {
@@ -104,7 +109,7 @@ class ServicoPagamentoService extends Service
                 $newLancamento->observacao = $lancamento->observacao;
                 $newLancamento->data_vencimento = $lancamento->data_vencimento;
                 $newLancamento->valor_esperado = $lancamento->valor_esperado;
-                $newLancamento->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+                $newLancamento->status_id = $statusLancamento;
 
                 $newLancamento->save();
             }

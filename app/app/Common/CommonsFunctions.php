@@ -62,10 +62,16 @@ class CommonsFunctions
         $channel = $channelMap[$channel] ?? config('logging.default_gpu_app');
 
         // Capturar informações do backtrace para identificar a origem
-        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-        $chamador = end($trace);
-        $diretorio = $chamador['file'] ?? 'Desconhecido';
-        $linha = $chamador['line'] ?? 'Desconhecida';
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+
+        $ultimosTraces = [];
+        foreach ($trace as $key) {
+            $ultimosTraces[] = ['file' => $key['file'], 'line' => $key['line']];
+        };
+
+        // $chamador = $trace[1] ?? ($trace[0]) ?? [];
+        // $diretorio = $chamador['file'] ?? 'Desconhecido';
+        // $linha = $chamador['line'] ?? 'Desconhecida';
 
         // Gerar um traceId para rastrear o log
         $traceId = CommonsFunctions::generateTraceId();
@@ -79,13 +85,14 @@ class CommonsFunctions
         // Montar a mensagem de log com estrutura clara
         $mensagemLog = [
             "Mensagem" => $mensagem,
-            "Arquivo" => $diretorio,
-            "Linha" => $linha,
+            // "Arquivo" => $diretorio,
+            // "Linha" => $linha,
             "UserId" => $userId,
             "UserIp" => $userIp,
             "Trace ID" => $traceId,
             "URL" => $url,
             "Método HTTP" => $metodoHttp,
+            "Últimos Traces" => json_encode($ultimosTraces)
         ];
 
         // Transformar o array de log em uma string formatada

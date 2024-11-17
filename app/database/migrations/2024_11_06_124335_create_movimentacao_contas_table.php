@@ -39,7 +39,7 @@ return new class extends Migration
             $table->date('data_movimentacao');
 
             $table->string('observacao')->nullable();
-            $table->string('observacao_automatica')->nullable();
+            $table->string('descricao_automatica')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

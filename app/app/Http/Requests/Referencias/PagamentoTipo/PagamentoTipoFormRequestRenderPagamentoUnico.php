@@ -22,7 +22,7 @@ class PagamentoTipoFormRequestRenderPagamentoUnico extends PagamentoTipoFormRequ
         $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::PAGAMENTO_UNICO->value);
         $rules = parent::rules();
         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
-            $rules[$value['nome']] = $value['formRequestRule'];
+            $rules[$value['nome']] = $value['form_request_rule'];
         }
         return $rules;
     }

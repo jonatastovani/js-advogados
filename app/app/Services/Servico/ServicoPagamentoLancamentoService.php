@@ -73,8 +73,11 @@ class ServicoPagamentoLancamentoService extends Service
 
         $arrayAliasCampos = [
 
-            'col_nome_grupo' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
-            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $modelAsName,
+            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
+
+            'col_nome_grupo_participante' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
+            'col_observacao_participante' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
 
             'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
             'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
@@ -90,13 +93,16 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
 
             'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $servicoAsName,
+            'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
             'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
         ];
 
         $arrayCampos = [
-            'col_nome_grupo' => ['campo' => $arrayAliasCampos['col_nome_grupo'] . '.nome_grupo'],
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_automatica'],
+            
+            'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
+            'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
             'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
             'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
 
@@ -109,7 +115,7 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
 
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
+            'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
             'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
         ];
         // RestResponse::createTestResponse($dados);
@@ -120,6 +126,16 @@ class ServicoPagamentoLancamentoService extends Service
     {
         $sufixos = ['pagamento', 'servico'];
         $camposReplica = ['col_nome_participante', 'col_nome_grupo', 'col_observacao'];
+        foreach ($sufixos as $sufixo) {
+            foreach ($camposReplica as $value) {
+                if (in_array($value, $dados['campos_busca'])) {
+                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
+                }
+            }
+        }
+
+        $sufixos = ['servico'];
+        $camposReplica = ['col_descricao'];
         foreach ($sufixos as $sufixo) {
             foreach ($camposReplica as $value) {
                 if (in_array($value, $dados['campos_busca'])) {
@@ -271,13 +287,13 @@ class ServicoPagamentoLancamentoService extends Service
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
-        return parent::buscarRecurso($requestData, [
+        return parent::buscarRecurso($requestData, array_merge([
             'message' => 'O Lançamento não foi encontrado.',
             'conditions' => [
                 'id' => $requestData->uuid,
                 'pagamento_id' => $requestData->pagamento_uuid
             ]
-        ]);
+        ], $options));
     }
 
     /**

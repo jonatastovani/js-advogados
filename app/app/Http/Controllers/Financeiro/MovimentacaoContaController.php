@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Financeiro;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestDestroy;
-use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestIndex;
-use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestShow;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStore;
-use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestUpdate;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -22,6 +19,12 @@ class MovimentacaoContaController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->storeLancamentoServico($fluentData));
+    }
+
+    public function alterarStatusLancamentoServico(MovimentacaoContaFormRequestAlterarStatusLancamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->alterarStatusLancamentoServico($fluentData));
     }
 
     // public function show(MovimentacaoContaFormRequestShow $formRequest)

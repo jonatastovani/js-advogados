@@ -353,7 +353,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 form.find('select[name="conta_id"]').val(responseData.conta_id);
                 form.find('select[name="status_id"]').val(responseData.status_id);
                 for (const campo of configuracao.campos_obrigatorios) {
-                    const rules = campo.formRequestRule.split('|');
+                    const rules = campo.form_request_rule.split('|');
                     let valor = responseData[campo.nome];
                     if (rules.find(rule => rule === 'numeric')) {
                         valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
@@ -417,7 +417,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
             if (self._action == enumAction.POST) {
                 for (const campo of configuracao.campos_obrigatorios) {
-                    const rules = campo.formRequestRule.split('|');
+                    const rules = campo.form_request_rule.split('|');
                     if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
                         data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
                     }

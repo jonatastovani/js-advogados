@@ -32,12 +32,12 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'entrada_data',
                             'nome_exibir' => 'Vencimento',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric|min:0.01',
+                            'form_request_rule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -56,22 +56,22 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'parcela_data_inicio',
                             'nome_exibir' => 'Vencimento primeira',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'parcela_quantidade',
                             'nome_exibir' => 'Quantidade de parcelas',
-                            'formRequestRule' => 'required|integer|min:1',
+                            'form_request_rule' => 'required|integer|min:1',
                         ],
                         [
                             'nome' => 'parcela_vencimento_dia',
                             'nome_exibir' => 'Dia de vencimento',
-                            'formRequestRule' => 'required|integer|min:1|max:31',
+                            'form_request_rule' => 'required|integer|min:1|max:31',
                         ],
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric|min:0.01',
+                            'form_request_rule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -89,32 +89,32 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'entrada_valor',
                             'nome_exibir' => 'Vencimento entrada',
-                            'formRequestRule' => 'required|numeric|min:0.01',
+                            'form_request_rule' => 'required|numeric|min:0.01',
                         ],
                         [
                             'nome' => 'entrada_data',
                             'nome_exibir' => 'Data da entrada',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'parcela_data_inicio',
                             'nome_exibir' => 'Vencimento primeira',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'parcela_quantidade',
                             'nome_exibir' => 'Quantidade de parcelas',
-                            'formRequestRule' => 'required|integer|min:1',
+                            'form_request_rule' => 'required|integer|min:1',
                         ],
                         [
                             'nome' => 'parcela_vencimento_dia',
                             'nome_exibir' => 'Dia de vencimento',
-                            'formRequestRule' => 'required|integer|min:1|max:31',
+                            'form_request_rule' => 'required|integer|min:1|max:31',
                         ],
                         [
                             'nome' => 'valor_total',
                             'nome_exibir' => 'Valor total',
-                            'formRequestRule' => 'required|numeric|min:0.01',
+                            'form_request_rule' => 'required|numeric|min:0.01',
                         ],
                     ],
                     'helper' => [
@@ -132,17 +132,17 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'parcela_data_inicio',
                             'nome_exibir' => 'Vencimento primeira',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'parcela_vencimento_dia',
                             'nome_exibir' => 'Dia de vencimento',
-                            'formRequestRule' => 'required|integer|min:1|max:31',
+                            'form_request_rule' => 'required|integer|min:1|max:31',
                         ],
                         [
                             'nome' => 'parcela_valor',
                             'nome_exibir' => 'Valor da parcela',
-                            'formRequestRule' => 'required|numeric',
+                            'form_request_rule' => 'required|numeric',
                         ],
                     ],
                     'helper' => [
@@ -160,7 +160,7 @@ enum PagamentoTipoEnum: int
                         [
                             'nome' => 'descricao_condicionado',
                             'nome_exibir' => 'Descrição do pagamento condicionado',
-                            'formRequestRule' => 'required|string',
+                            'form_request_rule' => 'required|string',
                         ],
                     ],
                     'helper' => [

@@ -13,6 +13,7 @@ class MovimentacaoContaFormRequestBase extends BaseFormRequest
             'data_recebimento' => 'required|date',
             'referencia_id' => 'required|uuid',
             'status_id' => 'required|integer',
+            'observacao' => 'nullable|string',
             'participantes' => 'required|array|min:1',
             'participantes.*.id' => 'nullable|uuid',
             'participantes.*.participacao_registro_tipo_id' => 'required|integer|in:1,2',
@@ -26,7 +27,6 @@ class MovimentacaoContaFormRequestBase extends BaseFormRequest
             'participantes.*.integrantes' => 'nullable|required_if:participantes.*.participacao_registro_tipo_id,2|array|min:1',
             'participantes.*.integrantes.*.participacao_registro_tipo_id' => 'required|integer|in:1',
             'participantes.*.integrantes.*.referencia_id' => 'required|uuid',
-            'observacao' => 'nullable|string',
         ];
     }
 }

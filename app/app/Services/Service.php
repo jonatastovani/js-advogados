@@ -132,7 +132,8 @@ abstract class Service
         // Gerar um log
         $codigo = 422;
         $mensagem = "A requisição não pôde ser processada.";
-        $traceId = CommonsFunctions::generateLog("$codigo | $mensagem | Errors: " . json_encode($e->getMessage()));
+        $dadosLocalizacaoErro = "Arquivo erro: {$e->getFile()} | Linha erro: {$e->getLine()}";
+        $traceId = CommonsFunctions::generateLog("$codigo | $mensagem | Errors: " . json_encode($e->getMessage()) . " | $dadosLocalizacaoErro");
 
         $response = RestResponse::createGenericResponse(['error' => $e->getMessage()], 422, $mensagem, $traceId);
         return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();

@@ -38,19 +38,6 @@ enum LancamentoStatusTipoEnum: int
                 'id' => self::LIQUIDADO_EM_ANALISE->value,
                 'nome' => 'Liquidado (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado, mas ainda não foi confirmado.',
-                'configuracao' => [
-                    'campos_obrigatorios' => [
-                        [
-                            'nome' => 'data_recebimento',
-                            'nome_exibir' => 'Data de recebimento',
-                            'formRequestRule' => 'required|date',
-                        ],
-                    ],
-                    // 'helper' => [
-                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
-                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
-                    // ]
-                ],
             ],
             self::LIQUIDADO => [
                 'id' => self::LIQUIDADO->value,
@@ -61,37 +48,15 @@ enum LancamentoStatusTipoEnum: int
                         [
                             'nome' => 'data_recebimento',
                             'nome_exibir' => 'Data de recebimento',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                     ],
-                    // 'helper' => [
-                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
-                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
-                    // ]
                 ],
             ],
             self::LIQUIDADO_PARCIALMENTE_EM_ANALISE => [
                 'id' => self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
                 'nome' => 'Liquidado parcialmente (em análise)',
                 'descricao' => 'O lançamento foi alterado para liquidado parcialmente, mas ainda não foi confirmado.',
-                'configuracao' => [
-                    'campos_obrigatorios' => [
-                        [
-                            'nome' => 'data_recebimento',
-                            'nome_exibir' => 'Data de recebimento',
-                            'formRequestRule' => 'required|date',
-                        ],
-                        [
-                            'nome' => 'valor_recebido',
-                            'nome_exibir' => 'Valor recebido',
-                            'formRequestRule' => 'nullable|numeric|min:0.01',
-                        ],
-                    ],
-                    // 'helper' => [
-                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
-                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
-                    // ]
-                ],
             ],
             self::LIQUIDADO_PARCIALMENTE => [
                 'id' => self::LIQUIDADO_PARCIALMENTE->value,
@@ -102,18 +67,43 @@ enum LancamentoStatusTipoEnum: int
                         [
                             'nome' => 'data_recebimento',
                             'nome_exibir' => 'Data de recebimento',
-                            'formRequestRule' => 'required|date',
+                            'form_request_rule' => 'required|date',
                         ],
                         [
                             'nome' => 'valor_recebido',
                             'nome_exibir' => 'Valor recebido',
-                            'formRequestRule' => 'nullable|numeric|min:0.01',
+                            'form_request_rule' => 'required|numeric|min:0.01',
+                        ],
+                        [
+                            'nome' => 'diluicao_data',
+                            'nome_exibir' => 'Data diluição',
+                            'form_request_rule' => 'required|date',
+                        ],
+                        [
+                            'nome' => 'diluicao_valor',
+                            'nome_exibir' => 'Valor diluição',
+                            'form_request_rule' => 'required|numeric|min:0.01',
                         ],
                     ],
-                    // 'helper' => [
-                    //     'class' => PagamentoTipoPagamentoUnicoHelper::class,
-                    //     'endpoint_api' => 'api/helper/pagamento-tipo/pagamento-unico',
-                    // ]
+                    'campos_opcionais' => [
+                        [
+                            'nome_classe_row' => 'rowDiluicao',
+                            'parent' => 'array',
+                            'name_child_class' => 'diluicao_adicionada',
+                            'campos' => [
+                                [
+                                    'nome' => 'diluicao_data',
+                                    'nome_exibir' => 'Data diluição',
+                                    'form_request_rule' => 'required|date',
+                                ],
+                                [
+                                    'nome' => 'diluicao_valor',
+                                    'nome_exibir' => 'Valor diluição',
+                                    'form_request_rule' => 'nullable|numeric|min:0.01',
+                                ],
+                            ]
+                        ]
+                    ],
                 ],
             ],
             self::INADIMPLENTE_EM_ANALISE => [
@@ -153,4 +143,117 @@ enum LancamentoStatusTipoEnum: int
     {
         return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
     }
+
+    static public function statusAceitaAlteracaoSimples(): array
+    {
+        return [
+            self::AGUARDANDO_PAGAMENTO->value,
+            // self::INADIMPLENTE->value,
+            // self::INADIMPLENTE_EM_ANALISE->value,
+        ];
+    }
+
+    static public function statusComMovimentacaoConta(): array
+    {
+        $movimentacaoCredito = [
+            'movimentacao_tipo_id' => MovimentacaoContaTipoEnum::CREDITO->value,
+            'movimentacao_tipo_id_rollback' => MovimentacaoContaTipoEnum::DEBITO->value,
+        ];
+
+        return [
+            [
+                'status_id' => self::LIQUIDADO->value,
+                ...$movimentacaoCredito,
+            ],
+            [
+                'status_id' => self::LIQUIDADO_PARCIALMENTE->value,
+                ...$movimentacaoCredito,
+            ],
+        ];
+    }
+
+    // /**
+    //  * Configuração dos tipos de status de Lançamentos. Usado no front para exibir as opções conforme cada tipo de Status do Lançamento.
+    //  *
+    //  * Chave do array: nome da ação.
+    //  * Valor do array: array com as seguintes chaves:
+    //  *   - id: id do status de lançamento.
+    //  *   - cor: classe de cor Bootstrap para o botão.
+    //  *   - opcao_nos_status: array com os ids dos status nos quais a ação está disponível.
+    //  *
+    //  * @return array
+    //  */
+    // static public function configAcoesLancamentoStatusTipoFinanLancServ()
+    // {
+    //     return [
+    //         'AGUARDANDO_PAGAMENTO_EM_ANALISE' => [
+    //             'id' => self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
+    //             'cor' => 'text-bg-warning',
+    //             'opcao_nos_status' => [
+    //                 self::AGUARDANDO_PAGAMENTO,
+    //                 self::LIQUIDADO_EM_ANALISE,
+    //                 self::LIQUIDADO,
+    //                 self::CANCELADO_EM_ANALISE,
+    //                 self::CANCELADO,
+    //             ]
+    //         ],
+    //         'AGUARDANDO_PAGAMENTO' => [
+    //             'id' => self::AGUARDANDO_PAGAMENTO,
+    //             'cor' => null,
+    //             'opcao_nos_status' => [
+    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
+    //                 self::LIQUIDADO_EM_ANALISE,
+    //                 self::LIQUIDADO,
+    //                 self::CANCELADO_EM_ANALISE,
+    //                 self::CANCELADO,
+    //             ]
+    //         ],
+    //         'LIQUIDADO_EM_ANALISE' => [
+    //             'id' => self::LIQUIDADO_EM_ANALISE,
+    //             'cor' => 'text-success bg-warning',
+    //             'opcao_nos_status' => [
+    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
+    //                 self::AGUARDANDO_PAGAMENTO,
+    //                 self::LIQUIDADO,
+    //                 self::INADIMPLENTE_EM_ANALISE,
+    //                 self::INADIMPLENTE,
+    //             ]
+    //         ],
+    //         'LIQUIDADO' => [
+    //             'id' => self::LIQUIDADO,
+    //             'cor' => 'text-success',
+    //             'opcao_nos_status' => [
+    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
+    //                 self::AGUARDANDO_PAGAMENTO,
+    //                 self::LIQUIDADO_EM_ANALISE,
+    //                 self::INADIMPLENTE_EM_ANALISE,
+    //                 self::INADIMPLENTE,
+    //             ]
+    //         ],
+    //         'LIQUIDADO_PARCIALMENTE_EM_ANALISE' => [
+    //             'id' => self::LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+    //             'opcao_nos_status' => []
+    //         ],
+    //         'LIQUIDADO_PARCIALMENTE' => [
+    //             'id' => self::LIQUIDADO_PARCIALMENTE,
+    //             'opcao_nos_status' => []
+    //         ],
+    //         'REAGENDADO_EM_ANALISE' => [
+    //             'id' => self::REAGENDADO_EM_ANALISE,
+    //             'opcao_nos_status' => []
+    //         ],
+    //         'REAGENDADO' => [
+    //             'id' => self::REAGENDADO,
+    //             'opcao_nos_status' => []
+    //         ],
+    //         'CANCELADO_EM_ANALISE' => [
+    //             'id' => self::CANCELADO_EM_ANALISE,
+    //             'opcao_nos_status' => []
+    //         ],
+    //         'CANCELADO' => [
+    //             'id' => self::CANCELADO,
+    //             'opcao_nos_status' => []
+    //         ],
+    //     ];
+    // }
 }

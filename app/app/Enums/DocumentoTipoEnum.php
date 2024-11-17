@@ -24,7 +24,7 @@ enum DocumentoTipoEnum: int
                 'nome' => 'CPF',
                 'configuracao' => [
                     'exp_reg' => '/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
-                    'formRequestRule' => 'required|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
+                    'form_request_rule' => 'required|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
                     'helper' => [
                         'class' => DocumentoCPFHelper::class,
                         'endpoint_api' => 'api/helper/validacao/documento/cpf',
@@ -36,7 +36,7 @@ enum DocumentoTipoEnum: int
                 'nome' => 'CNPJ',
                 'configuracao' => [
                     'exp_reg' => '/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
-                    'formRequestRule' => 'required|regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
+                    'form_request_rule' => 'required|regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
                     'helper' => [
                         'class' => DocumentoCNPJHelper::class,
                         'endpoint_api' => 'api/helper/validacao/documento/cnpj',
@@ -48,7 +48,7 @@ enum DocumentoTipoEnum: int
                 'nome' => 'RG',
                 'configuracao' => [
                     'exp_reg' => '/^\d{1,15}$/',
-                    'formRequestRule' => 'required|regex:/^\d{1,15}$/',
+                    'form_request_rule' => 'required|regex:/^\d{1,15}$/',
                 ],
             ],
             self::TITULO_ELEITORAL => [
@@ -59,11 +59,11 @@ enum DocumentoTipoEnum: int
                     'campos_adicionais' => [
                         'zona_eleitoral' => [
                             'exp_reg' => '/^\d{4}$/',
-                            'formRequestRule' => 'required|/^\d{4}\.\d{4}\.\d{4}$/',
+                            'form_request_rule' => 'required|/^\d{4}\.\d{4}\.\d{4}$/',
                         ],
                         'secao_eleitoral' => [
                             'exp_reg' => '/^\d{4}$/',
-                            'formRequestRule' => 'required|regex:/^\d{4}$/',
+                            'form_request_rule' => 'required|regex:/^\d{4}$/',
                         ]
                     ]
                 ],

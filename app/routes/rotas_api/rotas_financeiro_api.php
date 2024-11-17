@@ -25,9 +25,9 @@ Route::group([
     });
 
     Route::prefix('lancamentos')->group(function () {
-        
+
         Route::get('', function () {})->name('api.financeiro.lancamentos');
-        
+
         Route::prefix('servicos')->group(function () {
 
             Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
@@ -44,7 +44,11 @@ Route::group([
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
 
             Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
-            Route::post('servicos', 'storeLancamentoServico');
+
+            Route::prefix('servicos')->group(function () {
+                Route::post('', 'storeLancamentoServico');
+                Route::post('status-alterar', 'alterarStatusLancamentoServico');
+            });
         });
     });
 

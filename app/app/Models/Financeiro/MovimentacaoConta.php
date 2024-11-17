@@ -18,7 +18,6 @@ class MovimentacaoConta extends Model
     protected $tableAsName = 'mov_conta';
 
     protected $fillable = [
-        'movimentacao_tipo_id',
         'referencia_id',
         'referencia_type',
         'conta_id',
@@ -26,5 +25,10 @@ class MovimentacaoConta extends Model
         'data_movimentacao',
         'observacao',
         'observacao_automatica',
+    ];
+
+    protected $casts = [
+        'valor_movimentado' => 'float',
+        'saldo_atualizado' => 'float',
     ];
 }

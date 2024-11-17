@@ -42,7 +42,7 @@ return new class extends Migration
             $table->unsignedBigInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());
 
-            $table->json('temporary_data')->nullable(); // Armazenará dados temporários, quando o status for um status em análise.
+            $table->json('metadata')->nullable(); // Armazenará opcionais como rastreamento ou informações originais (ex: em casos de pagamentos parciais, salvar o nome do primeiro pagamento, assim se o restante do parcial gerar mais paciais, levará o nome original.).
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

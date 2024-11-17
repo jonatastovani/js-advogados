@@ -45,16 +45,16 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
                 switch ($pagamentoTipo->id) {
                     case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
                         if ($value['nome'] == 'valor_total') {
-                            $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['formRequestRule']);
+                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
                         }
                         break;
 
                     case PagamentoTipoEnum::PARCELADO->value:
                         if ($value['nome'] == 'valor_total') {
-                            $value['formRequestRule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['formRequestRule']);
+                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
                         }
                 }
-                $rules[$value['nome']] = $value['formRequestRule'];
+                $rules[$value['nome']] = $value['form_request_rule'];
             }
         }
 

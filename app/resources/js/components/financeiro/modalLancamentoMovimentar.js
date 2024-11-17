@@ -194,6 +194,8 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                 self._objConfigs.data.idRegister = self._dataEnvModal.idRegister;
                 self._objConfigs.data.status_id = self._dataEnvModal.status_id;
 
+                const numero_servico = responseData.pagamento.servico.numero_servico;
+                const titulo_servico = responseData.pagamento.servico.titulo;
                 const descricao = responseData.descricao_automatica;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
                 const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
@@ -221,6 +223,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                 }
 
                 const form = $(self.getIdModal).find('.formRegistration');
+                form.find('.pNumeroServico').html(numero_servico).attr('title', titulo_servico);
                 form.find('.pDescricao').html(descricao);
                 form.find('.pDataVencimento').html(data_vencimento);
                 form.find('.pValor').html(valor_esperado);
@@ -241,15 +244,42 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
 
     saveButtonAction() {
         const self = this;
-        const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        const configuracao = self._objConfigs.data.lancamento_status_tipos.configuracao;
+        const rowContaData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowConta')[0]);
+        const rowObservacaoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowObservacao')[0]);
+        const rowRecebimentoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowRecebimento')[0]);
+
+        let data = Object.assign(rowContaData, rowObservacaoData, rowRecebimentoData);
+        if (configuracao.campos_opcionais) {
+            for (const opcionais of Object.values(configuracao.campos_opcionais)) {
+                console.log(opcionais);
+                const nomeClassRow = opcionais.nome_classe_row;
+
+                switch (opcionais.parent) {
+                    case 'array':
+                        const nameChildClass = opcionais.name_child_class;
+                        let dataOpcional = commonFunctions.getInputsValues(
+                            $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`)
+                        );
+                        dataOpcional.each((index, element) => {
+                            console.log(element);
+                        });
+
+                        console.log(`É um array. Nome Classe pai ${nomeClassRow}`);
+                        break;
+
+                    default:
+                        console.log('Formato não esperado');
+                }
+            }
+        }
+
         data.participantes = self._objConfigs.data.participantesNaTela;
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
-
         console.log(data);
+
         if (self.#saveVerifications(data)) {
-            commonFunctions.generateNotification('Lançamento será enviado para ser salvo.', 'success');
             self._save(data, self._objConfigs.url.base);
         }
     }
@@ -269,7 +299,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
         });
 
         for (const campo of configuracao.campos_obrigatorios) {
-            const rules = campo.formRequestRule.split('|');
+            const rules = campo.form_request_rule.split('|');
             if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
                 data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
             }
