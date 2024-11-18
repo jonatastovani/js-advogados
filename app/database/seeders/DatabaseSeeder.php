@@ -29,53 +29,53 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            TenantTypeSeeder::class,
-            TenantDomainSeeder::class,
-            UserSeeder::class,
-            UserTenantDomainSeeder::class,
+        // $this->call([
+        //     TenantTypeSeeder::class,
+        //     TenantDomainSeeder::class,
+        //     UserSeeder::class,
+        //     UserTenantDomainSeeder::class,
 
-            PessoaPerfilTipoSeeder::class,
-            DocumentoTipoSeeder::class,
+        //     PessoaPerfilTipoSeeder::class,
+        //     DocumentoTipoSeeder::class,
 
-            PermissionModuleSeeder::class,
-            PermissionGroupSeeder::class,
-            PermissionSeeder::class,
-            PermissionConfigSeeder::class,
+        //     PermissionModuleSeeder::class,
+        //     PermissionGroupSeeder::class,
+        //     PermissionSeeder::class,
+        //     PermissionConfigSeeder::class,
 
-            ContaStatusTipoSeeder::class,
-            PagamentoStatusTipoSeeder::class,
-            LancamentoStatusTipoSeeder::class,
-        ]);
+        //     ContaStatusTipoSeeder::class,
+        //     PagamentoStatusTipoSeeder::class,
+        //     LancamentoStatusTipoSeeder::class,
+        // ]);
 
-        if (env('APP_ENV') == 'local') {
-            $this->call([PessoaPerfilClienteSeeder::class]);
-        }
-
-        $this->call([
-            ContaTipoSeeder::class,
-            ContaSubtipoSeeder::class,
-            AreaJuridicaTenantSeeder::class,
-            PagamentoTipoSeeder::class,
-            PagamentoTipoTenantSeeder::class,
-            ServicoParticipacaoTipoTenantSeeder::class,
-            ContaSeeder::class,
-        ]);
-
-        if (env('APP_ENV') == 'local') {
-            $this->call([
-                PessoaPerfilParceiroSeeder::class,
-                PessoaPerfilParceiroClienteSeeder::class,
-            ]);
-        }
-
-        $this->call([
-            ParticipacaoRegistroTipoSeeder::class,
-            MovimentacaoContaTipoSeeder::class,
-        ]);
+        // if (env('APP_ENV') == 'local') {
+        //     $this->call([PessoaPerfilClienteSeeder::class]);
+        // }
 
         // $this->call([
-        //     LancamentoStatusTipoUpdateSeeder::class,
+        //     ContaTipoSeeder::class,
+        //     ContaSubtipoSeeder::class,
+        //     AreaJuridicaTenantSeeder::class,
+        //     PagamentoTipoSeeder::class,
+        //     PagamentoTipoTenantSeeder::class,
+        //     ServicoParticipacaoTipoTenantSeeder::class,
+        //     ContaSeeder::class,
         // ]);
+
+        // if (env('APP_ENV') == 'local') {
+        //     $this->call([
+        //         PessoaPerfilParceiroSeeder::class,
+        //         PessoaPerfilParceiroClienteSeeder::class,
+        //     ]);
+        // }
+
+        // $this->call([
+        //     ParticipacaoRegistroTipoSeeder::class,
+        //     MovimentacaoContaTipoSeeder::class,
+        // ]);
+
+        $this->call([
+            LancamentoStatusTipoUpdateSeeder::class,
+        ]);
     }
 }

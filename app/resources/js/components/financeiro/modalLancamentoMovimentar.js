@@ -3,6 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 import { modalConta } from "./modalConta";
 
@@ -163,6 +164,53 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
 
         commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
 
+        const btnAddDiluicao = $(self.getIdModal).find('.btn-add-diluicao');
+        if (btnAddDiluicao) {
+            self._objConfigs.data.contador_diluicao = 0;
+
+            btnAddDiluicao.on('click', function () {
+
+                self._objConfigs.data.contador_diluicao++;
+                let contador = self._objConfigs.data.contador_diluicao;
+
+                const rowDiluicao = $(self.getIdModal).find('.rowDiluicao');
+                const newUuid = UUIDHelper.generateUUID();
+                rowDiluicao.append(`
+                    <div id="${newUuid}" class="col diluicao_adicionada">
+                        <input type="hidden" name="nome" value="diluição #${contador}">
+                        <input type="hidden" name="sufixo" value="${newUuid}">
+                        <div class="row align-items-end">
+                            <div class="col-12 col-sm-5 mt-2">
+                                <label for="diluicao_data${newUuid}" class="form-label">Vencimento diluição #${contador}</label>
+                                <input type="date" id="diluicao_data${newUuid}" name="diluicao_data" class="form-control text-center">
+                            </div>
+                            <div class="col">
+                                <div class="row align-items-end">
+                                    <div class="col-9 mt-2">
+                                        <label for="diluicao_valor${newUuid}" class="form-label">Valor diluição #${contador}</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text"><label for="diluicao_valor${newUuid}">R$</label>
+                                            </div>
+                                            <input type="text" id="diluicao_valor${newUuid}" name="diluicao_valor"
+                                                class="form-control text-end campo-monetario">
+                                        </div>
+                                    </div>
+                                    <div class="col mt-2">
+                                        <button type="button" class="btn btn-outline-primary border-0 btn-remove-diluicao">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                $(`#${newUuid}`).find('.btn-remove-diluicao').on('click', function () {
+                    $(`#${newUuid}`).remove();
+                })
+            })
+        }
     }
 
     async #buscarContas(selected_id = null) {
@@ -251,25 +299,29 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
 
         let data = Object.assign(rowContaData, rowObservacaoData, rowRecebimentoData);
         if (configuracao.campos_opcionais) {
+
             for (const opcionais of Object.values(configuracao.campos_opcionais)) {
-                console.log(opcionais);
-                const nomeClassRow = opcionais.nome_classe_row;
 
-                switch (opcionais.parent) {
+                const nomeClassRow = opcionais.row_class_name;
+                switch (opcionais.parent_type) {
                     case 'array':
-                        const nameChildClass = opcionais.name_child_class;
-                        let dataOpcional = commonFunctions.getInputsValues(
-                            $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`)
-                        );
-                        dataOpcional.each((index, element) => {
-                            console.log(element);
-                        });
 
-                        console.log(`É um array. Nome Classe pai ${nomeClassRow}`);
+                        const nameChildClass = opcionais.children_class_name;
+                        const nameParent = opcionais.parent_name;
+                        const childrens = $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`);
+                        let arrayData = [];
+                        childrens.each((index, element) => {
+                            let opcionalData = commonFunctions.getInputsValues(element);
+                            arrayData.push(opcionalData);
+                        });
+                        data[nameParent] = arrayData;
                         break;
 
                     default:
-                        console.log('Formato não esperado');
+                        const message = `Formato de opcional não reconhecido.`;
+                        console.error(message);
+                        commonFunctions.generateNotification(message);
+                        return false;
                 }
             }
         }
@@ -310,6 +362,54 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                 setFocus: blnSave === true,
                 returnForcedFalse: blnSave === false
             });
+        }
+
+        if (configuracao.campos_opcionais) {
+
+            for (const opcional of Object.values(configuracao.campos_opcionais)) {
+
+                switch (opcional.parent_type) {
+                    case 'array':
+                        const parent = data[opcional.parent_name];
+                        if (parent) {
+                            console.log(parent)
+                            parent.forEach(conjunto => {
+                                let nomeExibirCustom = conjunto.nome;
+                                let sufixoCustom = conjunto.sufixo;
+                                delete conjunto.nome;
+                                delete conjunto.sufixo;
+
+                                for (let campo of Object.keys(conjunto)) {
+                                    const fieldParams = opcional.fields.find(item => item.nome == campo);
+
+                                    const rules = fieldParams.form_request_rule.split('|');
+                                    if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
+                                        conjunto[fieldParams.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(conjunto[fieldParams.nome]);
+                                    }
+
+                                    const blnSaveConjunto = commonFunctions.verificationData(conjunto[fieldParams.nome], {
+                                        field: formRegistration.find(`#${fieldParams.nome}${sufixoCustom}`),
+                                        messageInvalid: `Os campo <b>${fieldParams.nome_exibir}</b> da <b>${nomeExibirCustom}</b> deve ser informado.`,
+                                        setFocus: blnSave === true,
+                                        returnForcedFalse: blnSave === false
+                                    });
+                                }
+                            });
+
+
+                        }
+                        // const nameChildClass = opcionais.children_class_name;
+                        // const nameParent = opcionais.parent_name;
+                        // const childrens = $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`);
+                        // let arrayData = [];
+                        // childrens.each((index, element) => {
+                        //     let opcionalData = commonFunctions.getInputsValues(element);
+                        //     arrayData.push(opcionalData);
+                        // });
+                        // data[nameParent] = arrayData;
+                        break;
+                }
+            }
         }
 
         return blnSave;

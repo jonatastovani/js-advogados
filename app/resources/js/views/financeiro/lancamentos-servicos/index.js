@@ -493,6 +493,11 @@ class PageLancamentoServicoIndex extends templateSearch {
                     commonFunctions.generateNotificationErrorCatch(error);
                 }
             });
+            
+            if (!self._objConfigs.data?.blnClick) {
+                $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`).click();
+                self._objConfigs.data.blnClick = true;
+            }
         }
     }
 }

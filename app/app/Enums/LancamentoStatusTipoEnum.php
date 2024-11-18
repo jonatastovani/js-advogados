@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Models\Referencias\PagamentoStatusTipo;
 use App\Traits\EnumTrait;
 
 enum LancamentoStatusTipoEnum: int
@@ -87,10 +88,12 @@ enum LancamentoStatusTipoEnum: int
                     ],
                     'campos_opcionais' => [
                         [
-                            'nome_classe_row' => 'rowDiluicao',
-                            'parent' => 'array',
-                            'name_child_class' => 'diluicao_adicionada',
-                            'campos' => [
+                            'row_class_name' => 'rowDiluicao',
+                            'parent_type' => 'array',
+                            'parent_name' => 'diluicao_lancamento_adicionais',
+                            'parent_form_request_rule' => 'nullable|array',
+                            'children_class_name' => 'diluicao_adicionada',
+                            'fields' => [
                                 [
                                     'nome' => 'diluicao_data',
                                     'nome_exibir' => 'Data diluição',
@@ -139,9 +142,24 @@ enum LancamentoStatusTipoEnum: int
         };
     }
 
-    static public function statusPadraoSalvamento(): int
+    static public function statusPadraoSalvamento(int $idPagamentoStatus = null): int
     {
+        switch ($idPagamentoStatus) {
+            case PagamentoStatusTipoEnum::ATIVO->value:
+                return self::AGUARDANDO_PAGAMENTO->value;
+
+            case PagamentoStatusTipoEnum::LIQUIDADO->value:
+                return self::LIQUIDADO->value;
+
+            case PagamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
+                return self::LIQUIDADO_EM_ANALISE->value;
+        }
         return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
+    }
+
+    static public function statusPadraoLiquidadoParcialNovaDiluicao(): int
+    {
+        return self::AGUARDANDO_PAGAMENTO->value;
     }
 
     static public function statusAceitaAlteracaoSimples(): array
