@@ -185,6 +185,11 @@ class PageLancamentoServicoIndex extends templateSearch {
         const observacaoPagamento = item.pagamento.observacao ?? '***';
         const statusPagamento = item.status.nome;
 
+        console.log(item.participantes.length ? item.participantes :
+            (item.pagamento.participantes.length ? item.pagamento.participantes :
+                (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
+            ));
+
         const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
                 (item.pagamento.participantes.length ? item.pagamento.participantes :

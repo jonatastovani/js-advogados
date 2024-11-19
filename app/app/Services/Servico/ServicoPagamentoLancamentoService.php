@@ -100,7 +100,7 @@ class ServicoPagamentoLancamentoService extends Service
         $arrayCampos = [
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
             'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_automatica'],
-            
+
             'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
             'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
             'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
@@ -172,11 +172,8 @@ class ServicoPagamentoLancamentoService extends Service
         $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
         $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
-        $blnServicoFiltro = in_array('col_numero_servico', $filtros['campos_busca']);
 
-        if ($blnServicoFiltro || $blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
-            $query = $this->model::joinPagamentoServicoCompleto($query);
-        }
+        $query = $this->model::joinPagamentoServicoCompleto($query);
 
         if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
             $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);

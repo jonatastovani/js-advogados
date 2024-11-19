@@ -38,9 +38,12 @@ return new class extends Migration
 
             $table->uuid('conta_id')->nullable();
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
-            
+
             $table->unsignedBigInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());
+
+            $table->uuid('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on($this->model->getTableName());
 
             $table->json('metadata')->nullable(); // Armazenará opcionais como rastreamento ou informações originais (ex: em casos de pagamentos parciais, salvar o nome do primeiro pagamento, assim se o restante do parcial gerar mais paciais, levará o nome original.).
 

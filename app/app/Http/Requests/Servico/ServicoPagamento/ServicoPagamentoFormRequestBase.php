@@ -79,7 +79,6 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
         ];
     }
 
-
     protected function customMessages(): array
     {
         return [

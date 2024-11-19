@@ -254,6 +254,42 @@ class ServicoPagamentoService extends Service
         return $relationships;
     }
 
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        // Inicia a transação
+        DB::beginTransaction();
+
+        try {
+            // Verifica se existem lançamentos com status_id 4 ou 6
+            $lancamentosComStatusCritico = $resource->lancamentos()
+                ->whereIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
+                ->exists();
+
+            if ($lancamentosComStatusCritico) {
+                // Atualiza o status dos lancamentos que não possuem status_id 4 ou 6
+                $resource->lancamentos()
+                    ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
+                    ->update(['status_id' => LancamentoStatusTipoEnum::CANCELADO->value]);
+
+                // Atualiza o status do pagamento
+                $resource->update(['status_id' => PagamentoStatusTipoEnum::CANCELADO->value]);
+            } else {
+
+                // Se não houver lançamentos com status_id 4 ou 6, exclui o recurso
+                $resource->delete();
+            }
+
+            DB::commit();
+            // $this->executarEventoWebsocket();
+            return $resource->toArray();
+        } catch (\Exception $e) {
+            DB::rollBack(); // Garante o rollback em caso de erro
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     // private function executarEventoWebsocket()
     // {
     //     event(new EntradasPresos);

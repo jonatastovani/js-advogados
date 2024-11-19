@@ -257,7 +257,12 @@ class CommonsFunctions
         }
         $resource->created_ip = UserInfo::get_ip();
         $resource->created_at = self::formatarDataTimeZonaAmericaSaoPaulo(now());
+        $resource->updated_ip = null;
         $resource->updated_at = null;
+        $resource->updated_user_id = null;
+        $resource->deleted_at = null;
+        $resource->deleted_ip = null;
+        $resource->deleted_user_id = null;
     }
 
     static function inserirInfoUpdated($resource)

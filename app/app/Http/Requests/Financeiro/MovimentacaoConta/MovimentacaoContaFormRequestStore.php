@@ -21,7 +21,7 @@ class MovimentacaoContaFormRequestStore extends MovimentacaoContaFormRequestBase
         $rules = parent::rules();
 
         $participantes = $this->input('participantes');
-        // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
+
         if ($this->input('status_id') == LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value && is_array($participantes) && count($participantes) > 0) {
 
             $consulta =  LancamentoStatusTipo::find(LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value);

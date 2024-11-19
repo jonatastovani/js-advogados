@@ -171,6 +171,14 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
+    static public function statusImpossibilitaExclusao(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
+
     static public function statusComMovimentacaoConta(): array
     {
         $movimentacaoCredito = [

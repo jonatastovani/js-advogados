@@ -41,7 +41,7 @@ class ServicoPagamentoLancamento extends Model
     protected $casts = [
         'valor_esperado' => 'float',
         'valor_recebido' => 'float',
-        'temporary_data' => 'json',
+        'metadata' => 'array',
     ];
 
     public function pagamento()
@@ -72,17 +72,16 @@ class ServicoPagamentoLancamento extends Model
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
      *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
-     *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'left'.
+     *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'inner'.
      *              - 'aliasJoinServico' (opcional) Alias da tabela Servico que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
     public static function joinPagamentoServicoCompleto(Builder $query, array $options = [])
     {
-
         // Join com o Pagamento
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoPagamento())->getTableAsName();
-        $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'inner';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
@@ -93,7 +92,7 @@ class ServicoPagamentoLancamento extends Model
         // Join com a Servico
         $aliasTable = $envOptions->aliasJoin;
         $envOptions->aliasJoin = $options['aliasJoinServico'] ?? (new Servico())->getTableAsName();
-        $envOptions->typeJoin = $options['typeJoinServico'] ?? 'left';
+        $envOptions->typeJoin = $options['typeJoinServico'] ?? 'inner';
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];

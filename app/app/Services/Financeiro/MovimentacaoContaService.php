@@ -25,6 +25,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
@@ -83,11 +84,11 @@ class MovimentacaoContaService extends Service
                 unset($resource->participantes);
 
                 $lancamento = $modelParent::find($idParent);
-                $restricaoDeAlteracaoDeParticipantes = false;
 
                 switch ($requestData->status_id) {
                     case LancamentoStatusTipoEnum::LIQUIDADO->value:
 
+                        $restricaoDeAlteracaoDeParticipantes = false;
                         if ($lancamento->metadata) {
                             // Se tiver registro de ids de lançamentos diluídos, então não se troca os participantes porque senão a pessoa não recebe o restante que lhe é devido
                             $restricaoDeAlteracaoDeParticipantes = $lancamento->metadata['parent_id'] ? true : false;
@@ -145,6 +146,11 @@ class MovimentacaoContaService extends Service
 
                     case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value:
 
+                        // Verifica se o lançamento é uma diluição
+                        if ($lancamento->parent_id) {
+                            throw new Exception('Este lançamento é uma diluição de outro. Não será possível efetuar um pagamento parcial.');
+                        }
+
                         // Atualiza alguns campos do lançamento original que serão usados também na nova parcela
                         $lancamento->conta_id = $requestData->conta_id;
                         $lancamento->observacao = $requestData->observacao;
@@ -161,8 +167,10 @@ class MovimentacaoContaService extends Service
                         $lancamento->valor_recebido = $requestData->valor_recebido;
                         $lancamento->data_recebimento = $requestData->data_recebimento;
 
-                        $lancamento->metadata['diluicao_lancamentos_ids'] = $diluicaoData['diluicao_lancamentos_ids'];
-                        $lancamento->metadata['porcentagem_recebida'] = $diluicaoData['porcentagem_recebida'];
+                        $metadata = $lancamento->metadata;
+                        $metadata['diluicao_lancamentos_ids'] = $diluicaoData['diluicao_lancamentos_ids'];
+                        $metadata['porcentagem_recebida'] = $diluicaoData['porcentagem_recebida'];
+                        $lancamento->metadata = $metadata;
 
                         $lancamento->save();
 
@@ -206,67 +214,70 @@ class MovimentacaoContaService extends Service
         $dadosRetornar = new Fluent();
 
         // Valida valores de diluição para evitar ultrapassagem
-        $valorRestante = $lancamento->valor_esperado - $requestData->valor_recebido;
-        $totalValorDiluicao = $requestData->diluicao_valor + collect($requestData->diluicao_lancamento_adicionais)
-            ->sum('diluicao_valor');
+        $valorRestante = bcsub($lancamento->valor_esperado, $requestData->valor_recebido, 2);
+        $totalValorDiluicao = bcadd(
+            $requestData->diluicao_valor,
+            collect($requestData->diluicao_lancamento_adicionais)->sum('diluicao_valor'),
+            2
+        );
 
-        if ($totalValorDiluicao > $valorRestante) {
-            throw new Exception("O valor das parcelas de diluição não pode exceder o valor restante do lançamento original.", 400);
+        // Comparação utilizando bccomp
+        if (bccomp($totalValorDiluicao, $valorRestante, 2) === 1) {
+            throw new Exception("O valor dos lançamentos de diluição não pode exceder o valor restante do lançamento original.", 400);
+        }
+
+        if (bccomp(bcadd($totalValorDiluicao, $requestData->valor_recebido, 2), $lancamento->valor_esperado, 2) === -1) {
+            throw new Exception("O valor dos lançamentos de diluição não pode ser menor que o valor do lançamento original.", 400);
         }
 
         // Nível da diluação. Se for a primeira vez, o nome é a descrição automática do lancamento parent seguido do #1 e o número de descrição automática da parcela.
 
-        $nivelDiluicao = 1;
-        $newLancamentoMetadata = [];
-        if ($lancamento->metadata['nivel_diluicao']) {
-            $newLancamentoMetadata = $lancamento->metadata;
-            $nivelDiluicao = $lancamento->metadata['nivel_diluicao'] + 1;
-        } else {
-            $newLancamentoMetadata = [
-                'parent_descricao_original' => $lancamento->descricao_automatica,
-            ];
+        $newLancamentoMetadata = is_array($lancamento->metadata) ? $lancamento->metadata : [];
+        if (!isset($newLancamentoMetadata['parent_descricao_original'])) {
+            $newLancamentoMetadata['parent_descricao_original'] =  $lancamento->descricao_automatica;
         }
-
-        $newLancamentoMetadata['nivel_diluicao'] = $nivelDiluicao;
         $newLancamentoMetadata['parent_id'] = $lancamento->id;
 
         // Criar a primeiro lançamento de diluição
-        $dadosRetornar->lancamentos[] = $this->criarNovaParcela($lancamento, $requestData->diluicao_valor, $requestData->diluicao_data, 1, $nivelDiluicao, count($requestData->diluicao_lancamento_adicionais) + 1, $newLancamentoMetadata);
+        $lancamentos[] = $this->criarNovaParcela($lancamento, $requestData->diluicao_valor, $requestData->diluicao_data, 1, $lancamento->id, count($requestData->diluicao_lancamento_adicionais) + 1, $newLancamentoMetadata);
 
         // Criar lancamento adicionais recursivamente
         foreach ($requestData->diluicao_lancamento_adicionais as $index => $diluicaoAdicional) {
-            $dadosRetornar->lancamentos[] = $this->criarNovaParcela(
+            $lancamentos[] = $this->criarNovaParcela(
                 $lancamento,
                 $diluicaoAdicional['diluicao_valor'],
                 $diluicaoAdicional['diluicao_data'],
                 $index + 2,
-                $nivelDiluicao,
+                $lancamento->id,
                 count($requestData->diluicao_lancamento_adicionais) + 1,
                 $newLancamentoMetadata
             );
         }
 
+        $dadosRetornar->lancamentos = $lancamentos;
         $dadosRetornar->diluicao_lancamentos_ids = collect($dadosRetornar->parcelas)->pluck('id');
         $dadosRetornar->porcentagem_recebida = round(($requestData->valor_recebido / $lancamento->valor_esperado) * 100, 2);
 
         return $dadosRetornar->toArray();
     }
 
-    protected function criarNovaParcela($lancamento, $valor, $data, $indiceParcela, $nivelDiluicao, $totalParcelas, $metadata)
+    protected function criarNovaParcela($lancamento, $valor, $data, $indiceParcela, $parentId, $totalParcelas, $metadata)
     {
         $newLancamento = $lancamento->replicate();
         $newLancamento->valor_esperado = $valor;
         $newLancamento->data_vencimento = $data;
         $newLancamento->status_id = LancamentoStatusTipoEnum::statusPadraoLiquidadoParcialNovaDiluicao();
         $newLancamento->metadata = $metadata;
-        $newLancamento->descricao_automatica = $metadata['descricao_automatica'] . " #{$nivelDiluicao} {$indiceParcela} de {$totalParcelas}";
+        $newLancamento->descricao_automatica = "({$metadata['parent_descricao_original']}) {$indiceParcela} de {$totalParcelas}";
         $newLancamento->valor_recebido = null;
         $newLancamento->data_recebimento = null;
+        $newLancamento->parent_id = $parentId;
+        $newLancamento->save();
 
-        return $newLancamento->save();
+        return $newLancamento;
     }
 
-    public function replicaParticipantesDiluicao(array $colecao, string $idParent, Model  $modelParent, float $porcentagemRecebida, float $valorCheio, array $options = [])
+    public function replicaParticipantesDiluicao(array $diluicoes, string $idParent, Model  $modelParent, float $porcentagemRecebida, float $valorCheio, array $options = [])
     {
 
         // IDs dos registros já salvos
@@ -278,6 +289,8 @@ class MovimentacaoContaService extends Service
             foreach ($integrantes as $integrante) {
                 $newIntegrante = $integrante->replicate();
                 $newIntegrante->participante_id = $participanteId;
+                $newIntegrante->created_at = null;
+                CommonsFunctions::inserirInfoCreated($newIntegrante);
                 $newIntegrante->save();
             }
         };
@@ -289,30 +302,27 @@ class MovimentacaoContaService extends Service
                 $integrantes = $participante->integrantes;
             }
 
-            if ($participante->valor_tipo == 'valor_fixo') {
-                $procentagemRecebida = round(($participante->valor * 100 / $porcentagemRecebida), 2);
-                $porcentagemRestante = 100 - $procentagemRecebida;
-                $valorFalta = $valorCheio - $participante->valor;
+            foreach ($diluicoes as $diluicao) {
 
-                // if ($falta / count($colecao) < 0.01) {
-                //     throw new \Exception("O valor restante não pode ser dividido igualmente entre o(s) participante(s) que tem participação com valor fixo.", 400);
-                // }
+                $newParticipante = $participante->replicate();
+                $newParticipante->parent_id = $diluicao->id;
+                $newParticipante->created_at = null;
+                CommonsFunctions::inserirInfoCreated($newParticipante);
 
-                foreach ($colecao as $diluicao) {
+                if ($participante->valor_tipo == 'valor_fixo') {
+                    $porcentagemRecebida = round(($participante->valor * 100 / $porcentagemRecebida), 2);
+                    $porcentagemRestante = 100 - $porcentagemRecebida;
+                    $valorFalta = $valorCheio - $participante->valor;
+
+                    // if ($falta / count($colecao) < 0.01) {
+                    //     throw new \Exception("O valor restante não pode ser dividido igualmente entre o(s) participante(s) que tem participação com valor fixo.", 400);
+                    // }
+
                     $porcentagemDiluicao =  round(($diluicao->valor_esperado * 100 / $valorFalta), 2);
                     $valorFixoDiluicao = round($valorFalta * $porcentagemDiluicao / 100, 2);
-
-                    $newParticipante = $participante->replicate();
-                    $newParticipante->referencia_id = $diluicao->id;
                     $newParticipante->valor = $valorFixoDiluicao;
-                    $newParticipante->save();
-
-                    if ($integrantes) {
-                        $replicarIntegrantes($integrantes, $newParticipante->id);
-                    }
                 }
-            } else {
-                $newParticipante = $participante->replicate();
+
                 $newParticipante->save();
 
                 if ($integrantes) {
@@ -322,7 +332,7 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $colecao, string $idParent, Model  $modelParent, array $options = [])
+    public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $participantes, string $idParent, Model  $modelParent, array $options = [])
     {
         $porcentagemRecebida = isset($options['porcentagem_recebida']) ? $options['porcentagem_recebida'] : null;
 
@@ -332,7 +342,7 @@ class MovimentacaoContaService extends Service
             ->pluck('id')->toArray();
 
         // IDs enviados (exclui novos registros sem ID)
-        $submittedRegisters = collect($colecao)->pluck('id')->filter()->toArray();
+        $submittedRegisters = collect($participantes)->pluck('id')->filter()->toArray();
 
         // Registros ausentes no PUT devem ser excluídos
         $idsToDelete = array_diff($existingRegisters, $submittedRegisters);
@@ -345,9 +355,9 @@ class MovimentacaoContaService extends Service
             }
         }
 
-        foreach ($colecao as $participante) {
-            if (isset($participante->integrantes)) {
-                $integrantes = $participante->integrantes;
+        foreach ($participantes as $participante) {
+            if (isset($participante['integrantes'])) {
+                $integrantes = $participante['integrantes'];
                 unset($participante->integrantes);
             }
 
@@ -375,9 +385,11 @@ class MovimentacaoContaService extends Service
                 if (!count($integrantes)) {
                     throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
                 }
+
+                $this->verificarRegistrosExcluindoIntegrantesNaoEnviado($participanteUpdate, $integrantes, $options);
             }
 
-            // $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
+            $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
             $arrayRetorno[] = $participanteUpdate->toArray();
         }
     }
@@ -420,6 +432,13 @@ class MovimentacaoContaService extends Service
         $resourceLancamento = $this->servicoPagamentoLancamentoService->buscarRecurso($requestData, ['conditions' => [
             'id' => $requestData->lancamento_id,
         ]]);
+
+        $verificaDiluido = $this->modelPagamentoLancamento::where('parent_id', $resourceLancamento->id);
+        if ($verificaDiluido->exists()) {
+            // throw new Exception('Este lançamento foi diluído em outros lançamentos. Não será possível alterar o status.', 400);
+            // $response = RestResponse::createErrorResponse(400, 'O Lancamento foi diluído em outros Lancamentos. Não será possivel alterar o status.');
+            return RestResponse::createErrorResponse(400, 'O Lancamento foi diluído em outros Lancamentos. Não será possivel alterar o status.')->throwResponse();
+        }
 
         $validacaoStatusId = ValidationRecordsHelper::validateRecord(LancamentoStatusTipo::class, ['id' => $requestData->status_id]);
         if (!$validacaoStatusId->count()) {

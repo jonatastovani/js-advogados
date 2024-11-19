@@ -1,6 +1,6 @@
 <div class="row h-100">
     <div class="col d-flex flex-column">
-        <div class="row">
+        <div class="row row-cols-1 row-cols-md-2">
             <div class="col mt-2">
                 <label for="preset_id{{ $sufixo }}" class="form-label">Presets</label>
                 <div class="input-group">
@@ -11,8 +11,6 @@
                             class="bi bi-search"></i></button>
                 </div>
             </div>
-        </div>
-        <div class="row">
             <div class="col mt-2">
                 <span class="d-block">Valor fixo: R$ <span id="valor_fixo{{ $sufixo }}">0,00</span></span>
                 <span class="d-block">Porcentagem comprometida: <span
