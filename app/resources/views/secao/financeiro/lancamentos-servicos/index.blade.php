@@ -18,6 +18,7 @@
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
                     'numero_servico' => ['nome' => 'Número de Serviço'],
+                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
@@ -43,11 +44,12 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-center" title=" número de Serviço">N.S.</th>
-                    <th class="text-nowrap">Status</th>
+                    <th class="text-center" title="Número de Serviço">N.S.</th>
+                    <th class="text-center" title="Número do Pagamento">N.P.</th>
                     <th class="text-nowrap">Descrição Lançamento</th>
                     <th class="text-nowrap">Valor Esperado</th>
                     <th class="text-nowrap">Data Vencimento</th>
+                    <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebido</th>
                     <th class="text-nowrap">Observação Lançamento</th>

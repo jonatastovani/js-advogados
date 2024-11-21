@@ -26,9 +26,11 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
+            $table->string('numero_pagamento');
+            
             $table->uuid('servico_id');
             $table->foreign('servico_id')->references('id')->on((new App\Models\Servico\Servico)->getTableName());
-
+            
             $table->uuid('pagamento_tipo_tenant_id');
             $table->foreign('pagamento_tipo_tenant_id')->references('id')->on((new App\Models\Tenant\PagamentoTipoTenant)->getTableName());
 

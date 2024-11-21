@@ -81,6 +81,7 @@ class MovimentacaoContaService extends Service
 
             // 'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
             // 'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
+            // 'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $participantePagamentoAsName,
 
             // 'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
 
@@ -110,6 +111,7 @@ class MovimentacaoContaService extends Service
             // 'col_nome_grupo_servico' => ['campo' => $arrayAliasCampos['col_nome_grupo_servico'] . '.nome_grupo'],
             // 'col_observacao_servico' => ['campo' => $arrayAliasCampos['col_observacao_servico'] . '.observacao'],
             // 'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
+            // 'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
 
             // 'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
             // 'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],

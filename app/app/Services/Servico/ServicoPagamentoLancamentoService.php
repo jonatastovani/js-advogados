@@ -32,7 +32,7 @@ class ServicoPagamentoLancamentoService extends Service
         public ServicoPagamento $modelPagamento,
         public ServicoParticipacaoParticipante $modelParticipantePagamento,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrantePagamento,
-        
+
         public Servico $modelServico,
         public ServicoParticipacaoParticipante $modelParticipanteServico,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegranteServico,
@@ -87,6 +87,7 @@ class ServicoPagamentoLancamentoService extends Service
 
             'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
             'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
+            'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $participantePagamentoAsName,
 
             'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
 
@@ -111,6 +112,7 @@ class ServicoPagamentoLancamentoService extends Service
 
             'col_nome_grupo_pagamento' => ['campo' => $arrayAliasCampos['col_nome_grupo_pagamento'] . '.nome_grupo'],
             'col_observacao_pagamento' => ['campo' => $arrayAliasCampos['col_observacao_pagamento'] . '.observacao'],
+            'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
             'col_nome_participante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_pagamento'] . '.nome'],
 
             'col_nome_grupo_servico' => ['campo' => $arrayAliasCampos['col_nome_grupo_servico'] . '.nome_grupo'],

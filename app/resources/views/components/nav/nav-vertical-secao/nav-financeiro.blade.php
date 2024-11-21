@@ -25,11 +25,11 @@
                         <span class="nav-link-text">Lançamentos de Serviços</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.movimentacao-conta.index') }}">
                         <span class="nav-link-text">Movimentações de Contas</span>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>

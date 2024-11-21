@@ -209,7 +209,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         const {
             tbody,
         } = options;
-
+        console.log(item)
         return
         let strBtns = self.#HtmlBtns(item);
 

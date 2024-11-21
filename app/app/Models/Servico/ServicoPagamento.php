@@ -2,6 +2,7 @@
 
 namespace App\Models\Servico;
 
+use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
@@ -28,6 +29,8 @@ class ServicoPagamento extends Model
 
     protected $table = 'servico.servico_pagamentos';
     protected $tableAsName = 'serv_pag';
+    // Variável estática para armazenar a sequência temporariamente
+    protected static $sequenciaTemporaria;
 
     protected $fillable = [
         'servico_id',
@@ -90,5 +93,27 @@ class ServicoPagamento extends Model
         static::addGlobalScope(new ValorServicoPagamentoAguardandoScope);
         static::addGlobalScope(new ValorServicoPagamentoInadimplenteScope);
         static::addGlobalScope(new ValorServicoPagamentoEmAnaliseScope);
+
+
+        static::creating(function (Model $model) {
+            // Verifica se já foi informado um número e ano
+            if (!$model->numero_pagamento) {
+                $sequencia = NumeracaoSequencialHelper::obterProximoNumero('servico_pagamento', tenant('id'));
+                // Preenche o campo numero_pagamento com o número obtido
+                $model->numero_pagamento = $sequencia['numero'];
+
+                // Armazena a sequência temporariamente para ser usada após a criação
+                self::$sequenciaTemporaria = $sequencia;
+            }
+        });
+
+        static::created(function (Model $model) {
+            // Após a criação bem-sucedida, confirma a numeração sequencial
+            if (self::$sequenciaTemporaria) {
+                NumeracaoSequencialHelper::confirmarNumeracao(self::$sequenciaTemporaria['registroNumeracao']);
+                // Limpa a sequência temporária
+                self::$sequenciaTemporaria = null;
+            }
+        });
     }
 }

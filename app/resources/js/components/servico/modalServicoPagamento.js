@@ -144,7 +144,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
         if (response?.data) {
             for (const lancamento of response.data.lancamentos) {
-                const inserido = await self.#inserirLancamentos(lancamento);
+                const inserido = await self.#inserirLancamentos(lancamento, { status_id: 1 });
             }
             commonFunctions.generateNotification('Simulação de pagamento concluída.', 'success');
             $(self.getIdModal).find(`#lancamentos${self._objConfigs.sufixo}-tab`).trigger('click');
@@ -383,7 +383,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             if (response?.data) {
                 const responseData = response.data;
                 responseData.lancamentos.map(lancamento => {
-                    self.#inserirLancamentos(lancamento);
+                    self.#inserirLancamentos(lancamento, lancamento.pagamento);
                 })
             }
         } catch (error) {

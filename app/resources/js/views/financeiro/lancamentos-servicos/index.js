@@ -213,6 +213,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         let strBtns = self.#HtmlBtns(item);
 
         const numero_servico = item.pagamento.servico.numero_servico;
+        const numero_pagamento = item.pagamento.numero_pagamento;
         const status = item.status.nome;
         const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
@@ -254,10 +255,11 @@ class PageLancamentoServicoIndex extends templateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
+                <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>

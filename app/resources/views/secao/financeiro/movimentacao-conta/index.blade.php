@@ -18,6 +18,7 @@
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
                     'numero_servico' => ['nome' => 'Número de Serviço'],
+                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
@@ -30,7 +31,7 @@
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
                     'created_at' => ['nome' => 'Data cadastro'],
-                    'data_vencimento' => ['nome' => 'Data Vencimento'],
+                    'data_movimentacao' => ['nome' => 'Data movimentação'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
                 ],
             ]);
