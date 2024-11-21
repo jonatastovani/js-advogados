@@ -39,7 +39,6 @@ class ValorServicoAguardandoScope implements Scope
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
                         LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
-                        LancamentoStatusTipoEnum::REAGENDADO->value,
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
@@ -50,7 +49,6 @@ class ValorServicoAguardandoScope implements Scope
                 $table = (new ServicoPagamentoLancamento())->getTable();
                 $query->whereIn("{$table}.status_id", [
                     LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
-                    LancamentoStatusTipoEnum::REAGENDADO->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }

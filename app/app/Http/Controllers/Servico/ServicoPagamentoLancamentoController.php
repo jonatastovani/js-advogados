@@ -7,6 +7,7 @@ use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancame
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestIndex;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestShow;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestStore;
+use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendadoServico;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestUpdate;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
 use App\Traits\CommonsConsultaControllerTrait;
@@ -34,5 +35,12 @@ class ServicoPagamentoLancamentoController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->update($fluentData));
+    }
+
+    public function storeLancamentoReagendadoServico(
+        ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendadoServico $formRequest
+    ) {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->storeLancamentoReagendadoServico($fluentData));
     }
 }

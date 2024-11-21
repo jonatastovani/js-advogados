@@ -713,6 +713,7 @@ class PageServicoForm {
         const self = this;
         self.#atualizarValorServico(data.valor_servico);
         self.#atualizarTotalAguardando(data.total_aguardando);
+        self.#atualizarTotalEmAnalise(data.total_em_analise);
         self.#atualizarTotalLiquidado(data.total_liquidado);
         self.#atualizarTotalInadimplente(data.total_inadimplente);
     }
@@ -725,6 +726,11 @@ class PageServicoForm {
     #atualizarTotalAguardando(valor) {
         const self = this;
         $(`#totalAguardando${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    }
+
+    #atualizarTotalEmAnalise(valor) {
+        const self = this;
+        $(`#totalEmAnalise${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalLiquidado(valor) {

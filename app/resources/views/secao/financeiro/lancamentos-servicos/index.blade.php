@@ -76,6 +76,7 @@
 
 @push('modals')
     <x-modal.financeiro.modal-lancamento-movimentar.modal />
+    <x-modal.servico.modal-lancamento-reagendar.modal />
 @endpush
 
 @push('scripts')

@@ -4,6 +4,7 @@ namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
@@ -152,6 +153,15 @@ class ServicoPagamentoLancamentoService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+
+        $ordenacao = $requestData->ordenacao ?? [];
+        if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
+            $requestData->ordenacao = array_merge(
+                $ordenacao,
+                [['campo' => 'data_vencimento', 'direcao' => 'asc']]
+            );
+        }
+
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'data_vencimento',
         ], $options));
@@ -331,6 +341,69 @@ class ServicoPagamentoLancamentoService extends Service
         }
 
         return $relationships;
+    }
+
+    public function storeLancamentoReagendadoServico(Fluent $requestData)
+    {
+        $idParent = $requestData->uuid;
+        $modelParent = $this->model;
+        try {
+            return DB::transaction(function () use ($requestData, $idParent, $modelParent) {
+
+                $lancamento = $modelParent::find($idParent);
+
+                $lancamento->status_id = LancamentoStatusTipoEnum::REAGENDADO->value;
+                $lancamento->save();
+
+                // Cria o novo lancamento
+                $newLancamento = $lancamento->replicate();
+                $newLancamento->created_at = null;
+                CommonsFunctions::inserirInfoCreated($newLancamento);
+                $newLancamento->status_id = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
+                $newLancamento->data_vencimento = $requestData->data_vencimento;
+                $newLancamento->observacao = $requestData->observacao;
+                $newLancamento->parent_id = $lancamento->id;
+                $newLancamento->save();
+
+                // IDs dos registros já salvos
+                $existingRegisters = $this->modelParticipante::where('parent_type', $modelParent->getMorphClass())
+                    ->where('parent_id', $idParent)
+                    ->get();
+
+                $replicarIntegrantes = function ($integrantes, $participanteId) {
+                    foreach ($integrantes as $integrante) {
+                        $newIntegrante = $integrante->replicate();
+                        $newIntegrante->participante_id = $participanteId;
+                        $newIntegrante->created_at = null;
+                        CommonsFunctions::inserirInfoCreated($newIntegrante);
+                        $newIntegrante->save();
+                    }
+                };
+
+                foreach ($existingRegisters as $participante) {
+
+                    $integrantes = null;
+                    if ($participante->participacao_registro_tipo_id == 2) {
+                        $integrantes = $participante->integrantes;
+                    }
+
+                    $newParticipante = $participante->replicate();
+                    $newParticipante->parent_id = $newLancamento->id;
+                    $newParticipante->created_at = null;
+                    CommonsFunctions::inserirInfoCreated($newParticipante);
+
+                    $newParticipante->save();
+
+                    if ($integrantes) {
+                        $replicarIntegrantes($integrantes, $newParticipante->id);
+                    }
+                }
+
+                return $newLancamento->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     // private function executarEventoWebsocket()

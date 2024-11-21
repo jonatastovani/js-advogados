@@ -128,7 +128,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
     _modalReset() {
         super._modalReset();
         const self = this;
-        $(self.getIdModal).find(`#dados-pagamento${self._objConfigs.sufixo}-tab`).trigger('click');
+        $(self.getIdModal).find(`#dados-lancamento${self._objConfigs.sufixo}-tab`).trigger('click');
         $(self.getIdModal).find('.btn-simular').show();
     }
 
@@ -205,6 +205,10 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                         </div>
                     </div>
                 `);
+
+                $(`#${newUuid} input[name="diluicao_data"]`).trigger('focus');
+
+                commonFunctions.applyCustomNumberMask($(`#${newUuid} input[name="diluicao_valor"]`), { format: '#.##0,00', reverse: true });
 
                 $(`#${newUuid}`).find('.btn-remove-diluicao').on('click', function () {
                     $(`#${newUuid}`).remove();

@@ -25,7 +25,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
@@ -114,48 +113,18 @@ class MovimentacaoContaService extends Service
 
                         break;
 
-                        // case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value:
-
-                        //     // Criar nova parcela
-                        //     $this->criarParcelaDeDiluicao($lancamento, $requestData);
-
-                        //     // Atualiza o lançamento original
-                        //     $lancamento->conta_id = $requestData->conta_id;
-                        //     $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value;
-                        //     $lancamento->valor_recebido = $requestData->valor_recebido;
-                        //     $lancamento->data_recebimento = $requestData->data_recebimento;
-                        //     $lancamento->observacao = $requestData->observacao;
-
-                        //     if ($lancamento->metadata) {
-                        //         $lancamento->metadata['depends_id'] = [$newLancamento->id];
-                        //     } else {
-                        //         $lancamento->metadata = ['depends_id' => [$newLancamento->id]];
-                        //     }
-
-                        //     $lancamento->save();
-
-                        //     // Cria o registro de movimentação
-                        //     $resource->valor_movimentado = $lancamento->valor_recebido;
-                        //     $resource->data_movimentacao = $lancamento->data_recebimento;
-                        //     $resource->descricao_automatica = $lancamento->descricao_automatica;
-                        //     $resource->observacao = $lancamento->observacao;
-
-                        //     break;
-
-                        // default:
-
                     case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value:
 
                         // Verifica se o lançamento é uma diluição
                         if ($lancamento->parent_id) {
-                            throw new Exception('Este lançamento é uma diluição de outro. Não será possível efetuar um pagamento parcial.');
+                            throw new Exception('Este lancamento e uma diluicao de outro. Nao sera possivel efetuar um pagamento parcial.');
                         }
 
-                        // Atualiza alguns campos do lançamento original que serão usados também na nova parcela
+                        // Atualiza alguns campos do lancamento original que serão usados tambem na nova parcela
                         $lancamento->conta_id = $requestData->conta_id;
                         $lancamento->observacao = $requestData->observacao;
 
-                        // Cria a(s) novas parcelas de diluição
+                        // Cria as novas parcelas de diluicao
                         $diluicaoData = $this->renderizarDiluicao($lancamento, $requestData);
 
                         // Atualiza os participantes, ajustando o valor recebido conforme a porcentagem paga do valor esperado
@@ -179,6 +148,23 @@ class MovimentacaoContaService extends Service
                         $resource->data_movimentacao = $lancamento->data_recebimento;
                         $resource->descricao_automatica = $lancamento->descricao_automatica;
                         $resource->observacao = $lancamento->observacao;
+
+                        break;
+
+                    case LancamentoStatusTipoEnum::REAGENDADO->value:
+
+                        $lancamento->status_id = LancamentoStatusTipoEnum::REAGENDADO->value;
+                        $lancamento->save();
+
+                        // Cria o novo lancamento
+                        $newLancamento = $lancamento->replicate();
+                        $newLancamento->created_at = null;
+                        CommonsFunctions::inserirInfoCreated($newLancamento);
+                        $newLancamento->status_id = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
+                        $newLancamento->data_vencimento = $requestData->data_vencimento;
+                        $newLancamento->observacao = $requestData->observacao;
+                        $newLancamento->parent_id = $lancamento->id;
+                        $newLancamento->save();
 
                         break;
 
@@ -435,8 +421,6 @@ class MovimentacaoContaService extends Service
 
         $verificaDiluido = $this->modelPagamentoLancamento::where('parent_id', $resourceLancamento->id);
         if ($verificaDiluido->exists()) {
-            // throw new Exception('Este lançamento foi diluído em outros lançamentos. Não será possível alterar o status.', 400);
-            // $response = RestResponse::createErrorResponse(400, 'O Lancamento foi diluído em outros Lancamentos. Não será possivel alterar o status.');
             return RestResponse::createErrorResponse(400, 'O Lancamento foi diluído em outros Lancamentos. Não será possivel alterar o status.')->throwResponse();
         }
 

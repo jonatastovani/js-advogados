@@ -34,6 +34,7 @@ Route::group([
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
                 Route::post('{uuid}', 'show');
+                Route::put('reagendar/{uuid}', 'storeLancamentoReagendadoServico');
             });
         });
     });

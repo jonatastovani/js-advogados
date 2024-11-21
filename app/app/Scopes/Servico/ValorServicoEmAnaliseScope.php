@@ -38,6 +38,7 @@ class ValorServicoEmAnaliseScope implements Scope
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
+                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
                         LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
                         LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
                         LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
@@ -52,6 +53,7 @@ class ValorServicoEmAnaliseScope implements Scope
             $builder->withSum(['lancamentos as total_em_analise' => function ($query) {
                 $table = (new ServicoPagamentoLancamento())->getTable();
                 $query->whereIn("{$table}.status_id", [
+                    LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
                     LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
                     LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
                     LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,

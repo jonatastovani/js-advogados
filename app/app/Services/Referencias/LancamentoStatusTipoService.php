@@ -60,6 +60,7 @@ class LancamentoStatusTipoService extends Service
         $resource = $this->buscarRecurso($requestData);
         // $resource = new Fluent($resource->toArray());
 
+        $html = '';
         switch ($resource->id) {
             case LancamentoStatusTipoEnum::LIQUIDADO->value:
                 $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.liquidado', compact('requestData'))->render();
@@ -69,8 +70,8 @@ class LancamentoStatusTipoService extends Service
                 $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.liquidado-parcialmente', compact('requestData'))->render();
                 break;
 
-            default:
-                $html = '';
+            case LancamentoStatusTipoEnum::REAGENDADO->value:
+                $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.reagendado', compact('requestData'))->render();
                 break;
         }
 

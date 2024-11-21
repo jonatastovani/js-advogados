@@ -148,7 +148,7 @@ export class ServicoParticipacaoModule {
                             } catch (error) {
                                 commonFunctions.generateNotificationErrorCatch(error);
                             } finally {
-                                if (!blnInserir && self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                                if (!blnInserir && self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
                             }
                         } else {
                             await inserirPreset(true);

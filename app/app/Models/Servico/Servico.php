@@ -37,6 +37,7 @@ class Servico extends Model
         'total_aguardando' => 'float',
         'total_inadimplente' => 'float',
         'total_liquidado' => 'float',
+        'total_em_analise' => 'float',
     ];
 
     // Variável estática para armazenar a sequência temporariamente
