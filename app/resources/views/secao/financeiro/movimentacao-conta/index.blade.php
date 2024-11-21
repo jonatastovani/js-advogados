@@ -1,7 +1,7 @@
 @php
-    $sufixo = 'PageLancamentoServicoIndex';
+    $sufixo = 'PageMovimentacaoContaIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Lançamentos de Serviços',
+        'nome' => 'Movimentações de Contas',
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -29,9 +29,9 @@
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
+                    'created_at' => ['nome' => 'Data cadastro'],
                     'data_vencimento' => ['nome' => 'Data Vencimento'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
-                    'created_at' => ['nome' => 'Data cadastro'],
                 ],
             ]);
         @endphp
@@ -80,11 +80,11 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
+    @vite('resources/js/views/financeiro/movimentacao-conta/index.js')
     @component('components.api.api-routes', [
         'routes' => [
+            'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseMovimentacaoContaLancamentos' => route('api.financeiro.movimentacao-conta.lancamentos'),
             ],
     ])
     @endcomponent

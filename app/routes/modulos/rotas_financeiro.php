@@ -8,5 +8,6 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
 
         Route::get('', 'financeiroIndex')->name('financeiro.index');
         Route::get('lancamentos-servicos', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
+        Route::get('movimentacao-conta', 'movimentacaoContaIndex')->name('financeiro.movimentacao-conta.index');
     });
 });

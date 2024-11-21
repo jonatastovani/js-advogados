@@ -39,15 +39,22 @@ Route::group([
         });
     });
 
-    Route::prefix('movimentacao-conta/lancamentos')->group(function () {
+    Route::prefix('movimentacao-conta')->group(function () {
+        
+        Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
 
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
 
-            Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
+            Route::post('consulta-filtros', 'postConsultaFiltros');
 
-            Route::prefix('servicos')->group(function () {
-                Route::post('', 'storeLancamentoServico');
-                Route::post('status-alterar', 'alterarStatusLancamentoServico');
+            Route::prefix('lancamentos')->group(function () {
+
+                Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
+
+                Route::prefix('servicos')->group(function () {
+                    Route::post('', 'storeLancamentoServico');
+                    Route::post('status-alterar', 'alterarStatusLancamentoServico');
+                });
             });
         });
     });

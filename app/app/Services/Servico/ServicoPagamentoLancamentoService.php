@@ -28,9 +28,11 @@ class ServicoPagamentoLancamentoService extends Service
         public ServicoPagamentoLancamento $model,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
+
         public ServicoPagamento $modelPagamento,
         public ServicoParticipacaoParticipante $modelParticipantePagamento,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrantePagamento,
+        
         public Servico $modelServico,
         public ServicoParticipacaoParticipante $modelParticipanteServico,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegranteServico,

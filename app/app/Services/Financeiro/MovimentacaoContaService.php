@@ -47,27 +47,199 @@ class MovimentacaoContaService extends Service
      *
      * @param array $dados O array de dados contendo as informações de como traduzir os campos.
      * - 'campos_busca' (array de campos que devem ser traduzidos). Os campos que podem ser enviados dentro do array são:
-     * - ex: 'campos_busca' => ['col_nome'] (mapeado para '[tableAsName].nome')
+     * - ex: 'campos_busca' => ['col_titulo'] (mapeado para '[tableAsName].titulo')
      * - 'campos_busca_todos' (se definido, todos os campos serão traduzidos)
      * @return array Os campos traduzidos com base nos dados fornecidos.
      */
     public function traducaoCampos(array $dados)
     {
+        // $dados = $this->addCamposBuscaRequest($dados);
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
+        // $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+
+        // $participanteAsName = $this->modelParticipante->getTableAsName();
+        // $pessoaFisicaParticipanteAsName = "{$this->modelParticipante->getTableAsName()}_{$pessoaFisicaAsName}";
+        // $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
+
+        // $participantePagamentoAsName = $this->modelParticipantePagamento->getTableAsName();
+        // $pessoaFisicaParticipantePagamentoAsName = "{$this->modelParticipantePagamento->getTableAsName()}_{$pessoaFisicaAsName}";
+
+        // $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
+        // $pessoaFisicaParticipanteServicoAsName = "{$this->modelParticipanteServico->getTableAsName()}_{$pessoaFisicaAsName}";
+        // $servicoAsName = $this->modelServico->getTableAsName();
+
         $arrayAliasCampos = [
-            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
-            'col_banco' => isset($aliasCampos['col_banco']) ? $aliasCampos['col_banco'] : $modelAsName,
+            'col_valor_movimentado' => isset($aliasCampos['col_valor_movimentado']) ? $aliasCampos['col_valor_movimentado'] : $modelAsName,
+            'col_data_movimentacao' => isset($aliasCampos['col_data_movimentacao']) ? $aliasCampos['col_data_movimentacao'] : $modelAsName,
+
+            // 'col_nome_grupo_participante' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
+            // 'col_observacao_participante' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+
+            // 'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
+            // 'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
+
+            // 'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
+            // 'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
+
+            // 'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
+
+            // 'col_nome_grupo_servico' => isset($aliasCampos['col_nome_grupo_servico']) ? $aliasCampos['col_nome_grupo_servico'] : $participanteServicoAsName,
+            // 'col_observacao_servico' => isset($aliasCampos['col_observacao_servico']) ? $aliasCampos['col_observacao_servico'] : $participanteServicoAsName,
+
+            // 'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
+
+            // 'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
+            // 'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
+            // 'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
         ];
 
         $arrayCampos = [
-            'col_nome' => ['campo' => $arrayAliasCampos['col_nome'] . '.nome'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
-            'col_banco' => ['campo' => $arrayAliasCampos['col_banco'] . '.banco'],
+            'col_valor_movimentado' => ['campo' => $arrayAliasCampos['col_valor_movimentado'] . '.valor_movimentado'],
+            'col_data_movimentacao' => ['campo' => $arrayAliasCampos['col_data_movimentacao'] . '.data_movimentacao'],
+
+            // 'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
+            // 'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
+            // 'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
+            // 'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
+
+            // 'col_nome_grupo_pagamento' => ['campo' => $arrayAliasCampos['col_nome_grupo_pagamento'] . '.nome_grupo'],
+            // 'col_observacao_pagamento' => ['campo' => $arrayAliasCampos['col_observacao_pagamento'] . '.observacao'],
+            // 'col_nome_participante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_pagamento'] . '.nome'],
+
+            // 'col_nome_grupo_servico' => ['campo' => $arrayAliasCampos['col_nome_grupo_servico'] . '.nome_grupo'],
+            // 'col_observacao_servico' => ['campo' => $arrayAliasCampos['col_observacao_servico'] . '.observacao'],
+            // 'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
+
+            // 'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            // 'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
+            // 'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
         ];
-        return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
+
+        return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
+
+    private function addCamposBuscaRequest(array $dados, array $options = [])
+    {
+        $sufixos = ['pagamento', 'servico'];
+        $camposReplica = ['col_nome_participante', 'col_nome_grupo', 'col_observacao'];
+        foreach ($sufixos as $sufixo) {
+            foreach ($camposReplica as $value) {
+                if (in_array($value, $dados['campos_busca'])) {
+                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
+                }
+            }
+        }
+
+        $sufixos = ['servico'];
+        $camposReplica = ['col_descricao'];
+        foreach ($sufixos as $sufixo) {
+            foreach ($camposReplica as $value) {
+                if (in_array($value, $dados['campos_busca'])) {
+                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
+                }
+            }
+        }
+        return $dados;
+    }
+
+    public function postConsultaFiltros(Fluent $requestData, array $options = [])
+    {
+        $filtrosData = $this->extrairFiltros($requestData, $options);
+        // $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $filtrosData['query'];
+        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+
+        // $ordenacao = $requestData->ordenacao ?? [];
+        // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
+        //     $requestData->ordenacao = array_merge(
+        //         $ordenacao,
+        //         [['campo' => 'data_vencimento', 'direcao' => 'asc']]
+        //     );
+        // }
+
+        $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
+            'campoOrdenacao' => 'created_at',
+        ], $options));
+
+        return $this->carregarRelacionamentos($query, $requestData, $options);
+    }
+
+    /**
+     * Aplica filtros específicos baseados nos campos de busca fornecidos.
+     *
+     * @param Builder $query Instância do query builder.
+     * @param array $filtros Filtros fornecidos na requisição.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
+     */
+    // private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
+    // {
+    //     $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
+    //     $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
+    //     $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+
+    //     $query = $this->model::joinPagamentoServicoCompleto($query);
+
+    //     if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
+    //         $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);
+    //         $query = $this->modelParticipantePagamento::joinParticipanteAllModels($query, $this->modelPagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
+    //         $query = $this->modelParticipanteServico::joinParticipanteAllModels($query, $this->modelServico, ['instanceSelf' => $this->modelParticipanteServico]);
+    //     }
+
+    //     if ($blnIntegranteFiltro) {
+    //         $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
+    //         $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
+    //         $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
+    //     }
+
+    //     foreach ($filtros['campos_busca'] as $key) {
+    //         switch ($key) {
+    //             case 'col_nome_participante':
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipantePagamento, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelParticipantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteServico, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelParticipanteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 break;
+    //             case 'col_nome_integrante':
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrantePagamento, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelIntegrantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegranteServico, [
+    //                     'campoFK' => "referencia_id",
+    //                     "whereAppendPerfil" => [
+    //                         ['column' => "{$this->modelIntegranteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+    //                     ]
+    //                 ]);
+    //                 break;
+    //         }
+    //     }
+
+    //     return $query;
+    // }
 
     public function storeLancamentoServico(Fluent $requestData)
     {

@@ -9,19 +9,19 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 
-class PageLancamentoServicoIndex extends templateSearch {
+class PageMovimentacaoContaIndex extends templateSearch {
 
     #objConfigs = {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: `${window.apiRoutes.baseLancamento}/servicos`,
-                urlSearch: `${window.apiRoutes.baseLancamento}/servicos/consulta-filtros`,
+                url: `${window.apiRoutes.baseMovimentacaoConta}`,
+                urlSearch: `${window.apiRoutes.baseMovimentacaoConta}/consulta-filtros`,
             }
         },
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
-            baseMovimentacaoContaLancamento: window.apiRoutes.baseMovimentacaoContaLancamento,
+            baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
         },
         data: {
             configAcoes: {
@@ -161,7 +161,7 @@ class PageLancamentoServicoIndex extends templateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageLancamentoServicoIndex' });
+        super({ sufixo: 'PageMovimentacaoContaIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -210,6 +210,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             tbody,
         } = options;
 
+        return
         let strBtns = self.#HtmlBtns(item);
 
         const numero_servico = item.pagamento.servico.numero_servico;
@@ -427,7 +428,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -456,7 +457,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -485,7 +486,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -523,7 +524,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -561,7 +562,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -618,7 +619,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -648,7 +649,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                     obj.setFocusElementWhenClosingModal = this;
                     const result = await obj.modalOpen();
                     if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamento}/servicos/status-alterar`);
+                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
                         objConn.setAction(enumAction.POST);
                         objConn.setData({
                             lancamento_id: item.id,
@@ -668,5 +669,5 @@ class PageLancamentoServicoIndex extends templateSearch {
 }
 
 $(function () {
-    new PageLancamentoServicoIndex();
+    new PageMovimentacaoContaIndex();
 });
