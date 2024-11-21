@@ -149,6 +149,14 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                     ]
                 },
+                PAGAMENTO_CANCELADO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
+                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
+                },
+                PAGAMENTO_CANCELADO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
+                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
+                },
             }
         }
     };
@@ -580,7 +588,8 @@ class PageLancamentoServicoIndex extends templateSearch {
                     });
                     objModal.setDataEnvModal = {
                         idRegister: item.id,
-                        status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO
+                        status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
+                        data_atual: item.data_vencimento
                     }
                     const response = await objModal.modalOpen();
                     if (response.refresh) {

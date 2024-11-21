@@ -687,6 +687,8 @@ export class ServicoParticipacaoModule {
         $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
         self._objConfigs.data.participantesNaTela = [];
         self._atualizaPorcentagemLivre();
+
+        // Somente páginas tem esse botão, nos modais não há
         !participantes.length ? $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).hide('fast') :
             $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).show('fast');
 

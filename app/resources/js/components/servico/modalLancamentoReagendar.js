@@ -39,6 +39,11 @@ export class modalLancamentoReagendar extends modalRegistrationAndEditing {
 
     async modalOpen() {
         const self = this;
+
+        if (self._dataEnvModal.data_atual) {
+            $(self.getIdModal).find('input[name="data_vencimento"]').val(self._dataEnvModal.data_atual);
+        }
+        
         await self._modalHideShow();
         $(self.getIdModal).find('.formRegistration .focusRegister').trigger('focus');
         return await self._modalOpen();

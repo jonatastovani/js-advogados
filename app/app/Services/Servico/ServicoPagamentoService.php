@@ -12,6 +12,7 @@ use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
+use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Servico\ServicoPagamento;
@@ -134,6 +135,28 @@ class ServicoPagamentoService extends Service
 
         try {
             $resource->save();
+
+            switch ($resource->status_id) {
+                case PagamentoStatusTipoEnum::ATIVO->value:
+                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
+                    break;
+
+                case PagamentoStatusTipoEnum::ATIVO_EM_ANALISE->value:
+                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value);
+                    break;
+
+                case PagamentoStatusTipoEnum::CANCELADO->value:
+                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+                    break;
+
+                case PagamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value:
+                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value);
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
 
             DB::commit();
 
@@ -262,22 +285,13 @@ class ServicoPagamentoService extends Service
         DB::beginTransaction();
 
         try {
-            // Verifica se existem lançamentos com status_id 4 ou 6
             $lancamentosComStatusCritico = $resource->lancamentos()
                 ->whereIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
                 ->exists();
 
             if ($lancamentosComStatusCritico) {
-                // Atualiza o status dos lancamentos que não possuem status_id 4 ou 6
-                $resource->lancamentos()
-                    ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
-                    ->update(['status_id' => LancamentoStatusTipoEnum::CANCELADO->value]);
-
-                // Atualiza o status do pagamento
-                $resource->update(['status_id' => PagamentoStatusTipoEnum::CANCELADO->value]);
+                $this->alterarStatusDeLancamentosPagamentoExcluido($resource);
             } else {
-
-                // Se não houver lançamentos com status_id 4 ou 6, exclui o recurso
                 $resource->delete();
             }
 
@@ -287,6 +301,26 @@ class ServicoPagamentoService extends Service
         } catch (\Exception $e) {
             DB::rollBack(); // Garante o rollback em caso de erro
             return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    protected function alterarStatusDeLancamentosPagamentoExcluido(ServicoPagamento $resource)
+    {
+        $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+
+        $resource->status_id = PagamentoStatusTipoEnum::CANCELADO->value;
+        $resource->save();
+    }
+
+    protected function alterarStatusDeLancamentos(ServicoPagamento $resource, $statusLancamento)
+    {
+        $lancamentos = $resource->lancamentos()
+            ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
+            ->get();
+
+        foreach ($lancamentos as $lancamento) {
+            $lancamento->status_id = $statusLancamento;
+            $lancamento->save();
         }
     }
 

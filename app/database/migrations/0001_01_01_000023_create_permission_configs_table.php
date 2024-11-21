@@ -25,16 +25,16 @@ return new class extends Migration
         Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('permissao_id')->unique();
+            $table->smallInteger('permissao_id')->unique();
             $table->foreign('permissao_id')->references('id')->on((new App\Models\Auth\Permission)->getTableName());
 
             $table->boolean('permite_subst_bln')->default(false);
             $table->boolean('gerencia_perm_bln')->default(false);
 
-            $table->unsignedBigInteger('permissao_pai_id')->nullable();
+            $table->smallInteger('permissao_pai_id')->nullable();
             $table->foreign('permissao_pai_id')->references('id')->on((new App\Models\Auth\Permission)->getTableName());
 
-            $table->unsignedBigInteger('grupo_id');
+            $table->smallInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on((new App\Models\Auth\PermissionGroup)->getTableName());
 
             $table->integer('ordem')->nullable();

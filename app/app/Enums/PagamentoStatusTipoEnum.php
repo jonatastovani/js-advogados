@@ -55,4 +55,11 @@ enum PagamentoStatusTipoEnum: int
     {
         return self::ATIVO_EM_ANALISE->value;
     }
+    
+    static public function statusPagamentoTachado(): array
+    {
+        return [
+            self::CANCELADO->value,
+        ];
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Services\Servico;
 
+use App\Common\RestResponse;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Models\Servico\Servico;
@@ -28,6 +30,8 @@ class ServicoParticipacaoService extends Service
         public Servico $modelServico,
         public ServicoPagamento $modelPagamento,
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
+
+        public ServicoPagamentoLancamentoService $servicoPagamentoLancamentoService,
     ) {}
 
     /**
@@ -183,6 +187,10 @@ class ServicoParticipacaoService extends Service
 
     public function storeLancamento(Fluent $requestData)
     {
+        $resource = $this->servicoPagamentoLancamentoService->buscarRecurso($requestData, ['conditions' => ['id' => $requestData->lancamento_uuid]]);
+        if (in_array($resource->status_id, LancamentoStatusTipoEnum::StatusImpossibilitaEdicaoParticipantes())) {
+            return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de participantes")->throwResponse();
+        }
         return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 

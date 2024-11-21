@@ -31,7 +31,7 @@ return new class extends Migration
 
             $table->string('nome')->nullable();
 
-            $table->unsignedBigInteger('tenant_type_id');
+            $table->smallInteger('tenant_type_id');
             $table->foreign('tenant_type_id')->references('id')->on((new App\Models\Auth\TenantType)->getTableName());
             // fim das colunas personalizadas
 

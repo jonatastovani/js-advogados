@@ -10,6 +10,9 @@
 
     window.Statics = {
         PerfisPermitidoParticipacaoServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoParticipacaoServico()),
+        StatusImpossibilitaEdicaoParticipantes: @json(\App\Enums\LancamentoStatusTipoEnum::statusImpossibilitaEdicaoParticipantes()),
+        StatusLancamentoTachado: @json(\App\Enums\LancamentoStatusTipoEnum::statusLancamentoTachado()),
+        StatusPagamentoTachado: @json(\App\Enums\PagamentoStatusTipoEnum::statusPagamentoTachado()),
     }
 
     window.Details = {

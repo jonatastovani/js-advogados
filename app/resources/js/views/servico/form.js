@@ -277,32 +277,36 @@ class PageServicoForm {
         const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
-        let htmlAppend = self.#htmlParticipantes(item, 'pagamento');
+        let htmlAppend = self.#htmlParticipantes(item, 'pagamento', item.status_id);
         htmlAppend += self.#htmlAppendPagamento(item);
         let htmlLancamentos = self.#htmlLancamentos(item);
+        const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        const tachado = (window.Statics.StatusPagamentoTachado.findIndex(x => x == item.status_id) != -1);
 
         let strCard = `
             <div id="${item.idCard}" class="card p-0">
                 <div class="card-body">
-                    <h5 class="card-title d-flex align-items-center justify-content-between">
-                        <span>${item.pagamento_tipo_tenant.nome}</span>
-                        <div>
-                            <div class="dropdown">
-                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
-                                    <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
-                                    <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
-                                </ul>
+                    <div class="row ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
+                        <h5 class="card-title d-flex align-items-center justify-content-between">
+                            <span>${item.pagamento_tipo_tenant.nome}</span>
+                            <div>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento ${pagamentoAtivo ? '' : 'disabled'}" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
+                                        <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
+                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
+                                    </ul>
+                                </div>
                             </div>
+                        </h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
+                            ${htmlColsEspecifico}
                         </div>
-                    </h5>
-                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
-                        ${htmlColsEspecifico}
+                        ${htmlAppend}
                     </div>
-                    ${htmlAppend}
                     <div class="accordion mt-2" id="accordionPagamento${item.id}">
                         <div class="accordion-item">
                             <div class="accordion-header">
@@ -454,20 +458,31 @@ class PageServicoForm {
         let htmlLancamentos = '';
         for (const lancamento of item.lancamentos) {
 
-            let htmlAppend = self.#htmlParticipantes(lancamento, 'lancamento');
-            if (lancamento.observacao) {
-                htmlAppend += `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
-            }
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
             const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
             const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
             const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
+            const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
 
+            let editParticipante = true;
+            if (window.Statics.StatusImpossibilitaEdicaoParticipantes.findIndex(x => x == item.status_id) != -1) {
+                editParticipante = false;
+            }
+
+            const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
             lancamento.idCard = `${UUIDHelper.generateUUID()}${self.#objConfigs.sufixo}`;
 
+            let htmlAppend = '';
+
+            if (!tachado) htmlAppend += self.#htmlParticipantes(lancamento, 'lancamento', item.status_id);
+
+            if (lancamento.observacao) {
+                htmlAppend += `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
+            }
+
             htmlLancamentos += `
-                <div id="${lancamento.idCard}" class="card p-0">
+                <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
                     <div class="card-header d-flex align-items-center justify-content-between py-1">
                         <span>${lancamento.descricao_automatica}</span>
                         <div>
@@ -476,7 +491,7 @@ class PageServicoForm {
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento" title="Inserir/Editar Participação ${lancamento.descricao_automatica}">Participação</button></li>
+                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${pagamentoAtivo && editParticipante && !tachado ? '' : 'disabled'}" title="Inserir/Editar Participação ${lancamento.descricao_automatica}">Participação</button></li>
                                 </ul>
                             </div>
                         </div>
@@ -510,12 +525,20 @@ class PageServicoForm {
         return htmlLancamentos;
     }
 
-    #htmlParticipantes(item, tipo) {
+    #htmlParticipantes(item, tipo, pagamentoStatusId) {
         let html = '';
 
         let title = ''
         let empty = '';
         let btnDel = '';
+
+        const pagamentoAtivo = pagamentoStatusId == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+
+        let editParticipante = true;
+        if (window.Statics.StatusImpossibilitaEdicaoParticipantes.findIndex(x => x == item.status_id) != -1) {
+            editParticipante = false;
+        }
+
         switch (tipo) {
             case 'pagamento':
                 title = `Participantes do pagamento ${item.pagamento_tipo_tenant.nome}`;
@@ -530,12 +553,18 @@ class PageServicoForm {
                 break;
         }
 
+        if (editParticipante && pagamentoAtivo) {
+            btnDel = `<button type="button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}">Excluir</button>`;
+        } else {
+            btnDel = '';
+        }
+
         if (item?.participantes && item.participantes.length > 0) {
             const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
             html = `
                 <p class="mb-0">
                 Participação personalizada:
-                <button type="button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}">Excluir</button>
+                ${btnDel}
                 <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="${title}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver</button>
                 <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver integrantes dos grupos</button>
                 </p>`;
@@ -578,8 +607,7 @@ class PageServicoForm {
             });
 
             if (response) {
-                self.#buscarValores();
-                $(`#${item.idCard}`).remove();
+                self.#buscarPagamentos();
             }
         });
 
@@ -635,40 +663,43 @@ class PageServicoForm {
             }
         }
 
-        item.lancamentos.map((lancamento) => {
+        const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        if (pagamentoAtivo) {
+            item.lancamentos.map((lancamento) => {
 
-            $(`#${lancamento.idCard}`).find('.btn-participacao-lancamento').on('click', async function () {
-                const btn = $(this);
-                commonFunctions.simulateLoading(btn);
-                try {
-                    const objModal = new modalServicoParticipacao({
-                        urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
+                $(`#${lancamento.idCard}`).find('.btn-participacao-lancamento').on('click', async function () {
+                    const btn = $(this);
+                    commonFunctions.simulateLoading(btn);
+                    try {
+                        const objModal = new modalServicoParticipacao({
+                            urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
+                        });
+                        const response = await objModal.modalOpen();
+                        if (response.refresh && response.registers) {
+                            atualizaLancamentos();
+                        }
+                    } catch (error) {
+                        commonFunctions.generateNotificationErrorCatch(error);
+                    } finally {
+                        commonFunctions.simulateLoading(btn, false);
+                    }
+                });
+
+                $(`#${lancamento.idCard}`).find(`.btn-delete-participante-lancamento`).on('click', async function () {
+                    const response = await self.#delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
+                        title: `Exclusão de Participantes`,
+                        message: `Confirma a exclusão do(s) participante(s) personalizado(s) do lançamento <b>${lancamento.descricao_automatica}</b>?`,
+                        success: `Participantes excluídos com sucesso!`,
+                        button: this,
+                        urlApi: urlLancamentos
                     });
-                    const response = await objModal.modalOpen();
-                    if (response.refresh && response.registers) {
+                    if (response) {
                         atualizaLancamentos();
                     }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                } finally {
-                    commonFunctions.simulateLoading(btn, false);
-                }
-            });
-
-            $(`#${lancamento.idCard}`).find(`.btn-delete-participante-lancamento`).on('click', async function () {
-                const response = await self.#delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
-                    title: `Exclusão de Participantes`,
-                    message: `Confirma a exclusão do(s) participante(s) personalizado(s) do lançamento <b>${lancamento.descricao_automatica}</b>?`,
-                    success: `Participantes excluídos com sucesso!`,
-                    button: this,
-                    urlApi: urlLancamentos
                 });
-                if (response) {
-                    atualizaLancamentos();
-                }
-            });
 
-        });
+            });
+        }
     }
 
     async #buscarDados() {
@@ -676,6 +707,14 @@ class PageServicoForm {
 
         try {
             await commonFunctions.loadingModalDisplay();
+
+            $(`#painelPagamento${self.#objConfigs.sufixo}-tab`).trigger('click');
+
+
+
+
+
+
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#objConfigs.sufixo}`);
 

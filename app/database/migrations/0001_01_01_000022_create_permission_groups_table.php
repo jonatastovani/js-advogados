@@ -27,10 +27,10 @@ return new class extends Migration
             $table->string('nome');
             $table->string('descricao')->nullable();
 
-            $table->unsignedBigInteger('modulo_id');
+            $table->smallInteger('modulo_id');
             $table->foreign('modulo_id')->references('id')->on((new App\Models\Auth\PermissionModule)->getTableName());
             
-            $table->unsignedBigInteger('grupo_pai_id')->nullable();
+            $table->smallInteger('grupo_pai_id')->nullable();
             $table->foreign('grupo_pai_id')->references('id')->on((new App\Models\Auth\PermissionGroup)->getTableName());
 
             // Se as permissões que estão nesse grupo são atribuídas individualmente ao usuário, ou escalonadas pela ordem dentro do grupo

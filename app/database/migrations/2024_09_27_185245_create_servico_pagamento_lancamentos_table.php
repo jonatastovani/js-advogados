@@ -39,7 +39,7 @@ return new class extends Migration
             $table->uuid('conta_id')->nullable();
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
-            $table->unsignedBigInteger('status_id');
+            $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());
 
             // Logo abaixo tem a adição da coluna parent_id para refere-se ao pagamento principal, caso seja um pagamento parcial.

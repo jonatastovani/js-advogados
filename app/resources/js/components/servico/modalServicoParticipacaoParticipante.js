@@ -166,7 +166,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
             const livre = (100 - ocupada);
             let valor = dados.valor ?? 0;
 
-            if (dados.valor_tipo == 'valor_fixo') {
+            if (dados.valor_tipo == 'valor_fixo' || dados.valor_tipo == 'porcentagem' && dados.valor < 100) {
                 valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
             }
 

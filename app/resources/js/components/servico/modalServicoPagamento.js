@@ -166,7 +166,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         }
     }
 
-    async #inserirLancamentos(lancamento) {
+    async #inserirLancamentos(lancamento, pagamento) {
         const self = this;
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
         const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
@@ -177,10 +177,12 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         let htmlAppend = '';
         let btns = '';
         lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+        const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
 
         if (lancamento.pagamento_id) {
             btns = `
-            <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento btn-edit" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button></li>`;
+            <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento btn-edit ${pagamentoAtivo && !tachado ? '' : 'disabled'}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button></li>`;
 
             if (lancamento.observacao) {
                 const observacao = lancamento.observacao ?? '';
@@ -211,7 +213,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         if (!btns) btnsDropDown = '';
 
         rowLancamentos.append(`
-            <div id="${lancamento.idCard}" class="card p-0">
+            <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
                 <div class="card-header d-flex align-items-center justify-content-between py-1">
                     <span>${lancamento.descricao_automatica}</span>
                     ${btnsDropDown}
@@ -322,7 +324,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     async #buscarStatusPagamento(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { insertFirstOption: false };
+            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const selModulo = $(self.getIdModal).find('select[name="status_id"]');
             await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseStatusPagamento, options);
             return true;
@@ -362,7 +365,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 }
 
                 for (const lancamento of responseData.lancamentos) {
-                    self.#inserirLancamentos(lancamento);
+                    self.#inserirLancamentos(lancamento, responseData);
                 }
                 form.find('input[name="observacao"]').val(responseData.observacao);
             }

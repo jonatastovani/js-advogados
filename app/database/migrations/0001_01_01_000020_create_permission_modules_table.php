@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('slug');
             $table->string('descricao')->nullable();
             
-            $table->unsignedBigInteger('tenant_type_id')->nullable()->unique();
+            $table->smallInteger('tenant_type_id')->nullable()->unique();
             $table->foreign('tenant_type_id')->references('id')->on((new App\Models\Auth\TenantType)->getTableName());
             
             $table->string('tipo_modulo');

@@ -26,7 +26,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
-            $table->unsignedBigInteger('movimentacao_tipo_id');
+            $table->smallInteger('movimentacao_tipo_id');
             $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
             $table->uuidMorphs('referencia');
@@ -40,6 +40,9 @@ return new class extends Migration
 
             $table->string('observacao')->nullable();
             $table->string('descricao_automatica')->nullable();
+
+            $table->smallInteger('status_id');
+            $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaStatusTipo)->getTableName());
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

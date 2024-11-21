@@ -21,6 +21,8 @@ enum LancamentoStatusTipoEnum: int
     case REAGENDADO = 10;
     case CANCELADO_EM_ANALISE = 11;
     case CANCELADO = 12;
+    case PAGAMENTO_CANCELADO_EM_ANALISE = 13;
+    case PAGAMENTO_CANCELADO = 14;
 
     public function detalhes(): array
     {
@@ -137,7 +139,17 @@ enum LancamentoStatusTipoEnum: int
             self::CANCELADO => [
                 'id' => self::CANCELADO->value,
                 'nome' => 'Cancelado',
-                'descricao' => 'O pagamento foi cancelado ou o contrato foi encerrado.',
+                'descricao' => 'O lançamento foi cancelado.',
+            ],
+            self::PAGAMENTO_CANCELADO_EM_ANALISE => [
+                'id' => self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+                'nome' => 'Pagamento Cancelado (em análise)',
+                'descricao' => 'O pagamento foi cancelado, mas ainda não foi confirmado.',
+            ],
+            self::PAGAMENTO_CANCELADO => [
+                'id' => self::PAGAMENTO_CANCELADO->value,
+                'nome' => 'Pagamento Cancelado',
+                'descricao' => 'O pagamento foi cancelado.',
             ],
         };
     }
@@ -162,20 +174,23 @@ enum LancamentoStatusTipoEnum: int
         return self::AGUARDANDO_PAGAMENTO->value;
     }
 
-    static public function statusAceitaAlteracaoSimples(): array
-    {
-        return [
-            self::AGUARDANDO_PAGAMENTO->value,
-            // self::INADIMPLENTE->value,
-            // self::INADIMPLENTE_EM_ANALISE->value,
-        ];
-    }
-
     static public function statusImpossibilitaExclusao(): array
     {
         return [
             self::LIQUIDADO->value,
             self::LIQUIDADO_PARCIALMENTE->value,
+            self::REAGENDADO->value,
+            self::CANCELADO->value,
+        ];
+    }
+
+    static public function statusImpossibilitaEdicaoParticipantes(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+            self::REAGENDADO->value,
+            self::REAGENDADO_EM_ANALISE->value,
         ];
     }
 
@@ -198,88 +213,19 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
-    // /**
-    //  * Configuração dos tipos de status de Lançamentos. Usado no front para exibir as opções conforme cada tipo de Status do Lançamento.
-    //  *
-    //  * Chave do array: nome da ação.
-    //  * Valor do array: array com as seguintes chaves:
-    //  *   - id: id do status de lançamento.
-    //  *   - cor: classe de cor Bootstrap para o botão.
-    //  *   - opcao_nos_status: array com os ids dos status nos quais a ação está disponível.
-    //  *
-    //  * @return array
-    //  */
-    // static public function configAcoesLancamentoStatusTipoFinanLancServ()
-    // {
-    //     return [
-    //         'AGUARDANDO_PAGAMENTO_EM_ANALISE' => [
-    //             'id' => self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
-    //             'cor' => 'text-bg-warning',
-    //             'opcao_nos_status' => [
-    //                 self::AGUARDANDO_PAGAMENTO,
-    //                 self::LIQUIDADO_EM_ANALISE,
-    //                 self::LIQUIDADO,
-    //                 self::CANCELADO_EM_ANALISE,
-    //                 self::CANCELADO,
-    //             ]
-    //         ],
-    //         'AGUARDANDO_PAGAMENTO' => [
-    //             'id' => self::AGUARDANDO_PAGAMENTO,
-    //             'cor' => null,
-    //             'opcao_nos_status' => [
-    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
-    //                 self::LIQUIDADO_EM_ANALISE,
-    //                 self::LIQUIDADO,
-    //                 self::CANCELADO_EM_ANALISE,
-    //                 self::CANCELADO,
-    //             ]
-    //         ],
-    //         'LIQUIDADO_EM_ANALISE' => [
-    //             'id' => self::LIQUIDADO_EM_ANALISE,
-    //             'cor' => 'text-success bg-warning',
-    //             'opcao_nos_status' => [
-    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
-    //                 self::AGUARDANDO_PAGAMENTO,
-    //                 self::LIQUIDADO,
-    //                 self::INADIMPLENTE_EM_ANALISE,
-    //                 self::INADIMPLENTE,
-    //             ]
-    //         ],
-    //         'LIQUIDADO' => [
-    //             'id' => self::LIQUIDADO,
-    //             'cor' => 'text-success',
-    //             'opcao_nos_status' => [
-    //                 self::AGUARDANDO_PAGAMENTO_EM_ANALISE,
-    //                 self::AGUARDANDO_PAGAMENTO,
-    //                 self::LIQUIDADO_EM_ANALISE,
-    //                 self::INADIMPLENTE_EM_ANALISE,
-    //                 self::INADIMPLENTE,
-    //             ]
-    //         ],
-    //         'LIQUIDADO_PARCIALMENTE_EM_ANALISE' => [
-    //             'id' => self::LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-    //             'opcao_nos_status' => []
-    //         ],
-    //         'LIQUIDADO_PARCIALMENTE' => [
-    //             'id' => self::LIQUIDADO_PARCIALMENTE,
-    //             'opcao_nos_status' => []
-    //         ],
-    //         'REAGENDADO_EM_ANALISE' => [
-    //             'id' => self::REAGENDADO_EM_ANALISE,
-    //             'opcao_nos_status' => []
-    //         ],
-    //         'REAGENDADO' => [
-    //             'id' => self::REAGENDADO,
-    //             'opcao_nos_status' => []
-    //         ],
-    //         'CANCELADO_EM_ANALISE' => [
-    //             'id' => self::CANCELADO_EM_ANALISE,
-    //             'opcao_nos_status' => []
-    //         ],
-    //         'CANCELADO' => [
-    //             'id' => self::CANCELADO,
-    //             'opcao_nos_status' => []
-    //         ],
-    //     ];
-    // }
+    static public function statusProbibidosEmLancamentosDiluidos(): array
+    {
+        return [
+            self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
+
+    static public function statusLancamentoTachado(): array
+    {
+        return [
+            self::REAGENDADO->value,
+            self::CANCELADO->value,
+            self::PAGAMENTO_CANCELADO->value,
+        ];
+    }
 }

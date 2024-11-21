@@ -29,7 +29,7 @@ return new class extends Migration
             $table->uuid('participante_id');
             $table->foreign('participante_id', "fk_{$this->model->getTableAsName()}_participante_id")->references('id')->on((new App\Models\Servico\ServicoParticipacaoParticipante)->getTableName());
 
-            $table->unsignedBigInteger('participacao_registro_tipo_id');
+            $table->smallInteger('participacao_registro_tipo_id');
             $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model->getTableAsName()}_participacao_registro_tipo_id")->references('id')->on((new App\Models\Referencias\ParticipacaoRegistroTipo)->getTableName());
 
             $table->uuidMorphs('referencia');

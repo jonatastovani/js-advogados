@@ -30,9 +30,15 @@ class LancamentoStatusTipoUpdateSeeder extends Seeder
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
         foreach ($insert as $data) {
-            $data['updated_user_id'] = $adminTenantUserId;
             $resource = $this->model::find($data['id']);
-            $resource->update($data);
+            if (!$resource) {
+                $resource = new $this->model;
+                $data['created_user_id'] = $adminTenantUserId;
+                $resource->create($data);
+            } else {
+                $data['updated_user_id'] = $adminTenantUserId;
+                $resource->update($data);
+            }
         }
 
         $this->atualizaIdIncrementalNumerico();
