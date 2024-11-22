@@ -29,6 +29,8 @@ RUN pecl install redis-${REDIS_LIB_VERSION} \
 
 RUN docker-php-ext-install zip iconv simplexml pcntl gd fileinfo
 
+RUN docker-php-ext-install bcmath
+
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

@@ -180,7 +180,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                         <input type="hidden" name="nome" value="diluição #${contador}">
                         <input type="hidden" name="sufixo" value="${newUuid}">
                         <div class="row align-items-end">
-                            <div class="col-12 col-sm-5 mt-2">
+                            <div class="col-5 mt-2">
                                 <label for="diluicao_data${newUuid}" class="form-label">Vencimento diluição #${contador}</label>
                                 <input type="date" id="diluicao_data${newUuid}" name="diluicao_data" class="form-control text-center">
                             </div>
@@ -195,7 +195,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                                                 class="form-control text-end campo-monetario">
                                         </div>
                                     </div>
-                                    <div class="col mt-2">
+                                    <div class="col px-1 mt-2">
                                         <button type="button" class="btn btn-outline-primary border-0 btn-remove-diluicao">
                                             <i class="bi bi-trash"></i>
                                         </button>

@@ -7,7 +7,6 @@ import { modalLancamentoMovimentar } from "../../../components/financeiro/modalL
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 
 class PageMovimentacaoContaIndex extends templateSearch {
 
@@ -209,42 +208,63 @@ class PageMovimentacaoContaIndex extends templateSearch {
         const {
             tbody,
         } = options;
-        console.log(item)
-        return
-        let strBtns = self.#HtmlBtns(item);
 
-        const numero_servico = item.pagamento.servico.numero_servico;
+        if (!self.#objConfigs.data?.console) {
+            self.#objConfigs.data.console = true;
+            console.log(item);
+        }
+
+        let strBtns = ``;
+        // let strBtns = self.#HtmlBtns(item);
+
         const status = item.status.nome;
-        const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
-        const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        const valorRecebido = item.data_recebimento ? commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_recebido) : '***';
-        const dataRecebimento = item.data_recebimento ? DateTimeHelper.retornaDadosDataHora(item.data_recebimento, 2) : '***';
+        const valorMovimentado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_movimentado);
+        const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
         const descricaoAutomatica = item.descricao_automatica;
+        const movimentacaoTipo = item.movimentacao_tipo.nome;
         const observacaoLancamento = item.observacao ?? '***';
-        const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.valor_total) : '***';
-        const tituloServico = item.pagamento.servico.titulo;
-        const areaJuridica = item.pagamento.servico.area_juridica.nome;
-        const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_liquidado) : '***';
-        const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_aguardando) : '***';
-        const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
-        const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
-        const observacaoPagamento = item.pagamento.observacao ?? '***';
-        const statusPagamento = item.status.nome;
 
-        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-            item.participantes.length ? item.participantes :
-                (item.pagamento.participantes.length ? item.pagamento.participantes :
-                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-                )
-        );
+        let dadosEspecificos = ``;
+
+        switch (item.referencia_type) {
+            case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
+                dadosEspecificos = `Serviço ${item.referencia.pagamento.servico.numero_servico}`;
+                dadosEspecificos += ` - Pagamento - ${item.referencia.pagamento.numero_pagamento}`
+                dadosEspecificos += ` - ${item.referencia.pagamento.servico.area_juridica.nome}`;
+                dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`
+                break;
+
+            default:
+                break;
+        }
+
+        // const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
+        // const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
+        // const numero_servico = item.pagamento.servico.numero_servico;
+        // const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.valor_total) : '***';
+        // const tituloServico = item.pagamento.servico.titulo;
+        // const areaJuridica = item.pagamento.servico.area_juridica.nome;
+        // const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_liquidado) : '***';
+        // const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_aguardando) : '***';
+        // const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
+        // const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
+        // const observacaoPagamento = item.pagamento.observacao ?? '***';
+        // const statusPagamento = item.status.nome;
+
+        // const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+        //     item.participantes.length ? item.participantes :
+        //         (item.pagamento.participantes.length ? item.pagamento.participantes :
+        //             (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
+        //         )
+        // );
 
         let classCor = '';
-        for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
-            if (StatusLancamento.id == item.status_id) {
-                classCor = StatusLancamento.cor ?? '';
-                break;
-            }
-        }
+        // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
+        //     if (StatusLancamento.id == item.status_id) {
+        //         classCor = StatusLancamento.cor ?? '';
+        //         break;
+        //     }
+        // }
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
@@ -254,28 +274,32 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${valorMovimentado}">${valorMovimentado}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
-                <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorInadimplente}">${valorInadimplente}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
+
+        // `
+        //         <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
+        //         <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
+        //         <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
+        //         <td class="text-nowrap text-center ${classCor}" title="${valorInadimplente}">${valorInadimplente}</td>
+        //         <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
+        //         <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
+        //         <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
+        //         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+        //         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>`;
 
         self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();

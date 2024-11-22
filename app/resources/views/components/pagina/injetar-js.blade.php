@@ -6,6 +6,7 @@
         ServicoParticipacaoReferenciaTipoEnum: @json(\App\Enums\ServicoParticipacaoReferenciaTipoEnum::toArray()),
         LancamentoStatusTipoEnum: @json(\App\Enums\LancamentoStatusTipoEnum::toArray()),
         PagamentoStatusTipoEnum: @json(\App\Enums\PagamentoStatusTipoEnum::toArray()),
+        MovimentacaoContaReferenciaEnum: @json(\App\Enums\MovimentacaoContaReferenciaEnum::toArray()),
     };
 
     window.Statics = {
