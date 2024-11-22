@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Models\Financeiro\Conta;
+use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -44,6 +45,18 @@ class ServicoPagamentoLancamento extends Model
         'metadata' => 'array',
     ];
 
+    protected $hidden = [
+        'created_user_id',
+        'created_ip',
+        // 'created_at', // Usado no front para mostrar quando foi criado
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+    
     public function pagamento()
     {
         return $this->belongsTo(ServicoPagamento::class);
@@ -62,6 +75,11 @@ class ServicoPagamentoLancamento extends Model
     public function participantes()
     {
         return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
+    }
+
+    public function movimentacao_conta()
+    {
+        return $this->morphMany(MovimentacaoConta::class, 'referencia');
     }
 
     /**

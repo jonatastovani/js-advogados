@@ -199,6 +199,7 @@ enum LancamentoStatusTipoEnum: int
         $movimentacaoCredito = [
             'movimentacao_tipo_id' => MovimentacaoContaTipoEnum::CREDITO->value,
             'movimentacao_tipo_id_rollback' => MovimentacaoContaTipoEnum::DEBITO->value,
+            'movimentacao_status_id_rollback' => MovimentacaoContaStatusTipoEnum::CANCELADA->value,
         ];
 
         return [

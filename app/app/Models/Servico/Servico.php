@@ -40,6 +40,18 @@ class Servico extends Model
         'total_em_analise' => 'float',
     ];
 
+    protected $hidden = [
+        'created_user_id',
+        'created_ip',
+        // 'created_at', // Usado no front para mostrar quando foi criado
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+    
     // Variável estática para armazenar a sequência temporariamente
     protected static $sequenciaTemporaria;
 

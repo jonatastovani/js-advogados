@@ -6,8 +6,10 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\ContaStatusTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
+use App\Enums\PagamentoStatusTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -23,20 +25,25 @@ use App\Services\Servico\ServicoParticipacaoService;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use App\Traits\ServicoParticipacaoTrait;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
 {
     use ConsultaSelect2ServiceTrait, ServicoParticipacaoTrait;
 
+    /**Armazenar os dados dos participantes em casos de liquidado parcial */
+    private array $arrayParticipantesOriginal = [];
+
     public function __construct(
         public MovimentacaoConta $model,
+        public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
-        public ServicoPagamentoLancamento $modelPagamentoLancamento,
 
         public ServicoParticipacaoService $servicoParticipacaoService,
         public ServicoPagamentoLancamentoService $servicoPagamentoLancamentoService,
@@ -166,6 +173,74 @@ class MovimentacaoContaService extends Service
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
+
+    protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
+    {
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $query->paginate($requestData->perPage ?? 25);
+
+        // Converte os registros para um array
+        $data = $paginator->toArray();
+
+        // Salva a ordem original dos registros
+        $ordemOriginal = collect($data['data'])->pluck('id')->toArray();
+
+        // Agrupa os registros por referencia_type
+        $agrupados = collect($data['data'])->groupBy('referencia_type');
+
+        // Processa os carregamentos personalizados para cada tipo
+        $agrupados = $agrupados->map(function ($registros, $tipo) {
+            switch ($tipo) {
+                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+                    return $this->carregarRelacionamentoServicoLancamento($registros);
+                    // Adicione outros tipos conforme necessário
+                default:
+                    return $registros; // Retorna sem modificações
+            }
+        });
+
+        // Reorganiza os registros com base na ordem original
+        $registrosOrdenados = collect($agrupados->flatten(1))
+            ->sortBy(function ($registro) use ($ordemOriginal) {
+                return array_search($registro['id'], $ordemOriginal);
+            })
+            ->values()
+            ->toArray();
+
+        // Atualiza os registros na resposta mantendo a ordem
+        $data['data'] = $registrosOrdenados;
+
+        return $data;
+    }
+
+    protected function carregarRelacionamentoServicoLancamento($registros)
+    {
+        $relationships = $this->loadFull();
+        $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
+
+        // Mescla relacionamentos de ServicoPagamentoService
+        $relationships = $this->mergeRelationships(
+            $relationships,
+            $relacionamentosServicoLancamento,
+            [
+                'addPrefix' => 'referencia_servico_lancamento.'
+            ]
+        );
+
+        // Carrega os relacionamentos personalizados em lote
+        $modelos = MovimentacaoConta::hydrate($registros->toArray());
+        $modelos->load($relationships);
+
+        return collect($modelos->toArray())->map(function ($registro) {
+            // Substitui 'referencia_servico_lancamento' por 'referencia'
+            $registro['referencia'] = $registro['referencia_servico_lancamento'];
+            unset($registro['referencia_servico_lancamento']);
+            return $registro;
+        });
+    }
+
+
+
 
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
@@ -422,9 +497,8 @@ class MovimentacaoContaService extends Service
         return $newLancamento;
     }
 
-    public function replicaParticipantesDiluicao(array $diluicoes, string $idParent, Model  $modelParent, float $porcentagemRecebida, float $valorCheio, array $options = [])
+    public function replicaParticipantesDiluicao(array $diluicoes, string $idParent, Model $modelParent, float $porcentagemRecebida, float $valorOriginalLancamento, array $options = [])
     {
-
         // IDs dos registros já salvos
         $existingRegisters = $this->modelParticipante::where('parent_type', $modelParent->getMorphClass())
             ->where('parent_id', $idParent)
@@ -440,31 +514,37 @@ class MovimentacaoContaService extends Service
             }
         };
 
+        $valorFalta = bcsub($valorOriginalLancamento, bcmul($valorOriginalLancamento, $porcentagemRecebida / 100, 2), 2);
+        $totalDistribuido = 0;
+
         foreach ($existingRegisters as $participante) {
+            $integrantes = $participante->participacao_registro_tipo_id == 2 ? $participante->integrantes : null;
 
-            $integrantes = null;
-            if ($participante->participacao_registro_tipo_id == 2) {
-                $integrantes = $participante->integrantes;
-            }
-
-            foreach ($diluicoes as $diluicao) {
-
+            foreach ($diluicoes as $index => $diluicao) {
                 $newParticipante = $participante->replicate();
                 $newParticipante->parent_id = $diluicao->id;
-                $newParticipante->created_at = null;
+                $newParticipante->created_user_id = null;
                 CommonsFunctions::inserirInfoCreated($newParticipante);
 
-                if ($participante->valor_tipo == 'valor_fixo') {
-                    $porcentagemRecebida = round(($participante->valor * 100 / $porcentagemRecebida), 2);
-                    $porcentagemRestante = 100 - $porcentagemRecebida;
-                    $valorFalta = $valorCheio - $participante->valor;
+                if ($participante->valor_tipo === 'valor_fixo') {
 
-                    // if ($falta / count($colecao) < 0.01) {
-                    //     throw new \Exception("O valor restante não pode ser dividido igualmente entre o(s) participante(s) que tem participação com valor fixo.", 400);
-                    // }
+                    $porcentagemDiluicao = bcdiv(bcmul($diluicao->valor_esperado, 100, 2), $valorFalta, 2);
+                    $valorOriginalParticipante = collect($this->arrayParticipantesOriginal)->firstWhere('id', $participante->id)['valor_original'];
+                    $valorOriginalFalta = bcsub($valorOriginalParticipante, bcmul($valorOriginalParticipante, $porcentagemRecebida, 2), 2);
 
-                    $porcentagemDiluicao =  round(($diluicao->valor_esperado * 100 / $valorFalta), 2);
-                    $valorFixoDiluicao = round($valorFalta * $porcentagemDiluicao / 100, 2);
+                    $valorFixoDiluicao = bcdiv(bcmul($valorOriginalFalta, $porcentagemDiluicao, 2), 100, 2);
+
+                    Log::debug("porcentagemDiluicao $porcentagemDiluicao");
+                    Log::debug("valorFixoDiluicao conta $valorFixoDiluicao");
+
+                    $totalDistribuido = bcadd($totalDistribuido, $valorFixoDiluicao, 2);
+
+                    // Ajuste no último item para fechar a soma exata
+                    if ($index === count($diluicoes) - 1) {
+                        $valorFixoDiluicao = bcsub($valorOriginalFalta, $totalDistribuido, 2);
+                        Log::debug("valorFixoDiluicao final $valorFixoDiluicao");
+                    }
+
                     $newParticipante->valor = $valorFixoDiluicao;
                 }
 
@@ -476,6 +556,7 @@ class MovimentacaoContaService extends Service
             }
         }
     }
+
 
     public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $participantes, string $idParent, Model  $modelParent, array $options = [])
     {
@@ -515,6 +596,7 @@ class MovimentacaoContaService extends Service
                 $participanteUpdate->parent_type = $modelParent->getMorphClass();
             }
 
+            $valorOriginal = $participanteUpdate->valor;
             if ($porcentagemRecebida) {
                 switch ($participanteUpdate->valor_tipo) {
                     case 'valor_fixo':
@@ -524,6 +606,9 @@ class MovimentacaoContaService extends Service
             }
 
             $participanteUpdate->save();
+            $fluent = new Fluent($participanteUpdate->toArray());
+            $fluent->valor_original = $valorOriginal;
+            $this->arrayParticipantesOriginal[] = $fluent->toArray();
 
             if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
 
@@ -596,6 +681,20 @@ class MovimentacaoContaService extends Service
         // Se terá que ser enviado um lançamento com movimentação contrária no mesmo valor lançado antes
         $lancamentoRollbackBln = in_array($resourceLancamento->status_id, collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())->pluck('status_id')->toArray());
 
+        if ($lancamentoRollbackBln) {
+            $statusArray = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
+                ->firstWhere('status_id', $resourceLancamento->status_id);
+
+            $movimentacaoConta = $this->model::where('referencia_id', $resourceLancamento->id)
+                ->where('movimentacao_tipo_id', $statusArray['movimentacao_tipo_id'])
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            if (!in_array($movimentacaoConta->status_id, MovimentacaoContaStatusTipoEnum::statusPermiteAlteracao())) {
+                $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status da movimentação não permite mais alterações.', $requestData)->error;
+            }
+        }
+
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
@@ -604,20 +703,14 @@ class MovimentacaoContaService extends Service
 
         try {
             if ($lancamentoRollbackBln) {
-                $statusArray = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
-                    ->firstWhere('status_id', $resourceLancamento->status_id);
-
-                $movimentacaoConta = $this->model::where('referencia_id', $resourceLancamento->id)
-                    ->where('movimentacao_tipo_id', $statusArray['movimentacao_tipo_id'])
-                    ->orderBy('created_at', 'DESC')
-                    ->first();
 
                 $movimentacaoContaRollback = new $this->model();
                 $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
                 $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
-                // $movimentacaoContaRollback->data_movimentacao = $requestData->data_movimentacao;
+
                 if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
-                $movimentacaoContaRollback->observacao = "Cancelado - {$requestData->descricao_automatica}";
+
+                $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
 
                 $ultimoSaldo = $this->buscarSaldoConta($movimentacaoContaRollback->conta_id);
                 // Realiza o cálculo do novo saldo
@@ -627,6 +720,7 @@ class MovimentacaoContaService extends Service
                     $movimentacaoContaRollback->movimentacao_tipo_id
                 );
                 $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
+                $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
 
                 $movimentacaoContaRollback->save();
 
@@ -749,14 +843,15 @@ class MovimentacaoContaService extends Service
         ], $options));
     }
 
-    // public function loadFull(): array
-    // {
-    //     return [
-    //         'conta_subtipo',
-    //         'conta_status',
-    //         'ultima_movimentacao'
-    //     ];
-    // }
+    public function loadFull(): array
+    {
+        return [
+            'movimentacao_tipo',
+            // 'referencia',
+            'conta',
+            'status',
+        ];
+    }
 
     // private function executarEventoWebsocket()
     // {

@@ -34,4 +34,11 @@ enum  MovimentacaoContaStatusTipoEnum: int
     {
         return self::ATIVA->value;
     }
+
+    static public function statusPermiteAlteracao(): array
+    {
+        return [
+            self::ATIVA->value
+        ];
+    }
 }

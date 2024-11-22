@@ -28,6 +28,18 @@ class AnotacaoLembreteTenant extends Model
         'configuracao'
     ];
 
+    protected $hidden = [
+        'created_user_id',
+        'created_ip',
+        // 'created_at', // Usado no front para mostrar quando foi criado
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+
     public function parent()
     {
         return $this->morphTo();

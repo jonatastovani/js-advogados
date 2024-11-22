@@ -10,6 +10,27 @@ use Illuminate\Support\Facades\DB;
 
 trait CommonsModelsMethodsTrait
 {
+    public function initializeCommonsModelsMethodsTrait()
+    {
+        // Se o modelo já definiu o $hidden, não mexemos
+        if (property_exists($this, 'hidden') && !empty($this->hidden)) {
+            return;
+        }
+
+        // Define as colunas padrão a serem ocultadas
+        $this->hidden = [
+            'created_user_id',
+            'created_ip',
+            'created_at',
+            'updated_user_id',
+            'updated_ip',
+            'updated_at',
+            'deleted_user_id',
+            'deleted_ip',
+            'deleted_at',
+        ];
+    }
+
 
     /**
      * Get the name of the table associated with the model.

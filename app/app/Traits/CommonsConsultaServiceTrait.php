@@ -237,10 +237,13 @@ trait CommonsConsultaServiceTrait
         if ($options['loadFull'] ?? false) {
             $query->with($options['loadFull']);
         } else {
-            if (method_exists($this, 'loadFull')) {
+            if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
                 $query->with($this->loadFull());
             }
         }
-        return $query->paginate($requestData->perPage ?? 25)->toArray();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $query->paginate($requestData->perPage ?? 25);
+
+        return $paginator->toArray();
     }
 }
