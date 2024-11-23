@@ -35,6 +35,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
                 AGUARDANDO_PAGAMENTO: {
@@ -47,6 +48,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
                 LIQUIDADO_EM_ANALISE: {
@@ -59,6 +61,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
                 LIQUIDADO: {
@@ -70,6 +73,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
                 LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
@@ -82,6 +86,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
                 LIQUIDADO_PARCIALMENTE: {
@@ -104,7 +109,6 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
                     ]
                 },
                 REAGENDADO: {
@@ -127,7 +131,9 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -141,7 +147,9 @@ class PageLancamentoServicoIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -380,15 +388,28 @@ class PageLancamentoServicoIndex extends templateSearch {
                 </li>`;
             }
 
-            strBtns = `
-            <div class="btn-group">
-                <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    ${strBtns}
-                </ul>
-            </div>`;
+            if (strBtns) {
+                strBtns = `
+                <div class="btn-group">
+                    <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${strBtns}
+                    </ul>
+                </div>`;
+            } else {
+                strBtns = `
+                <div class="btn-group">
+                    <button class="btn dropdown-toggle btn-sm disabled border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${strBtns}
+                    </ul>
+                </div>`;
+            }
+
         }
         return strBtns;
 

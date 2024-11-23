@@ -338,9 +338,12 @@ class MovimentacaoContaService extends Service
                     case LancamentoStatusTipoEnum::LIQUIDADO->value:
 
                         $restricaoDeAlteracaoDeParticipantes = false;
-                        if ($lancamento->metadata) {
-                            // Se tiver registro de ids de lançamentos diluídos, então não se troca os participantes porque senão a pessoa não recebe o restante que lhe é devido
-                            $restricaoDeAlteracaoDeParticipantes = $lancamento->metadata['parent_id'] ? true : false;
+
+                        if ($lancamento->parent_id) {
+                            if ($lancamento->metadata['diluicao_pagamento_parcial']) {
+                                // Se tiver registro de ids de lançamentos diluídos, então não se troca os participantes porque senão a pessoa não recebe o restante que lhe é devido
+                                $restricaoDeAlteracaoDeParticipantes =  true;
+                            }
                         }
 
                         // Os lançamentos que forem diluição sempre terão os participantes incluídos no momento do cadastro, porque no recebimento parcial eles já são inclusos.
@@ -514,11 +517,28 @@ class MovimentacaoContaService extends Service
             }
         };
 
+        // Valor faltante total
         $valorFalta = bcsub($valorOriginalLancamento, bcmul($valorOriginalLancamento, $porcentagemRecebida / 100, 2), 2);
-        $totalDistribuido = 0;
+        if ($valorFalta <= 0) {
+            throw new \InvalidArgumentException("O valor faltante deve ser maior que zero.");
+        }
+
+        Log::debug("Valor faltante: {$valorFalta}");
 
         foreach ($existingRegisters as $participante) {
             $integrantes = $participante->participacao_registro_tipo_id == 2 ? $participante->integrantes : null;
+
+            if ($participante->valor_tipo === 'valor_fixo') {
+                $totalDistribuidoParticipante = 0;
+
+                // Valor original que o participante receberia se não houvesse diluição
+                $valorOriginalParticipante = collect($this->arrayParticipantesOriginal)->firstWhere('id', $participante->id)['valor_original'] ?? 0;
+
+                // Calcula o valor faltante correto do participante
+                $valorFaltanteParticipante = bcsub($valorOriginalParticipante, bcmul($valorOriginalParticipante, $porcentagemRecebida / 100, 2), 2);
+                Log::debug("Valor original participante: $valorOriginalParticipante");
+                Log::debug("Valor faltante do participante: $valorFaltanteParticipante");
+            }
 
             foreach ($diluicoes as $index => $diluicao) {
                 $newParticipante = $participante->replicate();
@@ -527,23 +547,22 @@ class MovimentacaoContaService extends Service
                 CommonsFunctions::inserirInfoCreated($newParticipante);
 
                 if ($participante->valor_tipo === 'valor_fixo') {
-
+                    // Quantos porcento do valor faltante a diluição irá receber
                     $porcentagemDiluicao = bcdiv(bcmul($diluicao->valor_esperado, 100, 2), $valorFalta, 2);
-                    $valorOriginalParticipante = collect($this->arrayParticipantesOriginal)->firstWhere('id', $participante->id)['valor_original'];
-                    $valorOriginalFalta = bcsub($valorOriginalParticipante, bcmul($valorOriginalParticipante, $porcentagemRecebida, 2), 2);
+                    Log::debug("Porcentagem da diluição: $porcentagemDiluicao");
 
-                    $valorFixoDiluicao = bcdiv(bcmul($valorOriginalFalta, $porcentagemDiluicao, 2), 100, 2);
+                    // Calcula o valor a ser atribuído à diluição
+                    $valorFixoDiluicao = bcdiv(bcmul($valorFaltanteParticipante, $porcentagemDiluicao, 2), 100, 2);
 
-                    Log::debug("porcentagemDiluicao $porcentagemDiluicao");
-                    Log::debug("valorFixoDiluicao conta $valorFixoDiluicao");
-
-                    $totalDistribuido = bcadd($totalDistribuido, $valorFixoDiluicao, 2);
-
-                    // Ajuste no último item para fechar a soma exata
+                    // Ajusta o último item para evitar arredondamentos incorretos
                     if ($index === count($diluicoes) - 1) {
-                        $valorFixoDiluicao = bcsub($valorOriginalFalta, $totalDistribuido, 2);
-                        Log::debug("valorFixoDiluicao final $valorFixoDiluicao");
+                        $valorFixoDiluicao = bcsub($valorFaltanteParticipante, $totalDistribuidoParticipante, 2);
                     }
+
+                    $totalDistribuidoParticipante = bcadd($totalDistribuidoParticipante, $valorFixoDiluicao, 2);
+
+                    Log::debug("Valor fixo da diluição (ajustado): $valorFixoDiluicao");
+                    Log::debug("Total distribuído do participante (até o momento): $totalDistribuidoParticipante");
 
                     $newParticipante->valor = $valorFixoDiluicao;
                 }
@@ -556,7 +575,6 @@ class MovimentacaoContaService extends Service
             }
         }
     }
-
 
     public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $participantes, string $idParent, Model  $modelParent, array $options = [])
     {

@@ -19,7 +19,7 @@ return [
     */
 
     'default' => env('LOG_CHANNEL', 'stack'),
-    'default_gpu_app' => 'gpu_app_log_file',
+    'default_byteforge_app' => 'byteforge_app_log_file',
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             // 'channels' => explode(',', env('LOG_STACK', 'single')),
-            'channels' => ['gpu_app_log_file', 'single'],
+            'channels' => ['byteforge_app_log_file', 'single'],
             'ignore_exceptions' => false,
         ],
 
@@ -129,27 +129,27 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'gpu_app_log_file' => [
+        'byteforge_app_log_file' => [
             'driver' => 'custom',
-            'via' => App\Logging\GPU\GPUAppLogger::class,
+            'via' => App\Logging\ByteForge\ByteForgeAppLogger::class,
             'level' => 'debug',
         ],
 
-        'gpu_app_acesso_recusado_file' => [
+        'byteforge_app_acesso_recusado_file' => [
             'driver' => 'custom',
-            'via' => App\Logging\GPU\GPUAcessoRecusadoLogger::class,
+            'via' => App\Logging\ByteForge\ByteForgeAcessoRecusadoLogger::class,
             'level' => 'debug',
         ],
 
-        'gpu_app_usuario_sem_permissao_file' => [
+        'byteforge_app_usuario_sem_permissao_file' => [
             'driver' => 'custom',
-            'via' => App\Logging\GPU\GPUUsuarioSemPermissaoLogger::class,
+            'via' => App\Logging\ByteForge\ByteForgeUsuarioSemPermissaoLogger::class,
             'level' => 'debug',
         ],
 
-        'gpu_app_rota_nao_encontrada_file' => [
+        'byteforge_app_rota_nao_encontrada_file' => [
             'driver' => 'custom',
-            'via' => App\Logging\GPU\GPURotaNaoEncontradaLogger::class,
+            'via' => App\Logging\ByteForge\ByteForgeRotaNaoEncontradaLogger::class,
             'level' => 'debug',
         ],
 

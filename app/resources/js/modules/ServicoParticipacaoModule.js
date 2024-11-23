@@ -248,7 +248,7 @@ export class ServicoParticipacaoModule {
                 <h5 class="card-title d-flex align-items-center justify-content-between">
                     <span class="spanNome">${nome}</span>
                     <div>
-                        <div class="dropdown">
+                        <div class="dropdown dropdown-acoes-participante">
                             <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
@@ -285,9 +285,9 @@ export class ServicoParticipacaoModule {
 
         self._objConfigs.data.participantesNaTela.push(item);
 
-        divParticipantes.append(`<div id="${item.idCard}" class="card">${strCard}</div>`);
+        divParticipantes.append(`<div id="${item.idCard}" class="card card-participante">${strCard}</div>`);
 
-        self.#addEventoParticipante(item);
+       await self.#addEventoParticipante(item);
         await self._atualizaPorcentagemLivre(item);
         return item;
     }
@@ -570,7 +570,7 @@ export class ServicoParticipacaoModule {
         }
 
         rowIntegrantes.append(`
-            <div id="${integrante.idCard}" class="card">
+            <div id="${integrante.idCard}" class="card card-integrante">
                 <div class="card-body">
                     <h5 class="card-title d-flex align-items-center justify-content-between">
                         <span>${nome}</span>
@@ -597,8 +597,8 @@ export class ServicoParticipacaoModule {
         }
         element.integrantes.push(integrante);
 
-        self.#atualizaQuantidadeIntegrantes(item.idCard);
-        self.#addEventoPerfilIntegrante(item, integrante);
+       await self.#atualizaQuantidadeIntegrantes(item.idCard);
+      await  self.#addEventoPerfilIntegrante(item, integrante);
     }
 
     async #addEventoPerfilIntegrante(item, integrante) {
@@ -627,7 +627,7 @@ export class ServicoParticipacaoModule {
                         }
                     }
 
-                    self.#atualizaQuantidadeIntegrantes(item.idCard);
+                   await self.#atualizaQuantidadeIntegrantes(item.idCard);
                     commonFunctions.generateNotification('Integrante removido.', 'success');
                 }
             } catch (error) {
@@ -660,7 +660,7 @@ export class ServicoParticipacaoModule {
         `;
     }
 
-    #atualizaQuantidadeIntegrantes(idCard) {
+   async #atualizaQuantidadeIntegrantes(idCard) {
         const self = this;
         let element = self._objConfigs.data.participantesNaTela.find(item => item.idCard == idCard);
         const totalIntegrantes = element.integrantes.length;
@@ -686,7 +686,7 @@ export class ServicoParticipacaoModule {
         const self = this;
         $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
         self._objConfigs.data.participantesNaTela = [];
-        self._atualizaPorcentagemLivre();
+        await self._atualizaPorcentagemLivre();
 
         // Somente páginas tem esse botão, nos modais não há
         !participantes.length ? $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).hide('fast') :

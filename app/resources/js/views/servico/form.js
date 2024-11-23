@@ -288,7 +288,8 @@ class PageServicoForm {
                 <div class="card-body">
                     <div class="row ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
                         <h5 class="card-title d-flex align-items-center justify-content-between">
-                            <span>${item.pagamento_tipo_tenant.nome}</span>
+                            <span class="text-truncate">
+                                <span title="Número do pagamento">N.P.</span> ${item.numero_pagamento} - ${item.pagamento_tipo_tenant.nome}</span>
                             <div>
                                 <div class="dropdown">
                                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

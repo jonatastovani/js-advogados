@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Logging\GPU;
+namespace App\Logging\ByteForge;
 
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Level;
 use Monolog\Logger;
 
-class GPURotaNaoEncontradaLogger
+class ByteForgeRotaNaoEncontradaLogger
 {
     /**
      * Create a custom Monolog instance.
@@ -16,7 +16,7 @@ class GPURotaNaoEncontradaLogger
      */
     public function __invoke(array $config)
     {
-        $name = 'gpu_app_rota_nao_encontrada_log';
+        $name = 'byteforge_app_rota_nao_encontrada_log';
         $logger = new Logger($name);
 
         $logFilePath = storage_path("logs/$name.log");

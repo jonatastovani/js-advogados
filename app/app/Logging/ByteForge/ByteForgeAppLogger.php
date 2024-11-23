@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Logging\GPU;
+namespace App\Logging\ByteForge;
 
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Level;
 use Monolog\Logger;
 
-class GPUAppLogger
+class ByteForgeAppLogger
 {
     /**
      * Create a custom Monolog instance.
@@ -16,7 +16,7 @@ class GPUAppLogger
      */
     public function __invoke(array $config)
     {
-        $name = 'gpu_app_log';
+        $name = 'byteforge_app_log';
         $logger = new Logger($name);
 
         $logFilePath = storage_path("logs/$name.log");

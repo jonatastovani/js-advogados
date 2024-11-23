@@ -130,6 +130,27 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
         const self = this;
         $(self.getIdModal).find(`#dados-lancamento${self._objConfigs.sufixo}-tab`).trigger('click');
         $(self.getIdModal).find('.btn-simular').show();
+        self.#bloquearLiberarCamposParticipacao();
+    }
+
+    #bloquearLiberarCamposParticipacao(status = true) {
+        const self = this;
+
+        if (!status) {
+            $(self.getIdModal).find('select[name="preset_id"]').attr('disabled', true).off('change');
+            $(self.getIdModal).find(`
+                #btnInserirPessoa${self._objConfigs.sufixo},
+                #btnInserirGrupo${self._objConfigs.sufixo},
+                .btnOpenModalPresetParticipacao
+            `).attr('disabled', true).off('click');
+        } else {
+            $(self.getIdModal).find('select[name="preset_id"]').attr('disabled', false);
+            $(self.getIdModal).find(`
+                #btnInserirPessoa${self._objConfigs.sufixo},
+                #btnInserirGrupo${self._objConfigs.sufixo},
+                .btnOpenModalPresetParticipacao
+            `).attr('disabled', false);
+        }
     }
 
     async #buscarDadosLancamentoStatusTipo() {
@@ -283,8 +304,17 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
                 form.find('select[name="conta_id"]').val(conta_id);
                 form.find('input[name="data_recebimento"]').val(responseData.data_vencimento);
 
-                self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(participantes);
+                await self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(participantes);
 
+                if (responseData.parent_id && responseData.metadata?.diluicao_pagamento_parcial) {
+                    self.#bloquearLiberarCamposParticipacao(false);
+
+                    participantes.map(participante => {
+                        const card = $(`#${participante.idCard}`);
+                        card.find('.dropdown-acoes-participante').find('button').addClass('disabled border-0').off('click');
+                        card.find('.card-integrante').find('button').addClass('disabled border-0').off('click');
+                    })
+                }
                 return true;
             }
             return false;

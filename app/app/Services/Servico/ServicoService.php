@@ -213,6 +213,7 @@ class ServicoService extends Service
         $data->total_aguardando = $resource->total_aguardando;
         $data->total_inadimplente = $resource->total_inadimplente;
         $data->total_liquidado = $resource->total_liquidado;
+        $data->total_analise = $resource->total_analise;
         $data->valor_servico = $resource->valor_servico;
         return $data->toArray();
     }

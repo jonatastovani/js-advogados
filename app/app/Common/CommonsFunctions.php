@@ -53,13 +53,13 @@ class CommonsFunctions
 
         // Mapear os canais de log específicos
         $channelMap = [
-            'acesso_recusado' => 'gpu_app_acesso_recusado_file',
-            'usuario_sem_permissao' => 'gpu_app_usuario_sem_permissao_file',
-            'rota_nao_encontrada' => 'gpu_app_rota_nao_encontrada_file',
+            'acesso_recusado' => 'byteforge_app_acesso_recusado_file',
+            'usuario_sem_permissao' => 'byteforge_app_usuario_sem_permissao_file',
+            'rota_nao_encontrada' => 'byteforge_app_rota_nao_encontrada_file',
         ];
 
         // Definir o canal baseado no map ou usar o padrão do config
-        $channel = $channelMap[$channel] ?? config('logging.default_gpu_app');
+        $channel = $channelMap[$channel] ?? config('logging.default_byteforge_app');
 
         // Capturar informações do backtrace para identificar a origem
         $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
