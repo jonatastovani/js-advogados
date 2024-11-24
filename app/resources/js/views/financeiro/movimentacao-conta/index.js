@@ -7,6 +7,7 @@ import { modalLancamentoMovimentar } from "../../../components/financeiro/modalL
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 
 class PageMovimentacaoContaIndex extends templateSearch {
 
@@ -251,22 +252,35 @@ class PageMovimentacaoContaIndex extends templateSearch {
         // const observacaoPagamento = item.pagamento.observacao ?? '***';
         // const statusPagamento = item.status.nome;
 
-        // const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-        //     item.participantes.length ? item.participantes :
-        //         (item.pagamento.participantes.length ? item.pagamento.participantes :
-        //             (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-        //         )
-        // );
-
         let classCor = '';
         // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
         //     if (StatusLancamento.id == item.status_id) {
         //         classCor = StatusLancamento.cor ?? '';
         //         break;
         //     }
-        // }
-
+        // }     
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
+
+        let htmlThParticipantesIntegrantes = `
+            <td class="text-center ${classCor}">***</td>
+            <td class="text-center ${classCor}">***</td>
+        `;
+
+        switch (item.referencia_type) {
+            case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
+                if (item.referencia?.participantes && item.referencia.participantes.length) {
+                    const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.referencia.participantes);
+                    htmlThParticipantesIntegrantes = `
+                        <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                        <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                    `;
+                }
+                break;
+
+            default:
+                break;
+        }
+
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">
@@ -279,8 +293,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 <td class="text-nowrap text-center ${classCor}" title="${valorMovimentado}">${valorMovimentado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                ${htmlThParticipantesIntegrantes}
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -298,8 +313,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         //         <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
         //         <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
         //         <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
-        //         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-        //         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>`;
+        //         `;
 
         self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
@@ -414,6 +428,10 @@ class PageMovimentacaoContaIndex extends templateSearch {
             </div>`;
         }
         return strBtns;
+
+    }
+
+    #htmlRenderParticipantesEIntegrantes(participantes) {
 
     }
 

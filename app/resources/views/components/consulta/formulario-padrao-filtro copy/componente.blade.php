@@ -39,46 +39,17 @@
 @endphp
 
 <form action="#" id="formDataSearch{{ $sufixo }}" class="col-12 formDataSearch">
-    <div class="row  text-end">
-        <div class="col">
-            <div class="row">
-                <div class="{{ $col_busca }} mt-2">
-                    <div class="input-group">
-                        <div class="input-group-text">
-                            <label for="textoBusca{{ $sufixo }}">Texto de busca</label>
-                        </div>
-                        <input type="search" id="textoBusca{{ $sufixo }}" class="form-control" name="texto">
-                    </div>
+    <div class="row">
+        <div class="{{ $col_busca }} mt-2">
+            <div class="input-group">
+                <div class="input-group-text">
+                    <label for="textoBusca{{ $sufixo }}">Texto de busca</label>
                 </div>
-                <div class="{{ $col_busca }} mt-2">
-                    <div class="row">
-                        <div class="col">
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <label for="data_inicio{{ $sufixo }}">de: </label>
-                                </div>
-                                <input type="search" id="data_inicio{{ $sufixo }}" class="form-control"
-                                    name="data_inicio">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <label for="data_fim{{ $sufixo }}">ate: </label>
-                                </div>
-                                <input type="search" id="data_fim{{ $sufixo }}" class="form-control"
-                                    name="data_fim">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <input type="search" id="textoBusca{{ $sufixo }}" class="form-control" name="texto">
+                <button type="submit" id="btnBuscar{{ $sufixo }}"
+                    class="btn btn-outline-secondary btn-sm btnBuscar" title="Realizar busca"><i
+                        class="bi bi-search"></i></button>
             </div>
-        </div>
-        <div class="col-2 mt-2">
-            <button type="submit" id="btnBuscar{{ $sufixo }}" class="btn btn-outline-secondary btnBuscar"
-                title="Realizar busca">
-                <i class="bi bi-search"></i>
-            </button>
         </div>
     </div>
     <div class="accordion mt-2" id="accordionFiltros{{ $sufixo }}">
