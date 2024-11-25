@@ -44,6 +44,13 @@
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
 
+    <div class="d-grid text-end gap-2 d-sm-block mt-2">
+        <form action="{{ route('financeiro.movimentacao-conta.impressao') }}" method="post" target="_blank">
+            @csrf
+            <button type="submit" class="btn btn-outline-primary">Imprimir consulta</button>
+        </form>
+    </div>
+
     <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
