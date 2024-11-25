@@ -69,7 +69,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selCampoOrdenacao'; ?>
-                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                                     <label for="<?= $idSelect ?>"
                                         title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação.">
                                         Campo de ordenação
@@ -113,7 +113,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selTratamentoTexto'; ?>
-                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                                     <label for="<?= $idSelect ?>"
                                         title="O tratamento fornece a possibilidade de tratar o texto informado para persolizar a busca.">
                                         Tratamento

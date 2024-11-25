@@ -166,6 +166,8 @@ class ServicoPagamentoLancamentoService extends Service
             );
         }
 
+        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'data_vencimento',
         ], $options));

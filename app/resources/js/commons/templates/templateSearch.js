@@ -70,6 +70,17 @@ export class templateSearch {
             page: 1
         };
 
+        console.log(formDataSearch.find(`select[name="selCampoDataIntervalo"]`).length);
+
+        if (formDataSearch.find(`select[name="selCampoDataIntervalo"]`).length > 0 &&
+            formDataSearch.find(`input[name="data_inicio"]`).length > 0 &&
+            formDataSearch.find(`input[name="data_fim"]`).length > 0) {
+            data.datas_intervalo = {};
+            data.datas_intervalo.campo_data = formDataSearch.find(`select[name="selCampoDataIntervalo"]`).val();
+            data.datas_intervalo.data_inicio = formDataSearch.find(`input[name="data_inicio"]`).val();
+            data.datas_intervalo.data_fim = formDataSearch.find(`input[name="data_fim"]`).val();
+        }
+
         const searchFields = commonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
         Object.keys(searchFields).forEach(element => {
             if (searchFields[element] === true) {

@@ -34,6 +34,11 @@
                     'data_movimentacao' => ['nome' => 'Data movimentação'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
                 ],
+                'consultaIntervaloBln' => true,
+                'arrayCamposDatasIntervalo' => [
+                    'data_movimentacao' => ['nome' => 'Data movimentação'],
+                    'created_at' => ['nome' => 'Data cadastro'],
+                ],
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -53,8 +58,8 @@
                     <th class="text-nowrap">Dados Específicos</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
                     <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
-                    <th class="text-nowrap">Cadastro</th> 
-                    
+                    <th class="text-nowrap">Cadastro</th>
+
                     {{-- <th class="text-center" title=" número de Serviço">N.S.</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebido</th>

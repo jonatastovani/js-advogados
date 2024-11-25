@@ -23,6 +23,26 @@ class ConsultaHelper
         ];
     }
 
+    public static function renderizarSelectDataIntervalo(array $arrayDadosSelect, array $dados = [])
+    {
+        $arrayCampos = $dados['arrayCamposDatasIntervalo'] ?? [
+            'data_cadastro' => ['nome' => 'Data cadastro'],
+        ];
+        $selecionado = isset($arrayDadosSelect['selecionado']) && $arrayDadosSelect['selecionado'] ? $arrayDadosSelect['selecionado'] : false;
+
+        $classAdd = isset($arrayDadosSelect['class_add']) && is_array($arrayDadosSelect['class_add']) ? implode(' ', $arrayDadosSelect['class_add']) : '';
+        $attrs = isset($arrayDadosSelect['attrs']) && is_array($arrayDadosSelect['attrs']) ? $arrayDadosSelect['attrs'] : []; ?>
+
+        <select name="<?= $arrayDadosSelect['name'] ?>" id="<?= $arrayDadosSelect['id'] ?>" class="form-select <?= $arrayDadosSelect['name'] ?> <?= $classAdd ?>" <?= implode(' ', $attrs) ?>>
+            <?php foreach ($arrayCampos as $campoKey => $campoDados) { ?>
+                <option value="<?= $campoKey ?>" <?= $campoKey == $selecionado ? 'selected' : '' ?>>
+                    <?= $campoDados['label'] ?? $campoDados['nome'] ?>
+                </option>
+            <?php } ?>
+        </select>
+    <?php
+    }
+
     public static function renderizarSelectOrdenacao(array $arrayDadosSelect, array $dados = [])
     {
         $arrayCampos = $dados['arrayCamposOrdenacao'] ?? [

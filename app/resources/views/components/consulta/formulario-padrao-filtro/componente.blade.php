@@ -3,18 +3,24 @@
 
     $col_busca = 'col-sm-6 col-xxl-5';
     $col_personalizacao = 'col-md-6 col-xl-4';
+    $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
+    $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
     $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
 
     if (isset($dados->preset_tamanho)) {
         switch ($variable = $dados['preset_tamanho']) {
             case 'xl':
                 $col_busca = 'col-sm-6 col-xxl-5';
-                $col_personalizacao = 'col-md-6 col-xl-4';
+                $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
+                $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
+                $col_personalizacao = 'col-sm-6 col-md-6 col-xl-4';
                 $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
                 break;
 
             case 'md':
                 $col_busca = 'col-12';
+                $row_col_campo_data = 'col-8';
+                $row_cols_datas = 'col-6';
                 $col_personalizacao = 'col-12';
                 $row_cols_filtros = 'row-cols-1 row-cols-md-2';
                 break;
@@ -36,51 +42,84 @@
                 break;
         }
     }
+
+    $consultaIntervalo = isset($dados->consultaIntervaloBln) ? $dados->consultaIntervaloBln : false;
+    $dataInicio = now()->startOfMonth()->format('Y-m-d'); // Primeiro dia do mês corrente
+    $dataFim = now()->endOfMonth()->format('Y-m-d'); // Último dia do mês corrente
+
+    if ($consultaIntervalo) {
+        if (
+            !isset($dados->arrayCamposDatasIntervalo) ||
+            (isset($dados->arrayCamposDatasIntervalo) && count($dados->arrayCamposDatasIntervalo) <= 0)
+        ) {
+            $consultaIntervalo = false;
+        } else {
+            $dataInicio = $dados->consultaIntervalo['data_inicio'] ?? now()->startOfMonth()->format('Y-m-d');
+            $dataFim = $dados->consultaIntervalo['data_fim'] ?? now()->endOfMonth()->format('Y-m-d');
+        }
+    }
 @endphp
 
 <form action="#" id="formDataSearch{{ $sufixo }}" class="col-12 formDataSearch">
-    <div class="row  text-end">
-        <div class="col">
-            <div class="row">
-                <div class="{{ $col_busca }} mt-2">
-                    <div class="input-group">
-                        <div class="input-group-text">
-                            <label for="textoBusca{{ $sufixo }}">Texto de busca</label>
-                        </div>
-                        <input type="search" id="textoBusca{{ $sufixo }}" class="form-control" name="texto">
-                    </div>
+    <div class="row">
+        <div class="{{ $col_busca }} mt-2">
+            <div class="input-group">
+                <div class="input-group-text">
+                    <label for="textoBusca{{ $sufixo }}">Texto de busca</label>
                 </div>
-                <div class="{{ $col_busca }} mt-2">
-                    <div class="row">
-                        <div class="col">
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <label for="data_inicio{{ $sufixo }}">de: </label>
-                                </div>
-                                <input type="search" id="data_inicio{{ $sufixo }}" class="form-control"
-                                    name="data_inicio">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <label for="data_fim{{ $sufixo }}">ate: </label>
-                                </div>
-                                <input type="search" id="data_fim{{ $sufixo }}" class="form-control"
-                                    name="data_fim">
-                            </div>
-                        </div>
+                <input type="search" id="textoBusca{{ $sufixo }}" class="form-control" name="texto">
+                <button type="submit" id="btnBuscar{{ $sufixo }}"
+                    class="btn btn-outline-secondary btn-sm btnBuscar" title="Realizar busca"><i
+                        class="bi bi-search"></i></button>
+            </div>
+        </div>
+    </div>
+
+    @if ($consultaIntervalo)
+        <div class="row text-end">
+            <div class="{{ $row_col_campo_data }} mt-2">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <?php $nomeSelect = 'selCampoDataIntervalo'; ?>
+                        <?php $idSelect =  "{$nomeSelect}{$sufixo}"; ?>
+                        <label for="<?= $idSelect ?>" {{-- title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação." --}}>
+                            Data de busca
+                        </label>
                     </div>
+                    @php
+                        $mergeDadosSelectDataIntervalo = array_merge(
+                            ['name' => $nomeSelect, 'id' => $idSelect],
+                            $dados->dadosSelectDataIntervalo ?? [],
+                        );
+                        ConsultaHelper::renderizarSelectDataIntervalo(
+                            $mergeDadosSelectDataIntervalo,
+                            $dados->toArray(),
+                        );
+                    @endphp
+                </div>
+            </div>
+
+            <div class="{{ $row_cols_datas }} mt-2">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <label for="data_inicio{{ $sufixo }}">de: </label>
+                    </div>
+                    <input type="date" id="data_inicio{{ $sufixo }}" class="form-control text-center"
+                        name="data_inicio" value="{{ $dataInicio }}">
+                </div>
+            </div>
+            <div class="{{ $row_cols_datas }} mt-2">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <label for="data_fim{{ $sufixo }}">ate: </label>
+                    </div>
+                    <input type="date" id="data_fim{{ $sufixo }}" class="form-control text-center"
+                        name="data_fim" value="{{ $dataFim }}">
                 </div>
             </div>
         </div>
-        <div class="col-2 mt-2">
-            <button type="submit" id="btnBuscar{{ $sufixo }}" class="btn btn-outline-secondary btnBuscar"
-                title="Realizar busca">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </div>
+    @endif
+
     <div class="accordion mt-2" id="accordionFiltros{{ $sufixo }}">
         <div class="accordion-item">
             <div class="accordion-header">
@@ -98,7 +137,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selCampoOrdenacao'; ?>
-                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                                     <label for="<?= $idSelect ?>"
                                         title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação.">
                                         Campo de ordenação
@@ -142,7 +181,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selTratamentoTexto'; ?>
-                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                                     <label for="<?= $idSelect ?>"
                                         title="O tratamento fornece a possibilidade de tratar o texto informado para persolizar a busca.">
                                         Tratamento
@@ -164,7 +203,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <?php $nomeSelect = 'selFormaBusca'; ?>
-                                    <?php $idSelect = "{$nomeSelect}{ $sufixo }"; ?>
+                                    <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                                     <label for="<?= $idSelect ?>">
                                         Como buscar
                                     </label>

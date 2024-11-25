@@ -246,4 +246,20 @@ trait CommonsConsultaServiceTrait
 
         return $paginator->toArray();
     }
+
+
+    protected function aplicarFiltroDataIntervalo(Builder $query, Fluent $requestData, array $options = [])
+    {
+        // Verifica se as informações de intervalo de datas existem e estão válidas
+        if (!isset($requestData->datas_intervalo['campo_data'], $requestData->datas_intervalo['data_inicio'], $requestData->datas_intervalo['data_fim'])) {
+            return $query; // Retorna a query sem modificações se não houver filtro
+        }
+
+        $campoData = $requestData->datas_intervalo['campo_data'];
+        $dataInicio = $requestData->datas_intervalo['data_inicio'];
+        $dataFim = $requestData->datas_intervalo['data_fim'];
+
+        // Aplica o filtro de intervalo de datas
+        return $query->whereBetween($campoData, [$dataInicio, $dataFim]);
+    }
 }

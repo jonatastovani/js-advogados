@@ -155,10 +155,11 @@ class MovimentacaoContaService extends Service
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        // $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $filtrosData['query'];
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-
+        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        
         // $ordenacao = $requestData->ordenacao ?? [];
         // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
         //     $requestData->ordenacao = array_merge(
@@ -242,6 +243,8 @@ class MovimentacaoContaService extends Service
 
 
 
+
+
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
      *
@@ -250,73 +253,75 @@ class MovimentacaoContaService extends Service
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    // private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
-    // {
-    //     $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
-    //     $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
-    //     $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+    private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
+    {
+        // $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
+        // $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
+        // $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
 
-    //     $query = $this->model::joinPagamentoServicoCompleto($query);
+        // $query = $this->model::joinPagamentoServicoCompleto($query);
 
-    //     if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
-    //         $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);
-    //         $query = $this->modelParticipantePagamento::joinParticipanteAllModels($query, $this->modelPagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
-    //         $query = $this->modelParticipanteServico::joinParticipanteAllModels($query, $this->modelServico, ['instanceSelf' => $this->modelParticipanteServico]);
-    //     }
+        // if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
+        //     $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);
+        //     $query = $this->modelParticipantePagamento::joinParticipanteAllModels($query, $this->modelPagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
+        //     $query = $this->modelParticipanteServico::joinParticipanteAllModels($query, $this->modelServico, ['instanceSelf' => $this->modelParticipanteServico]);
+        // }
 
-    //     if ($blnIntegranteFiltro) {
-    //         $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
-    //         $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
-    //         $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
-    //     }
+        // if ($blnIntegranteFiltro) {
+        //     $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
+        //     $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
+        //     $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
+        // }
 
-    //     foreach ($filtros['campos_busca'] as $key) {
-    //         switch ($key) {
-    //             case 'col_nome_participante':
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipantePagamento, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelParticipantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteServico, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelParticipanteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 break;
-    //             case 'col_nome_integrante':
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrantePagamento, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelIntegrantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegranteServico, [
-    //                     'campoFK' => "referencia_id",
-    //                     "whereAppendPerfil" => [
-    //                         ['column' => "{$this->modelIntegranteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-    //                     ]
-    //                 ]);
-    //                 break;
-    //         }
-    //     }
+        // foreach ($filtros['campos_busca'] as $key) {
+        //     switch ($key) {
+        //         case 'col_nome_participante':
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipantePagamento, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelParticipantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteServico, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelParticipanteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             break;
+        //         case 'col_nome_integrante':
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrantePagamento, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelIntegrantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegranteServico, [
+        //                 'campoFK' => "referencia_id",
+        //                 "whereAppendPerfil" => [
+        //                     ['column' => "{$this->modelIntegranteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //                 ]
+        //             ]);
+        //             break;
+        //     }
+        // }
 
-    //     return $query;
-    // }
+        $query->whereNotIn('status_id', MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
+        return $query;
+    }
 
     public function storeLancamentoServico(Fluent $requestData)
     {
@@ -412,7 +417,7 @@ class MovimentacaoContaService extends Service
                 $resource->referencia_id = $lancamento->id;
                 $resource->referencia_type = $modelParent->getMorphClass();
                 $resource->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value;
-                $resource->status_id = MovimentacaoContaStatusTipoEnum::ATIVA->value;
+                $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoServicoLancamento();
 
                 $ultimoSaldo = $this->buscarSaldoConta($requestData->conta_id);
 
@@ -722,6 +727,7 @@ class MovimentacaoContaService extends Service
         try {
             if ($lancamentoRollbackBln) {
 
+                // Cria a movimentação de rollback
                 $movimentacaoContaRollback = new $this->model();
                 $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
                 $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
@@ -742,6 +748,11 @@ class MovimentacaoContaService extends Service
 
                 $movimentacaoContaRollback->save();
 
+                // Altera o status da movimentação original
+                $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
+                $movimentacaoConta->save();
+
+                // Limpa alguns campos do lançamento
                 $resourceLancamento->valor_recebido = null;
                 $resourceLancamento->data_recebimento = null;
             }
@@ -749,17 +760,6 @@ class MovimentacaoContaService extends Service
             if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
             $resourceLancamento->status_id = $requestData->status_id;
             $resourceLancamento->save();
-
-            //   switch () {
-            //       case LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
-            //       case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value:
-            //           # code...
-            //           break;
-
-            //       default:
-            //           # code...
-            //           break;
-            //   }
 
             DB::commit();
             return $resourceLancamento->toArray();

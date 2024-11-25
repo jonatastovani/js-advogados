@@ -268,7 +268,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                if (item.referencia?.participantes && item.referencia.participantes.length) {
+                if (item.referencia?.participantes && item.referencia.participantes.length &&
+                    (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
+                ) {
                     const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.referencia.participantes);
                     htmlThParticipantesIntegrantes = `
                         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
