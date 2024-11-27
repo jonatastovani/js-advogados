@@ -6,13 +6,13 @@ use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
+use App\Models\Financeiro\MovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Pdf\PdfGenerator;
 use App\Traits\CommonsControllerMethodsTrait;
 use App\Utils\CurrencyFormatterUtils;
 use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class FinanceiroController extends Controller
@@ -43,7 +43,7 @@ class FinanceiroController extends Controller
 
         $dataEnv = new Fluent([
             'dados' => $dados,
-            'margins' => PdfMarginPresetsEnum::LARGA->detalhes(),
+            'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
         ]);
 
         $dataEnv = $this->movimentacaoContaImpressaoRenderInfo($dataEnv);
@@ -85,20 +85,11 @@ class FinanceiroController extends Controller
                     break;
             }
             $dadosRetorno->dados_especificos = $dadosEspecificos;
-            $dadosRetorno->participantes = "
-                Participante 1;
-                Participante 2;
-                Participante 3;
-                ";
-            $dadosRetorno->integrantes = "
-                Integrante 1;
-                Integrante 2;
-                Integrante 3;
-                ";
+            $dadosRetorno->participantes = "Participante 1;";
+            $dadosRetorno->integrantes = "Integrante 1;";
 
             $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
 
-            Log::debug(json_encode($dadosRetorno->toArray()));
             $processedData[] = $dadosRetorno->toArray();
         }
 

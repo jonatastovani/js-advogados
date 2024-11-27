@@ -228,7 +228,8 @@ class MovimentacaoContaService extends Service
         return $data;
     }
 
-    protected function carregarRelacionamentoServicoLancamento($registros)
+    public function carregarRelacionamentoServicoLancamento($registros)
+    // protected function carregarRelacionamentoServicoLancamento($registros)
     {
         $relationships = $this->loadFull();
         $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();

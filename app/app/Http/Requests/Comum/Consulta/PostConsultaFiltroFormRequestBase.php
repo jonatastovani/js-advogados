@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Comum\Consulta;
 
+use App\Common\RestResponse;
 use App\Http\Requests\BaseFormRequest;
 
 class PostConsultaFiltroFormRequestBase extends BaseFormRequest

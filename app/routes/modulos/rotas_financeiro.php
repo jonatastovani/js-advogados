@@ -14,6 +14,7 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
 
             Route::get('', 'movimentacaoContaIndex')->name('financeiro.movimentacao-conta.index');
             Route::post('impressao', 'movimentacaoContaImpressao')->name('financeiro.movimentacao-conta.impressao');
+            Route::get('impressao', 'movimentacaoContaImpressao')->name('financeiro.movimentacao-conta.impressao');
         });
     });
 });

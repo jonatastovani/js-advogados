@@ -8,6 +8,7 @@ import { modalLancamentoReagendar } from "../../../components/servico/modalLanca
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
+import { URLHelper } from "../../../helpers/URLHelper";
 
 class PageMovimentacaoContaIndex extends templateSearch {
 
@@ -184,24 +185,55 @@ class PageMovimentacaoContaIndex extends templateSearch {
             self._generateQueryFilters()
         });
 
+        // $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
+        //     if (self._objConfigs.querys.consultaFiltros.dataPost) {
+        //         let var1 = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
+        //         let var2 = '';
+        //         Object.keys(var1).forEach(function (key) {
+        //             var2 += key + '=' + var1[key] + '&';
+        //         });
+
+        //         // commonFunctions.simulateLoading(this, true);
+        //         // const objConn = new connectAjax(self._objConfigs.url.baseFrontImpressao);
+        //         // objConn.setAction(enumAction.POST);
+        //         // objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+
+        //         // try {
+        //         //     // Passa `true` para abrir em uma nova janela
+        //         //     await objConn.downloadPdf('relatorio.pdf', true);
+        //         // } catch (error) {
+        //         //     console.error('Erro ao gerar o PDF:', error);
+        //         //     commonFunctions.generateNotificationErrorCatch(error);
+        //         // } finally {
+        //         //     commonFunctions.simulateLoading(this, false);
+        //         // }
+        //     }
+        // });
+
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
-                commonFunctions.simulateLoading(this, true);
-                const objConn = new connectAjax(self._objConfigs.url.baseFrontImpressao);
-                objConn.setAction(enumAction.POST);
-                objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+                // Flatten o objeto para gerar os parâmetros
+                let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
+                console.log(flattenedParams);
+                let queryString = '';
+        
+                // Constrói a query string
+                Object.keys(flattenedParams).forEach(function (key) {
+                    queryString += encodeURIComponent(key) + '=' + encodeURIComponent(flattenedParams[key]) + '&';
+                });
+        
+                // Remove o último '&'
+                queryString = queryString.slice(0, -1);
+        
 
-                try {
-                    // Passa `true` para abrir em uma nova janela
-                    await objConn.downloadPdf('relatorio.pdf', true);
-                } catch (error) {
-                    console.error('Erro ao gerar o PDF:', error);
-                    commonFunctions.generateNotificationErrorCatch(error);
-                } finally {
-                    commonFunctions.simulateLoading(this, false);
-                }
+                // Crie a URL base (substitua pela URL desejada)
+                const baseURL = self._objConfigs.url.baseFrontImpressao;
+
+                // Abre em uma nova guia
+                window.open(`${baseURL}?${queryString}`, '_blank');
             }
         });
+
 
         const openModal = async () => {
             try {

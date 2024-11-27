@@ -1,7 +1,3 @@
-@php
-    use App\Enums\MovimentacaoContaReferenciaEnum;
-@endphp
-
 @extends('layouts.pdf.master')
 
 @section('title', 'Invoice PDF')
@@ -13,16 +9,15 @@
 @section('content')
     {{-- <pre>{{ print_r($dataEnv, true) }}</pre> --}}
     {{-- <pre>{{ print_r($dataEnv, true) }}</pre> --}}
-    <div class="table-responsive mt-2 flex-fill">
-        <table class="table table-sm table-striped table-hover">
+    <div class="table-responsive mt-2">
+        <table class="table-striped table" style="border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th class="text-nowrap bg-info">Status</th>
+                    <th class="text-nowrap">Status</th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap" title="Valor Movimentado">Valor Mov.</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
                     <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Dados Específicos</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
                     <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
@@ -37,7 +32,6 @@
                         <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
                         <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
                         <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
-                        <td>{{ $dado['observacao'] ?? '' }}</td>
                         <td>{{ $dado['dados_especificos'] ?? '' }}</td>
                         <td>{{ $dado['participantes'] ?? '' }}</td>
                         <td>{{ $dado['integrantes'] ?? '' }}</td>

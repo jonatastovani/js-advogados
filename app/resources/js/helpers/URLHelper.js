@@ -63,4 +63,32 @@ export class URLHelper {
             return `${currentDomain}/${endpoint}`;
         }
     }
+
+    /**
+     * Converte um objeto em um formato de `key=value` para envio, com booleanos convertidos para 0 e 1.
+     */
+    static flattenObject(obj, parentKey = null) {
+        const result = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const newKey = parentKey ? `${parentKey}[${key}]` : key;
+                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                    Object.assign(result, this.flattenObject(obj[key], newKey));
+                } else if (Array.isArray(obj[key])) {
+                    obj[key].forEach((item, index) => {
+                        if (typeof item === 'object') {
+                            Object.assign(result, this.flattenObject(item, `${newKey}[${index}]`));
+                        } else {
+                            result[`${newKey}[${index}]`] = item;
+                        }
+                    });
+                } else {
+                    // Converte booleanos explicitamente para 0 e 1
+                    result[newKey] = typeof obj[key] === 'boolean' ? (obj[key] ? '1' : '0') : obj[key];
+                }
+            }
+        }
+        return result;
+    }
+
 }
