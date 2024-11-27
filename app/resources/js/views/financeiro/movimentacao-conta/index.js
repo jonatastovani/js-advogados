@@ -22,6 +22,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
+            baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
         },
         data: {
             configAcoes: {
@@ -183,6 +184,25 @@ class PageMovimentacaoContaIndex extends templateSearch {
             self._generateQueryFilters()
         });
 
+        $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
+            if (self._objConfigs.querys.consultaFiltros.dataPost) {
+                commonFunctions.simulateLoading(this, true);
+                const objConn = new connectAjax(self._objConfigs.url.baseFrontImpressao);
+                objConn.setAction(enumAction.POST);
+                objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+
+                try {
+                    // Passa `true` para abrir em uma nova janela
+                    await objConn.downloadPdf('relatorio.pdf', true);
+                } catch (error) {
+                    console.error('Erro ao gerar o PDF:', error);
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(this, false);
+                }
+            }
+        });
+
         const openModal = async () => {
             try {
                 const objModal = new modalLancamentoMovimentar({
@@ -230,9 +250,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
                 dadosEspecificos = `Serviço ${item.referencia.pagamento.servico.numero_servico}`;
-                dadosEspecificos += ` - Pagamento - ${item.referencia.pagamento.numero_pagamento}`
+                dadosEspecificos += ` - Pagamento - ${item.referencia.pagamento.numero_pagamento}`;
                 dadosEspecificos += ` - ${item.referencia.pagamento.servico.area_juridica.nome}`;
-                dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`
+                dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`;
                 break;
 
             default:

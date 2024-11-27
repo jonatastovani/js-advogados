@@ -44,47 +44,12 @@
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
 
-    <div class="d-grid text-end gap-2 d-sm-block mt-2">
-        <form action="{{ route('financeiro.movimentacao-conta.impressao') }}" method="post" target="_blank">
-            @csrf
-            <button type="submit" class="btn btn-outline-primary">Imprimir consulta</button>
-        </form>
+    <div class="d-grid gap-2 d-sm-block mt-2">
+        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary"
+            id="btnImprimirConsulta">Imprimir consulta</button>
     </div>
 
-    <div class="table-responsive mt-2 flex-fill">
-        <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
-            <thead>
-                <tr>
-                    <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-nowrap">Status</th>
-                    <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
-                    <th class="text-nowrap" title="Valor Movimentado">Valor Mov.</th>
-                    <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
-                    <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Observação</th>
-                    <th class="text-nowrap">Dados Específicos</th>
-                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
-                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
-                    <th class="text-nowrap">Cadastro</th>
-
-                    {{-- <th class="text-center" title=" número de Serviço">N.S.</th>
-                    <th class="text-nowrap">Valor Recebido</th>
-                    <th class="text-nowrap">Data Recebido</th>
-                    <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
-                    <th class="text-nowrap">Total Recebido</th>
-                    <th class="text-nowrap">Total Aguardando</th>
-                    <th class="text-nowrap">Total Inadimplente</th>
-                    <th class="text-nowrap">Tipo de pagamento</th>
-                    <th class="text-nowrap">Observação Pagamento</th>
-                    <th class="text-nowrap">Status Pagamento</th>
-                    --}}
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    @include('secao.financeiro.movimentacao-conta.index.tabela-dados')
 
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />
 
@@ -108,6 +73,7 @@
     @component('components.pagina.front-routes', [
         'routes' => [
             'baseFront' => route('financeiro.index'),
+            'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
         ],
     ])
     @endcomponent

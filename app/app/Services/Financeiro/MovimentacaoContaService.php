@@ -159,7 +159,7 @@ class MovimentacaoContaService extends Service
         $query = $filtrosData['query'];
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
         $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
-        
+
         // $ordenacao = $requestData->ordenacao ?? [];
         // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
         //     $requestData->ordenacao = array_merge(
@@ -177,17 +177,27 @@ class MovimentacaoContaService extends Service
 
     protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
     {
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
-        $paginator = $query->paginate($requestData->perPage ?? 25);
+        $withOutPagination = $options['withOutPagination'] ?? false;
 
-        // Converte os registros para um array
-        $data = $paginator->toArray();
+        if ($withOutPagination) {
+            // Sem paginação busca todos
+            $consulta = $query->get();
+            // Converte os registros para um array
+            $data = $consulta->toArray();
+            $collection = collect($data);
+        } else {
+            /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+            $paginator = $query->paginate($requestData->perPage ?? 25);
+            // Converte os registros para um array
+            $data = $paginator->toArray();
+            $collection = collect($data['data']);
+        }
 
         // Salva a ordem original dos registros
-        $ordemOriginal = collect($data['data'])->pluck('id')->toArray();
+        $ordemOriginal = $collection->pluck('id')->toArray();
 
         // Agrupa os registros por referencia_type
-        $agrupados = collect($data['data'])->groupBy('referencia_type');
+        $agrupados = $collection->groupBy('referencia_type');
 
         // Processa os carregamentos personalizados para cada tipo
         $agrupados = $agrupados->map(function ($registros, $tipo) {
@@ -209,7 +219,11 @@ class MovimentacaoContaService extends Service
             ->toArray();
 
         // Atualiza os registros na resposta mantendo a ordem
-        $data['data'] = $registrosOrdenados;
+        if ($withOutPagination) {
+            $data = $registrosOrdenados;
+        } else {
+            $data['data'] = $registrosOrdenados;
+        }
 
         return $data;
     }

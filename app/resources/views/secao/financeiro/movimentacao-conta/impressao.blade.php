@@ -1,3 +1,7 @@
+@php
+    use App\Enums\MovimentacaoContaReferenciaEnum;
+@endphp
+
 @extends('layouts.pdf.master')
 
 @section('title', 'Invoice PDF')
@@ -7,9 +11,43 @@
 @endsection
 
 @section('content')
-    <h2>Invoice #{{ $invoice->id }}</h2>
-    <p>Date: {{ $invoice->date }}</p>
-    <p>Amount: {{ $invoice->amount }}</p>
+    {{-- <pre>{{ print_r($dataEnv, true) }}</pre> --}}
+    {{-- <pre>{{ print_r($dataEnv, true) }}</pre> --}}
+    <div class="table-responsive mt-2 flex-fill">
+        <table class="table table-sm table-striped table-hover">
+            <thead>
+                <tr>
+                    <th class="text-nowrap bg-info">Status</th>
+                    <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
+                    <th class="text-nowrap" title="Valor Movimentado">Valor Mov.</th>
+                    <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
+                    <th class="text-nowrap">Descrição</th>
+                    <th class="text-nowrap">Observação</th>
+                    <th class="text-nowrap">Dados Específicos</th>
+                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
+                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
+                    <th class="text-nowrap">Cadastro</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($dataEnv['dados'] as $dado)
+                    <tr>
+                        <td>{{ $dado['status'] ?? '' }}</td>
+                        <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
+                        <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
+                        <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
+                        <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
+                        <td>{{ $dado['observacao'] ?? '' }}</td>
+                        <td>{{ $dado['dados_especificos'] ?? '' }}</td>
+                        <td>{{ $dado['participantes'] ?? '' }}</td>
+                        <td>{{ $dado['integrantes'] ?? '' }}</td>
+                        <td>{{ $dado['created_at'] ?? '' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
 @endsection
 
 @section('footer')

@@ -2,13 +2,24 @@
 
 namespace App\Http\Controllers\View\Financeiro;
 
+use App\Enums\MovimentacaoContaReferenciaEnum;
+use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
+use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Pdf\PdfGenerator;
+use App\Traits\CommonsControllerMethodsTrait;
+use App\Utils\CurrencyFormatterUtils;
+use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class FinanceiroController extends Controller
 {
+    use CommonsControllerMethodsTrait;
+
+    public function __construct(public MovimentacaoContaService $service) {}
 
     public function financeiroIndex()
     {
@@ -25,19 +36,75 @@ class FinanceiroController extends Controller
         return view('secao.financeiro.movimentacao-conta.index');
     }
 
-    public function movimentacaoContaImpressao()
+    public function movimentacaoContaImpressao(PostConsultaFiltroFormRequestBase $formRequest)
     {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        $dados = $this->service->postConsultaFiltros($fluentData, ['withOutPagination' => true]);
+
+        $dataEnv = new Fluent([
+            'dados' => $dados,
+            'margins' => PdfMarginPresetsEnum::LARGA->detalhes(),
+        ]);
+
+        $dataEnv = $this->movimentacaoContaImpressaoRenderInfo($dataEnv);
+
+        // Configurações personalizadas de PDF
         $pdfService = new PdfGenerator([
-            'orientation' => 'portrait',
+            'orientation' => 'landscape',
             'paper' => 'A4',
         ]);
 
-        $invoice = new Fluent([
-            'id' =>  '1',
-            'date' => '25/11/2024',
-            'amount' => '$ 1520,00',
-        ]);
+        return $pdfService->generate('secao.financeiro.movimentacao-conta.impressao', compact('dataEnv'));
+    }
 
-        return $pdfService->generate('secao.financeiro.movimentacao-conta.impressao', compact('invoice'));
+    private function movimentacaoContaImpressaoRenderInfo(Fluent $dataEnv)
+    {
+        $processedData = [];
+
+        foreach ($dataEnv->dados as $value) {
+            $dadosRetorno = new Fluent();
+
+            $dadosRetorno->status = $value['status']['nome'];
+            $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
+            $dadosRetorno->valor_movimentado = CurrencyFormatterUtils::toBRL($value['valor_movimentado']);
+            $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
+            $dadosRetorno->descricao_automatica = $value['descricao_automatica'];
+            $dadosRetorno->observacao = $value['observacao'];
+
+            $dadosEspecificos = '';
+
+            switch ($value['referencia_type']) {
+                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+                    $dadosEspecificos = "Serviço {$value['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - Pagamento - {$value['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['area_juridica']['nome']}";
+                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
+                    break;
+
+                default:
+                    break;
+            }
+            $dadosRetorno->dados_especificos = $dadosEspecificos;
+            $dadosRetorno->participantes = "
+                Participante 1;
+                Participante 2;
+                Participante 3;
+                ";
+            $dadosRetorno->integrantes = "
+                Integrante 1;
+                Integrante 2;
+                Integrante 3;
+                ";
+
+            $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
+
+            Log::debug(json_encode($dadosRetorno->toArray()));
+            $processedData[] = $dadosRetorno->toArray();
+        }
+
+        // Atualizar `dados` no objeto Fluent
+        $dataEnv->dados = $processedData;
+
+        return $dataEnv;
     }
 }

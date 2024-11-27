@@ -108,7 +108,7 @@ export class connectAjax {
     async deleteRequest() {
         const param = this.#param ? `/${this.#param}` : '';
         this.#action = enumAction.DELETE;
-        
+
         this.#debug(`URL = ${this.#urlApi + param}`, `Param = ${param}`, `Method = ${this.#action}`, `Data = ${JSON.stringify(this.#data)}`);
 
         try {
@@ -151,7 +151,7 @@ export class connectAjax {
             if (error) {
                 errors.push(error);
             }
-            
+
             const messageNotify = `${responseText.message}\n${errors.join('\n')}`;
 
             return {
@@ -222,4 +222,48 @@ export class connectAjax {
         }
     }
 
+    async downloadPdf(fileName = 'document.pdf', openInNewWindow = false) {
+        const param = this.#param ? `/${this.#param}` : '';
+        const method = this.#action || "GET";
+        const data = this.#data ? JSON.stringify(this.#data) : null;
+    
+        this.#debug(`URL = ${this.#urlApi + param}`, `Param = ${param}`, `Method = ${method}`, `Data = ${data}`);
+    
+        try {
+            if (this.#addCsrfTokenBln) {
+                this.#addAuthorizationToken();
+            }
+    
+            const response = await $.ajax({
+                url: this.#urlApi + param,
+                method: method,
+                contentType: "application/json",
+                data: data,
+                xhrFields: {
+                    responseType: 'blob', // Manipula a resposta como blob para PDF
+                },
+            });
+    
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const blobUrl = window.URL.createObjectURL(blob);
+    
+            if (openInNewWindow) {
+                // Abre o PDF em uma nova janela ou aba
+                window.open(blobUrl, '_blank');
+            } else {
+                // Baixa o PDF
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName;
+                link.click();
+            }
+    
+            // Revoga a URL do Blob para liberar memória
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (xhr) {
+            this.#debugError(xhr);
+            throw this.#handleError(xhr);
+        }
+    }
+    
 }

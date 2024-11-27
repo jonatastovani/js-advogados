@@ -32,6 +32,10 @@
                     'created_at' => ['nome' => 'Data cadastro'],
                     'titulo' => ['nome' => 'Título'],
                 ],
+                'consultaIntervaloBln' => true,
+                'arrayCamposDatasIntervalo' => [
+                    'created_at' => ['nome' => 'Data cadastro'],
+                ],
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />

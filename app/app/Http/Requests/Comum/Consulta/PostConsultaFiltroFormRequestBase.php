@@ -16,9 +16,9 @@ class PostConsultaFiltroFormRequestBase extends BaseFormRequest
         return [
             'texto' => 'nullable|string|min:3',
             'datas_intervalo' => 'nullable|array',
-            'datas_intervalo.campo_data' => 'required|string',
-            'datas_intervalo.data_inicio' => 'required|date',
-            'datas_intervalo.data_fim' => 'required|date',
+            'datas_intervalo.campo_data' => 'required_with:datas_intervalo|string',
+            'datas_intervalo.data_inicio' => 'required_with:datas_intervalo|date',
+            'datas_intervalo.data_fim' => 'required_with:datas_intervalo|date',
             'parametros_like' => 'nullable|array',
             'parametros_like.curinga_inicio_bln' => 'nullable|boolean',
             'parametros_like.curinga_inicio_caractere' => 'nullable|in:%,_',

@@ -1,3 +1,13 @@
+@php
+    use App\Enums\PdfMarginPresetsEnum;
+
+    if (isset($margins)) {
+        $margins = json_decode($margins, true);
+    } else {
+        $margins = PdfMarginPresetsEnum::ESTREITA->detalhes();
+    }
+@endphp
+
 <!DOCTYPE html>
 <html>
 
@@ -6,27 +16,11 @@
     <title>@yield('title', 'PDF Document')</title>
     <link href="{{ public_path('css/pdf-bootstrap-styles.css') }}" rel="stylesheet">
     <style>
-        @php
-            // Configurações de margens padrão
-            $defaultMargins = [
-                'top' => 10,
-                'right' => 20,
-                'bottom' => 10,
-                'left' => 20,
-            ];
-
-            // Mescla configurações passadas com as padrões
-            $margins = array_merge($defaultMargins, $config['margins'] ?? []);
-        @endphp
-
         @page {
-            margin: {{ $margins['top'] }}px {{ $margins['right'] }}px {{ $margins['bottom'] }}px {{ $margins['left'] }}px;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
+            margin: {{ $margins['margin_top'] ?? '30' }}mm {{ $margins['margin_right'] ?? '20' }}mm {{ $margins['margin_bottom'] ?? '20' }}mm {{ $margins['margin_left'] ?? '30' }}mm;
         }
     </style>
+
 </head>
 
 <body>
@@ -35,6 +29,11 @@
     </header>
     <main>
         @yield('content')
+
+        {{ $margins['margin_top'] }} <br>
+        {{ $margins['margin_right'] }} <br>
+        {{ $margins['margin_bottom'] }} <br>
+        {{ $margins['margin_left'] }} <br>
     </main>
     <footer>
         @yield('footer')
