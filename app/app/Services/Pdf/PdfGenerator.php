@@ -37,6 +37,7 @@ class PdfGenerator
             ->setPaper($this->config['paper'], $this->config['orientation'])
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
+                // 'isRemoteEnabled' => true,
             ]);
 
         // Escolhe o método de saída

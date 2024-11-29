@@ -44,6 +44,8 @@ class FinanceiroController extends Controller
         $dataEnv = new Fluent([
             'dados' => $dados,
             'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
+            'data_inicio' => (new DateTime($fluentData->datas_intervalo['data_inicio']))->format('d/m/Y'),
+            'data_fim' => (new DateTime($fluentData->datas_intervalo['data_fim']))->format('d/m/Y'),
         ]);
 
         $dataEnv = $this->movimentacaoContaImpressaoRenderInfo($dataEnv);
@@ -68,6 +70,7 @@ class FinanceiroController extends Controller
             $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
             $dadosRetorno->valor_movimentado = CurrencyFormatterUtils::toBRL($value['valor_movimentado']);
             $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
+            $dadosRetorno->conta = $value['conta']['nome'];
             $dadosRetorno->descricao_automatica = $value['descricao_automatica'];
             $dadosRetorno->observacao = $value['observacao'];
 
@@ -85,8 +88,6 @@ class FinanceiroController extends Controller
                     break;
             }
             $dadosRetorno->dados_especificos = $dadosEspecificos;
-            $dadosRetorno->participantes = "Participante 1;";
-            $dadosRetorno->integrantes = "Integrante 1;";
 
             $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
 
@@ -97,5 +98,10 @@ class FinanceiroController extends Controller
         $dataEnv->dados = $processedData;
 
         return $dataEnv;
+    }
+
+    public function balancoRepasseParceiroIndex()
+    {
+        return view('secao.financeiro.balanco-repasse-parceiro.index');
     }
 }

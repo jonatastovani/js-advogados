@@ -13,8 +13,7 @@
             </div>
         </a>
         <div class="parent-wrapper">
-            <ul class="nav parent collapse show" data-bs-parent="#navbarVerticalNav" id="nv-financeiro"
-                style="">
+            <ul class="nav parent collapse show" data-bs-parent="#navbarVerticalNav" id="nv-financeiro" style="">
                 {{-- <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.index') }}">
                         <span class="nav-link-text">Dashboard Financeiro</span>
@@ -28,6 +27,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.movimentacao-conta.index') }}">
                         <span class="nav-link-text">Movimentações de Contas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('financeiro.balanco-repasse-parceiro.index') }}">
+                        <span class="nav-link-text">Balanço de Repasse de Parceiro</span>
                     </a>
                 </li>
             </ul>

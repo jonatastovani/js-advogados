@@ -1,7 +1,7 @@
 @php
     use App\Helpers\Views\ConsultaHelper;
 
-    $col_busca = 'col-sm-6 col-xxl-5';
+    $col_busca = 'col-sm-8 col-lg-9 col-xl-6';
     $col_personalizacao = 'col-md-6 col-xl-4';
     $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
     $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
@@ -10,7 +10,7 @@
     if (isset($dados->preset_tamanho)) {
         switch ($variable = $dados['preset_tamanho']) {
             case 'xl':
-                $col_busca = 'col-sm-6 col-xxl-5';
+                $col_busca = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
                 $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
                 $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
                 $col_personalizacao = 'col-sm-6 col-md-6 col-xl-4';
@@ -81,7 +81,7 @@
                 <div class="input-group">
                     <div class="input-group-text">
                         <?php $nomeSelect = 'selCampoDataIntervalo'; ?>
-                        <?php $idSelect =  "{$nomeSelect}{$sufixo}"; ?>
+                        <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
                         <label for="<?= $idSelect ?>" {{-- title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação." --}}>
                             Data de busca
                         </label>
@@ -131,7 +131,7 @@
             </div>
             <div id="collapseOneFiltros{{ $sufixo }}" class="accordion-collapse collapse"
                 data-bs-parent="#accordionFiltros{{ $sufixo }}">
-                <div class="accordion-body py-1">
+                <div class="accordion-body">
                     <div class="row">
                         <div class="{{ $col_personalizacao }} mt-2">
                             <div class="input-group">
@@ -221,18 +221,20 @@
                             </div>
                         </div>
                     </div>
-                    <p class="mt-2 fw-semibold">Selecione os campos onde pesquisar a
-                        informação</p>
-                    <div class="row {{ $row_cols_filtros }} searchFields">
-                        @php
-                            ConsultaHelper::renderizarCheckBoxColunas($dados->camposFiltrados, [
-                                'arrayCamposChecked' => $dados->arrayCamposChecked,
-                                'sufixoId' => $sufixo,
-                            ]);
-                        @endphp
-                    </div>
-                    <div class="form-text my-0">Obs: Quanto mais campos marcados, a consulta poderá ser mais lenta.
-                    </div>
+                    @isset($dados->camposFiltrados)
+                        <p class="mt-2 fw-semibold">Selecione os campos onde pesquisar a
+                            informação</p>
+                        <div class="row {{ $row_cols_filtros }} searchFields">
+                            @php
+                                ConsultaHelper::renderizarCheckBoxColunas($dados->camposFiltrados, [
+                                    'arrayCamposChecked' => $dados->arrayCamposChecked,
+                                    'sufixoId' => $sufixo,
+                                ]);
+                            @endphp
+                        </div>
+                        <div class="form-text my-0">Obs: Quanto mais campos marcados, a consulta poderá ser mais lenta.
+                        </div>
+                    @endisset
                 </div>
             </div>
         </div>

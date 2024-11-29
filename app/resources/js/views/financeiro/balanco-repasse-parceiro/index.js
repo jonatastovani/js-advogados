@@ -4,13 +4,14 @@ import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
+import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 
-class PageMovimentacaoContaIndex extends templateSearch {
+class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     #objConfigs = {
         querys: {
@@ -163,7 +164,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageMovimentacaoContaIndex' });
+        super({ sufixo: 'PageBalancoRepasseParceiroIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -185,30 +186,43 @@ class PageMovimentacaoContaIndex extends templateSearch {
             self._generateQueryFilters()
         });
 
-        // $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
-        //     if (self._objConfigs.querys.consultaFiltros.dataPost) {
-        //         let var1 = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-        //         let var2 = '';
-        //         Object.keys(var1).forEach(function (key) {
-        //             var2 += key + '=' + var1[key] + '&';
-        //         });
+        const preencherInfoParceiro = (perfil) => {
+            const card = $(`#dados-parceiro${self.getSufixo}`);
 
-        //         // commonFunctions.simulateLoading(this, true);
-        //         // const objConn = new connectAjax(self._objConfigs.url.baseFrontImpressao);
-        //         // objConn.setAction(enumAction.POST);
-        //         // objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+            let nome = '';
+            const perfilNome = perfil.perfil_tipo.nome;
+            switch (perfil.pessoa.pessoa_dados_type) {
+                case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                    nome = perfil.pessoa.pessoa_dados.nome;
+                    break;
 
-        //         // try {
-        //         //     // Passa `true` para abrir em uma nova janela
-        //         //     await objConn.downloadPdf('relatorio.pdf', true);
-        //         // } catch (error) {
-        //         //     console.error('Erro ao gerar o PDF:', error);
-        //         //     commonFunctions.generateNotificationErrorCatch(error);
-        //         // } finally {
-        //         //     commonFunctions.simulateLoading(this, false);
-        //         // }
-        //     }
-        // });
+                default:
+                    throw new Error('Tipo de pessoa inválido');
+            }
+
+            card.find(`.nome-parceiro`).html(nome);
+            card.find(`.card-perfil-referencia`).html(perfilNome);
+            card.show('fast');
+        }
+
+        $(`#btnSelecionarParceiro${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const dataEnvModalAppend = {
+                    perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                };
+                const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.selected) {
+                    preencherInfoParceiro(response.selected);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
@@ -766,5 +780,5 @@ class PageMovimentacaoContaIndex extends templateSearch {
 }
 
 $(function () {
-    new PageMovimentacaoContaIndex();
+    new PageBalancoRepasseParceiroIndex();
 });

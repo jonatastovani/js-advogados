@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Financeiro;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStore;
 use App\Services\Financeiro\MovimentacaoContaService;
@@ -14,7 +15,7 @@ class MovimentacaoContaController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public MovimentacaoContaService $service) {}
-
+    
     public function storeLancamentoServico(MovimentacaoContaFormRequestStore $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
@@ -25,6 +26,12 @@ class MovimentacaoContaController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->alterarStatusLancamentoServico($fluentData));
+    }
+    
+    public function postConsultaFiltrosBalancoRepasseParceiro(PostConsultaFiltroFormRequestBase $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData));
     }
 
     // public function show(MovimentacaoContaFormRequestShow $formRequest)

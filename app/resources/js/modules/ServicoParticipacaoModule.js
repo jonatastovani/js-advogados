@@ -582,7 +582,7 @@ export class ServicoParticipacaoModule {
                     </h5>
                     <div class="row">
                         <div class="col">
-                            <div class="form-text">Tipo Referência</div>
+                            <div class="form-text">Perfil Referência</div>
                             <label class="form-label">${tipoReferencia}</label>
                         </div>
                     </div>

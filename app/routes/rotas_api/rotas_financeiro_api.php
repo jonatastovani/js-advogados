@@ -40,7 +40,7 @@ Route::group([
     });
 
     Route::prefix('movimentacao-conta')->group(function () {
-        
+
         Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
 
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
@@ -59,17 +59,30 @@ Route::group([
         });
     });
 
-    Route::prefix('pagamento-tipo-tenant')->group(function () {
+    Route::prefix('balanco-repasse-parceiros')->group(function () {
 
-        Route::controller(App\Http\Controllers\Financeiro\PagamentoTipoTenantController::class)->group(function () {
+        Route::get('', function () {})->name('api.financeiro.balanco-repasse-parceiros');
 
-            Route::post('consulta-filtros', 'postConsultaFiltros');
+        Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
 
-            Route::get('', 'index');
-            Route::post('', 'store')->name('api.financeiro.pagamento-tipo-tenant');
-            Route::match(['get', 'post'], '{uuid}', 'show');
-            Route::put('{uuid}', 'update');
-            Route::delete('{uuid}', 'destroy');
+            Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
+        });
+    });
+
+    Route::prefix('tenant')->group(function () {
+
+        Route::prefix('pagamento-tipo-tenant')->group(function () {
+
+            Route::controller(App\Http\Controllers\Financeiro\PagamentoTipoTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.financeiro.pagamento-tipo-tenant');
+                Route::match(['get', 'post'], '{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
+            });
         });
     });
 });

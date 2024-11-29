@@ -9,12 +9,15 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
         Route::get('', 'financeiroIndex')->name('financeiro.index');
         Route::get('lancamentos-servicos', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
 
-
         Route::prefix('movimentacao-conta')->group(function () {
 
             Route::get('', 'movimentacaoContaIndex')->name('financeiro.movimentacao-conta.index');
-            Route::post('impressao', 'movimentacaoContaImpressao')->name('financeiro.movimentacao-conta.impressao');
             Route::get('impressao', 'movimentacaoContaImpressao')->name('financeiro.movimentacao-conta.impressao');
+        });
+
+        Route::prefix('balanco-repasse-parceiro')->group(function () {
+
+            Route::get('', 'balancoRepasseParceiroIndex')->name('financeiro.balanco-repasse-parceiro.index');
         });
     });
 });

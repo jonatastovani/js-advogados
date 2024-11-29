@@ -15,6 +15,7 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Financeiro\MovimentacaoConta;
+use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
@@ -155,7 +156,7 @@ class MovimentacaoContaService extends Service
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $this->aplicarFiltrosEspecificosMovimentacaoConta($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $filtrosData['query'];
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
         $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
@@ -172,11 +173,12 @@ class MovimentacaoContaService extends Service
             'campoOrdenacao' => 'created_at',
         ], $options));
 
-        return $this->carregarRelacionamentos($query, $requestData, $options);
+        return $this->carregarRelacionamentosMovimentacaoConta($query, $requestData, $options);
     }
 
-    protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
+    protected function carregarRelacionamentosMovimentacaoConta(Builder $query, Fluent $requestData, array $options = [])
     {
+        // Retira a paginação, em casos de busca feita para geração de PDF
         $withOutPagination = $options['withOutPagination'] ?? false;
 
         if ($withOutPagination) {
@@ -203,7 +205,7 @@ class MovimentacaoContaService extends Service
         $agrupados = $agrupados->map(function ($registros, $tipo) {
             switch ($tipo) {
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    return $this->carregarRelacionamentoServicoLancamento($registros);
+                    return $this->loadServicoLancamentoRelacionamentos($registros);
                     // Adicione outros tipos conforme necessário
                 default:
                     return $registros; // Retorna sem modificações
@@ -228,8 +230,7 @@ class MovimentacaoContaService extends Service
         return $data;
     }
 
-    public function carregarRelacionamentoServicoLancamento($registros)
-    // protected function carregarRelacionamentoServicoLancamento($registros)
+    protected function loadServicoLancamentoRelacionamentos($registros)
     {
         $relationships = $this->loadFull();
         $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
@@ -255,11 +256,6 @@ class MovimentacaoContaService extends Service
         });
     }
 
-
-
-
-
-
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
      *
@@ -268,7 +264,7 @@ class MovimentacaoContaService extends Service
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
+    private function aplicarFiltrosEspecificosMovimentacaoConta(Builder $query, $filtros, array $options = [])
     {
         // $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         // $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
@@ -337,6 +333,137 @@ class MovimentacaoContaService extends Service
 
         return $query;
     }
+
+    public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
+    {
+        $filtrosData = $this->extrairFiltros($requestData, $options);
+        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $filtrosData['query'];
+        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+
+        // $ordenacao = $requestData->ordenacao ?? [];
+        // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
+        //     $requestData->ordenacao = array_merge(
+        //         $ordenacao,
+        //         [['campo' => 'data_vencimento', 'direcao' => 'asc']]
+        //     );
+        // }
+
+        $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
+            'campoOrdenacao' => 'created_at',
+        ], $options));
+
+        return $this->carregarRelacionamentosMovimentacaoConta($query, $requestData, $options);
+    }
+
+    /**
+     * Aplica filtros específicos baseados nos campos de busca fornecidos.
+     *
+     * @param Builder $query Instância do query builder.
+     * @param array $filtros Filtros fornecidos na requisição.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
+     */
+    private function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, array $options = [])
+    {
+        $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
+        $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
+        $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+
+        $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
+
+        if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
+            $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->modelPagamentoLancamento);
+        }
+
+        if ($blnIntegranteFiltro) {
+            $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
+        }
+
+        foreach ($filtros['campos_busca'] as $key) {
+            switch ($key) {
+                case 'col_nome_participante':
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+                    break;
+                case 'col_nome_integrante':
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+                    break;
+            }
+        }
+
+        $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
+        return $query;
+    }
+
+    // protected function carregarRelacionamentosBalancoRepasseParceiro(Builder $query, Fluent $requestData, array $options = [])
+    // {
+    //     // Retira a paginação, em casos de busca feita para geração de PDF
+    //     $withOutPagination = $options['withOutPagination'] ?? false;
+
+    //     if ($withOutPagination) {
+    //         // Sem paginação busca todos
+    //         $consulta = $query->get();
+    //         // Converte os registros para um array
+    //         $data = $consulta->toArray();
+    //         $collection = collect($data);
+    //     } else {
+    //         /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+    //         $paginator = $query->paginate($requestData->perPage ?? 25);
+    //         // Converte os registros para um array
+    //         $data = $paginator->toArray();
+    //         $collection = collect($data['data']);
+    //     }
+
+    //     // Salva a ordem original dos registros
+    //     $ordemOriginal = $collection->pluck('id')->toArray();
+
+    //     // Agrupa os registros por referencia_type
+    //     $agrupados = $collection->groupBy('referencia_type');
+
+    //     // Processa os carregamentos personalizados para cada tipo
+    //     $agrupados = $agrupados->map(function ($registros, $tipo) {
+    //         switch ($tipo) {
+    //             case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+    //                 return $this->loadServicoLancamentoRelacionamentos($registros);
+    //                 // Adicione outros tipos conforme necessário
+    //             default:
+    //                 return $registros; // Retorna sem modificações
+    //         }
+    //     });
+
+    //     // Reorganiza os registros com base na ordem original
+    //     $registrosOrdenados = collect($agrupados->flatten(1))
+    //         ->sortBy(function ($registro) use ($ordemOriginal) {
+    //             return array_search($registro['id'], $ordemOriginal);
+    //         })
+    //         ->values()
+    //         ->toArray();
+
+    //     // Atualiza os registros na resposta mantendo a ordem
+    //     if ($withOutPagination) {
+    //         $data = $registrosOrdenados;
+    //     } else {
+    //         $data['data'] = $registrosOrdenados;
+    //     }
+
+    //     return $data;
+    // }
+
+
+
+
 
     public function storeLancamentoServico(Fluent $requestData)
     {

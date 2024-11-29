@@ -1,7 +1,7 @@
 @php
-    $sufixo = 'PageMovimentacaoContaIndex';
+    $sufixo = 'PageBalancoRepasseParceiroIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Movimentações de Contas',
+        'nome' => 'Balanço de Repasse de Parceiro',
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -14,17 +14,46 @@
     @component('components.pagina.dados-pagina', ['paginaDados' => $paginaDados])
     @endcomponent
     <div class="row">
+        <div class="col">
+            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button" class="btn btn-outline-primary">
+                Selecionar parceiro <i class="bi bi-search"></i></button>
+        </div>
+    </div>
+    <div id="dados-parceiro{{ $sufixo }}" class="row" style="display: none;">
+        <div class="col mt-2">
+            <div class="card card-parceiro">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center justify-content-between">
+                        <span class="nome-parceiro"></span>
+                        {{-- <div>
+                            <div class="d-grid gap-2 d-flex justify-content-end">
+                                <button type="button"
+                                    class="btn btn-outline-danger btn-sm btn-delete-integrante border-0">Excluir</button>
+                            </div>
+                        </div> --}}
+                    </h5>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-text">Perfil Referência</div>
+                            <label class="form-label card-perfil-referencia"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         @php
             $dados = new Illuminate\Support\Fluent([
-                'camposFiltrados' => [
-                    'numero_servico' => ['nome' => 'Número de Serviço'],
-                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
-                    'titulo' => ['nome' => 'Título'],
-                    'descricao' => ['nome' => 'Descrição'],
-                    'nome_participante' => ['nome' => 'Nome Participante'],
-                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
-                    'nome_integrante' => ['nome' => 'Nome Integrante'],
-                ],
+                // 'camposFiltrados' => [
+                //     'numero_servico' => ['nome' => 'Número de Serviço'],
+                //     'numero_pagamento' => ['nome' => 'Número do Pagamento'],
+                //     'titulo' => ['nome' => 'Título'],
+                //     'descricao' => ['nome' => 'Descrição'],
+                //     'nome_participante' => ['nome' => 'Nome Participante'],
+                //     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
+                //     'nome_integrante' => ['nome' => 'Nome Integrante'],
+                // ],
                 'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
@@ -91,12 +120,11 @@
 
 
 @push('modals')
-    <x-modal.financeiro.modal-lancamento-movimentar.modal />
-    <x-modal.servico.modal-lancamento-reagendar.modal />
+    <x-modal.pessoa.modal-pessoa.modal />
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/movimentacao-conta/index.js')
+    @vite('resources/js/views/financeiro/balanco-repasse-parceiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
