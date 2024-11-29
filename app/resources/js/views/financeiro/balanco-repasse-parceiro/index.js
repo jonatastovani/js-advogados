@@ -172,8 +172,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
     }
 
     #addEventosBotoes() {
@@ -203,6 +201,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             card.find(`.nome-parceiro`).html(nome);
             card.find(`.card-perfil-referencia`).html(perfilNome);
             card.show('fast');
+            self.#statusCampos(true);
         }
 
         $(`#btnSelecionarParceiro${self.getSufixo}`).on('click', async function () {
@@ -248,6 +247,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             }
         });
 
+        self.#statusCampos(false);
         const openModal = async () => {
             try {
                 const objModal = new modalLancamentoMovimentar({
@@ -268,6 +268,25 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
         // openModal();
     }
+
+    #executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        self._generateQueryFilters()
+    }
+
+    #statusCampos(status = true) {
+        const self = this;
+        const camposConsulta = $(`#camposConsulta${self.getSufixo}`).find(`input, select, button, submit`);
+
+        if (status) {
+            camposConsulta.removeAttr('disabled');
+            self.#executarBusca();
+        } else {
+            camposConsulta.attr('disabled', 'disabled');
+        }
+    }
+
 
     async insertTableData(item, options = {}) {
         const self = this;
