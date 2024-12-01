@@ -32,6 +32,7 @@ class PessoaService extends Service
         ]));
         $queryFisica = $this->pessoaFisicaService->aplicarFiltrosTexto($filtrosData['query'], $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
         $queryFisica->groupBy($this->pessoaFisicaService->model->getTableAsName() . '.id');
+        $queryFisica = $this->aplicarScopesPadrao($queryFisica, $this->pessoaFisicaService->model, $options);
         $queryFisica = $this->pessoaFisicaService->aplicarOrdenacoes($queryFisica, $requestData, $options);
 
         $query = $this->model::whereIn('pessoa_dados_id', $queryFisica)->whereHas('pessoa_perfil', function ($q) use ($requestData) {

@@ -63,7 +63,6 @@
                     <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Dados Específicos</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
-                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-nowrap">Cadastro</th>
 
                     {{-- <th class="text-center" title=" número de Serviço">N.S.</th>

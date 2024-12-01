@@ -9,8 +9,6 @@ use App\Helpers\LogHelper;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
-use App\Models\Servico\ServicoParticipacao;
-use App\Models\Servico\ServicoParticipacaoIntegrante;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;

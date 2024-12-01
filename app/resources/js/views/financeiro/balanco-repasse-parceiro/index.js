@@ -4,7 +4,6 @@ import { modalLancamentoMovimentar } from "../../../components/financeiro/modalL
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 
 class PageBalancoRepasseParceiroIndex extends templateSearch {
@@ -173,18 +172,16 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         // let strBtns = self.#HtmlBtns(item);
 
         const status = item.status.nome;
-        const valorMovimentado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_movimentado);
-        const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
-        const conta = item.conta.nome;
-        const descricaoAutomatica = item.descricao_automatica;
         const movimentacaoTipo = item.movimentacao_tipo.nome;
-        const observacaoLancamento = item.observacao ?? '***';
+        const valorParticipante = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(item.movimentacao_participante.valor_participante)}`;
+        const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
+        const descricaoAutomatica = item.movimentacao_participante.descricao_automatica;
 
-        let dadosEspecificos = ``;
+        let dadosEspecificos = item.descricao_automatica;
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                dadosEspecificos = `Serviço ${item.referencia.pagamento.servico.numero_servico}`;
+                dadosEspecificos += ` - Serviço ${item.referencia.pagamento.servico.numero_servico}`;
                 dadosEspecificos += ` - Pagamento - ${item.referencia.pagamento.numero_pagamento}`;
                 dadosEspecificos += ` - ${item.referencia.pagamento.servico.area_juridica.nome}`;
                 dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`;
@@ -213,30 +210,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         //         classCor = StatusLancamento.cor ?? '';
         //         break;
         //     }
-        // }     
+        // }
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
-
-        let htmlThParticipantesIntegrantes = `
-            <td class="text-center ${classCor}">***</td>
-            <td class="text-center ${classCor}">***</td>
-        `;
-
-        switch (item.referencia_type) {
-            case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                if (item.referencia?.participantes && item.referencia.participantes.length &&
-                    (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
-                ) {
-                    const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.referencia.participantes);
-                    htmlThParticipantesIntegrantes = `
-                        <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                        <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                    `;
-                }
-                break;
-
-            default:
-                break;
-        }
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -247,13 +222,10 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 </td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorMovimentado}">${valorMovimentado}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${valorParticipante}">${valorParticipante}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
-                ${htmlThParticipantesIntegrantes}
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

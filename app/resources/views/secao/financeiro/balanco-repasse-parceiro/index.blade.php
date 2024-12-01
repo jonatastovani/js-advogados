@@ -79,14 +79,10 @@
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-nowrap">Status</th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
-                    <th class="text-nowrap" title="Valor Movimentado">Valor Mov.</th>
+                    <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
-                    <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Dados Específicos</th>
-                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
-                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-nowrap">Cadastro</th>
 
                     {{-- <th class="text-center" title=" número de Serviço">N.S.</th>

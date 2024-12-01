@@ -168,6 +168,7 @@ class ServicoPagamentoLancamentoService extends Service
 
         $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
 
+        $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'data_vencimento',
         ], $options));

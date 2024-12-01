@@ -186,6 +186,9 @@ export class connectAjax {
     #debugError(xhr) {
         if (this.#debugMode) {
             console.error(xhr);
+            if(xhr.responseJSON) {
+                console.error(xhr.responseJSON);
+            }
         }
     }
 

@@ -3,6 +3,8 @@
 namespace App\Helpers;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class LogHelper
@@ -43,6 +45,32 @@ class LogHelper
     }
 
     /**
+     * Habilita o log de queries para que possam ser capturadas posteriormente
+     * com o método getQueryLogERetorna.
+     */
+    public static function habilitaQueryLog()
+    {
+        // Habilita o log de queries
+        DB::enableQueryLog();
+    }
+
+
+    /**
+     * Retorna o log de consultas em formato de array.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function getQueryLogERetorna($dentroDeTryCatch = false)
+    {
+        $queries = DB::getQueryLog();
+        $formattedQueries = self::formatQueryLog($queries);
+        if ($dentroDeTryCatch) {
+            throw new \Exception(json_encode($formattedQueries), 500);
+        }
+        return RestResponse::createTestResponse($formattedQueries);
+    }
+
+    /**
      * Recebe um array de consultas executadas pelo Laravel e retorna um array com as consultas formatadas,
      * substituindo os placeholders '?' pelas variáveis que foram passadas para a consulta.
      *
@@ -58,5 +86,29 @@ class LogHelper
             }
             return $sql;
         })->toArray();
+    }
+
+    /**
+     * Monta um array no padrão esperado pelo Laravel Query Log a partir de uma SQL e seus bindings.
+     *
+     * @param string $sql A string da query SQL criada até o momento.
+     * @param array $bindings Os valores de bindings associados à query.
+     * @return array Array formatado para ser usado no método formatQueryLog.
+     */
+    public static function createQueryLogFormat($sql, $bindings)
+    {
+        return [
+            [
+                'query' => $sql,
+                'bindings' => $bindings,
+                'time' => 0, // O tempo de execução pode ser opcional para debug
+            ]
+        ];
+    }
+
+    public static function createAndFormatQueryLog($sql, $bindings)
+    {
+        $create = self::createQueryLogFormat($sql, $bindings);
+        return self::formatQueryLog($create);
     }
 }

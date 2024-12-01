@@ -83,9 +83,20 @@ enum MovimentacaoContaStatusTipoEnum: int
     }
 
     /**
-     * Status que não serão mostrados nas consultas, como status de correção ou rollback.
+     * Status que mostrarão participantes, caso a movimentação tenha participantes.
      */
     static public function statusServicoLancamentoComParticipantes(): array
+    {
+        return [
+            self::ATIVA->value,
+            self::FINALIZADA->value,
+        ];
+    }
+
+    /**
+     * Status que mostrarão participantes, caso a movimentação tenha participantes.
+     */
+    static public function statusMostrarBalancoRepasseParceiro(): array
     {
         return [
             self::ATIVA->value,

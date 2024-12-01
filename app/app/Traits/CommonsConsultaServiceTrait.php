@@ -46,6 +46,7 @@ trait CommonsConsultaServiceTrait
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosTexto($filtrosData['query'], $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+        $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, $options);
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
@@ -196,6 +197,29 @@ trait CommonsConsultaServiceTrait
     }
 
     /**
+     * Aplica scopes padrões em uma query builder.
+     * 
+     * - deleted_at IS NULL
+     * - Verifica se a trait BelongsToTenant está sendo utilizada e adiciona o scope
+     * - Verifica se a trait BelongsToDomain está sendo utilizada e adiciona o scope
+     *
+     * @param Builder $query Instância do query builder.
+     * @param Model $model Model que vai ser verificado para saber se tem os scopes.
+     * @param array $options Parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os scopes padrões aplicados.
+     */
+    protected function aplicarScopesPadrao(Builder $query, Model $model = null, array $options = [])
+    {
+        $modelVerificar = is_null($model) ? $this->model : $model;
+
+        $query->where($modelVerificar->getTableAsName() . '.deleted_at', null);
+        $this->verificaUsoScopeTenant($query, $modelVerificar);
+        $this->verificaUsoScopeDomain($query, $modelVerificar);
+
+        return $query;
+    }
+
+    /**
      * Aplica ordenações e validações adicionais na query.
      *
      * @param Builder $query Instância do query builder.
@@ -207,9 +231,6 @@ trait CommonsConsultaServiceTrait
     {
         $campoOrdenacao = $options['campoOrdenacao'] ?? 'nome';
         $direcaoOrdenacao = $options['direcaoOrdenacao'] ?? 'asc';
-        $query->where($this->model->getTableAsName() . '.deleted_at', null);
-        $this->verificaUsoScopeTenant($query, $this->model);
-        $this->verificaUsoScopeDomain($query, $this->model);
 
         $query->when($requestData, function ($query) use ($requestData, $campoOrdenacao, $direcaoOrdenacao) {
             $ordenacao = $requestData->ordenacao ?? [];

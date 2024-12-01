@@ -37,9 +37,9 @@ trait CommonsModelsMethodsTrait
      *
      * @return string The name of the table.
      */
-    public static function getTableName(): string
+    public function getTableName(): string
     {
-        return (new self())->getTable();
+        return $this->getTable();
     }
 
     /**
@@ -62,7 +62,7 @@ trait CommonsModelsMethodsTrait
      */
     public function getTableAsName(): string
     {
-        return $this->tableAsName ?? (new self())->getTableName();
+        return $this->tableAsName ?? $this->getTableName();
     }
 
     /**

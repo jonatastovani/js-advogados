@@ -26,7 +26,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table($this->model->getTableName(), function (Blueprint $table) {
-            $table->uuid('parent_id')->nullable();
+            $table->uuid('parent_id')->nullable(); // Quando um lançamento deriva-se de outro (Casos de liquidação parcial, reagendamento, etc.)
             $table->foreign('parent_id')->references('id')->on($this->model->getTableName());
         });
     }

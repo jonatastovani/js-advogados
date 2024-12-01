@@ -76,6 +76,16 @@ class MovimentacaoConta extends Model
         return $this->belongsTo(ServicoPagamentoLancamento::class, 'referencia_id', 'id', 'referencia');
     }
 
+    public function movimentacao_conta_participante()
+    {
+        return $this->morphMany(MovimentacaoContaParticipante::class, 'parent');
+    }
+
+    public function movimentacao_participante()
+    {
+        return $this->belongsTo(MovimentacaoContaParticipante::class);
+    }
+
     /**
      * Insere uma cláusula de junção com o A movimentação até o Serviço.
      * 
@@ -83,6 +93,7 @@ class MovimentacaoConta extends Model
      * @param array $options O array de opcões de personalização.
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'inner'.
      *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
+     *              - 'instanceSelf' (opcional) Instância da model atual ou uma modificada. Padrão é a instância da model atual(self).
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
      *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'inner'.
      *              - 'aliasJoinServico' (opcional) Alias da tabela Servico que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
@@ -91,10 +102,11 @@ class MovimentacaoConta extends Model
     public static function joinMovimentacaoLancamentoPagamentoServico(Builder $query, array $options = [])
     {
         // Join com o Lançamento
+        $instanceSelf = $options['instanceSelf'] ?? new self();
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoPagamentoLancamento())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'inner';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : (new self())->getTableAsName();
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => ServicoPagamentoLancamento::class],
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
@@ -121,6 +133,35 @@ class MovimentacaoConta extends Model
         ];
 
         $query = (new self())->joinWithConditions($query, (new Servico())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.servico_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+
+        return $query;
+    }
+
+    /**
+     * Insere uma cláusula de junção com o A movimentação e a Movimentação Conta Participante.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param array $options O array de opcões de personalização.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'inner'.
+     *              - 'aliasTable' (opcional) Alias da tabela MovimentaçãoContaParticipante. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Financeiro\MovimentaçãoContaParticipante.
+     *              - 'instanceSelf' (opcional) Instância da model atual ou uma modificada. Padrão é a instância da model atual(self).
+     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+     */
+    public static function joinMovimentacaoParticipante(Builder $query, array $options = [])
+    {
+        // Join com o Movimentação Conta Participante
+        $instanceSelf = $options['instanceSelf'] ?? new self();
+        $envOptions = new Fluent([]);
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new MovimentacaoContaParticipante())->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'inner';
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.parent_type", 'operator' => "=", 'value' => $instanceSelf::class],
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
+
+        $query = (new self())->joinWithConditions($query, (new MovimentacaoContaParticipante())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
 
         return $query;
     }

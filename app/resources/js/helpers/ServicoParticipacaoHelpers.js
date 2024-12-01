@@ -50,4 +50,26 @@ export class ServicoParticipacaoHelpers {
         return { arrayParticipantes: arrayParticipantes, arrayIntegrantes: arrayIntegrantes };
     }
 
+    static htmlRenderParticipantesMovimentacaoContaParticipante(participantes) {
+        const arrayParticipantes = [];
+
+        for (const participante of participantes) {
+            let nomeParticipante = '';
+            let valor = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(participante.valor_participante)}`;
+            let descricao_automatica = participante.descricao_automatica;
+
+            switch (participante.participacao_registro_tipo_id) {
+                case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
+                    nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+                    break;
+            }
+            nomeParticipante += ` > <b>${descricao_automatica}</b> - ${valor}`;
+
+            arrayParticipantes.push(`${nomeParticipante}`);
+        }
+
+        if (!arrayParticipantes.length) arrayParticipantes.push('Não há nada para ver aqui');
+        return { arrayParticipantes: arrayParticipantes };
+    }
+
 }
