@@ -8,7 +8,7 @@ use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -141,6 +141,9 @@ class ServicoParticipacaoParticipante extends Model
         $envOptions->aliasJoin = $options['aliasJoin'] ?? $model->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
+        $envOptions->wheres = [
+            ['column' => "{$aliasTable}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
 
         return $instanceSelf->joinWithConditions($query, $model->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());
     }

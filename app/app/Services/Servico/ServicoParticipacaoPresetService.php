@@ -14,7 +14,7 @@ use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use App\Traits\ServicoParticipacaoTrait;
 use Exception;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
@@ -109,7 +109,7 @@ class ServicoParticipacaoPresetService extends Service
         }
 
         if ($blnIntegranteFiltro) {
-            $query = $this->modelParticipante::joinIntegrantes($query);
+            $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
         }
 
         foreach ($filtros['campos_busca'] as $key) {
@@ -135,6 +135,7 @@ class ServicoParticipacaoPresetService extends Service
             }
         }
 
+        $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
     }
 

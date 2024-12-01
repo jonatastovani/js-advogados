@@ -70,12 +70,12 @@ class PessoaPerfil extends Model
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
      *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
-     *              - 'aliasJoinPessoa' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Pessoa. Padrão é 'left'.
-     *              - 'typeJoinPessoa' (opcional) Alias da tabela Pessoa que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
-     *              - 'aliasJoinFisica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaFisica. Padrão é 'left'.
-     *              - 'typeJoinFisica' (opcional) Alias da tabela PessoaFisica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
-     *              - 'aliasJoinJuridica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaJuridica. Padrão é 'left'.
-     *              - 'typeJoinJuridica' (opcional) Alias da tabela PessoaJuridica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'typeJoinPessoa' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Pessoa. Padrão é 'left'.
+     *              - 'aliasJoinPessoa' (opcional) Alias da tabela Pessoa que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'typeJoinFisica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaFisica. Padrão é 'left'.
+     *              - 'aliasJoinFisica' (opcional) Alias da tabela PessoaFisica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'typeJoinJuridica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaJuridica. Padrão é 'left'.
+     *              - 'aliasJoinJuridica' (opcional) Alias da tabela PessoaJuridica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
     public static function joinPerfilPessoaCompleto(Builder $query, Model $model, array $options = [])

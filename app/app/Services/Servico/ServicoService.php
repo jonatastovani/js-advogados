@@ -14,7 +14,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
@@ -121,6 +121,7 @@ class ServicoService extends Service
             }
         }
 
+        $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
     }
 

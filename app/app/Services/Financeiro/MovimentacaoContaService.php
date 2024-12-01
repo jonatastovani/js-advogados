@@ -48,7 +48,16 @@ class MovimentacaoContaService extends Service
 
         public ServicoParticipacaoService $servicoParticipacaoService,
         public ServicoPagamentoLancamentoService $servicoPagamentoLancamentoService,
-    ) {}
+
+        public MovimentacaoConta $modelMovimentacaoContaIntegrante,
+        public ServicoParticipacaoParticipante $modelParticipanteIntegrante,
+    ) {
+        $asNameContaParticipante = (new MovimentacaoConta())->getTableAsName();
+        $asNameParticipanteIntegrante = (new ServicoParticipacaoParticipante())->getTableAsName();
+
+        $this->modelMovimentacaoContaIntegrante->setTableAsName("{$asNameContaParticipante}_integrante");
+        $this->modelParticipanteIntegrante->setTableAsName("{$asNameParticipanteIntegrante}_integrante");
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -201,16 +210,16 @@ class MovimentacaoContaService extends Service
         // Agrupa os registros por referencia_type
         $agrupados = $collection->groupBy('referencia_type');
 
-        // Processa os carregamentos personalizados para cada tipo
-        $agrupados = $agrupados->map(function ($registros, $tipo) {
-            switch ($tipo) {
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    return $this->loadServicoLancamentoRelacionamentos($registros);
-                    // Adicione outros tipos conforme necessário
-                default:
-                    return $registros; // Retorna sem modificações
-            }
-        });
+        // // Processa os carregamentos personalizados para cada tipo
+        // $agrupados = $agrupados->map(function ($registros, $tipo) {
+        //     switch ($tipo) {
+        //         case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+        //             return $this->loadServicoLancamentoRelacionamentos($registros);
+        //             // Adicione outros tipos conforme necessário
+        //         default:
+        //             return $registros; // Retorna sem modificações
+        //     }
+        // });
 
         // Reorganiza os registros com base na ordem original
         $registrosOrdenados = collect($agrupados->flatten(1))
@@ -330,17 +339,33 @@ class MovimentacaoContaService extends Service
         // }
 
         $query->whereNotIn('status_id', MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+        $query->groupBy($this->model->getTableAsName() . '.id');
 
         return $query;
     }
 
     public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
     {
+        // Habilita o log de queries
+        DB::enableQueryLog();
+
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $options);
-        $query = $filtrosData['query'];
+        $query = $this->montarQueryServicoLancamento(null, $this->modelParticipante, $requestData);
+
+        $query = $this->montarQueryServicoLancamento($query, $this->modelIntegrante, $requestData);
+
+        $query->get();
+        $queries = DB::getQueryLog();
+
+        RestResponse::createTestResponse(LogHelper::formatQueryLog($queries));
+
+        // $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($query, $filtrosData['filtros'], $requestData, $options);
+        RestResponse::createTestResponse([
+            $query->toSql()
+        ]);
+
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.data_movimentacao");
 
         // $ordenacao = $requestData->ordenacao ?? [];
         // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
@@ -351,10 +376,78 @@ class MovimentacaoContaService extends Service
         // }
 
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'created_at',
+            'campoOrdenacao' => 'data_movimentacao',
         ], $options));
 
-        return $this->carregarRelacionamentosMovimentacaoConta($query, $requestData, $options);
+        $consulta = $this->carregarRelacionamentosMovimentacaoConta($query, $requestData, $options);
+        // Recupera as queries executadas
+        $queries = DB::getQueryLog();
+
+        RestResponse::createTestResponse(LogHelper::formatQueryLog($queries));
+
+        return $consulta;
+    }
+
+    protected function montarQueryServicoLancamento(Builder $query = null, Model $modelParticipacao, Fluent $requestData, array $options = [])
+    {
+
+        switch ($modelParticipacao->getMorphClass()) {
+            case $this->modelParticipante->getMorphClass():
+                $queryAdd = $this->model::query()->from($this->model->getTableNameAsName())
+                    ->select(
+                        DB::raw("'{$modelParticipacao->getMorphClass()}' as tabela"),
+                        DB::raw("{$this->model->getTableAsName()}.*"),
+
+                    );
+                $queryAdd = $this->model::joinMovimentacaoLancamentoPagamentoServico($queryAdd);
+
+                $queryAdd = $this->modelParticipante::joinParticipanteAllModels($queryAdd, $this->modelPagamentoLancamento);
+                $queryAdd = PessoaPerfil::joinPerfilPessoaCompleto($queryAdd, $this->modelParticipante, [
+                    'campoFK' => "referencia_id",
+                    "whereAppendPerfil" => [
+                        ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                    ]
+                ]);
+
+                $queryAdd->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
+                break;
+
+            case $this->modelIntegrante->getMorphClass():
+
+                $queryAdd = $this->modelMovimentacaoContaIntegrante::query()->from($this->modelMovimentacaoContaIntegrante->getTableNameAsName())
+                    ->select(
+                        DB::raw("'{$modelParticipacao->getMorphClass()}' as tabela"),
+                        DB::raw("{$this->modelMovimentacaoContaIntegrante->getTableAsName()}.*"),
+
+                    );
+
+                $queryAdd = $this->modelMovimentacaoContaIntegrante::joinMovimentacaoLancamentoPagamentoServico($queryAdd);
+                $queryAdd = $this->modelParticipanteIntegrante::joinParticipanteAllModels($queryAdd, $this->modelPagamentoLancamento);
+
+                $queryAdd = $this->modelParticipanteIntegrante::joinIntegrantes($queryAdd, $this->modelIntegrante);
+                $queryAdd = PessoaPerfil::joinPerfilPessoaCompleto($queryAdd, $this->modelIntegrante, [
+                    'campoFK' => "referencia_id",
+                    "whereAppendPerfil" => [
+                        ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                    ]
+                ]);
+
+                $queryAdd->whereNotIn("{$this->modelMovimentacaoContaIntegrante->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
+                break;
+        }
+
+        $queryAdd->where("{$modelParticipacao->getTableAsName()}.referencia_id", $requestData->parceiro_id);
+        $queryAdd->where("{$modelParticipacao->getTableAsName()}.referencia_type", PessoaPerfil::class);
+
+        if ($query != null) {
+            $query->union($queryAdd);
+        } else {
+            $query = $queryAdd;
+        }
+
+        return $query;
     }
 
     /**
@@ -362,45 +455,39 @@ class MovimentacaoContaService extends Service
      *
      * @param Builder $query Instância do query builder.
      * @param array $filtros Filtros fornecidos na requisição.
+     * @param Fluent $requestData Dados da requisição.
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    private function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, array $options = [])
+    private function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, $requestData, array $options = [])
     {
-        $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
-        $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
-        $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+        // $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
 
-        $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
+        // $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->modelPagamentoLancamento);
+        // $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
+        //     'campoFK' => "referencia_id",
+        //     "whereAppendPerfil" => [
+        //         ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //     ]
+        // ]);
+        // $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
+        // $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
+        //     'campoFK' => "referencia_id",
+        //     "whereAppendPerfil" => [
+        //         ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+        //     ]
+        // ]);
 
-        if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
-            $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->modelPagamentoLancamento);
-        }
-
-        if ($blnIntegranteFiltro) {
-            $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
-        }
-
-        foreach ($filtros['campos_busca'] as $key) {
-            switch ($key) {
-                case 'col_nome_participante':
-                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
-                        'campoFK' => "referencia_id",
-                        "whereAppendPerfil" => [
-                            ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-                        ]
-                    ]);
-                    break;
-                case 'col_nome_integrante':
-                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
-                        'campoFK' => "referencia_id",
-                        "whereAppendPerfil" => [
-                            ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-                        ]
-                    ]);
-                    break;
-            }
-        }
+        // $query->where(function ($subQueryOne) use ($requestData) {
+        //     $subQueryOne->orWhere(function ($subQueryTwo) use ($requestData) {
+        //         $subQueryTwo->where("{$this->modelParticipante->getTableAsName()}.referencia_id", $requestData->parceiro_id);
+        //         $subQueryTwo->where("{$this->modelParticipante->getTableAsName()}.referencia_type", PessoaPerfil::class);
+        //     });
+        //     $subQueryOne->orWhere(function ($subQueryTwo) use ($requestData) {
+        //         $subQueryTwo->where("{$this->modelIntegrante->getTableAsName()}.referencia_id", $requestData->parceiro_id);
+        //         $subQueryTwo->where("{$this->modelIntegrante->getTableAsName()}.referencia_type", PessoaPerfil::class);
+        //     });
+        // });
 
         $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
 

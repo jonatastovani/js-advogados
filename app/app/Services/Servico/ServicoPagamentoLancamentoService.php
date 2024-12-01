@@ -248,6 +248,7 @@ class ServicoPagamentoLancamentoService extends Service
             }
         }
 
+        $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
     }
 

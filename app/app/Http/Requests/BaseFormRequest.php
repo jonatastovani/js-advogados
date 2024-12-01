@@ -113,11 +113,28 @@ abstract class BaseFormRequest extends FormRequest
         return true; // Define como true por padrão, mas pode ser desabilitado por FormRequests específicos
     }
 
-    public function rulesShowWithTrashed(): array
+    protected function rulesShowWithTrashed(): array
     {
         return [
             // Para casos de busca de registros que tenham sido excluídos
             'withTrashed' => 'nullable|boolean',
         ];
     }
+
+    // /**
+    //  * Filtra as regras de validação com base nas chaves fornecidas.
+    //  *
+    //  * @param array $rules Todas as regras disponíveis.
+    //  * @param array $keys Chaves que servirão como filtro.
+    //  * @param bool $include Se true, retorna apenas as regras com as chaves no array $keys.
+    //  *                      Se false, retorna apenas as regras que não estão no array $keys.
+    //  * @return array Regras filtradas.
+    //  */
+    // protected function filterRules(array $rules, array $keys, bool $include = true): array
+    // {
+    //     return array_filter($rules, function ($rule, $key) use ($keys, $include) {
+    //         return $include ? in_array($key, $keys) : !in_array($key, $keys);
+    //     }, ARRAY_FILTER_USE_BOTH);
+        
+    // }
 }

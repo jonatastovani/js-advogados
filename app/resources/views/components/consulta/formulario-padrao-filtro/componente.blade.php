@@ -1,7 +1,8 @@
 @php
     use App\Helpers\Views\ConsultaHelper;
 
-    $col_busca = 'col-sm-8 col-lg-9 col-xl-6';
+    $col_busca = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
+    $col_mes_ano = 'col-sm-8 col-md-4 col-lg-6 col-xl-4';
     $col_personalizacao = 'col-md-6 col-xl-4';
     $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
     $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
@@ -11,6 +12,7 @@
         switch ($variable = $dados['preset_tamanho']) {
             case 'xl':
                 $col_busca = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
+                $col_mes_ano = 'col-sm-4 col-lg-3';
                 $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
                 $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
                 $col_personalizacao = 'col-sm-6 col-md-6 col-xl-4';
@@ -58,6 +60,12 @@
             $dataFim = $dados->consultaIntervalo['data_fim'] ?? now()->endOfMonth()->format('Y-m-d');
         }
     }
+
+    $consultaMesAno = isset($dados->consultaMesAnoBln) ? $dados->consultaMesAnoBln : false;
+    $dataMesAno = now()->startOfMonth()->format('Y-m'); // Primeiro dia do mês corrente
+    if ($consultaMesAno) {
+        $dataMesAno = $dados->consultaMesAno['data_mes_ano'] ?? now()->startOfMonth()->format('Y-m');
+    }
 @endphp
 
 <form action="#" id="formDataSearch{{ $sufixo }}" class="col-12 formDataSearch">
@@ -73,6 +81,17 @@
                         class="bi bi-search"></i></button>
             </div>
         </div>
+        @if ($consultaMesAno)
+            <div class="{{ $col_mes_ano }} mt-2">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <label for="mesAno{{ $sufixo }}">Mês</label>
+                    </div>
+                    <input type="month" id="mesAno{{ $sufixo }}" class="form-control" name="mesAno"
+                        value="{{ $dataMesAno }}">
+                </div>
+            </div>
+        @endif
     </div>
 
     @if ($consultaIntervalo)

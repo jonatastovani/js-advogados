@@ -243,6 +243,9 @@ export class ServicoParticipacaoModule {
                 break;
         }
 
+        let rowColsDados = 'row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4';
+        if (self._extraConfigs?.typeParent == 'modal') rowColsDados = 'row-cols-1 row-cols-sm-2 row-cols-md-3';
+
         const strCard = `
             <div class="card-body">
                 <h5 class="card-title d-flex align-items-center justify-content-between">
@@ -260,7 +263,7 @@ export class ServicoParticipacaoModule {
                         </div>
                     </div>
                 </h5>
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4">
+                <div class="row ${rowColsDados}">
                     <div class="col">
                         <div class="form-text">Participação</div>
                         <label class="form-label text-truncate lblParticipacao">${participacao_tipo.nome}</label>
@@ -287,7 +290,7 @@ export class ServicoParticipacaoModule {
 
         divParticipantes.append(`<div id="${item.idCard}" class="card card-participante">${strCard}</div>`);
 
-       await self.#addEventoParticipante(item);
+        await self.#addEventoParticipante(item);
         await self._atualizaPorcentagemLivre(item);
         return item;
     }
@@ -597,8 +600,8 @@ export class ServicoParticipacaoModule {
         }
         element.integrantes.push(integrante);
 
-       await self.#atualizaQuantidadeIntegrantes(item.idCard);
-      await  self.#addEventoPerfilIntegrante(item, integrante);
+        await self.#atualizaQuantidadeIntegrantes(item.idCard);
+        await self.#addEventoPerfilIntegrante(item, integrante);
     }
 
     async #addEventoPerfilIntegrante(item, integrante) {
@@ -627,7 +630,7 @@ export class ServicoParticipacaoModule {
                         }
                     }
 
-                   await self.#atualizaQuantidadeIntegrantes(item.idCard);
+                    await self.#atualizaQuantidadeIntegrantes(item.idCard);
                     commonFunctions.generateNotification('Integrante removido.', 'success');
                 }
             } catch (error) {
@@ -660,7 +663,7 @@ export class ServicoParticipacaoModule {
         `;
     }
 
-   async #atualizaQuantidadeIntegrantes(idCard) {
+    async #atualizaQuantidadeIntegrantes(idCard) {
         const self = this;
         let element = self._objConfigs.data.participantesNaTela.find(item => item.idCard == idCard);
         const totalIntegrantes = element.integrantes.length;

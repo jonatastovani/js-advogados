@@ -1,11 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
-import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
-import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
@@ -17,149 +13,16 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: `${window.apiRoutes.baseMovimentacaoConta}`,
-                urlSearch: `${window.apiRoutes.baseMovimentacaoConta}/consulta-filtros`,
+                url: `${window.apiRoutes.baseBalancoRepasseParceiro}`,
+                urlSearch: `${window.apiRoutes.baseBalancoRepasseParceiro}/consulta-filtros`,
             }
         },
         url: {
-            baseLancamento: window.apiRoutes.baseLancamento,
-            baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
+            baseBalancoRepasseParceiro: window.apiRoutes.baseBalancoRepasseParceiro,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
         },
         data: {
-            configAcoes: {
-                AGUARDANDO_PAGAMENTO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                    cor: 'text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    ]
-                },
-                AGUARDANDO_PAGAMENTO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                    cor: null,
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    ]
-                },
-                LIQUIDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                    cor: 'text-success bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                    cor: 'text-success',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    cor: 'text-success-emphasis bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO_PARCIALMENTE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
-                    cor: 'text-success-emphasis',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                REAGENDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    cor: 'fst-italic text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    ]
-                },
-                REAGENDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger text-decoration-line-through bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    ]
-                },
-                CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    ]
-                },
-                PAGAMENTO_CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-                PAGAMENTO_CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-            }
+            parceiro_id: undefined,
         }
     };
 
@@ -179,9 +42,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            self.#executarBusca();
         });
 
         const preencherInfoParceiro = (perfil) => {
@@ -201,6 +62,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             card.find(`.nome-parceiro`).html(nome);
             card.find(`.card-perfil-referencia`).html(perfilNome);
             card.show('fast');
+            self._objConfigs.data.parceiro_id = perfil.id;
             self.#statusCampos(true);
         }
 
@@ -271,8 +133,17 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     #executarBusca() {
         const self = this;
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        if (self._objConfigs.data.parceiro_id) {
+            BootstrapFunctionsHelper.removeEventPopover();
+            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+            self._generateQueryFilters({
+                appendData: {
+                    parceiro_id: self._objConfigs.data.parceiro_id
+                }
+            });
+        } else {
+            commonFunctions.generateNotification('Selecione um parceiro', 'warning');
+        }
     }
 
     #statusCampos(status = true) {
@@ -286,7 +157,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             camposConsulta.attr('disabled', 'disabled');
         }
     }
-
 
     async insertTableData(item, options = {}) {
         const self = this;
@@ -403,7 +273,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         //         <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
         //         `;
 
-        self.#addEventosRegistrosConsulta(item);
+        // self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
@@ -523,279 +393,279 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     }
 
-    #addEventosRegistrosConsulta(item) {
-        const self = this;
-        const enumLanc = window.Enums.LancamentoStatusTipoEnum;
-        const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
+    // #addEventosRegistrosConsulta(item) {
+    //     const self = this;
+    //     const enumLanc = window.Enums.LancamentoStatusTipoEnum;
+    //     const configAcoes = self.#objConfigs.data.configAcoes;
+    //     const lancamentoDiluido = item.parent_id ? true : false;
 
-        const openMovimentar = async function (status_id) {
-            try {
-                const objModal = new modalLancamentoMovimentar();
-                objModal.setDataEnvModal = {
-                    idRegister: item.id,
-                    pagamento_id: item.pagamento_id,
-                    status_id: status_id
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    await self._generateQueryFilters();
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
+    //     const openMovimentar = async function (status_id) {
+    //         try {
+    //             const objModal = new modalLancamentoMovimentar();
+    //             objModal.setDataEnvModal = {
+    //                 idRegister: item.id,
+    //                 pagamento_id: item.pagamento_id,
+    //                 status_id: status_id
+    //             }
+    //             const response = await objModal.modalOpen();
+    //             if (response.refresh) {
+    //                 await self._generateQueryFilters();
+    //             }
+    //         } catch (error) {
+    //             commonFunctions.generateNotificationErrorCatch(error);
+    //         }
+    //     }
 
-        let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //     let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
+    //     if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento (em Análise)</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.AGUARDANDO_PAGAMENTO,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
+    //     if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.AGUARDANDO_PAGAMENTO,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Liquidado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.LIQUIDADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
+    //     if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Liquidado (em Análise)</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.LIQUIDADO_EM_ANALISE,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
-        if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
-            });
-        }
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
+    //     if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //         btnAcao.click(async function () {
+    //             await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
+    //     if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
+    //         && !lancamentoDiluido) {
 
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Liquidado Parcialmente (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Liquidado Parcialmente (em Análise)</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.click(async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
-            });
-        }
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
+    //     if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
+    //         && !lancamentoDiluido) {
+    //         btnAcao.click(async function () {
+    //             await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
-        if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
+    //     if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
 
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Reagendado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.REAGENDADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Reagendado (em Análise)</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.REAGENDADO_EM_ANALISE,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
-        if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const objModal = new modalLancamentoReagendar({
-                        urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
-                    });
-                    objModal.setDataEnvModal = {
-                        idRegister: item.id,
-                        status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                        data_atual: item.data_vencimento
-                    }
-                    const response = await objModal.modalOpen();
-                    if (response.refresh) {
-                        await self._generateQueryFilters();
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
+    //     if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const objModal = new modalLancamentoReagendar({
+    //                     urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
+    //                 });
+    //                 objModal.setDataEnvModal = {
+    //                     idRegister: item.id,
+    //                     status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
+    //                     data_atual: item.data_vencimento
+    //                 }
+    //                 const response = await objModal.modalOpen();
+    //                 if (response.refresh) {
+    //                     await self._generateQueryFilters();
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
 
-            // if (!self._objConfigs.data?.blnClick) {
-            //     $(`#${item.idTr}`).find(`.btn-reagendado`).click();
-            //     self._objConfigs.data.blnClick = true;
-            // }
-        }
+    //         // if (!self._objConfigs.data?.blnClick) {
+    //         //     $(`#${item.idTr}`).find(`.btn-reagendado`).click();
+    //         //     self._objConfigs.data.blnClick = true;
+    //         // }
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
-        if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
+    //     if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
 
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.CANCELADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado (em Análise)</b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.CANCELADO_EM_ANALISE,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
-        if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+    //     btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
+    //     if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
 
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado </b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.CANCELADO,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self._generateQueryFilters();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-    }
+    //         btnAcao.click(async function () {
+    //             try {
+    //                 const obj = new modalMessage();
+    //                 obj.setDataEnvModal = {
+    //                     title: 'Alterar Status',
+    //                     message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado </b>?`,
+    //                 };
+    //                 obj.setFocusElementWhenClosingModal = this;
+    //                 const result = await obj.modalOpen();
+    //                 if (result.confirmResult) {
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     objConn.setAction(enumAction.POST);
+    //                     objConn.setData({
+    //                         lancamento_id: item.id,
+    //                         status_id: enumLanc.CANCELADO,
+    //                     });
+    //                     const response = await objConn.envRequest();
+    //                     if (response.data) {
+    //                         await self._generateQueryFilters();
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 commonFunctions.generateNotificationErrorCatch(error);
+    //             }
+    //         });
+    //     }
+    // }
 }
 
 $(function () {

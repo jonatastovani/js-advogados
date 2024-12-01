@@ -41,4 +41,22 @@ class LogHelper
             'trace_id' => $traceId,
         ], $camposAdicionais));
     }
+
+    /**
+     * Recebe um array de consultas executadas pelo Laravel e retorna um array com as consultas formatadas,
+     * substituindo os placeholders '?' pelas variáveis que foram passadas para a consulta.
+     *
+     * @param array $queries Array de consultas executadas pelo Laravel
+     * @return array Array de consultas formatadas
+     */
+    public static function formatQueryLog($queries)
+    {
+        return collect($queries)->map(function ($query) {
+            $sql = $query['query'];
+            foreach ($query['bindings'] as $binding) {
+                $sql = preg_replace('/\?/', is_numeric($binding) ? $binding : "'{$binding}'", $sql, 1);
+            }
+            return $sql;
+        })->toArray();
+    }
 }

@@ -82,10 +82,10 @@ trait CommonsModelsMethodsTrait
      *
      * @return string The table name with alias.
      */
-    public static function getTableNameAsName(): string
+    public function getTableNameAsName(): string
     {
-        $tableName = (new self())->getTableName();
-        $tableAsName = (new self())->getTableAsName();
+        $tableName = $this->getTableName();
+        $tableAsName = $this->getTableAsName();
 
         return $tableName === $tableAsName ? $tableName : "$tableName as $tableAsName";
     }

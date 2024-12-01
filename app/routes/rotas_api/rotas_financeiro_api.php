@@ -61,10 +61,9 @@ Route::group([
 
     Route::prefix('balanco-repasse-parceiros')->group(function () {
 
-        Route::get('', function () {})->name('api.financeiro.balanco-repasse-parceiros');
-
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
 
+            Route::get('', function () {})->name('api.financeiro.balanco-repasse-parceiros');
             Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
         });
     });

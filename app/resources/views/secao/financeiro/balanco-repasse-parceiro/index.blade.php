@@ -61,11 +61,7 @@
                         'data_movimentacao' => ['nome' => 'Data movimentação'],
                         'data_recebimento' => ['nome' => 'Data Recebimento'],
                     ],
-                    'consultaIntervaloBln' => true,
-                    'arrayCamposDatasIntervalo' => [
-                        'data_movimentacao' => ['nome' => 'Data movimentação'],
-                        'created_at' => ['nome' => 'Data cadastro'],
-                    ],
+                    'consultaMesAnoBln' => true,
                 ]);
             @endphp
             <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -125,7 +121,7 @@
     @vite('resources/js/views/financeiro/balanco-repasse-parceiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
+            'baseBalancoRepasseParceiro' => route('api.financeiro.balanco-repasse-parceiros'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
         ],
     ])

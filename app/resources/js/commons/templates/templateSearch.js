@@ -46,6 +46,54 @@ export class templateSearch {
 
     //#region Campos de busca padrão
 
+    /**
+    * Gera os filtros de consulta para envio a uma API ou outra fonte de dados.
+    *
+    * Este método coleta os dados do formulário de busca e constrói um objeto com os parâmetros necessários
+    * para realizar uma consulta. Ele também permite a personalização por meio do parâmetro `options`.
+    *
+    * @param {Object} options - Opções adicionais para personalizar o comportamento da função.
+    * @param {jQuery} [options.formDataSearch] - O elemento do formulário contendo os campos de busca. Se não fornecido,
+    *                                            será buscado automaticamente pelo seletor `#formDataSearch`.
+    * @param {Object} [options.appendData] - Dados adicionais que serão mesclados ao objeto `data` antes do envio.
+    *                                        Útil para adicionar filtros ou parâmetros que não estão no formulário.
+    *
+    * @returns {Promise<void>} - Retorna uma Promise que executa a busca quando concluída.
+    *
+    * ## Estrutura de `options`
+    * - `formDataSearch`: O formulário base de onde serão coletados os valores dos filtros. Caso omisso,
+    *    a função buscará automaticamente o formulário com o ID `formDataSearch${self.getSufixo}`.
+    * - `appendData`: Um objeto contendo dados extras que serão adicionados ao objeto `data` antes de enviá-lo.
+    *
+    * ## Estrutura do Objeto `data` Gerado
+    * - `texto`: Valor do campo de texto para busca (input `name="texto"`).
+    * - `parametros_like`: Parâmetros de busca parcial gerados pela função `_returnQueryParameters`.
+    * - `ordenacao`: Array com informações de ordenação. Inclui o campo (`campo`) e a direção (`direcao`).
+    * - `texto_tratamento`: Opção de tratamento do texto selecionada (ex.: texto dividido ou completo).
+    * - `filtros.campos_busca`: Array com os campos de busca selecionados dinamicamente na classe `.searchFields`.
+    * - `datas_intervalo`: (Opcional) Objeto contendo:
+    *    - `campo_data`: Campo da tabela relacionado à data.
+    *    - `data_inicio`: Data inicial do intervalo.
+    *    - `data_fim`: Data final do intervalo.
+    * - `mes_ano`: (Opcional) Campo no formato `YYYY-MM` gerado a partir do input `name="mesAno"`.
+    * - `page`: Padrão inicial definido como `1`.
+    *
+    * ## Exemplo de Uso do Parâmetro `options`
+    * ```javascript
+    * await _generateQueryFilters({
+    *     formDataSearch: $('#meuFormulario'),
+    *     appendData: {
+    *         adicionalFiltro: 'valorExtra'
+    *     }
+    * });
+    * ```
+    *
+    * ## Notificações
+    * - Se alguma validação falhar, uma notificação será gerada para o usuário com recomendações
+    *   sobre como corrigir o problema.
+    *
+    * @throws {Error} - Se ocorrer um erro durante o processo de obtenção dos dados via `_getData`.
+    */
     async _generateQueryFilters(options = {}) {
         const self = this;
         const { formDataSearch = options.formDataSearch ?? $(`#formDataSearch${self.getSufixo}`) } = options;
@@ -70,8 +118,6 @@ export class templateSearch {
             page: 1
         };
 
-        console.log(formDataSearch.find(`select[name="selCampoDataIntervalo"]`).length);
-
         if (formDataSearch.find(`select[name="selCampoDataIntervalo"]`).length > 0 &&
             formDataSearch.find(`input[name="data_inicio"]`).length > 0 &&
             formDataSearch.find(`input[name="data_fim"]`).length > 0) {
@@ -79,6 +125,10 @@ export class templateSearch {
             data.datas_intervalo.campo_data = formDataSearch.find(`select[name="selCampoDataIntervalo"]`).val();
             data.datas_intervalo.data_inicio = formDataSearch.find(`input[name="data_inicio"]`).val();
             data.datas_intervalo.data_fim = formDataSearch.find(`input[name="data_fim"]`).val();
+        }
+
+        if (formDataSearch.find(`input[name="mesAno"]`).length > 0) {
+            data.mes_ano = formDataSearch.find(`input[name="mesAno"]`).val();
         }
 
         const searchFields = commonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
@@ -91,9 +141,14 @@ export class templateSearch {
         if (arrayMensagens.length > 0) {
             return commonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
         }
+
+        if (options.appendData) {
+            Object.assign(data, options.appendData);
+        }
+        
         await self._getData(data);
     }
-    
+
     _returnQueryParameters(forma) {
         switch (forma) {
             case 'iniciado_por':
