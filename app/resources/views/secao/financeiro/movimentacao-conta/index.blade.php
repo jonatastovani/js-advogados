@@ -22,11 +22,9 @@
                     'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
-                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
-                    'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                'arrayCamposChecked' => ['numero_servico', 'numero_pagamento', 'titulo'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
@@ -38,6 +36,42 @@
                 'arrayCamposDatasIntervalo' => [
                     'data_movimentacao' => ['nome' => 'Data movimentação'],
                     'created_at' => ['nome' => 'Data cadastro'],
+                ],
+                'camposExtras' => [
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'movimentacao_tipo_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todas as movimentações']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='movimentacao_tipo_id{$sufixo}' title='Tipo de movimentação'>Tipo Mov.</label></span>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'movimentacao_status_tipo_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}' title='Tipo de movimentação'>Status</label></span>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'conta_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='conta_id{$sufixo}'>Conta</label></span>",
+                            ],
+                            'after' => [
+                                "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                            <i class='bi bi-search'></i></button>",
+                            ],
+                        ],
+                    ],
                 ],
             ]);
         @endphp
@@ -64,20 +98,6 @@
                     <th class="text-nowrap">Dados Específicos</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
                     <th class="text-nowrap">Cadastro</th>
-
-                    {{-- <th class="text-center" title=" número de Serviço">N.S.</th>
-                    <th class="text-nowrap">Valor Recebido</th>
-                    <th class="text-nowrap">Data Recebido</th>
-                    <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
-                    <th class="text-nowrap">Total Recebido</th>
-                    <th class="text-nowrap">Total Aguardando</th>
-                    <th class="text-nowrap">Total Inadimplente</th>
-                    <th class="text-nowrap">Tipo de pagamento</th>
-                    <th class="text-nowrap">Observação Pagamento</th>
-                    <th class="text-nowrap">Status Pagamento</th>
-                    --}}
                 </tr>
             </thead>
             <tbody></tbody>
@@ -92,6 +112,7 @@
 @push('modals')
     <x-modal.financeiro.modal-lancamento-movimentar.modal />
     <x-modal.servico.modal-lancamento-reagendar.modal />
+    <x-modal.financeiro.modal-conta.modal />
 @endpush
 
 @push('scripts')
@@ -100,6 +121,9 @@
         'routes' => [
             'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
+            'baseContas' => route('api.financeiro.conta'),
+            'baseMovimentacoesTipo' => route('api.referencias.movimentacao-conta-tipo'),
+            'baseMovimentacoesStatusTipo' => route('api.referencias.movimentacao-conta-status-tipo'),
         ],
     ])
     @endcomponent

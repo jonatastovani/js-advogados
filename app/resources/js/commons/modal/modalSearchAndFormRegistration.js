@@ -292,7 +292,6 @@ export class modalSearchAndFormRegistration extends modalDefault {
         try {
             commonFunctions.simulateLoading(buttonSearch);
             self._paginationDefault({ footerPagination: footerPagination });
-            tbody.html('');
             self._refreshQueryQuantity('Consultando...', { footerPagination: footerPagination });
             self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination: footerPagination });
 
@@ -303,6 +302,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
             const response = await objConn.envRequest();
 
             self._refreshQueryStatus('Busca concluída. Preenchendo os dados...', { footerPagination: footerPagination });
+            tbody.html('');
             if (response.data) {
                 const responseData = response.data;
                 let recordsOnScreen = [];

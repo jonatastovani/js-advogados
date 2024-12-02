@@ -709,13 +709,6 @@ class PageServicoForm {
         try {
             await commonFunctions.loadingModalDisplay();
 
-            $(`#painelPagamento${self.#objConfigs.sufixo}-tab`).trigger('click');
-
-
-
-
-
-
             const response = await self.#getRecurse();
             const form = $(`#formServico${self.#objConfigs.sufixo}`);
 

@@ -39,7 +39,7 @@ class TenantTypeSeeder extends Seeder
 
         if ($maxId) {
             // Substitua "tenant_types_id_seq" pelo nome correto da sequência para sua tabela e coluna
-            $sequenceName = TenantType::getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
+            $sequenceName = (new TenantType)->getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
             DB::statement('SELECT setval(\'' . $sequenceName . '\', ' . ($maxId + 1) . ', false)');
         }
     }

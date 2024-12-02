@@ -5,7 +5,7 @@ namespace App\Http\Requests\Financeiro\MovimentacaoConta;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use Illuminate\Support\Arr;
 
-class PostConsultaFiltroFormRequestBalancoRepasseParceiro extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestMovimentacaoConta extends PostConsultaFiltroFormRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,15 +19,14 @@ class PostConsultaFiltroFormRequestBalancoRepasseParceiro extends PostConsultaFi
     {
         // Previne o recebimento das regras de intervalo de datas
         $rules = Arr::except(parent::rules(), [
-            'datas_intervalo',
-            'datas_intervalo.campo_data',
-            'datas_intervalo.data_inicio',
-            'datas_intervalo.data_fim'
+            'mes_ano'
         ]);
 
         $rules = array_merge($rules, [
-            'mes_ano' => 'required|date:Y-m',
-            'parceiro_id' => 'required|uuid',
+            'datas_intervalo' => 'required|array',
+            'datas_intervalo.campo_data' => 'required|string',
+            'datas_intervalo.data_inicio' => 'required|date',
+            'datas_intervalo.data_fim' => 'required|date',
             'conta_id' => 'nullable|uuid',
             'movimentacao_tipo_id' => 'nullable|integer',
             'movimentacao_status_tipo_id' => 'nullable|integer',

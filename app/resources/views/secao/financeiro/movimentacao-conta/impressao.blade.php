@@ -25,20 +25,18 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 0; $i < 10; $i++)
-                    @foreach ($dataEnv['dados'] as $dado)
-                        <tr>
-                            <td>{{ $dado['status'] ?? '' }}</td>
-                            <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
-                            <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
-                            <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
-                            <td>{{ $dado['conta'] ?? '' }}</td>
-                            <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
-                            <td>{{ $dado['dados_especificos'] ?? '' }}</td>
-                            <td>{{ $dado['created_at'] ?? '' }}</td>
-                        </tr>
-                    @endforeach
-                @endfor
+                @foreach ($dataEnv['processedData'] as $dado)
+                    <tr>
+                        <td>{{ $dado['status'] ?? '' }}</td>
+                        <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
+                        <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
+                        <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
+                        <td>{{ $dado['conta'] ?? '' }}</td>
+                        <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
+                        <td>{{ $dado['dados_especificos'] ?? '' }}</td>
+                        <td>{{ $dado['created_at'] ?? '' }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

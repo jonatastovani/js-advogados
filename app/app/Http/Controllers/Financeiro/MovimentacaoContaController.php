@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStore;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
+use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -15,7 +16,7 @@ class MovimentacaoContaController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public MovimentacaoContaService $service) {}
-    
+
     public function storeLancamentoServico(MovimentacaoContaFormRequestStore $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
@@ -27,7 +28,13 @@ class MovimentacaoContaController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->alterarStatusLancamentoServico($fluentData));
     }
-    
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestMovimentacaoConta $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
+
     public function postConsultaFiltrosBalancoRepasseParceiro(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());

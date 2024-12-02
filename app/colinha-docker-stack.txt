@@ -1,0 +1,8 @@
+cd /home/tovani/js-advogados/;
+./down.sh; 
+./docker-cleanup.sh; 
+docker system prune -af --volumes; 
+docker volume rm application_app-data;
+chmod 722 ./docker-cleanup.sh
+docker image rm tovanijonatas/php839-jsadvogados;
+docker volume rm application_postgres_data

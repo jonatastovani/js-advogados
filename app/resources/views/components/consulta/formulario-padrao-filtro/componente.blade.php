@@ -3,7 +3,7 @@
 
     $col_busca = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
     $col_mes_ano = 'col-sm-8 col-md-4 col-lg-6 col-xl-4';
-    $col_personalizacao = 'col-md-6 col-xl-4';
+    $col_personalizacao = 'col-md-6';
     $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
     $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
     $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
@@ -15,7 +15,7 @@
                 $col_mes_ano = 'col-sm-4 col-lg-3';
                 $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
                 $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
-                $col_personalizacao = 'col-sm-6 col-md-6 col-xl-4';
+                $col_personalizacao = 'col-md-6';
                 $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
                 break;
 
@@ -241,7 +241,7 @@
                         </div>
                     </div>
                     @isset($dados->camposFiltrados)
-                        <p class="mt-2 fw-semibold">Selecione os campos onde pesquisar a
+                        <p class="mt-2 fw-semibold mb-0">Selecione os campos onde pesquisar a
                             informação</p>
                         <div class="row {{ $row_cols_filtros }} searchFields">
                             @php
@@ -253,6 +253,11 @@
                         </div>
                         <div class="form-text my-0">Obs: Quanto mais campos marcados, a consulta poderá ser mais lenta.
                         </div>
+                    @endisset
+                    @isset($dados->camposExtras)
+                        @include(
+                            'components.consulta.formulario-padrao-filtro.componente.campos-extras',
+                            $dados)
                     @endisset
                 </div>
             </div>

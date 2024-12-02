@@ -15,8 +15,11 @@ use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
+use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\LancamentoStatusTipo;
+use App\Models\Servico\Servico;
+use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
@@ -42,13 +45,16 @@ class MovimentacaoContaService extends Service
 
     public function __construct(
         public MovimentacaoConta $model,
-        public MovimentacaoContaParticipante $modelContaParticipante,
+        public MovimentacaoContaParticipante $modelParticipanteConta,
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
 
         public ServicoParticipacaoService $servicoParticipacaoService,
         public ServicoPagamentoLancamentoService $servicoPagamentoLancamentoService,
+
+        public Servico $modelServico,
+        public ServicoPagamento $modelServicoPagamento,
     ) {}
 
     /**
@@ -65,66 +71,38 @@ class MovimentacaoContaService extends Service
         // $dados = $this->addCamposBuscaRequest($dados);
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
-        // $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
 
-        // $participanteAsName = $this->modelParticipante->getTableAsName();
-        // $pessoaFisicaParticipanteAsName = "{$this->modelParticipante->getTableAsName()}_{$pessoaFisicaAsName}";
-        // $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
+        $participanteAsName = $this->modelParticipanteConta->getTableAsName();
+        $pessoaFisicaParticipanteAsName = "{$participanteAsName}_{$pessoaFisicaAsName}";
 
-        // $participantePagamentoAsName = $this->modelParticipantePagamento->getTableAsName();
-        // $pessoaFisicaParticipantePagamentoAsName = "{$this->modelParticipantePagamento->getTableAsName()}_{$pessoaFisicaAsName}";
-
-        // $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
-        // $pessoaFisicaParticipanteServicoAsName = "{$this->modelParticipanteServico->getTableAsName()}_{$pessoaFisicaAsName}";
-        // $servicoAsName = $this->modelServico->getTableAsName();
+        $servicoAsName = $this->modelServico->getTableAsName();
+        $pagamentoAsName = $this->modelServicoPagamento->getTableAsName();
 
         $arrayAliasCampos = [
             'col_valor_movimentado' => isset($aliasCampos['col_valor_movimentado']) ? $aliasCampos['col_valor_movimentado'] : $modelAsName,
             'col_data_movimentacao' => isset($aliasCampos['col_data_movimentacao']) ? $aliasCampos['col_data_movimentacao'] : $modelAsName,
 
-            // 'col_nome_grupo_participante' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
-            // 'col_observacao_participante' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
 
-            // 'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
-            // 'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
+            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
+            'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
+            'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
 
-            // 'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
-            // 'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
-            // 'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $participantePagamentoAsName,
-
-            // 'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
-
-            // 'col_nome_grupo_servico' => isset($aliasCampos['col_nome_grupo_servico']) ? $aliasCampos['col_nome_grupo_servico'] : $participanteServicoAsName,
-            // 'col_observacao_servico' => isset($aliasCampos['col_observacao_servico']) ? $aliasCampos['col_observacao_servico'] : $participanteServicoAsName,
-
-            // 'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
-
-            // 'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
-            // 'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
-            // 'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
+            'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $pagamentoAsName,
         ];
 
         $arrayCampos = [
             'col_valor_movimentado' => ['campo' => $arrayAliasCampos['col_valor_movimentado'] . '.valor_movimentado'],
             'col_data_movimentacao' => ['campo' => $arrayAliasCampos['col_data_movimentacao'] . '.data_movimentacao'],
 
-            // 'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
-            // 'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
-            // 'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
-            // 'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
+            'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
 
-            // 'col_nome_grupo_pagamento' => ['campo' => $arrayAliasCampos['col_nome_grupo_pagamento'] . '.nome_grupo'],
-            // 'col_observacao_pagamento' => ['campo' => $arrayAliasCampos['col_observacao_pagamento'] . '.observacao'],
-            // 'col_nome_participante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_pagamento'] . '.nome'],
+            'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
+            'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
+            'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
 
-            // 'col_nome_grupo_servico' => ['campo' => $arrayAliasCampos['col_nome_grupo_servico'] . '.nome_grupo'],
-            // 'col_observacao_servico' => ['campo' => $arrayAliasCampos['col_observacao_servico'] . '.observacao'],
-            // 'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
-            // 'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
-
-            // 'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
-            // 'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
-            // 'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
+            'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
         ];
 
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
@@ -157,7 +135,7 @@ class MovimentacaoContaService extends Service
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $this->aplicarFiltrosEspecificosMovimentacaoConta($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $this->aplicarFiltrosEspecificosMovimentacaoConta($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
         $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
 
@@ -174,10 +152,10 @@ class MovimentacaoContaService extends Service
             'campoOrdenacao' => 'created_at',
         ], $options));
 
-        return $this->carregarRelacionamentosMovimentacaoConta($query, $requestData, $options);
+        return $this->carregarDadosAdicionaisMovimentacaoConta($query, $requestData, $options);
     }
 
-    protected function carregarRelacionamentosMovimentacaoConta(Builder $query, Fluent $requestData, array $options = [])
+    protected function carregarDadosAdicionaisMovimentacaoConta(Builder $query, Fluent $requestData, array $options = [])
     {
         // Retira a paginação, em casos de busca feita para geração de PDF
         $withOutPagination = $options['withOutPagination'] ?? false;
@@ -264,6 +242,7 @@ class MovimentacaoContaService extends Service
             // Substitui 'referencia_servico_lancamento' por 'referencia'
             $registro['referencia'] = $registro['referencia_servico_lancamento'];
             unset($registro['referencia_servico_lancamento']);
+            
             $registro['participantes'] = $registro['movimentacao_conta_participante'];
             unset($registro['movimentacao_conta_participante']);
             return $registro;
@@ -275,75 +254,44 @@ class MovimentacaoContaService extends Service
      *
      * @param Builder $query Instância do query builder.
      * @param array $filtros Filtros fornecidos na requisição.
+     * @param Fluent $requestData Dados da requisição.
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    private function aplicarFiltrosEspecificosMovimentacaoConta(Builder $query, $filtros, array $options = [])
+    private function aplicarFiltrosEspecificosMovimentacaoConta(Builder $query, $filtros, $requestData, array $options = [])
     {
-        // $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
-        // $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
-        // $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+        $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
 
-        // $query = $this->model::joinPagamentoServicoCompleto($query);
+        $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
 
-        // if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
-        //     $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);
-        //     $query = $this->modelParticipantePagamento::joinParticipanteAllModels($query, $this->modelPagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
-        //     $query = $this->modelParticipanteServico::joinParticipanteAllModels($query, $this->modelServico, ['instanceSelf' => $this->modelParticipanteServico]);
-        // }
+        if ($blnParticipanteFiltro) {
+            $query = $this->model::joinMovimentacaoParticipante($query);
+        }
 
-        // if ($blnIntegranteFiltro) {
-        //     $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
-        //     $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
-        //     $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
-        // }
+        foreach ($filtros['campos_busca'] as $key) {
+            switch ($key) {
+                case 'col_nome_participante':
+                    $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteConta, [
+                        'campoFK' => "referencia_id",
+                        "whereAppendPerfil" => [
+                            ['column' => "{$this->modelParticipanteConta->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                        ]
+                    ]);
+                    break;
+            }
+        }
 
-        // foreach ($filtros['campos_busca'] as $key) {
-        //     switch ($key) {
-        //         case 'col_nome_participante':
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipante, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipantePagamento, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelParticipantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteServico, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelParticipanteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             break;
-        //         case 'col_nome_integrante':
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrantePagamento, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelIntegrantePagamento->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegranteServico, [
-        //                 'campoFK' => "referencia_id",
-        //                 "whereAppendPerfil" => [
-        //                     ['column' => "{$this->modelIntegranteServico->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-        //                 ]
-        //             ]);
-        //             break;
-        //     }
-        // }
+        if ($requestData->conta_id) {
+            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+        }
+        if ($requestData->movimentacao_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+        }
+        if ($requestData->movimentacao_status_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
+        }
 
-        $query->whereNotIn('status_id', MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+        $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
         $query->groupBy($this->model->getTableAsName() . '.id');
 
         return $query;
@@ -358,10 +306,11 @@ class MovimentacaoContaService extends Service
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
             ->select(
                 DB::raw("{$this->model->getTableAsName()}.*"),
-                DB::raw("{$this->modelContaParticipante->getTableAsName()}.id as movimentacao_participante_id"),
+                DB::raw("{$this->modelParticipanteConta->getTableAsName()}.id as movimentacao_participante_id"),
             );
 
         $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($query, $filtrosData['filtros'], $requestData, $options);
+
         // $ordenacao = $requestData->ordenacao ?? [];
         // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
         //     $requestData->ordenacao = array_merge(
@@ -377,9 +326,8 @@ class MovimentacaoContaService extends Service
             'campoOrdenacao' => 'data_movimentacao',
         ], $options));
 
-
         $consulta = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
-        // LogHelper::getQueryLogERetorna();
+
         return $consulta;
     }
 
@@ -394,19 +342,33 @@ class MovimentacaoContaService extends Service
      */
     private function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, $requestData, array $options = [])
     {
+
+        $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
         $query = $this->model::joinMovimentacaoParticipante($query);
-        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelContaParticipante, [
+        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteConta, [
             'campoFK' => "referencia_id",
             "whereAppendPerfil" => [
-                ['column' => "{$this->modelContaParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                ['column' => "{$this->modelParticipanteConta->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
             ]
         ]);
 
-        $query->where("{$this->modelContaParticipante->getTableAsName()}.referencia_id", $requestData->parceiro_id);
-        $query->where("{$this->modelContaParticipante->getTableAsName()}.referencia_type", PessoaPerfil::class);
+        $query->where("{$this->modelParticipanteConta->getTableAsName()}.referencia_id", $requestData->parceiro_id);
+        $query->where("{$this->modelParticipanteConta->getTableAsName()}.referencia_type", PessoaPerfil::class);
+
+        if ($requestData->conta_id) {
+            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+        }
+        if ($requestData->movimentacao_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+        }
+        if ($requestData->movimentacao_status_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
+        }
 
         $query->whereIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiro());
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
+
+        $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
 
         return $query;
     }
@@ -476,7 +438,6 @@ class MovimentacaoContaService extends Service
             $relationships
         );
 
-        // $relationships[] = 'referencia_servico_lancamento.participantes.participacao_tipo';
         $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
 
         // Mescla relacionamentos de ServicoPagamentoService
@@ -502,6 +463,8 @@ class MovimentacaoContaService extends Service
             return $registro;
         });
     }
+
+
 
 
 
@@ -705,13 +668,14 @@ class MovimentacaoContaService extends Service
         }
 
         $adicionarNovoParticipante = function ($dados) {
-            $newParticipante = new $this->modelContaParticipante;
+            $newParticipante = new $this->modelParticipanteConta;
             $newParticipante->parent_id = $dados['parent_id'];
             $newParticipante->parent_type = $dados['parent_type'];
             $newParticipante->referencia_id = $dados['referencia_id'];
             $newParticipante->referencia_type = $dados['referencia_type'];
             $newParticipante->descricao_automatica = $dados['descricao_automatica'];
             $newParticipante->valor_participante = $dados['valor'];
+            $newParticipante->participacao_tipo_id = $dados['participacao_tipo_id'];
             $newParticipante->participacao_registro_tipo_id = $dados['participacao_registro_tipo_id'];
 
             $newParticipante->save();
@@ -732,6 +696,7 @@ class MovimentacaoContaService extends Service
                         'referencia_type' => $value['referencia_type'],
                         'descricao_automatica' => $descricaoAutomatica,
                         'valor' => $value['valor'],
+                        'participacao_tipo_id' => $value['participacao_tipo_id'],
                         'participacao_registro_tipo_id' => $value['participacao_registro_tipo_id'],
                     ]);
                     break;
@@ -757,6 +722,7 @@ class MovimentacaoContaService extends Service
                                 'referencia_type' => $integrante['referencia_type'],
                                 'descricao_automatica' => $descricaoAutomatica,
                                 'valor' => $valorFinal,
+                                'participacao_tipo_id' => $value['participacao_tipo_id'],
                                 'participacao_registro_tipo_id' => $integrante['participacao_registro_tipo_id'],
                             ]);
                         }
@@ -1085,7 +1051,20 @@ class MovimentacaoContaService extends Service
 
                 // Altera o status da movimentação original
                 $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
+                LogHelper::habilitaQueryLog();
                 $movimentacaoConta->save();
+
+                $participantes = $this->modelParticipanteConta::where('parent_id', $movimentacaoConta->id)->get();
+
+                foreach ($participantes as $participante) {
+                    $participante->delete();
+                }
+
+                $queries = DB::getQueryLog();
+                $queries = LogHelper::formatQueryLog($queries);
+                foreach ($queries as $key => $value) {
+                    Log::debug($value);
+                }
 
                 // Limpa alguns campos do lançamento
                 $resourceLancamento->valor_recebido = null;

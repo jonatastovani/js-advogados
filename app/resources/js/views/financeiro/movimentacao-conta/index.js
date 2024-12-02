@@ -3,12 +3,14 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
+import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
+import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageMovimentacaoContaIndex extends templateSearch {
 
@@ -24,6 +26,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
             baseLancamento: window.apiRoutes.baseLancamento,
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
+            baseContas: window.apiRoutes.baseContas,
+            baseMovimentacoesTipo: window.apiRoutes.baseMovimentacoesTipo,
+            baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
         },
         data: {
             configAcoes: {
@@ -173,6 +178,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
         self.#addEventosBotoes();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
         self._generateQueryFilters()
+        self.#buscarContas();
+        self.#buscarMovimentacoesTipo();
+        self.#buscarMovimentacoesStatusTipo();
     }
 
     #addEventosBotoes() {
@@ -180,9 +188,37 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            self.#executarBusca();
+        });
+
+        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalConta();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selecteds.length > 0) {
+                        const item = response.selecteds[0];
+                        self.#buscarContas(item.id);
+                    } else {
+                        self.#buscarContas();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
         });
 
         // $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
@@ -253,6 +289,34 @@ class PageMovimentacaoContaIndex extends templateSearch {
         }
 
         // openModal();
+    }
+
+    async #executarBusca() {
+        const self = this;
+
+        const getAppendDataQuery = () => {
+            const formData = $(`#formDataSearch${self.getSufixo}`);
+            let appendData = {};
+            let data = commonFunctions.getInputsValues(formData[0]);
+
+            if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
+                appendData.conta_id = data.conta_id;
+            }
+
+            if (data.movimentacao_tipo_id && Number(data.movimentacao_tipo_id) > 0) {
+                appendData.movimentacao_tipo_id = data.movimentacao_tipo_id;
+            }
+
+            if (data.movimentacao_status_tipo_id && Number(data.movimentacao_status_tipo_id) > 0) {
+                appendData.movimentacao_status_tipo_id = data.movimentacao_status_tipo_id;
+            }
+
+            return { appendData: appendData };
+        }
+
+        BootstrapFunctionsHelper.removeEventPopover();
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters(getAppendDataQuery());
     }
 
     async insertTableData(item, options = {}) {
@@ -484,8 +548,52 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
     }
 
-    #htmlRenderParticipantesEIntegrantes(participantes) {
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as contas',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
 
+    async #buscarMovimentacoesTipo(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as movimentações',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesTipo, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarMovimentacoesStatusTipo(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todos os status',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesStatusTipo, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     #addEventosRegistrosConsulta(item) {
@@ -504,7 +612,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self._generateQueryFilters();
+                    await self.#executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -531,7 +639,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -560,7 +668,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -589,7 +697,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -627,7 +735,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -665,7 +773,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -688,7 +796,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                     }
                     const response = await objModal.modalOpen();
                     if (response.refresh) {
-                        await self._generateQueryFilters();
+                        await self.#executarBusca();
                     }
                 } catch (error) {
                     commonFunctions.generateNotificationErrorCatch(error);
@@ -722,7 +830,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {
@@ -752,7 +860,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         });
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            await self._generateQueryFilters();
+                            await self.#executarBusca();
                         }
                     }
                 } catch (error) {

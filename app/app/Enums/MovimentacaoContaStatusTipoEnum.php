@@ -79,6 +79,7 @@ enum MovimentacaoContaStatusTipoEnum: int
     {
         return [
             self::ROLLBACK->value,
+            self::EM_ALTERACAO->value, // Está aqui porque ainda não achei utilidade para esse tipo
         ];
     }
 

@@ -1,12 +1,17 @@
 @extends('layouts.pdf.layout-cabecalho-rodape')
 
-@section('title', 'Movimentações Contas por Período')
+@section('title', 'Balanço de Repasse de Parceiro')
 
 @section('content')
-    <h3 class="text-center">Movimentações Contas por Período</h3>
+    <h3 class="text-center">Balanço de Repasse de Parceiro</h3>
     <div class="row">
-        <div class="col text-right">
-            <p class="mb-0">Período de: {{ $dataEnv['data_inicio'] }} - {{ $dataEnv['data_fim'] }}</p>
+        <div class="col-sm-5">
+            <p class="mb-0">Parceiro: {{ $dataEnv['dados_participante']['referencia']['pessoa']['pessoa_dados']['nome'] }}
+            </p>
+            <p>Perfil referência: {{ $dataEnv['dados_participante']['referencia']['perfil_tipo']['nome'] }}</p>
+        </div>
+        <div class="col-sm-6 text-right">
+            <p class="mb-0">Mês referência: {{ $dataEnv['mes_ano'] }}</p>
             <p>Documento gerado em: {{ date('d/m/Y H:i:s') }}</p>
         </div>
     </div>
@@ -16,29 +21,27 @@
                 <tr>
                     <th class="text-nowrap">Status</th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
-                    <th class="text-nowrap" title="Valor Movimentado">Valor Mov.</th>
+                    <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
-                    <th class="text-nowrap">Conta</th>
+                    <th class="text-nowrap">Participação</th>
                     <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Dados Específicos</th>
+                    <th class="text-nowrap" title="Conta de onde o valor será compensado ou debitado">Conta Base</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 0; $i < 10; $i++)
-                    @foreach ($dataEnv['dados'] as $dado)
-                        <tr>
-                            <td>{{ $dado['status'] ?? '' }}</td>
-                            <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
-                            <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
-                            <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
-                            <td>{{ $dado['conta'] ?? '' }}</td>
-                            <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
-                            <td>{{ $dado['dados_especificos'] ?? '' }}</td>
-                            <td>{{ $dado['created_at'] ?? '' }}</td>
-                        </tr>
-                    @endforeach
-                @endfor
+                @foreach ($dataEnv['processedData'] as $dado)
+                    <tr>
+                        <td>{{ $dado['status'] ?? '' }}</td>
+                        <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
+                        <td>{{ $dado['valor_participante'] ?? '' }}</td>
+                        <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
+                        <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
+                        <td>{{ $dado['dados_especificos'] ?? '' }}</td>
+                        <td>{{ $dado['conta'] ?? '' }}</td>
+                        <td>{{ $dado['created_at'] ?? '' }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

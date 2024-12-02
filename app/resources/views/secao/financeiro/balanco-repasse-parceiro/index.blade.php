@@ -43,17 +43,14 @@
         <div class="row">
             @php
                 $dados = new Illuminate\Support\Fluent([
-                    // 'camposFiltrados' => [
-                    //     'numero_servico' => ['nome' => 'Número de Serviço'],
-                    //     'numero_pagamento' => ['nome' => 'Número do Pagamento'],
-                    //     'titulo' => ['nome' => 'Título'],
-                    //     'descricao' => ['nome' => 'Descrição'],
-                    //     'nome_participante' => ['nome' => 'Nome Participante'],
-                    //     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
-                    //     'nome_integrante' => ['nome' => 'Nome Integrante'],
-                    // ],
+                    'camposFiltrados' => [
+                        'numero_servico' => ['nome' => 'Número de Serviço'],
+                        'numero_pagamento' => ['nome' => 'Número do Pagamento'],
+                        'titulo' => ['nome' => 'Título'],
+                        'descricao' => ['nome' => 'Descrição'],
+                    ],
                     'direcaoConsultaChecked' => 'asc',
-                    'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                    'arrayCamposChecked' => ['numero_servico', 'numero_pagamento', 'titulo'],
                     'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                     'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                     'arrayCamposOrdenacao' => [
@@ -62,6 +59,42 @@
                         'data_recebimento' => ['nome' => 'Data Recebimento'],
                     ],
                     'consultaMesAnoBln' => true,
+                    'camposExtras' => [
+                        [
+                            'tipo' => 'select',
+                            'nome' => 'movimentacao_tipo_id',
+                            'opcoes' => [['id' => 0, 'nome' => 'Todas as movimentações']],
+                            'input_group' => [
+                                'before' => [
+                                    "<span class='input-group-text'><label for='movimentacao_tipo_id{$sufixo}' title='Tipo de movimentação'>Tipo Mov.</label></span>",
+                                ],
+                            ],
+                        ],
+                        [
+                            'tipo' => 'select',
+                            'nome' => 'movimentacao_status_tipo_id',
+                            'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
+                            'input_group' => [
+                                'before' => [
+                                    "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}' title='Tipo de movimentação'>Status</label></span>",
+                                ],
+                            ],
+                        ],
+                        [
+                            'tipo' => 'select',
+                            'nome' => 'conta_id',
+                            'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
+                            'input_group' => [
+                                'before' => [
+                                    "<span class='input-group-text'  title='Conta de onde o valor será compensado ou debitado'><label for='conta_id{$sufixo}'>Conta</label></span>",
+                                ],
+                                'after' => [
+                                    "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                            <i class='bi bi-search'></i></button>",
+                                ],
+                            ],
+                        ],
+                    ],
                 ]);
             @endphp
             <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -81,23 +114,10 @@
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
+                    <th class="text-nowrap">Participação</th>
                     <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Dados Específicos</th>
+                    <th class="text-nowrap" title="Conta de onde o valor será compensado ou debitado">Conta Base</th>
                     <th class="text-nowrap">Cadastro</th>
-
-                    {{-- <th class="text-center" title=" número de Serviço">N.S.</th>
-                    <th class="text-nowrap">Valor Recebido</th>
-                    <th class="text-nowrap">Data Recebido</th>
-                    <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
-                    <th class="text-nowrap">Total Recebido</th>
-                    <th class="text-nowrap">Total Aguardando</th>
-                    <th class="text-nowrap">Total Inadimplente</th>
-                    <th class="text-nowrap">Tipo de pagamento</th>
-                    <th class="text-nowrap">Observação Pagamento</th>
-                    <th class="text-nowrap">Status Pagamento</th>
-                    --}}
                 </tr>
             </thead>
             <tbody></tbody>
@@ -111,6 +131,7 @@
 
 @push('modals')
     <x-modal.pessoa.modal-pessoa.modal />
+    <x-modal.financeiro.modal-conta.modal />
 @endpush
 
 @push('scripts')
@@ -119,13 +140,16 @@
         'routes' => [
             'baseBalancoRepasseParceiro' => route('api.financeiro.balanco-repasse-parceiros'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
+            'baseContas' => route('api.financeiro.conta'),
+            'baseMovimentacoesTipo' => route('api.referencias.movimentacao-conta-tipo'),
+            'baseMovimentacoesStatusTipo' => route('api.referencias.movimentacao-conta-status-tipo'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
             'baseFront' => route('financeiro.index'),
-            'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
+            'baseFrontImpressao' => route('financeiro.balanco-repasse-parceiro.impressao'),
         ],
     ])
     @endcomponent

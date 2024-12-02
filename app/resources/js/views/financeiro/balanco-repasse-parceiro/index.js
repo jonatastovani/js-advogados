@@ -1,10 +1,12 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
+import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
+import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageBalancoRepasseParceiroIndex extends templateSearch {
 
@@ -19,6 +21,9 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         url: {
             baseBalancoRepasseParceiro: window.apiRoutes.baseBalancoRepasseParceiro,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
+            baseContas: window.apiRoutes.baseContas,
+            baseMovimentacoesTipo: window.apiRoutes.baseMovimentacoesTipo,
+            baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
         },
         data: {
             parceiro_id: undefined,
@@ -34,6 +39,9 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
+        self.#buscarContas();
+        self.#buscarMovimentacoesTipo();
+        self.#buscarMovimentacoesStatusTipo();
     }
 
     #addEventosBotoes() {
@@ -108,6 +116,36 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             }
         });
 
+        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalConta();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selecteds.length > 0) {
+                        const item = response.selecteds[0];
+                        self.#buscarContas(item.id);
+                    } else {
+                        self.#buscarContas();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
         self.#statusCampos(false);
         const openModal = async () => {
             try {
@@ -130,16 +168,35 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         // openModal();
     }
 
-    #executarBusca() {
+    async #executarBusca() {
         const self = this;
+
+        const getAppendDataQuery = () => {
+            const formData = $(`#formDataSearch${self.getSufixo}`);
+            let appendData = {};
+            let data = commonFunctions.getInputsValues(formData[0]);
+
+            if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
+                appendData.conta_id = data.conta_id;
+            }
+
+            if (data.movimentacao_tipo_id && Number(data.movimentacao_tipo_id) > 0) {
+                appendData.movimentacao_tipo_id = data.movimentacao_tipo_id;
+            }
+
+            if (data.movimentacao_status_tipo_id && Number(data.movimentacao_status_tipo_id) > 0) {
+                appendData.movimentacao_status_tipo_id = data.movimentacao_status_tipo_id;
+            }
+
+            appendData.parceiro_id = self._objConfigs.data.parceiro_id;
+
+            return { appendData: appendData };
+        }
+
         if (self._objConfigs.data.parceiro_id) {
             BootstrapFunctionsHelper.removeEventPopover();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters({
-                appendData: {
-                    parceiro_id: self._objConfigs.data.parceiro_id
-                }
-            });
+            await self._generateQueryFilters(getAppendDataQuery());
         } else {
             commonFunctions.generateNotification('Selecione um parceiro', 'warning');
         }
@@ -176,6 +233,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         const valorParticipante = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(item.movimentacao_participante.valor_participante)}`;
         const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
         const descricaoAutomatica = item.movimentacao_participante.descricao_automatica;
+        const conta = item.conta.nome;
 
         let dadosEspecificos = item.descricao_automatica;
 
@@ -190,19 +248,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             default:
                 break;
         }
-
-        // const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
-        // const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        // const numero_servico = item.pagamento.servico.numero_servico;
-        // const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.valor_total) : '***';
-        // const tituloServico = item.pagamento.servico.titulo;
-        // const areaJuridica = item.pagamento.servico.area_juridica.nome;
-        // const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_liquidado) : '***';
-        // const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_aguardando) : '***';
-        // const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
-        // const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
-        // const observacaoPagamento = item.pagamento.observacao ?? '***';
-        // const statusPagamento = item.status.nome;
 
         let classCor = '';
         // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
@@ -226,6 +271,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${conta}">${conta}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -361,8 +407,52 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     }
 
-    #htmlRenderParticipantesEIntegrantes(participantes) {
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as contas',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
 
+    async #buscarMovimentacoesTipo(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as movimentações',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesTipo, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarMovimentacoesStatusTipo(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todos os status',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesStatusTipo, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     // #addEventosRegistrosConsulta(item) {
@@ -381,7 +471,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //             }
     //             const response = await objModal.modalOpen();
     //             if (response.refresh) {
-    //                 await self._generateQueryFilters();
+    //                 await self.#executarBusca();
     //             }
     //         } catch (error) {
     //             commonFunctions.generateNotificationErrorCatch(error);
@@ -408,7 +498,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -437,7 +527,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -466,7 +556,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -504,7 +594,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -542,7 +632,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -565,7 +655,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 }
     //                 const response = await objModal.modalOpen();
     //                 if (response.refresh) {
-    //                     await self._generateQueryFilters();
+    //                     await self.#executarBusca();
     //                 }
     //             } catch (error) {
     //                 commonFunctions.generateNotificationErrorCatch(error);
@@ -599,7 +689,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {
@@ -629,7 +719,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                     });
     //                     const response = await objConn.envRequest();
     //                     if (response.data) {
-    //                         await self._generateQueryFilters();
+    //                         await self.#executarBusca();
     //                     }
     //                 }
     //             } catch (error) {

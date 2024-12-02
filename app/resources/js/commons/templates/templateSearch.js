@@ -145,7 +145,7 @@ export class templateSearch {
         if (options.appendData) {
             Object.assign(data, options.appendData);
         }
-        
+
         await self._getData(data);
     }
 
@@ -206,7 +206,6 @@ export class templateSearch {
         try {
             commonFunctions.simulateLoading(buttonSearch);
             self._paginationDefault({ footerPagination: footerPagination });
-            tbody.html('');
             self._refreshQueryQuantity('Consultando...', { footerPagination: footerPagination });
             self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination: footerPagination });
 
@@ -217,6 +216,7 @@ export class templateSearch {
             const response = await objConn.envRequest();
 
             self._refreshQueryStatus('Busca concluída. Preenchendo os dados...', { footerPagination: footerPagination });
+            tbody.html('');
             if (response.data) {
                 const responseData = response.data;
                 let recordsOnScreen = [];
@@ -239,6 +239,7 @@ export class templateSearch {
                 config.recordsOnScreen = [];
             }
         } catch (error) {
+            tbody.html('');
             commonFunctions.generateNotificationErrorCatch(error);
             footerPagination.find('.totalRegistros').html(0);
         } finally {

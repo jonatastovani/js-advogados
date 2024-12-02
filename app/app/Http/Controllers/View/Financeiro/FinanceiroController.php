@@ -6,11 +6,14 @@ use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
+use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
+use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Pdf\PdfGenerator;
 use App\Traits\CommonsControllerMethodsTrait;
 use App\Utils\CurrencyFormatterUtils;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
@@ -36,7 +39,7 @@ class FinanceiroController extends Controller
         return view('secao.financeiro.movimentacao-conta.index');
     }
 
-    public function movimentacaoContaImpressao(PostConsultaFiltroFormRequestBase $formRequest)
+    public function movimentacaoContaImpressao(PostConsultaFiltroFormRequestMovimentacaoConta $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
         $dados = $this->service->postConsultaFiltros($fluentData, ['withOutPagination' => true]);
@@ -94,8 +97,8 @@ class FinanceiroController extends Controller
             $processedData[] = $dadosRetorno->toArray();
         }
 
-        // Atualizar `dados` no objeto Fluent
-        $dataEnv->dados = $processedData;
+        // Cria a chave `processedData` no objeto Fluent
+        $dataEnv->processedData = $processedData;
 
         return $dataEnv;
     }
@@ -103,5 +106,69 @@ class FinanceiroController extends Controller
     public function balancoRepasseParceiroIndex()
     {
         return view('secao.financeiro.balanco-repasse-parceiro.index');
+    }
+
+    public function balancoRepasseParceiroImpressao(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        $dados = $this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData, ['withOutPagination' => true]);
+
+        // dd($dados);
+        $dataEnv = new Fluent([
+            'dados' => $dados,
+            'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
+            'mes_ano' => Carbon::parse($fluentData->mes_ano)->translatedFormat('F/Y'),
+            'dados_participante' => $dados[0]['movimentacao_participante'] // Pega os dados do primeiro item
+        ]);
+
+        $dataEnv = $this->balancoRepasseParceiroImpressaoRenderInfo($dataEnv);
+
+        // Configurações personalizadas de PDF
+        $pdfService = new PdfGenerator([
+            'orientation' => 'landscape',
+            'paper' => 'A4',
+        ]);
+
+        return $pdfService->generate('secao.financeiro.balanco-repasse-parceiro.impressao', compact('dataEnv'));
+    }
+
+    private function balancoRepasseParceiroImpressaoRenderInfo(Fluent $dataEnv)
+    {
+        $processedData = [];
+
+        foreach ($dataEnv->dados as $value) {
+            $dadosRetorno = new Fluent();
+
+            $dadosRetorno->status = $value['status']['nome'];
+            $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
+            $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($value['movimentacao_participante']['valor_participante']);
+            $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
+            $dadosRetorno->descricao_automatica = $value['movimentacao_participante']['descricao_automatica'];
+
+            $dadosEspecificos = $value['descricao_automatica'];
+
+            switch ($value['referencia_type']) {
+                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+                    $dadosEspecificos .= " - Serviço {$value['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - Pagamento - {$value['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['area_juridica']['nome']}";
+                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
+                    break;
+
+                default:
+                    break;
+            }
+            $dadosRetorno->dados_especificos = $dadosEspecificos;
+            $dadosRetorno->conta = $value['conta']['nome'];
+
+            $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
+
+            $processedData[] = $dadosRetorno->toArray();
+        }
+
+        // Cria a chave `processedData` no objeto Fluent
+        $dataEnv->processedData = $processedData;
+
+        return $dataEnv;
     }
 }
