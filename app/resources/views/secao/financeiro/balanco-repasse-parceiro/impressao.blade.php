@@ -34,8 +34,8 @@
                     <tr>
                         <td>{{ $dado['status'] ?? '' }}</td>
                         <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
-                        <td>{{ $dado['valor_participante'] ?? '' }}</td>
-                        <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
+                        <td class="text-nowrap">{{ $dado['valor_participante'] ?? '' }}</td>
+                        <td class="text-nowrap">{{ $dado['data_movimentacao'] ?? '' }}</td>
                         <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
                         <td>{{ $dado['dados_especificos'] ?? '' }}</td>
                         <td>{{ $dado['conta'] ?? '' }}</td>
@@ -45,5 +45,11 @@
             </tbody>
         </table>
     </div>
-
+    <div class="row">
+        <div class="col-12">
+            <p class="text-right mb-0">Total crédito: R$ {{ $dataEnv['total_credito'] }}</p>
+            <p class="text-right mb-0">Total débito: R$ {{ $dataEnv['total_debito'] }}</p>
+            <p class="text-right mb-0">Saldo: R$ {{ $dataEnv['total_saldo'] }}</p>
+        </div>
+    </div>
 @endsection

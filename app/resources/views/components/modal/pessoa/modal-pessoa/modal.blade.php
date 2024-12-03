@@ -12,7 +12,7 @@
                 <h4 class="modal-title">Pessoas</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <div class="modal-body pt-1">
+            <div class="modal-body d-flex flex-column pt-1">
                 <div class="row">
                     <div class="col mt-2 px-0">
                         <ul class="nav nav-tabs" id="myTab{{ $sufixo }}" role="tablist">
@@ -62,9 +62,10 @@
                 </div>
                 <div class="row border rounded rounded-top-0 border-top-0 flex-fill overflow-auto mb-2">
                     <div class="col">
-                        <div class="tab-content h-100" id="myTabContent{{ $sufixo }}">
-                            <div class="tab-pane fade h-100 show active" id="consultaPessoaFisica-tab-pane"
-                                role="tabpanel" aria-labelledby="consultaPessoaFisica-tab" tabindex="0">
+                        <div class="tab-content h-100" id="myTabContent{{ $sufixo }}" style="min-height: 50vh">
+                            <div class="tab-pane fade h-100 d-flex flex-column show active"
+                                id="consultaPessoaFisica-tab-pane" role="tabpanel"
+                                aria-labelledby="consultaPessoaFisica-tab" tabindex="0">
                                 @php
                                     $sufixoConsulta = $sufixo . 'Fisica';
                                 @endphp

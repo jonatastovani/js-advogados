@@ -27,6 +27,10 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         },
         data: {
             parceiro_id: undefined,
+            totais: {
+                debito: 0,
+                credito: 0,
+            },
         }
     };
 
@@ -68,7 +72,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
             card.find(`.nome-parceiro`).html(nome);
             card.find(`.card-perfil-referencia`).html(perfilNome);
-            card.show('fast');
             self._objConfigs.data.parceiro_id = perfil.id;
             self.#statusCampos(true);
         }
@@ -171,6 +174,11 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     async #executarBusca() {
         const self = this;
 
+        self._objConfigs.data.totais = {
+            debito: 0,
+            credito: 0,
+        };
+
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
@@ -197,6 +205,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             BootstrapFunctionsHelper.removeEventPopover();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             await self._generateQueryFilters(getAppendDataQuery());
+            self.#atualizaValoresTotais();
         } else {
             commonFunctions.generateNotification('Selecione um parceiro', 'warning');
         }
@@ -220,17 +229,22 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             tbody,
         } = options;
 
-        if (!self.#objConfigs.data?.console) {
-            self.#objConfigs.data.console = true;
-            console.log(item);
-        }
-
         let strBtns = ``;
         // let strBtns = self.#HtmlBtns(item);
 
         const status = item.status.nome;
         const movimentacaoTipo = item.movimentacao_tipo.nome;
         const valorParticipante = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(item.movimentacao_participante.valor_participante)}`;
+
+        switch (item.movimentacao_tipo_id) {
+            case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
+                self._objConfigs.data.totais.credito += item.movimentacao_participante.valor_participante;
+                break;
+            case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
+                self._objConfigs.data.totais.debito += item.movimentacao_participante.valor_participante;
+                break;
+        }
+
         const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
         const descricaoAutomatica = item.movimentacao_participante.descricao_automatica;
         const conta = item.conta.nome;
@@ -294,6 +308,13 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         // self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
+    }
+
+    #atualizaValoresTotais() {
+        const self = this;
+        $(`#total_credito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito)}`);
+        $(`#total_debito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.debito)}`);
+        $(`#total_saldo${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito - self._objConfigs.data.totais.debito)}`);
     }
 
     #HtmlBtns(item) {

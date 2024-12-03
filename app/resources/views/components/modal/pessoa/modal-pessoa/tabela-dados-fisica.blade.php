@@ -1,4 +1,4 @@
-<div class="table-responsive mt-2">
+<div class="table-responsive flex-fill mt-2">
     <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover tableData">
         <thead>
             <tr>

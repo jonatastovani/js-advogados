@@ -14,23 +14,23 @@
     @component('components.pagina.dados-pagina', ['paginaDados' => $paginaDados])
     @endcomponent
     <div class="row">
-        <div class="col">
-            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                Selecionar parceiro <i class="bi bi-search"></i></button>
-        </div>
-    </div>
-    <div id="dados-parceiro{{ $sufixo }}" class="row" style="display: none;">
-        <div class="col mt-2">
-            <div class="card card-parceiro">
-                <div class="card-body align-items-center justify-content-between d-flex">
-                    <div class="col">
-                        <div class="row">
-                            <div class="col-12 col-sm-8 align-content-center">
-                                <h5 class="nome-parceiro"></h5>
-                            </div>
-                            <div class="col-12 col-sm-4">
-                                <div class="form-text">Perfil Referência</div>
-                                <label class="form-label card-perfil-referencia"></label>
+        <div id="dados-parceiro{{ $sufixo }}" class="col mt-2">
+            <div class="card card-parceiro">   
+                <div class="card-body align-items-center justify-content-between py-0">
+                    <div class="row">
+                        <div class="d-grid d-sm-block text-end mt-2">
+                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm border-0">
+                                Selecionar parceiro</button>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-12 col-sm-8 align-content-center">
+                                    <h5 class="nome-parceiro">Selecione um parceiro</h5>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-text">Perfil referência</div>
+                                    <label class="form-label card-perfil-referencia">***</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-
+   
     <div id="camposConsulta{{ $sufixo }}">
         <div class="row">
             @php
@@ -123,7 +123,13 @@
             <tbody></tbody>
         </table>
     </div>
-
+    <div class="row">
+        <div class="col text-end mt-2">
+            <p class="mb-0">Total crédito: R$ <span id="total_credito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito: R$ <span id="total_debito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo: R$ <span id="total_saldo{{ $sufixo }}">0,00</span></p>
+        </div>
+    </div>
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />
 
 @endsection

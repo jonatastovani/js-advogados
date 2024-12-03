@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\View\Financeiro;
 
 use App\Enums\MovimentacaoContaReferenciaEnum;
+use App\Enums\MovimentacaoContaStatusTipoEnum;
+use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
@@ -118,7 +120,6 @@ class FinanceiroController extends Controller
             'dados' => $dados,
             'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
             'mes_ano' => Carbon::parse($fluentData->mes_ano)->translatedFormat('F/Y'),
-            'dados_participante' => $dados[0]['movimentacao_participante'] // Pega os dados do primeiro item
         ]);
 
         $dataEnv = $this->balancoRepasseParceiroImpressaoRenderInfo($dataEnv);
@@ -168,6 +169,12 @@ class FinanceiroController extends Controller
 
         // Cria a chave `processedData` no objeto Fluent
         $dataEnv->processedData = $processedData;
+        $dataEnv->dados_participante = $dataEnv->dados[0]['movimentacao_participante']; // Pega os dados do primeiro item
+        $dataEnv->total_credito = collect($dataEnv->dados)->where('movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('movimentacao_participante.valor_participante');
+        $dataEnv->total_debito = collect($dataEnv->dados)->where('movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('movimentacao_participante.valor_participante');
+        $dataEnv->total_saldo = CurrencyFormatterUtils::toBRL(bcsub($dataEnv->total_credito, $dataEnv->total_debito, 2));
+        $dataEnv->total_credito = CurrencyFormatterUtils::toBRL($dataEnv->total_credito);
+        $dataEnv->total_debito = CurrencyFormatterUtils::toBRL($dataEnv->total_debito);
 
         return $dataEnv;
     }

@@ -128,12 +128,23 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             }
             self._setEndTimer = true;
         });
+
+        modal.find(`#consultaPessoaFisica-tab,
+            #consultaPessoaJuridica-tab,
+            #consultaPessoaFisicaCriterios-tab,
+            #consultaPessoaJuridicaCriterios-tab,
+            #registrosSelecionados-tab`
+        ).on('click', function () {
+            const tabPanel = $(this).attr('aria-controls');
+            $(`#${tabPanel}`).parent().children('.tab-pane').removeClass('d-flex').removeClass('flex-column');
+            $(`#${tabPanel}`).addClass('d-flex flex-column');
+        });
     }
 
     _modalClose() {
         const self = this;
         const modal = $(self.getIdModal);
-        modal.find('#consultaPessoas-tab').trigger('click');
+        modal.find('#consultaPessoaFisica-tab').trigger('click');
         if (modal.find(`#formDataSearch${self._objConfigs.sufixo}Criterios`).length) {
             modal.find('.btnLimparCriterios').trigger('click');
         }
