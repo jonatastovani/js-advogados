@@ -10,7 +10,10 @@ use Illuminate\Support\Fluent;
 
 class MovimentacaoContaTipoService extends Service
 {
-    public function __construct(public MovimentacaoContaTipo $model) {}
+    public function __construct(MovimentacaoContaTipo $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

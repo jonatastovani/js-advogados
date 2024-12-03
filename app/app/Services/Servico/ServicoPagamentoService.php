@@ -25,7 +25,10 @@ use Illuminate\Support\Fluent;
 
 class ServicoPagamentoService extends Service
 {
-    public function __construct(public ServicoPagamento $model) {}
+    public function __construct(ServicoPagamento $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

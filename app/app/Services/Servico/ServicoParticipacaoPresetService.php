@@ -24,10 +24,12 @@ class ServicoParticipacaoPresetService extends Service
     use ServicoParticipacaoTrait;
 
     public function __construct(
-        public ServicoParticipacaoPreset $model,
+        ServicoParticipacaoPreset $model,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
-    ) {}
+    ) {
+        parent::__construct($model);
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -403,7 +405,15 @@ class ServicoParticipacaoPresetService extends Service
         ]);
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
         return [
             'participantes.participacao_tipo',

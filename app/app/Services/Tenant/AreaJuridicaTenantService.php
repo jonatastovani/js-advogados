@@ -16,14 +16,17 @@ class AreaJuridicaTenantService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public AreaJuridicaTenant $model) {}
+    public function __construct(AreaJuridicaTenant $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {
         $resource = $this->model->all();
         return $resource->toArray();
     }
-    
+
     public function select2(Request $request)
     {
         $dados = new Fluent([
@@ -73,19 +76,18 @@ class AreaJuridicaTenantService extends Service
             $resouce = new $this->model();
         }
 
-        $resouce->nome = $requestData->nome;
-        $resouce->descricao = $requestData->descricao;
+        $resouce->fill($requestData->toArray());
 
         return $resouce;
     }
-    
+
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [
             'message' => 'A Área Jurídica não foi encontrada.',
         ]);
     }
-    
+
     // private function executarEventoWebsocket()
     // {
     //     event(new EntradasPresos);

@@ -21,6 +21,7 @@ use Database\Seeders\Referencias\MovimentacaoContaStatusTipoSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaStatusTipoUpdateSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
+use Database\Seeders\Tenant\LancamentoCategoriaTipoTenantSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Illuminate\Database\Seeder;
 
@@ -64,6 +65,7 @@ class DatabaseSeeder extends Seeder
                 PagamentoTipoTenantSeeder::class,
                 ServicoParticipacaoTipoTenantSeeder::class,
                 ContaSeeder::class,
+                LancamentoCategoriaTipoTenantSeeder::class,
             ]);
 
             if (env('APP_ENV') == 'local') {

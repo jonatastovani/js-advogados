@@ -20,7 +20,10 @@ class ContaService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public Conta $model) {}
+    public function __construct(Conta $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {
@@ -116,7 +119,15 @@ class ContaService extends Service
         ]);
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
         return [
             'conta_subtipo',

@@ -37,6 +37,14 @@ Route::group([
                 Route::put('reagendar/{uuid}', 'storeLancamentoReagendadoServico');
             });
         });
+
+        Route::prefix('gerais')->group(function () {
+
+            Route::controller(App\Http\Controllers\Financeiro\LancamentoGeralController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+            });
+        });
     });
 
     Route::prefix('movimentacao-conta')->group(function () {
@@ -81,6 +89,19 @@ Route::group([
                 Route::match(['get', 'post'], '{uuid}', 'show');
                 Route::put('{uuid}', 'update');
                 Route::delete('{uuid}', 'destroy');
+            });
+        });
+
+        Route::prefix('lancamento-categoria-tipo-tenant')->group(function () {
+
+            Route::controller(App\Http\Controllers\Tenant\LancamentoCategoriaTipoTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.tenant.lancamento-categoria-tipo-tenant');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
             });
         });
     });

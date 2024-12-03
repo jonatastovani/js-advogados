@@ -20,7 +20,10 @@ class PagamentoTipoTenantService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public PagamentoTipoTenant $model) {}
+    public function __construct(PagamentoTipoTenant $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

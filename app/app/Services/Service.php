@@ -15,9 +15,59 @@ use Illuminate\Support\Fluent;
 
 abstract class Service
 {
+
     use ServiceLogTrait, CommonServiceMethodsTrait, CommonsConsultaServiceTrait;
 
+    /**
+     * O modelo que será usado no serviço.
+     *
+     * @var Model
+     */
+    public $model;
+
+    public function __construct(Model $model)
+    {
+        $this->model = $model;
+    }
+
     abstract protected function traducaoCampos(array $dados);
+
+    /**
+     * Adiciona campos adicionais no array de campos de busca com base em sufixos e valores específicos.
+     *
+     * Essa função verifica se os campos de busca enviados no array `$dados` estão presentes no array de referência
+     * e adiciona versões desses campos com sufixos especificados. A função é genérica e aceita múltiplos
+     * grupos de sufixos e campos replicáveis.
+     *
+     * @param array $dados
+     *     O array contendo os campos de busca em `$dados['campos_busca']`.
+     * @param array $config
+     *     Array de configuração no formato:
+     *     [
+     *         ['sufixos' => ['sufixo1', 'sufixo2'], 'campos' => ['campo1', 'campo2']],
+     *         ...
+     *     ]
+     * @param array $options
+     *     Opções adicionais, atualmente não utilizadas.
+     *
+     * @return array
+     *     O array `$dados` atualizado com os novos campos.
+     */
+    protected function addCamposBuscaGenerico(array $dados, array $config, array $options = []): array
+    {
+        foreach ($config as $group) {
+            $sufixos = $group['sufixos'] ?? [];
+            $campos = $group['campos'] ?? [];
+            foreach ($sufixos as $sufixo) {
+                foreach ($campos as $campo) {
+                    if (in_array($campo, $dados['campos_busca'])) {
+                        $dados['campos_busca'][] = "{$campo}_{$sufixo}";
+                    }
+                }
+            }
+        }
+        return $dados;
+    }
 
     public function store(Fluent $requestData)
     {
@@ -40,13 +90,15 @@ abstract class Service
     {
         $resource = $this->buscarRecurso($requestData);
 
-        // Verifica se o método 'loadFull' existe antes de chamar
-        if (method_exists($this, 'loadFull')) {
-            $resource->load($this->loadFull());
+        // Verifica se o método 'loadFull' retorna relações
+        $relations = method_exists($this, 'loadFull') ? $this->loadFull() : [];
+        if (!empty($relations)) {
+            $resource->load($relations);
         }
 
         return $resource->toArray();
     }
+
 
     public function update(Fluent $requestData)
     {
@@ -137,5 +189,18 @@ abstract class Service
 
         $response = RestResponse::createGenericResponse(['error' => $e->getMessage()], 422, $mensagem, $traceId);
         return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
+    }
+
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
+    {
+        return []; // Retorna um array vazio por padrão
     }
 }

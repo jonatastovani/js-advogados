@@ -19,7 +19,10 @@ class ContaSubtipoService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public ContaSubtipo $model) {}
+    public function __construct(ContaSubtipo $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

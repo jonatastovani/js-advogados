@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { modalServicoParticipacaoTipoTenant } from "./modalServicoParticipacaoTipoTenant";
+import { modalServicoParticipacaoTipoTenant } from "../tenant/modalServicoParticipacaoTipoTenant";
 
 export class modalServicoParticipacaoParticipante extends modalRegistrationAndEditing {
 

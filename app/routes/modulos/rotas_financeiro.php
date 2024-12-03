@@ -7,7 +7,19 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
     Route::prefix('financeiro')->group(function () {
 
         Route::get('', 'financeiroIndex')->name('financeiro.index');
-        Route::get('lancamentos-servicos', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
+
+        Route::prefix('lancamentos')->group(function () {
+
+            Route::prefix('servicos')->group(function () {
+
+                Route::get('', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
+            });
+
+            Route::prefix('gerais')->group(function () {
+
+                Route::get('', 'lancamentosGeraisIndex')->name('financeiro.lancamentos-gerais.index');
+            });
+        });
 
         Route::prefix('movimentacao-conta')->group(function () {
 

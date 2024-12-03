@@ -16,14 +16,17 @@ class ServicoParticipacaoTipoTenantService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public ServicoParticipacaoTipoTenant $model) {}
+    public function __construct(ServicoParticipacaoTipoTenant $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {
         $resource = $this->model->all();
         return $resource->toArray();
     }
-    
+
     public function select2(Request $request)
     {
         $dados = new Fluent([
@@ -78,14 +81,14 @@ class ServicoParticipacaoTipoTenantService extends Service
 
         return $resouce;
     }
-    
+
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [
             'message' => 'O Tipo de Atuação não foi encontrado.',
         ]);
     }
-    
+
     // private function executarEventoWebsocket()
     // {
     //     event(new EntradasPresos);

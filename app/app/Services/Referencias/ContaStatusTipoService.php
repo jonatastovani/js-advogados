@@ -12,7 +12,10 @@ class ContaStatusTipoService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public ContaStatusTipo $model) {}
+    public function __construct(ContaStatusTipo $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

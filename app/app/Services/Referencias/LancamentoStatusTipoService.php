@@ -13,7 +13,10 @@ class LancamentoStatusTipoService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public LancamentoStatusTipo $model) {}
+    public function __construct(LancamentoStatusTipo $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {
@@ -63,15 +66,15 @@ class LancamentoStatusTipoService extends Service
         $html = '';
         switch ($resource->id) {
             case LancamentoStatusTipoEnum::LIQUIDADO->value:
-                $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.liquidado', compact('requestData'))->render();
+                $html = view('components.modal.financeiro.modal-lancamento-servico-movimentar.campos-personalizados.liquidado', compact('requestData'))->render();
                 break;
 
             case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value:
-                $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.liquidado-parcialmente', compact('requestData'))->render();
+                $html = view('components.modal.financeiro.modal-lancamento-servico-movimentar.campos-personalizados.liquidado-parcialmente', compact('requestData'))->render();
                 break;
 
             case LancamentoStatusTipoEnum::REAGENDADO->value:
-                $html = view('components.modal.financeiro.modal-lancamento-movimentar.campos-personalizados.reagendado', compact('requestData'))->render();
+                $html = view('components.modal.financeiro.modal-lancamento-servico-movimentar.campos-personalizados.reagendado', compact('requestData'))->render();
                 break;
         }
 

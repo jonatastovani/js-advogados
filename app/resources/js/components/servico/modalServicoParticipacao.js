@@ -3,7 +3,7 @@ import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { RequestsHelpers } from "../../helpers/RequestsHelpers";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
-import { modalServicoParticipacaoTipoTenant } from "./modalServicoParticipacaoTipoTenant";
+import { modalServicoParticipacaoTipoTenant } from "../tenant/modalServicoParticipacaoTipoTenant";
 
 export class modalServicoParticipacao extends modalRegistrationAndEditing {
 

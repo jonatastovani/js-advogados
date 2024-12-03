@@ -44,7 +44,7 @@ class MovimentacaoContaService extends Service
     private array $arrayParticipantesOriginal = [];
 
     public function __construct(
-        public MovimentacaoConta $model,
+        MovimentacaoConta $model,
         public MovimentacaoContaParticipante $modelParticipanteConta,
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ServicoParticipacaoParticipante $modelParticipante,
@@ -55,7 +55,9 @@ class MovimentacaoContaService extends Service
 
         public Servico $modelServico,
         public ServicoPagamento $modelServicoPagamento,
-    ) {}
+    ) {
+        parent::__construct($model);
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -68,7 +70,6 @@ class MovimentacaoContaService extends Service
      */
     public function traducaoCampos(array $dados)
     {
-        // $dados = $this->addCamposBuscaRequest($dados);
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
@@ -106,30 +107,6 @@ class MovimentacaoContaService extends Service
         ];
 
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
-    }
-
-    private function addCamposBuscaRequest(array $dados, array $options = [])
-    {
-        $sufixos = ['pagamento', 'servico'];
-        $camposReplica = ['col_nome_participante', 'col_nome_grupo', 'col_observacao'];
-        foreach ($sufixos as $sufixo) {
-            foreach ($camposReplica as $value) {
-                if (in_array($value, $dados['campos_busca'])) {
-                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
-                }
-            }
-        }
-
-        $sufixos = ['servico'];
-        $camposReplica = ['col_descricao'];
-        foreach ($sufixos as $sufixo) {
-            foreach ($camposReplica as $value) {
-                if (in_array($value, $dados['campos_busca'])) {
-                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
-                }
-            }
-        }
-        return $dados;
     }
 
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
@@ -242,7 +219,7 @@ class MovimentacaoContaService extends Service
             // Substitui 'referencia_servico_lancamento' por 'referencia'
             $registro['referencia'] = $registro['referencia_servico_lancamento'];
             unset($registro['referencia_servico_lancamento']);
-            
+
             $registro['participantes'] = $registro['movimentacao_conta_participante'];
             unset($registro['movimentacao_conta_participante']);
             return $registro;
@@ -1175,7 +1152,15 @@ class MovimentacaoContaService extends Service
         ], $options));
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
         return [
             'movimentacao_tipo',

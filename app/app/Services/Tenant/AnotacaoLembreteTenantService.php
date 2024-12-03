@@ -13,9 +13,11 @@ use Illuminate\Support\Fluent;
 class AnotacaoLembreteTenantService extends Service
 {
     public function __construct(
-        public AnotacaoLembreteTenant $model,
+        AnotacaoLembreteTenant $model,
         public Servico $modelServico,
-    ) {}
+    ) {
+        parent::__construct($model);
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.

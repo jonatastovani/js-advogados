@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalConta } from "../../../components/financeiro/modalConta";
-import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
+import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -152,7 +152,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         self.#statusCampos(false);
         const openModal = async () => {
             try {
-                const objModal = new modalLancamentoMovimentar({
+                const objModal = new modalLancamentoServicoMovimentar({
                     urlApi: `${self._objConfigs.url.baseServico}/`
                 });
                 objModal.setDataEnvModal = {
@@ -484,7 +484,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     //     const openMovimentar = async function (status_id) {
     //         try {
-    //             const objModal = new modalLancamentoMovimentar();
+    //             const objModal = new modalLancamentoServicoMovimentar();
     //             objModal.setDataEnvModal = {
     //                 idRegister: item.id,
     //                 pagamento_id: item.pagamento_id,

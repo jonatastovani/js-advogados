@@ -1,7 +1,7 @@
 <form class="row formRegistration">
     <div class="col-12">
         <div class="row">
-            <h5 class="registration-title text-truncate">Nova Categoria</h5>
+            <h5 class="registration-title text-truncate">Nova Área de Atuação Jurídica</h5>
         </div>
         <div class="row">
             <div class="col">

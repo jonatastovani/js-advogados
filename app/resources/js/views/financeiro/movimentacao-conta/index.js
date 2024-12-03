@@ -4,8 +4,6 @@ import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalConta } from "../../../components/financeiro/modalConta";
-import { modalLancamentoMovimentar } from "../../../components/financeiro/modalLancamentoMovimentar";
-import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
@@ -177,7 +175,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         const self = this;
         self.#addEventosBotoes();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        self.#executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
         self.#buscarMovimentacoesStatusTipo();
@@ -272,7 +270,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         const openModal = async () => {
             try {
-                const objModal = new modalLancamentoMovimentar({
+                const objModal = new modalLancamentoServicoMovimentar({
                     urlApi: `${self._objConfigs.url.baseServico}/`
                 });
                 objModal.setDataEnvModal = {
@@ -604,7 +602,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         const openMovimentar = async function (status_id) {
             try {
-                const objModal = new modalLancamentoMovimentar();
+                const objModal = new modalLancamentoServicoMovimentar();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                     pagamento_id: item.pagamento_id,

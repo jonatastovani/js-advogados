@@ -12,7 +12,10 @@ class PagamentoStatusTipoService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public PagamentoStatusTipo $model) {}
+    public function __construct(PagamentoStatusTipo $model)
+    {
+        parent::__construct($model);
+    }
 
     public function index(Fluent $requestData)
     {

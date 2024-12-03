@@ -50,7 +50,7 @@
                         'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
                         'input_group' => [
                             'before' => [
-                                "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}' title='Tipo de movimentação'>Status</label></span>",
+                                "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}'>Status</label></span>",
                             ],
                         ],
                     ],
@@ -106,8 +106,6 @@
 
 
 @push('modals')
-    <x-modal.financeiro.modal-lancamento-movimentar.modal />
-    <x-modal.servico.modal-lancamento-reagendar.modal />
     <x-modal.financeiro.modal-conta.modal />
 @endpush
 

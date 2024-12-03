@@ -19,7 +19,10 @@ class PessoaFisicaService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(public PessoaFisica $model) {}
+    public function __construct(PessoaFisica $model)
+    {
+        parent::__construct($model);
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -100,7 +103,15 @@ class PessoaFisicaService extends Service
         ], $options));
     }
 
-    public function loadFull(): array
+    /**
+     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     *
+     * @param array $options Opções para manipulação de relacionamentos.
+     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
+     *       para evitar referências circulares.
+     * @return array Array de relacionamentos manipulados.
+     */
+    public function loadFull($options = []): array
     {
         return [
             'pessoa.pessoa_perfil.perfil_tipo',

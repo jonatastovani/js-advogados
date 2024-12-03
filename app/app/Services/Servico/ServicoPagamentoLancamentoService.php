@@ -16,7 +16,7 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
@@ -25,7 +25,7 @@ class ServicoPagamentoLancamentoService extends Service
 {
 
     public function __construct(
-        public ServicoPagamentoLancamento $model,
+        ServicoPagamentoLancamento $model,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
 
@@ -37,6 +37,7 @@ class ServicoPagamentoLancamentoService extends Service
         public ServicoParticipacaoParticipante $modelParticipanteServico,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegranteServico,
     ) {
+        parent::__construct($model);
         $asNameParticipante = (new ServicoParticipacaoParticipante())->getTableAsName();
         $asNameIntegrante = (new ServicoParticipacaoParticipanteIntegrante())->getTableAsName();
 
@@ -58,7 +59,18 @@ class ServicoPagamentoLancamentoService extends Service
      */
     public function traducaoCampos(array $dados)
     {
-        $dados = $this->addCamposBuscaRequest($dados);
+        $config = [
+            [
+                'sufixos' => ['pagamento', 'servico'],
+                'campos' => ['col_nome_participante', 'col_nome_grupo', 'col_observacao'],
+            ],
+            [
+                'sufixos' => ['servico'],
+                'campos' => ['col_descricao'],
+            ],
+        ];
+        $dados = $this->addCamposBuscaGenerico($dados, $config);
+
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();

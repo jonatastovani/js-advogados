@@ -1,8 +1,8 @@
 @php
-    $sufixo = 'ModalLancamentoMovimentar';
+    $sufixo = 'modalLancamentoGeralMovimentar';
 @endphp
 
-<div class="modal fade" id="modalLancamentoMovimentar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalLancamentoGeralMovimentar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -36,7 +36,7 @@
                         <div class="tab-pane fade h-100 show active" id="dados-lancamento{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="dados-lancamento{{ $sufixo }}-tab" tabindex="0">
                             @include(
-                                'components.modal.financeiro.modal-lancamento-movimentar.painel-dados-lancamento',
+                                'components.modal.financeiro.modal-lancamento-geral-movimentar.painel-dados-lancamento',
                                 [
                                     'sufixo' => $sufixo,
                                 ]
@@ -45,7 +45,7 @@
                         <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
                             @include(
-                                'components.modal.financeiro.modal-lancamento-movimentar.painel-participantes',
+                                'components.modal.financeiro.modal-lancamento-geral-movimentar.painel-participantes',
                                 [
                                     'sufixo' => $sufixo,
                                 ]

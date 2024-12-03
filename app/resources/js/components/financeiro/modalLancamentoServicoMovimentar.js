@@ -7,7 +7,7 @@ import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 import { modalConta } from "./modalConta";
 
-export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
+export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
@@ -27,7 +27,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
             baseContas: window.apiRoutes.baseContas,
         },
-        sufixo: 'ModalLancamentoMovimentar',
+        sufixo: 'modalLancamentoServicoMovimentar',
         data: {
             lancamento_status_tipos: undefined,
             participantesNaTela: undefined,
@@ -47,7 +47,7 @@ export class modalLancamentoMovimentar extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalLancamentoMovimentar",
+            idModal: "#modalLancamentoServicoMovimentar",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

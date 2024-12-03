@@ -36,6 +36,11 @@ class FinanceiroController extends Controller
         return view('secao.financeiro.lancamentos-servicos.index');
     }
 
+    public function lancamentosGeraisIndex()
+    {
+        return view('secao.financeiro.lancamentos-gerais.index');
+    }
+
     public function movimentacaoContaIndex()
     {
         return view('secao.financeiro.movimentacao-conta.index');

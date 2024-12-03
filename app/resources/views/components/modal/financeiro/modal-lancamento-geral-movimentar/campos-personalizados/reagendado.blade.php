@@ -2,7 +2,7 @@
     // Os campos pada edição não são os mesmos para todos
     $readonly = '';
     if (!isset($sufixo)) {
-        $sufixo = 'ModalLancamentoMovimentar';
+        $sufixo = 'modalLancamentoGeralMovimentar';
     }
 @endphp
 

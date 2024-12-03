@@ -15,4 +15,9 @@ class AreaJuridicaTenant extends Model
 
     protected $table = 'tenant.area_juridica_tenants';
     protected $tableAsName = 'ref_area_jur_ten';
+
+    protected $fillable = [
+        'nome',
+        'descricao',
+    ];
 }

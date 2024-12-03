@@ -22,10 +22,12 @@ use Illuminate\Support\Fluent;
 class ServicoService extends Service
 {
     public function __construct(
-        public Servico $model,
+        Servico $model,
         public ServicoParticipacaoParticipante $modelParticipante,
         public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
-    ) {}
+    ) {
+        parent::__construct($model);
+    }
 
     /**
      * Traduz os campos com base no array de dados fornecido.

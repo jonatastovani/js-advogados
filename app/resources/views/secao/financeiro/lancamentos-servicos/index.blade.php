@@ -83,7 +83,7 @@
 
 
 @push('modals')
-    <x-modal.financeiro.modal-lancamento-movimentar.modal />
+    <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
     <x-modal.servico.modal-lancamento-reagendar.modal />
 @endpush
 
