@@ -19,14 +19,14 @@ class PostConsultaFiltroFormRequestMovimentacaoConta extends PostConsultaFiltroF
     {
         // Previne o recebimento das regras de intervalo de datas
         $rules = Arr::except(parent::rules(), [
-            'mes_ano'
+            'datas_intervalo',
+            'datas_intervalo.campo_data',
+            'datas_intervalo.data_inicio',
+            'datas_intervalo.data_fim'
         ]);
 
         $rules = array_merge($rules, [
-            'datas_intervalo' => 'required|array',
-            'datas_intervalo.campo_data' => 'required|string',
-            'datas_intervalo.data_inicio' => 'required|date',
-            'datas_intervalo.data_fim' => 'required|date',
+            'mes_ano' => 'required|date:Y-m',
             'conta_id' => 'nullable|uuid',
             'movimentacao_tipo_id' => 'nullable|integer',
             'movimentacao_status_tipo_id' => 'nullable|integer',

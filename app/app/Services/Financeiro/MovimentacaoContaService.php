@@ -137,7 +137,7 @@ class MovimentacaoContaService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificosMovimentacaoConta($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.data_movimentacao");
 
         // $ordenacao = $requestData->ordenacao ?? [];
         // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {

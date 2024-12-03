@@ -32,11 +32,7 @@
                     'data_movimentacao' => ['nome' => 'Data movimentação'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
                 ],
-                'consultaIntervaloBln' => true,
-                'arrayCamposDatasIntervalo' => [
-                    'data_movimentacao' => ['nome' => 'Data movimentação'],
-                    'created_at' => ['nome' => 'Data cadastro'],
-                ],
+                'consultaMesAnoBln' => true,
                 'camposExtras' => [
                     [
                         'tipo' => 'select',
