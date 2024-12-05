@@ -18,10 +18,6 @@ class LancamentoGeralFormRequestShow extends BaseFormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'lancamento_uuid' => 'nullable|uuid',
-        ];
-
-        return array_merge($this->rulesShowWithTrashed(), $rules);
+        return $this->rulesShowWithTrashed();
     }
 }

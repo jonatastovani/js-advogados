@@ -13,6 +13,7 @@ use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
+use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Pessoa\PessoaFisica;
@@ -23,6 +24,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
+use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
@@ -55,6 +57,9 @@ class MovimentacaoContaService extends Service
 
         public Servico $modelServico,
         public ServicoPagamento $modelServicoPagamento,
+
+        public LancamentoGeral $modelLancamentoGeral,
+        public LancamentoGeralService $lancamentoGeralService,
     ) {
         parent::__construct($model);
     }
@@ -449,11 +454,9 @@ class MovimentacaoContaService extends Service
 
     public function storeLancamentoServico(Fluent $requestData)
     {
-        return $this->storePadrao($requestData, $requestData->referencia_id, $this->modelPagamentoLancamento);
-    }
 
-    protected function storePadrao(Fluent $requestData, string $idParent, Model $modelParent)
-    {
+        $modelParent = $this->modelPagamentoLancamento;
+        $idParent = $requestData->referencia_id;
         $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
 
         try {
@@ -542,7 +545,7 @@ class MovimentacaoContaService extends Service
                 $resource->referencia_id = $lancamento->id;
                 $resource->referencia_type = $modelParent->getMorphClass();
                 $resource->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value;
-                $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoServicoLancamento();
+                $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoLancamentoServico();
 
                 $ultimoSaldo = $this->buscarSaldoConta($requestData->conta_id);
 
@@ -1006,7 +1009,7 @@ class MovimentacaoContaService extends Service
             if ($lancamentoRollbackBln) {
 
                 // Cria a movimentação de rollback
-                $movimentacaoContaRollback = new $this->model();
+                $movimentacaoContaRollback = new $this->model;
                 $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
                 $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
 
@@ -1028,19 +1031,12 @@ class MovimentacaoContaService extends Service
 
                 // Altera o status da movimentação original
                 $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
-                LogHelper::habilitaQueryLog();
                 $movimentacaoConta->save();
 
                 $participantes = $this->modelParticipanteConta::where('parent_id', $movimentacaoConta->id)->get();
 
                 foreach ($participantes as $participante) {
                     $participante->delete();
-                }
-
-                $queries = DB::getQueryLog();
-                $queries = LogHelper::formatQueryLog($queries);
-                foreach ($queries as $key => $value) {
-                    Log::debug($value);
                 }
 
                 // Limpa alguns campos do lançamento
@@ -1090,8 +1086,7 @@ class MovimentacaoContaService extends Service
     {
         $arrayErrors = new Fluent();
 
-        $resource = null;
-        $resource = new $this->model();
+        $resource = new $this->model;
 
         $validacaoConta = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id]);
         if (!$validacaoConta->count()) {
@@ -1112,14 +1107,19 @@ class MovimentacaoContaService extends Service
             $arrayErrors->referencia_id = LogHelper::gerarLogDinamico(404, 'O Lançamento de referência não existe ou foi excluído.', $requestData)->error;
         }
 
-        $participacao = $this->verificacaoParticipacaoStore($requestData);
-        $arrayErrors = array_merge($arrayErrors->toArray(), $participacao->arrayErrors);
+        switch ($modelParent->getMorphClass()) {
+            case $this->modelPagamentoLancamento->getMorphClass():
+
+                $participacao = $this->verificacaoParticipacaoStore($requestData);
+                $arrayErrors = new Fluent(array_merge($arrayErrors->toArray(), $participacao->arrayErrors));
+                $resource->participantes = $participacao->participantes;
+                break;
+        }
 
         // Erros que impedem o processamento
-        CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors);
+        CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
         $resource->fill($requestData->toArray());
-        $resource->participantes = $participacao->participantes;
 
         return $resource;
     }
@@ -1143,6 +1143,151 @@ class MovimentacaoContaService extends Service
             'porcentagem_ocupada' => $porcentagemOcupada,
             'valor_fixo' => $participantesData->valor_fixo
         ]);
+    }
+
+    public function storeLancamentoGeral(Fluent $requestData)
+    {
+
+        $modelParent = $this->modelLancamentoGeral;
+        $idParent = $requestData->referencia_id;
+        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
+
+        try {
+            return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+
+                $lancamento = $modelParent::find($idParent);
+
+                switch ($requestData->status_id) {
+                    case LancamentoStatusTipoEnum::LIQUIDADO->value:
+
+                        $lancamento->conta_id = $requestData->conta_id;
+                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO->value;
+                        $lancamento->valor_quitado = $requestData->valor_quitado;
+                        $lancamento->data_quitado = $requestData->data_quitado;
+                        $lancamento->observacao = $requestData->observacao;
+                        $lancamento->save();
+
+                        // Cria o registro de movimentação
+                        $resource->valor_movimentado = $lancamento->valor_quitado;
+                        $resource->data_movimentacao = $lancamento->data_quitado;
+                        $resource->descricao_automatica = $lancamento->descricao;
+                        $resource->observacao = $lancamento->observacao;
+
+                        break;
+
+                    default:
+                        throw new Exception('Status inválido para o lançamento.');
+                }
+
+                $resource->referencia_id = $lancamento->id;
+                $resource->referencia_type = $modelParent->getMorphClass();
+                $resource->movimentacao_tipo_id = $lancamento->movimentacao_tipo_id;
+                $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
+
+                $ultimoSaldo = $this->buscarSaldoConta($resource->conta_id);
+
+                // Realiza o cálculo do novo saldo
+                $novoSaldo = $this->calcularNovoSaldo(
+                    $ultimoSaldo,
+                    $resource->valor_movimentado,
+                    $resource->movimentacao_tipo_id
+                );
+                $resource->saldo_atualizado = $novoSaldo;
+                $resource->save();
+
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    public function alterarStatusLancamentoGeral(Fluent $requestData)
+    {
+        LogHelper::habilitaQueryLog();
+        $arrayErrors = new Fluent();
+        $resourceLancamento = $this->lancamentoGeralService->buscarRecurso($requestData, ['conditions' => [
+            'id' => $requestData->lancamento_id,
+        ]]);
+
+        $validacaoStatusId = ValidationRecordsHelper::validateRecord(LancamentoStatusTipo::class, ['id' => $requestData->status_id]);
+        if (!$validacaoStatusId->count()) {
+            $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status de Lançamento informado não existe.', $requestData)->error;
+        }
+
+        // Verifica se terá que ser enviado um lançamento com movimentação contrária no mesmo valor lançado antes
+        $rollbackLancamentosFiltrados = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
+            ->where('movimentacao_tipo_id', $resourceLancamento->movimentacao_tipo_id);
+
+        $isRollbackLancamento = $rollbackLancamentosFiltrados->pluck('status_id')->contains($resourceLancamento->status_id);
+
+        if ($isRollbackLancamento) {
+
+            $statusArray = $rollbackLancamentosFiltrados->firstWhere('status_id', $resourceLancamento->status_id);
+
+            $movimentacaoConta = $this->model::where('referencia_id', $resourceLancamento->id)
+                ->where('movimentacao_tipo_id', $statusArray['movimentacao_tipo_id'])
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            if (!$movimentacaoConta) {
+                $arrayErrors["lancamento_{$resourceLancamento->id}"] = LogHelper::gerarLogDinamico(404, 'Movimentação de conta não encontrada.', $requestData)->error;
+                return;
+            }
+
+            if (!collect(MovimentacaoContaStatusTipoEnum::statusPermiteAlteracao())->contains($movimentacaoConta->status_id)) {
+                $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status da movimentação não permite mais alterações.', $requestData)->error;
+            }
+        }
+
+        // Erros que impedem o processamento
+        CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
+
+        // Inicia a transação
+        DB::beginTransaction();
+
+        try {
+            if ($isRollbackLancamento) {
+
+                // Cria a movimentação de rollback
+                $movimentacaoContaRollback = new $this->model;
+                $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
+                $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
+
+                if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
+
+                $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
+
+                $ultimoSaldo = $this->buscarSaldoConta($movimentacaoContaRollback->conta_id);
+                // Realiza o cálculo do novo saldo
+                $novoSaldo = $this->calcularNovoSaldo(
+                    $ultimoSaldo,
+                    $movimentacaoContaRollback->valor_movimentado,
+                    $movimentacaoContaRollback->movimentacao_tipo_id
+                );
+                $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
+                $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
+
+                $movimentacaoContaRollback->save();
+
+                // Altera o status da movimentação original
+                $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
+                $movimentacaoConta->save();
+
+                // Limpa alguns campos do lançamento
+                $resourceLancamento->valor_quitado = null;
+                $resourceLancamento->data_quitado = null;
+            }
+
+            if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
+            $resourceLancamento->status_id = $requestData->status_id;
+            $resourceLancamento->save();
+
+            DB::commit();
+            return $resourceLancamento->toArray();
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

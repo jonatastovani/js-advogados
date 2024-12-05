@@ -110,8 +110,8 @@
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap">Data Vencimento</th>
-                    {{-- <th class="text-nowrap">Valor Quitado</th>
-                    <th class="text-nowrap">Data Quitado</th> --}}
+                    <th class="text-nowrap">Valor Quitado</th>
+                    <th class="text-nowrap">Data Quitado</th>
                     <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Categoria</th>
                     <th class="text-nowrap">Observação</th>
@@ -132,14 +132,15 @@
     <x-modal.financeiro.modal-lancamento-geral-movimentar.modal />
     <x-modal.financeiro.modal-conta.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
+    <x-modal.servico.modal-lancamento-reagendar.modal />
 @endpush
 
 @push('scripts')
     @vite('resources/js/views/financeiro/lancamentos-gerais/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamentos.geral'),
+            'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
+            'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
             'baseContas' => route('api.financeiro.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         ],

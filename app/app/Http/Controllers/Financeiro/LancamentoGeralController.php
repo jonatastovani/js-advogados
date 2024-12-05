@@ -7,6 +7,7 @@ use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestDestr
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestShow;
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestStore;
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestUpdate;
+use App\Http\Requests\Financeiro\LancamentoGeral\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendado;
 use App\Services\Financeiro\LancamentoGeralService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -39,5 +40,12 @@ class LancamentoGeralController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->destroy($fluentData));
+    }
+    
+    public function storeLancamentoReagendado(
+        ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendado $formRequest
+    ) {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->storeLancamentoReagendado($fluentData));
     }
 }

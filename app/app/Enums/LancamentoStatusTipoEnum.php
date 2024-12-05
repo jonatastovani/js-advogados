@@ -207,6 +207,13 @@ enum LancamentoStatusTipoEnum: int
             'movimentacao_status_id_rollback' => MovimentacaoContaStatusTipoEnum::ROLLBACK->value,
         ];
 
+        $movimentacaoDebito = [
+            'movimentacao_tipo_id' => MovimentacaoContaTipoEnum::DEBITO->value,
+            'movimentacao_status_alterado_id' => MovimentacaoContaStatusTipoEnum::CANCELADA->value,
+            'movimentacao_tipo_id_rollback' => MovimentacaoContaTipoEnum::CREDITO->value,
+            'movimentacao_status_id_rollback' => MovimentacaoContaStatusTipoEnum::ROLLBACK->value,
+        ];
+
         return [
             [
                 'status_id' => self::LIQUIDADO->value,
@@ -215,6 +222,10 @@ enum LancamentoStatusTipoEnum: int
             [
                 'status_id' => self::LIQUIDADO_PARCIALMENTE->value,
                 ...$movimentacaoCredito,
+            ],
+            [
+                'status_id' => self::LIQUIDADO->value,
+                ...$movimentacaoDebito,
             ],
         ];
     }

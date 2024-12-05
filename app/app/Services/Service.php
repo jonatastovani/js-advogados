@@ -99,7 +99,6 @@ abstract class Service
         return $resource->toArray();
     }
 
-
     public function update(Fluent $requestData)
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);

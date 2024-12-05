@@ -138,14 +138,31 @@ class LancamentoGeralService extends Service
         return $resource;
     }
 
+    public function storeLancamentoReagendado(Fluent $requestData)
+    {
+        $idParent = $requestData->uuid;
+        $modelParent = $this->model;
+        try {
+            return DB::transaction(function () use ($requestData, $idParent, $modelParent) {
+
+                $lancamento = $modelParent::find($idParent);
+
+                $lancamento->data_vencimento = $requestData->data_vencimento;
+                if ($requestData->observacao) $lancamento->observacao = $requestData->observacao;
+                $lancamento->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
+                $lancamento->save();
+
+                return $lancamento->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, array_merge([
             'message' => 'O Lançamento não foi encontrado.',
-            'conditions' => [
-                'id' => $requestData->uuid,
-                'pagamento_id' => $requestData->pagamento_uuid
-            ]
         ], $options));
     }
 

@@ -87,7 +87,7 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamentos.servico'),
+            'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
         ],
     ])
     @endcomponent

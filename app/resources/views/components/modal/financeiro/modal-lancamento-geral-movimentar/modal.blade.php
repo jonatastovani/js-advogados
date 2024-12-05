@@ -77,9 +77,8 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseMovimentacaoContas' => route('api.financeiro.movimentacao-conta.lancamentos'),
-        'baseLancamento' => route('api.financeiro.lancamentos'),
-        'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
+        'baseMovimentacaoContasGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
+        'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
         'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
         'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
         'baseContas' => route('api.financeiro.conta'),

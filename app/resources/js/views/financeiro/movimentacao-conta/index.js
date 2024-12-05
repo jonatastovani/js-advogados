@@ -331,7 +331,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         // let strBtns = self.#HtmlBtns(item);
 
         const status = item.status.nome;
-        const valorMovimentado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_movimentado);
+        const valorMovimentado = commonFunctions.formatNumberToCurrency(item.valor_movimentado);
         const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
         const conta = item.conta.nome;
         const descricaoAutomatica = item.descricao_automatica;
@@ -351,19 +351,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
             default:
                 break;
         }
-
-        // const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
-        // const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        // const numero_servico = item.pagamento.servico.numero_servico;
-        // const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.valor_total) : '***';
-        // const tituloServico = item.pagamento.servico.titulo;
-        // const areaJuridica = item.pagamento.servico.area_juridica.nome;
-        // const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_liquidado) : '***';
-        // const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_aguardando) : '***';
-        // const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
-        // const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
-        // const observacaoPagamento = item.pagamento.observacao ?? '***';
-        // const statusPagamento = item.status.nome;
 
         let classCor = '';
         // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {

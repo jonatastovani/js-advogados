@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Financeiro;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
-use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStore;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoGeral;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoServico;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
@@ -17,16 +18,28 @@ class MovimentacaoContaController extends Controller
 
     public function __construct(public MovimentacaoContaService $service) {}
 
-    public function storeLancamentoServico(MovimentacaoContaFormRequestStore $formRequest)
+    public function storeLancamentoServico(MovimentacaoContaFormRequestStoreLancamentoServico $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->storeLancamentoServico($fluentData));
+    }
+
+    public function storeLancamentoGeral(MovimentacaoContaFormRequestStoreLancamentoGeral $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->storeLancamentoGeral($fluentData));
     }
 
     public function alterarStatusLancamentoServico(MovimentacaoContaFormRequestAlterarStatusLancamento $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->alterarStatusLancamentoServico($fluentData));
+    }
+
+    public function alterarStatusLancamentoGeral(MovimentacaoContaFormRequestAlterarStatusLancamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->alterarStatusLancamentoGeral($fluentData));
     }
 
     public function postConsultaFiltros(PostConsultaFiltroFormRequestMovimentacaoConta $formRequest)

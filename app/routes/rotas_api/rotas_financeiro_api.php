@@ -48,6 +48,7 @@ Route::group([
                 Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-geral');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
+                Route::put('reagendar/{uuid}', 'storeLancamentoReagendado');
                 Route::delete('{uuid}', 'destroy');
             });
         });
@@ -66,14 +67,14 @@ Route::group([
                 Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
 
                 Route::prefix('servicos')->group(function () {
-                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos.servico');
+                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamento-servico');
                     Route::post('', 'storeLancamentoServico');
                     Route::post('status-alterar', 'alterarStatusLancamentoServico');
                 });
 
                 Route::prefix('gerais')->group(function () {
 
-                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos.geral');
+                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamento-geral');
                     Route::post('', 'storeLancamentoGeral');
                     Route::post('status-alterar', 'alterarStatusLancamentoGeral');
                 });

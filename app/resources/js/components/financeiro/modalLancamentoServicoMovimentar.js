@@ -107,9 +107,8 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 await self._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
+                    if (response.selected) {
+                        self.#buscarContas(response.selected.id);
                     } else {
                         self.#buscarContas();
                     }
@@ -272,6 +271,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 const descricao = responseData.descricao_automatica;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
                 const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+                const pValor = commonFunctions.formatNumberToCurrency(responseData.valor_esperado);
                 const conta_id = responseData.conta_id ?? responseData.pagamento.conta_id;
 
                 let participantes = [];
@@ -299,7 +299,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 form.find('.pNumeroServico').html(numero_servico).attr('title', titulo_servico);
                 form.find('.pDescricao').html(descricao);
                 form.find('.pDataVencimento').html(data_vencimento);
-                form.find('.pValor').html(valor_esperado);
+                form.find('.pValor').html(pValor);
                 form.find('input[name="observacao"]').val(responseData.observacao);
                 form.find('select[name="conta_id"]').val(conta_id);
                 form.find('input[name="data_recebimento"]').val(responseData.data_vencimento);

@@ -40,7 +40,12 @@ enum MovimentacaoContaStatusTipoEnum: int
         };
     }
 
-    static public function statusPadraoSalvamentoServicoLancamento(): int
+    static public function statusPadraoSalvamentoLancamentoServico(): int
+    {
+        return self::ATIVA->value;
+    }
+
+    static public function statusPadraoSalvamentoLancamentoGeral(): int
     {
         return self::ATIVA->value;
     }
