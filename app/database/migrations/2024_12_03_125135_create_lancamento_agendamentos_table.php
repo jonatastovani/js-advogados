@@ -30,7 +30,8 @@ return new class extends Migration
             $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
             $table->string('descricao');
-            $table->float('valor');
+            $table->float('valor_esperado');
+            $table->date('data_agendamento')->nullable();
 
             $table->uuid('categoria_id');
             $table->foreign('categoria_id')->references('id')->on((new App\Models\Tenant\LancamentoCategoriaTipoTenant())->getTableName());
@@ -38,12 +39,13 @@ return new class extends Migration
             $table->uuid('conta_id');
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
-            $table->date('data_inicio');
-            $table->date('data_fim')->nullable();
             $table->string('cron_expressao')->nullable();
+            $table->date('cron_data_inicio')->nullable();
+            $table->date('cron_data_fim')->nullable();
+            $table->timestamp('cron_ultima_execucao')->nullable();
+
             $table->boolean('ativo_bln')->default(true);
             $table->string('observacao')->nullable();
-            $table->boolean('lancar_automatico_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

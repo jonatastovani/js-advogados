@@ -20,6 +20,11 @@
                     </a>
                 </li> --}}
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('financeiro.lancamentos-agendamentos.index') }}">
+                        <span class="nav-link-text">Agendamentos</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.lancamentos-gerais.index') }}">
                         <span class="nav-link-text">Lançamentos Gerais</span>
                     </a>

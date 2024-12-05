@@ -1,41 +1,117 @@
-<div class="row h-100">
-    <div class="col d-flex flex-column">
-        <div class="row">
-            <div class="col mt-2">
-                <label for="preset_id{{ $sufixo }}" class="form-label">Presets</label>
-                <div class="input-group">
-                    <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
-                        <option value="0">Selecione</option>
-                    </select>
-                    <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao"><i
-                            class="bi bi-search"></i></button>
-                </div>
-            </div>
+@php
+    use Carbon\Carbon;
+@endphp
+<div class="row">
+    <div class="col mt-2">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}" name="ativo_bln" checked>
+            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Agendamento ativo</label>
         </div>
-        <div class="row">
-            <div class="col mt-2">
-                <span class="d-block">Valor fixo: R$ <span id="valor_fixo{{ $sufixo }}">0,00</span></span>
-                <span class="d-block">Porcentagem comprometida: <span
-                        id="porcentagem{{ $sufixo }}">0,00</span>%</span>
-                <span class="d-block">Valor mínimo para uso do preset: R$ <span
-                        id="valor_minimo{{ $sufixo }}">0,00</span></span>
-            </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="recorrente{{ $sufixo }}">
+            <label class="form-check-label" for="recorrente{{ $sufixo }}">Incluir um agendamento recorrente</label>
         </div>
-        <div class="progress mt-2" role="progressbar" aria-label="Porcentagem comprometida" aria-valuenow="0"
-            aria-valuemin="0" aria-valuemax="100">
-            <div id="progressBar{{ $sufixo }}"
-                class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 0%"></div>
-        </div>
-        <div class="d-grid gap-2 d-flex justify-content-end mt-2">
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                id="btnInserirPessoa{{ $sufixo }}">Inserir
-                Pessoa</button>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                id="btnInserirGrupo{{ $sufixo }}">Inserir
-                Grupo</button>
-        </div>
-
-        <div id="divParticipantes{{ $sufixo }}" class="row flex-column g-2 mt-2 flex-fill"></div>
-
     </div>
+</div>
+
+<div class="fs-5 mt-2">Selecione o intervalo de repetição</div>
+<div class="row row-cols-1" id="dadosRecorrente">
+    <div class="col mt-2">
+        <div class="input-group">
+            <div class="input-group-text">
+                <label for="cronDay">Todo dia</label>
+            </div>
+            <select class="form-select" id="cronDay" name="cronDay">
+                <option value="*">Qualquer dia</option>
+                @for ($i = 1, $count = 32; $i < $count; $i++)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+    </div>
+    <div class="col mt-2">
+        <div class="input-group">
+            <div class="input-group-text">
+                <label for="cronMonth">Todo mês</label>
+            </div>
+            <select class="form-select" id="cronMonth" name="cronMonth">
+                <option value="*">Qualquer mês</option>
+                @for ($i = 1, $count = 13; $i < $count; $i++)
+                    <option value="{{ $i }}">
+                        {{ Carbon::createFromDate(null, $i, 1)->translatedFormat('F') }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+    </div>
+    <div class="col mt-2">
+        <div class="input-group">
+            <div class="input-group-text">
+                <label for="cronWeekday">Todo dia da semana</label>
+            </div>
+            <select id="cronWeekday" class="form-select" name="cronWeekday">
+                <option value="*">Qualquer dia</option>
+                <option value="1">Segunda-feira</option>
+                <option value="2">Terça-feira</option>
+                <option value="3">Quarta-feira</option>
+                <option value="4">Quinta-feira</option>
+                <option value="5">Sexta-feira</option>
+                <option value="6">Sábado</option>
+                <option value="0">Domingo</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col mt-2">
+        <div class="input-group">
+            <div class="input-group-text">
+                <label for="cronMinute">Todo minuto</label>
+            </div>
+            <select id="cronMinute" class="form-select" name="cronMinute">
+                <option value="*">Qualquer minuto</option>
+                @for ($i = 0, $count = 59; $i < $count; $i++)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+    </div>
+
+    <div class="col mt-2">
+        <div class="input-group">
+            <div class="input-group-text">
+                <label for="cronHour">Toda hora</label>
+            </div>
+            <select id="cronHour" class="form-select" name="cronHour">
+                <option value="*">Qualquer hora</option>
+                @for ($i = 0, $count = 23; $i < $count; $i++)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1">
+    <div class="col mt-2"><span>Verifique a recorrência gerada</span></div>
+    <div class="col mt-2">
+        <input type="text" id="cronExpression" class="form-control mt-2" readonly
+            placeholder="Recorrência gerada">
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2">
+    <div class="col mt-2">
+        <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início</label>
+        <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
+            class="form-control text-center">
+    </div>
+    <div class="col mt-2">
+        <label for="cron_data_fim{{ $sufixo }}" class="form-label">Data Final</label>
+        <input type="date" id="cron_data_fim{{ $sufixo }}" name="cron_data_fim"
+            class="form-control text-center">
+    </div>
+</div>
+<div class="form-text">
+    Este intervalo de datas é o período que o agendamento será vigente e executado. Por padrão, o agendamento será
+    inserido na listagem dos <i>Lançamentos Gerais</i> um mês antes.
 </div>

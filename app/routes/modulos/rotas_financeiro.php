@@ -19,6 +19,11 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
 
                 Route::get('', 'lancamentosGeraisIndex')->name('financeiro.lancamentos-gerais.index');
             });
+
+            Route::prefix('agendamentos')->group(function () {
+
+                Route::get('', 'lancamentosAgendamentosIndex')->name('financeiro.lancamentos-agendamentos.index');
+            });
         });
 
         Route::prefix('movimentacao-conta')->group(function () {

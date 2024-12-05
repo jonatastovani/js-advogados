@@ -19,15 +19,44 @@ class LancamentoAgendamento extends Model
     protected $table = 'financeiro.lancamento_agendamentos';
     protected $tableAsName = 'lanc_age';
 
+    protected $fillable = [
+        'movimentacao_tipo_id',
+        'descricao',
+        'valor_esperado',
+        'data_vencimento',
+        'categoria_id',
+        'conta_id',
+        'cron_expressao',
+        'cron_data_inicio',
+        'cron_data_fim',
+        'ativo_bln',
+        'observacao',
+    ];
+
     protected $casts = [
-        'valor' => 'float',
+        'valor_esperado' => 'float',
+    ];
+
+    // Define as colunas padrão a serem ocultadas
+    protected $hidden = [
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+        'created_ip',
+        // 'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
     ];
 
     public function movimentacao_tipo()
     {
         return $this->belongsTo(MovimentacaoContaTipo::class);
     }
-    
+
     public function categoria()
     {
         return $this->belongsTo(LancamentoCategoriaTipoTenant::class);
@@ -36,5 +65,10 @@ class LancamentoAgendamento extends Model
     public function conta()
     {
         return $this->belongsTo(Conta::class);
+    }
+
+    public function agendamento()
+    {
+        return $this->belongsTo(LancamentoAgendamento::class);
     }
 }

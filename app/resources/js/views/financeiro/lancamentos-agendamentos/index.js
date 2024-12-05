@@ -12,7 +12,7 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageLancamentoGeralIndex extends templateSearch {
+class LancamentoAgendamentoIndex extends templateSearch {
 
     #objConfigs = {
         querys: {
@@ -142,7 +142,7 @@ class PageLancamentoGeralIndex extends templateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageLancamentoGeralIndex' });
+        super({ sufixo: 'LancamentoAgendamentoIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -228,33 +228,7 @@ class PageLancamentoGeralIndex extends templateSearch {
             }
         });
 
-        $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
-            commonFunctions.generateNotification('Em desenvolvimento', 'warning');
-            return;
-            if (self._objConfigs.querys.consultaFiltros.dataPost) {
-                // Flatten o objeto para gerar os parâmetros
-                let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-                console.log(flattenedParams);
-                let queryString = '';
-
-                // Constrói a query string
-                Object.keys(flattenedParams).forEach(function (key) {
-                    queryString += encodeURIComponent(key) + '=' + encodeURIComponent(flattenedParams[key]) + '&';
-                });
-
-                // Remove o último '&'
-                queryString = queryString.slice(0, -1);
-
-
-                // Crie a URL base (substitua pela URL desejada)
-                const baseURL = self._objConfigs.url.baseFrontImpressao;
-
-                // Abre em uma nova guia
-                window.open(`${baseURL}?${queryString}`, '_blank');
-            }
-        });
-
-        $(`#btnInserirLancamento${self.getSufixo}`).on('click', async function () {
+        $(`#btnInserirAgendamento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -273,7 +247,7 @@ class PageLancamentoGeralIndex extends templateSearch {
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        });
+        }).click();
 
         const openModal = async () => {
             try {
@@ -676,5 +650,5 @@ class PageLancamentoGeralIndex extends templateSearch {
 }
 
 $(function () {
-    new PageLancamentoGeralIndex();
+    new LancamentoAgendamentoIndex();
 });

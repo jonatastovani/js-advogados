@@ -159,6 +159,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         });
 
         commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
+
+        modal.find(`#agendamento${self.getSufixo}-tab`).click();
     }
 
     _modalReset() {
