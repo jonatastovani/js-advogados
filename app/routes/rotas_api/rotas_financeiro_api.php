@@ -43,6 +43,12 @@ Route::group([
             Route::controller(App\Http\Controllers\Financeiro\LancamentoGeralController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-geral');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
             });
         });
     });
@@ -60,8 +66,16 @@ Route::group([
                 Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');
 
                 Route::prefix('servicos')->group(function () {
+                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos.servico');
                     Route::post('', 'storeLancamentoServico');
                     Route::post('status-alterar', 'alterarStatusLancamentoServico');
+                });
+
+                Route::prefix('gerais')->group(function () {
+
+                    Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos.geral');
+                    Route::post('', 'storeLancamentoGeral');
+                    Route::post('status-alterar', 'alterarStatusLancamentoGeral');
                 });
             });
         });
@@ -102,6 +116,7 @@ Route::group([
                 Route::post('', 'store')->name('api.tenant.lancamento-categoria-tipo-tenant');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
             });
         });
     });

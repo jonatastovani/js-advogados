@@ -21,7 +21,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         },
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
-            baseMovimentacaoContaLancamentos: window.apiRoutes.baseMovimentacaoContaLancamentos,
+            baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
         },
         data: {
             configAcoes: {
@@ -388,27 +388,13 @@ class PageLancamentoServicoIndex extends templateSearch {
                 </li>`;
             }
 
-            if (strBtns) {
-                strBtns = `
-                <div class="btn-group">
-                    <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        ${strBtns}
-                    </ul>
-                </div>`;
-            } else {
-                strBtns = `
-                <div class="btn-group">
-                    <button class="btn dropdown-toggle btn-sm disabled border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        ${strBtns}
-                    </ul>
-                </div>`;
-            }
+            strBtns = `
+                <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    ${strBtns}
+                </ul>`;
 
         }
         return strBtns;
@@ -459,7 +445,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                 obj.setFocusElementWhenClosingModal = this;
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
-                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentos}/servicos/status-alterar`);
+                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoServico}/status-alterar`);
                     objConn.setAction(enumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,

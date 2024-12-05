@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Financeiro\modalLancamentoGeralMovimentar;
+namespace App\View\Components\Modal\Financeiro\ModalLancamentoGeralMovimentar;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;

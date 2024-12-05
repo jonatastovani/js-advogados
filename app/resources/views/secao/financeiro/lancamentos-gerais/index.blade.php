@@ -35,16 +35,10 @@
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
-                    'data_vencimento' => ['nome' => 'Data Vencimento'],
-                    'data_recebimento' => ['nome' => 'Data Recebimento'],
                     'created_at' => ['nome' => 'Data cadastro'],
+                    'data_movimentacao' => ['nome' => 'Data Movimentação'],
                 ],
-                'consultaIntervaloBln' => true,
-                'arrayCamposDatasIntervalo' => [
-                    'data_vencimento' => ['nome' => 'Data Vencimento'],
-                    'data_recebimento' => ['nome' => 'Data Recebimento'],
-                    'created_at' => ['nome' => 'Data cadastro'],
-                ],
+                'consultaMesAnoBln' => true,
                 'camposExtras' => [
                     [
                         'tipo' => 'select',
@@ -101,8 +95,8 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary"
-            id="btnImprimirConsulta">Imprimir consulta</button>
+        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary">Imprimir consulta</button>
+        <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary" >Inserir lançamento</button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">
@@ -110,26 +104,17 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-center" title="Número de Serviço">N.S.</th>
-                    <th class="text-center" title="Número do Pagamento">N.P.</th>
-                    <th class="text-nowrap">Descrição Lançamento</th>
-                    <th class="text-nowrap">Valor Esperado</th>
-                    <th class="text-nowrap">Data Vencimento</th>
+                    <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Status</th>
-                    <th class="text-nowrap">Valor Recebido</th>
-                    <th class="text-nowrap">Data Recebimento</th>
-                    <th class="text-nowrap">Observação Lançamento</th>
-                    <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
-                    <th class="text-nowrap">Total Recebido</th>
-                    <th class="text-nowrap">Total Aguardando</th>
-                    <th class="text-nowrap">Total Inadimplente</th>
-                    <th class="text-nowrap">Tipo de pagamento</th>
-                    <th class="text-nowrap">Observação Pagamento</th>
-                    <th class="text-nowrap">Status Pagamento</th>
-                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
-                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
+                    <th class="text-center" title="Número do Lançamento">N.L.</th>
+                    <th class="text-nowrap">Descrição</th>
+                    <th class="text-nowrap">Valor</th>
+                    <th class="text-nowrap">Data Vencimento</th>
+                    {{-- <th class="text-nowrap">Valor Quitado</th>
+                    <th class="text-nowrap">Data Quitado</th> --}}
+                    <th class="text-nowrap">Conta</th>
+                    <th class="text-nowrap">Categoria</th>
+                    <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>
             </thead>
@@ -143,6 +128,7 @@
 
 
 @push('modals')
+    <x-modal.financeiro.modal-lancamento-geral.modal />
     <x-modal.financeiro.modal-lancamento-geral-movimentar.modal />
     <x-modal.financeiro.modal-conta.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
@@ -153,10 +139,8 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseMovimentacaoContaLancamentos' => route('api.financeiro.movimentacao-conta.lancamentos'),
+            'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamentos.geral'),
             'baseContas' => route('api.financeiro.conta'),
-            'baseMovimentacoesTipo' => route('api.referencias.movimentacao-conta-tipo'),
-            'baseMovimentacoesStatusTipo' => route('api.referencias.movimentacao-conta-status-tipo'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         ],
     ])

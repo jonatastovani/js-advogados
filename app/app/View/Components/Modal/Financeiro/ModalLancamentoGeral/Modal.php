@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Financeiro\ModalLancamentoServicoMovimentar;
+namespace App\View\Components\Modal\Financeiro\ModalLancamentoGeral;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalLancamentoServicoMovimentar', request('request_uuid'))) {
-            return view('components.modal.financeiro.modal-lancamento-servico-movimentar.modal');
+        if (ModalSessionHelper::registerModal('modalLancamentoGeral', request('request_uuid'))) {
+            return view('components.modal.financeiro.modal-lancamento-geral.modal');
         }
         return '';
     }

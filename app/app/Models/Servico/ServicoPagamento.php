@@ -106,7 +106,6 @@ class ServicoPagamento extends Model
         static::addGlobalScope(new ValorServicoPagamentoInadimplenteScope);
         static::addGlobalScope(new ValorServicoPagamentoEmAnaliseScope);
 
-
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano
             if (!$model->numero_pagamento) {

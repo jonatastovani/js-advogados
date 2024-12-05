@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\AreaJuridicaTenant\AreaJuridicaTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\AreaJuridicaTenant\AreaJuridicaTenantFormRequestIndex;
 use App\Http\Requests\Tenant\AreaJuridicaTenant\AreaJuridicaTenantFormRequestShow;
 use App\Http\Requests\Tenant\AreaJuridicaTenant\AreaJuridicaTenantFormRequestStore;
@@ -39,5 +40,11 @@ class AreaJuridicaTenantController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->update($fluentData));
+    }
+
+    public function destroy(AreaJuridicaTenantFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroy($fluentData));
     }
 }

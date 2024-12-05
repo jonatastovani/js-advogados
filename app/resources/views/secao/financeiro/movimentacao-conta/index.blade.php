@@ -116,8 +116,6 @@
             'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseContas' => route('api.financeiro.conta'),
-            'baseMovimentacoesTipo' => route('api.referencias.movimentacao-conta-tipo'),
-            'baseMovimentacoesStatusTipo' => route('api.referencias.movimentacao-conta-status-tipo'),
         ],
     ])
     @endcomponent

@@ -32,9 +32,9 @@ return new class extends Migration
             $table->string('descricao_automatica');
             $table->string('observacao')->nullable();
             $table->float('valor_esperado');
-            $table->string('data_vencimento');
+            $table->date('data_vencimento');
             $table->float('valor_recebido')->nullable();
-            $table->string('data_recebimento')->nullable();
+            $table->date('data_recebimento')->nullable();
 
             $table->uuid('conta_id')->nullable();
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());

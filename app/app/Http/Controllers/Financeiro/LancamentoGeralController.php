@@ -16,4 +16,28 @@ class LancamentoGeralController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public LancamentoGeralService $service) {}
+
+    public function store(LancamentoGeralFormRequestStore $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->store($fluentData));
+    }
+
+    public function show(LancamentoGeralFormRequestShow $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->show($fluentData));
+    }
+
+    public function update(LancamentoGeralFormRequestUpdate $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->update($fluentData));
+    }
+
+    public function destroy(LancamentoGeralFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroy($fluentData));
+    }
 }

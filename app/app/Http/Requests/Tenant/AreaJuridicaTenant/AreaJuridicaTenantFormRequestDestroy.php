@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Servico\ServicoPagamentoLancamento;
+namespace App\Http\Requests\Tenant\AreaJuridicaTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoPagamentoLancamentoFormRequestIndex extends BaseFormRequest
+class AreaJuridicaTenantFormRequestDestroy extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,6 @@ class ServicoPagamentoLancamentoFormRequestIndex extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return [];
     }
 }

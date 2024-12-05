@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Traits\EnumTrait;
+use Illuminate\Support\Arr;
 
 enum MovimentacaoContaStatusTipoEnum: int
 {
@@ -10,9 +11,8 @@ enum MovimentacaoContaStatusTipoEnum: int
 
     case ATIVA = 1;
     case CANCELADA = 2;
-    case EM_ALTERACAO = 3;
+    case FINALIZADA = 3;
     case ROLLBACK = 4;
-    case FINALIZADA = 5;
 
     public function detalhes(): array
     {
@@ -27,20 +27,15 @@ enum MovimentacaoContaStatusTipoEnum: int
                 'nome' => 'Cancelada',
                 'descricao' => 'Movimentação cancelada.',
             ],
-            self::EM_ALTERACAO => [
-                'id' => self::EM_ALTERACAO->value,
-                'nome' => 'Em Alteração',
-                'descricao' => 'Movimentação em processo de alteração.',
+            self::FINALIZADA => [
+                'id' => self::FINALIZADA->value,
+                'nome' => 'Finalizada',
+                'descricao' => 'Movimentação finalizada e bloqueada para alterações.',
             ],
             self::ROLLBACK => [
                 'id' => self::ROLLBACK->value,
                 'nome' => 'Rollback',
                 'descricao' => 'Movimentação de ajuste para desfazer outra.',
-            ],
-            self::FINALIZADA => [
-                'id' => self::FINALIZADA->value,
-                'nome' => 'Finalizada',
-                'descricao' => 'Movimentação finalizada e bloqueada para alterações.',
             ],
         };
     }
@@ -79,7 +74,6 @@ enum MovimentacaoContaStatusTipoEnum: int
     {
         return [
             self::ROLLBACK->value,
-            self::EM_ALTERACAO->value, // Está aqui porque ainda não achei utilidade para esse tipo
         ];
     }
 
@@ -103,5 +97,18 @@ enum MovimentacaoContaStatusTipoEnum: int
             self::ATIVA->value,
             self::FINALIZADA->value,
         ];
+    }
+
+    /**
+     * Retorna os status que serão exibidos nos filtros do front-end.
+     */
+    static public function statusParaFiltrosFrontEnd(): array
+    {
+        $ocultos = self::statusOcultoNasConsultas();
+
+        return array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => !in_array($detalhe['id'], $ocultos)
+        );
     }
 }

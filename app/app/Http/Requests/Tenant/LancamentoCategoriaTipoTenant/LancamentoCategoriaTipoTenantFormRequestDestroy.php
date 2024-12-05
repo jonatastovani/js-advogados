@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Referencias\MovimentacaoContaTipo;
+namespace App\Http\Requests\Tenant\LancamentoCategoriaTipoTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class MovimentacaoContaTipoFormRequestIndex extends BaseFormRequest
+class LancamentoCategoriaTipoTenantFormRequestDestroy extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,6 @@ class MovimentacaoContaTipoFormRequestIndex extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return [];
     }
 }

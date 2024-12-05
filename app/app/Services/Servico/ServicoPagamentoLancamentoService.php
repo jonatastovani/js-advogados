@@ -139,30 +139,6 @@ class ServicoPagamentoLancamentoService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
-    private function addCamposBuscaRequest(array $dados, array $options = [])
-    {
-        $sufixos = ['pagamento', 'servico'];
-        $camposReplica = ['col_nome_participante', 'col_nome_grupo', 'col_observacao'];
-        foreach ($sufixos as $sufixo) {
-            foreach ($camposReplica as $value) {
-                if (in_array($value, $dados['campos_busca'])) {
-                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
-                }
-            }
-        }
-
-        $sufixos = ['servico'];
-        $camposReplica = ['col_descricao'];
-        foreach ($sufixos as $sufixo) {
-            foreach ($camposReplica as $value) {
-                if (in_array($value, $dados['campos_busca'])) {
-                    $dados['campos_busca'][] = "{$value}_{$sufixo}";
-                }
-            }
-        }
-        return $dados;
-    }
-
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
 
@@ -178,7 +154,7 @@ class ServicoPagamentoLancamentoService extends Service
             );
         }
 
-        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.{$requestData->ordenacao[0]['campo']}");
 
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([

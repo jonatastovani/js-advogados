@@ -27,7 +27,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
             baseContas: window.apiRoutes.baseContas,
         },
-        sufixo: 'modalLancamentoGeralMovimentar',
+        sufixo: 'ModalLancamentoGeralMovimentar',
         data: {
             lancamento_status_tipos: undefined,
             participantesNaTela: undefined,
@@ -70,11 +70,12 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
         const self = this;
         let open = false;
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
-
+        
         if (self._dataEnvModal.idRegister) {
-            await this.#buscarContas();
-            await self.#buscarDadosLancamentoStatusTipo();
-            open = await self.#buscarDados();
+            // await this.#buscarContas();
+            // await self.#buscarDadosLancamentoStatusTipo();
+            // open = await self.#buscarDados();
+            open = true;
         } else {
             commonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
         }
@@ -363,7 +364,6 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
         data.participantes = self._objConfigs.data.participantesNaTela;
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
-        console.log(data);
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

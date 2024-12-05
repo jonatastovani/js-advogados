@@ -27,7 +27,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
             baseContas: window.apiRoutes.baseContas,
         },
-        sufixo: 'modalLancamentoServicoMovimentar',
+        sufixo: 'ModalLancamentoServicoMovimentar',
         data: {
             lancamento_status_tipos: undefined,
             participantesNaTela: undefined,
@@ -363,7 +363,6 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         data.participantes = self._objConfigs.data.participantesNaTela;
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
-        console.log(data);
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

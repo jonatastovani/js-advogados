@@ -26,12 +26,17 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
+            $table->string('numero_lancamento');
+
             $table->smallInteger('movimentacao_tipo_id');
             $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
             $table->string('descricao');
-            $table->float('valor');
-            $table->date('data_movimentacao');
+            $table->float('valor_esperado');
+            $table->date('data_vencimento');
+            
+            $table->float('valor_quitado')->nullable();
+            $table->date('data_quitado')->nullable();
 
             $table->uuid('categoria_id');
             $table->foreign('categoria_id')->references('id')->on((new App\Models\Tenant\LancamentoCategoriaTipoTenant())->getTableName());

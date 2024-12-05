@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestDestroy;
-use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestIndex;
+use App\Http\Requests\Servico\ServicoPagamentoLancamento\PostConsultaFiltroFormRequestServicoPagamentoLancamento;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestShow;
-use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestStore;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendadoServico;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestUpdate;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
@@ -19,11 +17,11 @@ class ServicoPagamentoLancamentoController extends Controller
 
     public function __construct(public ServicoPagamentoLancamentoService $service) {}
 
-    // public function store(ServicoPagamentoLancamentoFormRequestStore $formRequest)
-    // {
-    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-    //     return $this->retornoPadrao($this->service->store($fluentData));
-    // }
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestServicoPagamentoLancamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function show(ServicoPagamentoLancamentoFormRequestShow $formRequest)
     {

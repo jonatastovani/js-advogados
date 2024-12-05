@@ -520,6 +520,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
             success = `Registro excluído com sucesso!`,
         } = options;
 
+        let blnModalLoading = false;
         try {
             const obj = new modalMessage();
             obj.setDataEnvModal = {
@@ -529,7 +530,9 @@ export class modalSearchAndFormRegistration extends modalDefault {
             obj.setFocusElementWhenClosingModal = button;
             await self._modalHideShow(false);
             const result = await obj.modalOpen();
-            if (result) {
+            if (result.confirmResult) {
+                await commonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
+                blnModalLoading = true;
                 if (await self._delRecurse(idDel, options)) {
                     commonFunctions.generateNotification(success, 'success');
                     self.modalCancel();
@@ -539,6 +542,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {
+            if (blnModalLoading) await commonFunctions.loadingModalDisplay(false);
             await self._modalHideShow(true);
         }
     }

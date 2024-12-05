@@ -65,14 +65,33 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtnSelect();
-        strBtns += self.#HtmlBtnEdit();
+        let btns = `
+            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar categoria ${item.nome}">Editar</button></li>
+            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir categoria ${item.nome}">Excluir</button></li>`;
+
+        let btnSelect = '';
+        if (self._dataEnvModal?.attributes?.select) {
+            btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
+        }
+
+        let btnsDropDown = `
+            <div class="btn-group">
+                ${btnSelect}
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${btns}
+                    </ul>
+                </div>
+            </div>`;
 
         $(tbody).append(`
             <tr id="${item.idTr}" data-id="${item.id}">
                 <td class="text-center">
                     <div class="btn-group btnsAcao" role="group">
-                        ${strBtns}
+                        ${btnsDropDown}
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.nome}">${item.nome}</td>
@@ -81,18 +100,6 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
 
         self.#addEventosRegistrosConsulta(item);
         return true;
-    }
-
-    #HtmlBtnEdit() {
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></button>`;
-    }
-
-    #HtmlBtnSelect() {
-        const self = this;
-        if (self._dataEnvModal?.attributes?.select) {
-            return `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
-        }
-        return '';
     }
 
     #addEventosRegistrosConsulta(item) {
@@ -144,6 +151,16 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
                 }
                 pushSelected(item);
             }
+        });
+
+        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
+            const response = await self._delButtonAction(item.id, item.nome, {
+                title: `Exclusão de Área Jurídica`,
+                message: `Confirma a exclusão da área <b>${item.nome}</b>?`,
+                success: `Área Jurídica excluída com sucesso!`,
+                button: this,
+                urlApi: self._objConfigs.querys.consultaFiltros.url,
+            });
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\LancamentoCategoriaTipoTenant\LancamentoCategoriaTipoTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\LancamentoCategoriaTipoTenant\LancamentoCategoriaTipoTenantFormRequestIndex;
 use App\Http\Requests\Tenant\LancamentoCategoriaTipoTenant\LancamentoCategoriaTipoTenantFormRequestShow;
 use App\Http\Requests\Tenant\LancamentoCategoriaTipoTenant\LancamentoCategoriaTipoTenantFormRequestStore;
@@ -39,5 +40,11 @@ class LancamentoCategoriaTipoTenantController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->update($fluentData));
+    }
+
+    public function destroy(LancamentoCategoriaTipoTenantFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroy($fluentData));
     }
 }

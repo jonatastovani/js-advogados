@@ -46,22 +46,6 @@ Route::group([
         });
     });
 
-    Route::prefix('movimentacao-conta-tipo')->group(function () {
-
-        Route::controller(App\Http\Controllers\Referencias\MovimentacaoContaTipoController::class)->group(function () {
-
-            Route::get('', 'index')->name('api.referencias.movimentacao-conta-tipo');
-        });
-    });
-
-    Route::prefix('movimentacao-conta-status-tipo')->group(function () {
-
-        Route::controller(App\Http\Controllers\Referencias\MovimentacaoContaStatusTipoController::class)->group(function () {
-
-            Route::get('', 'index')->name('api.referencias.movimentacao-conta-status-tipo');
-        });
-    });
-
     Route::prefix('pagamento-status-tipo')->group(function () {
 
         Route::controller(App\Http\Controllers\Referencias\PagamentoStatusTipoController::class)->group(function () {

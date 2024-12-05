@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,
@@ -83,9 +83,10 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                LancamentoStatusTipoUpdateSeeder::class,
-                MovimentacaoContaStatusTipoUpdateSeeder::class,
-            ]);
+                LancamentoCategoriaTipoTenantSeeder::class,
+                // LancamentoStatusTipoUpdateSeeder::class,
+                // MovimentacaoContaStatusTipoUpdateSeeder::class,
+         ]);
         }
     }
 }

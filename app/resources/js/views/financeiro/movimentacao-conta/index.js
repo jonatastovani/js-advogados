@@ -25,7 +25,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
-            baseMovimentacoesTipo: window.apiRoutes.baseMovimentacoesTipo,
             baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
         },
         data: {
@@ -565,13 +564,14 @@ class PageMovimentacaoContaIndex extends templateSearch {
     async #buscarMovimentacoesTipo(selected_id = null) {
         try {
             const self = this;
+            const arrayOpcoes = window.Details.MovimentacaoContaTipoEnum;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todas as movimentações',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesTipo, options);
+            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -581,13 +581,14 @@ class PageMovimentacaoContaIndex extends templateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
+            const arrayOpcoes = window.Statics.StatusParaFiltrosFrontEnd;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesStatusTipo, options);
+            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;

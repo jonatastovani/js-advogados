@@ -148,33 +148,28 @@ export class modalConta extends modalSearchAndFormRegistration {
         $(`#${item.idTr}`).find(`.btn-select`).on('click', async function () {
             if (self._dataEnvModal?.attributes?.select) {
                 const select = self._dataEnvModal.attributes.select;
+                const promisseReturnValue = self._promisseReturnValue;
 
                 const pushSelected = (item) => {
-                    if (select?.max) {
-                        self._promisseReturnValue.selected = item;
+
+                    if (select?.quantity && select.quantity == 1) {
+                        promisseReturnValue.selected = item;
                     } else {
-                        self._promisseReturnValue.selecteds.push(item);
+                        promisseReturnValue.selecteds.push(item);
                     }
-                    self._promisseReturnValue.refresh = true;
+                    promisseReturnValue.refresh = true;
 
                     if (select?.autoReturn && select.autoReturn &&
-                        (select?.max && self._promisseReturnValue.selecteds.length == select.max ||
-                            select?.quantity && self._promisseReturnValue.selecteds.length == select.quantity
-                        )) {
+                        (select?.quantity && promisseReturnValue.selecteds.length == select.quantity ||
+                            (select?.quantity && select.quantity == 1 && promisseReturnValue.selected))
+                    ) {
                         self._setEndTimer = true;
                     }
                 }
-
-                if (select?.max && self._promisseReturnValue.selecteds.length < select.max) {
-                    pushSelected(item);
-                } else {
-                    self._promisseReturnValue.selecteds = [];
-                    pushSelected(item);
-                }
-
+                pushSelected(item);
             }
         });
-
+        
         $(`#${item.idTr}`).find(`.btn-delete`).on('click', async function () {
             self._delButtonAction(item.id, item.nome, {
                 title: `Exclusão de Conta`,

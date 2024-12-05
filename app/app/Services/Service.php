@@ -73,14 +73,14 @@ abstract class Service
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            $resource->save();
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
+            return DB::transaction(function () use ($resource) {
+
+                $resource->save();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }

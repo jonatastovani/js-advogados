@@ -11,6 +11,7 @@ export class templateSearch {
      * Sufixo da template
      */
     _sufixo;
+    
     /**
      * Objeto para reservar configurações do template
      */

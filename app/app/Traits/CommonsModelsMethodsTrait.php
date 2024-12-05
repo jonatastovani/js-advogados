@@ -19,6 +19,8 @@ trait CommonsModelsMethodsTrait
 
         // Define as colunas padrão a serem ocultadas
         $this->hidden = [
+            'tenant_id',
+            'domain_id',
             'created_user_id',
             'created_ip',
             'created_at',

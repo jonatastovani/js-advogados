@@ -115,6 +115,13 @@ export class modalDefault {
         return this._dataEnvModal;
     }
 
+    /**
+     * Retorna o sufixo da página.
+     */
+    get getSufixo() {
+        return this._objConfigs.sufixo;
+    }
+
     get modalInitialized() {
         return this._objConfigs.modalInitialized;
     }

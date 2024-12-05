@@ -1,8 +1,8 @@
 @php
-    $sufixo = 'ModalLancamentoServicoMovimentar';
+    $sufixo = 'ModalLancamentoGeral';
 @endphp
 
-<div class="modal fade" id="modalLancamentoServicoMovimentar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalLancamentoGeral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -22,11 +22,11 @@
                                     aria-selected="true">Dados lançamentos</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link px-2" id="participantes{{ $sufixo }}-tab"
-                                    data-bs-toggle="tab" data-bs-target="#participantes{{ $sufixo }}-tab-pane"
+                                <button class="nav-link px-2" id="agendamento{{ $sufixo }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#agendamento{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
-                                    aria-controls="participantes{{ $sufixo }}-tab-pane"
-                                    aria-selected="false">Participantes</button>
+                                    aria-controls="agendamento{{ $sufixo }}-tab-pane"
+                                    aria-selected="false">Agendamento</button>
                             </li>
                         </ul>
                     </div>
@@ -36,16 +36,16 @@
                         <div class="tab-pane fade h-100 show active" id="dados-lancamento{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="dados-lancamento{{ $sufixo }}-tab" tabindex="0">
                             @include(
-                                'components.modal.financeiro.modal-lancamento-servico-movimentar.painel-dados-lancamento',
+                                'components.modal.financeiro.modal-lancamento-geral.painel-dados-lancamento',
                                 [
                                     'sufixo' => $sufixo,
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
-                            aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
+                        <div class="tab-pane fade h-100" id="agendamento{{ $sufixo }}-tab-pane" role="tabpanel"
+                            aria-labelledby="agendamento{{ $sufixo }}-tab" tabindex="0">
                             @include(
-                                'components.modal.financeiro.modal-lancamento-servico-movimentar.painel-participantes',
+                                'components.modal.financeiro.modal-lancamento-geral.painel-agendamento',
                                 [
                                     'sufixo' => $sufixo,
                                 ]
@@ -69,20 +69,16 @@
 </div>
 
 @push('modals')
-    <x-modal.pessoa.modal-pessoa.modal />
-    <x-modal.comum.modal-nome.modal />
-    <x-modal.servico.modal-servico-participacao-participante.modal />
+    {{-- <x-modal.pessoa.modal-pessoa.modal /> --}}
     <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
 @endpush
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseMovimentacaoContas' => route('api.financeiro.movimentacao-conta.lancamentos'),
-        'baseLancamento' => route('api.financeiro.lancamentos'),
-        'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
-        'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
-        'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+        'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
         'baseContas' => route('api.financeiro.conta'),
+        'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
     ],
 ])
 @endcomponent

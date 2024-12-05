@@ -2,12 +2,7 @@
 
 namespace App\Http\Requests\Financeiro\LancamentoGeral;
 
-use App\Common\RestResponse;
-use App\Enums\PagamentoTipoEnum;
-use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
-use App\Models\Tenant\PagamentoTipoTenant;
-use Illuminate\Support\Fluent;
 
 class LancamentoGeralFormRequestBase extends BaseFormRequest
 {
@@ -15,12 +10,17 @@ class LancamentoGeralFormRequestBase extends BaseFormRequest
     {
         // Define as regras básicas
         $rules = [
-            // 'status_id' => 'required|integer',
+            'movimentacao_tipo_id' => 'required|integer',
+            'descricao' => 'required|string',
+            'valor_esperado' => 'required|numeric|min:0.01',
+            'data_vencimento' => 'required|date',
+            'categoria_id' => 'nullable|uuid',
             'conta_id' => 'nullable|uuid',
+            'agendamento_id' => 'nullable|uuid',
+            // 'movimentacao_status_tipo_id' => 'nullable|integer',
             'observacao' => 'nullable|string',
         ];
 
         return $rules;
     }
-
 }

@@ -4,11 +4,12 @@ import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalConta } from "../../../components/financeiro/modalConta";
+import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
+import { modalLancamentoGeralMovimentar } from "../../../components/financeiro/modalLancamentoGeralMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoGeralIndex extends templateSearch {
@@ -23,10 +24,8 @@ class PageLancamentoGeralIndex extends templateSearch {
         },
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
-            baseMovimentacaoContaLancamentos: window.apiRoutes.baseMovimentacaoContaLancamentos,
+            baseMovimentacaoContaLancamentoGeral: window.apiRoutes.baseMovimentacaoContaLancamentoGeral,
             baseContas: window.apiRoutes.baseContas,
-            baseMovimentacoesTipo: window.apiRoutes.baseMovimentacoesTipo,
-            baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
         },
         data: {
@@ -40,7 +39,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
@@ -53,7 +51,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
@@ -64,7 +61,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -82,29 +78,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     ]
                 },
-                LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    cor: 'text-success-emphasis bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                LIQUIDADO_PARCIALMENTE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
-                    cor: 'text-success-emphasis',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
                 REAGENDADO_EM_ANALISE: {
                     id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                     cor: 'fst-italic text-bg-warning',
@@ -112,7 +85,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                     ]
@@ -124,7 +96,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -138,8 +109,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -154,8 +123,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
@@ -216,10 +183,10 @@ class PageLancamentoGeralIndex extends templateSearch {
                 }
 
                 const response = await objModal.modalOpen();
+                console.log(response);
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
+                    if (response.selected) {
+                        self.#buscarContas(response.selected.id);
                     } else {
                         self.#buscarContas();
                     }
@@ -248,11 +215,10 @@ class PageLancamentoGeralIndex extends templateSearch {
 
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
+                    if (response.selected) {
+                        self.#buscarLancamentoCategoriaTipoTenant(response.selected.id);
                     } else {
-                        self.#buscarContas();
+                        self.#buscarLancamentoCategoriaTipoTenant();
                     }
                 }
             } catch (error) {
@@ -288,16 +254,34 @@ class PageLancamentoGeralIndex extends templateSearch {
             }
         });
 
+        $(`#btnInserirLancamento${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalLancamentoGeral();
+                // objModal.setDataEnvModal = {
+                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
+                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
+                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
+                // }
+                const response = await objModal.modalOpen();
+                console.log(response);
+
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
         const openModal = async () => {
             try {
-                const objModal = new modalLancamentoServicoMovimentar({
-                    urlApi: `${self._objConfigs.url.baseServico}/`
-                });
-                objModal.setDataEnvModal = {
-                    idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                    pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                    status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                }
+                const objModal = new modalLancamentoGeral();
+                // objModal.setDataEnvModal = {
+                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
+                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
+                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
+                // }
                 const response = await objModal.modalOpen();
                 console.log(response);
 
@@ -348,35 +332,21 @@ class PageLancamentoGeralIndex extends templateSearch {
         } = options;
 
         console.log(item);
-        return;
 
         let strBtns = self.#HtmlBtns(item);
 
-        const numero_servico = item.pagamento.servico.numero_servico;
-        const numero_pagamento = item.pagamento.numero_pagamento;
+        const numero_lancamento = item.numero_lancamento;
         const status = item.status.nome;
+        const tipoMovimentacao = item.movimentacao_tipo.nome;
         const valorEsperado = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        const valorRecebido = item.data_recebimento ? commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_recebido) : '***';
-        const dataRecebimento = item.data_recebimento ? DateTimeHelper.retornaDadosDataHora(item.data_recebimento, 2) : '***';
-        const descricaoAutomatica = item.descricao_automatica;
-        const observacaoLancamento = item.observacao ?? '***';
-        const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.valor_total) : '***';
-        const tituloServico = item.pagamento.servico.titulo;
-        const areaJuridica = item.pagamento.servico.area_juridica.nome;
-        const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_liquidado) : '***';
-        const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_aguardando) : '***';
-        const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatWithCurrencyCommasOrFraction(item.pagamento.total_inadimplente) : '***';
-        const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
-        const observacaoPagamento = item.pagamento.observacao ?? '***';
-        const statusPagamento = item.status.nome;
-
-        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-            item.participantes.length ? item.participantes :
-                (item.pagamento.participantes.length ? item.pagamento.participantes :
-                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-                )
-        );
+        // const valorQuitado = item.data_quitado ? commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_quitado) : '***';
+        // const dataQuitado = item.data_quitado ? DateTimeHelper.retornaDadosDataHora(item.data_quitado, 2) : '***';
+        const descricao = item.descricao;
+        const observacao = item.observacao ?? '***';
+        const conta = item.conta.nome
+        const categoriaTipo = item.categoria.nome
+        const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         let classCor = '';
         for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
@@ -386,7 +356,6 @@ class PageLancamentoGeralIndex extends templateSearch {
             }
         }
 
-        const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">
@@ -394,26 +363,15 @@ class PageLancamentoGeralIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
-                <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
+                <td class="text-nowrap ${classCor}" title="${numero_lancamento}">${numero_lancamento}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
-                <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorInadimplente}">${valorInadimplente}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${observacao}">${observacao}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -426,123 +384,85 @@ class PageLancamentoGeralIndex extends templateSearch {
     #HtmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
+        const descricao = item.descricao;
         let strBtns = '';
-        const enumPag = window.Enums.PagamentoStatusTipoEnum;
-        const pagamentoAtivo = item.pagamento.status_id == enumPag.ATIVO ? true : false;
 
-        if (pagamentoAtivo) {
-
-            if (configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        if (configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento-analise" title="Alterar status para Aguardando Pagamento em Análise para o lancamento ${item.descricao_automatica}.">
+                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento-analise" title="Alterar status para Aguardando Pagamento em Análise para o lancamento ${descricao}.">
                         <i class="bi bi-hourglass-top"></i> Aguardando Pagamento (em Análise)
                     </button>
                 </li>`;
-            }
-            if (configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        }
+        if (configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento" title="Alterar status para Aguardando Pagamento para o lancamento ${item.descricao_automatica}.">
+                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento" title="Alterar status para Aguardando Pagamento para o lancamento ${descricao}.">
                         <i class="bi bi-check2-all"></i> Aguardando Pagamento
                     </button>
                 </li>`;
-            }
+        }
 
-            if (configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        if (configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado em Análise.">
+                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado-analise" title="Receber lancamento ${descricao} com status Liquidado em Análise.">
                         <i class="bi bi-check2"></i> Liquidado (em Análise)
                     </button>
                 </li>`;
-            }
-            if (configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        }
+        if (configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado" title="Receber lancamento ${item.descricao_automatica} com status Liquidado.">
+                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado" title="Receber lancamento ${descricao} com status Liquidado.">
                         <i class="bi bi-check2-all"></i> Liquidado
                     </button>
                 </li>`;
-            }
+        }
 
-            if (configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE?.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
+        if (configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado Parcial em Análise.">
-                        <i class="bi bi-exclamation-lg"></i> Liquidado Parcialmente (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente" title="Receber lançamento ${item.descricao_automatica} com status Liquidado Parcial.">
-                        <i class="bi bi-check2-all"></i> Liquidado Parcialmente
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado-analise" title="Reagendar lancamento ${item.descricao_automatica} em Análise.">
+                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado-analise" title="Reagendar lancamento ${descricao} em Análise.">
                         <i class="bi bi-calendar-event"></i> Reagendado (em Análise)
                     </button>
                 </li>`;
-            }
-            if (configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        }
+        if (configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado" title="Reagendar lançamento ${item.descricao_automatica}.">
+                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado" title="Reagendar lançamento ${descricao}.">
                         <i class="bi bi-check2-all"></i> Reagendado
                     </button>
                 </li>`;
-            }
+        }
 
-            if (configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        if (configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado em Análise.">
+                    <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${descricao} com status Cancelado em Análise.">
                         <i class="bi bi-dash-circle"></i> Cancelado (em Análise)
                     </button>
                 </li>`;
-            }
-            if (configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
+        }
+        if (configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            strBtns += `
                 <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado.">
+                    <button type="button" class="dropdown-item fs-6 btn-cancelado text-danger" title="Registrar lançamento ${descricao} com status Cancelado.">
                         <i class="bi bi-check2-all"></i> Cancelado
                     </button>
                 </li>`;
-            }
-
-            if (strBtns) {
-                strBtns = `
-                <div class="btn-group">
-                    <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        ${strBtns}
-                    </ul>
-                </div>`;
-            } else {
-                strBtns = `
-                <div class="btn-group">
-                    <button class="btn dropdown-toggle btn-sm disabled border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        ${strBtns}
-                    </ul>
-                </div>`;
-            }
-
         }
+
+        strBtns = `
+        <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu">
+            ${strBtns}
+        </ul>`;
+
         return strBtns;
 
     }
@@ -566,13 +486,14 @@ class PageLancamentoGeralIndex extends templateSearch {
     async #buscarMovimentacoesTipo(selected_id = null) {
         try {
             const self = this;
+            const arrayOpcoes = window.Details.MovimentacaoContaTipoEnum;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todas as movimentações',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesTipo, options);
+            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -582,13 +503,14 @@ class PageLancamentoGeralIndex extends templateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
+            const arrayOpcoes = window.Statics.StatusParaFiltrosFrontEnd;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseMovimentacoesStatusTipo, options);
+            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -619,7 +541,7 @@ class PageLancamentoGeralIndex extends templateSearch {
 
         const openMovimentar = async function (status_id) {
             try {
-                const objModal = new modalLancamentoServicoMovimentar();
+                const objModal = new modalLancamentoGeralMovimentar();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                     pagamento_id: item.pagamento_id,
@@ -637,12 +559,12 @@ class PageLancamentoGeralIndex extends templateSearch {
         /**
          * Abre um modal para confirmar a alteração de status de um lançamento.
          * @param {object} [dados={}] - Dados para o modal.
-         * @param {string} [dados.descricao_automatica] - Descrição automática do lançamento.
+         * @param {string} [dados.descricao] - Descrição do lançamento.
          * @param {string} [dados.status_html] - Status HTML do lançamento.
          * @param {number} [dados.status_id] - ID do status do lançamento.
          */
         const openAlterarStatus = async function (dados = {}) {
-            const descricao_automatica = dados.descricao_automatica ?? item.descricao_automatica;
+            const descricao = dados.descricao ?? item.descricao;
             const status_html = dados.status_html;
             const status_id = dados.status_id;
 
@@ -650,12 +572,12 @@ class PageLancamentoGeralIndex extends templateSearch {
                 const obj = new modalMessage();
                 obj.setDataEnvModal = {
                     title: 'Alterar Status',
-                    message: `Confirma a alteração de status do lancamento <b>${descricao_automatica}</b> para <b class="fst-italic">${status_html}</b>?`,
+                    message: `Confirma a alteração de status do lancamento <b>${descricao}</b> para <b class="fst-italic">${status_html}</b>?`,
                 };
                 obj.setFocusElementWhenClosingModal = this;
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
-                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentos}/servicos/status-alterar`);
+                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoGeral}/status-alterar`);
                     objConn.setAction(enumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,
@@ -696,22 +618,6 @@ class PageLancamentoGeralIndex extends templateSearch {
         if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
             btnAcao.click(async function () {
                 await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.click(async function () {
-                await openAlterarStatus({ status_html: 'Liquidado Parcialmente (em Análise)', status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.click(async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
             });
         }
 

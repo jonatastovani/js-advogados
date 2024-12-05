@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use App\Models\Referencias\PagamentoStatusTipo;
 use App\Traits\EnumTrait;
 
 enum LancamentoStatusTipoEnum: int
@@ -167,6 +166,11 @@ enum LancamentoStatusTipoEnum: int
                 return self::LIQUIDADO_EM_ANALISE->value;
         }
         return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
+    }
+
+    static public function statusPadraoSalvamentoLancamentoGeral(): int
+    {
+        return self::AGUARDANDO_PAGAMENTO->value;
     }
 
     static public function statusPadraoLiquidadoParcialNovaDiluicao(): int

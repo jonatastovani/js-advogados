@@ -90,9 +90,8 @@ class PageServicoForm {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarAreasJuridicas(item.id);
+                    if (response.selected) {
+                        self.#buscarAreasJuridicas(response.selected.id);
                     } else {
                         self.#buscarAreasJuridicas();
                     }
@@ -252,7 +251,6 @@ class PageServicoForm {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
-
 
         $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
             const response = await self.#delButtonAction(item.id, item.titulo, {

@@ -34,12 +34,7 @@
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
-                'consultaIntervaloBln' => true,
-                'arrayCamposDatasIntervalo' => [
-                    'data_vencimento' => ['nome' => 'Data Vencimento'],
-                    'data_recebimento' => ['nome' => 'Data Recebimento'],
-                    'created_at' => ['nome' => 'Data cadastro'],
-                ],
+                'consultaMesAnoBln' => true,
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -92,7 +87,7 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseMovimentacaoContaLancamentos' => route('api.financeiro.movimentacao-conta.lancamentos'),
+            'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamentos.servico'),
         ],
     ])
     @endcomponent
