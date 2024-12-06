@@ -52,16 +52,6 @@
                     ],
                     [
                         'tipo' => 'select',
-                        'nome' => 'movimentacao_status_tipo_id',
-                        'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
-                        'input_group' => [
-                            'before' => [
-                                "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}'>Status</label></span>",
-                            ],
-                        ],
-                    ],
-                    [
-                        'tipo' => 'select',
                         'nome' => 'conta_id',
                         'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
                         'input_group' => [
@@ -104,13 +94,11 @@
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
-                    <th class="text-nowrap">Status</th>
-                    <th class="text-center" title="Número do Lançamento">N.L.</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap">Data Vencimento</th>
-                    <th class="text-nowrap">Valor Quitado</th>
-                    <th class="text-nowrap">Data Quitado</th>
+                    <th class="text-nowrap">Recorrente</th>
+                    <th class="text-nowrap">Ativo</th>
                     <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Categoria</th>
                     <th class="text-nowrap">Observação</th>
@@ -135,7 +123,7 @@
     @vite('resources/js/views/financeiro/lancamentos-agendamentos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
+            'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
             'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
             'baseContas' => route('api.financeiro.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),

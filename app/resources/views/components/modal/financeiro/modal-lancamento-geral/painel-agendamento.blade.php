@@ -4,24 +4,27 @@
 <div class="row">
     <div class="col mt-2">
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}" name="ativo_bln" checked>
+            <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}" name="ativo_bln"
+                checked>
             <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Agendamento ativo</label>
         </div>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="recorrente{{ $sufixo }}">
-            <label class="form-check-label" for="recorrente{{ $sufixo }}">Incluir um agendamento recorrente</label>
+            <input class="form-check-input" type="checkbox" role="switch" name="recorrente_bln"
+                id="ckbRecorrente{{ $sufixo }}">
+            <label class="form-check-label" for="ckbRecorrente{{ $sufixo }}">Agendamento recorrente</label>
         </div>
     </div>
 </div>
 
 <div class="fs-5 mt-2">Selecione o intervalo de repetição</div>
-<div class="row row-cols-1" id="dadosRecorrente">
+<div class="row row-cols-1 dadosCron">
+
     <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronDay">Todo dia</label>
             </div>
-            <select class="form-select" id="cronDay" name="cronDay">
+            <select class="form-select inputCron" id="cronDay{{ $sufixo }}" name="cronDay">
                 <option value="*">Qualquer dia</option>
                 @for ($i = 1, $count = 32; $i < $count; $i++)
                     <option value="{{ $i }}">{{ $i }}</option>
@@ -29,12 +32,13 @@
             </select>
         </div>
     </div>
+
     <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronMonth">Todo mês</label>
             </div>
-            <select class="form-select" id="cronMonth" name="cronMonth">
+            <select class="form-select inputCron" id="cronMonth{{ $sufixo }}" name="cronMonth">
                 <option value="*">Qualquer mês</option>
                 @for ($i = 1, $count = 13; $i < $count; $i++)
                     <option value="{{ $i }}">
@@ -49,7 +53,7 @@
             <div class="input-group-text">
                 <label for="cronWeekday">Todo dia da semana</label>
             </div>
-            <select id="cronWeekday" class="form-select" name="cronWeekday">
+            <select class="form-select inputCron" id="cronWeekday{{ $sufixo }}" name="cronWeekday">
                 <option value="*">Qualquer dia</option>
                 <option value="1">Segunda-feira</option>
                 <option value="2">Terça-feira</option>
@@ -62,12 +66,12 @@
         </div>
     </div>
 
-    <div class="col mt-2">
+    {{-- <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronMinute">Todo minuto</label>
             </div>
-            <select id="cronMinute" class="form-select" name="cronMinute">
+            <select class="form-select inputCron" id="cronMinute{{ $sufixo }}" name="cronMinute">
                 <option value="*">Qualquer minuto</option>
                 @for ($i = 0, $count = 59; $i < $count; $i++)
                     <option value="{{ $i }}">{{ $i }}</option>
@@ -81,34 +85,33 @@
             <div class="input-group-text">
                 <label for="cronHour">Toda hora</label>
             </div>
-            <select id="cronHour" class="form-select" name="cronHour">
+            <select class="form-select inputCron" id="cronHour{{ $sufixo }}" name="cronHour">
                 <option value="*">Qualquer hora</option>
                 @for ($i = 0, $count = 23; $i < $count; $i++)
                     <option value="{{ $i }}">{{ $i }}</option>
                 @endfor
             </select>
         </div>
-    </div>
+    </div> --}}
 </div>
 
-<div class="row row-cols-1">
-    <div class="col mt-2"><span>Verifique a recorrência gerada</span></div>
+<div class="row row-cols-1 dadosCron">
     <div class="col mt-2">
-        <input type="text" id="cronExpression" class="form-control mt-2" readonly
-            placeholder="Recorrência gerada">
+        <label for="cronExpression">Verifique a recorrência gerada</label>
+        <input type="text" id="cronExpression{{ $sufixo }}" class="form-control mt-2 inputCron" readonly>
     </div>
 </div>
 
-<div class="row row-cols-1 row-cols-md-2">
+<div class="row row-cols-1 row-cols-md-2 dadosCron">
     <div class="col mt-2">
         <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início</label>
         <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
-            class="form-control text-center">
+            class="form-control text-center inputCron">
     </div>
     <div class="col mt-2">
         <label for="cron_data_fim{{ $sufixo }}" class="form-label">Data Final</label>
         <input type="date" id="cron_data_fim{{ $sufixo }}" name="cron_data_fim"
-            class="form-control text-center">
+            class="form-control text-center inputCron">
     </div>
 </div>
 <div class="form-text">

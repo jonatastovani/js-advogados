@@ -14,6 +14,7 @@ use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use App\Traits\CronValidationTrait;
+use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -78,21 +79,51 @@ class LancamentoAgendamentoService extends Service
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
-    public function store(Fluent $requestData)
+    protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
-        try {
-            return DB::transaction(function () use ($resource) {
-
-                $resource->save();
-
-                // $this->executarEventoWebsocket();
-                return $resource->toArray();
-            });
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
+        if ($options['loadFull'] ?? false) {
+            $query->with($options['loadFull']);
+        } else {
+            if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
+                $query->with($this->loadFull());
+            }
         }
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $query->paginate($requestData->perPage ?? 25);
+
+        // Mantém a ordem dos registros originais
+        $originalOrder = collect($paginator->toArray()['data'])->pluck('id')->toArray();
+
+        // Filtrar registros com recorrente_bln = true
+        $filtered = collect($paginator->toArray()['data'])->filter(function ($item) {
+            return $item['recorrente_bln'] === true;
+        });
+
+        // Atualizar próxima data usando cron_expressao
+        $updated = $filtered->map(function ($item) {
+            try {
+                $cronExpression = new CronExpression($item['cron_expressao']);
+                $item['data_vencimento'] = $cronExpression->getNextRunDate()->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Handle invalid cron expressions if needed
+                $item['data_vencimento'] = null;
+            }
+
+            return $item;
+        });
+
+        // Substituir os itens atualizados no array original, preservando a ordem
+        $updatedData = collect($paginator->toArray()['data'])->map(function ($item) use ($updated) {
+            $updatedItem = $updated->firstWhere('id', $item['id']);
+            return $updatedItem ?: $item;
+        });
+
+        // Atualizar os dados do paginador com os novos valores
+        $paginatorArray = $paginator->toArray();
+        $paginatorArray['data'] = $updatedData->toArray();
+
+        return $paginatorArray;
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
@@ -124,17 +155,24 @@ class LancamentoAgendamentoService extends Service
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }
 
-        //Verifica se a data fim não é menor que a data inicio
-        if ($requestData->cron_data_fim && $requestData->cron_data_inicio && $requestData->cron_data_fim < $requestData->cron_data_inicio) {
-            $arrayErrors->cron_data_fim = LogHelper::gerarLogDinamico(422, 'A data fim deve ser maior que a data de inicio.', $requestData)->error;
+        $resource->fill($requestData->toArray());
+
+        if (isset($requestData->recorrente_bln) && $requestData->recorrente_bln) {
+            $resource->recorrente_bln = true;
+            $resource->data_vencimento = null;
+            $this->validarCronEIntervalo($requestData, $arrayErrors);
+        } else {
+            $resource->recorrente_bln = false;
+            $resource->cron_expressao = null;
+            $resource->cron_data_inicio = null;
+            $resource->cron_data_fim = null;
         }
 
-        $this->validarCronEIntervalo($requestData, $arrayErrors);
+        // após alterar, zera a última execuçãof
+        $resource->cron_ultima_execucao = null;
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
-
-        $resource->fill($requestData->toArray());
 
         return $resource;
     }
@@ -160,8 +198,6 @@ class LancamentoAgendamentoService extends Service
             'movimentacao_tipo',
             'categoria',
             'conta',
-            'status',
-            'agendamento',
         ];
     }
 

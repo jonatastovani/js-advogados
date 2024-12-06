@@ -28,17 +28,20 @@ trait CronValidationTrait
                 return;
             }
 
-            // Valida a data de início e fim
-            $dataInicio = Carbon::parse($requestData->cron_data_inicio);
-            $dataFim = Carbon::parse($requestData->cron_data_fim);
+            // Se a data_fim não foi definida, então não se verifica a diferença
+            if (isset($requestData->cron_data_fim) && $requestData->cron_data_fim) {
+                // Valida a data de início e fim
+                $dataInicio = Carbon::parse($requestData->cron_data_inicio);
+                $dataFim = Carbon::parse($requestData->cron_data_fim);
 
-            if ($dataFim->lessThan($dataInicio)) {
-                $arrayErrors->cron_data_fim = LogHelper::gerarLogDinamico(
-                    422,
-                    'A data fim deve ser maior ou igual à data de início.',
-                    $requestData
-                )->error;
-                return;
+                if ($dataFim->lessThan($dataInicio)) {
+                    $arrayErrors->cron_data_fim = LogHelper::gerarLogDinamico(
+                        422,
+                        'A data fim deve ser maior ou igual à data de início.',
+                        $requestData
+                    )->error;
+                    return;
+                }
             }
 
             // Verifica se o intervalo de datas permite ao menos uma execução
@@ -52,11 +55,11 @@ trait CronValidationTrait
                     $requestData
                 )->error;
             }
-        } elseif (empty($requestData->data_agendamento)) {
-            // Caso não tenha cron, a data_agendamento deve ser obrigatória
-            $arrayErrors->data_agendamento = LogHelper::gerarLogDinamico(
+        } elseif (empty($requestData->data_vencimento)) {
+            // Caso não tenha cron, a data_vencimento deve ser obrigatória
+            $arrayErrors->data_vencimento = LogHelper::gerarLogDinamico(
                 422,
-                'A data de agendamento deve ser informada quando não há uma expressão cron.',
+                'A data de vencimento deve ser informada quando não há uma expressão cron.',
                 $requestData
             )->error;
         }

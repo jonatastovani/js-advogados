@@ -16,38 +16,59 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
             'valor_esperado' => 'required|numeric|min:0.01',
             'categoria_id' => 'required|uuid',
             'conta_id' => 'required|uuid',
+            'data_vencimento' => 'required_if:recorrente_bln,false|nullable|date',
+            'recorrente_bln' => 'nullable|boolean',
             'cron_expressao' => [
-                'nullable',
+                'required_if:recorrente_bln,true',
                 function ($attribute, $value, $fail) {
-                    if (!empty($value) && !CronExpression::isValidExpression($value)) {
-                        $fail("A expressão cron '{$value}' não é válida.");
+                    if (!empty($value)) {
+                        // Verifica se a expressão cron é válida
+                        if (!CronExpression::isValidExpression($value)) {
+                            $fail("A expressão cron '{$value}' não é válida.");
+                            return;
+                        }
+
+                        // Divide a expressão em partes
+                        $parts = explode(' ', $value);
+
+                        // Certifica-se de que a expressão cron tem exatamente 5 partes
+                        if (count($parts) !== 5) {
+                            $fail("A expressão cron '{$value}' deve ter 5 partes.");
+                            return;
+                        }
+
+                        // Verifica se há valores válidos para dia, mês ou semana
+                        if ($parts[2] === '*' && $parts[3] === '*' && $parts[4] === '*') {
+                            $fail("A recorrência deve especificar pelo menos um valor para dia, mês ou semana.");
+                            return;
+                        }
                     }
-                }
+                },
             ],
-            'cron_data_inicio' => 'nullable|date',
+            'cron_data_inicio' => 'required_if:recorrente_bln,true|nullable|date',
             'cron_data_fim' => 'nullable|date',
             'ativo_bln' => 'nullable|boolean',
             'observacao' => 'nullable|string',
         ];
 
-        // Condicional: Se cron_expressao for enviado
-        if ($this->input('cron_expressao')) {
-            $rules['data_agendamento'] = 'nullable|date';
-            $rules['cron_data_inicio'] = 'required|date';
-            $rules['cron_data_fim'] = 'required|date|after_or_equal:cron_data_inicio';
-        } else {
-            $rules['data_agendamento'] = 'required|date';
-            $rules['cron_data_inicio'] = 'nullable|date';
-            $rules['cron_data_fim'] = 'nullable|date';
-        }
-
         return $rules;
     }
 
-    public function messages()
+    protected function customMessages(): array
     {
         return [
             'cron_data_fim.after_or_equal' => 'A data de término deve ser igual ou posterior à data de início.',
+            'data_vencimento.required_if' => 'A data de vencimento é obrigatória.',
+            'cron_data_inicio.required_if' => 'A data de início é obrigatória.',
+        ];
+    }
+
+    protected function customAttributeNames(): array
+    {
+        return [
+            'cron_expressao' => 'recorrencia',
+            'cron_data_inicio' => 'data de início',
+            'cron_data_fim' => 'data de término',
         ];
     }
 }

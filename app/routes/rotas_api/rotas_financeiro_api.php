@@ -52,6 +52,20 @@ Route::group([
                 Route::delete('{uuid}', 'destroy');
             });
         });
+
+        Route::prefix('agendamento')->group(function () {
+
+            Route::controller(App\Http\Controllers\Financeiro\LancamentoAgendamentoController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-agendamento');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
+            });
+        });
     });
 
     Route::prefix('movimentacao-conta')->group(function () {

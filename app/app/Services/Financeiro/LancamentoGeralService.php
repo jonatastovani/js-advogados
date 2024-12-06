@@ -101,7 +101,7 @@ class LancamentoGeralService extends Service
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
         } else {
-            $resource = new $this->model();
+            $resource = new $this->model;
         }
 
         //Verifica se o tipo de movimentação informado existe
@@ -132,7 +132,6 @@ class LancamentoGeralService extends Service
         $resource->categoria_id = $requestData->categoria_id;
         $resource->conta_id = $requestData->conta_id;
         $resource->agendamento_id = $requestData->agendamento_id;
-        $resource->status_id = $requestData->movimentacao_status_tipo_id;
         $resource->observacao = $requestData->observacao;
 
         return $resource;

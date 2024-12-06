@@ -21,7 +21,7 @@
                                     aria-controls="dados-lancamento{{ $sufixo }}-tab-pane"
                                     aria-selected="true">Dados lançamentos</button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item modoAgendamento" role="presentation">
                                 <button class="nav-link px-2" id="agendamento{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#agendamento{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
@@ -42,7 +42,7 @@
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100" id="agendamento{{ $sufixo }}-tab-pane" role="tabpanel"
+                        <div class="tab-pane fade h-100 modoAgendamento" id="agendamento{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="agendamento{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral.painel-agendamento',
@@ -77,6 +77,7 @@
 @component('components.api.api-routes', [
     'routes' => [
         'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
+        'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
         'baseContas' => route('api.financeiro.conta'),
         'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
     ],

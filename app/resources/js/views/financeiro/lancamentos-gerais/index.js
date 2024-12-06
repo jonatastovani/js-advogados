@@ -183,7 +183,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                 }
 
                 const response = await objModal.modalOpen();
-                console.log(response);
                 if (response.refresh) {
                     if (response.selected) {
                         self.#buscarContas(response.selected.id);
@@ -259,11 +258,6 @@ class PageLancamentoGeralIndex extends templateSearch {
             commonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalLancamentoGeral();
-                // objModal.setDataEnvModal = {
-                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                // }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#executarBusca();
@@ -274,24 +268,6 @@ class PageLancamentoGeralIndex extends templateSearch {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
-
-        const openModal = async () => {
-            try {
-                const objModal = new modalLancamentoGeral();
-                // objModal.setDataEnvModal = {
-                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                // }
-                const response = await objModal.modalOpen();
-                console.log(response);
-
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
-
-        // openModal();
     }
 
     async #executarBusca() {
@@ -331,8 +307,6 @@ class PageLancamentoGeralIndex extends templateSearch {
         const {
             tbody,
         } = options;
-
-        console.log(item);
 
         let strBtns = self.#HtmlBtns(item);
 
@@ -388,7 +362,6 @@ class PageLancamentoGeralIndex extends templateSearch {
         const self = this;
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
         const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
 
         const openMovimentar = async function (status_id) {
             try {
@@ -519,6 +492,34 @@ class PageLancamentoGeralIndex extends templateSearch {
                 await openAlterarStatus({ status_html: 'Cancelado', status_id: enumLanc.CANCELADO });
             });
         }
+
+        $(`#${item.idTr} .btn-edit`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalLancamentoGeral();
+                objModal.setDataEnvModal = {
+                    idRegister: item.id,
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    await self.#executarBusca();
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
+            self._delButtonAction(item.id, item.name, {
+                title: `Exclusão de Lançamento`,
+                message: `Confirma a exclusão do Lançamento <b>${item.descricao}</b>?`,
+                success: `Lançamento excluído com sucesso!`,
+                button: this
+            });
+        });
     }
 
     #HtmlBtns(item) {
@@ -594,6 +595,18 @@ class PageLancamentoGeralIndex extends templateSearch {
                     </button>
                 </li>`;
         }
+
+        strBtns = `
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-edit" title="Editar agendamento ${descricao}.">
+                    Editar
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir agendamento ${descricao}.">
+                    Excluir
+                </button>
+            </li>`;
 
         strBtns = `
         <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">

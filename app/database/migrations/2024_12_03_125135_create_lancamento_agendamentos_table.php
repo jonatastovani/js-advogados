@@ -30,8 +30,8 @@ return new class extends Migration
             $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
             $table->string('descricao');
-            $table->float('valor_esperado');
-            $table->date('data_agendamento')->nullable();
+            $table->float('valor_esperado')->nullable();
+            $table->date('data_vencimento')->nullable();
 
             $table->uuid('categoria_id');
             $table->foreign('categoria_id')->references('id')->on((new App\Models\Tenant\LancamentoCategoriaTipoTenant())->getTableName());
@@ -39,6 +39,7 @@ return new class extends Migration
             $table->uuid('conta_id');
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
+            $table->boolean('recorrente_bln')->default(true);
             $table->string('cron_expressao')->nullable();
             $table->date('cron_data_inicio')->nullable();
             $table->date('cron_data_fim')->nullable();
