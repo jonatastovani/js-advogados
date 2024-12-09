@@ -20,10 +20,3 @@ user=root
 autostart=true
 nodaemon=true
 autorestart=true
-
-[program:schedule-run]
-command=/usr/local/bin/php /var/www/html/artisan schedule:run
-autostart=true
-autorestart=true
-stderr_logfile=/var/log/supervisor/schedule.err.log
-stdout_logfile=/var/log/supervisor/schedule.out.log

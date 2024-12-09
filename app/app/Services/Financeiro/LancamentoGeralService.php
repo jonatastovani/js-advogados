@@ -78,16 +78,18 @@ class LancamentoGeralService extends Service
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
         $ordenacao = $requestData->ordenacao ?? [];
-        if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('created_at')) {
+        if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
             $requestData->ordenacao = array_merge(
                 $ordenacao,
-                [['campo' => 'created_at', 'direcao' => 'asc']]
+                [
+                    ['campo' => 'data_vencimento', 'direcao' => 'asc'],
+                ]
             );
         }
 
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'created_at',
+            'campoOrdenacao' => 'data_vencimento',
         ], $options));
 
         return $this->carregarRelacionamentos($query, $requestData, $options);

@@ -1,12 +1,15 @@
 <?php
 
 use App\Common\RestResponse;
+use App\Jobs\LancamentoAgendamentoJob;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Psr\Log\LogLevel;
 use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedByPathException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -30,6 +33,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.rota.tipo' => \App\Http\Middleware\Modulo\RotaEspecificaPorTipoTenantMiddleware::class,
             'usuario.tenant' => \App\Http\Middleware\Modulo\UsuarioNoTenantMiddleware::class,
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->job(new LancamentoAgendamentoJob)
+            ->everyTenSeconds()
+            ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->dontReportDuplicates();
@@ -66,4 +74,5 @@ return Application::configure(basePath: dirname(__DIR__))
         //         return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
         //     }
         // });
-    })->create();
+    })->create()
+;

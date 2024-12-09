@@ -3,13 +3,10 @@
 namespace App\Services\Financeiro;
 
 use App\Common\CommonsFunctions;
-use App\Enums\LancamentoStatusTipoEnum;
-use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Financeiro\LancamentoAgendamento;
-use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
@@ -17,7 +14,6 @@ use App\Traits\CronValidationTrait;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class LancamentoAgendamentoService extends Service

@@ -198,9 +198,9 @@ class LancamentoAgendamentoIndex extends templateSearch {
         const recorrente_bln = item.recorrente_bln ? 'Sim' : 'Não';
         const ativo_bln = item.ativo_bln ? 'Sim' : 'Não';
         const descricao = item.descricao;
+        const categoriaTipo = item.categoria.nome
         const observacao = item.observacao ?? '***';
         const conta = item.conta.nome
-        const categoriaTipo = item.categoria.nome
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         let classCor = '';
@@ -214,12 +214,12 @@ class LancamentoAgendamentoIndex extends templateSearch {
                 </td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${recorrente_bln}">${recorrente_bln}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${ativo_bln}">${ativo_bln}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacao}">${observacao}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>

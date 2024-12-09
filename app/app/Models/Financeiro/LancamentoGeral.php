@@ -28,6 +28,21 @@ class LancamentoGeral extends Model
         'valor_quitado' => 'float',
     ];
 
+    protected $fillable =[
+        'movimentacao_tipo_id',
+        'descricao',
+        'valor_esperado',
+        'data_vencimento',
+        'categoria_id',
+        'conta_id',
+        'observacao',
+        'agendamento_id',
+        'status_id',
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+    ];
+    
     // Define as colunas padrão a serem ocultadas
     protected $hidden = [
         'tenant_id',
@@ -75,7 +90,8 @@ class LancamentoGeral extends Model
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano
             if (!$model->numero_lancamento) {
-                $sequencia = NumeracaoSequencialHelper::obterProximoNumero('lancamento_geral', tenant('id'));
+                $tenantId = $model->tenant_id ?? tenant('id');
+                $sequencia = NumeracaoSequencialHelper::obterProximoNumero('lancamento_geral', $tenantId);
                 // Preenche o campo numero_lancamento com o número obtido
                 $model->numero_lancamento = $sequencia['numero'];
 
