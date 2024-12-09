@@ -42,18 +42,18 @@ trait CronValidationTrait
                     )->error;
                     return;
                 }
-            }
 
-            // Verifica se o intervalo de datas permite ao menos uma execução
-            $cron = new CronExpression($requestData->cron_expressao);
-            $nextExecution = Carbon::instance($cron->getNextRunDate($dataInicio));
+                // Verifica se o intervalo de datas permite ao menos uma execução
+                $cron = new CronExpression($requestData->cron_expressao);
+                $nextExecution = Carbon::instance($cron->getNextRunDate($dataInicio));
 
-            if ($nextExecution->greaterThan($dataFim)) {
-                $arrayErrors->cron_expressao = LogHelper::gerarLogDinamico(
-                    422,
-                    'A expressão cron não permite execuções dentro do intervalo especificado.',
-                    $requestData
-                )->error;
+                if ($nextExecution->greaterThan($dataFim)) {
+                    $arrayErrors->cron_expressao = LogHelper::gerarLogDinamico(
+                        422,
+                        'A expressão cron não permite execuções dentro do intervalo especificado.',
+                        $requestData
+                    )->error;
+                }
             }
         } elseif (empty($requestData->data_vencimento)) {
             // Caso não tenha cron, a data_vencimento deve ser obrigatória

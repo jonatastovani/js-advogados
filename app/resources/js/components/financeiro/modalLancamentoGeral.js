@@ -85,6 +85,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const self = this;
         const modal = $(self._idModal);
 
+        self._modalReset();
         modal.find('.openModalConta').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
