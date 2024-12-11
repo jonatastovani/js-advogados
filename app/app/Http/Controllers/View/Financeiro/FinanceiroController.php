@@ -59,8 +59,9 @@ class FinanceiroController extends Controller
         $dataEnv = new Fluent([
             'dados' => $dados,
             'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
-            'data_inicio' => (new DateTime($fluentData->datas_intervalo['data_inicio']))->format('d/m/Y'),
-            'data_fim' => (new DateTime($fluentData->datas_intervalo['data_fim']))->format('d/m/Y'),
+            'mes_ano' => Carbon::parse($fluentData->mes_ano)->translatedFormat('F/Y'),
+            // 'data_inicio' => (new DateTime($fluentData->datas_intervalo['data_inicio']))->format('d/m/Y'),
+            // 'data_fim' => (new DateTime($fluentData->datas_intervalo['data_fim']))->format('d/m/Y'),
         ]);
 
         $dataEnv = $this->movimentacaoContaImpressaoRenderInfo($dataEnv);

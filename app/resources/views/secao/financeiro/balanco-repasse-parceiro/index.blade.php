@@ -147,8 +147,6 @@
             'baseBalancoRepasseParceiro' => route('api.financeiro.balanco-repasse-parceiros'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseContas' => route('api.financeiro.conta'),
-            'baseMovimentacoesTipo' => route('api.referencias.movimentacao-conta-tipo'),
-            'baseMovimentacoesStatusTipo' => route('api.referencias.movimentacao-conta-status-tipo'),
         ],
     ])
     @endcomponent

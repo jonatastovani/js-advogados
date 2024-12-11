@@ -16,13 +16,13 @@
     </div>
 </div>
 
-<div class="fs-5 mt-2">Selecione o intervalo de repetição</div>
+<div class="fs-5 mt-2">Selecione o intervalo de recorrência</div>
 <div class="row row-cols-1 dadosCron">
 
     <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
-                <label for="cronDay">Todo dia</label>
+                <label for="cronDay{{ $sufixo }}">Todo dia</label>
             </div>
             <select class="form-select inputCron" id="cronDay{{ $sufixo }}" name="cronDay">
                 <option value="*">Qualquer dia</option>
@@ -36,7 +36,7 @@
     <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
-                <label for="cronMonth">Todo mês</label>
+                <label for="cronMonth{{ $sufixo }}">Todo mês</label>
             </div>
             <select class="form-select inputCron" id="cronMonth{{ $sufixo }}" name="cronMonth">
                 <option value="*">Qualquer mês</option>
@@ -51,7 +51,7 @@
     <div class="col mt-2">
         <div class="input-group">
             <div class="input-group-text">
-                <label for="cronWeekday">Todo dia da semana</label>
+                <label for="cronWeekday{{ $sufixo }}">Todo dia da semana</label>
             </div>
             <select class="form-select inputCron" id="cronWeekday{{ $sufixo }}" name="cronWeekday">
                 <option value="*">Qualquer dia</option>
@@ -97,7 +97,7 @@
 
 <div class="row row-cols-1 dadosCron">
     <div class="col mt-2">
-        <label for="cronExpression">Verifique a recorrência gerada</label>
+        <label for="cronExpression{{ $sufixo }}">Verifique a recorrência gerada</label>
         <input type="text" id="cronExpression{{ $sufixo }}" class="form-control mt-2 inputCron" readonly>
     </div>
 </div>
@@ -115,6 +115,5 @@
     </div>
 </div>
 <div class="form-text">
-    Este intervalo de datas é o período que o agendamento será vigente e executado. Por padrão, o agendamento será
-    inserido na listagem dos <i>Lançamentos Gerais</i> um mês antes.
+    Este intervalo de datas é o período que o agendamento será vigente e executado. Por padrão, o agendamento será inserido na listagem dos <i>Lançamentos Gerais</i> 30 dias antes.
 </div>

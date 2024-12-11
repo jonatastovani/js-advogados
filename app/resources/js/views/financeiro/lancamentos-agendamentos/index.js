@@ -40,7 +40,6 @@ class LancamentoAgendamentoIndex extends templateSearch {
         self.#executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
-        self.#buscarMovimentacoesStatusTipo();
         self.#buscarLancamentoCategoriaTipoTenant();
     }
 
@@ -172,6 +171,14 @@ class LancamentoAgendamentoIndex extends templateSearch {
 
             if (data.categoria_id && UUIDHelper.isValidUUID(data.categoria_id)) {
                 appendData.categoria_id = data.categoria_id;
+            }
+
+            if (data.recorrente_bln && [1, 0].includes(Number(data.recorrente_bln))) {
+                appendData.recorrente_bln = data.recorrente_bln;
+            }
+
+            if (data.ativo_bln && [1, 0].includes(Number(data.ativo_bln))) {
+                appendData.ativo_bln = data.ativo_bln;
             }
 
             return { appendData: appendData };
@@ -306,30 +313,13 @@ class LancamentoAgendamentoIndex extends templateSearch {
     async #buscarMovimentacoesTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Details.MovimentacaoContaTipoEnum;
+            const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todas as movimentações',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async #buscarMovimentacoesStatusTipo(selected_id = null) {
-        try {
-            const self = this;
-            const arrayOpcoes = window.Statics.StatusParaFiltrosFrontEnd;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os status',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
             await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {

@@ -126,7 +126,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         super._modalReset();
         const self = this;
         $(self.getIdModal).find(`#dados-pagamento${self._objConfigs.sufixo}-tab`).trigger('click');
-        $(self.getIdModal).find('.btn-simular').show();
+        $(self.getIdModal).find('.elements-pane-lancamentos').show();
     }
 
     async #simularPagamento() {
@@ -285,6 +285,14 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             self._updateModalTitle(`${response.data.nome}`);
             $(self.getIdModal).find('.campos-personalizados').html(response.data.campos_html);
             self.#addEventosCamposPersonalizados();
+            const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
+
+            if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.CONDICIONADO) {
+                $(self.getIdModal).find('.elements-pane-lancamentos').hide('fast');
+            }else{
+                $(self.getIdModal).find('.elements-pane-lancamentos').show('fast');
+            }
+    
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }
@@ -307,6 +315,15 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
         commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
 
+        const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
+        if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
+            self.#gerarCronExpressao();
+
+            // aqui vai a ação dos elementos inputs e selects do cron
+            modal.find('.dadosCron .inputCron').on('change', function () {
+                self.#gerarCronExpressao();
+            });
+        }
     }
 
     async #buscarContas(selected_id = null) {
@@ -346,7 +363,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             if (response?.data) {
                 const responseData = response.data;
                 const pagamentoTipoTenant = responseData.pagamento_tipo_tenant;
-                const configuracao = pagamentoTipoTenant.pagamento_tipo.configuracao;
+                const pagamentoTipo = pagamentoTipoTenant.pagamento_tipo;
+                const configuracao = pagamentoTipo.configuracao;
 
                 self._updateModalTitle(`Alterar: <b>${pagamentoTipoTenant.nome}</b>`);
                 self._dataEnvModal.pagamento_tipo_tenant_id = pagamentoTipoTenant.id;
@@ -355,13 +373,34 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 const form = $(self.getIdModal).find('.formRegistration');
                 form.find('select[name="conta_id"]').val(responseData.conta_id);
                 form.find('select[name="status_id"]').val(responseData.status_id);
-                for (const campo of configuracao.campos_obrigatorios) {
-                    const rules = campo.form_request_rule.split('|');
-                    let valor = responseData[campo.nome];
-                    if (rules.find(rule => rule === 'numeric')) {
-                        valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
+
+                const tipoCampos = [configuracao.campos_obrigatorios, configuracao.campos_opcionais ?? []];
+                for (const tipoCampo of tipoCampos) {
+                    for (const campo of tipoCampo) {
+
+                        if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE && campo.nome == 'cron_expressao') {
+                            const arrCron = responseData.cron_expressao.split(' ');
+                            if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
+                                console.error('A expressão cron é inválida.', responseData.cron_expressao);
+                            } else {
+                                form.find('select[name="cronDay"]').val(arrCron[2]);
+                                form.find('select[name="cronMonth"]').val(arrCron[3]);
+                                form.find('select[name="cronWeekday"]').val(arrCron[4]);
+                            }
+                            self.#gerarCronExpressao();
+                            form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
+                            // form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
+
+                        } else {
+
+                            const rules = campo.form_request_rule.split('|');
+                            let valor = responseData[campo.nome];
+                            if (rules.find(rule => rule === 'numeric')) {
+                                valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
+                            }
+                            form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
+                        }
                     }
-                    form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
                 }
 
                 for (const lancamento of responseData.lancamentos) {
@@ -391,6 +430,98 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         }
     }
 
+    /**
+     * Gera a expressão cron com base nos valores selecionados nos inputs e atualiza a visualização.
+     */
+    #gerarCronExpressao() {
+        const self = this;
+
+        const dadosCron = $(self.getIdModal).find('.dadosCron');
+        const day = dadosCron.find('select[name="cronDay"]').val() || '*';
+        const month = dadosCron.find('select[name="cronMonth"]').val() || '*';
+        const weekday = dadosCron.find('select[name="cronWeekday"]').val() || '*';
+        // const minute = dadosCron.find('select[name="cronMinute"]').val() || '*';
+        // const hour = dadosCron.find('select[name="cronHour"]').val() || '*';
+
+        // Monta a expressão cron
+        const cronExpressao = `* * ${day} ${month} ${weekday}`;
+
+        if (cronExpressao === '* * * * *') {
+            $(self.getIdModal).find(`#cronExpression${self.getSufixo}`).val('Selecione a recorrência');
+        } else {
+            if (!self.#validarExpressaoCron(cronExpressao)) {
+                // Atualiza a expressão e tradução no DOM
+                $(self.getIdModal).find(`#cronExpression${self.getSufixo}`).val('Valores inválidos');
+                self._objConfigs.data.cronExpressao = undefined;
+                return false;
+            }
+        }
+
+        self._objConfigs.data.cronExpressao = cronExpressao;
+
+        // Exemplo de uso
+        const cronParts = {
+            day: day,
+            month: month,
+            weekday: weekday,
+            hour: '*',
+            minute: '*'
+        };
+
+        const traducao = self.#gerarTraducaoCron(cronParts);
+        $(self.getIdModal).find(`#cronExpression${self.getSufixo}`).val(traducao);
+    }
+
+    #gerarTraducaoCron(cronParts) {
+        const self = this;
+
+        const dadosCron = $(self.getIdModal).find('.dadosCron');
+        let traducao = [];
+
+        if (cronParts.day !== '*') {
+            traducao.push(`Todo dia ${cronParts.day}`);
+        }
+        if (cronParts.month !== '*') {
+            if (!traducao.length) {
+                traducao.push('Todo');
+            } else {
+                traducao.push('do');
+            }
+            traducao.push(`mês de ${dadosCron.find(`select[name="cronMonth"] option[value="${cronParts.month}"]`).text().trim()}`);
+        }
+
+        if (cronParts.weekday !== '*') {
+            if (!traducao.length) {
+                traducao.push('Todas(os) as(os)');
+            } else {
+                traducao.push('nas(os)');
+            }
+            traducao.push(`${dadosCron.find(`select[name="cronWeekday"] option[value="${cronParts.weekday}"]`).text().trim()}`);
+        }
+
+        if (traducao.length === 0) {
+            traducao.push('Selecione a recorrência');
+        }
+
+        // Retorna a tradução como uma string formatada
+        return traducao.join(' ').trim();
+    }
+
+    /**
+     * Valida uma expressão cron com base no formato padrão (* * * * *).
+     * @param {string} expressao - A expressão cron a ser validada.
+     * @returns {boolean} Retorna `true` se a expressão for válida, caso contrário `false`.
+     */
+    #validarExpressaoCron(expressao) {
+        const regex = /^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([1-9]|[12]\d|3[01])) (\*|([1-9]|1[0-2])) (\*|[0-7])$/;
+
+        if (regex.test(expressao)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     saveButtonAction() {
         const self = this;
         const data = self.#obterDados();
@@ -405,13 +536,19 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
+        const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
+
+        if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
+            data.cron_expressao = self._objConfigs.data.cronExpressao;
+        }
         return data;
     }
 
     #saveVerifications(data, tipo = 'save') {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        const configuracao = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.configuracao;
+        const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
+        const configuracao = pagamentoTipo.configuracao;
         let blnSave = false;
 
         if (self._action == enumAction.POST || self._action == enumAction.PUT && tipo == 'save') {
@@ -421,16 +558,25 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             if (self._action == enumAction.POST) {
                 for (const campo of configuracao.campos_obrigatorios) {
                     const rules = campo.form_request_rule.split('|');
+                    const nullable = rules.find(rule => rule === 'nullable');
+
                     if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
                         data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
                     }
 
-                    blnSave = commonFunctions.verificationData(data[campo.nome], {
-                        field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
-                        messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
-                        setFocus: blnSave === true,
-                        returnForcedFalse: blnSave === false
-                    });
+                    if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE && campo.nome == 'cron_expressao') {
+                        if (data[campo.nome] == '* * * * *') {
+                            commonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
+                            blnSave = false;
+                        }
+                    } else {
+                        blnSave = commonFunctions.verificationData(data[campo.nome], {
+                            field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
+                            messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
+                            setFocus: blnSave === true,
+                            returnForcedFalse: blnSave === false
+                        });
+                    }
                 }
             }
         }

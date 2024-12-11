@@ -35,6 +35,42 @@
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'consultaMesAnoBln' => true,
+                'camposExtras' => [
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'area_juridica_tenant_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todas as áreas jurídicas']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='area_juridica_tenant_id{$sufixo}' title='Área Jurídica'>Área Jurídica</label></span>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'lancamento_status_tipo_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='lancamento_status_tipo_id{$sufixo}'>Status</label></span>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'conta_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'  title='Conta de onde o valor será compensado ou debitado'><label for='conta_id{$sufixo}'>Conta</label></span>",
+                            ],
+                            'after' => [
+                                "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                            <i class='bi bi-search'></i></button>",
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -48,6 +84,8 @@
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th class="text-center" title="Número do Pagamento">N.P.</th>
                     <th class="text-nowrap">Descrição Lançamento</th>
+                    <th class="text-nowrap">Titulo Serviço</th>
+                    <th class="text-nowrap">Área Jurídica</th>
                     <th class="text-nowrap">Valor Esperado</th>
                     <th class="text-nowrap">Data Vencimento</th>
                     <th class="text-nowrap">Status</th>
@@ -55,8 +93,6 @@
                     <th class="text-nowrap">Data Recebimento</th>
                     <th class="text-nowrap">Observação Lançamento</th>
                     <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
                     <th class="text-nowrap">Total Recebido</th>
                     <th class="text-nowrap">Total Aguardando</th>
                     <th class="text-nowrap">Total Inadimplente</th>
@@ -88,6 +124,8 @@
         'routes' => [
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
+            'baseContas' => route('api.financeiro.conta'),
+            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
         ],
     ])
     @endcomponent

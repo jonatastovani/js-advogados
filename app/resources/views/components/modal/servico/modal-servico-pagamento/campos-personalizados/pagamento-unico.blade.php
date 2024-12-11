@@ -7,7 +7,7 @@
     }
 @endphp
 
-<div class="row row-cols-2 row-cols-lg-4 align-items-end">
+<div class="row row-cols-2 row-cols-lg-4">
     <div class="col mt-2">
         <label for="valor_total{{ $sufixo }}" class="form-label">Valor Total</label>
         <div class="input-group">

@@ -9,6 +9,7 @@
         MovimentacaoContaReferenciaEnum: @json(\App\Enums\MovimentacaoContaReferenciaEnum::toArray()),
         MovimentacaoContaStatusTipoEnum: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::toArray()),
         MovimentacaoContaTipoEnum: @json(\App\Enums\MovimentacaoContaTipoEnum::toArray()),
+        PagamentoTipoEnum: @json(\App\Enums\PagamentoTipoEnum::toArray()),
     };
 
     window.Statics = {
@@ -17,12 +18,15 @@
         StatusLancamentoTachado: @json(\App\Enums\LancamentoStatusTipoEnum::statusLancamentoTachado()),
         StatusPagamentoTachado: @json(\App\Enums\PagamentoStatusTipoEnum::statusPagamentoTachado()),
         StatusServicoLancamentoComParticipantes: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusServicoLancamentoComParticipantes()),
-        TiposMovimentacaoModalLancamentoGeral: @json(\App\Enums\MovimentacaoContaTipoEnum::tiposMovimentacaoModalLancamentoGeral()),
-        StatusParaFiltrosFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusParaFiltrosFrontEnd()),
+        TiposMovimentacaoParaLancamentos: @json(\App\Enums\MovimentacaoContaTipoEnum::tiposMovimentacaoParaLancamentos()),
+        MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusParaFiltrosFrontEnd()),
+        LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoGeral()),
+        MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
     }
 
     window.Details = {
         PessoaPerfilTipoEnum: @json(\App\Enums\PessoaPerfilTipoEnum::staticDetailsToArray()),
         MovimentacaoContaTipoEnum: @json(\App\Enums\MovimentacaoContaTipoEnum::staticDetailsToArray()),
+        LancamentoStatusTipoEnum: @json(\App\Enums\LancamentoStatusTipoEnum::staticDetailsToArray()),
     };
 </script>

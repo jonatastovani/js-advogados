@@ -46,7 +46,7 @@ class LancamentoAgendamentoService extends Service
 
         $arrayCampos = [
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_automatica'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
         ];
 
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_descricao'], $dados);
@@ -56,7 +56,7 @@ class LancamentoAgendamentoService extends Service
     {
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $filtrosData['query'];
+        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
         $ordenacao = $requestData->ordenacao ?? [];
@@ -73,6 +73,30 @@ class LancamentoAgendamentoService extends Service
         ], $options));
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
+    }
+
+    /**
+     * Aplica filtros específicos baseados nos campos de busca fornecidos.
+     *
+     * @param Builder $query Instância do query builder.
+     * @param array $filtros Filtros fornecidos na requisição.
+     * @param Fluent $requestData Dados da requisição.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
+     */
+    private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
+    {
+        if ($requestData->conta_id) {
+            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+        }
+        if ($requestData->movimentacao_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+        }
+        if ($requestData->categoria_id) {
+            $query->where("{$this->model->getTableAsName()}.categoria_id", $requestData->categoria_id);
+        }
+
+        return $query;
     }
 
     protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])

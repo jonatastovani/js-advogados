@@ -22,7 +22,7 @@
                                         role="tab" aria-controls="dados-pagamento{{ $sufixo }}-tab-pane"
                                         aria-selected="true">Dados do pagamento</button>
                                 </li>
-                                <li class="nav-item" role="presentation">
+                                <li class="nav-item elements-pane-lancamentos" role="presentation">
                                     <button class="nav-link px-2" id="lancamentos{{ $sufixo }}-tab"
                                         data-bs-toggle="tab" data-bs-target="#lancamentos{{ $sufixo }}-tab-pane"
                                         type="button" role="tab"
@@ -39,7 +39,7 @@
                                 aria-labelledby="dados-pagamento{{ $sufixo }}-tab" tabindex="0">
                                 @include('components.modal.servico.modal-servico-pagamento.painel-dados-pagamento')
                             </div>
-                            <div class="tab-pane fade h-100" id="lancamentos{{ $sufixo }}-tab-pane" role="tabpanel"
+                            <div class="tab-pane fade h-100 elements-pane-lancamentos" id="lancamentos{{ $sufixo }}-tab-pane" role="tabpanel"
                                 aria-labelledby="lancamentos{{ $sufixo }}-tab" tabindex="0">
                                 @include('components.modal.servico.modal-servico-pagamento.painel-lancamentos')
                             </div>
@@ -49,7 +49,7 @@
             </div>
             <div class="modal-footer">
                 <div class="col-12 text-end">
-                    <button type="button" class="btn btn-outline-primary btn-simular w-50" style="max-width: 7rem">
+                    <button type="button" class="btn btn-outline-primary btn-simular elements-pane-lancamentos w-50" style="max-width: 7rem">
                         Simular
                     </button>
                     <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">

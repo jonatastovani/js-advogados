@@ -6,7 +6,8 @@
     <h3 class="text-center">Movimentações Contas por Período</h3>
     <div class="row">
         <div class="col text-right">
-            <p class="mb-0">Período de: {{ $dataEnv['data_inicio'] }} - {{ $dataEnv['data_fim'] }}</p>
+            {{-- <p class="mb-0">Período de: {{ $dataEnv['data_inicio'] }} - {{ $dataEnv['data_fim'] }}</p> --}}
+            <p class="mb-0">Mês referência: {{ $dataEnv['mes_ano'] }}</p>
             <p>Documento gerado em: {{ date('d/m/Y H:i:s') }}</p>
         </div>
     </div>

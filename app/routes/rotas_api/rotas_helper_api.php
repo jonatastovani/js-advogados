@@ -20,6 +20,8 @@ Route::group([
         Route::post('pagamento-unico/render', 'renderPagamentoUnico');
         Route::post('entrada-com-parcelamento/render', 'renderEntradaComParcelamento');
         Route::post('parcelado/render', 'renderParcelado');
+        Route::post('recorrente/render', 'renderRecorrente');
+        Route::post('condicionado/render', 'renderCondicionado');
     });
 
     Route::group([

@@ -23,12 +23,12 @@ class PagamentoTipoEntradaComParcelamentoHelper
         $conta = Conta::find($dados->conta_id);
 
         // Calcula o valor das parcelas após descontar a entrada
-        $valorRestante = $valorTotal - $valorEntrada;
-        $valorParcela = floor($valorRestante / $quantidadeParcelas * 100) / 100; // Arredondar para baixo com duas casas decimais
-        $valorTotalParcelas = $valorParcela * $quantidadeParcelas;
+        $valorRestante = bcsub($valorTotal, $valorEntrada, 2);
+        $valorParcela = bcdiv($valorRestante, $quantidadeParcelas, 2);
+        $valorTotalParcelas = bcmul($valorParcela, $quantidadeParcelas, 2);
 
         // Ajustar a diferença centesimal na primeira parcela
-        $diferenca = round(($valorRestante - $valorTotalParcelas), 2);
+        $diferenca = bcsub($valorRestante, $valorTotalParcelas, 2);
 
         $dataEntrada = new \DateTime($dataEntrada);
 
@@ -47,13 +47,15 @@ class PagamentoTipoEntradaComParcelamentoHelper
 
         // Gerar as parcelas restantes
         for ($i = 1; $i <= $quantidadeParcelas; $i++) {
-            $valorParcelaAjustada = ($i === 1) ? $valorParcela + $diferenca : $valorParcela;
+            $valorParcelaAjustada = ($i === 1) 
+                ? bcadd($valorParcela, $diferenca, 2) 
+                : $valorParcela;
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
-                'valor_esperado' => round($valorParcelaAjustada, 2),
+                'valor_esperado' => $valorParcelaAjustada,
                 'status' => ['nome' => 'Simulado'],
                 'conta_id' => $conta->id,
                 'conta' => $conta,

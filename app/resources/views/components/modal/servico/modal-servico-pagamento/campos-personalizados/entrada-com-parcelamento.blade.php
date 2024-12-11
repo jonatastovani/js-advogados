@@ -9,7 +9,7 @@
     }
 @endphp
 
-<div class="row row-cols-2 row-cols-lg-4 align-items-end">
+<div class="row row-cols-2 row-cols-lg-4">
     <div class="col mt-2">
         <label for="valor_total{{ $sufixo }}" class="form-label">Valor Total</label>
         <div class="input-group">
@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<div class="row row-cols-2 row-cols-lg-4 align-items-end">
+<div class="row row-cols-2 row-cols-lg-4">
     <div class="col mt-2">
         <label for="entrada_valor{{ $sufixo }}" class="form-label">Valor entrada</label>
         <div class="input-group">
@@ -35,7 +35,7 @@
     </div>
 </div>
 
-<div class="row row-cols-2 row-cols-lg-4 align-items-end">
+<div class="row row-cols-2 row-cols-lg-4">
     <div class="col mt-2">
         <label for="parcela_data_inicio{{ $sufixo }}" class="form-label">Vencimento primeira</label>
         <input type="date" id="parcela_data_inicio{{ $sufixo }}" name="parcela_data_inicio"

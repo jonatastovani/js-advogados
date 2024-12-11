@@ -8,6 +8,7 @@ import { modalLancamentoReagendar } from "../../../components/servico/modalLanca
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
+import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoServicoIndex extends templateSearch {
 
@@ -22,6 +23,8 @@ class PageLancamentoServicoIndex extends templateSearch {
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
             baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
+            baseContas: window.apiRoutes.baseContas,
+            baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
         },
         data: {
             configAcoes: {
@@ -177,8 +180,10 @@ class PageLancamentoServicoIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        self.#executarBusca();
+        self.#buscarContas();
+        self.#buscarLancamentoStatusTipo();
+        self.#buscarAreasJuridicas();
     }
 
     #addEventosBotoes() {
@@ -187,8 +192,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            self.#executarBusca();
         });
 
         const openModal = async () => {
@@ -210,6 +214,34 @@ class PageLancamentoServicoIndex extends templateSearch {
         }
 
         // openModal();
+    }
+
+    async #executarBusca() {
+        const self = this;
+
+        const getAppendDataQuery = () => {
+            const formData = $(`#formDataSearch${self.getSufixo}`);
+            let appendData = {};
+            let data = commonFunctions.getInputsValues(formData[0]);
+
+            if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
+                appendData.conta_id = data.conta_id;
+            }
+            
+            if (data.lancamento_status_tipo_id && Number(data.lancamento_status_tipo_id) > 0) {
+                appendData.lancamento_status_tipo_id = data.lancamento_status_tipo_id;
+            }
+
+            if (data.area_juridica_tenant_id && UUIDHelper.isValidUUID(data.area_juridica_tenant_id)) {
+                appendData.area_juridica_tenant_id = data.area_juridica_tenant_id;
+            }
+
+            return { appendData: appendData };
+        }
+
+        BootstrapFunctionsHelper.removeEventPopover();
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters(getAppendDataQuery());
     }
 
     async insertTableData(item, options = {}) {
@@ -265,6 +297,8 @@ class PageLancamentoServicoIndex extends templateSearch {
                 <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
@@ -272,8 +306,6 @@ class PageLancamentoServicoIndex extends templateSearch {
                 <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
-                <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorInadimplente}">${valorInadimplente}</td>
@@ -546,6 +578,55 @@ class PageLancamentoServicoIndex extends templateSearch {
             btnAcao.click(async function () {
                 await openAlterarStatus({ status_html: 'Cancelado', status_id: enumLanc.CANCELADO });
             });
+        }
+    }
+
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as contas',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const select = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarLancamentoStatusTipo(selected_id = null) {
+        try {
+            const self = this;
+            const arrayOpcoes = window.Details.LancamentoStatusTipoEnum;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todos os status',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarAreasJuridicas(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                insertFirstOption: true,
+                firstOptionName: 'Todas as áreas jurídicas',
+            };
+            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            const select = $(`#area_juridica_tenant_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            return true;
+        } catch (error) {
+            return false;
         }
     }
 }

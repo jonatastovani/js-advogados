@@ -14,7 +14,6 @@ use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class PagamentoTipoTenantService extends Service
 {
@@ -48,6 +47,14 @@ class PagamentoTipoTenantService extends Service
 
             case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
                 $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.entrada-com-parcelamento', compact('requestData'))->render();
+                break;
+
+            case PagamentoTipoEnum::RECORRENTE->value:
+                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.recorrente', compact('requestData'))->render();
+                break;
+
+            case PagamentoTipoEnum::CONDICIONADO->value:
+                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.condicionado', compact('requestData'))->render();
                 break;
 
             default:

@@ -154,7 +154,7 @@ class PageLancamentoGeralIndex extends templateSearch {
         self.#executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
-        self.#buscarMovimentacoesStatusTipo();
+        self.#buscarLancamentoStatusTipo();
         self.#buscarLancamentoCategoriaTipoTenant();
     }
 
@@ -286,8 +286,8 @@ class PageLancamentoGeralIndex extends templateSearch {
                 appendData.movimentacao_tipo_id = data.movimentacao_tipo_id;
             }
 
-            if (data.movimentacao_status_tipo_id && Number(data.movimentacao_status_tipo_id) > 0) {
-                appendData.movimentacao_status_tipo_id = data.movimentacao_status_tipo_id;
+            if (data.lancamento_status_tipo_id && Number(data.lancamento_status_tipo_id) > 0) {
+                appendData.lancamento_status_tipo_id = data.lancamento_status_tipo_id;
             }
 
             if (data.categoria_id && UUIDHelper.isValidUUID(data.categoria_id)) {
@@ -443,11 +443,6 @@ class PageLancamentoGeralIndex extends templateSearch {
             btnAcao.click(async function () {
                 await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
             });
-
-            if (!self._objConfigs.data?.openLiquidado) {
-                self._objConfigs.data.openLiquidado = true;
-                btnAcao.click();
-            }
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
@@ -526,7 +521,17 @@ class PageLancamentoGeralIndex extends templateSearch {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
         const descricao = item.descricao;
-        let strBtns = '';
+        let strBtns = `
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-edit" title="Editar agendamento ${descricao}.">
+                    Editar
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir agendamento ${descricao}.">
+                    Excluir
+                </button>
+            </li>`;
 
         if (configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
             strBtns += `
@@ -597,18 +602,6 @@ class PageLancamentoGeralIndex extends templateSearch {
         }
 
         strBtns = `
-            <li>
-                <button type="button" class="dropdown-item fs-6 btn-edit" title="Editar agendamento ${descricao}.">
-                    Editar
-                </button>
-            </li>
-            <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir agendamento ${descricao}.">
-                    Excluir
-                </button>
-            </li>`;
-
-        strBtns = `
         <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-three-dots-vertical"></i>
         </button>
@@ -639,7 +632,7 @@ class PageLancamentoGeralIndex extends templateSearch {
     async #buscarMovimentacoesTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Details.MovimentacaoContaTipoEnum;
+            const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todas as movimentações',
@@ -653,16 +646,16 @@ class PageLancamentoGeralIndex extends templateSearch {
         }
     }
 
-    async #buscarMovimentacoesStatusTipo(selected_id = null) {
+    async #buscarLancamentoStatusTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Statics.StatusParaFiltrosFrontEnd;
+            const arrayOpcoes = window.Statics.LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
+            const selModulo = $(`#lancamento_status_tipo_id${self.getSufixo}`);
             await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
             return true;
         } catch (error) {

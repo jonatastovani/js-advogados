@@ -74,7 +74,7 @@ class LancamentoGeralService extends Service
     {
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $filtrosData['query'];
+        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
         $ordenacao = $requestData->ordenacao ?? [];
@@ -93,6 +93,39 @@ class LancamentoGeralService extends Service
         ], $options));
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
+    }
+
+    /**
+     * Aplica filtros específicos baseados nos campos de busca fornecidos.
+     *
+     * @param Builder $query Instância do query builder.
+     * @param array $filtros Filtros fornecidos na requisição.
+     * @param Fluent $requestData Dados da requisição.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
+     */
+    private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
+    {
+        if ($requestData->conta_id) {
+            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+        }
+        if ($requestData->movimentacao_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+        }
+        if ($requestData->lancamento_status_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->lancamento_status_tipo_id);
+        }
+        if ($requestData->categoria_id) {
+            $query->where("{$this->model->getTableAsName()}.categoria_id", $requestData->categoria_id);
+        }
+        if (isset($requestData->recorrente_bln)) {
+            $query->where("{$this->model->getTableAsName()}.recorrente_bln", $requestData->recorrente_bln);
+        }
+        if (isset($requestData->ativo_bln)) {
+            $query->where("{$this->model->getTableAsName()}.ativo_bln", $requestData->ativo_bln);
+        }
+
+        return $query;
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model

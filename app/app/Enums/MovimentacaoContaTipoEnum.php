@@ -35,7 +35,7 @@ enum MovimentacaoContaTipoEnum: int
         };
     }
 
-    static public function tiposMovimentacaoModalLancamentoGeral(): array
+    static public function tiposMovimentacaoParaLancamentos(): array
     {
         return [
             self::CREDITO->detalhes(),

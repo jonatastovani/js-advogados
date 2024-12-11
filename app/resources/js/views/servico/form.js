@@ -64,7 +64,7 @@ class PageServicoForm {
             self.#objConfigs.url.baseParticipacao = `${url}/participacao`;
             self.#objConfigs.url.baseValores = `${url}/relatorio/valores`;
             this.#action = enumAction.PUT;
-            self.#buscarDados();
+            await self.#buscarDados();
         } else {
             this.#action = enumAction.POST;
         }
@@ -167,15 +167,15 @@ class PageServicoForm {
 
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
 
-        // const openModalTest = async () => {
-        //     const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`);
-        //     objCode._dataEnvModal = {
+        const openModalTest = async () => {
+            const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`);
+            objCode._dataEnvModal = {
 
-        //         pagamento_tipo_tenant_id: '9d3f0306-030e-4e2b-a42a-380a87a091ae',
-        //     }
-        //     const retorno = await objCode.modalOpen();
-        //     // console.log(retorno);
-        // }
+                pagamento_tipo_tenant_id: "9db0bf1f-fab3-4f35-8be1-d5192a3ba082",
+            }
+            const retorno = await objCode.modalOpen();
+            // console.log(retorno);
+        }
         // openModalTest();
     }
 
@@ -278,6 +278,26 @@ class PageServicoForm {
         let htmlAppend = self.#htmlParticipantes(item, 'pagamento', item.status_id);
         htmlAppend += self.#htmlAppendPagamento(item);
         let htmlLancamentos = self.#htmlLancamentos(item);
+        if(htmlLancamentos){
+            htmlLancamentos = `
+                <div class="accordion mt-2" id="accordionPagamento${item.id}">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne${item.id}" aria-expanded="false"
+                                aria-controls="collapseOne${item.id}">
+                                Lançamentos
+                            </button>
+                        </div>
+                        <div id="collapseOne${item.id}" class="accordion-collapse collapse"
+                            data-bs-parent="#accordionPagamento${item.id}">
+                            <div class="accordion-body d-flex flex-column gap-2">
+                                ${htmlLancamentos}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
         const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
         const tachado = (window.Statics.StatusPagamentoTachado.findIndex(x => x == item.status_id) != -1);
 
@@ -306,23 +326,7 @@ class PageServicoForm {
                         </div>
                         ${htmlAppend}
                     </div>
-                    <div class="accordion mt-2" id="accordionPagamento${item.id}">
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseOne${item.id}" aria-expanded="false"
-                                    aria-controls="collapseOne${item.id}">
-                                    Lançamentos
-                                </button>
-                            </div>
-                            <div id="collapseOne${item.id}" class="accordion-collapse collapse"
-                                data-bs-parent="#accordionPagamento${item.id}">
-                                <div class="accordion-body d-flex flex-column gap-2">
-                                    ${htmlLancamentos}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    ${htmlLancamentos}
                     <div class="form-text mt-2">${created_at}</div>
                 </div>
             </div>`;
@@ -456,7 +460,6 @@ class PageServicoForm {
 
         let htmlLancamentos = '';
         for (const lancamento of item.lancamentos) {
-
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
             const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);

@@ -53,11 +53,11 @@
                     ],
                     [
                         'tipo' => 'select',
-                        'nome' => 'movimentacao_status_tipo_id',
+                        'nome' => 'lancamento_status_tipo_id',
                         'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
                         'input_group' => [
                             'before' => [
-                                "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}'>Status</label></span>",
+                                "<span class='input-group-text'><label for='lancamento_status_tipo_id{$sufixo}'>Status</label></span>",
                             ],
                         ],
                     ],
@@ -96,8 +96,10 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary">Imprimir consulta</button>
-        <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary" >Inserir lançamento</button>
+        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary">Imprimir
+            consulta</button>
+        <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary">Inserir
+            lançamento</button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Servico\ServicoPagamentoLancamento;
+namespace App\Http\Requests\Financeiro\LancamentoAgendamento;
 
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use Illuminate\Support\Arr;
 
-class PostConsultaFiltroFormRequestServicoPagamentoLancamento extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestLancamentoAgendamento extends PostConsultaFiltroFormRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,8 +28,10 @@ class PostConsultaFiltroFormRequestServicoPagamentoLancamento extends PostConsul
         $rules = array_merge($rules, [
             'mes_ano' => 'required|date:Y-m',
             'conta_id' => 'nullable|uuid',
-            'lancamento_status_tipo_id' => 'nullable|integer',
-            'area_juridica_tenant_id' => 'nullable|uuid',
+            'movimentacao_tipo_id' => 'nullable|integer',
+            'categoria_id' => 'nullable|uuid',
+            'recorrente_bln' => 'nullable|boolean',
+            'ativo_bln' => 'nullable|boolean',
         ]);
         return $rules;
     }

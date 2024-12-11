@@ -143,7 +143,7 @@ class ServicoPagamentoLancamentoService extends Service
     {
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
-        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
+        $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
         $ordenacao = $requestData->ordenacao ?? [];
@@ -169,10 +169,11 @@ class ServicoPagamentoLancamentoService extends Service
      *
      * @param Builder $query Instância do query builder.
      * @param array $filtros Filtros fornecidos na requisição.
+     * @param Fluent $requestData Dados da requisição.
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    private function aplicarFiltrosEspecificos(Builder $query, $filtros, array $options = [])
+    private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
     {
         $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
@@ -236,6 +237,18 @@ class ServicoPagamentoLancamentoService extends Service
                     break;
             }
         }
+
+        if ($requestData->conta_id) {
+            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+
+            // Colocar o orWhere para ver a conta do pagamento
+        }
+        if ($requestData->lancamento_status_tipo_id) {
+            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->lancamento_status_tipo_id);
+        }
+        // if ($requestData->area_juridica_tenant_id) {
+        //     $query->where("{$this->model->getTableAsName()}.area_juridica_tenant_id", $requestData->area_juridica_tenant_id);
+        // }
 
         $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;

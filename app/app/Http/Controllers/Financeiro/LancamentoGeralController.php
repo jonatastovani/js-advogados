@@ -7,6 +7,7 @@ use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestDestr
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestShow;
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestStore;
 use App\Http\Requests\Financeiro\LancamentoGeral\LancamentoGeralFormRequestUpdate;
+use App\Http\Requests\Financeiro\LancamentoGeral\PostConsultaFiltroFormRequestLancamentoGeral;
 use App\Http\Requests\Financeiro\LancamentoGeral\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendado;
 use App\Services\Financeiro\LancamentoGeralService;
 use App\Traits\CommonsConsultaControllerTrait;
@@ -17,6 +18,12 @@ class LancamentoGeralController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public LancamentoGeralService $service) {}
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestLancamentoGeral $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function store(LancamentoGeralFormRequestStore $formRequest)
     {

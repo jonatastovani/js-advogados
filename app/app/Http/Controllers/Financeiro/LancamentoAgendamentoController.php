@@ -7,6 +7,7 @@ use App\Http\Requests\Financeiro\LancamentoAgendamento\LancamentoAgendamentoForm
 use App\Http\Requests\Financeiro\LancamentoAgendamento\LancamentoAgendamentoFormRequestShow;
 use App\Http\Requests\Financeiro\LancamentoAgendamento\LancamentoAgendamentoFormRequestStore;
 use App\Http\Requests\Financeiro\LancamentoAgendamento\LancamentoAgendamentoFormRequestUpdate;
+use App\Http\Requests\Financeiro\LancamentoAgendamento\PostConsultaFiltroFormRequestLancamentoAgendamento;
 use App\Http\Requests\Financeiro\LancamentoAgendamento\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendado;
 use App\Services\Financeiro\LancamentoAgendamentoService;
 use App\Traits\CommonsConsultaControllerTrait;
@@ -17,6 +18,12 @@ class LancamentoAgendamentoController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public LancamentoAgendamentoService $service) {}
+    
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestLancamentoAgendamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function store(LancamentoAgendamentoFormRequestStore $formRequest)
     {

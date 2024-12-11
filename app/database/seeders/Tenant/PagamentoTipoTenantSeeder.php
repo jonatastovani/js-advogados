@@ -32,6 +32,16 @@ class PagamentoTipoTenantSeeder extends Seeder
                 'pagamento_tipo_id' => PagamentoTipoEnum::PARCELADO,
                 'configuracao' => [],
             ],
+            [
+                'nome' => 'Recorrente',
+                'pagamento_tipo_id' => PagamentoTipoEnum::RECORRENTE,
+                'configuracao' => [],
+            ],
+            [
+                'nome' => 'Condicionado',
+                'pagamento_tipo_id' => PagamentoTipoEnum::CONDICIONADO,
+                'configuracao' => [],
+            ],
         ];
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();

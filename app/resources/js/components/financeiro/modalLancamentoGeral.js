@@ -357,7 +357,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
     async #buscarMovimentacoesTipo(selected_id = null) {
         try {
-            const arrayOpcoes = window.Statics.TiposMovimentacaoModalLancamentoGeral;
+            const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);

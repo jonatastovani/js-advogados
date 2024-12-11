@@ -25,6 +25,6 @@ class ServicoPagamentoFormRequestUpdate extends ServicoPagamentoFormRequestBase
         // }, ARRAY_FILTER_USE_BOTH);
         // return $filter;
 
-        return Arr::only(parent::rules(), ['conta_id', 'observacao', 'status_id']);
+        return Arr::only(parent::rules(), ['conta_id', 'observacao', 'status_id', 'descricao_condicionado']);
     }
 }

@@ -2,11 +2,58 @@
 
 namespace App\Helpers;
 
+use App\Models\Financeiro\Conta;
+use App\Traits\ParcelamentoTipoHelperTrait;
+use Carbon\Carbon;
+use Cron\CronExpression;
+use Illuminate\Support\Fluent;
+
 class PagamentoTipoRecorrenteHelper
 {
-    public static function executa(array $dados)
+    use ParcelamentoTipoHelperTrait;
+
+    static public function renderizar(Fluent $dados, array $options = [])
     {
-        // Lógica para validar o tipo de pagamento "Recorrente"
-        // Exemplo: Validar a cron expression para recorrência.
+        $conta = Conta::find($dados->conta_id);
+
+        $dataInicio = Carbon::parse($dados->cron_data_inicio);
+        $dataFim = $dados->cron_data_fim ? Carbon::parse($dados->cron_data_fim) : null;
+        $cron = new CronExpression($dados->cron_expressao);
+        $hoje = Carbon::today();
+        $dataLimite = $hoje->copy()->addDays(30);
+
+        $proximasExecucoes = [];
+        while (true) {
+            $proximaExecucao = $cron->getNextRunDate($dataInicio)->format('Y-m-d');
+
+            if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
+                break;
+            }
+
+            if (
+                Carbon::parse($proximaExecucao)->gte($dataInicio) &&
+                (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
+            ) {
+                $proximasExecucoes[] = $proximaExecucao;
+            }
+
+            $dataInicio = Carbon::parse($proximaExecucao)->addDay();
+        }
+
+        $lancamentos = [];
+
+        foreach ($proximasExecucoes as $proximaExecucao) {
+            $lancamentos[] = [
+                'descricao_automatica' => 'Recorrente',
+                'observacao' => null,
+                'data_vencimento' => Carbon::parse($proximaExecucao)->format('Y-m-d'),
+                'valor_esperado' => $dados->parcela_valor,
+                'status' => ['nome' => 'Simulado'],
+                'conta_id' => $conta->id,
+                'conta' => $conta,
+            ];
+        }
+
+        return ['lancamentos' => $lancamentos];
     }
 }

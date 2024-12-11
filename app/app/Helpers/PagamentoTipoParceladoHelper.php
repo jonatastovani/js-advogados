@@ -20,22 +20,24 @@ class PagamentoTipoParceladoHelper
 
         $conta = Conta::find($dados->conta_id);
 
-        $valorParcela = floor($valorTotal / $quantidadeParcelas * 100) / 100; // Arredondar para baixo com duas casas decimais
-        $valorTotalParcelas = $valorParcela * $quantidadeParcelas;
+        $valorParcela = bcdiv($valorTotal, $quantidadeParcelas, 2); // Divisão precisa com 2 casas decimais
+        $valorTotalParcelas = bcmul($valorParcela, $quantidadeParcelas, 2);
 
         // Ajustar a diferença centesimal na primeira parcela
-        $diferenca = round(($valorTotal - $valorTotalParcelas), 2);
+        $diferenca = bcsub($valorTotal, $valorTotalParcelas, 2);
         $dataVencimento = new \DateTime($dataInicio);
 
-        // Gerar as parcelas restantes
+        // Gerar as parcelas
         for ($i = 1; $i <= $quantidadeParcelas; $i++) {
-            $valorParcelaAjustada = ($i === 1) ? $valorParcela + $diferenca : $valorParcela;
+            $valorParcelaAjustada = ($i === 1) 
+                ? bcadd($valorParcela, $diferenca, 2) 
+                : $valorParcela;
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
-                'valor_esperado' => round($valorParcelaAjustada, 2),
+                'valor_esperado' => $valorParcelaAjustada,
                 'status' => ['nome' => 'Simulado'],
                 'conta_id' => $conta->id,
                 'conta' => $conta,

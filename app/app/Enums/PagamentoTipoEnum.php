@@ -126,23 +126,31 @@ enum PagamentoTipoEnum: int
             self::RECORRENTE => [
                 'id' => self::RECORRENTE->value,
                 'nome' => 'Recorrente',
-                'descricao' => "Método que gera as parcelas de maneira recorrente, podendo definir a data de início e o dia de vencimento das parcelas. Este método não pode ser combinado com nenhum outro.",
+                'descricao' => "Método que gera as parcelas de maneira recorrente, podendo definir a data de início, data final (opcional) e a maneira de recorrência das parcelas.",
                 'configuracao' => [
                     'campos_obrigatorios' => [
                         [
-                            'nome' => 'parcela_data_inicio',
-                            'nome_exibir' => 'Vencimento primeira',
+                            'nome' => 'cron_data_inicio',
+                            'nome_exibir' => 'Data Início',
                             'form_request_rule' => 'required|date',
                         ],
                         [
-                            'nome' => 'parcela_vencimento_dia',
-                            'nome_exibir' => 'Dia de vencimento',
-                            'form_request_rule' => 'required|integer|min:1|max:31',
+                            'nome' => 'cron_expressao',
+                            'nome_exibir' => 'Expressão recorrência',
+                            'form_request_rule' => 'nullable|string',
+                            'attr' => ['visible' => false],
                         ],
                         [
                             'nome' => 'parcela_valor',
                             'nome_exibir' => 'Valor da parcela',
-                            'form_request_rule' => 'required|numeric',
+                            'form_request_rule' => 'required|numeric|min:0.01',
+                        ],
+                    ],
+                    'campos_opcionais' => [
+                        [
+                            'nome' => 'cron_data_fim',
+                            'nome_exibir' => 'Data Fim',
+                            'form_request_rule' => 'nullable|date',
                         ],
                     ],
                     'helper' => [
@@ -154,7 +162,7 @@ enum PagamentoTipoEnum: int
             self::CONDICIONADO => [
                 'id' => self::CONDICIONADO->value,
                 'nome' => 'Condicionado',
-                'descricao' => "Método que não espera um valor total, mas exige uma descrição da condição para o pagamento. Este método não pode ser combinado com nenhum outro.",
+                'descricao' => "Método que não espera um valor total, mas exige uma descrição da condição para o pagamento.",
                 'configuracao' => [
                     'campos_obrigatorios' => [
                         [
@@ -163,10 +171,6 @@ enum PagamentoTipoEnum: int
                             'form_request_rule' => 'required|string',
                         ],
                     ],
-                    'helper' => [
-                        'class' => PagamentoTipoCondicionadoHelper::class,
-                        'endpoint_api' => 'api/helper/pagamento-tipo/condicionado',
-                    ]
                 ],
             ],
         };

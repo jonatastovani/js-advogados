@@ -94,7 +94,7 @@ enum MovimentacaoContaStatusTipoEnum: int
     }
 
     /**
-     * Status que mostrarão participantes, caso a movimentação tenha participantes.
+     * Registros que serão filtrados nos relatorios de balanço de repasse com parceiro.
      */
     static public function statusMostrarBalancoRepasseParceiro(): array
     {
@@ -104,6 +104,16 @@ enum MovimentacaoContaStatusTipoEnum: int
         ];
     }
 
+    static public function statusMostrarBalancoRepasseParceiroFrontEnd(): array
+    {
+        $mostrar = self::statusMostrarBalancoRepasseParceiro();
+
+        return array_values(array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => in_array($detalhe['id'], $mostrar)
+        ));
+    }
+
     /**
      * Retorna os status que serão exibidos nos filtros do front-end.
      */
@@ -111,9 +121,9 @@ enum MovimentacaoContaStatusTipoEnum: int
     {
         $ocultos = self::statusOcultoNasConsultas();
 
-        return array_filter(
+        return array_values(array_filter(
             self::staticDetailsToArray(),
             fn($detalhe) => !in_array($detalhe['id'], $ocultos)
-        );
+        ));
     }
 }

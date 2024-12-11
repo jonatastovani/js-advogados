@@ -7,6 +7,7 @@ use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
+use App\Helpers\PagamentoTipoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Referencias\PagamentoTipo;
 use App\Services\Service;
@@ -28,35 +29,6 @@ class PagamentoTipoService extends Service
         $resource = $this->model->orderBy('nome', 'asc')->get();
         return $resource->toArray();
     }
-
-    // public function show(Fluent $requestData)
-    // {
-    //     $resource = $this->buscarRecurso($requestData);
-    //     $resource->load('pagamento_tipo');
-    //     // $resource = new Fluent($resource->toArray());
-
-    //     switch ($resource->pagamento_tipo_id) {
-    //         case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
-    //             $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.pagamento-unico')->render();
-    //             break;
-
-    //         case PagamentoTipoEnum::PARCELADO->value:
-    //             $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.parcelado')->render();
-    //             break;
-
-    //         case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-    //             $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.entrada-com-parcelamento')->render();
-    //             break;
-
-    //         default:
-    //             $html = '';
-    //             break;
-    //     }
-
-    //     $resource->campos_html = $html;
-
-    //     return $resource->toArray();
-    // }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -128,6 +100,11 @@ class PagamentoTipoService extends Service
     public function renderParcelado(Fluent $requestData, array $options = [])
     {
         return PagamentoTipoParceladoHelper::renderizar($requestData, $options);
+    }
+
+    public function renderRecorrente(Fluent $requestData, array $options = [])
+    {
+        return PagamentoTipoRecorrenteHelper::renderizar($requestData, $options);
     }
 
     // private function executarEventoWebsocket()

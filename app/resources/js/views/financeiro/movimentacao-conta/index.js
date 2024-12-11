@@ -568,7 +568,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Statics.StatusParaFiltrosFrontEnd;
+            const arrayOpcoes = window.Statics.MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',

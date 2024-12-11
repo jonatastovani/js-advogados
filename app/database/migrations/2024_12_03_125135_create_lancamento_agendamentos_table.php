@@ -40,7 +40,7 @@ return new class extends Migration
             $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
 
             $table->boolean('recorrente_bln')->default(true);
-            $table->string('cron_expressao')->nullable();
+            $table->string('cron_expressao', 20)->nullable();
             $table->date('cron_data_inicio')->nullable();
             $table->date('cron_data_fim')->nullable();
             $table->timestamp('cron_ultima_execucao')->nullable();

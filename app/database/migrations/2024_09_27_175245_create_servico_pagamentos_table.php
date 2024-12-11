@@ -27,10 +27,10 @@ return new class extends Migration
             $this->addDomainIDField($table);
 
             $table->string('numero_pagamento');
-            
+
             $table->uuid('servico_id');
             $table->foreign('servico_id')->references('id')->on((new App\Models\Servico\Servico)->getTableName());
-            
+
             $table->uuid('pagamento_tipo_tenant_id');
             $table->foreign('pagamento_tipo_tenant_id')->references('id')->on((new App\Models\Tenant\PagamentoTipoTenant)->getTableName());
 
@@ -43,6 +43,9 @@ return new class extends Migration
             $table->date('parcela_data_inicio')->nullable();
             $table->integer('parcela_quantidade')->nullable();
             $table->integer('parcela_vencimento_dia')->nullable();
+            $table->string('cron_expressao', 20)->nullable();
+            $table->date('cron_data_inicio')->nullable();
+            $table->date('cron_data_fim')->nullable();
             $table->float('parcela_valor')->nullable();
             $table->string('descricao_condicionado')->nullable();
             $table->string('observacao')->nullable();
@@ -51,7 +54,7 @@ return new class extends Migration
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\PagamentoStatusTipo)->getTableName());
 
             $table->json('temporary_data')->nullable(); // Armazenará dados temporários, quando o status for um status em análise.
-            
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

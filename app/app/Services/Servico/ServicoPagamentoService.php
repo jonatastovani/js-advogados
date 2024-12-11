@@ -10,6 +10,7 @@ use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
+use App\Helpers\PagamentoTipoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Referencias\LancamentoStatusTipo;
@@ -93,6 +94,13 @@ class ServicoPagamentoService extends Service
                     $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
                     break;
 
+                case PagamentoTipoEnum::RECORRENTE->value:
+                    $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
+                    break;
+
+                case PagamentoTipoEnum::CONDICIONADO->value:
+                    break;
+
                 default:
                     throw new Exception('Tipo de pagamento base não encontrado.');
             }
@@ -102,7 +110,7 @@ class ServicoPagamentoService extends Service
                 $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
             }
 
-            $lancamentos = $lancamentos['lancamentos'];
+            $lancamentos = $lancamentos['lancamentos'] ?? [];
 
             foreach ($lancamentos as $lancamento) {
                 $lancamento = new Fluent($lancamento);

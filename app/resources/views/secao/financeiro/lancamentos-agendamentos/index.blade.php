@@ -22,21 +22,16 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    'numero_servico' => ['nome' => 'Número de Serviço'],
-                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
-                    'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
-                    'nome_participante' => ['nome' => 'Nome Participante'],
-                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
-                    'nome_integrante' => ['nome' => 'Nome Integrante'],
+                    'observacao' => ['nome' => 'Observação'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                'arrayCamposChecked' => ['descricao'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
+                    'data_vencimento' => ['nome' => 'Data vencimento'],
                     'created_at' => ['nome' => 'Data cadastro'],
-                    'data_movimentacao' => ['nome' => 'Data Movimentação'],
                 ],
                 'consultaMesAnoBln' => true,
                 'camposExtras' => [
@@ -78,6 +73,56 @@
                             ],
                         ],
                     ],
+                    [
+                        'tipo' => 'radio',
+                        'nome' => 'ativo_bln',
+                        'opcoes' => [
+                            [
+                                'id' => "rbStatusTodos{$sufixo}",
+                                'valor' => '',
+                                'label' => 'Todos os tipos',
+                                'checked' => true,
+                                'title' => 'Todos os tipos de agendamentos',
+                            ],
+                            [
+                                'id' => "rbStatusAtivo{$sufixo}",
+                                'valor' => '1',
+                                'label' => 'Ativos',
+                                'title' => 'Agendamentos ativos',
+                            ],
+                            [
+                                'id' => "rbStatusInativo{$sufixo}",
+                                'valor' => '0',
+                                'label' => 'Inativos',
+                                'title' => 'Agendamentos inativos',
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'radio',
+                        'nome' => 'recorrente_bln',
+                        'opcoes' => [
+                            [
+                                'id' => "rbRecorrenteTodos{$sufixo}",
+                                'valor' => '',
+                                'label' => 'Todos os status',
+                                'checked' => true,
+                                'title' => 'Todos os status de agendamentos',
+                            ],
+                            [
+                                'id' => "rbRecorrenteSim{$sufixo}",
+                                'valor' => '1',
+                                'label' => 'Recorrentes',
+                                'title' => 'Somente registros recorrentes',
+                            ],
+                            [
+                                'id' => "rbRecorrenteNao{$sufixo}",
+                                'valor' => '0',
+                                'label' => 'Não recorrentes',
+                                'title' => 'Somente registros não recorrentes',
+                            ],
+                        ],
+                    ],
                 ],
             ]);
         @endphp
@@ -85,7 +130,8 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary" >Inserir agendamento</button>
+        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary">Inserir
+            agendamento</button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">

@@ -21,11 +21,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'status_id' => 'nullable|integer',
         ];
 
-        // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
-        if ($this->isMethod('post')) {
-
-            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-            $pagamentoTipoTenantId = $this->input('pagamento_tipo_tenant_id');
+        $verificaPagamentoTipoTenant = function ($pagamentoTipoTenantId) {
 
             if (!$pagamentoTipoTenantId) {
                 $log = LogHelper::gerarLogDinamico('404', 'Tipo de Pagamento do Tenant não informado. Consulte o desenvolvedor.', $this);
@@ -37,7 +33,14 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             if (!$consulta) {
                 return RestResponse::createErrorResponse(404, 'Tipo de Pagamento do Tenant não encontrado.')->throwResponse();
             }
+            return $consulta;
+        };
 
+        // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
+        if ($this->isMethod('post')) {
+
+            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
             $pagamentoTipo = $consulta->pagamento_tipo;
 
             // Define as regras de acordo com o tipo de pagamento
@@ -55,6 +58,19 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
                         }
                 }
                 $rules[$value['nome']] = $value['form_request_rule'];
+            }
+        } else {
+
+            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+            $pagamentoTipo = $consulta->pagamento_tipo;
+
+            if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
+
+                // Define as regras de acordo com o tipo de pagamento
+                foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+                    $rules[$value['nome']] = $value['form_request_rule'];
+                }
             }
         }
 
