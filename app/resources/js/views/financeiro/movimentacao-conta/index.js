@@ -160,7 +160,9 @@ class PageMovimentacaoContaIndex extends templateSearch {
                     id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
                     cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
                 },
-            }
+            },
+            // Pré carregamento de dados vindo da URL
+            preload: {}
         }
     };
 
@@ -170,14 +172,24 @@ class PageMovimentacaoContaIndex extends templateSearch {
         this.initEvents();
     }
 
-    initEvents() {
+    async initEvents() {
         const self = this;
+
+        await self.#preLoadUrlParams();
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self.#executarBusca();
-        self.#buscarContas();
-        self.#buscarMovimentacoesTipo();
-        self.#buscarMovimentacoesStatusTipo();
+        await self.#buscarContas(self._objConfigs.data?.preload?.conta_id || null);
+        await self.#buscarMovimentacoesTipo();
+        await self.#buscarMovimentacoesStatusTipo();
+        await self.#executarBusca();
+    }
+
+    #preLoadUrlParams() {
+        const self = this;
+        const conta_id = URLHelper.getParameterURL('conta_id');
+        if (conta_id && UUIDHelper.isValidUUID(conta_id)) {
+            self._objConfigs.data.preload.conta_id = conta_id;
+            URLHelper.removeURLParameter('conta_id');
+        }
     }
 
     #addEventosBotoes() {
@@ -204,9 +216,8 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
+                    if (response.selected) {
+                        self.#buscarContas(response.selected.id);
                     } else {
                         self.#buscarContas();
                     }

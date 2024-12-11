@@ -3,6 +3,7 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
+import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
@@ -195,25 +196,35 @@ class PageLancamentoServicoIndex extends templateSearch {
             self.#executarBusca();
         });
 
-        const openModal = async () => {
+        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoServicoMovimentar({
-                    urlApi: `${self._objConfigs.url.baseServico}/`
-                });
+                const objModal = new modalConta();
                 objModal.setDataEnvModal = {
-                    idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                    pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                    status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
                 }
-                const response = await objModal.modalOpen();
-                console.log(response);
 
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+                        self.#buscarContas(response.selected.id);
+                    } else {
+                        self.#buscarContas();
+                    }
+                }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
             }
-        }
+        });
 
-        // openModal();
     }
 
     async #executarBusca() {
@@ -227,13 +238,13 @@ class PageLancamentoServicoIndex extends templateSearch {
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
             }
-            
+
             if (data.lancamento_status_tipo_id && Number(data.lancamento_status_tipo_id) > 0) {
                 appendData.lancamento_status_tipo_id = data.lancamento_status_tipo_id;
             }
 
-            if (data.area_juridica_tenant_id && UUIDHelper.isValidUUID(data.area_juridica_tenant_id)) {
-                appendData.area_juridica_tenant_id = data.area_juridica_tenant_id;
+            if (data.area_juridica_id && UUIDHelper.isValidUUID(data.area_juridica_id)) {
+                appendData.area_juridica_id = data.area_juridica_id;
             }
 
             return { appendData: appendData };
@@ -622,7 +633,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                 firstOptionName: 'Todas as áreas jurídicas',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const select = $(`#area_juridica_tenant_id${self.getSufixo}`);
+            const select = $(`#area_juridica_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true;
         } catch (error) {

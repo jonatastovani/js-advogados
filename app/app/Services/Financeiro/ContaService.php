@@ -31,14 +31,21 @@ class ContaService extends Service
         return $resource->toArray();
     }
 
-    public function select2(Request $request)
+    public function indexPainelConta(Fluent $requestData)
     {
-        $dados = new Fluent([
-            'camposFiltros' => ['nome', 'descricao', 'banco'],
-        ]);
-
-        return $this->executaConsultaSelect2($request, $dados);
+        $resource = $this->model->orderBy('nome', 'asc')->get();
+        $resource->load($this->loadFull());
+        return $resource->toArray();
     }
+
+    // public function select2(Request $request)
+    // {
+    //     $dados = new Fluent([
+    //         'camposFiltros' => ['nome', 'descricao', 'banco'],
+    //     ]);
+
+    //     return $this->executaConsultaSelect2($request, $dados);
+    // }
 
     /**
      * Traduz os campos com base no array de dados fornecido.

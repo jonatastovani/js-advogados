@@ -189,4 +189,9 @@ class FinanceiroController extends Controller
 
         return $dataEnv;
     }
+
+    public function painelContasIndex()
+    {
+        return view('secao.financeiro.painel-contas.index');
+    }
 }

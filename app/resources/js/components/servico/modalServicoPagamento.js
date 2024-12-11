@@ -289,10 +289,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
             if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.CONDICIONADO) {
                 $(self.getIdModal).find('.elements-pane-lancamentos').hide('fast');
-            }else{
-                $(self.getIdModal).find('.elements-pane-lancamentos').show('fast');
             }
-    
+
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }

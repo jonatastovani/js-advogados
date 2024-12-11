@@ -87,8 +87,8 @@ class ServicoPagamentoLancamento extends Model
      * 
      * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
      * @param array $options O array de opcões de personalização.
-     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
-     *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'inner'.
+     *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamento.
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
      *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'inner'.
      *              - 'aliasJoinServico' (opcional) Alias da tabela Servico que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.

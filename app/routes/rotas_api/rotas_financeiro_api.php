@@ -17,6 +17,7 @@ Route::group([
             Route::post('consulta-filtros', 'postConsultaFiltros');
 
             Route::get('', 'index');
+            Route::get('painel-conta', 'indexPainelConta');
             Route::post('', 'store')->name('api.financeiro.conta');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');

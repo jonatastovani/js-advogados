@@ -30,7 +30,7 @@ class ServicoParticipacaoTipoTenantSeeder extends Seeder
             ],
             [
                 "id"=> "9d714394-befe-4f2e-bba2-58b0c351c6d0",
-                "nome"=> "Rachadinha",
+                "nome"=> "Cashback",
             ]
         ];
 

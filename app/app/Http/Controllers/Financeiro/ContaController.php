@@ -24,6 +24,12 @@ class ContaController extends Controller
         return $this->retornoPadrao($this->service->index($fluentData));
     }
 
+    public function indexPainelConta(ContaFormRequestIndex $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->indexPainelConta($fluentData));
+    }
+
     public function store(ContaFormRequestStore $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);

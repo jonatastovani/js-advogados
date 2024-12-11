@@ -239,16 +239,17 @@ class ServicoPagamentoLancamentoService extends Service
         }
 
         if ($requestData->conta_id) {
-            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
-
-            // Colocar o orWhere para ver a conta do pagamento
+            $query->where(function ($query) use ($requestData) {
+                $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+                $query->orWhere("{$this->modelPagamento->getTableAsName()}.conta_id", $requestData->conta_id);
+            });
         }
         if ($requestData->lancamento_status_tipo_id) {
             $query->where("{$this->model->getTableAsName()}.status_id", $requestData->lancamento_status_tipo_id);
         }
-        // if ($requestData->area_juridica_tenant_id) {
-        //     $query->where("{$this->model->getTableAsName()}.area_juridica_tenant_id", $requestData->area_juridica_tenant_id);
-        // }
+        if ($requestData->area_juridica_id) {
+            $query->where("{$this->modelServico->getTableAsName()}.area_juridica_id", $requestData->area_juridica_id);
+        }
 
         $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;

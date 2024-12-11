@@ -150,7 +150,6 @@ class PageLancamentoGeralIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
         self.#executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
@@ -164,7 +163,6 @@ class PageLancamentoGeralIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             self.#executarBusca();
         });
 

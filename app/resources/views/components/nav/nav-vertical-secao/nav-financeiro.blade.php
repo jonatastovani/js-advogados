@@ -25,6 +25,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('financeiro.balanco-repasse-parceiro.index') }}">
+                        <span class="nav-link-text">Balanço de Repasse de Parceiro</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.lancamentos-gerais.index') }}">
                         <span class="nav-link-text">Lançamentos Gerais</span>
                     </a>
@@ -40,8 +45,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('financeiro.balanco-repasse-parceiro.index') }}">
-                        <span class="nav-link-text">Balanço de Repasse de Parceiro</span>
+                    <a class="nav-link" href="{{ route('financeiro.painel-contas.index') }}">
+                        <span class="nav-link-text">Painel de Contas</span>
                     </a>
                 </li>
             </ul>

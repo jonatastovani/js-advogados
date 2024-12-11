@@ -37,5 +37,10 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
             Route::get('', 'balancoRepasseParceiroIndex')->name('financeiro.balanco-repasse-parceiro.index');
             Route::get('impressao', 'balancoRepasseParceiroImpressao')->name('financeiro.balanco-repasse-parceiro.impressao');
         });
+
+        Route::prefix('painel-contas')->group(function () {
+
+            Route::get('', 'painelContasIndex')->name('financeiro.painel-contas.index');
+        });
     });
 });
