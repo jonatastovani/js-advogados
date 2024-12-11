@@ -3,6 +3,7 @@
 namespace App\Services\Financeiro;
 
 use App\Common\CommonsFunctions;
+use App\Helpers\LancamentoAgendamentoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
@@ -14,6 +15,7 @@ use App\Traits\CronValidationTrait;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class LancamentoAgendamentoService extends Service
@@ -73,6 +75,24 @@ class LancamentoAgendamentoService extends Service
         ], $options));
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
+    }
+
+    public function store(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                $resource->save();
+                LancamentoAgendamentoHelper::processarAgendamento($resource->id);
+                
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     /**
