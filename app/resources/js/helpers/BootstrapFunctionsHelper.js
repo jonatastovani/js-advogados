@@ -23,7 +23,7 @@ export class BootstrapFunctionsHelper {
      * @param {string} [options.type=''] - O tipo de notificação ('success', 'error', 'warning' ou 'info').
      * @param {string} [options.title=null] - O título da notificação (padrão: Notificação).
      * @param {string} [options.ico=null] - O ícone da notificação (padrão: sino).
-     * @param {number} [options.delay=5000] - O tempo de exibição da notificação em milissegundos (padrão = 5000ms).
+     * @param {number} [options.delay=3000] - O tempo de exibição da notificação em milissegundos (padrão = 3000ms).
      * @param {boolean} [options.autoHide=true] - Indica se a notificação deve desaparecer automaticamente (padrão: true).
      * @param {string} [options.customClass=''] - Classes CSS personalizadas para a notificação.
      * @param {Function} [options.onClose=null] - Callback a ser chamado quando a notificação é fechada.

@@ -11,6 +11,7 @@ use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
+use App\Helpers\ServicoPagamentoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Financeiro\Conta;
 use App\Models\Referencias\LancamentoStatusTipo;
@@ -67,71 +68,77 @@ class ServicoPagamentoService extends Service
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            if (!$resource->status_id) {
-                $resource->status_id = PagamentoStatusTipoEnum::statusPadraoSalvamento();
-            }
 
             $resource->save();
 
-            $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
+            $salvarLancamentos = function ($lancamentos) use ($resource) {
 
-            $lancamentos = [];
-            switch ($pagamentoTipoTenant->pagamento_tipo->id) {
+                $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+                if ($resource->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
+                    $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
+                }
 
-                case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
-                    $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData);
-                    break;
+                $lancamentos = $lancamentos['lancamentos'] ?? [];
 
-                case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                    $lancamentos = PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData);
-                    break;
+                foreach ($lancamentos as $lancamento) {
+                    $lancamento = new Fluent($lancamento);
+                    $newLancamento = new ServicoPagamentoLancamento();
 
-                case PagamentoTipoEnum::PARCELADO->value:
-                    $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
-                    break;
+                    $newLancamento->pagamento_id = $resource->id;
+                    $newLancamento->descricao_automatica = $lancamento->descricao_automatica;
+                    $newLancamento->observacao = $lancamento->observacao;
+                    $newLancamento->data_vencimento = $lancamento->data_vencimento;
+                    $newLancamento->valor_esperado = $lancamento->valor_esperado;
+                    $newLancamento->status_id = $statusLancamento;
 
-                case PagamentoTipoEnum::RECORRENTE->value:
-                    $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
-                    break;
+                    $newLancamento->save();
+                }
+            };
 
-                case PagamentoTipoEnum::CONDICIONADO->value:
-                    break;
+            // Inicia a transação
+            return DB::transaction(function () use ($resource, $requestData, $salvarLancamentos) {
+                if (!$resource->status_id) {
+                    $resource->status_id = PagamentoStatusTipoEnum::statusPadraoSalvamento();
+                }
 
-                default:
-                    throw new Exception('Tipo de pagamento base não encontrado.');
-            }
+                $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
 
-            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamento();
-            if ($resource->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
-                $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
-            }
+                $lancamentos = [];
+                switch ($pagamentoTipoTenant->pagamento_tipo->id) {
 
-            $lancamentos = $lancamentos['lancamentos'] ?? [];
+                    case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
+                        $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData);
+                        $salvarLancamentos($lancamentos);
+                        break;
 
-            foreach ($lancamentos as $lancamento) {
-                $lancamento = new Fluent($lancamento);
-                $newLancamento = new ServicoPagamentoLancamento();
+                    case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                        $lancamentos = PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData);
+                        $salvarLancamentos($lancamentos);
+                        break;
 
-                $newLancamento->pagamento_id = $resource->id;
-                $newLancamento->descricao_automatica = $lancamento->descricao_automatica;
-                $newLancamento->observacao = $lancamento->observacao;
-                $newLancamento->data_vencimento = $lancamento->data_vencimento;
-                $newLancamento->valor_esperado = $lancamento->valor_esperado;
-                $newLancamento->status_id = $statusLancamento;
+                    case PagamentoTipoEnum::PARCELADO->value:
+                        $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
+                        $salvarLancamentos($lancamentos);
+                        break;
 
-                $newLancamento->save();
-            }
+                    case PagamentoTipoEnum::RECORRENTE->value:
+                        $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
+                        ServicoPagamentoRecorrenteHelper::processarServicoPagamentoRecorrentePorId($resource->id, true);
+                        break;
 
-            DB::commit();
+                    case PagamentoTipoEnum::CONDICIONADO->value:
+                        break;
 
-            $resource->load($this->loadFull());
+                    default:
+                        throw new Exception('Tipo de pagamento base não encontrado.');
+                }
 
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
+                $resource->load($this->loadFull());
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }

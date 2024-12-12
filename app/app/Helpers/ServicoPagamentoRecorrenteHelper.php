@@ -13,7 +13,7 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
-class ServicoPagamentoLancamentoRecorrente
+class ServicoPagamentoRecorrenteHelper
 {
 
     /**
@@ -25,7 +25,7 @@ class ServicoPagamentoLancamentoRecorrente
 
         foreach ($tenants as $tenant) {
             try {
-                self::processarLancamentosServicosRecorrentesPorTenant($tenant->id);
+                self::processarServicoPagamentoRecorrentePorTenant($tenant->id);
             } catch (\Exception $e) {
                 // Log do erro no tenant, mas continua com os outros tenants
                 Log::error("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}");
@@ -38,7 +38,7 @@ class ServicoPagamentoLancamentoRecorrente
      *
      * @param string $tenantId ID do tenant.
      */
-    public static function processarLancamentosServicosRecorrentesPorTenant(string $tenantId): void
+    public static function processarServicoPagamentoRecorrentePorTenant(string $tenantId): void
     {
         $modelServicoPagamento = new ServicoPagamento();
         $modelPagamentoTipo = new PagamentoTipo();
@@ -64,7 +64,7 @@ class ServicoPagamentoLancamentoRecorrente
 
         foreach ($pagamentos as $pagamento) {
             try {
-                self::processarLancamentosServicosRecorrentes($pagamento->id);
+                self::processarServicoPagamentoRecorrentePorId($pagamento->id);
             } catch (\Exception $e) {
                 // Log do erro, mas continua com os outros lancamentos
                 Log::error("Erro ao processar Lançamento de Serviço Recorrente ID {$pagamento->id}: {$e->getMessage()}");
@@ -76,8 +76,9 @@ class ServicoPagamentoLancamentoRecorrente
      * Processa um pagamento específico.
      *
      * @param string $pagamentoId ID do pagamento.
+     * @param bool $blnRetornoErroThrow Se o erro deve ser retornado.
      */
-    public static function processarLancamentosServicosRecorrentes(string $pagamentoId): void
+    public static function processarServicoPagamentoRecorrentePorId(string $pagamentoId, $blnRetornoErroThrow = false): void
     {
         $pagamento = ServicoPagamento::find($pagamentoId);
 
@@ -113,6 +114,9 @@ class ServicoPagamentoLancamentoRecorrente
                 }
             }
         } catch (\Exception $e) {
+            if ($blnRetornoErroThrow) {
+                throw $e;
+            }
             Log::error("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}");
         }
 
@@ -132,17 +136,6 @@ class ServicoPagamentoLancamentoRecorrente
     private static function executarLancamento(Fluent $lancamento): bool
     {
         try {
-            Log::debug("Dados antes de salvar: " . json_encode([
-                'pagamento_id' => $lancamento->pagamento_id,
-                'descricao_automatica' => $lancamento->descricao_automatica,
-                'observacao' => $lancamento->observacao,
-                'data_vencimento' => $lancamento->data_vencimento,
-                'valor_esperado' => $lancamento->valor_esperado,
-                'status_id' => $lancamento->status_id,
-                'tenant_id' => $lancamento->tenant_id,
-                'domain_id' => $lancamento->domain_id,
-                'created_user_id' => $lancamento->created_user_id,
-            ]));
             ServicoPagamentoLancamento::create([
                 'pagamento_id' => $lancamento->pagamento_id,
                 'descricao_automatica' => $lancamento->descricao_automatica,

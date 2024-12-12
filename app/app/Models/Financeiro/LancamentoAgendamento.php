@@ -41,7 +41,7 @@ class LancamentoAgendamento extends Model
     protected $hidden = [
         'tenant_id',
         'domain_id',
-        // 'created_user_id', // Não ocultar porque no lançamento recorrente precisa do tenant e domain
+        'created_user_id',
         'created_ip',
         // 'created_at',
         'updated_user_id',
@@ -50,8 +50,8 @@ class LancamentoAgendamento extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-        // 'tenant_id', // Não ocultar porque no lançamento recorrente precisa do tenant e domain
-        // 'domain_id',
+        'tenant_id', 
+        'domain_id',
     ];
 
     public function movimentacao_tipo()

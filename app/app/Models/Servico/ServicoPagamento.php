@@ -63,7 +63,7 @@ class ServicoPagamento extends Model
     ];
 
     protected $hidden = [
-        'created_user_id', // Não ocultar porque no lançamento recorrente precisa do tenant e domain
+        'created_user_id',
         'created_ip',
         // 'created_at', // Usado no front para mostrar quando foi criado
         'updated_user_id',
@@ -72,8 +72,8 @@ class ServicoPagamento extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-        'tenant_id', // Não ocultar porque no lançamento recorrente precisa do tenant e domain
-        'domain_id', // Não ocultar porque no lançamento recorrente precisa do tenant e domain
+        'tenant_id',
+        'domain_id',
     ];
 
     public function servico()
