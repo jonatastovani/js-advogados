@@ -99,13 +99,13 @@ services:
         networks:
             - laravel
         entrypoint: ["/bin/sh", "-c"]
-        command: |
-            trap exit TERM; \
-            while :; do \
-                certbot renew --quiet --webroot -w /var/www/app/public && \
-                nginx -s reload; \
-                sleep $((60*60*24*60)); \
-            done
+        command: >
+            /bin/sh -c "trap exit TERM; 
+            while :; do 
+                certbot renew --quiet --webroot -w /var/www/app/public && 
+                nginx -s reload; 
+                sleep $$((60*60*24*60)); 
+            done"
 
 networks:
     laravel:
