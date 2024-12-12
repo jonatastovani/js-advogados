@@ -9,3 +9,13 @@ docker run --rm --name certbot \
     -d admin.byteforge.com.br \
     --email byteforgesuporte@gmail.com \
     --agree-tos
+
+docker run --rm --name certbot \
+    -v "$(pwd)/docker/certbot/conf:/etc/letsencrypt" \
+    -v "$(pwd)/docker/certbot/logs:/var/log/letsencrypt" \
+    -v "$(pwd)/public:/var/www/app/public" \
+   certbot/certbot certonly --manual \
+    --preferred-challenges dns \
+    -d "*.byteforge.com.br" \
+    --email byteforgesuporte@gmail.com \
+    --agree-tos

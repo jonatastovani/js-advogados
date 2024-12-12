@@ -86,6 +86,14 @@ services:
             - pgadmin_data:/var/lib/pgadmin
         # Remove as portas para manter acesso apenas pela rede interna
 
+    certbot:
+        image: certbot/certbot
+        volumes:
+            - app-data:/var/www/app/public
+            - ./docker/certbot/conf:/etc/letsencrypt
+            - ./docker/certbot/logs:/var/log/letsencrypt
+        command: certonly --webroot -w /var/www/app/public -d jsadvogadosmc.byteforge.com.br -d jsadvogadosprev.byteforge.com.br -d admin.byteforge.com.br --email byteforgesuporte@gmail.com --agree-tos
+
 networks:
     laravel:
         driver: overlay
