@@ -16,7 +16,7 @@ services:
             restart_policy:
                 condition: on-failure
         volumes:
-            - app-data:/var/www/app # A aplicação completa é isolada aqui
+            - app-data:/var/www/app # Monta o volume nomeado no container web
         networks:
             - laravel
         environment:
@@ -33,10 +33,10 @@ services:
             - "80:80" # Porta para HTTP
             - "443:443" # Porta para HTTPS
         volumes:
-            - app-data:/var/www/app/public # Apenas o diretório 'public' da aplicação
             - ./docker/nginx/sites.conf:/etc/nginx/conf.d/default.conf
             - ./docker/nginx/error.html:/var/www/html/error.html
-            - ./docker/certbot/conf:/etc/letsencrypt # Certificados para o HTTPS
+            # - ./app:/var/www/app
+            - app-data:/var/www/app # Monta o volume nomeado no container nginx
         networks:
             - laravel
 
@@ -86,14 +86,6 @@ services:
             - pgadmin_data:/var/lib/pgadmin
         # Remove as portas para manter acesso apenas pela rede interna
 
-    certbot:
-        image: certbot/certbot
-        volumes:
-            - app-data:/var/www/app/public # Monta o 'public' para validação
-            - ./docker/certbot/conf:/etc/letsencrypt
-            - ./docker/certbot/logs:/var/log/letsencrypt
-        command: certonly --webroot -w /var/www/app/public -d jsadvogadosmc.byteforge.com.br -d jsadvogadosprev.byteforge.com.br -d admin.byteforge.com.br --email byteforgesuporte@gmail.com --agree-tos --non-interactive
-        
 networks:
     laravel:
         driver: overlay
