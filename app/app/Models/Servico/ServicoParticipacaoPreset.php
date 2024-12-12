@@ -40,7 +40,9 @@ class ServicoParticipacaoPreset extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-    ];
+        'tenant_id',
+        'domain_id',
+ ];
 
     public function participantes()
     {

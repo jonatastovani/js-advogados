@@ -6,6 +6,7 @@ import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
+import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
@@ -216,6 +217,34 @@ class PageLancamentoServicoIndex extends templateSearch {
                         self.#buscarContas(response.selected.id);
                     } else {
                         self.#buscarContas();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#openModalAreaJuridica${self.getSufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalAreaJuridicaTenant();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+                        self.#buscarAreasJuridicas(response.selected.id);
+                    } else {
+                        self.#buscarAreasJuridicas();
                     }
                 }
             } catch (error) {

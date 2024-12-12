@@ -21,23 +21,48 @@ class PagamentoTipoRecorrenteHelper
         $cron = new CronExpression($dados->cron_expressao);
         $hoje = Carbon::today();
         $dataLimite = $hoje->copy()->addDays(30);
+        $ultimaExecucao = $dados->cron_ultima_execucao
+            ? Carbon::parse($dados->cron_ultima_execucao)
+            : null;
 
         $proximasExecucoes = [];
-        while (true) {
-            $proximaExecucao = $cron->getNextRunDate($dataInicio)->format('Y-m-d');
+        if (is_null($ultimaExecucao)) {
+            while (true) {
+                $proximaExecucao = $cron->getNextRunDate($dataInicio)->format('Y-m-d');
 
-            if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
-                break;
+                if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
+                    break;
+                }
+
+                if (
+                    Carbon::parse($proximaExecucao)->gte($dataInicio) &&
+                    (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
+                ) {
+                    $proximasExecucoes[] = $proximaExecucao;
+                }
+
+                $dataInicio = Carbon::parse($proximaExecucao)->addDay();
             }
+        } else {
+            // Gerar execuções a partir da última execução
+            while (true) {
+                // Adiciona mais um dia na última execução, porque a última execução é o último dia inserido no lançamento geral
+                $ultimaExecucao->addDay();
+                $proximaExecucao = $cron->getNextRunDate($ultimaExecucao)->format('Y-m-d');
 
-            if (
-                Carbon::parse($proximaExecucao)->gte($dataInicio) &&
-                (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
-            ) {
-                $proximasExecucoes[] = $proximaExecucao;
+                if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
+                    break;
+                }
+
+                if (
+                    Carbon::parse($proximaExecucao)->gte($dataInicio) &&
+                    (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
+                ) {
+                    $proximasExecucoes[] = $proximaExecucao;
+                }
+
+                $ultimaExecucao = Carbon::parse($proximaExecucao)->addDay();
             }
-
-            $dataInicio = Carbon::parse($proximaExecucao)->addDay();
         }
 
         $lancamentos = [];

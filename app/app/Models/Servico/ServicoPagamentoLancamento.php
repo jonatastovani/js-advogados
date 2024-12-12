@@ -37,6 +37,9 @@ class ServicoPagamentoLancamento extends Model
         'data_recebimento',
         'conta_id',
         'status_id',
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
     ];
 
     protected $casts = [
@@ -55,8 +58,10 @@ class ServicoPagamentoLancamento extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-    ];
-    
+        'tenant_id',
+        'domain_id',
+ ];
+
     public function pagamento()
     {
         return $this->belongsTo(ServicoPagamento::class);

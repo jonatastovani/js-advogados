@@ -2,6 +2,7 @@
 
 use App\Common\RestResponse;
 use App\Jobs\LancamentoAgendamentoJob;
+use App\Jobs\ServicoPagamentoLancamentoRecorrenteJob;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
@@ -36,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new LancamentoAgendamentoJob)
+            ->everyTenSeconds()
+            ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
+
+        $schedule->job(new ServicoPagamentoLancamentoRecorrenteJob)
             ->everyTenSeconds()
             ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
     })

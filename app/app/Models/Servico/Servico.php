@@ -50,7 +50,9 @@ class Servico extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-    ];
+        'tenant_id',
+        'domain_id',
+   ];
     
     // Variável estática para armazenar a sequência temporariamente
     protected static $sequenciaTemporaria;

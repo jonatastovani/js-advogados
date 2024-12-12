@@ -25,7 +25,7 @@ class ValorServicoPagamentoEmAnaliseScope implements Scope
 
     public function extend(Builder $builder)
     {
-        $builder->macro('withoutValorServicoPagamentoAguardando', function (Builder $builder) {
+        $builder->macro('withoutValorServicoPagamentoEmAnalise', function (Builder $builder) {
             return $builder->withoutGlobalScope($this);
         });
     }

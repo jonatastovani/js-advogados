@@ -44,6 +44,10 @@
                             'before' => [
                                 "<span class='input-group-text'><label for='area_juridica_id{$sufixo}' title='Área Jurídica'>Área Jurídica</label></span>",
                             ],
+                            'after' => [
+                                "<button id='openModalAreaJuridica{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                                <i class='bi bi-search'></i></button>",
+                            ],
                         ],
                     ],
                     [
@@ -112,21 +116,22 @@
 
 @endsection
 
-{{-- 
+
 @push('modals')
     <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
     <x-modal.servico.modal-lancamento-reagendar.modal />
     <x-modal.financeiro.modal-conta.modal />
-@endpush --}}
+    <x-modal.tenant.modal-area-juridica-tenant.modal />
+@endpush
 
 @push('scripts')
     @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseContas' => route('api.financeiro.conta'),
-            // 'baseLancamento' => route('api.financeiro.lancamentos'),
-            // 'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
-            // 'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
+            'baseLancamento' => route('api.financeiro.lancamentos'),
+            'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
+            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
         ],
     ])
     @endcomponent
