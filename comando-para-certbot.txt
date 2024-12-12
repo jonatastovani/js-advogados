@@ -1,11 +1,11 @@
 docker run --rm --name certbot \
     -v "$(pwd)/docker/certbot/conf:/etc/letsencrypt" \
     -v "$(pwd)/docker/certbot/logs:/var/log/letsencrypt" \
+    -v "$(pwd)/public:/var/www/app/public" \
     certbot/certbot certonly --webroot \
     -w /var/www/app/public \
     -d jsadvogadosmc.byteforge.com.br \
     -d jsadvogadosprev.byteforge.com.br \
     -d admin.byteforge.com.br \
-    -d ravel.byteforge.com.br \
     --email byteforgesuporte@gmail.com \
     --agree-tos
