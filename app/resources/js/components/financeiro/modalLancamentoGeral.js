@@ -169,7 +169,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const self = this;
 
         if (status) {
-            $(self.getIdModal).find(`.modoAgendamento`).show('fast');
+            $(self.getIdModal).find(`.modoAgendamento`).css('display', '');
         } else {
             $(self.getIdModal).find(`.modoAgendamento`).hide('fast');
         }

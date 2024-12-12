@@ -71,7 +71,8 @@ class ServicoService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        // $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.created_at");
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'titulo',

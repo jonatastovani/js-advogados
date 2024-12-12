@@ -76,6 +76,7 @@ class LancamentoGeralService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.{$requestData->ordenacao[0]['campo']}");
 
         $ordenacao = $requestData->ordenacao ?? [];
         if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
