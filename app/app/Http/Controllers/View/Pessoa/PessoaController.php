@@ -22,7 +22,7 @@ class PessoaController extends Controller
     public function clientePessoaFisicaFormEditar(Request $request)
     {
         $recurso = PessoaPerfil::find($request->uuid);
-        if ($recurso->count()) {
+        if ($recurso) {
             return view('secao.pessoa.cliente.pessoa-fisica.form', compact('recurso'));
         }
         return view('secao.pessoa.cliente.pessoa-fisica.form');
