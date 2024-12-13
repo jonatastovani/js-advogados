@@ -258,7 +258,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
                 // Flatten o objeto para gerar os parâmetros
                 let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-                console.log(flattenedParams);
                 let queryString = '';
 
                 // Constrói a query string
@@ -277,26 +276,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 window.open(`${baseURL}?${queryString}`, '_blank');
             }
         });
-
-        const openModal = async () => {
-            try {
-                const objModal = new modalLancamentoServicoMovimentar({
-                    urlApi: `${self._objConfigs.url.baseServico}/`
-                });
-                objModal.setDataEnvModal = {
-                    idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                    pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                    status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                }
-                const response = await objModal.modalOpen();
-                console.log(response);
-
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
-
-        // openModal();
     }
 
     async #executarBusca() {
@@ -332,11 +311,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
         const {
             tbody,
         } = options;
-
-        if (!self.#objConfigs.data?.console) {
-            self.#objConfigs.data.console = true;
-            console.log(item);
-        }
 
         let strBtns = ``;
         // let strBtns = self.#HtmlBtns(item);

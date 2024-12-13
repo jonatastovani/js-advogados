@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Pessoa;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestDestroy;
-use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestIndex;
-use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestPostConsultaFiltro;
+use App\Http\Requests\Pessoa\Pessoa\PostConsultaFiltroFormRequestPessoa;
 use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestShow;
 use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestStore;
 use App\Http\Requests\Pessoa\Pessoa\PessoaFormRequestUpdate;
@@ -20,7 +19,7 @@ class PessoaController extends Controller
 
     public function __construct(public PessoaService $service) {}
 
-    public function postConsultaFiltros(PessoaFormRequestPostConsultaFiltro $formRequest)
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestPessoa $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
         return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));

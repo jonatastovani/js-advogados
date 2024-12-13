@@ -1,0 +1,25 @@
+// Definir os níveis de opacidade
+$opacities: (
+    100: 0,
+    75: 0.25,
+    50: 0.5,
+    25: 0.75
+);
+
+// Gerar as classes dinamicamente
+@each $key, $opacity in $opacities {
+    .blink-#{$key} {
+        animation: blinker-#{$key} 1s linear infinite;
+    }
+
+    @keyframes blinker-#{$key} {
+        50% {
+            opacity: #{$opacity};
+        }
+    }
+}
+
+// Classe padrão com opacidade 50%
+.blink {
+    animation: blinker-50 1s linear infinite;
+}

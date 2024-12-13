@@ -94,7 +94,8 @@ export class modalAreaJuridicaTenant extends modalSearchAndFormRegistration {
                         ${btnsDropDown}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.nome}">${item.nome}</td>
+                <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
+                <td class="text-nowrap text-truncate" style="max-width: 20rem" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
             </tr>
         `);
 

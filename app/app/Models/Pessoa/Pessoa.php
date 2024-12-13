@@ -2,15 +2,11 @@
 
 namespace App\Models\Pessoa;
 
-use App\Enums\PessoaTipoEnum;
-use App\Models\Referencias\PessoaTipo;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Pessoa extends Model
@@ -24,6 +20,20 @@ class Pessoa extends Model
     protected $table = 'pessoa.pessoas';
     protected $tableAsName = 'pess';
 
+    protected $hidden = [
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+        'created_ip',
+        // 'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+    
     public function pessoa_perfil()
     {
         return $this->hasMany(PessoaPerfil::class, 'pessoa_id');

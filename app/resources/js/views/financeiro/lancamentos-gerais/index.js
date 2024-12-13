@@ -231,7 +231,6 @@ class PageLancamentoGeralIndex extends templateSearch {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
                 // Flatten o objeto para gerar os parâmetros
                 let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-                console.log(flattenedParams);
                 let queryString = '';
 
                 // Constrói a query string

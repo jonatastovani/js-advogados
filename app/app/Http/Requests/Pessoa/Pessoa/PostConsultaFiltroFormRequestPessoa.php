@@ -4,7 +4,7 @@ namespace App\Http\Requests\Pessoa\Pessoa;
 
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 
-class PessoaFormRequestPostConsultaFiltro extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestPessoa extends PostConsultaFiltroFormRequestBase
 {
     public function authorize(): bool
     {

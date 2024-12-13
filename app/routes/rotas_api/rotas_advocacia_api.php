@@ -127,6 +127,32 @@ Route::group([
             });
         });
 
+        Route::prefix('escolaridade')->group(function () {
+
+            Route::controller(App\Http\Controllers\Tenant\EscolaridadeTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.tenant.escolaridade');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+            });
+        });
+
+        Route::prefix('estado-civil')->group(function () {
+
+            Route::controller(App\Http\Controllers\Tenant\EstadoCivilTenantController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.tenant.estado-civil');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+            });
+        });
+
         Route::prefix('servico-participacao-tipo')->group(function () {
 
             Route::controller(App\Http\Controllers\Tenant\ServicoParticipacaoTipoTenantController::class)->group(function () {

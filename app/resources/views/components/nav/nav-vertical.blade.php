@@ -28,11 +28,13 @@
                             @component('components.nav.nav-admin')
                             @endcomponent
                         @else
-                            @component('components.nav.nav-vertical-secao.nav-servico')
+                            @component('components.nav.nav-vertical-secao.nav-cliente')
+                            @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-financeiro')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-participacao')
                             @endcomponent
-                            @component('components.nav.nav-vertical-secao.nav-financeiro')
+                            @component('components.nav.nav-vertical-secao.nav-servico')
                             @endcomponent
                         @endif
                     </ul>

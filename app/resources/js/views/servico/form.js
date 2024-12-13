@@ -166,17 +166,6 @@ class PageServicoForm {
         });
 
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
-
-        const openModalTest = async () => {
-            const objCode = new modalServicoPagamento(`${self.#objConfigs.url.base}/${self.#idRegister}/pagamentos`);
-            objCode._dataEnvModal = {
-
-                pagamento_tipo_tenant_id: "9db0bf1f-fab3-4f35-8be1-d5192a3ba082",
-            }
-            const retorno = await objCode.modalOpen();
-            // console.log(retorno);
-        }
-        // openModalTest();
     }
 
     async #inserirAnotacao(item) {
@@ -278,7 +267,7 @@ class PageServicoForm {
         let htmlAppend = self.#htmlParticipantes(item, 'pagamento', item.status_id);
         htmlAppend += self.#htmlAppendPagamento(item);
         let htmlLancamentos = self.#htmlLancamentos(item);
-        if(htmlLancamentos){
+        if (htmlLancamentos) {
             htmlLancamentos = `
                 <div class="accordion mt-2" id="accordionPagamento${item.id}">
                     <div class="accordion-item">

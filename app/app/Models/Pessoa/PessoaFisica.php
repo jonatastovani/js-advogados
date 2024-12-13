@@ -2,6 +2,9 @@
 
 namespace App\Models\Pessoa;
 
+use App\Models\Tenant\EscolaridadeTenant;
+use App\Models\Tenant\EstadoCivilTenant;
+use App\Models\Tenant\GeneroTenant;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -23,5 +26,20 @@ class PessoaFisica extends Model
     public function pessoa()
     {
         return $this->morphOne(Pessoa::class, 'pessoa_dados');
+    }
+
+    public function escolaridade()
+    {
+        return $this->belongsTo(EscolaridadeTenant::class);
+    }
+
+    public function estado_civil()
+    {
+        return $this->belongsTo(EstadoCivilTenant::class);
+    }
+
+    public function genero()
+    {
+        return $this->belongsTo(GeneroTenant::class);
     }
 }

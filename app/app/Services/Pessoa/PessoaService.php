@@ -4,6 +4,7 @@ namespace App\Services\Pessoa;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\PessoaTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\Pessoa;
@@ -40,6 +41,11 @@ class PessoaService extends Service
         $query = $this->model::whereIn('pessoa_dados_id', $queryFisica)->whereHas('pessoa_perfil', function ($q) use ($requestData) {
             $q->whereIn('perfil_tipo_id', $requestData->perfis_busca);
         });
+
+        // adicionar chave para carregamento das pessoas físicas
+        $options = array_merge($options, [
+            'caseTipoPessoa' => PessoaTipoEnum::PESSOA_FISICA,
+        ]);
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
@@ -131,20 +137,76 @@ class PessoaService extends Service
     }
 
     /**
-     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
+     * Carrega os relacionamentos completos para o serviço, aplicando manipulações dinâmicas
+     * com base nas opções fornecidas. Este método ajusta os relacionamentos a serem carregados
+     * dependendo do tipo de pessoa (Física ou Jurídica) e considera se a chamada é externa 
+     * para evitar carregamentos duplicados ou redundantes.
      *
-     * @param array $options Opções para manipulação de relacionamentos.
-     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
-     *       para evitar referências circulares.
-     * @return array Array de relacionamentos manipulados.
+     * @param array $options Opções para manipulação de relacionamentos:
+     *     - 'caseTipoPessoa' (PessoaTipoEnum|null): Define o tipo de pessoa para o carregamento
+     *       específico. Pode ser Pessoa Física ou Jurídica. Se não for informado, aplica um 
+     *       comportamento padrão.
+     *     - 'withOutClass' (array|string|null): Classes que devem ser excluídas do carregamento
+     *       de relacionamentos, útil para evitar referências circulares.
+     *
+     * @return array Retorna um array de relacionamentos manipulados.
+     *
+     * @throws Exception Se houver algum erro durante o carregamento dinâmico dos serviços.
+     *
+     * Lógica:
+     * - Verifica o tipo de pessoa (Física ou Jurídica) e ajusta os relacionamentos com base
+     *   no serviço correspondente (PessoaFisicaService ou PessoaJuridicaService).
+     * - Se nenhum tipo de pessoa for especificado, adiciona o relacionamento genérico 'pessoa_dados'.
+     * - Utiliza a função `mergeRelationships` para mesclar relacionamentos existentes com 
+     *   os novos, aplicando prefixos onde necessário.
+     *
+     * Exemplo de Uso:
+     * ```php
+     * $service = new PessoaService();
+     * $relationships = $service->loadFull([
+     *     'caseTipoPessoa' => PessoaTipoEnum::PESSOA_FISICA,
+     * ]);
+     * ```
      */
     public function loadFull($options = []): array
     {
-        return [
+        // Tipo de pessoa enviado para o carregamento específico do tipo de pessoa
+        $caseTipoPessoa = $options['caseTipoPessoa'] ?? null;
+
+        // Função para carregar dados de Pessoa Física ou Jurídica dinamicamente
+        $carregarPessoaPorTipo = function ($serviceTipoPessoa, $relationships) use ($options) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($serviceTipoPessoa)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'pessoa_dados.' // Adiciona um prefixo aos relacionamentos externos
+                ]
+            );
+
+            return $relationships;
+        };
+
+        $relationships = [
             'pessoa_perfil.perfil_tipo',
-            'pessoa_dados'
         ];
+
+        // Verifica o tipo de pessoa e ajusta os relacionamentos
+        if ($caseTipoPessoa === PessoaTipoEnum::PESSOA_FISICA) {
+            $relationships = $carregarPessoaPorTipo(PessoaFisicaService::class, $relationships);
+        } elseif ($caseTipoPessoa === PessoaTipoEnum::PESSOA_JURIDICA) {
+            $relationships = $carregarPessoaPorTipo(PessoaJuridicaService::class, $relationships);
+        } else {
+            $relationships = array_merge(
+                $relationships,
+                [
+                    'pessoa_dados',
+                ]
+            );
+        }
+
+        return $relationships;
     }
+
 
     // private function executarEventoWebsocket()
     // {

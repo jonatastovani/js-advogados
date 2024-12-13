@@ -28,6 +28,7 @@
                             <tr>
                                 <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                                 <th>Nome</th>
+                                <th>Descrição</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

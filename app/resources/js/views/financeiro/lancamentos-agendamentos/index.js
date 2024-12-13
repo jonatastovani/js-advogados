@@ -66,7 +66,6 @@ class LancamentoAgendamentoIndex extends templateSearch {
                 }
 
                 const response = await objModal.modalOpen();
-                console.log(response);
                 if (response.refresh) {
                     if (response.selected) {
                         self.#buscarContas(response.selected.id);
@@ -131,24 +130,6 @@ class LancamentoAgendamentoIndex extends templateSearch {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
-
-        const openModal = async () => {
-            try {
-                const objModal = new modalLancamentoGeral();
-                // objModal.setDataEnvModal = {
-                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                // }
-                const response = await objModal.modalOpen();
-                console.log(response);
-
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
-
-        // openModal();
     }
 
     async #executarBusca() {
@@ -192,8 +173,6 @@ class LancamentoAgendamentoIndex extends templateSearch {
         const {
             tbody,
         } = options;
-
-        console.log(item);
 
         let strBtns = self.#HtmlBtns(item);
 

@@ -69,13 +69,7 @@ class AreaJuridicaTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = null;
-        if ($id) {
-            $resouce = $this->buscarRecurso($requestData);
-        } else {
-            $resouce = new $this->model();
-        }
-
+        $resouce = $id ? $this->buscarRecurso($requestData) : new $this->model();
         $resouce->fill($requestData->toArray());
 
         return $resouce;

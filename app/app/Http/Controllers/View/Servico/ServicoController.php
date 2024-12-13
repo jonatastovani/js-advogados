@@ -27,7 +27,7 @@ class ServicoController extends Controller
     public function servicoFormEditar(Request $request)
     {
         $recurso = Servico::find($request->uuid);
-        if ($recurso) {
+        if ($recurso->count()) {
             return view('secao.servico.form', compact('recurso'));
         }
         return view('secao.servico.form');

@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Referencias\PessoaStatusTipo;
 use App\Models\Referencias\PessoaSubtipo;
@@ -113,9 +114,29 @@ class PessoaFisicaService extends Service
      */
     public function loadFull($options = []): array
     {
-        return [
-            'pessoa.pessoa_perfil.perfil_tipo',
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
+
+        $relationships = [
+            'escolaridade',
+            'estado_civil',
+            'genero',
         ];
+
+        // Verifica se PessoaService está na lista de exclusão
+        $classImport = PessoaService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'pessoa.', // Adiciona um prefixo aos relacionamentos externos
+                    'removePrefix' => 'pessoa_dados',
+                ]
+            );
+        }
+
+        return $relationships;
     }
 
     // private function executarEventoWebsocket()

@@ -261,7 +261,7 @@ trait CommonsConsultaServiceTrait
             $query->with($options['loadFull']);
         } else {
             if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
-                $query->with($this->loadFull());
+                $query->with($this->loadFull($options));
             }
         }
         /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */

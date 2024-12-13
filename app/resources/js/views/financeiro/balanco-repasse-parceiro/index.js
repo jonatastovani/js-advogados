@@ -1,7 +1,6 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalConta } from "../../../components/financeiro/modalConta";
-import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -97,7 +96,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
                 // Flatten o objeto para gerar os parâmetros
                 let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-                console.log(flattenedParams);
                 let queryString = '';
 
                 // Constrói a query string
@@ -148,25 +146,6 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         });
 
         self.#statusCampos(false);
-        const openModal = async () => {
-            try {
-                const objModal = new modalLancamentoServicoMovimentar({
-                    urlApi: `${self._objConfigs.url.baseServico}/`
-                });
-                objModal.setDataEnvModal = {
-                    idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                    pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                    status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                }
-                const response = await objModal.modalOpen();
-                console.log(response);
-
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
-
-        // openModal();
     }
 
     async #executarBusca() {
