@@ -19,10 +19,10 @@ class PessoaController extends Controller
 
     public function __construct(public PessoaService $service) {}
 
-    public function postConsultaFiltros(PostConsultaFiltroFormRequestPessoa $formRequest)
+    public function postConsultaFiltrosFisica(PostConsultaFiltroFormRequestPessoa $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
-        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+        return $this->retornoPadrao($this->service->postConsultaFiltrosFisica($fluentData));
     }
 
     public function postConsultaFiltrosJuridica(PostConsultaFiltroFormRequestBase $formRequest)

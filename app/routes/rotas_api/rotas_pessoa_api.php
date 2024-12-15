@@ -10,14 +10,34 @@ Route::group([
     ],
 ], function () {
 
+    Route::controller(App\Http\Controllers\Pessoa\PessoaPerfilController::class)->group(function () {
+
+        Route::prefix('perfil')->group(function () {
+            Route::get('', function () {})->name('api.pessoa.perfil');
+
+            Route::get('{uuid}', 'show');
+        });
+    });
+
     Route::controller(App\Http\Controllers\Pessoa\PessoaController::class)->group(function () {
 
-        Route::post('consulta-filtros/pessoa-fisica', 'postConsultaFiltros');
-        Route::post('consulta-filtros/pessoa-juridica', 'postConsultaFiltrosJuridica');
+        Route::prefix('pessoa-fisica')->group(function () {
 
-        Route::post('', 'store')->name('api.pessoa');
-        Route::get('{uuid}', 'show');
-        Route::put('{uuid}', 'update');
-        Route::delete('{uuid}', 'destroy');
+            Route::post('consulta-filtros', 'postConsultaFiltrosFisica');
+
+            Route::post('', 'store')->name('api.pessoa.pessoa-fisica');
+            // Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
+            Route::delete('{uuid}', 'destroy');
+        });
+
+        Route::prefix('pessoa-juridica')->group(function () {
+            Route::post('consulta-filtros/pessoa-juridica', 'postConsultaFiltrosJuridica');
+
+            Route::post('', 'store')->name('api.pessoa.pessoa-juridica');
+            Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
+            Route::delete('{uuid}', 'destroy');
+        });
     });
 });

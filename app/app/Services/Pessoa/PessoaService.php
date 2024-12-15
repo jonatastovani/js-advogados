@@ -28,7 +28,34 @@ class PessoaService extends Service
         parent::__construct($model);
     }
 
-    public function postConsultaFiltros(Fluent $requestData, array $options = [])
+    /**
+     * Traduz os campos com base no array de dados fornecido.
+     *
+     * @param array $dados O array de dados contendo as informações de como traduzir os campos.
+     * - 'campos_busca' (array de campos que devem ser traduzidos). Os campos que podem ser enviados dentro do array são:
+     * - ex: 'campos_busca' => ['col_nome'] (mapeado para '[tableAsName].nome')
+     * - 'campos_busca_todos' (se definido, todos os campos serão traduzidos)
+     * @return array Os campos traduzidos com base nos dados fornecidos.
+     */
+    public function traducaoCampos(array $dados)
+    {
+        $aliasCampos = $dados['aliasCampos'] ?? [];
+        $modelAsName = $this->model->getTableAsName();
+        $arrayAliasCampos = [
+            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
+            'col_mae' => isset($aliasCampos['col_mae']) ? $aliasCampos['col_mae'] : $modelAsName,
+            'col_pai' => isset($aliasCampos['col_pai']) ? $aliasCampos['col_pai'] : $modelAsName,
+        ];
+
+        $arrayCampos = [
+            'col_nome' => ['campo' => $arrayAliasCampos['col_nome'] . '.nome'],
+            'col_mae' => ['campo' => $arrayAliasCampos['col_mae'] . '.mae'],
+            'col_pai' => ['campo' => $arrayAliasCampos['col_pai'] . '.pai'],
+        ];
+        return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
+    }
+
+    public function postConsultaFiltrosFisica(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->pessoaFisicaService->extrairFiltros($requestData, array_merge($options, [
             'arrayCamposSelect' => ['id']
@@ -57,32 +84,6 @@ class PessoaService extends Service
         // return $query->paginate($requestData->perPage ?? 25)->toArray();
     }
 
-    /**
-     * Traduz os campos com base no array de dados fornecido.
-     *
-     * @param array $dados O array de dados contendo as informações de como traduzir os campos.
-     * - 'campos_busca' (array de campos que devem ser traduzidos). Os campos que podem ser enviados dentro do array são:
-     * - ex: 'campos_busca' => ['col_nome'] (mapeado para '[tableAsName].nome')
-     * - 'campos_busca_todos' (se definido, todos os campos serão traduzidos)
-     * @return array Os campos traduzidos com base nos dados fornecidos.
-     */
-    public function traducaoCampos(array $dados)
-    {
-        $aliasCampos = $dados['aliasCampos'] ?? [];
-        $modelAsName = $this->model->getTableAsName();
-        $arrayAliasCampos = [
-            'col_nome' => isset($aliasCampos['col_nome']) ? $aliasCampos['col_nome'] : $modelAsName,
-            'col_mae' => isset($aliasCampos['col_mae']) ? $aliasCampos['col_mae'] : $modelAsName,
-            'col_pai' => isset($aliasCampos['col_pai']) ? $aliasCampos['col_pai'] : $modelAsName,
-        ];
-
-        $arrayCampos = [
-            'col_nome' => ['campo' => $arrayAliasCampos['col_nome'] . '.nome'],
-            'col_mae' => ['campo' => $arrayAliasCampos['col_mae'] . '.mae'],
-            'col_pai' => ['campo' => $arrayAliasCampos['col_pai'] . '.pai'],
-        ];
-        return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
-    }
 
     // protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     // {
@@ -170,6 +171,8 @@ class PessoaService extends Service
      */
     public function loadFull($options = []): array
     {
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
         // Tipo de pessoa enviado para o carregamento específico do tipo de pessoa
         $caseTipoPessoa = $options['caseTipoPessoa'] ?? null;
 
@@ -186,14 +189,24 @@ class PessoaService extends Service
             return $relationships;
         };
 
-        $relationships = [
-            'pessoa_perfil.perfil_tipo',
-        ];
+        $relationships = [];
+
+        // Verifica se PessoaPerfilService está na lista de exclusão
+        $classImport = PessoaPerfilService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'pessoa_perfil.'
+                ]
+            );
+        }
 
         // Verifica o tipo de pessoa e ajusta os relacionamentos
-        if ($caseTipoPessoa === PessoaTipoEnum::PESSOA_FISICA) {
+        if ($caseTipoPessoa === PessoaTipoEnum::PESSOA_FISICA->value) {
             $relationships = $carregarPessoaPorTipo(PessoaFisicaService::class, $relationships);
-        } elseif ($caseTipoPessoa === PessoaTipoEnum::PESSOA_JURIDICA) {
+        } elseif ($caseTipoPessoa === PessoaTipoEnum::PESSOA_JURIDICA->value) {
             $relationships = $carregarPessoaPorTipo(PessoaJuridicaService::class, $relationships);
         } else {
             $relationships = array_merge(

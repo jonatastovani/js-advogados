@@ -137,7 +137,8 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'basePessoas' => route('api.pessoa'),
+        'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
+        'basePessoaJuridica' => route('api.pessoa.pessoa-juridica'),
     ],
 ])
 @endcomponent

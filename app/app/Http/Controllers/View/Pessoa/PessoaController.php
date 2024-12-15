@@ -9,27 +9,27 @@ use Illuminate\Http\Request;
 class PessoaController extends Controller
 {
 
-    public function clientePessoaFisicaIndex()
+    public function pessoaFisicaClienteIndex()
     {
-        return view('secao.pessoa.cliente.pessoa-fisica.index');
+        return view('secao.pessoa.pessoa-fisica.cliente.index');
     }
 
-    public function clientePessoaFisicaForm()
+    public function pessoaFisicaClienteForm()
     {
-        return view('secao.pessoa.cliente.pessoa-fisica.form');
+        return view('secao.pessoa.pessoa-fisica.cliente.form');
     }
 
-    public function clientePessoaFisicaFormEditar(Request $request)
+    public function pessoaFisicaClienteFormEditar(Request $request)
     {
-        $recurso = PessoaPerfil::find($request->uuid);
-        if ($recurso) {
-            return view('secao.pessoa.cliente.pessoa-fisica.form', compact('recurso'));
-        }
-        return view('secao.pessoa.cliente.pessoa-fisica.form');
+        // $recurso = PessoaPerfil::find($request->uuid);
+        // if ($recurso) {
+        //     return view('secao.pessoa.pessoa-fisica.cliente.form', compact('recurso'));
+        // }
+        return view('secao.pessoa.pessoa-fisica.cliente.form');
     }
 
-    public function clientePessoaJuridicaIndex()
+    public function pessoaJuridicaIndex()
     {
-        return view('secao.pessoa.cliente.pessoa-juridica.index');
+        return view('secao.pessoa.pessoa-juridica.cliente.index');
     }
 }

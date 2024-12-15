@@ -6,19 +6,23 @@ Route::prefix('pessoa')->group(function () {
 
     Route::controller(App\Http\Controllers\View\Pessoa\PessoaController::class)->group(function () {
 
-        Route::prefix('cliente')->group(function () {
-            Route::prefix('pessoa-fisica')->group(function () {
+        Route::prefix('pessoa-fisica')->group(function () {
 
-                Route::get('', 'clientePessoaFisicaIndex')->name('pessoa.cliente.pessoa-fisica.index');
-                Route::get('/form', 'clientePessoaFisicaForm')->name('pessoa.cliente.pessoa-fisica.form');
-                Route::get('/form/{uuid}', 'clientePessoaFisicaFormEditar');
+            Route::prefix('cliente')->group(function () {
+
+                Route::get('', 'pessoaFisicaClienteIndex')->name('pessoa.pessoa-fisica.cliente.index');
+                Route::get('/form', 'pessoaFisicaClienteForm')->name('pessoa.pessoa-fisica.cliente.form');
+                Route::get('/form/{uuid}', 'pessoaFisicaClienteFormEditar');
             });
 
             Route::prefix('pessoa-juridica')->group(function () {
 
-                Route::get('', 'clientePessoaJuridicaIndex')->name('pessoa.cliente.pessoa-juridica.index');
-                Route::get('/form', 'clientePessoaJuridicaForm')->name('pessoa.cliente.pessoa-juridica.form');
-                Route::get('/form/{uuid}', 'clientePessoaJuridicaFormEditar');
+                Route::prefix('cliente')->group(function () {
+
+                    Route::get('', 'clientePessoaJuridicaIndex')->name('pessoa.pessoa-juridica.cliente.index');
+                    Route::get('/form', 'clientePessoaJuridicaForm')->name('pessoa.pessoa-juridica.cliente.form');
+                    Route::get('/form/{uuid}', 'clientePessoaJuridicaFormEditar');
+                });
             });
         });
     });

@@ -2,10 +2,10 @@
     $sufixo = 'PageClientePFForm';
     $recurso = isset($recurso) ? $recurso : null;
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => $recurso ? 'Editar Serviço: ' . $recurso->numero_servico : 'Cadastrar Serviço',
+        'nome' => $recurso ? 'Editar Cliente' : 'Cadastrar Cliente',
         'descricao' => [
             [
-                'texto' => 'Cadastro de serviço e dados de pagamentos.',
+                'texto' => 'Cadastro de cliente e dados pessoais.',
             ],
         ],
     ]);
@@ -29,13 +29,13 @@
         <div class="col mt-2 px-0">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 active" id="painelServico{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelServico{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelServico{{ $sufixo }}-tab-pane" aria-selected="true">
-                        Serviço
+                    <button class="nav-link px-2 active" id="painelDados{{ $sufixo }}-tab" data-bs-toggle="tab"
+                        data-bs-target="#painelDados{{ $sufixo }}-tab-pane" type="button" role="tab"
+                        aria-controls="painelDados{{ $sufixo }}-tab-pane" aria-selected="true">
+                        Dados pessoais
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
+                {{-- <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelClientes{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#painelClientes{{ $sufixo }}-tab-pane" type="button"
@@ -67,40 +67,40 @@
                         aria-selected="false">
                         Participantes
                     </button>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>
     <div class="row rounded rounded-top-0 border-top-0 flex-fill">
         <div class="col tab-content overflow-auto" id="myTabContent">
-            <div class="tab-pane fade h-100 show active" id="painelServico{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelServico{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.cliente.pessoa-fisica.form.painel-servico')
+            <div class="tab-pane fade h-100 show active" id="painelDados{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="painelDados{{ $sufixo }}-tab" tabindex="0">
+                @include('secao.pessoa.pessoa-fisica.cliente.form.painel-dados')
             </div>
-            <div class="tab-pane fade h-100" id="painelClientes{{ $sufixo }}-tab-pane" role="tabpanel"
+            {{-- <div class="tab-pane fade h-100" id="painelClientes{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelClientes{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
-                    @include('secao.pessoa.cliente.pessoa-fisica.form.painel-clientes')
+                    @include('secao.pessoa.pessoa-fisica.cliente.form.painel-clientes')
                 @endif
             </div>
             <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelAnotacao{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
-                    @include('secao.pessoa.cliente.pessoa-fisica.form.painel-anotacao')
+                    @include('secao.pessoa.pessoa-fisica.cliente.form.painel-anotacao')
                 @endif
             </div>
             <div class="tab-pane fade h-100" id="painelPagamento{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelPagamento{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
-                    @include('secao.pessoa.cliente.pessoa-fisica.form.painel-pagamento')
+                    @include('secao.pessoa.pessoa-fisica.cliente.form.painel-pagamento')
                 @endif
             </div>
             <div class="tab-pane fade h-100" id="painelParticipantes{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelParticipantes{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
-                    @include('secao.pessoa.cliente.pessoa-fisica.form.painel-participantes')
+                    @include('secao.pessoa.pessoa-fisica.cliente.form.painel-participantes')
                 @endif
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -117,13 +117,14 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/servico/form.js')
+    @vite('resources/js/views/pessoa/pessoa-fisica/cliente/form.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseServico' => route('api.servico'),
-            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
-            'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
-            'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+            'basePessoaPerfil' => route('api.pessoa.perfil'),
+            'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
+            'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
+            'baseEstadoCivilTenant' => route('api.tenant.estado-civil'),
+            'baseGeneroTenant' => route('api.tenant.genero'),
         ],
     ])
     @endcomponent

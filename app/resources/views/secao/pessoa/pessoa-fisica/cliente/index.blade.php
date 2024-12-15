@@ -111,17 +111,17 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/pessoa/cliente/pessoa-fisica/index.js')
+    @vite('resources/js/views/pessoa/pessoa-fisica/cliente/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'basePessoa' => route('api.pessoa'),
+            'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('financeiro.index'),
-            'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
+            'baseFrontPessoaFisicaClienteForm' => route('pessoa.pessoa-fisica.cliente.form'),
+            // 'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
         ],
     ])
     @endcomponent

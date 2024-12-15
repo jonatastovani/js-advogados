@@ -15,12 +15,12 @@
         <div class="parent-wrapper">
             <ul class="nav parent collapse show" data-bs-parent="#navbarVerticalNav" id="nv-cliente" style="">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('pessoa.cliente.pessoa-fisica.index') }}">
+                    <a class="nav-link" href="{{ route('pessoa.pessoa-fisica.cliente.index') }}">
                         <span class="nav-link-text">Listagem de Clientes PF</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('pessoa.cliente.pessoa-juridica.index') }}">
+                    <a class="nav-link" href="{{ route('pessoa.pessoa-juridica.cliente.index') }}">
                         <span class="nav-link-text">Listagem de Clientes PJ</span>
                     </a>
                 </li>

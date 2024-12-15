@@ -10,14 +10,16 @@ class PageClientePFIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: `${window.apiRoutes.basePessoa}`,
-                urlSearch: `${window.apiRoutes.basePessoa}/consulta-filtros/pessoa-fisica`,
+                url: window.apiRoutes.basePessoaFisica,
+                urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-filtros`,
             }
         },
         url: {
-            basePessoa: window.apiRoutes.basePessoa,
+            base: window.apiRoutes.basePessoaFisica,
+            baseFrontPessoaFisicaClienteForm: window.frontRoutes.baseFrontPessoaFisicaClienteForm
         },
         data: {
+            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
             perfis_busca: [
                 window.Enums.PessoaPerfilTipoEnum.CLIENTE,
             ],
@@ -108,7 +110,6 @@ class PageClientePFIndex extends templateSearch {
             console.log(item);
         }
 
-        let strBtns = self.#htmlBtns(item);
         const pessoaDados = item.pessoa_dados;
         const nome = pessoaDados.nome;
         const mae = pessoaDados.mae ?? '***';
@@ -124,6 +125,11 @@ class PageClientePFIndex extends templateSearch {
         if (item.pessoa_perfil) {
             perfis = item.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
         }
+
+        // Seleciona somente o perfil de referência desta página
+        item.pessoa_perfil_referencia = item.pessoa_perfil.filter(perfil => perfil.perfil_tipo_id == self.#objConfigs.data.perfil_referencia_id)[0];
+
+        let strBtns = self.#htmlBtns(item);
 
         const ativo = pessoaDados.ativo_bln ? 'Ativo' : 'Inativo';
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
@@ -161,9 +167,9 @@ class PageClientePFIndex extends templateSearch {
         const self = this;
         let strBtns = `
             <li>
-                <button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${item.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaFisicaClienteForm}/${item.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${item.nome}.">
                     Editar
-                </button>
+                </a>
             </li>
             <li>
                 <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir pessoa física ${item.nome}.">

@@ -138,9 +138,9 @@ abstract class Service
         $conditions = $options['conditions'] ?? null;
         if (!$conditions || !is_array($conditions)) {
             if (isset($requestData->uuid)) {
-                $conditions = [(new $this->model)->getKeyName() => $requestData->uuid];
+                $conditions = [$this->model->getKeyName() => $requestData->uuid];
             } else {
-                $conditions = [(new $this->model)->getKeyName() => $requestData->id];
+                $conditions = [$this->model->getKeyName() => $requestData->id];
             }
         }
 
