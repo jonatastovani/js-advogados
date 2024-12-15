@@ -1,14 +1,14 @@
-<div class="modal fade" id="modalEscolaridadeTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalSexoTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title">Escolaridades</h4>
+                <h4 class="modal-title">Gênero</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
                 @php
-                    $sufixo = 'ModalEscolaridadeTenant';
+                    $sufixo = 'ModalSexoTenant';
                     $dados = new Illuminate\Support\Fluent([
                         'camposFiltrados' => [
                             'nome' => ['nome' => 'Nome'],
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="divRegistrationFields mt-2" style="display: none;">
-                    @include('components.modal.tenant.modal-escolaridade-tenant.campos-cadastro', [
+                    @include('components.modal.tenant.modal-sexo-tenant.campos-cadastro', [
                         'sufixo' => $sufixo,
                     ])
                 </div>
@@ -55,7 +55,7 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
+        'baseSexoTenant' => route('api.tenant.sexo'),
     ],
 ])
 @endcomponent

@@ -105,35 +105,4 @@ Route::group([
             Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
         });
     });
-
-    Route::prefix('tenant')->group(function () {
-
-        Route::prefix('pagamento-tipo-tenant')->group(function () {
-
-            Route::controller(App\Http\Controllers\Financeiro\PagamentoTipoTenantController::class)->group(function () {
-
-                Route::post('consulta-filtros', 'postConsultaFiltros');
-
-                Route::get('', 'index');
-                Route::post('', 'store')->name('api.financeiro.pagamento-tipo-tenant');
-                Route::match(['get', 'post'], '{uuid}', 'show');
-                Route::put('{uuid}', 'update');
-                Route::delete('{uuid}', 'destroy');
-            });
-        });
-
-        Route::prefix('lancamento-categoria-tipo-tenant')->group(function () {
-
-            Route::controller(App\Http\Controllers\Tenant\LancamentoCategoriaTipoTenantController::class)->group(function () {
-
-                Route::post('consulta-filtros', 'postConsultaFiltros');
-
-                Route::get('', 'index');
-                Route::post('', 'store')->name('api.tenant.lancamento-categoria-tipo-tenant');
-                Route::get('{uuid}', 'show');
-                Route::put('{uuid}', 'update');
-                Route::delete('{uuid}', 'destroy');
-            });
-        });
-    });
 });

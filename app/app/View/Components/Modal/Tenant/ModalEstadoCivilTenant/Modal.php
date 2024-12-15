@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Tenant\EstadoCivilTenant;
+namespace App\View\Components\Modal\Tenant\ModalEstadoCivilTenant;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;

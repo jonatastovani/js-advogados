@@ -23,6 +23,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::CPF->value,
                 'nome' => 'CPF',
                 'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
                     'exp_reg' => '/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
                     'form_request_rule' => 'required|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
                     'helper' => [
@@ -35,6 +36,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::CNPJ->value,
                 'nome' => 'CNPJ',
                 'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
                     'exp_reg' => '/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
                     'form_request_rule' => 'required|regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
                     'helper' => [
@@ -47,6 +49,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::RG->value,
                 'nome' => 'RG',
                 'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
                     'exp_reg' => '/^\d{1,15}$/',
                     'form_request_rule' => 'required|regex:/^\d{1,15}$/',
                 ],
@@ -55,6 +58,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::TITULO_ELEITORAL->value,
                 'nome' => 'Título Eleitoral',
                 'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
                     'exp_reg' => '/^\d{4}\.\d{4}\.\d{4}$/',
                     'campos_adicionais' => [
                         'zona_eleitoral' => [

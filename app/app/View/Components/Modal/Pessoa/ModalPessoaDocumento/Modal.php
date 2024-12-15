@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Tenant\ModalEscolaridadeTenant;
+namespace App\View\Components\Modal\Servico\ModalPessoaDocumento;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,9 +22,9 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalEscolaridadeTenant', request('request_uuid'))) {
-            return view('components.modal.tenant.modal-escolaridade-tenant.modal');
+        if (ModalSessionHelper::registerModal('modalPessoaDocumento', request('request_uuid'))) {
+            return view('components.modal.pessoa.modal-pessoa-documento.modal');
         }
         return '';
     }
-}   
+}

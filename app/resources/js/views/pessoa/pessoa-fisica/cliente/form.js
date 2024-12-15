@@ -1,7 +1,11 @@
 import { commonFunctions } from "../../../../commons/commonFunctions";
 import { connectAjax } from "../../../../commons/connectAjax";
 import { enumAction } from "../../../../commons/enumAction";
-import { modalAreaJuridicaTenant } from "../../../../components/tenant/modalAreaJuridicaTenant";
+import { modalPessoaDocumento } from "../../../../components/pessoas/modalPessoaDocumento";
+import { modalSelecionarDocumentoTipo } from "../../../../components/pessoas/modalSelecionarDocumentoTipo";
+import { modalEscolaridadeTenant } from "../../../../components/tenant/modalEscolaridadeTenant";
+import { modalEstadoCivilTenant } from "../../../../components/tenant/modalEstadoCivilTenant";
+import { modalSexoTenant } from "../../../../components/tenant/modalSexoTenant";
 import { RedirectHelper } from "../../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../../helpers/UUIDHelper";
@@ -12,9 +16,9 @@ class PageClientePFForm {
         url: {
             base: window.apiRoutes.basePessoaPerfil,
             basePessoaFisica: window.apiRoutes.basePessoaFisica,
-            baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
             baseEstadoCivilTenant: window.apiRoutes.baseEstadoCivilTenant,
-            baseGeneroTenant: window.apiRoutes.baseGeneroTenant,
+            baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
+            baseSexoTenant: window.apiRoutes.baseSexoTenant,
         },
         sufixo: 'PageClientePFForm',
         data: {
@@ -36,6 +40,8 @@ class PageClientePFForm {
     async initEvents() {
         const self = this;
         await this.#buscarEscolaridade();
+        await this.#buscarEstadoCivil();
+        await this.#buscarSexo();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
@@ -53,11 +59,39 @@ class PageClientePFForm {
     #addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenAreaJuridicaTenant${self.#objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnOpenEstadoCivilTenant${self.#objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAreaJuridicaTenant();
+                const objModal = new modalEstadoCivilTenant();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+                        self.#buscarEstadoCivil(response.selected.id);
+                    } else {
+                        self.#buscarEstadoCivil();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#btnOpenEscolaridadeTenant${self.#objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalEscolaridadeTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -81,11 +115,74 @@ class PageClientePFForm {
             }
         });
 
+        $(`#btnOpenSexoTenant${self.#objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalSexoTenant();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+                        self.#buscarSexo(response.selected.id);
+                    } else {
+                        self.#buscarSexo();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#btnAdicionarDocumento${self.#objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalSelecionarDocumentoTipo();
+                objModal.setDataEnvModal = {
+                    pessoa_tipo_aplicavel: [
+                        window.Enums.PessoaTipoEnum.PESSOA_FISICA,
+                    ],
+                };
+                objModal.setFocusElementWhenClosingModal = btn;
+                const response = await objModal.modalOpen();
+                console.log(response);
+                // if (response.refresh && response.register) {
+                //     await self.#buscarPagamentos();
+                // }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
         $(`#btnSave${self.#objConfigs.sufixo}`).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonAction();
         });
 
+        const openModal = async () => {
+            const self = this;
+
+            const objModal = new modalPessoaDocumento();
+            objModal.setDataEnvModal = {
+                documento_tipo_tenant_id: "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
+            }
+            const response = await objModal.modalOpen();
+            console.log(response);
+        }
+
+        // openModal();
     }
 
     async #buscarDados() {
@@ -95,7 +192,7 @@ class PageClientePFForm {
             await commonFunctions.loadingModalDisplay();
 
             const response = await self.#getRecurse();
-            
+
             if (response?.data) {
                 const responseData = response.data;
                 const pessoaDados = responseData.pessoa.pessoa_dados;
@@ -108,8 +205,9 @@ class PageClientePFForm {
                 form.find('input[name="nascimento_cidade"]').val(pessoaDados.nascimento_cidade);
                 form.find('input[name="nascimento_data"]').val(pessoaDados.nascimento_data);
                 form.find('input[name="estado_civil_id"]').val(pessoaDados.estado_civil_id);
+                form.find('input[name="escolaridade_id"]').val(pessoaDados.escolaridade_id);
+                form.find('input[name="sexo_id"]').val(pessoaDados.sexo_id);
                 form.find('textarea[name="observacao"]').val(responseData.observacao);
-
 
             } else {
                 $('input, textarea, select, button').prop('disabled', true);
@@ -126,8 +224,32 @@ class PageClientePFForm {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selArea = $(`#area_juridica_id${self.#objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseEscolaridadeTenant, options); 0
+            const select = $(`#escolaridade_id${self.#objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(select, self.#objConfigs.url.baseEscolaridadeTenant, options); 0
+            return true
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarEstadoCivil(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(`#estado_civil_id${self.#objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(select, self.#objConfigs.url.baseEstadoCivilTenant, options); 0
+            return true
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarSexo(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(`#sexo_id${self.#objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(select, self.#objConfigs.url.baseSexoTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -139,7 +261,7 @@ class PageClientePFForm {
         const { idRegister = self.#idRegister,
             urlApi = self.#objConfigs.url.base,
         } = options;
-        console.log("URL", self.#objConfigs.url.base);
+
         try {
             const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);

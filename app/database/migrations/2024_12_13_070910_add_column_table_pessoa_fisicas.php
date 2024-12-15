@@ -36,8 +36,8 @@ return new class extends Migration
             $table->uuid('escolaridade_id')->nullable();
             $table->foreign('escolaridade_id')->references('id')->on((new App\Models\Tenant\EscolaridadeTenant())->getTableName());
 
-            $table->uuid('genero_id')->nullable();
-            $table->foreign('genero_id')->references('id')->on((new App\Models\Tenant\GeneroTenant())->getTableName());
+            $table->uuid('sexo_id')->nullable();
+            $table->foreign('sexo_id')->references('id')->on((new App\Models\Tenant\SexoTenant())->getTableName());
 
             $table->text('observacao')->nullable();
             $table->boolean('ativo_bln')->default(true);
@@ -54,7 +54,7 @@ return new class extends Migration
         Schema::table($this->model->getTableName(), function (Blueprint $table) {
             $table->dropForeign(['estado_civil_id']);
             $table->dropForeign(['escolaridade_id']);
-            $table->dropForeign(['genero_id']);
+            $table->dropForeign(['sexo_id']);
 
             $table->dropColumn('nascimento_cidade');
             $table->dropColumn('nascimento_estado');
@@ -62,7 +62,7 @@ return new class extends Migration
 
             $table->dropColumn('estado_civil_id');
             $table->dropColumn('escolaridade_id');
-            $table->dropColumn('genero_id');
+            $table->dropColumn('sexo_id');
             
             $table->dropColumn('observacao');
             $table->dropColumn('ativo_bln');

@@ -2,8 +2,8 @@
     <form id="formDados{{ $sufixo }}">
         <div class="row h-100">
             <div class="col d-flex flex-column">
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2">
-                    <div class="col mt-2">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-12 col-xl-6 mt-2">
                         <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
                         <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
                     </div>
@@ -54,9 +54,9 @@
                         </div>
                     </div>
                     <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="escolaridade_id {{ $sufixo }}" class="form-label">Escolaridade</label>
+                        <label for="escolaridade_id{{ $sufixo }}" class="form-label">Escolaridade</label>
                         <div class="input-group">
-                            <select name="escolaridade_id   " id="escolaridade_id  {{ $sufixo }}"
+                            <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}"
                                 class="form-select">
                             </select>
                             <button id="btnOpenEscolaridadeTenant{{ $sufixo }}" type="button"
@@ -66,11 +66,11 @@
                         </div>
                     </div>
                     <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="genero_id {{ $sufixo }}" class="form-label">Gênero</label>
+                        <label for="sexo_id{{ $sufixo }}" class="form-label">Gênero</label>
                         <div class="input-group">
-                            <select name="genero_id   " id="genero_id  {{ $sufixo }}" class="form-select">
+                            <select name="sexo_id" id="sexo_id{{ $sufixo }}" class="form-select">
                             </select>
-                            <button id="btnOpenGeneroTenant{{ $sufixo }}" type="button"
+                            <button id="btnOpenSexoTenant{{ $sufixo }}" type="button"
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-search"></i>
                             </button>
@@ -95,7 +95,7 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
                                 id="ativo_bln{{ $sufixo }}">
-                            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Pessoa com cadastro Ativo</label>
+                            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">adastro Ativo</label>
                         </div>
                     </div>
                 </div>
