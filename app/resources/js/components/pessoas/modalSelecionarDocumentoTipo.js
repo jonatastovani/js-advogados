@@ -33,8 +33,6 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
         const self = this;
         let blnOpen = false;
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de documento...', title: 'Aguarde...', elementFocus: null });
-        console.log(self._dataEnvModal.pessoa_tipo_aplicavel);
-        console.log(typeof self._dataEnvModal.pessoa_tipo_aplicavel);
 
         if (!self._dataEnvModal.pessoa_tipo_aplicavel) {
             commonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
@@ -125,8 +123,6 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        console.log(data);
-        return;
         if (self.#saveVerifications(data, formRegistration)) {
             try {
                 await self._modalHideShow(false);
@@ -144,8 +140,7 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.documento_tipo_tenant_id, { field: formRegistration.find('select[name="documento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de documento.', setFocus: true });
-        return blnSave;
+        return commonFunctions.verificationData(data.documento_tipo_tenant_id, { field: formRegistration.find('select[name="documento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de documento.', setFocus: true });
     }
 
 }

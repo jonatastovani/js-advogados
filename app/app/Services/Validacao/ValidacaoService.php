@@ -2,23 +2,40 @@
 
 namespace App\Services\Validacao;
 
+use App\Services\Validacao\Documentos\CNPJValidacao;
+use App\Services\Validacao\Documentos\CPFValidacao;
 use Illuminate\Support\Fluent;
 
 class ValidacaoService
 {
 
-    public function CPFValidacao(Fluent $requestData) : Fluent
+    public function CPFValidacao(Fluent $requestData, $options = []): array
     {
         $texto = $requestData->texto;
         $isValid = CPFValidacao::executa($texto);
-        return new Fluent(['valido' => $isValid]);
+        $mensagem = "CPF válido.";
+
+        if(!$isValid){
+            $mensagem = "O CPF informado é inválido.";
+        }
+        return [
+            'valido' => $isValid,
+            'mensagem'=> $mensagem,
+        ];
     }
 
-    public function CNPJValidacao(Fluent $requestData) : Fluent
+    public function CNPJValidacao(Fluent $requestData, $options = []): array
     {
         $texto = $requestData->texto;
         $isValid = CNPJValidacao::executa($texto);
-        return new Fluent(['valido' => $isValid]);
-    }
+        $mensagem = "CNPJ válido.";
 
+        if(!$isValid){
+            $mensagem = "O CNPJ informado é inválido.";
+        }
+        return [
+            'valido' => $isValid,
+            'mensagem'=> $mensagem,
+        ];
+    }
 }

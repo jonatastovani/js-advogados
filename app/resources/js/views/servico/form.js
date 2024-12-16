@@ -824,7 +824,7 @@ class PageServicoForm {
         const self = this;
         const { button = null,
             title = 'Exclusão de Registro',
-            message = `Confirma a exclusão do registro < b > ${nameDel}</ >? `,
+            message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
             success = `Registro excluído com sucesso!`,
         } = options;
 

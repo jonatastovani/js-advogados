@@ -72,6 +72,7 @@
             'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
             'baseEstadoCivilTenant' => route('api.tenant.estado-civil'),
             'baseSexoTenant' => route('api.tenant.sexo'),
+            // 'basePessoaDocumento' => route('api.pessoa.pessoa-documento'),
         ],
     ])
     @endcomponent

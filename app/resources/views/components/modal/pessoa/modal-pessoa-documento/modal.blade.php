@@ -12,7 +12,7 @@
             </div>
             <div class="modal-body pt-1">
                 <form class="formRegistration">
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="col mt-2 px-0">
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -22,16 +22,16 @@
                                         role="tab" aria-controls="dados-pagamento{{ $sufixo }}-tab-pane"
                                         aria-selected="true">Dados</button>
                                 </li>
-                                {{-- <li class="nav-item elements-pane-lancamentos" role="presentation">
+                                <li class="nav-item elements-pane-lancamentos" role="presentation">
                                     <button class="nav-link px-2" id="lancamentos{{ $sufixo }}-tab"
                                         data-bs-toggle="tab" data-bs-target="#lancamentos{{ $sufixo }}-tab-pane"
                                         type="button" role="tab"
                                         aria-controls="lancamentos{{ $sufixo }}-tab-pane" aria-selected="false"
                                        >Lançamentos</button>
-                                </li> --}}
+                                </li>
                             </ul>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="row rounded rounded-top-0 border-top-0 flex-fill">
                         <div class="tab-content h-100 overflow-auto" id="myTabContent">
                             <div class="tab-pane fade h-100 show active"
@@ -45,14 +45,15 @@
                             </div> --}}
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-12 mt-2 text-end">
+                            <button type="submit" class="btn btn-outline-success btn-save w-50"
+                                style="max-width: 7rem">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
-                        Salvar
-                    </button>
-                </div>
             </div>
         </div>
     </div>

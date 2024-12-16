@@ -21,9 +21,9 @@
                                     class="form-select">
                                     <option value="0">Selecione</option>
                                 </select>
-                                <button type="button" class="btn btn-outline-primary openModalPagamentoTipoTenant">
+                                {{-- <button type="button" class="btn btn-outline-primary openModalPagamentoTipoTenant">
                                     <i class="bi bi-search"></i>
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                     </div>

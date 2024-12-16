@@ -29,10 +29,10 @@ Route::group([
         'controller' => ValidacaoController::class,
     ], function () {
 
-        Route::prefix('documentos')->group(function () {
+        Route::prefix('documento')->group(function () {
 
-            Route::post('cpf', 'CPFValidacao');
-            Route::post('cnpj', 'CNPJValidacao');
+            Route::post('cpf', 'CPFValidacao')->name('api.helper.validacao.documento.cpf');
+            Route::post('cnpj', 'CNPJValidacao')->name('api.helper.validacao.documento.cnpj');
         });
     });
 });

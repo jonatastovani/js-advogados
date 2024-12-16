@@ -1,6 +1,7 @@
 import { commonFunctions } from "../../../../commons/commonFunctions";
 import { connectAjax } from "../../../../commons/connectAjax";
 import { enumAction } from "../../../../commons/enumAction";
+import { modalMessage } from "../../../../components/comum/modalMessage";
 import { modalPessoaDocumento } from "../../../../components/pessoas/modalPessoaDocumento";
 import { modalSelecionarDocumentoTipo } from "../../../../components/pessoas/modalSelecionarDocumentoTipo";
 import { modalEscolaridadeTenant } from "../../../../components/tenant/modalEscolaridadeTenant";
@@ -22,6 +23,7 @@ class PageClientePFForm {
         },
         sufixo: 'PageClientePFForm',
         data: {
+            documentosNaTela: [],
         },
     };
     #action;
@@ -183,6 +185,38 @@ class PageClientePFForm {
         }
 
         // openModal();
+
+        const obj = {
+            "numero": "429.712.118-27",
+            "documento_tipo_tenant_id": "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
+            "documento_tipo_tenant": {
+                "id": "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
+                "nome": "CPF",
+                "documento_tipo_id": 1,
+                "configuracao": [],
+                "ativo_bln": true,
+                "campos_html": "<div class=\"row\">\n    <div class=\"col mt-2\">\n        <label for=\"numeroModalPessoaDocumento\">Número</label>\n        <input type=\"text\" id=\"numeroModalPessoaDocumento\" class=\"form-control campo-cpf mt-2\" name=\"numero\">\n    </div>\n</div>\n",
+                "documento_tipo": {
+                    "id": 1,
+                    "nome": "CPF",
+                    "descricao": null,
+                    "configuracao": {
+                        "pessoa_tipo_aplicavel": [
+                            "App\\Models\\Pessoa\\PessoaFisica"
+                        ],
+                        "exp_reg": "/^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$/",
+                        "form_request_rule": "required|regex:/^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$/",
+                        "helper": {
+                            "class": "App\\Helpers\\DocumentoCPFHelper",
+                            "endpoint_api": "api/helper/validacao/documento/cpf"
+                        }
+                    },
+                    "ativo_bln": true
+                }
+            }
+        };
+
+        self.#inserirDocumento(obj);
     }
 
     async #buscarDados() {
@@ -218,6 +252,123 @@ class PageClientePFForm {
         } finally {
             await commonFunctions.loadingModalDisplay(false);
         }
+    }
+
+    async #inserirDocumento(item) {
+        const self = this;
+        const divDocumento = $(`#divDocumento${self.#objConfigs.sufixo}`);
+
+        const nomeDoc = item.documento_tipo_tenant.documento_tipo.nome;
+        const numero = item.numero;
+        let camposAdicionais = '';
+
+        if (!item?.idCol) {
+            item.idCol = UUIDHelper.generateUUID();
+
+            let strCard = `
+            <div id="${item.idCol}" class="col">
+                <div class="card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
+                                <span class="text-truncate spanTitle">${nomeDoc}</span>
+                                <div>
+                                    <div class="dropdown">
+                                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar documento ${nomeDoc}">Editar</button></li>
+                                            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir documento ${nomeDoc}">Excluir</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </h5>
+                            <p class="card-text pNumero">${numero}</p>
+                            ${camposAdicionais}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            divDocumento.append(strCard);
+            self.#addEventosDocumento(item);
+            self.#objConfigs.data.documentosNaTela.push(item);
+        } else {
+            $(`#${item.idCol}`).find('.spanTitle').html(nomeDoc);
+            $(`#${item.idCol}`).find('.pNumero').html(numero);
+
+            const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
+            if (indexDoc != -1) {
+                self.#objConfigs.data.documentosNaTela[indexDoc] = item;
+            }
+        }
+
+        return true;
+    }
+
+    #pesquisaIndexDocumentoNaTela(item, prop = 'idCol') {
+        const self = this;
+        return self.#objConfigs.data.documentosNaTela.findIndex(doc => doc[prop] === item[prop]);
+    }
+
+    async #addEventosDocumento(item) {
+        const self = this;
+
+        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
+            const docNaTela = self.#objConfigs.data.documentosNaTela;
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
+                if (indexDoc != -1) {
+                    const doc = docNaTela[indexDoc];
+
+                    const objModal = new modalPessoaDocumento();
+                    objModal.setDataEnvModal = {
+                        register: doc,
+                    };
+                    const response = await objModal.modalOpen();
+                    if (response.refresh && response.register) {
+                        await self.#inserirDocumento(response.register);
+                    }
+                } else {
+                    console.error('Documento na tela não encontrado. Docs:', docNaTela);
+                    console.error('Item buscado:', item);
+                    commonFunctions.generateNotification('Documento na tela não encontrado.', 'error');
+                    return false;
+                }
+
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
+            try {
+                const docNaTela = self.#objConfigs.data.documentosNaTela;
+                const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
+                if (indexDoc != -1) {
+                    const doc = docNaTela[indexDoc] = item;
+
+                    const objMessage = new modalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: `Exclusão de Documento`,
+                        message: `Confirma a exclusão do documento <b>${doc.documento_tipo_tenant.nome}</b>?`,
+                    };
+                    objMessage.setFocusElementWhenClosingModal = button;
+                    const result = await objMessage.modalOpen();
+                    if (result.confirmResult) {
+                        docNaTela.splice(indexDoc, 1);
+                        $(`#${doc.idCol}`).remove();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            }
+        });
     }
 
     async #buscarEscolaridade(selected_id = null) {

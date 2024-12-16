@@ -62,10 +62,14 @@ enum DocumentoTipoEnum: int
                     'exp_reg' => '/^\d{4}\.\d{4}\.\d{4}$/',
                     'campos_adicionais' => [
                         'zona_eleitoral' => [
+                            'nome' => 'zona_eleitoral',
+                            'nome_exibir' => 'Zona Eleitoral',
                             'exp_reg' => '/^\d{4}$/',
-                            'form_request_rule' => 'required|/^\d{4}\.\d{4}\.\d{4}$/',
+                            'form_request_rule' => 'required|regex:/^\d{4}$/',
                         ],
                         'secao_eleitoral' => [
+                            'nome' => 'secao_eleitoral',
+                            'nome_exibir' => 'Seção Eleitoral',
                             'exp_reg' => '/^\d{4}$/',
                             'form_request_rule' => 'required|regex:/^\d{4}$/',
                         ]
