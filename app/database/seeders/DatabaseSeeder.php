@@ -24,8 +24,12 @@ use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantSeeder;
+use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
+use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
+use Database\Seeders\Tenant\EstadoCivilTenantSeeder;
 use Database\Seeders\Tenant\LancamentoCategoriaTipoTenantSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
+use Database\Seeders\Tenant\SexoTenantSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -65,11 +69,14 @@ class DatabaseSeeder extends Seeder
 
             $this->call([
                 AreaJuridicaTenantSeeder::class,
+                ContaSeeder::class,
                 DocumentoTipoTenantSeeder::class,
+                EstadoCivilTenantSeeder::class,
+                EscolaridadeTenantSeeder::class,
+                LancamentoCategoriaTipoTenantSeeder::class,
                 PagamentoTipoTenantSeeder::class,
                 ServicoParticipacaoTipoTenantSeeder::class,
-                ContaSeeder::class,
-                LancamentoCategoriaTipoTenantSeeder::class,
+                SexoTenantSeeder::class,
             ]);
 
             if (env('APP_ENV') == 'local') {
@@ -83,15 +90,15 @@ class DatabaseSeeder extends Seeder
                 ParticipacaoRegistroTipoSeeder::class,
                 MovimentacaoContaTipoSeeder::class,
             ]);
-
         } else {
 
             $this->call([
-                DocumentoTipoUpdateSeeder::class,
+                // DocumentoTipoTenantUpdateSeeder::class,
+                // DocumentoTipoUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
                 // MovimentacaoContaStatusTipoUpdateSeeder::class,
-         ]);
+            ]);
         }
     }
 }

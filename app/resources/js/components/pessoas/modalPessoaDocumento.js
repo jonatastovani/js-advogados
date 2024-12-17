@@ -137,24 +137,26 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
 
                 self._updateModalTitle(`Alterar: <b>${documentoTipoTenant.nome}</b>`);
                 self._dataEnvModal.documento_tipo_tenant_id = documentoTipoTenant.id;
-                await self.#buscarDadosDocumentoTipo();
-                console.log(registerData)
-                const form = $(self.getIdModal).find('.formRegistration');
-                form.find('input[name="numero"]').val(registerData.numero);
-                // form.find('select[name="status_id"]').val(registerData.status_id);
+                if (await self.#buscarDadosDocumentoTipo()) {
+                    const form = $(self.getIdModal).find('.formRegistration');
+                    form.find('input[name="numero"]').val(registerData.numero);
+                    // form.find('select[name="status_id"]').val(registerData.status_id);
 
-                // const tipoCampos = [configuracao.campos_obrigatorios, configuracao.campos_opcionais ?? []];
-                // for (const tipoCampo of tipoCampos) {
-                //     for (const campo of tipoCampo) {
+                    // const tipoCampos = [configuracao.campos_obrigatorios, configuracao.campos_opcionais ?? []];
+                    // for (const tipoCampo of tipoCampos) {
+                    //     for (const campo of tipoCampo) {
 
-                //         const rules = campo.form_request_rule.split('|');
-                //         let valor = registerData[campo.nome];
-                //         if (rules.find(rule => rule === 'numeric')) {
-                //             valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
-                //         }
-                //         form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
-                //     }
-                // }
+                    //         const rules = campo.form_request_rule.split('|');
+                    //         let valor = registerData[campo.nome];
+                    //         if (rules.find(rule => rule === 'numeric')) {
+                    //             valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
+                    //         }
+                    //         form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
+                    //     }
+                    // }
+                } else {
+                    return false;
+                }
                 return true;
             }
             return false;

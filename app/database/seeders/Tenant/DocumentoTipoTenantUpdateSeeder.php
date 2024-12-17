@@ -4,15 +4,22 @@ namespace Database\Seeders\Tenant;
 
 use App\Enums\DocumentoTipoEnum;
 use App\Helpers\UUIDsHelpers;
-use App\Models\Tenant\DocumentoTipoTenant;
+use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
-class DocumentoTipoTenantSeeder extends Seeder
+class DocumentoTipoTenantUpdateSeeder extends Seeder
 {
+    use CommonsSeederMethodsTrait;
+
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new \App\Models\Tenant\DocumentoTipoTenant();
+    }
+
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -52,11 +59,16 @@ class DocumentoTipoTenantSeeder extends Seeder
         ];
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-
         foreach ($insert as $data) {
-            $data['created_user_id'] = $adminTenantUserId;
-            $data['tenant_id'] = 'jsadvogados';
-            DocumentoTipoTenant::create($data);
+            $resource = $this->model::find($data['id']);
+            if (!$resource) {
+                $resource = new $this->model;
+                $data['created_user_id'] = $adminTenantUserId;
+                $resource->create($data);
+            } else {
+                $data['updated_user_id'] = $adminTenantUserId;
+                $resource->update($data);
+            }
         }
     }
 }

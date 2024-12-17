@@ -157,10 +157,9 @@ class PageClientePFForm {
                 };
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
-                console.log(response);
-                // if (response.refresh && response.register) {
-                //     await self.#buscarPagamentos();
-                // }
+                if (response.refresh && response.register) {
+                    await self.#inserirDocumento(response.register, true);
+                }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
@@ -188,9 +187,9 @@ class PageClientePFForm {
 
         const obj = {
             "numero": "429.712.118-27",
-            "documento_tipo_tenant_id": "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
+            "documento_tipo_tenant_id": "9dbde118-3e17-4a87-b5c5-8e595929a2ec",
             "documento_tipo_tenant": {
-                "id": "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
+                "id": "9dbde118-3e17-4a87-b5c5-8e595929a2ec",
                 "nome": "CPF",
                 "documento_tipo_id": 1,
                 "configuracao": [],
@@ -216,7 +215,8 @@ class PageClientePFForm {
             }
         };
 
-        self.#inserirDocumento(obj);
+        self.#inserirDocumento(obj, true);
+
     }
 
     async #buscarDados() {
@@ -254,7 +254,34 @@ class PageClientePFForm {
         }
     }
 
-    async #inserirDocumento(item) {
+    #verificaDocumentoQuantidadePermitida(documentoAInserir) {
+        const self = this;
+        const docsNaTela = self.#objConfigs.data.documentosNaTela;
+        console.log('Verificando')
+        // Obtém a quantidade permitida para este tipo de documento
+        const quantidadePermitida = documentoAInserir.documento_tipo_tenant.configuracao?.quantidade_permitida;
+
+        if (quantidadePermitida) {
+            // Filtra os documentos na tela que possuem o mesmo documento_tipo_tenant_id
+            const documentosComMesmoTipo = docsNaTela.filter(
+                doc => doc.documento_tipo_tenant_id === documentoAInserir.documento_tipo_tenant_id
+            );
+
+            // Verifica se ultrapassou o limite permitido
+            if (documentosComMesmoTipo.length >= quantidadePermitida) {
+                if (quantidadePermitida === 1) {
+                    commonFunctions.generateNotification(`Este documento já foi adicionado.`, 'warning');
+                    return false;
+                } else {
+                    commonFunctions.generateNotification(`O limite de ${quantidadePermitida} documentos para este tipo foi atingido.`, 'warning');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    async #inserirDocumento(item, validarLimite = false) {
         const self = this;
         const divDocumento = $(`#divDocumento${self.#objConfigs.sufixo}`);
 
@@ -263,6 +290,12 @@ class PageClientePFForm {
         let camposAdicionais = '';
 
         if (!item?.idCol) {
+            if (validarLimite) {
+                if (!self.#verificaDocumentoQuantidadePermitida(item)) {
+                    return false;
+                }
+            }
+
             item.idCol = UUIDHelper.generateUUID();
 
             let strCard = `

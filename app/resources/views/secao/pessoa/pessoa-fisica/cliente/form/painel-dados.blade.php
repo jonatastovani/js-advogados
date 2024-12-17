@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="sexo_id{{ $sufixo }}" class="form-label">Gênero</label>
+                        <label for="sexo_id{{ $sufixo }}" class="form-label">Sexo</label>
                         <div class="input-group">
                             <select name="sexo_id" id="sexo_id{{ $sufixo }}" class="form-select">
                             </select>
