@@ -48,6 +48,7 @@ class EscolaridadeTenantSeeder extends Seeder
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
         foreach ($insert as $data) {
             $data['created_user_id'] = $adminTenantUserId;
+            $data['tenant_id'] = 'jsadvogados';
             EscolaridadeTenant::create($data);
         }
     }

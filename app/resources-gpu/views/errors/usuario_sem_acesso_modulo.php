@@ -1,1 +1,0 @@
-<h1>Você ainda não possui acesso a esta área</h1>
