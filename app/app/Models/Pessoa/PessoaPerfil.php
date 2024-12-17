@@ -26,6 +26,20 @@ class PessoaPerfil extends Model
     protected $table = 'pessoa.pessoa_perfil';
     protected $tableAsName = 'pess_perf';
 
+    protected $hidden = [
+        'created_user_id',
+        'created_ip',
+        // 'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+        'tenant_id',
+        'domain_id',
+    ];
+    
     public function pessoa()
     {
         return $this->belongsTo(Pessoa::class);

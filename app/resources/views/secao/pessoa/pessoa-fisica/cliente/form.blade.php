@@ -40,7 +40,7 @@
             </ul>
         </div>
     </div>
-    <div class="row rounded rounded-top-0 border-top-0 flex-fill">
+    <div class="row row-cols-1 rounded rounded-top-0 border-top-0 flex-fill">
         <div class="col tab-content overflow-auto" id="myTabContent">
             <div class="tab-pane fade h-100 show active" id="painelDados{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelDados{{ $sufixo }}-tab" tabindex="0">
@@ -50,6 +50,13 @@
                 aria-labelledby="painelDocumentos{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.pessoa.pessoa-fisica.cliente.form.painel-documentos')
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-end mt-2">
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save w-50" style="max-width: 7rem">
+                Salvar
+            </button>
         </div>
     </div>
 
@@ -72,14 +79,12 @@
             'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
             'baseEstadoCivilTenant' => route('api.tenant.estado-civil'),
             'baseSexoTenant' => route('api.tenant.sexo'),
-            // 'basePessoaDocumento' => route('api.pessoa.pessoa-documento'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirect' => route('servico.index'),
-            'frontRedirectForm' => route('servico.form'),
+            'frontRedirectForm' => route('pessoa.pessoa-fisica.cliente.index'),
         ],
     ])
     @endcomponent

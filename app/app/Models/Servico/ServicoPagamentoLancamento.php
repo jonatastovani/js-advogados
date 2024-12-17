@@ -60,7 +60,7 @@ class ServicoPagamentoLancamento extends Model
         'deleted_at',
         'tenant_id',
         'domain_id',
- ];
+    ];
 
     public function pagamento()
     {

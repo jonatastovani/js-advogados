@@ -95,16 +95,8 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
                                 id="ativo_bln{{ $sufixo }}">
-                            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">adastro Ativo</label>
+                            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro Ativo</label>
                         </div>
-                    </div>
-                </div>
-                <div class="row text-end">
-                    <div class="col mt-2">
-                        <button type="submit" id="btnSave{{ $sufixo }}"
-                            class="btn btn-outline-success btn-save">
-                            Salvar dados pessoais
-                        </button>
                     </div>
                 </div>
             </div>

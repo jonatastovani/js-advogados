@@ -2,8 +2,6 @@
 
 namespace App\Enums;
 
-use App\Helpers\DocumentoCNPJHelper;
-use App\Helpers\DocumentoCPFHelper;
 use App\Traits\EnumTrait;
 
 enum DocumentoTipoEnum: int
@@ -27,7 +25,7 @@ enum DocumentoTipoEnum: int
                     'exp_reg' => '/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
                     'form_request_rule' => 'required|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
                     'helper' => [
-                        'class' => DocumentoCPFHelper::class,
+                        'class' => \App\Services\Validacao\Documentos\CPFValidacao::class,
                         'endpoint_api' => 'api/helper/validacao/documento/cpf',
                     ]
                 ],
@@ -40,7 +38,7 @@ enum DocumentoTipoEnum: int
                     'exp_reg' => '/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
                     'form_request_rule' => 'required|regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/',
                     'helper' => [
-                        'class' => DocumentoCNPJHelper::class,
+                        'class' => \App\Services\Validacao\Documentos\CNPJValidacao::class,
                         'endpoint_api' => 'api/helper/validacao/documento/cnpj',
                     ]
                 ],

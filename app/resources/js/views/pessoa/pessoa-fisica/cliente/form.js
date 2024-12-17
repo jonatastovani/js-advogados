@@ -15,14 +15,16 @@ class PageClientePFForm {
 
     #objConfigs = {
         url: {
-            base: window.apiRoutes.basePessoaPerfil,
-            basePessoaFisica: window.apiRoutes.basePessoaFisica,
+            base: window.apiRoutes.basePessoaFisica,
+            basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
             baseEstadoCivilTenant: window.apiRoutes.baseEstadoCivilTenant,
             baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
             baseSexoTenant: window.apiRoutes.baseSexoTenant,
         },
         sufixo: 'PageClientePFForm',
         data: {
+            pessoa_dados_id: undefined,
+            pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
             documentosNaTela: [],
         },
     };
@@ -41,10 +43,6 @@ class PageClientePFForm {
 
     async initEvents() {
         const self = this;
-        await this.#buscarEscolaridade();
-        await this.#buscarEstadoCivil();
-        await this.#buscarSexo();
-
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self.#idRegister = uuid;
@@ -52,6 +50,10 @@ class PageClientePFForm {
             this.#action = enumAction.PUT;
             await self.#buscarDados();
         } else {
+            this.#buscarEscolaridade();
+            this.#buscarEstadoCivil();
+            this.#buscarSexo();
+
             this.#action = enumAction.POST;
         }
 
@@ -171,52 +173,6 @@ class PageClientePFForm {
             e.preventDefault();
             self.#saveButtonAction();
         });
-
-        const openModal = async () => {
-            const self = this;
-
-            const objModal = new modalPessoaDocumento();
-            objModal.setDataEnvModal = {
-                documento_tipo_tenant_id: "9dbb14a7-22ac-4cc3-aed8-56d7dec7135a",
-            }
-            const response = await objModal.modalOpen();
-            console.log(response);
-        }
-
-        // openModal();
-
-        const obj = {
-            "numero": "429.712.118-27",
-            "documento_tipo_tenant_id": "9dbde118-3e17-4a87-b5c5-8e595929a2ec",
-            "documento_tipo_tenant": {
-                "id": "9dbde118-3e17-4a87-b5c5-8e595929a2ec",
-                "nome": "CPF",
-                "documento_tipo_id": 1,
-                "configuracao": [],
-                "ativo_bln": true,
-                "campos_html": "<div class=\"row\">\n    <div class=\"col mt-2\">\n        <label for=\"numeroModalPessoaDocumento\">Número</label>\n        <input type=\"text\" id=\"numeroModalPessoaDocumento\" class=\"form-control campo-cpf mt-2\" name=\"numero\">\n    </div>\n</div>\n",
-                "documento_tipo": {
-                    "id": 1,
-                    "nome": "CPF",
-                    "descricao": null,
-                    "configuracao": {
-                        "pessoa_tipo_aplicavel": [
-                            "App\\Models\\Pessoa\\PessoaFisica"
-                        ],
-                        "exp_reg": "/^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$/",
-                        "form_request_rule": "required|regex:/^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$/",
-                        "helper": {
-                            "class": "App\\Helpers\\DocumentoCPFHelper",
-                            "endpoint_api": "api/helper/validacao/documento/cpf"
-                        }
-                    },
-                    "ativo_bln": true
-                }
-            }
-        };
-
-        self.#inserirDocumento(obj, true);
-
     }
 
     async #buscarDados() {
@@ -225,24 +181,33 @@ class PageClientePFForm {
         try {
             await commonFunctions.loadingModalDisplay();
 
-            const response = await self.#getRecurse();
+            const response = await self.#getRecurse({ urlApi: self.#objConfigs.url.basePessoaPerfil });
 
             if (response?.data) {
                 const responseData = response.data;
                 const pessoaDados = responseData.pessoa.pessoa_dados;
                 const form = $(`#formDados${self.#objConfigs.sufixo}`);
 
+                self.#objConfigs.data.pessoa_dados_id = pessoaDados.id;
                 form.find('input[name="nome"]').val(pessoaDados.nome);
                 form.find('input[name="mae"]').val(pessoaDados.mae);
                 form.find('input[name="pai"]').val(pessoaDados.pai);
                 form.find('input[name="nacionalidade"]').val(pessoaDados.nacionalidade);
                 form.find('input[name="nascimento_cidade"]').val(pessoaDados.nascimento_cidade);
+                form.find('input[name="nascimento_estado"]').val(pessoaDados.nascimento_estado);
                 form.find('input[name="nascimento_data"]').val(pessoaDados.nascimento_data);
-                form.find('input[name="estado_civil_id"]').val(pessoaDados.estado_civil_id);
-                form.find('input[name="escolaridade_id"]').val(pessoaDados.escolaridade_id);
-                form.find('input[name="sexo_id"]').val(pessoaDados.sexo_id);
-                form.find('textarea[name="observacao"]').val(responseData.observacao);
+                self.#buscarEscolaridade(pessoaDados.escolaridade_id);
+                self.#buscarEstadoCivil(pessoaDados.estado_civil_id);
+                self.#buscarSexo(pessoaDados.sexo_id);
+                form.find('textarea[name="observacao"]').val(pessoaDados.observacao);
+                form.find('input[name="ativo_bln"]').prop('checked', pessoaDados.ativo_bln);
 
+                if (responseData.pessoa?.documentos.length) {
+                    responseData.pessoa.documentos.map(documento => {
+                        // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
+                        self.#inserirDocumento(documento);
+                    });
+                }
             } else {
                 $('input, textarea, select, button').prop('disabled', true);
             }
@@ -257,7 +222,7 @@ class PageClientePFForm {
     #verificaDocumentoQuantidadePermitida(documentoAInserir) {
         const self = this;
         const docsNaTela = self.#objConfigs.data.documentosNaTela;
-        console.log('Verificando')
+
         // Obtém a quantidade permitida para este tipo de documento
         const quantidadePermitida = documentoAInserir.documento_tipo_tenant.configuracao?.quantidade_permitida;
 
@@ -391,7 +356,7 @@ class PageClientePFForm {
                         title: `Exclusão de Documento`,
                         message: `Confirma a exclusão do documento <b>${doc.documento_tipo_tenant.nome}</b>?`,
                     };
-                    objMessage.setFocusElementWhenClosingModal = button;
+                    objMessage.setFocusElementWhenClosingModal = $(this);
                     const result = await objMessage.modalOpen();
                     if (result.confirmResult) {
                         docNaTela.splice(indexDoc, 1);
@@ -407,7 +372,8 @@ class PageClientePFForm {
     async #buscarEscolaridade(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { firstOptionValue: null };
+            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#escolaridade_id${self.#objConfigs.sufixo}`);
             await commonFunctions.fillSelect(select, self.#objConfigs.url.baseEscolaridadeTenant, options); 0
             return true
@@ -419,7 +385,8 @@ class PageClientePFForm {
     async #buscarEstadoCivil(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { firstOptionValue: null };
+            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#estado_civil_id${self.#objConfigs.sufixo}`);
             await commonFunctions.fillSelect(select, self.#objConfigs.url.baseEstadoCivilTenant, options); 0
             return true
@@ -431,7 +398,8 @@ class PageClientePFForm {
     async #buscarSexo(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { firstOptionValue: null };
+            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#sexo_id${self.#objConfigs.sufixo}`);
             await commonFunctions.fillSelect(select, self.#objConfigs.url.baseSexoTenant, options); 0
             return true
@@ -458,8 +426,26 @@ class PageClientePFForm {
 
     #saveButtonAction() {
         const self = this;
-        const formRegistration = $(`#formServico${self.#objConfigs.sufixo}`);
+        const formRegistration = $(`#formDados${self.#objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
+        data.documentos = self.#objConfigs.data.documentosNaTela.map(item => {
+            return {
+                id: item.id,
+                documento_tipo_tenant_id: item.documento_tipo_tenant_id,
+                numero: item.numero,
+                // campos_adicionais: item.campos_adicionais,
+            }
+        });
+        data.pessoa_perfil_tipo_id = self.#objConfigs.data.pessoa_perfil_tipo_id;
+
+        data = Object.fromEntries(
+            Object.entries(data).map(([key, value]) => {
+                if (value === "null") {
+                    value = null;
+                }
+                return [key, value];
+            })
+        );
 
         if (self.#saveVerifications(data, formRegistration)) {
             self.#save(data, self.#objConfigs.url.base);
@@ -469,13 +455,9 @@ class PageClientePFForm {
 
     #saveVerifications(data, formRegistration) {
         const self = this;
-        if (self.#action == enumAction.POST) {
-            let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-            blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            return blnSave;
-        }
-        return true;
+        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O campo <b>nome</b> deve ser informado.', setFocus: true });
+        // blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        return blnSave;
     }
 
     async #save(data, urlApi, options = {}) {
@@ -490,16 +472,12 @@ class PageClientePFForm {
             obj.setAction(self.#action);
             obj.setData(data);
             if (self.#action === enumAction.PUT) {
-                obj.setParam(self.#idRegister);
+                obj.setParam(self.#objConfigs.data.pessoa_dados_id);
             }
             const response = await obj.envRequest();
 
             if (response) {
-                if (self.#action === enumAction.PUT) {
-                    commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
-                } else {
-                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
-                }
+                RedirectHelper.redirectWithUUIDMessage(window.frontRoutes.frontRedirectForm, 'Dados enviados com sucesso!', 'success');
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

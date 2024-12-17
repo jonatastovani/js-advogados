@@ -49,7 +49,6 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do documento...' });
         let blnOpen = false;
 
-        console.log(self._dataEnvModal);
         if (self._dataEnvModal.register) {
             blnOpen = await self.#buscarDados()
         } else {
@@ -117,6 +116,14 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         commonFunctions.cpfMask(modal.find('.campo-cpf'));
         $(modal.find('.campo-cpf')).on('focusout', function () {
             if (commonFunctions.validateCPF(this.value)) {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+
+        $(modal.find('.campo-cnpj')).on('focusout', function () {
+            if (commonFunctions.validateCNPJ(this.value)) {
                 $(this).removeClass('is-invalid').addClass('is-valid');
             } else {
                 $(this).removeClass('is-valid').addClass('is-invalid');

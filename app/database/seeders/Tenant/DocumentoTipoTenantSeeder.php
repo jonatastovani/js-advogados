@@ -41,14 +41,14 @@ class DocumentoTipoTenantSeeder extends Seeder
                     'quantidade_permitida' => 1,
                 ],
             ],
-            [
-                'id' => "9dbde119-ebf9-4541-8722-6e18078d1321",
-                'nome' => 'Título Eleitoral',
-                'documento_tipo_id' => DocumentoTipoEnum::TITULO_ELEITORAL,
-                'configuracao' => [
-                    'quantidade_permitida' => 1,
-                ],
-            ],
+            // [
+            //     'id' => "9dbde119-ebf9-4541-8722-6e18078d1321",
+            //     'nome' => 'Título Eleitoral',
+            //     'documento_tipo_id' => DocumentoTipoEnum::TITULO_ELEITORAL,
+            //     'configuracao' => [
+            //         'quantidade_permitida' => 1,
+            //     ],
+            // ],
         ];
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();

@@ -51,7 +51,6 @@ class DocumentoTipoTenantService extends Service
     {
         $resource = $this->buscarRecurso($requestData);
         $resource->load('documento_tipo');
-        // $resource = new Fluent($resource->toArray());
 
         switch ($resource->documento_tipo_id) {
             case DocumentoTipoEnum::CPF->value:
@@ -59,15 +58,15 @@ class DocumentoTipoTenantService extends Service
                 break;
 
             case DocumentoTipoEnum::RG->value:
-                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.parcelado', compact('requestData'))->render();
+                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.rg', compact('requestData'))->render();
                 break;
 
             case DocumentoTipoEnum::CNPJ->value:
-                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.entrada-com-parcelamento', compact('requestData'))->render();
+                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.cnpj', compact('requestData'))->render();
                 break;
 
             case DocumentoTipoEnum::TITULO_ELEITORAL->value:
-                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.recorrente', compact('requestData'))->render();
+                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.titulo-eleitoral', compact('requestData'))->render();
                 break;
 
             default:

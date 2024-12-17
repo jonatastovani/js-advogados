@@ -217,6 +217,18 @@ class PessoaService extends Service
             );
         }
 
+        // Verifica se PessoaPerfilService está na lista de exclusão
+        $classImport = PessoaDocumentoService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'documentos.'
+                ]
+            );
+        }
+
         return $relationships;
     }
 

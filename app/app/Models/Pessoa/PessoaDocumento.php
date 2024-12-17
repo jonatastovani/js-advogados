@@ -18,10 +18,11 @@ class PessoaDocumento extends Model
         ModelsLogsTrait,
         BelongsToTenant;
 
-    protected $table = 'tenant.pessoa_documentos';
+    protected $table = 'pessoa.pessoa_documentos';
     protected $tableAsName = 'pess_doc';
 
     protected $fillable = [
+        'id',
         'pessoa_id',
         'documento_tipo_tenant_id',
         'numero',

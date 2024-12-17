@@ -444,7 +444,7 @@ export class commonFunctions {
      * @param {Object} options - Opções adicionais para personalizar o processo de preenchimento.
      * @param {boolean} options.insertFirstOption - Se deseja inserir a primeira opção (padrão: true).
      * @param {string} options.firstOptionName - O nome da primeira opção (padrão: 'Selecione').
-     * @param {string} options.firstOptionValue - O valor da primeira opção (padrão: '').
+     * @param {string} options.firstOptionValue - O valor da primeira opção (padrão: 0).
      * @param {string} options.selectedIdOption - O ID da opção a ser marcada como selecionada (padrão: o valor atual do elemento select).
      * @param {string} options.displayColumnName - O nome da coluna a ser exibida nas opções (padrão: 'nome').
      * @param {string} options.typeRequest - O tipo de solicitação (por exemplo, "GET" ou "POST").
@@ -452,13 +452,13 @@ export class commonFunctions {
      */
     static async fillSelect(elem, urlApi, options = {}) {
         const {
-            insertFirstOption: insertFirstOption = true,
-            firstOptionName: firstOptionName = 'Selecione',
-            firstOptionValue: firstOptionValue = 0,
-            selectedIdOption: selectedIdOption = elem.val(),
-            displayColumnName: displayColumnName = 'nome',
-            typeRequest: typeRequest = enumAction.GET,
-            envData: envData = {},
+            insertFirstOption = true,
+            firstOptionName = 'Selecione',
+            firstOptionValue = 0,
+            selectedIdOption = elem.val(),
+            displayColumnName = 'nome',
+            typeRequest = enumAction.GET,
+            envData = {},
         } = options;
 
         const objConn = new connectAjax(urlApi);

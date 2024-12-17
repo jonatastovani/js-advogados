@@ -192,13 +192,8 @@ class ServicoPagamentoService extends Service
         $arrayErrors = new Fluent();
         $resource = null;
 
-        $checkDeletedAlteracaoConta = true;
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
-
-            if ($resource->conta_id == $requestData->conta_id) {
-                $checkDeletedAlteracaoConta = false;
-            }
         } else {
             $resource = new $this->model;
             $resource->servico_id = $requestData->servico_uuid;
@@ -212,14 +207,14 @@ class ServicoPagamentoService extends Service
 
         if ($requestData->status_id) {
             //Verifica se o status informado existe, se não existir o padrão será adicionado mais à frente
-            $validacaoStatusId = ValidationRecordsHelper::validateRecord(PagamentoStatusTipo::class, ['id' => $requestData->status_id], $checkDeletedAlteracaoConta);
+            $validacaoStatusId = ValidationRecordsHelper::validateRecord(PagamentoStatusTipo::class, ['id' => $requestData->status_id]);
             if (!$validacaoStatusId->count()) {
                 $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status informado não existe.', $requestData)->error;
             }
         }
 
         //Verifica se a conta informada existe
-        $validacaoContaId = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id], $checkDeletedAlteracaoConta);
+        $validacaoContaId = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id]);
         if (!$validacaoContaId->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }
