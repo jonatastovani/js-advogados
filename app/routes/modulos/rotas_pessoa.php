@@ -19,9 +19,9 @@ Route::prefix('pessoa')->group(function () {
 
                 Route::prefix('cliente')->group(function () {
 
-                    Route::get('', 'clientePessoaJuridicaIndex')->name('pessoa.pessoa-juridica.cliente.index');
-                    Route::get('/form', 'clientePessoaJuridicaForm')->name('pessoa.pessoa-juridica.cliente.form');
-                    Route::get('/form/{uuid}', 'clientePessoaJuridicaFormEditar');
+                    Route::get('', 'pessoaJuridicaClienteIndex')->name('pessoa.pessoa-juridica.cliente.index');
+                    Route::get('/form', 'pessoaJuridicaClienteForm')->name('pessoa.pessoa-juridica.cliente.form');
+                    Route::get('/form/{uuid}', 'pessoaJuridicaClienteFormEditar');
                 });
             });
         });

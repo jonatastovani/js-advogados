@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Pessoa\PessoaJuridica;
+namespace App\Http\Requests\Pessoa\PessoaFisica;
 
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 
-class PostConsultaFiltroFormRequestPessoaJuridica extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestPessoaFisica extends PostConsultaFiltroFormRequestBase
 {
     public function authorize(): bool
     {

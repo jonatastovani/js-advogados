@@ -28,8 +28,23 @@ class PessoaController extends Controller
         return view('secao.pessoa.pessoa-fisica.cliente.form');
     }
 
-    public function pessoaJuridicaIndex()
+    public function pessoaJuridicaClienteIndex()
     {
         return view('secao.pessoa.pessoa-juridica.cliente.index');
     }
+
+    public function pessoaJuridicaClienteForm()
+    {
+        return view('secao.pessoa.pessoa-juridica.cliente.form');
+    }
+
+    public function pessoaJuridicaClienteFormEditar(Request $request)
+    {
+        $recurso = PessoaPerfil::find($request->uuid);
+        if ($recurso) {
+            return view('secao.pessoa.pessoa-juridica.cliente.form', compact('recurso'));
+        }
+        return view('secao.pessoa.pessoa-juridica.cliente.form');
+    }
+
 }
