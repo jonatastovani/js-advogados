@@ -17,17 +17,19 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    'nome' => ['nome' => 'Nome'],
-                    'mae' => ['nome' => 'Mãe'],
-                    'pai' => ['nome' => 'Pai'],
+                    'razao_social' => ['nome' => 'Razão social'],
+                    'nome_fantasia' => ['nome' => 'Nome fantasia'],
+                    'responsavel_legal' => ['nome' => 'Responsável legal'],
                     'documento' => ['nome' => 'Documento'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['nome', 'documento'],
+                'arrayCamposChecked' => ['razao_social', 'documento'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
-                    'nome' => ['nome' => 'Nome'],
+                    'razao_social' => ['nome' => 'Razão social'],
+                    'nome_fantasia' => ['nome' => 'Nome fantasia'],
+                    'responsavel_legal' => ['nome' => 'Responsável legal'],
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'camposExtras' => [
@@ -61,21 +63,29 @@
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
-    
+
+    <div class="row">
+        <div class="col mt-2">
+            <a href="{{ route('pessoa.pessoa-juridica.cliente.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+        </div>
+    </div>
+
     <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-nowrap">Nome</th>
-                    <th class="text-nowrap">Mãe</th>
-                    <th class="text-nowrap">Pai</th>
-                    <th class="text-nowrap">Estado Civil</th>
-                    <th class="text-nowrap">Escolaridade</th>
-                    <th class="text-nowrap">Gênero</th>
-                    <th class="text-nowrap" title="Data de Nascimento">Data Nasc.</th>
-                    <th class="text-nowrap">Naturalidade</th>
-                    <th class="text-nowrap">Nacionalidade</th>
+                    <th class="text-nowrap">Razão Social</th>
+                    <th class="text-nowrap">Nome Fantasia</th>
+                    <th class="text-nowrap">Natureza Jurídica</th>
+                    <th class="text-nowrap">Data Fundação</th>
+                    <th class="text-nowrap">Inscrição Estadual</th>
+                    <th class="text-nowrap">Inscrição Municipal</th>
+                    <th class="text-nowrap">Capital Social</th>
+                    <th class="text-nowrap">CNAE</th>
+                    <th class="text-nowrap">Regime Tributário</th>
+                    <th class="text-nowrap">Responsável Legal</th>
+                    <th class="text-nowrap">CPF Responsável</th>
                     <th class="text-nowrap">Perfis</th>
                     <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Cadastro</th>
@@ -105,7 +115,6 @@
     @component('components.pagina.front-routes', [
         'routes' => [
             'baseFrontPessoaJuridicaClienteForm' => route('pessoa.pessoa-juridica.cliente.form'),
-            // 'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
         ],
     ])
     @endcomponent

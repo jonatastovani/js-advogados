@@ -38,8 +38,7 @@ class DocumentoTipoTenantService extends Service
         $query = $this->model->from($this->model->getTableNameAsName())
         ->select("{$this->model->getTableAsName()}.*")
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            // ->whereJsonContains('configuracao->pessoa_tipo_aplicavel', [$requestData->pessoa_tipo_aplicavel])
-            ->whereJsonContains("{$this->modelDocumentoTipo->getTableAsName()}.configuracao->pessoa_tipo_aplicavel", [PessoaTipoEnum::PESSOA_FISICA->value])
+            ->whereJsonContains("{$this->modelDocumentoTipo->getTableAsName()}.configuracao->pessoa_tipo_aplicavel", $requestData->pessoa_tipo_aplicavel)
             ->where("{$this->model->getTableAsName()}.deleted_at", null);
         $this->verificaUsoScopeTenant($query, $this->model);
         $query = $this->model::joinDocumentoTipo($query);

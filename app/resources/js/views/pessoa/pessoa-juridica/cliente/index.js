@@ -78,15 +78,17 @@ class PageClientePJIndex extends templateSearch {
 
         const pessoa = item.pessoa;
         const pessoaDados = item;
-        const nome = pessoaDados.nome;
-        const mae = pessoaDados.mae ?? '***';
-        const pai = pessoaDados.pai ?? '***';
-        const estadoCivil = pessoaDados?.estado_civil?.nome ?? '***';
-        const escolaridade = pessoaDados?.escolaridade?.nome ?? '***';
-        const genero = pessoaDados?.genero?.nome ?? '***';
-        const dataNascimento = pessoaDados.nascimento_data ? DateTimeHelper.retornaDadosDataHora(pessoaDados.nascimento_data, 2) : '***';
-        const naturalidade = pessoaDados.naturalidade ?? '***';
-        const nacionalidade = pessoaDados.nacionalidade ?? '***';
+        const razaoSocial = pessoaDados.razao_social;
+        const nomeFantasia = pessoaDados.nome_fantasia ?? '***';
+        const naturezaJuridica = pessoaDados.natureza_juridica ?? '***';
+        const regimeTributario = pessoaDados?.regime_tributario ?? '***';
+        const responsavelLegal = pessoaDados?.responsavel_legal ?? '***';
+        const cpfResponsavel = pessoaDados?.cpf_responsavel ? commonFunctions.formatCPF(pessoaDados.cpf_responsavel) : '***';
+        const inscricaoEstadual = pessoaDados.inscricao_estadual ?? '***';
+        const inscricaoMunicipal = pessoaDados.inscricao_municipal ?? '***';
+        const capitalSocial = pessoaDados.capital_social ? commonFunctions.formatNumberToCurrency(pessoaDados.capital_social) : '***';
+        const cnae = pessoaDados.cnae ?? '***';
+        const dataFundacao = pessoaDados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoaDados.data_fundacao, 2) : '***';
 
         let perfis = 'N/C';
         if (pessoa.pessoa_perfil) {
@@ -110,15 +112,17 @@ class PageClientePJIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${nome}">${nome}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${mae}">${mae}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${pai}">${pai}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${estadoCivil}">${estadoCivil}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${escolaridade}">${escolaridade}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${genero}">${genero}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataNascimento}">${dataNascimento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${naturalidade}">${naturalidade}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${nacionalidade}">${nacionalidade}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${razaoSocial}">${razaoSocial}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${nomeFantasia}">${nomeFantasia}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${naturezaJuridica}">${naturezaJuridica}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${dataFundacao}">${dataFundacao}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${inscricaoEstadual}">${inscricaoEstadual}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${inscricaoMunicipal}">${inscricaoMunicipal}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${capitalSocial}">${capitalSocial}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${cnae}">${cnae}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${regimeTributario}">${regimeTributario}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${responsavelLegal}">${responsavelLegal}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${cpfResponsavel}">${cpfResponsavel}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${perfis}">${perfis}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${ativo}">${ativo}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>

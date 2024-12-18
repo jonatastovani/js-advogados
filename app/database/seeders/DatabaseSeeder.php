@@ -23,6 +23,7 @@ use Database\Seeders\Referencias\MovimentacaoContaStatusTipoUpdateSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
+use Database\Seeders\Referencias\PessoaPerfilTipoUpdateSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
 use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
@@ -93,8 +94,9 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                DocumentoTipoTenantUpdateSeeder::class,
-                DocumentoTipoUpdateSeeder::class,
+                PessoaPerfilTipoUpdateSeeder::class,
+                // DocumentoTipoTenantUpdateSeeder::class,
+                // DocumentoTipoUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
                 // MovimentacaoContaStatusTipoUpdateSeeder::class,

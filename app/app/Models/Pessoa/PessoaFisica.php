@@ -74,7 +74,6 @@ class PessoaFisica extends Model
         return $this->belongsTo(SexoTenant::class);
     }
 
-
     /**
      * Insere uma cláusula de junção da Pessoa até PessoaPerfil.
      * 

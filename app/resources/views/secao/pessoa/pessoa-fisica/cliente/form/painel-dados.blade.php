@@ -56,8 +56,7 @@
                     <div class="col-6 col-sm-6 col-xl-4 mt-2">
                         <label for="escolaridade_id{{ $sufixo }}" class="form-label">Escolaridade</label>
                         <div class="input-group">
-                            <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}"
-                                class="form-select">
+                            <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}" class="form-select">
                             </select>
                             <button id="btnOpenEscolaridadeTenant{{ $sufixo }}" type="button"
                                 class="btn btn-outline-primary">
@@ -94,7 +93,7 @@
                     <div class="col mt-2">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
-                                id="ativo_bln{{ $sufixo }}">
+                                id="ativo_bln{{ $sufixo }}" checked>
                             <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro Ativo</label>
                         </div>
                     </div>

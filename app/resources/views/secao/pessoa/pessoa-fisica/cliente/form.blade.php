@@ -2,10 +2,10 @@
     $sufixo = 'PageClientePFForm';
     $recurso = isset($recurso) ? $recurso : null;
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => $recurso ? 'Editar Cliente' : 'Cadastrar Cliente',
+        'nome' => $recurso ? 'Editar Cliente PF' : 'Cadastrar Cliente PF',
         'descricao' => [
             [
-                'texto' => 'Cadastro de cliente e dados pessoais.',
+                'texto' => 'Cadastro de cliente do tipo Pessoa Física.',
             ],
         ],
     ]);

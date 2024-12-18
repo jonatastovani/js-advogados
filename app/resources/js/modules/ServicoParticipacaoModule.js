@@ -15,7 +15,7 @@ export class ServicoParticipacaoModule {
 
     constructor(parentInstance, objData) {
         this._objConfigs = objData.objConfigs;
-        this.parentInstance = parentInstance;
+        this._parentInstance = parentInstance;
         this._extraConfigs = objData.extraConfigs;
         this.#addEventosBotoes();
     }
@@ -43,7 +43,7 @@ export class ServicoParticipacaoModule {
                     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                 };
                 const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
                     await openModalServicoParticipacao({
@@ -55,7 +55,7 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
@@ -68,7 +68,7 @@ export class ServicoParticipacaoModule {
                     title: 'Novo grupo',
                     mensagem: 'Informe o nome do grupo',
                 }
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModalNome.modalOpen();
                 if (response.refresh) {
                     await openModalServicoParticipacao({
@@ -80,7 +80,7 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
@@ -95,7 +95,7 @@ export class ServicoParticipacaoModule {
 
                     const inserirPreset = async (hideShowModal) => {
                         try {
-                            if (hideShowModal && self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                            if (hideShowModal && self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do preset...' });
 
                             const response = await RequestsHelpers.getRecurse({
@@ -126,7 +126,7 @@ export class ServicoParticipacaoModule {
                         } finally {
                             $(this).val(0);
                             await commonFunctions.loadingModalDisplay(false);
-                            if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                            if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                         }
                     }
 
@@ -139,7 +139,7 @@ export class ServicoParticipacaoModule {
                                     message: 'A inserção deste preset limpará todos os participantes atuais. Confirma esta ação?',
                                 };
                                 obj.setFocusElementWhenClosingModal = $(this);
-                                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                                 const result = await obj.modalOpen();
                                 if (result.confirmResult) {
                                     blnInserir = true;
@@ -148,7 +148,7 @@ export class ServicoParticipacaoModule {
                             } catch (error) {
                                 commonFunctions.generateNotificationErrorCatch(error);
                             } finally {
-                                if (!blnInserir && self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                                if (!blnInserir && self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                             }
                         } else {
                             await inserirPreset(true);
@@ -183,7 +183,7 @@ export class ServicoParticipacaoModule {
 
         switch (item.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = item.referencia.pessoa.pessoa_dados.nome;
+                nome = item.referencia.pessoa_dados.nome;
                 if (naTela) {
                     commonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
                     return false;
@@ -368,7 +368,7 @@ export class ServicoParticipacaoModule {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,
                 }
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#atualizaParticipanteNaTela(Object.assign(item, response.register));
@@ -377,7 +377,7 @@ export class ServicoParticipacaoModule {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
@@ -389,7 +389,7 @@ export class ServicoParticipacaoModule {
                     message: 'Tem certeza que deseja remover este participante?',
                 };
                 obj.setFocusElementWhenClosingModal = $(this);
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
 
@@ -407,7 +407,7 @@ export class ServicoParticipacaoModule {
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
@@ -431,7 +431,7 @@ export class ServicoParticipacaoModule {
                         mensagem: 'Informe o nome do grupo',
                         nome: registro.nome_grupo,
                     }
-                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                    if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                     const response = await objModalNome.modalOpen();
                     if (response.refresh) {
                         registro.nome_grupo = response.name;
@@ -441,7 +441,7 @@ export class ServicoParticipacaoModule {
                     commonFunctions.generateNotificationErrorCatch(error);
                 } finally {
                     commonFunctions.simulateLoading(btn, false);
-                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                    if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                 }
             });
 
@@ -457,7 +457,7 @@ export class ServicoParticipacaoModule {
                     objModal.setDataEnvModal = {
                         perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                     }
-                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                    if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                     const response = await objModal.modalOpen();
                     if (response.refresh && response.selecteds) {
                         await Promise.all(
@@ -474,7 +474,7 @@ export class ServicoParticipacaoModule {
                     commonFunctions.generateNotificationErrorCatch(error);
                 } finally {
                     commonFunctions.simulateLoading(btn, false);
-                    if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                    if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                 }
             });
         }
@@ -563,7 +563,7 @@ export class ServicoParticipacaoModule {
         let tipoReferencia = '';
         switch (integrante.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = integrante.referencia.pessoa.pessoa_dados.nome;
+                nome = integrante.referencia.pessoa_dados.nome;
                 tipoReferencia = `Perfil ${integrante.referencia.perfil_tipo.nome}`;
                 break;
             default:
@@ -615,7 +615,7 @@ export class ServicoParticipacaoModule {
                     message: 'Tem certeza que deseja remover este integrante?',
                 };
                 obj.setFocusElementWhenClosingModal = $(this);
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow(false);
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
 
@@ -636,7 +636,7 @@ export class ServicoParticipacaoModule {
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                if (self._extraConfigs?.typeParent == 'modal') await self.parentInstance._modalHideShow();
+                if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
     }

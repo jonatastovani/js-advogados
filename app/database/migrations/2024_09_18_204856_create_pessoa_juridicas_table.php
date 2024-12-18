@@ -25,9 +25,6 @@ return new class extends Migration
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
 
-            $table->uuid('pessoa_id');
-            $table->foreign('pessoa_id')->references('id')->on((new App\Models\Pessoa\Pessoa)->getTableName());
-
             $table->string('razao_social');
             $table->string('nome_fantasia')->nullable();
             $table->string('natureza_juridica')->nullable();

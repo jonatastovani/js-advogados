@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Pessoa\PessoaFisica;
+namespace App\Http\Requests\Pessoa\PessoaJuridica;
 
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 
-class PostConsultaFiltroFormRequestPessoaFisica extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestPessoaJuridica extends PostConsultaFiltroFormRequestBase
 {
     public function authorize(): bool
     {
@@ -18,6 +18,7 @@ class PostConsultaFiltroFormRequestPessoaFisica extends PostConsultaFiltroFormRe
 
         // adiciona o tipo de perfil para adicionar no filtro sql
         $rules = array_merge($parent, [
+            'ativo_bln' => 'nullable|boolean',
             'perfis_busca' => 'required|array',
             'perfis_busca.*' => 'required|integer',
         ]);

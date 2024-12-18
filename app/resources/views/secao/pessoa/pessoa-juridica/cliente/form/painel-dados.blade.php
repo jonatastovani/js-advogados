@@ -2,81 +2,77 @@
     <form id="formDados{{ $sufixo }}">
         <div class="row h-100">
             <div class="col d-flex flex-column">
-                <div class="row">
-                    <div class="col-12 col-md-6 col-lg-12 col-xl-6 mt-2">
-                        <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
-                        <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
-                    </div>
-                </div>
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2 align-items-end">
                     <div class="col mt-2">
-                        <label for="mae{{ $sufixo }}" class="form-label">Mãe</label>
-                        <input type="text" id="mae{{ $sufixo }}" name="mae" class="form-control">
-                    </div>
-                    <div class="col mt-2">
-                        <label for="pai{{ $sufixo }}" class="form-label">Pai</label>
-                        <input type="text" id="pai{{ $sufixo }}" name="pai" class="form-control">
-                    </div>
-                </div>
-                <div class="row align-items-end">
-                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-                        <label for="nacionalidade{{ $sufixo }}" class="form-label">Nacionalidade</label>
-                        <input type="text" id="nacionalidade{{ $sufixo }}" name="nacionalidade"
+                        <label for="razao_social{{ $sufixo }}" class="form-label">Razão Social</label>
+                        <input type="text" id="razao_social{{ $sufixo }}" name="razao_social"
                             class="form-control">
                     </div>
-                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-                        <label for="nascimento_cidade{{ $sufixo }}" class="form-label">Cidade de
-                            Nascimento</label>
-                        <input type="text" id="nascimento_cidade{{ $sufixo }}" name="nascimento_cidade"
+                    <div class="col mt-2">
+                        <label for="nome_fantasia{{ $sufixo }}" class="form-label">Nome Fantasia</label>
+                        <input type="text" id="nome_fantasia{{ $sufixo }}" name="nome_fantasia"
                             class="form-control">
                     </div>
-                    <div class="col-6 col-sm-6 col-md-3 col-xl-2 mt-2">
-                        <label for="nascimento_estado{{ $sufixo }}" class="form-label">Estado de
-                            Nascimento</label>
-                        <input type="text" id="nascimento_estado{{ $sufixo }}" name="nascimento_estado"
-                            class="form-control text-center">
+                    <div class="col mt-2">
+                        <label for="natureza_juridica{{ $sufixo }}" class="form-label"
+                            title="Tipo de natureza jurídica (ex.: ME, LTDA, SA, etc.)">Natureza Juridica</label>
+                        <input type="text" id="natureza_juridica{{ $sufixo }}" name="natureza_juridica"
+                            class="form-control">
                     </div>
-                    <div class="col-6 col-sm-6 col-md-3 col-xl-2 mt-2">
-                        <label for="nascimento_data{{ $sufixo }}" class="form-label">Data de Nascimento</label>
-                        <input type="date" id="nascimento_data{{ $sufixo }}" name="nascimento_data"
-                            class="form-control text-center">
+                    <div class="col mt-2">
+                        <label for="regime_tributario{{ $sufixo }}" class="form-label"
+                            title="Regime tributário (ex.: Simples Nacional, Lucro Presumido)">Regime Tributário</label>
+                        <input type="text" id="regime_tributario{{ $sufixo }}" name="regime_tributario"
+                            class="form-control">
                     </div>
+                    <div class="col mt-2">
+                        <label for="responsavel_legal{{ $sufixo }}" class="form-label">Responsável Legal</label>
+                        <input type="text" id="responsavel_legal{{ $sufixo }}" name="responsavel_legal"
+                            class="form-control">
+                    </div>
+                </div>
 
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="estado_civil_id{{ $sufixo }}" class="form-label">Estado Civil</label>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-xl-6 align-items-end">
+                    <div class="col mt-2">
+                        <label for="cpf_responsavel{{ $sufixo }}" class="form-label"
+                            title="CPF do responsável legal">CPF do Responsável</label>
+                        <input type="text" id="cpf_responsavel{{ $sufixo }}" name="cpf_responsavel"
+                            class="form-control campo-cpf">
+                    </div>
+                    <div class="col mt-2">
+                        <label for="inscricao_estadual{{ $sufixo }}" class="form-label">Inscrição
+                            Estadual</label>
+                        <input type="text" id="inscricao_estadual{{ $sufixo }}" name="inscricao_estadual"
+                            class="form-control text-center">
+                    </div>
+                    <div class="col mt-2">
+                        <label for="inscricao_municipal{{ $sufixo }}" class="form-label">Inscrição
+                            Municipal</label>
+                        <input type="text" id="inscricao_municipal{{ $sufixo }}" name="inscricao_municipal"
+                            class="form-control text-center">
+                    </div>
+                    <div class="col mt-2">
+                        <label for="capital_social{{ $sufixo }}" class="form-label"
+                            title="Valor do capital social declarado">Capital Social</label>
                         <div class="input-group">
-                            <select name="estado_civil_id" id="estado_civil_id{{ $sufixo }}" class="form-select">
-                            </select>
-                            <button id="btnOpenEstadoCivilTenant{{ $sufixo }}" type="button"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-search"></i>
-                            </button>
+                            <div class="input-group-text">R$</div>
+                            <input type="text" id="capital_social{{ $sufixo }}" name="capital_social"
+                                class="form-control text-end campo-monetario">
                         </div>
                     </div>
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="escolaridade_id{{ $sufixo }}" class="form-label">Escolaridade</label>
-                        <div class="input-group">
-                            <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}"
-                                class="form-select">
-                            </select>
-                            <button id="btnOpenEscolaridadeTenant{{ $sufixo }}" type="button"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
+                    <div class="col mt-2">
+                        <label for="cnae{{ $sufixo }}" class="form-label"
+                            title="Código CNAE (Classificação Nacional de Atividades Econômicas) da empresa">CNAE</label>
+                        <input type="text" id="cnae{{ $sufixo }}" name="cnae"
+                            class="form-control text-center">
                     </div>
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
-                        <label for="sexo_id{{ $sufixo }}" class="form-label">Sexo</label>
-                        <div class="input-group">
-                            <select name="sexo_id" id="sexo_id{{ $sufixo }}" class="form-select">
-                            </select>
-                            <button id="btnOpenSexoTenant{{ $sufixo }}" type="button"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
+                    <div class="col mt-2">
+                        <label for="data_fundacao{{ $sufixo }}" class="form-label">Data de Fundação</label>
+                        <input type="date" id="data_fundacao{{ $sufixo }}" name="data_fundacao"
+                            class="form-control text-center">
                     </div>
                 </div>
+
                 <div class="row flex-fill">
                     <div class="col d-flex flex-column mt-2">
                         <div class="row">
@@ -94,7 +90,7 @@
                     <div class="col mt-2">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
-                                id="ativo_bln{{ $sufixo }}">
+                                id="ativo_bln{{ $sufixo }}" checked>
                             <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro Ativo</label>
                         </div>
                     </div>

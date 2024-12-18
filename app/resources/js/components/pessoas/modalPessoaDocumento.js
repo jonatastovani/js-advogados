@@ -114,7 +114,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         const modal = $(self.getIdModal);
 
         commonFunctions.cpfMask(modal.find('.campo-cpf'));
-        $(modal.find('.campo-cpf')).on('focusout', function () {
+        modal.find('.campo-cpf').on('focusout', function () {
             if (commonFunctions.validateCPF(this.value)) {
                 $(this).removeClass('is-invalid').addClass('is-valid');
             } else {
@@ -122,7 +122,8 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
             }
         });
 
-        $(modal.find('.campo-cnpj')).on('focusout', function () {
+        commonFunctions.cnpjMask(modal.find('.campo-cnpj'));
+        modal.find('.campo-cnpj').on('focusout', function () {
             if (commonFunctions.validateCNPJ(this.value)) {
                 $(this).removeClass('is-invalid').addClass('is-valid');
             } else {

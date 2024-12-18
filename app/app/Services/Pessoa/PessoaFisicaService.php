@@ -105,13 +105,18 @@ class PessoaFisicaService extends Service
     private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
     {
         $blnDocumentoFiltro = in_array('col_documento', $filtros['campos_busca']);
-
+        
+        $query = $this->model::joinPessoaAPessoaPerfil($query);
+        
         if ($blnDocumentoFiltro) {
-            $query = $this->model::joinPessoaAPessoaPerfil($query);
             $query = $this->modelPessoa::joinPessoaDocumento($query);
         }
 
         $query->whereIn("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", $requestData->perfis_busca);
+
+        if (isset($requestData->ativo_bln)) {
+            $query->where("{$this->model->getTableAsName()}.ativo_bln", $requestData->ativo_bln);
+        }
 
         return $query;
     }

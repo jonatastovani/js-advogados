@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Http\Requests\Pessoa\PessoaFisica;
+namespace App\Http\Requests\Pessoa\PessoaJuridica;
 
 use App\Http\Requests\BaseFormRequest;
 
-class PessoaFisicaFormRequestBase extends BaseFormRequest
+class PessoaJuridicaFormRequestBase extends BaseFormRequest
 {
     public function rules()
     {
         return [
-            'nome' => 'required|string|min:3',
-            'mae' => 'nullable|string',
-            'pai' => 'nullable|string',
-            'nascimento_data' => 'nullable|date',
-            'nascimento_cidade' => 'nullable|string',
-            'nascimento_estado' => 'nullable|string',
-            'nacionalidade' => 'nullable|string',
-            'estado_civil_id' => 'nullable|uuid',
-            'escolaridade_id' => 'nullable|uuid',
-            'sexo_id' => 'nullable|uuid',
+            'razao_social' => 'required|string|min:3',
+            'nome_fantasia' => 'nullable|string',
+            'natureza_juridica' => 'nullable|string',
+            'data_fundacao' => 'nullable|date',
+            'inscricao_estadual' => 'nullable|string',
+            'inscricao_municipal' => 'nullable|string',
+            'capital_social' => 'nullable|numeric',
+            'cnae' => 'nullable|string',
+            'responsavel_legal' => 'nullable|string',
+            'cpf_responsavel' => 'nullable|string',
             'observacao' => 'nullable|string',
             'ativo_bln' => 'nullable|boolean',
             'pessoa_perfil_tipo_id' => 'required|integer',

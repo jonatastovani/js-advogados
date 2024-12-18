@@ -61,7 +61,13 @@
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
     </div>
-    
+
+    <div class="row">
+        <div class="col mt-2">
+            <a href="{{ route('pessoa.pessoa-fisica.cliente.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+        </div>
+    </div>  
+
     <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
@@ -88,7 +94,6 @@
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />
 
 @endsection
-
 
 @push('modals')
     <x-modal.financeiro.modal-conta.modal />

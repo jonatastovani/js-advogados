@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Pessoa\PessoaFisica;
+namespace App\Http\Requests\Pessoa\PessoaJuridica;
 
-class PessoaFisicaFormRequestUpdate extends PessoaFisicaFormRequestBase
+class PessoaJuridicaFormRequestStore extends PessoaJuridicaFormRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -11,4 +11,5 @@ class PessoaFisicaFormRequestUpdate extends PessoaFisicaFormRequestBase
     {
         return true;
     }
+
 }
