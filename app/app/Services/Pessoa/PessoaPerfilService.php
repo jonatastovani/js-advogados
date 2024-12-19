@@ -53,6 +53,7 @@ class PessoaPerfilService extends Service
         $resource->load('pessoa');
         // Para carregar o relacionamento de pessoa_dados completo conforme o tipo de pessoa
         $resource->load($this->loadFull(['caseTipoPessoa' => $resource->pessoa->pessoa_dados]));
+        $resource->pessoa->load('pessoa_perfil.perfil_tipo');
 
         return $resource->toArray();
     }

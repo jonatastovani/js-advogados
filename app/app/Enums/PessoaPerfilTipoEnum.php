@@ -23,7 +23,7 @@ enum PessoaPerfilTipoEnum: int
                 'nome' => 'Usuário do Sistema',
                 'descricao' => 'Perfil para usuários do sistema.',
                 'configuracao' => [
-                    'pessoa_aplicavel' => [
+                    'pessoa_tipo_aplicavel' => [
                         PessoaFisica::class
                     ],
                 ],
@@ -33,9 +33,8 @@ enum PessoaPerfilTipoEnum: int
                 'nome' => 'Parceiro',
                 'descricao' => "Perfil para parceiros (Advogados, Corretores, Captadores, etc).",
                 'configuracao' => [
-                    'pessoa_aplicavel' => [
+                    'pessoa_tipo_aplicavel' => [
                         PessoaFisica::class,
-                        PessoaJuridica::class,
                     ],
                 ],
             ],
@@ -44,7 +43,7 @@ enum PessoaPerfilTipoEnum: int
                 'nome' => 'Cliente',
                 'descricao' => "Perfil para clientes.",
                 'configuracao' => [
-                    'pessoa_aplicavel' => [
+                    'pessoa_tipo_aplicavel' => [
                         PessoaFisica::class,
                         PessoaJuridica::class,
                     ],

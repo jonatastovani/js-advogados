@@ -32,6 +32,8 @@
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-financeiro')
                             @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-parceiro')
+                            @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-participacao')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-servico')

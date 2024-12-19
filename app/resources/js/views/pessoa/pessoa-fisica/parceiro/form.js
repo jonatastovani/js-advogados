@@ -8,9 +8,8 @@ import { RedirectHelper } from "../../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../../helpers/UUIDHelper";
 import { PessoaDocumentoModule } from "../../../../modules/PessoaDocumentoModule";
-import { PessoaPerfilModule } from "../../../../modules/PessoaPerfilModule";
 
-class PageClientePFForm {
+class PageParceiroPFForm {
 
     #objConfigs = {
         url: {
@@ -20,28 +19,25 @@ class PageClientePFForm {
             baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
             baseSexoTenant: window.apiRoutes.baseSexoTenant,
         },
-        sufixo: 'PageClientePFForm',
+        sufixo: 'PageParceiroPFForm',
         data: {
             pessoa_dados_id: undefined,
-            pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+            pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.PARCEIRO,
             pessoa_tipo_aplicavel: [
                 window.Enums.PessoaTipoEnum.PESSOA_FISICA,
             ],
             documentosNaTela: [],
-            perfisNaTela: [],
         },
     };
     #action;
     #idRegister;
     #pessoaDocumentoModule;
-    #pessoaPerfilModule;
 
     constructor() {
         const objData = {
             objConfigs: this.#objConfigs,
         }
         this.#pessoaDocumentoModule = new PessoaDocumentoModule(this, objData);
-        this.#pessoaPerfilModule = new PessoaPerfilModule(this, objData);
         this.initEvents();
     }
 
@@ -190,12 +186,6 @@ class PageClientePFForm {
                         self.#pessoaDocumentoModule._inserirDocumento(documento);
                     });
                 }
-                if (responseData.pessoa?.pessoa_perfil.length) {
-                    responseData.pessoa.pessoa_perfil.map(perfil => {
-                        // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
-                        self.#pessoaPerfilModule._inserirPerfil(perfil);
-                    });
-                }
             } else {
                 $('input, textarea, select, button').prop('disabled', true);
             }
@@ -313,5 +303,5 @@ class PageClientePFForm {
 }
 
 $(function () {
-    new PageClientePFForm();
+    new PageParceiroPFForm();
 });
