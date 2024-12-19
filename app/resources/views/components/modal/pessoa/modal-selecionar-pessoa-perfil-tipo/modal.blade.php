@@ -14,10 +14,10 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col mt-2">
-                            <label for="pessoa_perfil_tipo_id{{ $sufixo }}" class="form-label">Tipo de
+                            <label for="perfil_tipo_id{{ $sufixo }}" class="form-label">Tipo de
                                 Perfil</label>
                             <div class="input-group">
-                                <select name="pessoa_perfil_tipo_id" id="pessoa_perfil_tipo_id{{ $sufixo }}"
+                                <select name="perfil_tipo_id" id="perfil_tipo_id{{ $sufixo }}"
                                     class="form-select">
                                     <option value="0">Selecione</option>
                                 </select>

@@ -1,5 +1,4 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalMessage } from "../components/comum/modalMessage";
 import { modalPessoaDocumento } from "../components/pessoas/modalPessoaDocumento";
 import { modalSelecionarPessoaPerfilTipo } from "../components/pessoas/modalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
@@ -20,7 +19,9 @@ export class PessoaPerfilModule {
     #addEventosBotoes() {
         const self = this;
 
+        console.log('Vai adicionar Ação')
         $(`#btnAdicionarPerfil${self._objConfigs.sufixo}`).on('click', async function () {
+            console.log('Clicando')
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -48,7 +49,7 @@ export class PessoaPerfilModule {
 
         // Filtra os perfis na tela que possuem o mesmo perfil_tipo_id
         const perfisComMesmoTipo = perfisNaTela.filter(
-            perf => perf.perfil_tipo_id === perfilAInserir.perfil_tipo_id
+            perf => perf.perfil_tipo_id == perfilAInserir.perfil_tipo_id
         );
 
         // Verifica se ultrapassou o limite permitido
@@ -74,6 +75,8 @@ export class PessoaPerfilModule {
 
             item.idCol = UUIDHelper.generateUUID();
 
+            const rotaEdit = self.#pesquisarRotaEditPerfil(item);
+
             let strCard = `
             <div id="${item.idCol}" class="col">
                 <div class="card">
@@ -81,17 +84,10 @@ export class PessoaPerfilModule {
                         <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
                             <span class="text-truncate spanTitle">${nomePerfil}</span>
                             <div>
-                                <div class="dropdown">
-                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar documento ${nomePerfil}">Editar</button></li>
-                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir documento ${nomePerfil}">Excluir</button></li>
-                                    </ul>
-                                </div>
+                                <a href="${item.id ? `${rotaEdit}/${item.id}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}">Editar</a>
                             </div>
                         </h5>
+                        ${!item.id ? '<div class="form-text fst-italic">Perfil ainda não cadastrado</div>' : ''}
                     </div>
                 </div>
             </div>`;
@@ -99,6 +95,7 @@ export class PessoaPerfilModule {
             divPerfil.append(strCard);
             // self.#addEventosPerfil(item);
             self._objConfigs.data.perfisNaTela.push(item);
+
         } else {
             $(`#${item.idCol}`).find('.spanTitle').html(nomePerfil);
 
@@ -109,6 +106,16 @@ export class PessoaPerfilModule {
         }
 
         return true;
+    }
+
+    #pesquisarRotaEditPerfil(item) {
+        const rotas = window.Statics.PessoaPerfilTipoRotasPessoaPerfilFormFront;
+
+        // Encontra o objeto com o perfil_tipo correspondente
+        const rota = rotas.find(itemEnum => itemEnum.perfil_tipo == item.perfil_tipo_id);
+
+        // Retorna somente a rota ou null caso não encontre
+        return rota ? rota.rota : null;
     }
 
     #pesquisaIndexPerfilNaTela(item, prop = 'idCol') {
@@ -150,29 +157,29 @@ export class PessoaPerfilModule {
             }
         });
 
-        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-            try {
-                const docNaTela = self._objConfigs.data.perfisNaTela;
-                const indexDoc = self.#pesquisaIndexPerfilNaTela(item);
-                if (indexDoc != -1) {
-                    const doc = docNaTela[indexDoc] = item;
+        // $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
+        //     try {
+        //         const docNaTela = self._objConfigs.data.perfisNaTela;
+        //         const indexDoc = self.#pesquisaIndexPerfilNaTela(item);
+        //         if (indexDoc != -1) {
+        //             const doc = docNaTela[indexDoc] = item;
 
-                    const objMessage = new modalMessage();
-                    objMessage.setDataEnvModal = {
-                        title: `Exclusão de Documento`,
-                        message: `Confirma a exclusão do documento <b>${doc.pessoa_perfil_tipo_tenant.nome}</b>?`,
-                    };
-                    objMessage.setFocusElementWhenClosingModal = $(this);
-                    const result = await objMessage.modalOpen();
-                    if (result.confirmResult) {
-                        docNaTela.splice(indexDoc, 1);
-                        $(`#${doc.idCol}`).remove();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        });
+        //             const objMessage = new modalMessage();
+        //             objMessage.setDataEnvModal = {
+        //                 title: `Exclusão de Documento`,
+        //                 message: `Confirma a exclusão do documento <b>${doc.perfil_tipo_tenant.nome}</b>?`,
+        //             };
+        //             objMessage.setFocusElementWhenClosingModal = $(this);
+        //             const result = await objMessage.modalOpen();
+        //             if (result.confirmResult) {
+        //                 docNaTela.splice(indexDoc, 1);
+        //                 $(`#${doc.idCol}`).remove();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     }
+        // });
     }
 
     _retornaDocumentosNaTelaSaveButonAction() {
@@ -180,7 +187,7 @@ export class PessoaPerfilModule {
         return self._objConfigs.data.perfisNaTela.map(item => {
             return {
                 id: item.id,
-                pessoa_perfil_tipo_tenant_id: item.pessoa_perfil_tipo_tenant_id,
+                perfil_tipo: item.perfil_tipo,
                 numero: item.numero,
                 // campos_adicionais: item.campos_adicionais,
             }

@@ -47,7 +47,8 @@ enum PessoaPerfilTipoEnum: int
                         PessoaFisica::class,
                         PessoaJuridica::class,
                     ],
-                ], ],
+                ],
+            ],
         };
     }
 
@@ -55,6 +56,24 @@ enum PessoaPerfilTipoEnum: int
     {
         return [
             self::PARCEIRO->detalhes(),
+        ];
+    }
+
+    static public function rotasPessoaPerfilFormFront(): array
+    {
+        return [
+            [
+                'perfil_tipo' => self::CLIENTE->value,
+                'rota' => route('pessoa.pessoa-fisica.cliente.form')
+            ],
+            [
+                'perfil_tipo' => self::PARCEIRO->value,
+                'rota' => route('pessoa.pessoa-fisica.parceiro.form')
+            ],
+            [
+                'perfil_tipo' => self::USUARIO->value,
+                'rota' => route('pessoa.pessoa-fisica.usuario.form')
+            ],
         ];
     }
 }

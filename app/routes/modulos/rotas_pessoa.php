@@ -21,6 +21,13 @@ Route::prefix('pessoa')->group(function () {
                 Route::get('/form', 'pessoaFisicaParceiroForm')->name('pessoa.pessoa-fisica.parceiro.form');
                 Route::get('/form/{uuid}', 'pessoaFisicaParceiroFormEditar');
             });
+
+            Route::prefix('usuario')->group(function () {
+
+                Route::get('', 'pessoaFisicaUsuarioIndex')->name('pessoa.pessoa-fisica.usuario.index');
+                Route::get('/form', 'pessoaFisicaUsuarioForm')->name('pessoa.pessoa-fisica.usuario.form');
+                Route::get('/form/{uuid}', 'pessoaFisicaUsuarioFormEditar');
+            });
         });
 
         Route::prefix('pessoa-juridica')->group(function () {
