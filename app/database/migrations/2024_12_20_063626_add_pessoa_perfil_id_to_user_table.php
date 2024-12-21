@@ -15,7 +15,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Auth\UserTenantDomain();
+        $this->model = new App\Models\Auth\User();
     }
 
     /**
@@ -26,13 +26,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table($this->model->getTableName(), function (Blueprint $table) {
-            // Adiciona a coluna 'pessoa_perfil_id' após 'user_id'
-            $table->uuid('pessoa_perfil_id')->after('user_id')->nullable();
+            // Adiciona a coluna 'pessoa_perfil_id' após 'password'
+            $table->uuid('pessoa_perfil_id')->after('password')->nullable();
 
+            $table->boolean('ativo_bln')->default(true);
+            
             // Define a chave estrangeira para a tabela de PessoaPerfil
             $table->foreign('pessoa_perfil_id')
                 ->references('id')
-                ->on((new App\Models\Pessoa\PessoaPerfil)->getTableName()); // Opcional: define o comportamento ao excluir
+                ->on((new App\Models\Pessoa\PessoaPerfil)->getTableName());
         });
     }
 

@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
                 'username' => 'admin',
                 'password' => 'admin123',
                 'tenant_id' => 'admin',
+                'created_user_id' => $adminId
             ],
         ];
 

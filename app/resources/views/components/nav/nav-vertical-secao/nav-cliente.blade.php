@@ -20,8 +20,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('pessoa.pessoa-fisica.cliente.form') }}">
+                        <span class="nav-link-text">Cadastrar Cliente PF</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('pessoa.pessoa-juridica.cliente.index') }}">
                         <span class="nav-link-text">Listagem de Clientes PJ</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('pessoa.pessoa-juridica.cliente.form') }}">
+                        <span class="nav-link-text">Cadastrar Cliente PJ</span>
                     </a>
                 </li>
             </ul>

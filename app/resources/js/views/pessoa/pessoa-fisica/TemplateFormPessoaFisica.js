@@ -10,7 +10,7 @@ import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
 
-export class PagePessoaFisicaForm {
+export class TemplateFormPessoaFisica {
 
     _objConfigs = {
         url: {
@@ -32,29 +32,27 @@ export class PagePessoaFisicaForm {
     _pessoaDocumentoModule;
     _pessoaPerfilModule;
 
-    constructor() {
-    }
-
     async initEvents() {
-        const objData = {
-            objConfigs: this._objConfigs,
-        }
-        this._pessoaDocumentoModule = new PessoaDocumentoModule(this, objData);
-        this._pessoaPerfilModule = new PessoaPerfilModule(this, objData);
-
         const self = this;
+        const objData = {
+            objConfigs: self._objConfigs,
+        }
+        self._pessoaDocumentoModule = new PessoaDocumentoModule(self, objData);
+        self._pessoaPerfilModule = new PessoaPerfilModule(self, objData);
+
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
             const url = `${self._objConfigs.url.base}/${self._idRegister}`;
-            this._action = enumAction.PUT;
+            self._action = enumAction.PUT;
             await self.#buscarDados();
         } else {
-            this.#buscarEscolaridade();
-            this.#buscarEstadoCivil();
-            this.#buscarSexo();
+            self.#buscarEscolaridade();
+            self.#buscarEstadoCivil();
+            self.#buscarSexo();
 
-            this._action = enumAction.POST;
+            self._action = enumAction.POST;
+            self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
 
         self.#addEventosBotoes();
@@ -161,10 +159,10 @@ export class PagePessoaFisicaForm {
 
             const response = await self.#getRecurse({ urlApi: self._objConfigs.url.basePessoaPerfil });
 
+            const form = $(`#formDados${self._objConfigs.sufixo}`);
             if (response?.data) {
                 const responseData = response.data;
                 const pessoaDados = responseData.pessoa.pessoa_dados;
-                const form = $(`#formDados${self._objConfigs.sufixo}`);
 
                 self._objConfigs.data.pessoa_dados_id = pessoaDados.id;
                 form.find('input[name="nome"]').val(pessoaDados.nome);
@@ -192,8 +190,13 @@ export class PagePessoaFisicaForm {
                         self._pessoaPerfilModule._inserirPerfil(perfil);
                     });
                 }
+
+                if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
+                    await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
+                }
+
             } else {
-                $('input, textarea, select, button').prop('disabled', true);
+                form.find('input, textarea, select, button').prop('disabled', true);
             }
 
         } catch (error) {
@@ -262,9 +265,15 @@ export class PagePessoaFisicaForm {
         const self = this;
         const formRegistration = $(`#formDados${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
         data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
-        data = self._pessoaDocumentoModule._tratarValoresNulos(data);
+        data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
+        data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
+
+        if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
+            data = self.saveButtonActionEspecificoPerfilTipo(data);
+        }
+
+        data = self._tratarValoresNulos(data);
 
         if (self._saveVerifications(data, formRegistration)) {
             self.#save(data, self._objConfigs.url.base);
@@ -272,10 +281,25 @@ export class PagePessoaFisicaForm {
         return false;
     }
 
+    _tratarValoresNulos(data) {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => {
+                if (value === "null") {
+                    value = null;
+                }
+                return [key, value];
+            })
+        );
+    }
+
     _saveVerifications(data, formRegistration) {
         const self = this;
         let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O campo <b>nome</b> deve ser informado.', setFocus: true });
-        // blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+
+        if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
+            blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);
+        }
+
         return blnSave;
     }
 
@@ -309,5 +333,5 @@ export class PagePessoaFisicaForm {
 }
 
 $(function () {
-    new PagePessoaFisicaForm();
+    new TemplateFormPessoaFisica();
 });

@@ -3,6 +3,7 @@
 namespace App\Models\Pessoa;
 
 use App\Enums\PessoaTipoEnum;
+use App\Models\Auth\User;
 use App\Models\Referencias\PessoaPerfilTipo;
 use App\Models\Referencias\PessoaTipo;
 use App\Models\Servico\ServicoParticipacaoPresetParticipante;
@@ -26,6 +27,12 @@ class PessoaPerfil extends Model
     protected $table = 'pessoa.pessoa_perfil';
     protected $tableAsName = 'pess_perf';
 
+    protected $fillable = [
+        'id',
+        'pessoa_id',
+        'perfil_tipo_id',
+    ];
+
     protected $hidden = [
         'created_user_id',
         'created_ip',
@@ -39,7 +46,7 @@ class PessoaPerfil extends Model
         'tenant_id',
         'domain_id',
     ];
-    
+
     public function pessoa()
     {
         return $this->belongsTo(Pessoa::class);
@@ -48,6 +55,11 @@ class PessoaPerfil extends Model
     public function perfil_tipo()
     {
         return $this->belongsTo(PessoaPerfilTipo::class);
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class);
     }
 
     // public function servico_participacao_participante_preset()

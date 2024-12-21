@@ -3,8 +3,12 @@
 namespace App\Services\Pessoa;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
+use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Auth\User;
+use App\Models\Auth\UserTenantDomain;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
 use App\Models\Pessoa\PessoaFisica;
@@ -14,20 +18,26 @@ use App\Models\Tenant\EscolaridadeTenant;
 use App\Models\Tenant\EstadoCivilTenant;
 use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
-use Exception;
+use App\Traits\PessoaDocumentosMethodsTrait;
+use App\Traits\PessoaPerfilMethodsTrait;
+use App\Traits\UserDomainMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Fluent;
 
 class PessoaFisicaService extends Service
 {
+    use PessoaDocumentosMethodsTrait, PessoaPerfilMethodsTrait, UserDomainMethodsTrait;
+
     public function __construct(
         PessoaFisica $model,
         public Pessoa $modelPessoa,
         public PessoaPerfil $modelPessoaPerfil,
         public PessoaDocumento $modelPessoaDocumento,
         public DocumentoTipoTenant $modelDocumentoTipoTenant,
+        public UserTenantDomain $modelUserTenantDomain,
     ) {
         parent::__construct($model);
     }
@@ -105,9 +115,9 @@ class PessoaFisicaService extends Service
     private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
     {
         $blnDocumentoFiltro = in_array('col_documento', $filtros['campos_busca']);
-        
+
         $query = $this->model::joinPessoaAPessoaPerfil($query);
-        
+
         if ($blnDocumentoFiltro) {
             $query = $this->modelPessoa::joinPessoaDocumento($query);
         }
@@ -121,6 +131,29 @@ class PessoaFisicaService extends Service
         return $query;
     }
 
+    protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
+    {
+        $relationshipsAppend = [];
+        if (in_array(PessoaPerfilTipoEnum::USUARIO->value, $requestData->perfis_busca)) {
+            $relationshipsAppend[] = 'pessoa.perfil_usuario.user.user_tenant_domains';
+        }
+
+        if ($options['loadFull'] ?? false) {
+            $query->with($options['loadFull']);
+        } else {
+            if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
+                $query->with(array_merge(
+                    $relationshipsAppend,
+                    $this->loadFull($options)
+                ));
+            }
+        }
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $query->paginate($requestData->perPage ?? 25);
+
+        return $paginator->toArray();
+    }
+
     public function store(Fluent $requestData)
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
@@ -128,9 +161,65 @@ class PessoaFisicaService extends Service
         try {
             return DB::transaction(function () use ($resource) {
 
+                $documentos = $resource->documentos;
+                unset($resource->documentos);
+
+                $perfis = $resource->perfis;
+                unset($resource->perfis);
+
+                $user = null;
+                if ($resource->user) {
+                    $user = $resource->user;
+                    unset($resource->user);
+                }
+
+                $userDomains = null;
+                if ($resource->userDomains) {
+                    $userDomains = $resource->userDomains;
+                    unset($resource->userDomains);
+                }
+
+                //Salva os dados da Pessoa Jurídica
                 $resource->save();
 
-                // Fazer salvamento dos documentos
+                // Salva os dados da Pessoa
+                $pessoa = new $this->modelPessoa;
+                $pessoa->pessoa_dados_type = $this->model->getMorphClass();
+                $pessoa->pessoa_dados_id = $resource->id;
+                $pessoa->save();
+
+                if (collect($documentos)->isNotEmpty()) {
+                    // Fazer salvamento dos documentos
+                    foreach ($documentos as $documento) {
+                        $documento->pessoa_id = $pessoa->id;
+                        $documento->save();
+                    }
+                }
+
+                $perfilUsuario = null;
+                // Fazer salvamento dos perfis
+                foreach ($perfis as $perfil) {
+                    $perfil->pessoa_id = $pessoa->id;
+                    $perfil->save();
+                    if ($perfil->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
+                        $perfilUsuario = $perfil;
+                    }
+                }
+
+                // Se foi enviado user, então é um salvamento de dados de usuário, logo, se cria o usuário e depois se faz a verificação de salvamento de domínios 
+                if ($user && $perfilUsuario) {
+                    $user->pessoa_perfil_id = $perfilUsuario->id;
+                    $user->tenant_id = tenant('id');
+                    $user->save();
+
+                    if (collect($userDomains)->isNotEmpty()) {
+                        // Fazer salvamento dos domínios
+                        foreach ($userDomains as $domain) {
+                            $domain->user_id = $user->id;
+                            $domain->save();
+                        }
+                    }
+                }
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -145,19 +234,63 @@ class PessoaFisicaService extends Service
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
 
         try {
-            return DB::transaction(function () use ($resource) {
+            return DB::transaction(function () use ($resource, $requestData) {
 
                 // Obter e remover do resource os documentos
                 $documentos = $resource->documentos;
                 unset($resource->documentos);
 
+                $perfis = $resource->perfis;
+                unset($resource->perfis);
+
+                $user = null;
+                if ($resource->user) {
+                    $user = $resource->user;
+                }
+                unset($resource->user);
+
+                $userDomains = [];
+                $userDomainsExistentes = [];
+                // Somente se for update do tipo usuário para alterar os domínios
+                if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+                    if ($resource->userDomains) {
+                        $userDomains = $resource->userDomains;
+                    }
+                    // Busca os dominios existentes
+                    $userDomainsExistentes = $resource->pessoa->perfil_usuario->user->user_tenant_domains ?? [];
+                    unset($resource->userDomains);
+                }
+
                 // Busca os documentos existentes
                 $documentosExistentes = $resource->pessoa->documentos;
+                // Busca os perfis existentes
+                $perfisExistentes = $resource->pessoa->pessoa_perfil;
 
                 $resource->save();
 
                 // Fazer salvamento dos documentos
                 $this->atualizarDocumentosEnviados($resource, $documentosExistentes, $documentos);
+
+                // Fazer salvamento dos perfis
+                $this->atualizarPerfisEnviados($resource, $perfisExistentes, $perfis);
+
+                // Se for enviado dados de usuário
+                if ($user) {
+                    if ($user->id) {
+                        $user->save();
+                    } else {
+                        $perfilUsuario = $this->modelPessoaPerfil::where('pessoa_id', $resource->pessoa->id)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->first();
+
+                        $user->pessoa_perfil_id = $perfilUsuario->id;
+                        $user->tenant_id = tenant('id');
+                        $user->save();
+                    }
+
+                    if ($userDomains || $userDomainsExistentes) {
+                        // Fazer salvamento dos domínios
+                        $this->atualizarUserDomainsEnviados($resource, $userDomainsExistentes, $userDomains, $user);
+                    }
+                }
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -167,134 +300,129 @@ class PessoaFisicaService extends Service
         }
     }
 
-    public function atualizarDocumentosEnviados($resource, $documentosExistentes, $documentosEnviados, $options = [])
-    {
-        // IDs dos documentos já salvos
-        $existingDocumentos = collect($documentosExistentes)->pluck('id')->toArray();
-        // IDs enviados (exclui novos documentos sem ID)
-        $submittedDocumentosIds = collect($documentosEnviados)->pluck('id')->filter()->toArray();
-
-        // Documentos ausentes no PUT devem ser excluídos
-        $idsToDelete = array_diff($existingDocumentos, $submittedDocumentosIds);
-        if ($idsToDelete) {
-            foreach ($idsToDelete as $id) {
-                $documentoDelete = $this->modelPessoaDocumento::find($id);
-                if ($documentoDelete) {
-                    $documentoDelete->delete();
-                }
-            }
-        }
-
-        foreach ($documentosEnviados as $documento) {
-
-            if ($documento->id) {
-                $documentoUpdate = $this->modelPessoaDocumento::find($documento->id);
-                $documentoUpdate->fill($documento->toArray());
-            } else {
-                $documentoUpdate = $documento;
-                $documentoUpdate->pessoa_id = $resource->pessoa->id;
-            }
-
-            $documentoUpdate->save();
-        }
-    }
-
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
 
+        // Busca ou cria o recurso principal
         $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
 
-        if ($arrayErrors->estado_civil_id) {
-            //Verifica se o estado civil informado existe
-            $validacaoEstadoCivilTenantId = ValidationRecordsHelper::validateRecord(EstadoCivilTenant::class, ['id' => $requestData->estado_civil_id]);
-            if (!$validacaoEstadoCivilTenantId->count()) {
-                $arrayErrors->estado_civil_id = LogHelper::gerarLogDinamico(404, 'O Estado Civil informado não existe.', $requestData)->error;
-            }
-        }
+        // Validações comuns
+        $arrayErrors = $this->validarRelacionamentosComuns($requestData, $arrayErrors);
 
-        if ($arrayErrors->escolaridade_id) {
-            //Verifica se a escolaridade informada existe
-            $validacaoEscolaridadeTenantId = ValidationRecordsHelper::validateRecord(EscolaridadeTenant::class, ['id' => $requestData->escolaridade_id]);
-            if (!$validacaoEscolaridadeTenantId->count()) {
-                $arrayErrors->escolaridade_id = LogHelper::gerarLogDinamico(404, 'A Escolaridade informada não existe.', $requestData)->error;
-            }
-        }
-
-        if ($arrayErrors->sexo_id) {
-            //Verifica se o sexo informado existe
-            $validacaoSexoTenantId = ValidationRecordsHelper::validateRecord(SexoTenant::class, ['id' => $requestData->sexo_id]);
-            if (!$validacaoSexoTenantId->count()) {
-                $arrayErrors->sexo_id = LogHelper::gerarLogDinamico(404, 'O Sexo informado não existe.', $requestData)->error;
-            }
-        }
-
-        $documentosProcessados = $this->verificacaoDocumentos($requestData, $resource);
+        // Verifica e processa documentos
+        $documentosProcessados = $this->verificacaoDocumentos($requestData, $resource, $arrayErrors);
         $resource->documentos = $documentosProcessados->documentos;
-        $arrayErrors = new Fluent(array_merge($arrayErrors->toArray(), $documentosProcessados->arrayErrors->toArray()));
+        $arrayErrors = $documentosProcessados->arrayErrors;
+
+        // Verifica e processa perfis
+        $perfisProcessados = $this->verificacaoPerfis($requestData, $resource, $arrayErrors);
+        $resource->perfis = $perfisProcessados->perfis;
+        $arrayErrors = $perfisProcessados->arrayErrors;
+
+        // Verificação específica para tipo de perfil USUARIO
+        if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+
+            // Verifica e processa domínios
+            $userDomainsProcessados = $this->verificacaoUserDomains($requestData, $resource, $arrayErrors);
+            $resource->userDomains = $userDomainsProcessados->userDomains;
+            $arrayErrors = $userDomainsProcessados->arrayErrors;
+
+            // Verifica e processa o usuário
+            $userProcessado = $this->verificarUsuario($requestData, $resource, $arrayErrors);
+            $resource->user = $userProcessado->user;
+            $arrayErrors = $userProcessado->arrayErrors;
+        }
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
+        // Preenche os dados do recurso
         $resource->fill($requestData->toArray());
 
         return $resource;
     }
 
-    protected function verificacaoDocumentos(Fluent $requestData, Model $resource): Fluent
+    /**
+     * Validações relacionadas a estado civil, escolaridade e sexo.
+     */
+    protected function validarRelacionamentosComuns(Fluent $requestData, Fluent $arrayErrors): Fluent
     {
-        $documentosData = $requestData->documentos;
-        $arrayErrors = new Fluent();
+        if ($requestData->estado_civil_id) {
+            $validacao = ValidationRecordsHelper::validateRecord(EstadoCivilTenant::class, ['id' => $requestData->estado_civil_id]);
+            if (!$validacao->count()) {
+                $arrayErrors->estado_civil_id = LogHelper::gerarLogDinamico(404, 'O Estado Civil informado não existe.', $requestData)->error;
+            }
+        }
 
-        $documentos = [];
-        foreach ($documentosData as $documento) {
-            $documento = new Fluent($documento);
+        if ($requestData->escolaridade_id) {
+            $validacao = ValidationRecordsHelper::validateRecord(EscolaridadeTenant::class, ['id' => $requestData->escolaridade_id]);
+            if (!$validacao->count()) {
+                $arrayErrors->escolaridade_id = LogHelper::gerarLogDinamico(404, 'A Escolaridade informada não existe.', $requestData)->error;
+            }
+        }
 
-            //Verifica se o tipo de registro de participação informado existe
-            $validacaoDocumentoTipoTenantId = ValidationRecordsHelper::validateRecord($this->modelDocumentoTipoTenant::class, ['id' => $documento->documento_tipo_tenant_id]);
-            if (!$validacaoDocumentoTipoTenantId->count()) {
-                $arrayErrors["documento_tipo_tenant_id_{$documento->documento_tipo_tenant_id}"] = LogHelper::gerarLogDinamico(404, 'O tipo de documento informado não existe.', $requestData)->error;
-            } else {
+        if ($requestData->sexo_id) {
+            $validacao = ValidationRecordsHelper::validateRecord(SexoTenant::class, ['id' => $requestData->sexo_id]);
+            if (!$validacao->count()) {
+                $arrayErrors->sexo_id = LogHelper::gerarLogDinamico(404, 'O Sexo informado não existe.', $requestData)->error;
+            }
+        }
 
-                $documentoTipoTenant = $validacaoDocumentoTipoTenantId->first()->load('documento_tipo');
+        return $arrayErrors;
+    }
 
-                // Verifica se a classe existe, se não existir é porque não precisa de validação
-                if (
-                    isset($documentoTipoTenant['documento_tipo']['configuracao']['helper']['class']) &&
-                    class_exists($documentoTipoTenant['documento_tipo']['configuracao']['helper']['class'])
-                ) {
-                    $helperClass = $documentoTipoTenant['documento_tipo']['configuracao']['helper']['class'];
+    /**
+     * Verifica e preenche dados do usuário para perfis do tipo USUARIO.
+     */
+    protected function verificarUsuario(Fluent $requestData, Model $resource, Fluent $arrayErrors): Fluent
+    {
+        // Verifica se os dados do usuário foram enviados
+        if (empty($requestData->user) || !isset($requestData->user['username'])) {
+            $arrayErrors->user = LogHelper::gerarLogDinamico(404, 'Os dados do usuário devem ser informados.', $requestData)->error;
+            return $arrayErrors;
+        }
 
-                    // Verifica se o método 'executa' existe na classe
-                    if (method_exists($helperClass, 'executa')) {
-                        // Instancia a classe
-                        $helperInstance = new $helperClass();
+        // Busca ou cria o usuário
+        $user = isset($requestData->user['id'])
+            ? User::find($requestData->user['id'])
+            : ($resource->id ? $resource->pessoa->perfil_usuario->user ?? null : null);
 
-                        // Chama o método 'executa'
-                        if (!$helperInstance::executa($documento->numero)) {
-                            $arrayErrors["documento_numero_{$documento->numero}"] = LogHelper::gerarLogDinamico(404, 'O documento informado é inválido.', $requestData)->error;
-                        };
-                    } else {
-                        // Lida com o caso onde o método não existe
-                        // Por exemplo, lancar uma excecao ou registrar um log
-                        throw new Exception("O método 'executa' não existe na classe {$helperClass}.");
-                    }
-                }
+        // Verifica duplicidade de username no mesmo tenant
+        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente(
+            User::class,
+            ['username' => $requestData->user['username']],
+            $user->id ?? null
+        );
 
-                // Verifica se o documento já existe para outra pessoa (duplicidade de cadastro)
-                $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->modelPessoaDocumento::class, ['numero' => $documento->numero, 'documento_tipo_tenant_id' => $documento->documento_tipo_tenant_id], $documento->id ?? null);
-                if ($validacaoRecursoExistente->count()) {
-                    $arrayErrors->{"documento_{$documento->numero}"} = LogHelper::gerarLogDinamico(404, "O documento {$documentoTipoTenant['nome']} com número {$documento->numero} ja existe cadastrado para outra pessoa.", $requestData)->error;
-                }
+        if ($validacaoRecursoExistente->count()) {
+            $arrayErrors->user_username = LogHelper::gerarLogDinamico(
+                404,
+                "O nome de usuário informado já existe cadastrado para outra pessoa.",
+                $requestData
+            )->error;
+        } else {
 
-                $newDocumento = new $this->modelPessoaDocumento;
-                $newDocumento->fill($documento->toArray());
-                array_push($documentos, $newDocumento);
+            // Prepara os dados do usuário
+            $dataUser = [
+                'username' => $requestData->user['username'],
+                'nome' => $requestData->nome,
+            ];
+
+            if (!$user) {
+                $user = new User();
+            }
+
+            $user->fill($dataUser);
+
+            // Adiciona a senha se necessário
+            if (!$user->id || !empty($requestData->user['password'])) {
+                $user->password = Hash::make($requestData->user['password']);
             }
         }
 
         $retorno = new Fluent();
-        $retorno->documentos = $documentos;
+        $retorno->user = $user;
         $retorno->arrayErrors = $arrayErrors;
 
         return $retorno;

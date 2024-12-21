@@ -13,10 +13,10 @@ class ValidationRecordsHelper
      *
      * @param Model $modelClass O modelo Eloquent a ser verificado.
      * @param array $conditions Condições de where que serão aplicadas na consulta.
-     * @param bool $checkSoftDelete Define se o soft delete será verificado (padrão: true).
-     * @return Model|null Retorna o array do registro encontrado ou null caso não encontre.
+     * @param bool $excludeSoftDeleted Define se os registros soft-deleted devem ser excluídos da consulta (padrão: true).
+     * @return Collection Retorna a coleção de registros encontrados ou uma coleção vazia caso não encontre.
      */
-    public static function validateRecord($modelClass, array $conditions, bool $checkSoftDelete = true)
+    public static function validateRecord($modelClass, array $conditions, bool $excludeSoftDeleted = true)
     {
         $query = $modelClass::query();
 
@@ -25,16 +25,16 @@ class ValidationRecordsHelper
             $query->where($column, $value);
         }
 
-        //Verifica se a trait SoftDeletes está sendo utilizada no modelo
+        // Verifica se a trait SoftDeletes está sendo utilizada no modelo
         if (in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass))) {
-            if (!$checkSoftDelete) {
+            if (!$excludeSoftDeleted) {
                 $query->withTrashed();
             }
         }
 
-        // RestResponse::createTestResponse([$query->toSql(), $query->getBindings(), $query->get()]);
         return $query->get();
     }
+
 
     /**
      * Valida se o recurso já existe com os campos enviados na requisição.
@@ -42,9 +42,10 @@ class ValidationRecordsHelper
      * @param Model $modelClass O modelo Eloquent a ser verificado.
      * @param array $fields Os campos que devem ser validados.
      * @param int|null $id O ID do registro atual, se for uma atualização (para exclusão do próprio registro).
+     * @param bool $excludeSoftDeleted Define se os registros soft-deleted devem ser excluídos da consulta (padrão: true).
      * @return Model|null Retorna os registros encontrados.
      */
-    public static function validarRecursoExistente($modelClass, array $fields, $id = null)
+    public static function validarRecursoExistente($modelClass, array $fields, $id = null, bool $excludeSoftDeleted = true)
     {
         $query = $modelClass::query();
 
@@ -56,6 +57,13 @@ class ValidationRecordsHelper
         // Exclui o próprio registro, se estiver atualizando
         if ($id !== null) {
             $query->where('id', '<>', $id);
+        }
+
+        // Verifica se a trait SoftDeletes está sendo utilizada no modelo
+        if (in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass))) {
+            if (!$excludeSoftDeleted) {
+                $query->withTrashed();
+            }
         }
 
         return $query->get();

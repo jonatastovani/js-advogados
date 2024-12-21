@@ -13,4 +13,8 @@ class PessoaPerfilTipo extends Model
 
     protected $table = 'referencias.pessoa_perfil_tipos';
     protected $tableAsName = 'pess_perf_tipos';
+
+    protected $casts = [
+        'configuracao' => 'array',
+    ];
 }

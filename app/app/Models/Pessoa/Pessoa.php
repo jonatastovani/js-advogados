@@ -2,6 +2,7 @@
 
 namespace App\Models\Pessoa;
 
+use App\Enums\PessoaPerfilTipoEnum;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,9 +25,14 @@ class Pessoa extends Model
 
     public function pessoa_perfil()
     {
-        return $this->hasMany(PessoaPerfil::class, 'pessoa_id');
+        return $this->hasMany(PessoaPerfil::class);
     }
 
+    public function perfil_usuario()
+    {
+        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->orderBy('created_at', 'desc');
+    }
+    
     public function pessoa_dados()
     {
         return $this->morphTo();

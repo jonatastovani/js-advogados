@@ -2,6 +2,7 @@
 
 namespace App\Services\Pessoa;
 
+use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaPerfil;
@@ -54,7 +55,9 @@ class PessoaPerfilService extends Service
         // Para carregar o relacionamento de pessoa_dados completo conforme o tipo de pessoa
         $resource->load($this->loadFull(['caseTipoPessoa' => $resource->pessoa->pessoa_dados]));
         $resource->pessoa->load('pessoa_perfil.perfil_tipo');
-
+        if ($resource->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
+            $resource->load('user.user_tenant_domains.domain');
+        }
         return $resource->toArray();
     }
 

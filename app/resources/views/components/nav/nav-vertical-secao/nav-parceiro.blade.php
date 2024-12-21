@@ -19,6 +19,11 @@
                         <span class="nav-link-text">Listagem de Parceiros</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('pessoa.pessoa-fisica.parceiro.form') }}">
+                        <span class="nav-link-text">Cadastrar Parceiro</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

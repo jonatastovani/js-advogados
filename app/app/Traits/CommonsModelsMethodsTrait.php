@@ -4,9 +4,7 @@ namespace App\Traits;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\DB;
 
 trait CommonsModelsMethodsTrait
 {

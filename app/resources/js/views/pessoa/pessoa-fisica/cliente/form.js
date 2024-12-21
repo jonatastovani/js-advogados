@@ -1,6 +1,6 @@
-import { PagePessoaFisicaForm } from "../form";
+import { TemplateFormPessoaFisica } from "../TemplateFormPessoaFisica";
 
-class PagePessoaFisicaFormCliente extends PagePessoaFisicaForm {
+class PagePessoaFisicaFormCliente extends TemplateFormPessoaFisica {
 
     #objConfigs = {
         url: {

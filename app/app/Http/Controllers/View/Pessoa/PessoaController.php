@@ -47,6 +47,25 @@ class PessoaController extends Controller
         return view('secao.pessoa.pessoa-fisica.parceiro.form');
     }
 
+    public function pessoaFisicaUsuarioIndex()
+    {
+        return view('secao.pessoa.pessoa-fisica.usuario.index');
+    }
+
+    public function pessoaFisicaUsuarioForm()
+    {
+        return view('secao.pessoa.pessoa-fisica.usuario.form');
+    }
+
+    public function pessoaFisicaUsuarioFormEditar(Request $request)
+    {
+        $recurso = PessoaPerfil::find($request->uuid);
+        if ($recurso) {
+            return view('secao.pessoa.pessoa-fisica.usuario.form', compact('recurso'));
+        }
+        return view('secao.pessoa.pessoa-fisica.usuario.form');
+    }
+
     public function pessoaJuridicaClienteIndex()
     {
         return view('secao.pessoa.pessoa-juridica.cliente.index');

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Pessoa\ModalSelecionarPessoaPerfilTipo;
+namespace App\View\Components\Modal\Pessoa\ModalSelecionarUsuarioDomains;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalSelecionarPessoaPerfilTipo', request('request_uuid'))) {
-            return view('components.modal.pessoa.modal-selecionar-pessoa-perfil-tipo.modal');
+        if (ModalSessionHelper::registerModal('modalSelecionarUsuarioDomains', request('request_uuid'))) {
+            return view('components.modal.pessoa.modal-selecionar-usuario-domains.modal');
         }
         return '';
     }

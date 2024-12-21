@@ -47,8 +47,8 @@
                     <div class="row error_login">
                         @if ($erro_login->error)
                             {{-- @dump($erro_login) --}}
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Houve um problema ao realizar o login</strong>
+                            <div class="alert alert-danger alert-dismissible mb-0 fade show" role="alert">
+                                <strong class="py-1">Houve um problema ao realizar o login</strong>
                                 <hr>
                                 {{ $erro_login->error['message'] }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"

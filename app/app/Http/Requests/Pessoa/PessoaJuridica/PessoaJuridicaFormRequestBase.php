@@ -27,6 +27,9 @@ class PessoaJuridicaFormRequestBase extends BaseFormRequest
             'documentos.*.documento_tipo_tenant_id' => 'required|uuid',
             'documentos.*.numero' => 'required|string',
             // 'documentos.*.campos_adicionais' => 'nullable|string',
+            'perfis' => 'required|array',
+            'perfis.*.id' => 'nullable|uuid',
+            'perfis.*.perfil_tipo_id' => 'required|integer',
         ];
     }
 

@@ -1,5 +1,5 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalPessoaDocumento } from "../components/pessoas/modalPessoaDocumento";
+import { modalMessage } from "../components/comum/modalMessage";
 import { modalSelecionarPessoaPerfilTipo } from "../components/pessoas/modalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -19,9 +19,7 @@ export class PessoaPerfilModule {
     #addEventosBotoes() {
         const self = this;
 
-        console.log('Vai adicionar Ação')
         $(`#btnAdicionarPerfil${self._objConfigs.sufixo}`).on('click', async function () {
-            console.log('Clicando')
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -40,7 +38,6 @@ export class PessoaPerfilModule {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
-
     }
 
     #verificaPerfilAdicionado(perfilAInserir) {
@@ -60,7 +57,7 @@ export class PessoaPerfilModule {
         return true;
     }
 
-    async _inserirPerfil(item, validarLimite = false) {
+    async _inserirPerfil(item, validarLimite = false, perfilObrigatorio = false) {
         const self = this;
         const divPerfil = $(`#divPerfil${self._objConfigs.sufixo}`);
 
@@ -76,15 +73,17 @@ export class PessoaPerfilModule {
             item.idCol = UUIDHelper.generateUUID();
 
             const rotaEdit = self.#pesquisarRotaEditPerfil(item);
+            const perfilVigente = item.perfil_tipo_id == self._objConfigs.data.pessoa_perfil_tipo_id;
 
             let strCard = `
             <div id="${item.idCol}" class="col">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
                             <span class="text-truncate spanTitle">${nomePerfil}</span>
                             <div>
-                                <a href="${item.id ? `${rotaEdit}/${item.id}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}">Editar</a>
+                                ${!perfilVigente ? `<a href="${item.id ? `${rotaEdit}/${item.id}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}" ${item.id ? `target="_blank"` : ''}>Editar</a>` : ''}
+                                ${!item.id && !perfilObrigatorio ? `<button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Excluir perfil ${nomePerfil}">Remover</button>` : ''}
                             </div>
                         </h5>
                         ${!item.id ? '<div class="form-text fst-italic">Perfil ainda não cadastrado</div>' : ''}
@@ -93,7 +92,7 @@ export class PessoaPerfilModule {
             </div>`;
 
             divPerfil.append(strCard);
-            // self.#addEventosPerfil(item);
+            self.#addEventosPerfil(item);
             self._objConfigs.data.perfisNaTela.push(item);
 
         } else {
@@ -126,82 +125,48 @@ export class PessoaPerfilModule {
     async #addEventosPerfil(item) {
         const self = this;
 
-        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
-            const docNaTela = self._objConfigs.data.perfisNaTela;
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
             try {
-                const indexDoc = self.#pesquisaIndexPerfilNaTela(item);
-                if (indexDoc != -1) {
-                    const doc = docNaTela[indexDoc];
+                const perfNaTela = self._objConfigs.data.perfisNaTela;
+                const indexPerf = self.#pesquisaIndexPerfilNaTela(item);
+                if (indexPerf != -1) {
+                    const perf = perfNaTela[indexPerf] = item;
 
-                    const objModal = new modalPessoaDocumento();
-                    objModal.setDataEnvModal = {
-                        register: doc,
+                    const objMessage = new modalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: `Remoção de Perfil`,
+                        message: `Confirma a remoção do perfil <b>${perf.perfil_tipo.nome}</b>?`,
                     };
-                    const response = await objModal.modalOpen();
-                    if (response.refresh && response.register) {
-                        await self._inserirPerfil(response.register);
+                    objMessage.setFocusElementWhenClosingModal = $(this);
+                    const result = await objMessage.modalOpen();
+                    if (result.confirmResult) {
+                        perfNaTela.splice(indexPerf, 1);
+                        $(`#${perf.idCol}`).remove();
                     }
-                } else {
-                    console.error('Documento na tela não encontrado. Docs:', docNaTela);
-                    console.error('Item buscado:', item);
-                    commonFunctions.generateNotification('Documento na tela não encontrado.', 'error');
-                    return false;
                 }
-
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
             }
         });
-
-        // $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-        //     try {
-        //         const docNaTela = self._objConfigs.data.perfisNaTela;
-        //         const indexDoc = self.#pesquisaIndexPerfilNaTela(item);
-        //         if (indexDoc != -1) {
-        //             const doc = docNaTela[indexDoc] = item;
-
-        //             const objMessage = new modalMessage();
-        //             objMessage.setDataEnvModal = {
-        //                 title: `Exclusão de Documento`,
-        //                 message: `Confirma a exclusão do documento <b>${doc.perfil_tipo_tenant.nome}</b>?`,
-        //             };
-        //             objMessage.setFocusElementWhenClosingModal = $(this);
-        //             const result = await objMessage.modalOpen();
-        //             if (result.confirmResult) {
-        //                 docNaTela.splice(indexDoc, 1);
-        //                 $(`#${doc.idCol}`).remove();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     }
-        // });
     }
 
-    _retornaDocumentosNaTelaSaveButonAction() {
+    _retornaPerfilsNaTelaSaveButonAction() {
         const self = this;
         return self._objConfigs.data.perfisNaTela.map(item => {
             return {
                 id: item.id,
-                perfil_tipo: item.perfil_tipo,
-                numero: item.numero,
-                // campos_adicionais: item.campos_adicionais,
+                perfil_tipo_id: item.perfil_tipo_id,
             }
         });
     }
 
-    _tratarValoresNulos(data) {
-        return Object.fromEntries(
-            Object.entries(data).map(([key, value]) => {
-                if (value === "null") {
-                    value = null;
-                }
-                return [key, value];
-            })
-        );
+    _inserirPerfilObrigatorio() {
+        const self = this;
+        const novoPerfil = {
+            perfil_tipo_id: self._objConfigs.data.pessoa_perfil_tipo_id,
+            perfil_tipo: window.Details.PessoaPerfilTipoEnum.filter(item =>
+                item.id == self._objConfigs.data.pessoa_perfil_tipo_id)[0]
+        }
+        self._inserirPerfil(novoPerfil, false, true);
     }
 }

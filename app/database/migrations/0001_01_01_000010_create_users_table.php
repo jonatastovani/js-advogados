@@ -28,9 +28,8 @@ return new class extends Migration
             $this->addIDFieldAsUUID($table);
 
             $table->string('nome');
-            $table->string('username')->unique();
+            $table->string('username');
             $table->string('password');
-
 
             $this->addTenantIDField($table);
 
@@ -38,7 +37,11 @@ return new class extends Migration
             // $table->timestamp('email_verified_at')->nullable();
 
             $table->rememberToken();
-            $table->timestamps();
+            // $table->timestamps();
+
+            // Índice único para garantir unicidade entre username e tenant_id
+            $table->unique(['username', 'tenant_id'], 'unique_username_tenant');
+            $this->addCommonFieldsCreatedUpdatedDeleted($table, ['allNotReferenced' => true, 'createdIdNullable' => true]);
         });
 
         Schema::create("{$this->schema}.password_reset_tokens", function (Blueprint $table) {

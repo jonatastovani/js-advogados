@@ -201,15 +201,4 @@ export class PessoaDocumentoModule {
             }
         });
     }
-
-    _tratarValoresNulos(data) {
-        return Object.fromEntries(
-            Object.entries(data).map(([key, value]) => {
-                if (value === "null") {
-                    value = null;
-                }
-                return [key, value];
-            })
-        );
-    }
 }

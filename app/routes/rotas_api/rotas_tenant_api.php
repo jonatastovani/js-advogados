@@ -77,7 +77,7 @@ Route::group([
             Route::delete('{uuid}', 'destroy');
         });
     });
-    
+
     Route::prefix('pagamento-tipo-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Tenant\PagamentoTipoTenantController::class)->group(function () {
@@ -118,5 +118,11 @@ Route::group([
         });
     });
 
-    
+    Route::prefix('domains')->group(function () {
+
+        Route::controller(App\Http\Controllers\Auth\DomainController::class)->group(function () {
+            Route::get('', 'index')->name('api.tenant.domains');
+            Route::get('{id}', 'show');
+        });
+    });
 });

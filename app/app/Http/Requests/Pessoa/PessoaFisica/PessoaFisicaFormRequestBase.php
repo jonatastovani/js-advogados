@@ -27,6 +27,9 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'documentos.*.documento_tipo_tenant_id' => 'required|uuid',
             'documentos.*.numero' => 'required|string',
             // 'documentos.*.campos_adicionais' => 'nullable|string',
+            'perfis' => 'nullable|array',
+            'perfis.*.id' => 'nullable|uuid',
+            'perfis.*.perfil_tipo_id' => 'required|integer',
         ];
     }
 
@@ -42,6 +45,9 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'sexo_id' => 'sexo',
             'observacao' => 'observação',
             'ativo_bln' => 'ativo',
+            'user.username' => 'nome de usuário',
+            'user.password' => 'senha',
+            'user_domains.*.domain_id' => 'domínio',
         ];
     }
 }
