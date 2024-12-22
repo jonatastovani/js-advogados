@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Financeiro\ModalConta;
+namespace App\View\Components\Modal\Tenant\ModalContaTenant;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalConta', request('request_uuid'))) {
-            return view('components.modal.financeiro.modal-conta.modal');
+        if (ModalSessionHelper::registerModal('modalContaTenant', request('request_uuid'))) {
+            return view('components.modal.tenant.modal-conta-tenant.modal');
         }
         return '';
     }

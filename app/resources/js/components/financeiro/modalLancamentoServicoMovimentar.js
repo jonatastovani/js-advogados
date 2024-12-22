@@ -5,7 +5,7 @@ import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrati
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
-import { modalConta } from "./modalConta";
+import { modalContaTenant } from "./modalContaTenant";
 
 export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
 
@@ -95,7 +95,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -241,8 +241,8 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selModulo = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;

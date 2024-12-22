@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 
-export class modalConta extends modalSearchAndFormRegistration {
+export class modalContaTenant extends modalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -14,7 +14,7 @@ export class modalConta extends modalSearchAndFormRegistration {
                 name: 'consulta-filtros',
                 url: window.apiRoutes.baseContas,
                 urlSearch: `${window.apiRoutes.baseContas}/consulta-filtros`,
-                sufixo: 'ModalConta',
+                sufixo: 'ModalContaTenant',
             }
         },
     };
@@ -28,7 +28,7 @@ export class modalConta extends modalSearchAndFormRegistration {
 
     constructor() {
         super({
-            idModal: "#modalConta",
+            idModal: "#modalContaTenant",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

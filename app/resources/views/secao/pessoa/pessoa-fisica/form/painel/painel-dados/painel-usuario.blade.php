@@ -12,7 +12,7 @@
                     class="form-control" {{ $recurso ? 'disabled' : '' }}>
             </div>
             <div class="col-12 col-sm-6">
-                <label for="password_confirmation{{ $sufixo }}" class="form-label">Confirmação</label>
+                <label for="password_confirmation{{ $sufixo }}" class="form-label">Confirmação da senha</label>
                 <input type="text" id="password_confirmation{{ $sufixo }}" name="password_confirmation"
                     class="form-control" {{ $recurso ? 'disabled' : '' }}>
             </div>

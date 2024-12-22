@@ -63,7 +63,7 @@ class MovimentacaoConta extends Model
 
     public function conta()
     {
-        return $this->belongsTo(Conta::class);
+        return $this->belongsTo(ContaTenant::class);
     }
 
     public function status()

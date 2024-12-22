@@ -5,7 +5,7 @@ import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrati
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { modalConta } from "../financeiro/modalConta";
+import { modalContaTenant } from "../tenant/modalContaTenant";
 import { modalServicoPagamentoLancamento } from "./modalServicoPagamentoLancamento";
 
 export class modalServicoPagamento extends modalRegistrationAndEditing {
@@ -85,7 +85,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -328,8 +328,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selModulo = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -341,8 +341,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             const self = this;
             let options = { insertFirstOption: false };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
-            const selModulo = $(self.getIdModal).find('select[name="status_id"]');
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseStatusPagamento, options);
+            const select = $(self.getIdModal).find('select[name="status_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseStatusPagamento, options);
             return true;
         } catch (error) {
             return false;

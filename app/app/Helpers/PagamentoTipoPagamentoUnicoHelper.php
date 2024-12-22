@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use Illuminate\Support\Fluent;
 
 class PagamentoTipoPagamentoUnicoHelper

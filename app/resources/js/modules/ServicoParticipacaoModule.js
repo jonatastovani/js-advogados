@@ -681,8 +681,8 @@ export class ServicoParticipacaoModule {
     async _buscarPresetParticipacaoTenant(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(`#preset_id${self._objConfigs.sufixo}`);
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseParticipacaoPreset, options);
+        const select = $(`#preset_id${self._objConfigs.sufixo}`);
+        await commonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoPreset, options);
     }
 
     async _inserirParticipantesEIntegrantes(participantes) {

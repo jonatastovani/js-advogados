@@ -62,14 +62,14 @@
 </div>
 
 @push('modals')
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
     <x-modal.servico.modal-servico-pagamento-lancamento.modal />
 @endpush
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseContas' => route('api.financeiro.conta'),
+        'baseContas' => route('api.tenant.conta'),
         'basePagamentoTipoTenants' => route('api.tenant.pagamento-tipo-tenant'),
         'baseStatusPagamento' => route('api.referencias.pagamento-status-tipo'),
     ],

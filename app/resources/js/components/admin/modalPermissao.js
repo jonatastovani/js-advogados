@@ -89,10 +89,10 @@ export class modalPermissao extends modalRegistrationAndEditing {
     async #buscarModulos(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(self.getIdModal).find('select[name="modulo_id"]');
-        await commonFunctions.fillSelect(selModulo, window.apiRoutes.baseModulos, options);
-        await self.#buscarGrupos(selModulo.val());
-        await self.#buscarPermissoesPai(selModulo.val());
+        const select = $(self.getIdModal).find('select[name="modulo_id"]');
+        await commonFunctions.fillSelect(select, window.apiRoutes.baseModulos, options);
+        await self.#buscarGrupos(select.val());
+        await self.#buscarPermissoesPai(select.val());
     }
 
     async #buscarGrupos(modulo_id, selected_id = null) {

@@ -3,10 +3,10 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
 import { modalLancamentoGeralMovimentar } from "../../../components/financeiro/modalLancamentoGeralMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
+import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -170,7 +170,7 @@ class PageLancamentoGeralIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -618,8 +618,8 @@ class PageLancamentoGeralIndex extends templateSearch {
                 firstOptionName: 'Todas as contas',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -635,8 +635,8 @@ class PageLancamentoGeralIndex extends templateSearch {
                 firstOptionName: 'Todas as movimentações',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
+            const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -652,8 +652,8 @@ class PageLancamentoGeralIndex extends templateSearch {
                 firstOptionName: 'Todos os status',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#lancamento_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
+            const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -668,8 +668,8 @@ class PageLancamentoGeralIndex extends templateSearch {
                 firstOptionName: 'Todas as categorias',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            const select = $(`#categoria_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;

@@ -120,7 +120,7 @@
 @push('modals')
     <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
     <x-modal.servico.modal-lancamento-reagendar.modal />
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.tenant.modal-area-juridica-tenant.modal />
 @endpush
 
@@ -128,7 +128,7 @@
     @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseContas' => route('api.financeiro.conta'),
+            'baseContas' => route('api.tenant.conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),

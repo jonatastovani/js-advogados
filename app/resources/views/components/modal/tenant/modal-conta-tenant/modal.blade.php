@@ -1,4 +1,4 @@
-<div class="modal fade" id="modalConta" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalContaTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body pt-1">
                 @php
-                    $sufixo = 'ModalConta';
+                    $sufixo = 'ModalContaTenant';
                     $dados = new Illuminate\Support\Fluent([
                         'camposFiltrados' => [
                             'nome' => ['nome' => 'Nome'],
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="divRegistrationFields mt-2" style="display: none;">
-                    @include('components.modal.financeiro.modal-conta.campos-cadastro', [
+                    @include('components.modal.tenant.modal-conta-tenant.campos-cadastro', [
                         'sufixo' => $sufixo,
                     ])
                 </div>
@@ -59,7 +59,7 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseContas' => route('api.financeiro.conta'),
+        'baseContas' => route('api.tenant.conta'),
         'baseContasSubtipo' => route('api.referencias.conta-subtipo'),
         'baseContasStatus' => route('api.referencias.conta-status-tipo'),
     ],

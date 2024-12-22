@@ -42,7 +42,7 @@ return new class extends Migration
             $table->foreign('categoria_id')->references('id')->on((new App\Models\Tenant\LancamentoCategoriaTipoTenant())->getTableName());
 
             $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
 
             $table->uuid('agendamento_id')->nullable();
             $table->foreign('agendamento_id')->references('id')->on((new App\Models\Financeiro\LancamentoAgendamento())->getTableName());

@@ -193,8 +193,8 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
     async #buscarTipoParticipacaoTenant(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseParticipacaoTipo, options);
+        const select = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
+        await commonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoTipo, options);
     }
 
     saveButtonAction() {

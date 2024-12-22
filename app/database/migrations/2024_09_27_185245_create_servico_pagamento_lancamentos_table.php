@@ -37,7 +37,7 @@ return new class extends Migration
             $table->date('data_recebimento')->nullable();
 
             $table->uuid('conta_id')->nullable();
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
 
             $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());

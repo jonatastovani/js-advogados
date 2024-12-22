@@ -137,7 +137,7 @@
 
 @push('modals')
     <x-modal.pessoa.modal-pessoa.modal />
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
 @push('scripts')
@@ -146,7 +146,7 @@
         'routes' => [
             'baseBalancoRepasseParceiro' => route('api.financeiro.balanco-repasse-parceiros'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseContas' => route('api.financeiro.conta'),
+            'baseContas' => route('api.tenant.conta'),
         ],
     ])
     @endcomponent

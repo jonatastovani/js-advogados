@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
-import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
+import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -119,7 +119,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -413,8 +413,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 firstOptionName: 'Todas as contas',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -430,8 +430,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 firstOptionName: 'Todas as movimentações',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
+            const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -447,8 +447,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 firstOptionName: 'Todos os status',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const selModulo = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
+            const select = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;

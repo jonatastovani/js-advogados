@@ -1,12 +1,12 @@
 <?php
 
-namespace Database\Seeders\Financeiro;
+namespace Database\Seeders\Tenant;
 
 use App\Helpers\UUIDsHelpers;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use Illuminate\Database\Seeder;
 
-class ContaSeeder extends Seeder
+class ContaTenantSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -38,7 +38,7 @@ class ContaSeeder extends Seeder
             $data['created_user_id'] = $adminTenantUserId;
             $data['tenant_id'] = 'jsadvogados';
             $data['domain_id'] = 2;
-            Conta::create($data);
+            ContaTenant::create($data);
         }
     }
 }

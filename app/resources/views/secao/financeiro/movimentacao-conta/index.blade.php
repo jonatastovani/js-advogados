@@ -77,6 +77,8 @@
     <div class="d-grid gap-2 d-sm-block mt-2">
         <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary"
             id="btnImprimirConsulta">Imprimir consulta</button>
+        <button id="btnOpenTranferenciaConta{{ $sufixo }}" type="button" class="btn btn-outline-primary"
+            id="btnOpenTranferenciaConta" title="Transferência entre Contas">Transf. Conta</button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">
@@ -106,7 +108,8 @@
 
 
 @push('modals')
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.financeiro.modal-conta-transferencia.modal />
 @endpush
 
 @push('scripts')
@@ -115,7 +118,7 @@
         'routes' => [
             'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
-            'baseContas' => route('api.financeiro.conta'),
+            'baseContas' => route('api.tenant.conta'),
         ],
     ])
     @endcomponent

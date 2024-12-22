@@ -56,7 +56,7 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
             commonFunctions.simulateLoading(btn);
             try {
                 commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de pagamento, em desenvolvimento.', 'warning');
-                // const objModal = new modalConta();
+                // const objModal = new modalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {
@@ -87,8 +87,8 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
     async #buscarPagamentoTipos(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const selModulo = $(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]');
-        await commonFunctions.fillSelect(selModulo, self._objConfigs.url.base, options);
+        const select = $(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]');
+        await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
     }
 
     async saveButtonAction() {

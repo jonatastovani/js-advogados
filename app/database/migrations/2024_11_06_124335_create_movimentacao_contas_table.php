@@ -32,7 +32,7 @@ return new class extends Migration
             $table->uuidMorphs('referencia');
 
             $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
 
             $table->float('valor_movimentado');
             $table->float('saldo_atualizado');

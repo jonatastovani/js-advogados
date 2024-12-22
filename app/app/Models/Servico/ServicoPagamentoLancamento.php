@@ -2,7 +2,7 @@
 
 namespace App\Models\Servico;
 
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Traits\BelongsToDomain;
@@ -69,7 +69,7 @@ class ServicoPagamentoLancamento extends Model
 
     public function conta()
     {
-        return $this->belongsTo(Conta::class);
+        return $this->belongsTo(ContaTenant::class);
     }
 
     public function status()

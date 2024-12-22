@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Financeiro\ContaSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroClienteSeeder;
@@ -24,6 +23,7 @@ use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoUpdateSeeder;
+use Database\Seeders\Tenant\ContaTenantSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
 use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
 
             $this->call([
                 AreaJuridicaTenantSeeder::class,
-                ContaSeeder::class,
+                ContaTenantSeeder::class,
                 DocumentoTipoTenantSeeder::class,
                 EstadoCivilTenantSeeder::class,
                 EscolaridadeTenantSeeder::class,

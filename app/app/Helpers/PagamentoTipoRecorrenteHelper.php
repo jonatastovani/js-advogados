@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Carbon\Carbon;
 use Cron\CronExpression;

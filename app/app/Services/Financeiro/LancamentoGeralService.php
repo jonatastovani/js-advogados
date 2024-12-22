@@ -7,7 +7,7 @@ use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\MovimentacaoContaTipo;
@@ -153,7 +153,7 @@ class LancamentoGeralService extends Service
         }
 
         //Verifica se a conta informada existe
-        $validacaoContaId = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id]);
+        $validacaoContaId = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
         if (!$validacaoContaId->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }

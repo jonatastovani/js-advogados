@@ -3,10 +3,10 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalConta } from "../../../components/financeiro/modalConta";
 import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
+import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
@@ -201,7 +201,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

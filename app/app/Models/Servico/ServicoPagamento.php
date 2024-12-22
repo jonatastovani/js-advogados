@@ -3,7 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Referencias\PagamentoTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
@@ -98,7 +98,7 @@ class ServicoPagamento extends Model
 
     public function conta()
     {
-        return $this->belongsTo(Conta::class);
+        return $this->belongsTo(ContaTenant::class);
     }
 
     public function participantes()

@@ -161,7 +161,7 @@
 
 @push('modals')
     <x-modal.financeiro.modal-lancamento-geral.modal />
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
 @endpush
 
@@ -171,7 +171,7 @@
         'routes' => [
             'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
             'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
-            'baseContas' => route('api.financeiro.conta'),
+            'baseContas' => route('api.tenant.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         ],
     ])

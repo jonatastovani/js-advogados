@@ -13,7 +13,7 @@ use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
 use App\Helpers\ServicoPagamentoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
@@ -214,7 +214,7 @@ class ServicoPagamentoService extends Service
         }
 
         //Verifica se a conta informada existe
-        $validacaoContaId = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id]);
+        $validacaoContaId = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
         if (!$validacaoContaId->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }

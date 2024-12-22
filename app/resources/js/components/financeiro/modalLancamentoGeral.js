@@ -3,7 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
-import { modalConta } from "./modalConta";
+import { modalContaTenant } from "./modalContaTenant";
 
 export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
@@ -90,7 +90,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -347,8 +347,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selModulo = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(`#conta_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -360,8 +360,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selModulo = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(selModulo, arrayOpcoes, options);
+            const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
+            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -372,8 +372,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selModulo = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            const select = $(`#categoria_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;

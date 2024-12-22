@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Financeiro\Conta;
+namespace App\Http\Requests\Tenant\ContaTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ContaFormRequestIndex extends BaseFormRequest
+class ContaTenantFormRequestDestroy extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,6 @@ class ContaFormRequestIndex extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return [];
     }
 }

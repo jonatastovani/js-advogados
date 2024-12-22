@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\Financeiro;
+namespace App\Models\Tenant;
 
+use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
 use App\Traits\BelongsToDomain;
@@ -12,24 +13,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
-class Conta extends Model
+class ContaTenant extends Model
 {
     use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain;
 
-    protected $table = 'financeiro.contas';
-    protected $tableAsName = 'conta';
+    protected $table = 'tenant.conta_tenants';
+    protected $tableAsName = 'conta_ten';
 
     protected $fillable = [
         'nome',
         'descricao',
         'conta_subtipo_id',
         'banco',
-        'configuracoes_json',
+        'configuracao',
         'conta_status_id',
     ];
 
     protected $casts = [
-        'configuracoes_json' => 'array',
+        'configuracao' => 'array',
     ];
 
     public function conta_subtipo()

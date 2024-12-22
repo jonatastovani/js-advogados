@@ -29,14 +29,14 @@
 @endsection
 
 @push('modals')
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
 @push('scripts')
     @vite('resources/js/views/financeiro/painel-contas/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseContas' => route('api.financeiro.conta'),
+            'baseContas' => route('api.tenant.conta'),
         ],
     ])
     @endcomponent

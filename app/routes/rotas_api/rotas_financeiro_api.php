@@ -10,21 +10,6 @@ Route::group([
     ],
 ], function () {
 
-    Route::prefix('conta')->group(function () {
-
-        Route::controller(App\Http\Controllers\Financeiro\ContaController::class)->group(function () {
-
-            Route::post('consulta-filtros', 'postConsultaFiltros');
-
-            Route::get('', 'index');
-            Route::get('painel-conta', 'indexPainelConta');
-            Route::post('', 'store')->name('api.financeiro.conta');
-            Route::get('{uuid}', 'show');
-            Route::put('{uuid}', 'update');
-            Route::delete('{uuid}', 'destroy');
-        });
-    });
-
     Route::prefix('lancamentos')->group(function () {
 
         Route::get('', function () {})->name('api.financeiro.lancamentos');

@@ -35,7 +35,7 @@ return new class extends Migration
             $table->foreign('pagamento_tipo_tenant_id')->references('id')->on((new App\Models\Tenant\PagamentoTipoTenant)->getTableName());
 
             $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Financeiro\Conta)->getTableName());
+            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
 
             $table->float('valor_total')->nullable();
             $table->float('entrada_valor')->nullable();

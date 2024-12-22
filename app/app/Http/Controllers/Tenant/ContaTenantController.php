@@ -1,54 +1,54 @@
 <?php
 
-namespace App\Http\Controllers\Financeiro;
+namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Financeiro\Conta\ContaFormRequestDestroy;
-use App\Http\Requests\Financeiro\Conta\ContaFormRequestIndex;
-use App\Http\Requests\Financeiro\Conta\ContaFormRequestShow;
-use App\Http\Requests\Financeiro\Conta\ContaFormRequestStore;
-use App\Http\Requests\Financeiro\Conta\ContaFormRequestUpdate;
-use App\Services\Financeiro\ContaService;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestDestroy;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestIndex;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestShow;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestStore;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestUpdate;
+use App\Services\Tenant\ContaTenantService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
 
-class ContaController extends Controller
+class ContaTenantController extends Controller
 {
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
-    public function __construct(public ContaService $service) {}
+    public function __construct(public ContaTenantService $service) {}
 
-    public function index(ContaFormRequestIndex $formRequest)
+    public function index(ContaTenantFormRequestIndex $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->index($fluentData));
     }
 
-    public function indexPainelConta(ContaFormRequestIndex $formRequest)
+    public function indexPainelConta(ContaTenantFormRequestIndex $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->indexPainelConta($fluentData));
     }
 
-    public function store(ContaFormRequestStore $formRequest)
+    public function store(ContaTenantFormRequestStore $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->store($fluentData));
     }
 
-    public function show(ContaFormRequestShow $formRequest)
+    public function show(ContaTenantFormRequestShow $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->show($fluentData));
     }
 
-    public function update(ContaFormRequestUpdate $formRequest)
+    public function update(ContaTenantFormRequestUpdate $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->update($fluentData));
     }
 
-    public function destroy(ContaFormRequestDestroy $formRequest)
+    public function destroy(ContaTenantFormRequestDestroy $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->destroy($fluentData));

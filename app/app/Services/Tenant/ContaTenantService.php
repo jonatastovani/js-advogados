@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\Financeiro;
+namespace App\Services\Tenant;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
 use App\Services\Service;
@@ -16,11 +16,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
-class ContaService extends Service
+class ContaTenantService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(Conta $model)
+    public function __construct(ContaTenant $model)
     {
         parent::__construct($model);
     }

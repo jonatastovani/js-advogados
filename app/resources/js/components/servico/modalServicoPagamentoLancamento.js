@@ -51,7 +51,7 @@ export class modalServicoPagamentoLancamento extends modalRegistrationAndEditing
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -85,8 +85,8 @@ export class modalServicoPagamentoLancamento extends modalRegistrationAndEditing
             const optionsDefault = { firstOptionName: 'Conta padrão do pagamento' };
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             options = Object.assign(options, optionsDefault);
-            const selModulo = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(selModulo, self._objConfigs.url.baseContas, options);
+            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;

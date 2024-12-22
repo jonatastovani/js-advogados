@@ -72,7 +72,7 @@
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
     <x-modal.servico.modal-servico-participacao-participante.modal />
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
 @component('components.api.api-routes', [
@@ -82,7 +82,7 @@
         'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
         'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
         'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
-        'baseContas' => route('api.financeiro.conta'),
+        'baseContas' => route('api.tenant.conta'),
     ],
 ])
 @endcomponent

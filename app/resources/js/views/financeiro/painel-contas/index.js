@@ -1,5 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { modalConta } from "../../../components/financeiro/modalConta";
+import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
 
@@ -31,7 +31,7 @@ class PagePainelContaIndex {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalConta();
+                const objModal = new modalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {

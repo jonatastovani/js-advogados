@@ -77,7 +77,7 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
             commonFunctions.simulateLoading(btn);
             try {
                 commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de documento, em desenvolvimento.', 'warning');
-                // const objModal = new modalConta();
+                // const objModal = new modalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {
@@ -115,8 +115,8 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
         };
 
         selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
-        const selModulo = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
-        return await commonFunctions.fillSelect(selModulo, self._objConfigs.url.base, options);
+        const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
+        return await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
     }
 
     async saveButtonAction() {

@@ -5,6 +5,7 @@ namespace App\Models\Financeiro;
 use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\MovimentacaoContaTipo;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -70,7 +71,7 @@ class LancamentoGeral extends Model
 
     public function conta()
     {
-        return $this->belongsTo(Conta::class);
+        return $this->belongsTo(ContaTenant::class);
     }
 
     public function status()

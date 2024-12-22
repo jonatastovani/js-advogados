@@ -12,7 +12,7 @@ use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\Conta;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
@@ -1088,7 +1088,7 @@ class MovimentacaoContaService extends Service
 
         $resource = new $this->model;
 
-        $validacaoConta = ValidationRecordsHelper::validateRecord(Conta::class, ['id' => $requestData->conta_id]);
+        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
         if (!$validacaoConta->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         } else {

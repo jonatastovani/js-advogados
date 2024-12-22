@@ -96,7 +96,7 @@
 @endsection
 
 @push('modals')
-    <x-modal.financeiro.modal-conta.modal />
+    <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
 @push('scripts')

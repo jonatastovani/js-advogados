@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Financeiro\Conta;
+namespace App\Http\Requests\Tenant\ContaTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ContaFormRequestShow extends BaseFormRequest
+class ContaTenantFormRequestShow extends BaseFormRequest
 {
     public function authorize(): bool
     {

@@ -3,6 +3,7 @@
 namespace App\Models\Financeiro;
 
 use App\Models\Referencias\MovimentacaoContaTipo;
+use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -66,7 +67,7 @@ class LancamentoAgendamento extends Model
 
     public function conta()
     {
-        return $this->belongsTo(Conta::class);
+        return $this->belongsTo(ContaTenant::class);
     }
 
     public function agendamento()
