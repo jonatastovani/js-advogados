@@ -45,7 +45,7 @@
                             class="form-control text-center">
                     </div>
 
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
+                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
                         <label for="estado_civil_id{{ $sufixo }}" class="form-label">Estado Civil</label>
                         <div class="input-group">
                             <select name="estado_civil_id" id="estado_civil_id{{ $sufixo }}" class="form-select">
@@ -56,7 +56,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
+                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
                         <label for="escolaridade_id{{ $sufixo }}" class="form-label">Escolaridade</label>
                         <div class="input-group">
                             <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}" class="form-select">
@@ -67,7 +67,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-6 col-sm-6 col-xl-4 mt-2">
+                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
                         <label for="sexo_id{{ $sufixo }}" class="form-label">Sexo</label>
                         <div class="input-group">
                             <select name="sexo_id" id="sexo_id{{ $sufixo }}" class="form-select">
