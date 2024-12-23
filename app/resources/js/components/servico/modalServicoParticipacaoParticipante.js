@@ -153,7 +153,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
             switch (dados.participacao_registro_tipo_id) {
                 case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
                     modal.find('.lblTipoParticipante').html('Pessoa');
-                    nome = dados.referencia.pessoa_dados.nome;
+                    nome = dados.referencia.pessoa.pessoa_dados.nome;
                     break;
 
                 case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:

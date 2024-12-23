@@ -8,7 +8,7 @@
 
 <div class="row row-cols-2 align-items-end rowRecebimento">
     <div class="col mt-2">
-        <label for="data_vencimento{{ $sufixo }}" class="form-label">Novo vencimento</label>
+        <label for="data_vencimento{{ $sufixo }}" class="form-label">Novo vencimento*</label>
         <input type="date" id="data_vencimento{{ $sufixo }}" name="data_vencimento"
             class="form-control text-center">
     </div>

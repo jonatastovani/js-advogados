@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col">
             <label for="participacao_tipo_id{{ $sufixo }}" class="form-label">Tipo de
-                participação</label>
+                participação*</label>
             <div class="input-group">
                 <select name="participacao_tipo_id" id="participacao_tipo_id{{ $sufixo }}" class="form-select">
                     <option value="0">Selecione</option>
@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <div class="col mt-2">
-            <label for="">Tipo de valor</label>
+            <label for="">Tipo de valor*</label>
             <div class="row align-items-center">
                 <div class="col-6">
                     <div class="form-check">
@@ -37,7 +37,7 @@
 
     <div class="row row-cols-2 ">
         <div class="col mt-2">
-            <label for="valor{{ $sufixo }}" class="form-label">Valor</label>
+            <label for="valor{{ $sufixo }}" class="form-label">Valor*</label>
             <input type="text" id="valor{{ $sufixo }}" name="valor" class="form-control">
         </div>
         <div class="col mt-2 d-flex align-items-end">

@@ -173,7 +173,7 @@ class LancamentoGeralService extends Service
         return $resource;
     }
 
-    public function storeLancamentoReagendado(Fluent $requestData)
+    public function updateLancamentoGeralReagendado(Fluent $requestData)
     {
         $idParent = $requestData->uuid;
         $modelParent = $this->model;

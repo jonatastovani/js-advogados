@@ -4,7 +4,7 @@ import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
-import { modalContaTenant } from "./modalContaTenant";
+import { modalContaTenant } from "../tenant/modalContaTenant";
 
 export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing {
 

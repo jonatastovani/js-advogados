@@ -2,15 +2,15 @@
     $sufixo = 'ModalLancamentoServicoMovimentar';
 @endphp
 
-<div class="modal fade" id="modalLancamentoServicoMovimentar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-hidden="true">
+<div class="modal fade" id="modalLancamentoServicoMovimentar" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+        <form class="modal-content formRegistration">
             <div class="modal-header py-1">
                 <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <form class="modal-body pt-1 formRegistration">
+            <div class="modal-body pt-1">
                 <div class="row">
                     <div class="col mt-2 px-0">
                         <ul class="nav nav-tabs" id="myTab{{ $sufixo }}" role="tablist">
@@ -53,18 +53,21 @@
                         </div>
                     </div>
                 </div>
-            </form>
+                <div class="row">
+                    <div class="col legenda-campos-obrigatorios text-end mt-2">
+                        * Campos obrigatórios
+                    </div>
+                </div>
+            </div>
 
             <div class="modal-footer">
                 <div class="col-12 text-end mt-2">
                     <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
                         Salvar
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-cancel"
-                        style="min-width: 7rem;">Cancelar</button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 

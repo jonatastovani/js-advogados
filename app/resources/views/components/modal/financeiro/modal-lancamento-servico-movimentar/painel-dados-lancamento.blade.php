@@ -20,7 +20,7 @@
         </div>
         <div class="row rowConta">
             <div class="col">
-                <label for="conta_id{{ $sufixo }}" class="form-label">Conta</label>
+                <label for="conta_id{{ $sufixo }}" class="form-label">Conta*</label>
                 <div class="input-group">
                     <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
                         <option value="0">Selecione</option>

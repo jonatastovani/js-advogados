@@ -10,7 +10,7 @@ class PagamentoTipoPagamentoUnicoHelper
     static public function renderizar(Fluent $dados, array $options = [])
     {
 
-        $conta = Conta::find($dados->conta_id);
+        $conta = ContaTenant::find($dados->conta_id);
 
         return [
             'lancamentos' => [

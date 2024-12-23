@@ -1,11 +1,11 @@
 <form class="row formRegistration">
     <div class="col-12">
         <div class="row">
-            <h5 class="registration-title text-truncate">Novo Gênero</h5>
+            <h5 class="registration-title text-truncate">Novo Sexo</h5>
         </div>
         <div class="row">
             <div class="col">
-                <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
+                <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
                 <input type="text" class="form-control focusRegister" name="nome" id="nome{{ $sufixo }}">
             </div>
         </div>

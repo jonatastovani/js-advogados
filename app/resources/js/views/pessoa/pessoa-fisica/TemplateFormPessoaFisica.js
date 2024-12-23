@@ -196,7 +196,8 @@ export class TemplateFormPessoaFisica {
                 }
 
             } else {
-                form.find('input, textarea, select, button').prop('disabled', true);
+                $('#myTab, #myTabContent').find('input, textarea, select, button').prop('disabled', true);
+                $('.btn-save').prop('disabled', true);
             }
 
         } catch (error) {

@@ -49,8 +49,6 @@
                                     style="min-width: 7rem;">
                                     Salvar
                                 </button>
-                                <button type="button" class="btn btn-outline-danger btn-cancel"
-                                    style="min-width: 7rem;">Cancelar</button>
                             </div>
                         </div>
                     </div>

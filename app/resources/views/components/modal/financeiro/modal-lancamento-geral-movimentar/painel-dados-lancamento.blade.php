@@ -21,7 +21,7 @@
         <div class="divDadosLancamento">
             <div class="row">
                 <div class="col">
-                    <label for="conta_id{{ $sufixo }}" class="form-label">Conta</label>
+                    <label for="conta_id{{ $sufixo }}" class="form-label">Conta*</label>
                     <div class="input-group">
                         <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
                             <option value="0">Selecione</option>
@@ -33,12 +33,12 @@
             </div>
             <div class="row row-cols-2 align-items-end">
                 <div class="col mt-2">
-                    <label for="data_quitado{{ $sufixo }}" class="form-label">Data quitado</label>
+                    <label for="data_quitado{{ $sufixo }}" class="form-label">Data quitado*</label>
                     <input type="date" id="data_quitado{{ $sufixo }}" name="data_quitado"
                         class="form-control text-center">
                 </div>
                 <div class="col mt-2">
-                    <label for="valor_quitado{{ $sufixo }}" class="form-label">Valor quitado</label>
+                    <label for="valor_quitado{{ $sufixo }}" class="form-label">Valor quitado*</label>
                     <div class="input-group">
                         <div class="input-group-text"><label for="valor_quitado{{ $sufixo }}">R$</label></div>
                         <input type="text" id="valor_quitado{{ $sufixo }}" name="valor_quitado"

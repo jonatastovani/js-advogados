@@ -23,3 +23,9 @@ $opacities: (
 .blink {
     animation: blinker-50 1s linear infinite;
 }
+
+.legenda-campos-obrigatorios {
+    font-size: 0.875rem; /* Tamanho menor */
+    color: #6c757d; /* Cinza padrão do Bootstrap */
+    margin-top: 0.5rem; /* Espaço acima */
+}

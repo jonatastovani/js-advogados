@@ -5,7 +5,7 @@ import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrati
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
-import { modalContaTenant } from "./modalContaTenant";
+import { modalContaTenant } from "../tenant/modalContaTenant";
 
 export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
 

@@ -14,7 +14,7 @@ class PagamentoTipoRecorrenteHelper
 
     static public function renderizar(Fluent $dados, array $options = [])
     {
-        $conta = Conta::find($dados->conta_id);
+        $conta = ContaTenant::find($dados->conta_id);
 
         $dataInicio = Carbon::parse($dados->cron_data_inicio);
         $dataFim = $dados->cron_data_fim ? Carbon::parse($dados->cron_data_fim) : null;

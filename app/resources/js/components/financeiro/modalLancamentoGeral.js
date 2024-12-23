@@ -2,8 +2,9 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { modalContaTenant } from "../tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
-import { modalContaTenant } from "./modalContaTenant";
 
 export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
@@ -277,10 +278,28 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         }
     }
 
+    #agendamentoRecorrenteResetar(status, dataUltimaExecucao = null) {
+        const self = this;
+        const divUltimaExecucao = $(self.getIdModal).find('.divUltimaExecucao');
+        const spanUltimaExecucao = divUltimaExecucao.find('.spanUltimaExecucao');
+        
+        if (status) {
+            divUltimaExecucao.show();
+            if (dataUltimaExecucao) {
+                spanUltimaExecucao.html(DateTimeHelper.retornaDadosDataHora(dataUltimaExecucao, 2));
+            } else {
+                spanUltimaExecucao.html('Nunca');
+            }
+        } else {
+            divUltimaExecucao.hide();
+        }
+    }
+
     _modalReset() {
         super._modalReset();
         const self = this;
         $(self.getIdModal).find(`#dados-lancamento${self._objConfigs.sufixo}-tab`).trigger('click');
+        self.#agendamentoRecorrenteResetar(false);
         self.#toggleCronInputs(false);
     }
 
@@ -321,6 +340,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                         self.#gerarCronExpressao();
                         form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
                         form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
+
+                        self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
                     }
                 } else {
                     self._updateModalTitle(`Editar lancamento ${numero_lancamento}`);
@@ -429,7 +450,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             returnForcedFalse: blnSave == false
         });
 
-        if (self._objConfigs.modoAgendamento) {
+        if (self._objConfigs.modoAgendamento && (data.recorrente_bln && data.recorrente_bln == true)) {
             if (!self._objConfigs.data.cronExpressao) {
                 blnSave = commonFunctions.verificationData(self._objConfigs.data.cronExpressao, {
                     field: formRegistration.find('select[name="cronDay"]'),

@@ -2,8 +2,8 @@
     $sufixo = 'ModalServicoParticipacaoParticipante';
 @endphp
 
-<div class="modal fade" id="modalServicoParticipacaoParticipante" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-hidden="true">
+<div class="modal fade" id="modalServicoParticipacaoParticipante" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
@@ -22,6 +22,11 @@
                     </div>
                 </div>
                 @include('components.modal.servico.modal-servico-participacao-participante.painel-dados-participacao')
+                <div class="row">
+                    <div class="col legenda-campos-obrigatorios text-end mt-2">
+                        * Campos obrigatórios
+                    </div>
+                </div>
             </div>
         </div>
     </div>

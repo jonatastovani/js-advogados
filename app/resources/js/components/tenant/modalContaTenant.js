@@ -70,9 +70,27 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtnSelect(item);
-        strBtns += self.#HtmlBtnEdit(item);
-        strBtns += self.#HtmlBtnDelete(item);
+        let btns = `
+            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar Conta ${item.nome}">Editar</button></li>
+            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir Conta ${item.nome}">Excluir</button></li>`;
+
+        let btnSelect = '';
+        if (self._dataEnvModal?.attributes?.select) {
+            btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
+        }
+
+        let btnsDropDown = `
+            <div class="btn-group">
+                ${btnSelect}
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${btns}
+                    </ul>
+                </div>
+            </div>`;
 
         let saldo = 0;
         if (item.ultima_movimentacao) {
@@ -84,7 +102,7 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             <tr id="${item.idTr}" data-id="${item.id}">
                 <td class="text-center">
                     <div class="btn-group btnsAcao" role="group">
-                        ${strBtns}
+                        ${btnsDropDown}
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.nome}">${item.nome}</td>
@@ -97,23 +115,6 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
 
         self.#addEventosRegistrosConsulta(item);
         return true;
-    }
-
-    #HtmlBtnEdit(item) {
-        return `<button type="button" class="btn btn-outline-primary btn-sm btn-edit" title="Editar conta ${item.nome}"><i class="bi bi-pencil"></i></button>`;
-    }
-
-    #HtmlBtnSelect(item) {
-        const self = this;
-        if (self._dataEnvModal?.attributes?.select) {
-            return `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar conta ${item.nome}"><i class="bi bi-check-lg"></i></button>`
-        }
-        return '';
-    }
-
-    #HtmlBtnDelete(item) {
-        const self = this;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete" title="Excluir conta ${item.nome}"><i class="bi bi-trash"></i></button>`
     }
 
     #addEventosRegistrosConsulta(item) {

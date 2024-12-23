@@ -18,7 +18,7 @@ class PagamentoTipoParceladoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $conta = Conta::find($dados->conta_id);
+        $conta = ContaTenant::find($dados->conta_id);
 
         $valorParcela = bcdiv($valorTotal, $quantidadeParcelas, 2); // Divisão precisa com 2 casas decimais
         $valorTotalParcelas = bcmul($valorParcela, $quantidadeParcelas, 2);

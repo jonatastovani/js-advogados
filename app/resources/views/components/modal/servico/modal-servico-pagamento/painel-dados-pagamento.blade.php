@@ -1,6 +1,6 @@
 <div class="row row-cols-1 row-cols-lg-2">
     <div class="col mt-2">
-        <label for="conta_id{{ $sufixo }}" class="form-label">Conta padrão <i class="bi bi-info-circle"
+        <label for="conta_id{{ $sufixo }}" class="form-label">Conta padrão* <i class="bi bi-info-circle"
                 data-bs-toggle="tooltip" data-bs-placement="top"
                 data-bs-title="Conta que virá preenchida automaticamente antes de confirmar o recebimento do pagamento."></i></label>
         <div class="input-group">
@@ -11,7 +11,7 @@
         </div>
     </div>
     <div class="col mt-2">
-        <label for="status_id{{ $sufixo }}" class="form-label">Status</label>
+        <label for="status_id{{ $sufixo }}" class="form-label">Status*</label>
         <select name="status_id" id="status_id{{ $sufixo }}" class="form-select">
             <option value="0">Selecione</option>
         </select>

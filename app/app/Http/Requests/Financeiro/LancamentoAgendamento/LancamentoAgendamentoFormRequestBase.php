@@ -21,26 +21,29 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
             'cron_expressao' => [
                 'required_if:recorrente_bln,true',
                 function ($attribute, $value, $fail) {
-                    if (!empty($value)) {
-                        // Verifica se a expressão cron é válida
-                        if (!CronExpression::isValidExpression($value)) {
-                            $fail("A expressão cron '{$value}' não é válida.");
-                            return;
-                        }
+                    // Verifica se a recorrência está ativa
+                    if ($this->input('recorrente_bln') === true || $this->input('recorrente_bln') === "true") {
+                        if (!empty($value)) {
+                            // Verifica se a expressão cron é válida
+                            if (!CronExpression::isValidExpression($value)) {
+                                $fail("A expressão cron '{$value}' não é válida.");
+                                return;
+                            }
 
-                        // Divide a expressão em partes
-                        $parts = explode(' ', $value);
+                            // Divide a expressão em partes
+                            $parts = explode(' ', $value);
 
-                        // Certifica-se de que a expressão cron tem exatamente 5 partes
-                        if (count($parts) !== 5) {
-                            $fail("A expressão cron '{$value}' deve ter 5 partes.");
-                            return;
-                        }
+                            // Certifica-se de que a expressão cron tem exatamente 5 partes
+                            if (count($parts) !== 5) {
+                                $fail("A expressão cron '{$value}' deve ter 5 partes.");
+                                return;
+                            }
 
-                        // Verifica se há valores válidos para dia, mês ou semana
-                        if ($parts[2] === '*' && $parts[3] === '*' && $parts[4] === '*') {
-                            $fail("A recorrência deve especificar pelo menos um valor para dia, mês ou semana.");
-                            return;
+                            // Verifica se há valores válidos para dia, mês ou semana
+                            if ($parts[2] === '*' && $parts[3] === '*' && $parts[4] === '*') {
+                                $fail("A recorrência deve especificar pelo menos um valor para dia, mês ou semana.");
+                                return;
+                            }
                         }
                     }
                 },

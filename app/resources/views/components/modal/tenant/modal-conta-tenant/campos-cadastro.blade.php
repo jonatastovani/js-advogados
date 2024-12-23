@@ -5,19 +5,19 @@
         </div>
         <div class="row">
             <div class="col">
-                <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
+                <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
                 <input type="text" class="form-control focusRegister" name="nome" id="nome{{ $sufixo }}">
             </div>
         </div>
         <div class="row">
             <div class="col mt-2">
-                <label for="conta_subtipo_id{{ $sufixo }}" class="form-label">Conta Subtipo</label>
+                <label for="conta_subtipo_id{{ $sufixo }}" class="form-label">Conta Subtip*o</label>
                 <select name="conta_subtipo_id" class="form-select" id="conta_subtipo_id{{ $sufixo }}">
                     <option value="0">Selecione</option>
                 </select>
             </div>
             <div class="col mt-2">
-                <label for="conta_status_id{{ $sufixo }}" class="form-label">Status</label>
+                <label for="conta_status_id{{ $sufixo }}" class="form-label">Status*</label>
                 <select name="conta_status_id" class="form-select" id="conta_status_id{{ $sufixo }}">
                     <option value="0">Selecione</option>
                 </select>

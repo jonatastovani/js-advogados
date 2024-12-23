@@ -5,12 +5,12 @@
 <div class="modal fade" id="modalLancamentoGeral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+        <form class="modal-content formRegistration">
             <div class="modal-header py-1">
                 <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <form class="modal-body pt-1 formRegistration">
+            <div class="modal-body pt-1">
                 <div class="row">
                     <div class="col mt-2 px-0">
                         <ul class="nav nav-tabs" id="myTab{{ $sufixo }}" role="tablist">
@@ -25,8 +25,8 @@
                                 <button class="nav-link px-2" id="agendamento{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#agendamento{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
-                                    aria-controls="agendamento{{ $sufixo }}-tab-pane"
-                                    aria-selected="false">Dados Agendamento</button>
+                                    aria-controls="agendamento{{ $sufixo }}-tab-pane" aria-selected="false">Dados
+                                    Agendamento</button>
                             </li>
                         </ul>
                     </div>
@@ -42,8 +42,8 @@
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100 modoAgendamento" id="agendamento{{ $sufixo }}-tab-pane" role="tabpanel"
-                            aria-labelledby="agendamento{{ $sufixo }}-tab" tabindex="0">
+                        <div class="tab-pane fade h-100 modoAgendamento" id="agendamento{{ $sufixo }}-tab-pane"
+                            role="tabpanel" aria-labelledby="agendamento{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral.painel-agendamento',
                                 [
@@ -53,18 +53,34 @@
                         </div>
                     </div>
                 </div>
-            </form>
-
-            <div class="modal-footer">
-                <div class="col-12 text-end mt-2">
+                <div class="row divUltimaExecucao">
+                    <div class="col mt-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                id="resetar_execucao_bln{{ $sufixo }}" name="resetar_execucao_bln">
+                            <label class="form-check-label" for="resetar_execucao_bln{{ $sufixo }}" title="Exclui os agendamentos que ainda não foram liquidados e gera os novos agendamentos desde a data início cadastrada.">Resetar execução</label>
+                        </div>
+                    </div>
+                    <div class="form-text mt-2">
+                        <p class="mb-0">
+                            Último agendamento inserido: <span class="spanUltimaExecucao">****</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col legenda-campos-obrigatorios text-end mt-2">
+                        * Campos obrigatórios
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer text-end">
+                <div class="col-12 mt-2">
                     <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
                         Salvar
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-cancel"
-                        style="min-width: 7rem;">Cancelar</button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 

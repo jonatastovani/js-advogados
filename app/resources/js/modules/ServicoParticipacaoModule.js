@@ -47,7 +47,8 @@ export class ServicoParticipacaoModule {
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
                     await openModalServicoParticipacao({
-                        participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL, referencia: response.selected,
+                        participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
+                        referencia: response.selected,
                         referencia_id: response.selected.id,
                     });
                 }
@@ -180,10 +181,10 @@ export class ServicoParticipacaoModule {
         let displayObservacao = 'none';
 
         const naTela = self.#verificaRegistroNaTela(item);
-
+        
         switch (item.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = item.referencia.pessoa_dados.nome;
+                nome = item.referencia.pessoa.pessoa_dados.nome;
                 if (naTela) {
                     commonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
                     return false;
@@ -563,7 +564,7 @@ export class ServicoParticipacaoModule {
         let tipoReferencia = '';
         switch (integrante.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = integrante.referencia.pessoa_dados.nome;
+                nome = integrante.referencia.pessoa.pessoa_dados.nome;
                 tipoReferencia = `Perfil ${integrante.referencia.perfil_tipo.nome}`;
                 break;
             default:

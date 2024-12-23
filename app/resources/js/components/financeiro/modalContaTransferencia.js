@@ -9,7 +9,8 @@ export class modalContaTransferencia extends modalRegistrationAndEditing {
      */
     #objConfigs = {
         url: {
-            base: window.apiRoutes.baseContas,
+            base: window.apiRoutes.baseTransferenciaConta,
+            baseContas: window.apiRoutes.baseContas,
         },
         sufixo: 'modalContaTransferencia',
         data: {},
@@ -92,7 +93,7 @@ export class modalContaTransferencia extends modalRegistrationAndEditing {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = (selector ? $(selector) : $(self.getIdModal).find('.selectConta'));
-            await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.basecontas, options);
             return true;
         } catch (error) {
             return false;
@@ -103,15 +104,19 @@ export class modalContaTransferencia extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-
+        data.valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
+        
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
         }
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = commonFunctions.verificationData(data.conta_origem_id, { field: formRegistration.find('select[name="conta_origem_id"]'), messageInvalid: 'A conta de origem deve ser informada.', setFocus: true });
+        blnSave = commonFunctions.verificationData(data.conta_destino_id, { field: formRegistration.find('select[name="conta_destino_id"]'), messageInvalid: 'A conta de destino deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = commonFunctions.verificationData(data.data_movimentacao, { field: formRegistration.find('input[name="data_movimentacao"]'), messageInvalid: 'A data de movimentação deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = commonFunctions.verificationData(data.valor, { field: formRegistration.find('input[name="valor"]'), messageInvalid: 'O valor deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('input[name="observacao"]'), messageInvalid: 'Uma descrição deve ser observação.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 }

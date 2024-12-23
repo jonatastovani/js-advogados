@@ -271,4 +271,15 @@ enum LancamentoStatusTipoEnum: int
             fn($detalhe) => !in_array($detalhe['id'], $ocultos)
         ));
     }
+
+    /**
+     * Retorna os status que não poderão ser excluídos quando a execução do agendamento for resetada.
+     */
+    static public function statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
 }

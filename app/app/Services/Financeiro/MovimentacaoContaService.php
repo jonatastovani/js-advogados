@@ -446,12 +446,6 @@ class MovimentacaoContaService extends Service
         });
     }
 
-
-
-
-
-
-
     public function storeLancamentoServico(Fluent $requestData)
     {
 
@@ -1076,8 +1070,9 @@ class MovimentacaoContaService extends Service
     {
         return match ($movimentacaoTipoId) {
             MovimentacaoContaTipoEnum::CREDITO->value => $saldoAtual + $valorMovimentado,
+            MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value => $saldoAtual + $valorMovimentado,
             MovimentacaoContaTipoEnum::DEBITO->value => $saldoAtual - $valorMovimentado,
-            MovimentacaoContaTipoEnum::AJUSTE->value => $valorMovimentado,
+            MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value => $saldoAtual - $valorMovimentado,
             default => throw new \InvalidArgumentException('Tipo de movimentação inválido.')
         };
     }
@@ -1088,14 +1083,8 @@ class MovimentacaoContaService extends Service
 
         $resource = new $this->model;
 
-        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
-        if (!$validacaoConta->count()) {
-            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
-        } else {
-            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
-                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
-            }
-        }
+        $verificaContaTenant = $this->verificaContaTenant($requestData, $arrayErrors);
+        $arrayErrors = $verificaContaTenant->arrayErrors;
 
         $validacaoStatusId = ValidationRecordsHelper::validateRecord(LancamentoStatusTipo::class, ['id' => $requestData->status_id]);
         if (!$validacaoStatusId->count()) {
@@ -1122,6 +1111,36 @@ class MovimentacaoContaService extends Service
         $resource->fill($requestData->toArray());
 
         return $resource;
+    }
+
+    private function verificaContaTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
+        if (!$validacaoConta->count()) {
+            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+        } else {
+            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
+                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
+            }
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors
+        ]);
+    }
+
+    private function verificaLancamentoStatusTipo(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
+        if (!$validacaoConta->count()) {
+            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+        } else {
+            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
+                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
+            }
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors
+        ]);
     }
 
     protected function verificacaoParticipacaoStore(Fluent $requestData): Fluent
@@ -1288,6 +1307,34 @@ class MovimentacaoContaService extends Service
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
+    }
+
+    public function storeTransferenciaConta(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreTransferenciaConta($requestData);
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                $resource->save();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    protected function verificacaoEPreenchimentoRecursoStoreTransferenciaConta(Fluent $requestData, $id = null): Model
+    {
+        $resource = $id ? $this->buscarRecurso($requestData) :  new $this->model;
+
+
+        // Preenche os atributos da model com os dados do request e conforme os campos $fillable definido na model
+        $resource->fill($requestData->toArray());
+
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

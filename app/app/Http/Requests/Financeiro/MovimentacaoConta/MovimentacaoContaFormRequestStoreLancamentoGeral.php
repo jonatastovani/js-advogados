@@ -2,9 +2,6 @@
 
 namespace App\Http\Requests\Financeiro\MovimentacaoConta;
 
-use App\Enums\LancamentoStatusTipoEnum;
-use App\Models\Referencias\LancamentoStatusTipo;
-
 class MovimentacaoContaFormRequestStoreLancamentoGeral extends MovimentacaoContaFormRequestBase
 {
     /**

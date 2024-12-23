@@ -34,7 +34,7 @@ Route::group([
                 Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-geral');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
-                Route::put('reagendar/{uuid}', 'storeLancamentoReagendado');
+                Route::put('reagendar/{uuid}', 'updateLancamentoGeralReagendado');
                 Route::delete('{uuid}', 'destroy');
             });
         });
@@ -56,11 +56,12 @@ Route::group([
 
     Route::prefix('movimentacao-conta')->group(function () {
 
-        Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
-
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
-
+            
+            Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
             Route::post('consulta-filtros', 'postConsultaFiltros');
+            
+            Route::post('transferencia-conta', 'storeTransferenciaConta')->name('api.financeiro.movimentacao-conta.transferencia-conta');
 
             Route::prefix('lancamentos')->group(function () {
 

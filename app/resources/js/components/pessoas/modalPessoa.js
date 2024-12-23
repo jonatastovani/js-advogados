@@ -165,25 +165,39 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             tbody,
         } = options;
 
-        const pessoa_dados = item;
+        let pessoa = undefined;
+
+        // Quando vem da consulta
+        if(item.pessoa) {
+            pessoa = item.pessoa;
+            delete item.pessoa;
+            pessoa.idTr = item.idTr;
+            delete item.idTr;
+            pessoa.pessoa_dados = item;
+        } else {
+            // Quando está sendo selecionado
+            pessoa = item;
+        }
+        const pessoa_dados = pessoa.pessoa_dados;
+
         const cpf = pessoa_dados.cpf ? commonFunctions.formatCPF(pessoa_dados.cpf) : '';
 
-        const itemSelecionado = self.#verificaRegistroSelecionado(pessoa_dados);
+        const itemSelecionado = self.#verificaRegistroSelecionado(pessoa);
         let botoes = '';
         if (itemSelecionado) {
             botoes = self.#htmlBtnRemover();
-            pessoa_dados.idTrSelecionado = itemSelecionado.idTrSelecionado;
+            pessoa.idTrSelecionado = itemSelecionado.idTrSelecionado;
         } else {
             botoes = self.#htmlBtnSelecionar();
         }
 
         let perfis = 'N/C';
-        if (item.pessoa.pessoa_perfil) {
-            perfis = item.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+        if (pessoa.pessoa_perfil) {
+            perfis = pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
         }
 
         $(tbody).append(`
-            <tr id=${pessoa_dados.idTr}>
+            <tr id=${pessoa.idTr}>
                 <td class="text-center text-nowrap">
                 <div class="btn-group btnsAcao" role="group">
                         ${botoes}
@@ -200,15 +214,15 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(pessoa_dados);
-        return pessoa_dados;
+        self.#addEventosRegistrosConsulta(pessoa);
+        return pessoa;
     }
 
     async insertTableDataSelecionados(item, options = {}) {
         const self = this;
         let result = false;
 
-        switch (item.pessoa.pessoa_dados_type) {
+        switch (item.pessoa_dados_type) {
             case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
                 result = await self.insertTableDataPessoaFisica(item, { tbody: $(`#tableData${self._objConfigs.sufixo}SelecionadosFisica tbody`) });
                 break;
@@ -244,9 +258,9 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             }
 
             let objPerfil = undefined;
-            if (item.pessoa.pessoa_perfil.length > 1) {
+            if (item.pessoa_perfil.length > 1) {
                 const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
-                const perfisExibir = item.pessoa.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
+                const perfisExibir = item.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
                 if (perfisExibir.length > 1) {
                     try {
                         const objModal = new modalSelecionarPerfil();
@@ -256,7 +270,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                         await self._modalHideShow(false);
                         const response = await objModal.modalOpen();
                         objPerfil = response.register;
-                        objPerfil.pessoa_dados = item;
+                        objPerfil.pessoa = item;
                     } catch (error) {
                         commonFunctions.generateNotificationErrorCatch(error);
                     } finally {
@@ -264,11 +278,11 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                     }
                 } else {
                     objPerfil = selecionaPrimeiro(perfisExibir);
-                    objPerfil.pessoa_dados = item;
+                    objPerfil.pessoa = item;
                 }
             } else {
-                objPerfil = selecionaPrimeiro(item.pessoa.pessoa_perfil);
-                objPerfil.pessoa_dados = item;
+                objPerfil = selecionaPrimeiro(item.pessoa_perfil);
+                objPerfil.pessoa = item;
             }
             return objPerfil;
         }
@@ -299,6 +313,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         //#region Eventos de botões
         const adicionaEventoSelecionar = (itemEnv) => {
             let itemSelecionar = JSON.parse(JSON.stringify(itemEnv));
+
             const tr = $(`#${itemSelecionar.idTr}`);
             tr.find('.btn-select').on("click", async function () {
 
@@ -310,7 +325,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                         if (element.id == itemSelecionar.id) {
 
                             let elementPerfil = await selecionaUnicoPerfil(element);
-                            let elementPessoa = elementPerfil.pessoa_dados;
+                            let elementPessoa = elementPerfil.pessoa;
 
                             const selecionado = self.#verificaRegistroSelecionado(elementPerfil);
                             if (!selecionado) {
@@ -366,14 +381,14 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             $(`#${itemDeletar.idTrSelecionado}`).find('.btn-delete').off('click');
             const trs = $(`#${itemDeletar.idTr}, #${itemDeletar.idTrSelecionado}`);
             trs.find('.btn-delete').on("click", async function () {
-                const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa_dados.idTrSelecionado == itemDeletar.idTrSelecionado);
+                const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado == itemDeletar.idTrSelecionado);
 
-                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa_dados.idTrSelecionado != itemDeletar.idTrSelecionado);
+                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado != itemDeletar.idTrSelecionado);
 
                 $(`#${itemDeletar.idTrSelecionado}`).remove();
-                $(`#${selecionado[0].pessoa_dados.idsTrs.join(', #')}`).find('.btn-delete').remove();
-                $(`#${selecionado[0].pessoa_dados.idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
-                for (const idTrConsulta of selecionado[0].pessoa_dados.idsTrs) {
+                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btn-delete').remove();
+                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
+                for (const idTrConsulta of selecionado[0].pessoa.idsTrs) {
                     if ($(`#${idTrConsulta}`).length) {
                         itemDeletar.idTr = idTrConsulta;
                         adicionaEventoSelecionar({ ...itemDeletar });
@@ -383,17 +398,6 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             });
         }
 
-        // const adicionaEventoVisualizar = (itemEnv, idTr) => {
-        //     $(`#${idTr}`).find('.btn-view').on("click", async function () {
-        //         commonFunctions.generateNotification('Funcionalidade para visualizar detalhes do preso, em desenvolvimento.', 'warning');
-        //         // item['idTrSelecionado'] = await self.#inserirRegistroTabela(tabelaSelecionados, item);
-        //         // self.#promisseReturnValue.selecteds.push(item);
-
-        //         // $(this).remove();
-        //         // $(`#${itemEnv.idTr}, #${item.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-        //         // adicionaEventoDeletar(item);
-        //     });
-        // }
         //#endregion
 
         if (registro.idTrSelecionado) {

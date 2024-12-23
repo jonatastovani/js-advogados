@@ -8,12 +8,12 @@
 
 <div class="row row-cols-2 align-items-end rowRecebimento">
     <div class="col mt-2">
-        <label for="data_recebimento{{ $sufixo }}" class="form-label">Data recebimento</label>
+        <label for="data_recebimento{{ $sufixo }}" class="form-label">Data recebimento*</label>
         <input type="date" id="data_recebimento{{ $sufixo }}" name="data_recebimento"
             class="form-control text-center">
     </div>
     <div class="col mt-2">
-        <label for="valor_recebido{{ $sufixo }}" class="form-label">Valor recebido</label>
+        <label for="valor_recebido{{ $sufixo }}" class="form-label">Valor recebido*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="valor_recebido{{ $sufixo }}">R$</label></div>
             <input type="text" id="valor_recebido{{ $sufixo }}" name="valor_recebido"
@@ -21,12 +21,12 @@
         </div>
     </div>
     <div class="col mt-2">
-        <label for="diluicao_data{{ $sufixo }}" class="form-label">Vencimento diluição</label>
+        <label for="diluicao_data{{ $sufixo }}" class="form-label">Vencimento diluição*</label>
         <input type="date" id="diluicao_data{{ $sufixo }}" name="diluicao_data"
             class="form-control text-center">
     </div>
     <div class="col mt-2">
-        <label for="diluicao_valor{{ $sufixo }}" class="form-label">Valor diluição</label>
+        <label for="diluicao_valor{{ $sufixo }}" class="form-label">Valor diluição*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="diluicao_valor{{ $sufixo }}">R$</label></div>
             <input type="text" id="diluicao_valor{{ $sufixo }}" name="diluicao_valor"

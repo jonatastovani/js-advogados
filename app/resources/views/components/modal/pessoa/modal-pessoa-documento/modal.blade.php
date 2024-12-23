@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title" data-title-default="Novo Pagamento">Novo Pagamento</h4>
+                <h4 class="modal-title" data-title-default="Novo Documento">Novo Documento</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
@@ -16,10 +16,10 @@
                         <div class="col mt-2 px-0">
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link px-2 active" id="dados-pagamento{{ $sufixo }}-tab"
+                                    <button class="nav-link px-2 active" id="dados-documento{{ $sufixo }}-tab"
                                         data-bs-toggle="tab"
-                                        data-bs-target="#dados-pagamento{{ $sufixo }}-tab-pane" type="button"
-                                        role="tab" aria-controls="dados-pagamento{{ $sufixo }}-tab-pane"
+                                        data-bs-target="#dados-documento{{ $sufixo }}-tab-pane" type="button"
+                                        role="tab" aria-controls="dados-documento{{ $sufixo }}-tab-pane"
                                         aria-selected="true">Dados</button>
                                 </li>
                                 <li class="nav-item elements-pane-lancamentos" role="presentation">
@@ -35,14 +35,19 @@
                     <div class="row rounded rounded-top-0 border-top-0 flex-fill">
                         <div class="tab-content h-100 overflow-auto" id="myTabContent">
                             <div class="tab-pane fade h-100 show active"
-                                id="dados-pagamento{{ $sufixo }}-tab-pane" role="tabpanel"
-                                aria-labelledby="dados-pagamento{{ $sufixo }}-tab" tabindex="0">
+                                id="dados-documento{{ $sufixo }}-tab-pane" role="tabpanel"
+                                aria-labelledby="dados-documento{{ $sufixo }}-tab" tabindex="0">
                                 <div id="divCamposDocumento{{ $sufixo }}"></div>
                             </div>
                             {{-- <div class="tab-pane fade h-100 elements-pane-lancamentos" id="lancamentos{{ $sufixo }}-tab-pane" role="tabpanel"
                                 aria-labelledby="lancamentos{{ $sufixo }}-tab" tabindex="0">
-                                @include('components.modal.servico.modal-servico-pagamento.painel-lancamentos')
+                                @include('components.modal.servico.modal-servico-documento.painel-lancamentos')
                             </div> --}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col legenda-campos-obrigatorios text-end mt-2">
+                            * Campos obrigatórios
                         </div>
                     </div>
                     <div class="row">

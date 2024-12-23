@@ -3,11 +3,13 @@
 namespace App\Services\Financeiro;
 
 use App\Common\CommonsFunctions;
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LancamentoAgendamentoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoAgendamento;
+use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
@@ -75,24 +77,6 @@ class LancamentoAgendamentoService extends Service
         ], $options));
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
-    }
-
-    public function store(Fluent $requestData)
-    {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
-        try {
-            return DB::transaction(function () use ($resource) {
-
-                $resource->save();
-                LancamentoAgendamentoHelper::processarAgendamento($resource->id);
-                
-                // $this->executarEventoWebsocket();
-                return $resource->toArray();
-            });
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
     }
 
     /**
@@ -164,6 +148,54 @@ class LancamentoAgendamentoService extends Service
         $paginatorArray['data'] = $updatedData->toArray();
 
         return $paginatorArray;
+    }
+
+    public function store(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                $resource->save();
+                LancamentoAgendamentoHelper::processarAgendamento($resource->id);
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    public function update(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+
+        try {
+            return DB::transaction(function () use ($resource, $requestData) {
+
+                if ($requestData->resetar_execucao_bln) {
+                    $resource->cron_ultima_execucao = null;
+                    $resource->save();
+
+                    // Exclui os agendamentos com status diferente de quitado
+                    $agendamentosNaoQuitados = LancamentoGeral::where('agendamento_id', $resource->id)->whereNotIn('status_id', [LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado()])->get();
+                    foreach ($agendamentosNaoQuitados as $agendamentoNaoQuitado) {
+                        $agendamentoNaoQuitado->delete();
+                    }
+                } else {
+                    $resource->save();
+                }
+
+                LancamentoAgendamentoHelper::processarAgendamento($resource->id);
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model

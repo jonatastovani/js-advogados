@@ -15,7 +15,7 @@
                     <div class="row">
                         <div class="col mt-2">
                             <label for="documento_tipo_tenant_id{{ $sufixo }}" class="form-label">Tipo de
-                                Documento</label>
+                                Documento*</label>
                             <div class="input-group">
                                 <select name="documento_tipo_tenant_id" id="documento_tipo_tenant_id{{ $sufixo }}"
                                     class="form-select">
@@ -25,6 +25,11 @@
                                     <i class="bi bi-search"></i>
                                 </button> --}}
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col legenda-campos-obrigatorios text-end mt-2">
+                            * Campos obrigatórios
                         </div>
                     </div>
                 </div>

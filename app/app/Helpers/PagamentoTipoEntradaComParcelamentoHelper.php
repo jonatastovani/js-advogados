@@ -20,7 +20,7 @@ class PagamentoTipoEntradaComParcelamentoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $conta = Conta::find($dados->conta_id);
+        $conta = ContaTenant::find($dados->conta_id);
 
         // Calcula o valor das parcelas após descontar a entrada
         $valorRestante = bcsub($valorTotal, $valorEntrada, 2);

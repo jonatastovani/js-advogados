@@ -12,7 +12,7 @@
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 dadosCron">
     <div class="col mt-2">
-        <label for="parcela_valor{{ $sufixo }}" class="form-label">Valor da parcela</label>
+        <label for="parcela_valor{{ $sufixo }}" class="form-label">Valor da parcela*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="parcela_valor{{ $sufixo }}">R$</label></div>
             <input type="text" id="parcela_valor{{ $sufixo }}" name="parcela_valor"
@@ -21,7 +21,7 @@
     </div>
 
     <div class="col mt-2">
-        <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início</label>
+        <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início*</label>
         <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
             class="form-control text-center inputCron" {{ $readonly }}>
     </div>

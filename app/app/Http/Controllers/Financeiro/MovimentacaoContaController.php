@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoGeral;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoServico;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreTransferenciaConta;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
@@ -54,21 +55,10 @@ class MovimentacaoContaController extends Controller
         return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData));
     }
 
-    // public function show(MovimentacaoContaFormRequestShow $formRequest)
-    // {
-    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-    //     return $this->retornoPadrao($this->service->show($fluentData));
-    // }
+    public function storeTransferenciaConta(MovimentacaoContaFormRequestStoreTransferenciaConta $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->storeTransferenciaConta($fluentData));
+    }
 
-    // public function update(MovimentacaoContaFormRequestUpdate $formRequest)
-    // {
-    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-    //     return $this->retornoPadrao($this->service->update($fluentData));
-    // }
-
-    // public function destroy(MovimentacaoContaFormRequestDestroy $formRequest)
-    // {
-    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-    //     return $this->retornoPadrao($this->service->destroy($fluentData));
-    // }
 }
