@@ -55,10 +55,10 @@ class MovimentacaoContaController extends Controller
         return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData));
     }
 
-    public function storeTransferenciaConta(MovimentacaoContaFormRequestStoreTransferenciaConta $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->storeTransferenciaConta($fluentData));
-    }
+    // public function storeTransferenciaConta(MovimentacaoContaFormRequestStoreTransferenciaConta $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->storeTransferenciaConta($fluentData));
+    // }
 
 }

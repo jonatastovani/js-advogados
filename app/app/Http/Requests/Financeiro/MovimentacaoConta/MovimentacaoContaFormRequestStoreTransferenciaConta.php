@@ -16,7 +16,7 @@ class MovimentacaoContaFormRequestStoreTransferenciaConta extends BaseFormReques
     {
         return [
             'conta_origem_id' => 'required|uuid',
-            'data_transferencia' => 'required|date',
+            'data_movimentacao' => 'required|date',
             'valor' => 'required|numeric|min:0.01',
             'conta_destino_id' => 'required|uuid',
             'observacao' => 'required|string',

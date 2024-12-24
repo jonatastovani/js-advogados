@@ -24,7 +24,6 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
-use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
@@ -47,6 +46,7 @@ class MovimentacaoContaService extends Service
 
     public function __construct(
         MovimentacaoConta $model,
+        public ContaTenant $modelConta,
         public MovimentacaoContaParticipante $modelParticipanteConta,
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ServicoParticipacaoParticipante $modelParticipante,
@@ -274,6 +274,7 @@ class MovimentacaoContaService extends Service
         }
 
         $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
         $query->groupBy($this->model->getTableAsName() . '.id');
 
         return $query;
@@ -1083,13 +1084,11 @@ class MovimentacaoContaService extends Service
 
         $resource = new $this->model;
 
-        $verificaContaTenant = $this->verificaContaTenant($requestData, $arrayErrors);
-        $arrayErrors = $verificaContaTenant->arrayErrors;
+        $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
+        $arrayErrors = $validacaoContaTenant->arrayErrors;
 
-        $validacaoStatusId = ValidationRecordsHelper::validateRecord(LancamentoStatusTipo::class, ['id' => $requestData->status_id]);
-        if (!$validacaoStatusId->count()) {
-            $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status de Lançamento informado não existe.', $requestData)->error;
-        }
+        $validacaoLancamentoStatusTipo = $this->validacaoLancamentoStatusTipo($requestData, $arrayErrors);
+        $arrayErrors = $validacaoLancamentoStatusTipo->arrayErrors;
 
         $validacaoReferenciaId = ValidationRecordsHelper::validateRecord($modelParent::class, ['id' => $requestData->referencia_id]);
         if (!$validacaoReferenciaId->count()) {
@@ -1113,33 +1112,33 @@ class MovimentacaoContaService extends Service
         return $resource;
     }
 
-    private function verificaContaTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    private function validacaoContaTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
     {
-        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
+        $nomePropriedade = $options['nome_propriedade'] ?? 'conta_id';
+
+        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->$nomePropriedade]);
         if (!$validacaoConta->count()) {
-            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         } else {
             if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
-                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
+                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
             }
         }
         return new Fluent([
-            'arrayErrors' => $arrayErrors
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoConta,
         ]);
     }
 
-    private function verificaLancamentoStatusTipo(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    private function validacaoLancamentoStatusTipo(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
     {
-        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
-        if (!$validacaoConta->count()) {
-            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
-        } else {
-            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
-                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
-            }
+        $validacaoStatusId = ValidationRecordsHelper::validateRecord(LancamentoStatusTipo::class, ['id' => $requestData->status_id]);
+        if (!$validacaoStatusId->count()) {
+            $arrayErrors->status_id = LogHelper::gerarLogDinamico(404, 'O Status de Lançamento informado não existe.', $requestData)->error;
         }
         return new Fluent([
-            'arrayErrors' => $arrayErrors
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoStatusId,
         ]);
     }
 
@@ -1309,33 +1308,93 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function storeTransferenciaConta(Fluent $requestData)
-    {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreTransferenciaConta($requestData);
+    // public function storeTransferenciaConta(Fluent $requestData)
+    // {
+    //     $fluentResource = $this->verificacaoEPreenchimentoRecursoStoreTransferenciaConta($requestData);
 
-        try {
-            return DB::transaction(function () use ($resource) {
+    //     try {
+    //         return DB::transaction(function () use ($fluentResource) {
 
-                $resource->save();
+    //             $statusFinalizado = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
+    //             $ultimaMovimentacaoContaDebito = MovimentacaoConta::where('conta_id', $fluentResource->conta_origem_id)
+    //                 ->orderBy('created_at', 'desc')
+    //                 ->lockForUpdate()
+    //                 ->first();
 
-                // $this->executarEventoWebsocket();
-                return $resource->toArray();
-            });
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
+    //             $movimentacaoTipoId = MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value;
+    //             $newMovContaDebito = new $this->model;
+    //             $newMovContaDebito->referencia_id = $fluentResource->conta_origem->first()->id;
+    //             $newMovContaDebito->referencia_type = $this->modelConta->getMorphClass();
+    //             $newMovContaDebito->movimentacao_tipo_id = $movimentacaoTipoId;
+    //             $newMovContaDebito->conta_id = $fluentResource->conta_origem_id;
+    //             $newMovContaDebito->valor_movimentado = $fluentResource->valor;
+    //             $newMovContaDebito->saldo_atualizado = $this->calcularNovoSaldo(
+    //                 $ultimaMovimentacaoContaDebito->saldo_atualizado ?? 0,
+    //                 $fluentResource->valor,
+    //                 $movimentacaoTipoId
+    //             );
+    //             $newMovContaDebito->data_movimentacao = $fluentResource->data_movimentacao;
+    //             $newMovContaDebito->observacao = $fluentResource->observacao;
+    //             $newMovContaDebito->descricao_automatica = "Transf. Conta Enviada - {$fluentResource->conta_destino->nome}";
+    //             $newMovContaDebito->status_id = $statusFinalizado;
+    //             $newMovContaDebito->save();
 
-    protected function verificacaoEPreenchimentoRecursoStoreTransferenciaConta(Fluent $requestData, $id = null): Model
-    {
-        $resource = $id ? $this->buscarRecurso($requestData) :  new $this->model;
+    //             // Conta destino
+    //             $ultimaMovimentacaoContaCredito = MovimentacaoConta::where('conta_id', $fluentResource->conta_destino_id)
+    //                 ->orderBy('created_at', 'desc')
+    //                 ->lockForUpdate()
+    //                 ->first();
 
+    //             $movimentacaoTipoId = MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value;
+    //             $newMovContaCredito = new $this->model;
+    //             $newMovContaCredito->movimentacao_tipo_id = $movimentacaoTipoId;
+    //             $newMovContaCredito->referencia_id = $fluentResource->conta_destino->first()->id;
+    //             $newMovContaCredito->referencia_type = $this->modelConta->getMorphClass();
+    //             $newMovContaCredito->conta_id = $fluentResource->conta_destino_id;
+    //             $newMovContaCredito->valor_movimentado = $fluentResource->valor;
+    //             $newMovContaCredito->saldo_atualizado = $this->calcularNovoSaldo(
+    //                 $ultimaMovimentacaoContaCredito->saldo_atualizado ?? 0,
+    //                 $fluentResource->valor,
+    //                 $movimentacaoTipoId
+    //             );
+    //             $newMovContaCredito->data_movimentacao = $fluentResource->data_movimentacao;
+    //             $newMovContaCredito->observacao = $fluentResource->observacao;
+    //             $newMovContaCredito->descricao_automatica = "Transf. Conta Recebida - {$fluentResource->conta_origem->nome}";
+    //             $newMovContaCredito->status_id = $statusFinalizado;
+    //             $newMovContaCredito->save();
 
-        // Preenche os atributos da model com os dados do request e conforme os campos $fillable definido na model
-        $resource->fill($requestData->toArray());
+    //             // $this->executarEventoWebsocket();
+    //             return ['origem' => $newMovContaDebito->toArray(), 'destino' => $newMovContaCredito->toArray()];
+    //         });
+    //     } catch (\Exception $e) {
+    //         return $this->gerarLogExceptionErroSalvar($e);
+    //     }
+    // }
 
-        return $resource;
-    }
+    // protected function verificacaoEPreenchimentoRecursoStoreTransferenciaConta(Fluent $requestData, $id = null): Fluent
+    // {
+    //     $arrayErrors = new Fluent();
+
+    //     $validacaoContaOrigemTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['nome_propriedade' => 'conta_origem_id']);
+    //     $arrayErrors = $validacaoContaOrigemTenant->arrayErrors;
+
+    //     $validacaoContaDestinoTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['nome_propriedade' => 'conta_destino_id']);
+    //     $arrayErrors = $validacaoContaDestinoTenant->arrayErrors;
+
+    //     // Erros que impedem o processamento
+    //     CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
+
+    //     $fluentResource = new Fluent();
+    //     $fluentResource->conta_origem_id = $requestData->conta_origem_id;
+    //     $fluentResource->conta_origem = $validacaoContaOrigemTenant->resource;
+    //     $fluentResource->data_movimentacao = $requestData->data_movimentacao;
+    //     $fluentResource->valor = $requestData->valor;
+    //     $fluentResource->conta_destino_id = $requestData->conta_destino_id;
+    //     $fluentResource->conta_destino = $validacaoContaDestinoTenant->resource;
+    //     $fluentResource->observacao = $requestData->observacao;
+
+    //     return $fluentResource;
+    // }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {

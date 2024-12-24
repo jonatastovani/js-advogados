@@ -7,6 +7,7 @@ use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
+use App\Models\Tenant\ContaTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -91,11 +92,11 @@ class MovimentacaoConta extends Model
      * 
      * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
      * @param array $options O array de opcões de personalização.
-     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'inner'.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
      *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
      *              - 'instanceSelf' (opcional) Instância da model atual ou uma modificada. Padrão é a instância da model atual(self).
      *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
-     *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'inner'.
+     *              - 'typeJoinServico' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela Servico. Padrão é 'left'.
      *              - 'aliasJoinServico' (opcional) Alias da tabela Servico que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */
@@ -105,7 +106,7 @@ class MovimentacaoConta extends Model
         $instanceSelf = $options['instanceSelf'] ?? new self();
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ServicoPagamentoLancamento())->getTableAsName();
-        $envOptions->typeJoin = $options['typeJoin'] ?? 'inner';
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
         $envOptions->wheres = [
             ['column' => "{$aliasTable}.referencia_type", 'operator' => "=", 'value' => ServicoPagamentoLancamento::class],
@@ -117,7 +118,7 @@ class MovimentacaoConta extends Model
         // Join com o Pagamento
         $aliasTable = $envOptions->aliasJoin;
         $envOptions->aliasJoin = $options['aliasJoinServicoPagamento'] ?? (new ServicoPagamento())->getTableAsName();
-        $envOptions->typeJoin = $options['typeJoinServicoPagamento'] ?? 'inner';
+        $envOptions->typeJoin = $options['typeJoinServicoPagamento'] ?? 'left';
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
@@ -127,7 +128,7 @@ class MovimentacaoConta extends Model
         // Join com o Servico
         $aliasTable = $envOptions->aliasJoin;
         $envOptions->aliasJoin = $options['aliasJoinServico'] ?? (new Servico())->getTableAsName();
-        $envOptions->typeJoin = $options['typeJoinServico'] ?? 'inner';
+        $envOptions->typeJoin = $options['typeJoinServico'] ?? 'left';
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
