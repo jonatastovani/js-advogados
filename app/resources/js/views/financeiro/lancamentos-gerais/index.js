@@ -305,7 +305,7 @@ class PageLancamentoGeralIndex extends templateSearch {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtns(item);
+        let strBtns = self.#htmlBtns(item);
 
         const numero_lancamento = item.numero_lancamento;
         const status = item.status.nome;
@@ -514,7 +514,7 @@ class PageLancamentoGeralIndex extends templateSearch {
         });
     }
 
-    #HtmlBtns(item) {
+    #htmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
         const descricao = item.descricao;

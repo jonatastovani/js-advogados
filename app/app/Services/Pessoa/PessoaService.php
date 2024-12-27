@@ -157,7 +157,6 @@ class PessoaService extends Service
         return $relationships;
     }
 
-
     // private function executarEventoWebsocket()
     // {
     //     event(new EntradasPresos);

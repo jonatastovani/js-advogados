@@ -3,7 +3,6 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalContaTransferencia } from "../../../components/financeiro/modalContaTransferencia";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -27,143 +26,12 @@ class PageMovimentacaoContaIndex extends templateSearch {
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
             baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
+            baseLancarRepasseParceiro: window.apiRoutes.baseLancarRepasseParceiro,
         },
         data: {
-            configAcoes: {
-                AGUARDANDO_PAGAMENTO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                    cor: 'text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    ]
-                },
-                AGUARDANDO_PAGAMENTO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                    cor: null,
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    ]
-                },
-                LIQUIDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                    cor: 'text-success bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                    cor: 'text-success',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                    cor: 'text-success-emphasis bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                LIQUIDADO_PARCIALMENTE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
-                    cor: 'text-success-emphasis',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                REAGENDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    cor: 'fst-italic text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    ]
-                },
-                REAGENDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger text-decoration-line-through bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    ]
-                },
-                CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    ]
-                },
-                PAGAMENTO_CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-                PAGAMENTO_CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-            },
             // Pré carregamento de dados vindo da URL
-            preload: {}
+            preload: {},
+            selecionados: [],
         }
     };
 
@@ -230,21 +98,43 @@ class PageMovimentacaoContaIndex extends templateSearch {
             }
         });
 
-        $(`#btnOpenTranferenciaConta${self.getSufixo}`).on('click', async function () {
+        $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTransferencia();
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    await self.#executarBusca();
+                const selecionados = self._objConfigs.data.selecionados;
+                if (selecionados.length == 0) {
+                    commonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
+                    return;
+                }
+                let movimentacoesIds = selecionados.map(movimentacao => movimentacao.id);
+                console.log(movimentacoesIds)
+                
+                const message = movimentacoesIds.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`;
+                const objMessage = new modalMessage();
+                objMessage.setDataEnvModal = {
+                    title: 'Efetuar Repasse',
+                    message: message,
+                }
+                const responseMessage = await objMessage.modalOpen();
+                if (!responseMessage.confirmResult) return;
+
+                const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                objConn.setAction(enumAction.POST);
+                objConn.setData({
+                    movimentacoes: movimentacoesIds
+                });
+                const response = await objConn.envRequest();
+                console.log(response);
+                if (response.data) {
+                    
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        }).trigger('click');
+        });
 
         // $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
         //     if (self._objConfigs.querys.consultaFiltros.dataPost) {
@@ -329,8 +219,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
             tbody,
         } = options;
 
-        let strBtns = ``;
-        // let strBtns = self.#HtmlBtns(item);
+        let strBtns = self.#htmlBtns(item);
 
         const status = item.status.nome;
         const valorMovimentado = commonFunctions.formatNumberToCurrency(item.valor_movimentado);
@@ -403,135 +292,57 @@ class PageMovimentacaoContaIndex extends templateSearch {
             </tr>
         `);
 
-        // `
-        //         <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
-        //         <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
-        //         <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
-        //         <td class="text-nowrap text-center ${classCor}" title="${valorInadimplente}">${valorInadimplente}</td>
-        //         <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
-        //         <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
-        //         <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
-        //         `;
-
         self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
 
-    #HtmlBtns(item) {
-        const self = this;
-        const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
-        let strBtns = '';
-        const enumPag = window.Enums.PagamentoStatusTipoEnum;
-        const pagamentoAtivo = item.pagamento.status_id == enumPag.ATIVO ? true : false;
+    #htmlBtns() {
 
-        if (pagamentoAtivo) {
+        let strBtns = `
+            <div class="input-group">
+                <div class="input-group-text border-0 rounded-end-0">
+                    <input class="form-check-input mt-0 ckbSelecionado" type="checkbox" value="" aria-label="Checkbox for following text input">
+                </div>
+            </div>
+            <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-edit" title="Efetuar aos participantes.">
+                        Efetuar repasse
+                    </button>
+                </li>
+            </ul>`;
 
-            if (configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento-analise" title="Alterar status para Aguardando Pagamento em Análise para o lancamento ${item.descricao_automatica}.">
-                        <i class="bi bi-hourglass-top"></i> Aguardando Pagamento (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento" title="Alterar status para Aguardando Pagamento para o lancamento ${item.descricao_automatica}.">
-                        <i class="bi bi-check2-all"></i> Aguardando Pagamento
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado em Análise.">
-                        <i class="bi bi-check2"></i> Liquidado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado" title="Receber lancamento ${item.descricao_automatica} com status Liquidado.">
-                        <i class="bi bi-check2-all"></i> Liquidado
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE?.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado Parcial em Análise.">
-                        <i class="bi bi-exclamation-lg"></i> Liquidado Parcialmente (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente" title="Receber lançamento ${item.descricao_automatica} com status Liquidado Parcial.">
-                        <i class="bi bi-check2-all"></i> Liquidado Parcialmente
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado-analise" title="Reagendar lancamento ${item.descricao_automatica} em Análise.">
-                        <i class="bi bi-calendar-event"></i> Reagendado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado" title="Reagendar lançamento ${item.descricao_automatica}.">
-                        <i class="bi bi-check2-all"></i> Reagendado
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado em Análise.">
-                        <i class="bi bi-dash-circle"></i> Cancelado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado.">
-                        <i class="bi bi-check2-all"></i> Cancelado
-                    </button>
-                </li>`;
-            }
-
-            strBtns = `
-            <div class="btn-group">
-                <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    ${strBtns}
-                </ul>
-            </div>`;
-        }
         return strBtns;
+    }
 
+    #addEventosRegistrosConsulta(item) {
+        const self = this;
+
+        const buscaIndex = (itemVerificar) => {
+            return self._objConfigs.data.selecionados.findIndex(itemBusca => itemBusca.id == itemVerificar.id);
+        };
+
+        $(`#${item.idTr}`).find(`.ckbSelecionado`).on('change', async function () {
+            try {
+                let selecionados = self._objConfigs.data.selecionados;
+                const index = buscaIndex(item);
+                const prop = $(this).prop('checked');
+
+                if (index === -1 && prop) {
+                    // Adiciona o item se ele não estiver na lista e estiver selecionado
+                    selecionados.push(item);
+                } else if (index > -1 && !prop) {
+                    // Remove o item se ele estiver na lista e não estiver selecionado
+                    selecionados.splice(index, 1); // Remove diretamente pelo índice
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            }
+        });
     }
 
     async #buscarContas(selected_id = null) {
@@ -584,279 +395,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
         }
     }
 
-    #addEventosRegistrosConsulta(item) {
-        const self = this;
-        const enumLanc = window.Enums.LancamentoStatusTipoEnum;
-        const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
-
-        const openMovimentar = async function (status_id) {
-            try {
-                const objModal = new modalLancamentoServicoMovimentar();
-                objModal.setDataEnvModal = {
-                    idRegister: item.id,
-                    pagamento_id: item.pagamento_id,
-                    status_id: status_id
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    await self.#executarBusca();
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            }
-        }
-
-        let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Aguardando Pagamento</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.AGUARDANDO_PAGAMENTO,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic">Liquidado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.LIQUIDADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
-        if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Liquidado Parcialmente (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.click(async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
-        if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Reagendado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.REAGENDADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
-        if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
-                try {
-                    const objModal = new modalLancamentoReagendar({
-                        urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
-                    });
-                    objModal.setDataEnvModal = {
-                        idRegister: item.id,
-                        status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                        data_atual: item.data_vencimento
-                    }
-                    const response = await objModal.modalOpen();
-                    if (response.refresh) {
-                        await self.#executarBusca();
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-
-            // if (!self._objConfigs.data?.blnClick) {
-            //     $(`#${item.idTr}`).find(`.btn-reagendado`).click();
-            //     self._objConfigs.data.blnClick = true;
-            // }
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
-        if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado (em Análise)</b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.CANCELADO_EM_ANALISE,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
-        if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-
-            btnAcao.click(async function () {
-                try {
-                    const obj = new modalMessage();
-                    obj.setDataEnvModal = {
-                        title: 'Alterar Status',
-                        message: `Confirma a alteração de status do lançamento <b>${item.descricao_automatica}</b> para <b class="fst-italic"> Cancelado </b>?`,
-                    };
-                    obj.setFocusElementWhenClosingModal = this;
-                    const result = await obj.modalOpen();
-                    if (result.confirmResult) {
-                        const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoConta}/servicos/status-alterar`);
-                        objConn.setAction(enumAction.POST);
-                        objConn.setData({
-                            lancamento_id: item.id,
-                            status_id: enumLanc.CANCELADO,
-                        });
-                        const response = await objConn.envRequest();
-                        if (response.data) {
-                            await self.#executarBusca();
-                        }
-                    }
-                } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-    }
 }
 
 $(function () {

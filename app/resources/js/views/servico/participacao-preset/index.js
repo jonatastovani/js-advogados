@@ -46,8 +46,7 @@ class PageServicoParticipacaoIndex extends templateSearch {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtnEdit(item);
-        strBtns += self.#HtmlBtnDelete(item);
+        let strBtns = self.#htmlBtns(item);
 
         const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
 
@@ -72,14 +71,28 @@ class PageServicoParticipacaoIndex extends templateSearch {
         return true;
     }
 
-    #HtmlBtnEdit(item) {
+    #htmlBtns(item) {
+        let strBtns = '';
         const self = this;
-        return `<a href="${self._objConfigs.querys.consultaFiltros.baseFront}/form/${item.id}" class="btn btn-outline-primary btn-sm btn-edit" title="Editar registro"><i class="bi bi-pencil"></i></a>`;
-    }
 
-    #HtmlBtnDelete(item) {
-        const self = this;
-        return `<button type="button" class="btn btn-outline-danger btn-sm btn-delete" title="Excluir serviço ${item.nome}"><i class="bi bi-trash"></i></button>`
+        strBtns = `
+            <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="${self._objConfigs.querys.consultaFiltros.baseFront}/form/${item.id}" class="dropdown-item fs-6 btn-edit" title="Editar preset">
+                        Editar
+                    </a>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir preset ${item.nome}">
+                        Excluir
+                    </button>
+                </li>
+            </ul>`;
+
+        return strBtns;
     }
 
     #addEventosRegistrosConsulta(item) {

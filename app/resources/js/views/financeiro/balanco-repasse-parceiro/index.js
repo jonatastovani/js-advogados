@@ -13,12 +13,12 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: `${window.apiRoutes.baseBalancoRepasseParceiro}`,
-                urlSearch: `${window.apiRoutes.baseBalancoRepasseParceiro}/consulta-filtros`,
+                url: `${window.apiRoutes.baseRepasseParceiro}`,
+                urlSearch: `${window.apiRoutes.baseRepasseParceiro}/consulta-filtros`,
             }
         },
         url: {
-            baseBalancoRepasseParceiro: window.apiRoutes.baseBalancoRepasseParceiro,
+            baseRepasseParceiro: window.apiRoutes.baseRepasseParceiro,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
         },
@@ -294,7 +294,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         $(`#total_saldo${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito - self._objConfigs.data.totais.debito)}`);
     }
 
-    #HtmlBtns(item) {
+    #htmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
         const lancamentoDiluido = item.parent_id ? true : false;
@@ -490,7 +490,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -519,7 +519,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -548,7 +548,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -586,7 +586,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -624,7 +624,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -681,7 +681,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,
@@ -711,7 +711,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     //                 obj.setFocusElementWhenClosingModal = this;
     //                 const result = await obj.modalOpen();
     //                 if (result.confirmResult) {
-    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseBalancoRepasseParceiro}/servicos/status-alterar`);
+    //                     const objConn = new connectAjax(`${self._objConfigs.url.baseRepasseParceiro}/servicos/status-alterar`);
     //                     objConn.setAction(enumAction.POST);
     //                     objConn.setData({
     //                         lancamento_id: item.id,

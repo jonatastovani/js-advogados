@@ -35,7 +35,7 @@ export class BootstrapFunctionsHelper {
             type = '',
             title = null,
             ico = null,
-            delay = 5000,
+            delay = 3000,
             autoHide = true,
             customClass = '',
             onClose = null,

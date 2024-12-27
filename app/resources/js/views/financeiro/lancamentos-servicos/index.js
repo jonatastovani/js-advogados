@@ -290,7 +290,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtns(item);
+        let strBtns = self.#htmlBtns(item);
 
         const numero_servico = item.pagamento.servico.numero_servico;
         const numero_pagamento = item.pagamento.numero_pagamento;
@@ -363,7 +363,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         return true;
     }
 
-    #HtmlBtns(item) {
+    #htmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
         const lancamentoDiluido = item.parent_id ? true : false;

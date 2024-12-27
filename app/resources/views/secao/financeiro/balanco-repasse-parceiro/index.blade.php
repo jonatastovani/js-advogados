@@ -100,7 +100,7 @@
             <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
         </div>
         <div class="d-grid gap-2 d-sm-block mt-2">
-            <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary"
+            <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm"
                 id="btnImprimirConsulta">Imprimir consulta</button>
         </div>
     </div>
@@ -144,7 +144,7 @@
     @vite('resources/js/views/financeiro/balanco-repasse-parceiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseBalancoRepasseParceiro' => route('api.financeiro.balanco-repasse-parceiros'),
+            'baseRepasseParceiro' => route('api.financeiro.repasse-parceiro'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseContas' => route('api.tenant.conta'),
         ],

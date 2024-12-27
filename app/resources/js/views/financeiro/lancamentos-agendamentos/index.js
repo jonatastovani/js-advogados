@@ -174,7 +174,7 @@ class LancamentoAgendamentoIndex extends templateSearch {
             tbody,
         } = options;
 
-        let strBtns = self.#HtmlBtns(item);
+        let strBtns = self.#htmlBtns(item);
 
         const tipoMovimentacao = item.movimentacao_tipo.nome;
         const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
@@ -246,7 +246,7 @@ class LancamentoAgendamentoIndex extends templateSearch {
         });
     }
 
-    #HtmlBtns(item) {
+    #htmlBtns(item) {
         const descricao = item.descricao;
         let strBtns = '';
 

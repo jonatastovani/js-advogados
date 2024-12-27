@@ -130,7 +130,7 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary">Inserir
+        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
             agendamento</button>
     </div>
 
