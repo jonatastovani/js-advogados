@@ -21,7 +21,7 @@
 </div>
 
 <div class="row row-cols-2 row-cols-lg-4">
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="entrada_valor{{ $sufixo }}" class="form-label">Valor entrada*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="entrada_valor{{ $sufixo }}">R$</label></div>
@@ -29,24 +29,24 @@
                 class="form-control text-end campo-monetario" {{ $readonly }}>
         </div>
     </div>
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="entrada_data{{ $sufixo }}" class="form-label">Vencimento entrada*</label>
         <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control text-center" {{ $readonly }}>
     </div>
 </div>
 
 <div class="row row-cols-2 row-cols-lg-4">
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="parcela_data_inicio{{ $sufixo }}" class="form-label">Vencimento primeira*</label>
         <input type="date" id="parcela_data_inicio{{ $sufixo }}" name="parcela_data_inicio"
             class="form-control text-center" {{ $readonly }}>
     </div>
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="parcela_quantidade{{ $sufixo }}" class="form-label">Quantidade de parcelas*</label>
         <input type="text" id="parcela_quantidade{{ $sufixo }}" name="parcela_quantidade"
             class="form-control text-center campo-numero" {{ $readonly }}>
     </div>
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="parcela_vencimento_dia{{ $sufixo }}" class="form-label">Dia de vencimento*</label>
         <input type="text" id="parcela_vencimento_dia{{ $sufixo }}" name="parcela_vencimento_dia"
             class="form-control text-center campo-dia-mes" {{ $readonly }}>

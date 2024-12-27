@@ -1,5 +1,6 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { modalSelecionarPerfil } from "./modalSelecionarPerfil";
@@ -28,6 +29,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                 tbody: $('#tableDataModalPessoaJuridica').find('tbody'),
                 footerPagination: $('#footerPaginationModalPessoaJuridica'),
                 formDataSearch: $('#formDataSearchModalPessoaJuridica'),
+                insertTableData: 'insertTableDataPessoaJuridica',
             },
             consultaFisicaCriterios: {
                 name: 'consulta-criterios',
@@ -76,8 +78,29 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         const self = this;
         self.#addEventosPadrao();
         self.#atualizaBadge();
+        self.#consultaInicial();
         await self._modalHideShow();
         return await self._modalOpen();
+    }
+
+    async #consultaInicial() {
+        const self = this;
+        await self.#buscaFiltroPessoaFisica();
+        await self.#buscaFiltroPessoaJuridica();
+    }
+
+    async #buscaFiltroPessoaFisica() {
+        const self = this;
+        const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosFisica.name;
+        await self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosFisica.formDataSearch, appendData: { perfis_busca: perfis_busca } });
+    }
+
+    async #buscaFiltroPessoaJuridica() {
+        const self = this;
+        const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosJuridica.name;
+        await self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosJuridica.formDataSearch, appendData: { perfis_busca: perfis_busca } });
     }
 
     #addEventosPadrao() {
@@ -92,18 +115,15 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             commonFunctions.generateNotification('Perfis de busca não definidos.', 'warning');
             return false;
         }
-        const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
-        formPessoaFisica.find('.btnBuscar').on('click', function (e) {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosFisica.name;
-            self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosFisica.formDataSearch, appendData: { perfis_busca: perfis_busca } });
-        })
-            .trigger('click');
 
-        formPessoaJuridica.find('.btnBuscar').on('click', function (e) {
+        formPessoaFisica.find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosJuridica.name;
-            self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosJuridica.formDataSearch });
+            await self.#buscaFiltroPessoaFisica();
+        });
+
+        formPessoaJuridica.find('.btnBuscar').on('click', async function (e) {
+            e.preventDefault();
+            await self.#buscaFiltroPessoaJuridica();
         });
 
         formFisicaCriterios.find('.btnBuscar').on('click', async function (e) {
@@ -168,7 +188,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         let pessoa = undefined;
 
         // Quando vem da consulta
-        if(item.pessoa) {
+        if (item.pessoa) {
             pessoa = item.pessoa;
             delete item.pessoa;
             pessoa.idTr = item.idTr;
@@ -199,7 +219,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         $(tbody).append(`
             <tr id=${pessoa.idTr}>
                 <td class="text-center text-nowrap">
-                <div class="btn-group btnsAcao" role="group">
+                    <div class="btn-group btnsAcao" role="group">
                         ${botoes}
                     </div>
                 </td>
@@ -232,6 +252,78 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                 break;
         }
         return result;
+    }
+
+    async insertTableDataPessoaJuridica(item, options = {}) {
+        const self = this;
+        const {
+            tbody,
+        } = options;
+
+        let pessoa = undefined;
+
+        // Quando vem da consulta
+        if (item.pessoa) {
+            pessoa = item.pessoa;
+            delete item.pessoa;
+            pessoa.idTr = item.idTr;
+            delete item.idTr;
+            pessoa.pessoa_dados = item;
+        } else {
+            // Quando está sendo selecionado
+            pessoa = item;
+        }
+        const pessoa_dados = pessoa.pessoa_dados;
+
+        const itemSelecionado = self.#verificaRegistroSelecionado(pessoa);
+        let botoes = '';
+        if (itemSelecionado) {
+            botoes = self.#htmlBtnRemover();
+            pessoa.idTrSelecionado = itemSelecionado.idTrSelecionado;
+        } else {
+            botoes = self.#htmlBtnSelecionar();
+        }
+
+        let perfis = 'N/C';
+        if (pessoa.pessoa_perfil) {
+            perfis = pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+        }
+
+        const razaoSocial = pessoa_dados.razao_social;
+        const nomeFantasia = pessoa_dados.nome_fantasia ?? '***';
+        const naturezaJuridica = pessoa_dados.natureza_juridica ?? '***';
+        const regimeTributario = pessoa_dados?.regime_tributario ?? '***';
+        const responsavelLegal = pessoa_dados?.responsavel_legal ?? '***';
+        const cpfResponsavel = pessoa_dados?.cpf_responsavel ? commonFunctions.formatCPF(pessoa_dados.cpf_responsavel) : '***';
+        const capitalSocial = pessoa_dados.capital_social ? commonFunctions.formatNumberToCurrency(pessoa_dados.capital_social) : '***';
+        const dataFundacao = pessoa_dados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoa_dados.data_fundacao, 2) : '***';
+
+        const ativo = pessoa_dados.ativo_bln ? 'Ativo' : 'Inativo';
+        const created_at = DateTimeHelper.retornaDadosDataHora(pessoa_dados.created_at, 12);
+
+        $(tbody).append(`
+                <tr id=${pessoa.idTr}>
+                    <td class="text-center text-nowrap">
+                        <div class="btn-group btnsAcao" role="group">
+                            ${botoes}
+                        </div>
+                    </td>
+                    <td class="text-nowrap text-truncate" title="${razaoSocial}">${razaoSocial}</td>
+                    <td class="text-nowrap text-truncate" title="${nomeFantasia}">${nomeFantasia}</td>
+                    <td class="text-nowrap text-center" title="${naturezaJuridica}">${naturezaJuridica}</td>
+                    <td class="text-nowrap text-center" title="${dataFundacao}">${dataFundacao}</td>
+                    <td class="text-nowrap text-center" title="${capitalSocial}">${capitalSocial}</td>
+                    <td class="text-nowrap text-truncate" title="${regimeTributario}">${regimeTributario}</td>
+                    <td class="text-nowrap text-truncate" title="${responsavelLegal}">${responsavelLegal}</td>
+                    <td class="text-nowrap text-truncate" title="${cpfResponsavel}">${cpfResponsavel}</td>
+                    <td class="text-nowrap text-truncate" title="${perfis}">${perfis}</td>
+                    <td class="text-nowrap text-truncate" title="${ativo}">${ativo}</td>
+                    <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
+                </tr>
+            `);
+
+        self.#addEventosRegistrosConsulta(pessoa);
+        return pessoa;
     }
 
     #verificaRegistroSelecionado(item) {
@@ -318,6 +410,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
             tr.find('.btn-select').on("click", async function () {
 
                 for (const query of Object.values(self._objConfigs.querys)) {
+
                     if (!query.recordsOnScreen) continue;
                     for (let element of query.recordsOnScreen) {
                         element = JSON.parse(JSON.stringify(element));
@@ -329,6 +422,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
                             const selecionado = self.#verificaRegistroSelecionado(elementPerfil);
                             if (!selecionado) {
+
                                 elementPessoa.idTrSelecionado = UUIDHelper.generateUUID();
 
                                 const tempIdTr = elementPessoa.idTr;
@@ -341,6 +435,7 @@ export class modalPessoa extends modalSearchAndFormRegistration {
                                 inserirSelecionado(elementPerfil);
                                 $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
                             } else {
+
                                 elementPessoa.idTrSelecionado = selecionado.idTrSelecionado;
                                 $(`#${elementPessoa.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
                             }

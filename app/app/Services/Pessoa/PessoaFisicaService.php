@@ -3,7 +3,6 @@
 namespace App\Services\Pessoa;
 
 use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;

@@ -12,6 +12,10 @@ enum DocumentoTipoEnum: int
     case CNPJ = 2;
     case RG = 3;
     case TITULO_ELEITORAL = 4;
+    case PASSAPORTE = 5;
+    case INSCRICAO_ESTADUAL = 6;
+    case INSCRICAO_MUNICIPAL = 7;
+    case CNAE = 8;
 
     // Método para retornar os detalhes como array
     public function detalhes(): array
@@ -48,8 +52,6 @@ enum DocumentoTipoEnum: int
                 'nome' => 'RG',
                 'configuracao' => [
                     'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                    'exp_reg' => '/^\d{1,15}$/',
-                    'form_request_rule' => 'required|regex:/^\d{1,15}$/',
                 ],
             ],
             self::TITULO_ELEITORAL => [
@@ -72,6 +74,38 @@ enum DocumentoTipoEnum: int
                             'form_request_rule' => 'required|regex:/^\d{4}$/',
                         ]
                     ]
+                ],
+            ],
+            self::PASSAPORTE => [
+                'id' => self::PASSAPORTE->value,
+                'nome' => 'Passaporte',
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
+                    'exp_reg' => '/^[A-Z]{2}\d{6}$/',
+                    'form_request_rule' => 'required|regex:/^[A-Z]{2}\d{6}$/',
+                ],
+            ],
+            self::INSCRICAO_ESTADUAL => [
+                'id' => self::INSCRICAO_ESTADUAL->value,
+                'nome' => 'Inscrição Estadual',
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
+                ],
+            ],
+            self::INSCRICAO_MUNICIPAL => [
+                'id' => self::INSCRICAO_MUNICIPAL->value,
+                'nome' => 'Inscrição Municipal',
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
+                ],
+            ],
+            self::CNAE => [
+                'id' => self::CNAE->value,
+                'nome' => 'CNAE',
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
+                    'exp_reg' => '/^\d{4}-\d\/\d{2}$/',
+                    'form_request_rule' => 'required|regex:/^\d{4}-\d\/\d{2}$/',
                 ],
             ],
         };

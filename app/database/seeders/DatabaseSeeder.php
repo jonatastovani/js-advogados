@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,
@@ -95,8 +95,8 @@ class DatabaseSeeder extends Seeder
 
             $this->call([
                 PessoaPerfilTipoUpdateSeeder::class,
-                // DocumentoTipoTenantUpdateSeeder::class,
                 // DocumentoTipoUpdateSeeder::class,
+                // DocumentoTipoTenantUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
                 // MovimentacaoContaStatusTipoUpdateSeeder::class,

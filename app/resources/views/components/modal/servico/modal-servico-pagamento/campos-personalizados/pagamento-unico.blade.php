@@ -8,7 +8,7 @@
 @endphp
 
 <div class="row row-cols-2 row-cols-lg-4">
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="valor_total{{ $sufixo }}" class="form-label">Valor Total*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="valor_total{{ $sufixo }}">R$</label></div>
@@ -16,7 +16,7 @@
                 class="form-control text-end campo-monetario" {{ $readonly }}>
         </div>
     </div>
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="entrada_data{{ $sufixo }}" class="form-label">Vencimento*</label>
         <input type="date" id="entrada_data{{ $sufixo }}" name="entrada_data" class="form-control text-center" {{ $readonly }}>
     </div>

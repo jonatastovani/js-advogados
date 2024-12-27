@@ -61,10 +61,20 @@ class PessoaPerfilService extends Service
         return $resource->toArray();
     }
 
+    public function showEmpresa(Fluent $requestData)
+    {
+        // Se não encontrar o perfil, retorna vazio
+        $resource = PessoaPerfil::where('perfil_tipo_id', PessoaPerfilTipoEnum::EMPRESA->value)->orderBy('created_at', 'asc')->first();
+        if (!$resource) {
+            return [];
+        }
+        return $resource->toArray();
+    }
+
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, array_merge([
-            'message' => 'O Perfil de Pessoa não foi encontrado.',
+            'message' => 'O Perfil da Pessoa não foi encontrado.',
         ], $options));
     }
 

@@ -36,7 +36,7 @@ class DocumentoTipoTenantService extends Service
     public function indexPorPessoaTipoAplicavel(Fluent $requestData)
     {
         $query = $this->model->from($this->model->getTableNameAsName())
-        ->select("{$this->model->getTableAsName()}.*")
+            ->select("{$this->model->getTableAsName()}.*")
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
             ->whereJsonContains("{$this->modelDocumentoTipo->getTableAsName()}.configuracao->pessoa_tipo_aplicavel", $requestData->pessoa_tipo_aplicavel)
             ->where("{$this->model->getTableAsName()}.deleted_at", null);
@@ -56,16 +56,15 @@ class DocumentoTipoTenantService extends Service
                 $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.cpf', compact('requestData'))->render();
                 break;
 
-            case DocumentoTipoEnum::RG->value:
-                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.rg', compact('requestData'))->render();
-                break;
-
             case DocumentoTipoEnum::CNPJ->value:
                 $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.cnpj', compact('requestData'))->render();
                 break;
 
-            case DocumentoTipoEnum::TITULO_ELEITORAL->value:
-                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.titulo-eleitoral', compact('requestData'))->render();
+            case DocumentoTipoEnum::RG->value:
+            case DocumentoTipoEnum::INSCRICAO_ESTADUAL->value:
+            case DocumentoTipoEnum::INSCRICAO_MUNICIPAL->value:
+            case DocumentoTipoEnum::CNAE->value:
+                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.campo-padrao', compact('requestData'))->render();
                 break;
 
             default:

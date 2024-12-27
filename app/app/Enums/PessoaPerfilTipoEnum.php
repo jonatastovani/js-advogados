@@ -13,6 +13,7 @@ enum PessoaPerfilTipoEnum: int
     case USUARIO = 1;
     case PARCEIRO = 2;
     case CLIENTE = 3;
+    case EMPRESA = 4;
 
     // Método para retornar os detalhes como array
     public function detalhes(): array
@@ -49,6 +50,16 @@ enum PessoaPerfilTipoEnum: int
                     ],
                 ],
             ],
+            self::EMPRESA => [
+                'id' => self::EMPRESA->value,
+                'nome' => 'Empresa',
+                'descricao' => "Perfil para empresas do domínio.",
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [
+                        PessoaJuridica::class,
+                    ],
+                ],
+            ],
         };
     }
 
@@ -56,9 +67,14 @@ enum PessoaPerfilTipoEnum: int
     {
         return [
             self::PARCEIRO->detalhes(),
+            self::EMPRESA->detalhes(),
         ];
     }
 
+    /**
+     * Retorna as rotas de form de pessoa física para cada perfil, para uso de redirecionamento para o form no front.
+     * @return array
+     */
     static public function rotasPessoaPerfilFormFront(): array
     {
         return [

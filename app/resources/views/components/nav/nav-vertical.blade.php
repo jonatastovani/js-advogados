@@ -38,6 +38,8 @@
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-servico')
                             @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-sistema')
+                            @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-usuario')
                             @endcomponent
                         @endif

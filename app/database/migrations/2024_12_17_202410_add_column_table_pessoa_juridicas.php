@@ -41,13 +41,9 @@ return new class extends Migration
             // $table->string('estado', 2)->nullable()->after('cidade');
             // $table->string('cep')->nullable()->after('estado');
             
-            $table->string('inscricao_estadual')->nullable()->after('data_fundacao');
-            $table->string('inscricao_municipal')->nullable()->after('inscricao_estadual');
-
             // Informações financeiras
-            $table->decimal('capital_social', 15, 2)->nullable()->after('inscricao_municipal');
-            $table->string('cnae', 15)->nullable()->after('capital_social');
-            $table->string('regime_tributario')->nullable()->after('cnae');
+            $table->decimal('capital_social', 15, 2)->nullable()->after('data_fundacao');
+            $table->string('regime_tributario')->nullable()->after('capital_social');
 
             // Informações do responsável
             $table->string('responsavel_legal')->nullable()->after('regime_tributario');
@@ -67,10 +63,7 @@ return new class extends Migration
     {
         Schema::table($this->model->getTableName(), function (Blueprint $table) {
             $table->dropColumn([
-                'inscricao_estadual',
-                'inscricao_municipal',
                 'capital_social',
-                'cnae',
                 'regime_tributario',
                 'responsavel_legal',
                 'cpf_responsavel',

@@ -9,7 +9,7 @@
         ],
         'arrayCamposOrdenacao' => [
             'nome' => ['nome' => 'Nome'],
-            'created_at' => ['nome' => 'Data gerado'],
+            'created_at' => ['nome' => 'Data cadastro'],
         ],
         'arrayCamposChecked' => ['nome', 'nome_social'],
     ]);

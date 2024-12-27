@@ -10,7 +10,7 @@
                 <th>Pai</th>
                 <th>Mãe</th>
                 <th class="text-center text-nowrap">Data de nascimento</th>
-                <th class="text-center text-nowrap">Perfis cadastrados</th>
+                <th class="text-nowrap">Perfis</th>
         </thead>
         <tbody></tbody>
     </table>

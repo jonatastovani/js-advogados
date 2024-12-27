@@ -24,7 +24,6 @@ export class modalSelecionarPessoaPerfilTipo extends modalDefault {
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this.#addEventosPadrao();
     }
 
     async modalOpen() {
@@ -51,26 +50,22 @@ export class modalSelecionarPessoaPerfilTipo extends modalDefault {
         formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
     }
 
-    #addEventosPadrao() {
-        this.#eventosBotoes();
-    }
-
-    #eventosBotoes() {
-        const self = this;
-        const modal = $(self._idModal);
-    }
-
     async #buscarPessoaPerfilTipos(selected_id = null) {
         const self = this;
         const arrayOpcoes = window.Details.PessoaPerfilTipoEnum;
         const pessoa_tipo_aplicavel = self._dataEnvModal.pessoa_tipo_aplicavel;
 
         // Filtrar as opções com base no array pessoa_tipo_aplicavel
-        const filtrados = arrayOpcoes.filter(item => {
+        let filtrados = arrayOpcoes.filter(item => {
             return item.configuracao.pessoa_tipo_aplicavel.some(tipo =>
                 pessoa_tipo_aplicavel.includes(tipo)
             );
         });
+
+        // Filtra o tipo de perfil empresa, quando o form não é do cadastro da empresa
+        if (!self._dataEnvModal?.formEmpresa || !self._dataEnvModal.formEmpresa) {
+            filtrados = filtrados.filter(item => item.id != window.Enums.PessoaPerfilTipoEnum.EMPRESA);
+        }
 
         let options = selected_id ? { selectedIdOption: selected_id } : {};
 

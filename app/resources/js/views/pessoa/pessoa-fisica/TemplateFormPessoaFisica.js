@@ -43,7 +43,6 @@ export class TemplateFormPessoaFisica {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            const url = `${self._objConfigs.url.base}/${self._idRegister}`;
             self._action = enumAction.PUT;
             await self.#buscarDados();
         } else {

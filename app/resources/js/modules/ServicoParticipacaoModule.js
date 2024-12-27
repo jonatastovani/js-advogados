@@ -181,10 +181,24 @@ export class ServicoParticipacaoModule {
         let displayObservacao = 'none';
 
         const naTela = self.#verificaRegistroNaTela(item);
-        
+
         switch (item.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = item.referencia.pessoa.pessoa_dados.nome;
+
+                switch (item.referencia.pessoa.pessoa_dados_type) {
+                    case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                        nome = item.referencia.pessoa.pessoa_dados.nome;
+                        break;
+                    case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                        nome = item.referencia.pessoa.pessoa_dados.nome_fantasia;
+                        break;
+
+                    default:
+                        commonFunctions.generateNotification(`O tipo de pessoa <b>${item.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                        console.error('O tipo de pessoa ainda nao foi implementado.', item);
+                        return false;
+                }
+
                 if (naTela) {
                     commonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
                     return false;
@@ -564,8 +578,20 @@ export class ServicoParticipacaoModule {
         let tipoReferencia = '';
         switch (integrante.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                nome = integrante.referencia.pessoa.pessoa_dados.nome;
+
+                switch (integrante.referencia.pessoa.pessoa_dados_type) {
+                    case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                        nome = integrante.referencia.pessoa.pessoa_dados.nome;
+                        break;
+                    case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                        nome = integrante.referencia.pessoa.pessoa_dados.nome_fantasia;
+                        break;
+
+                    default:
+                        break;
+                }
                 tipoReferencia = `Perfil ${integrante.referencia.perfil_tipo.nome}`;
+
                 break;
             default:
                 commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');

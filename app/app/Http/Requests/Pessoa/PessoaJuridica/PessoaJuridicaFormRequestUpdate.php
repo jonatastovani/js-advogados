@@ -11,4 +11,12 @@ class PessoaJuridicaFormRequestUpdate extends PessoaJuridicaFormRequestBase
     {
         return true;
     }
+
+    public function rules()
+    {
+        $rules =  parent::rules();
+        $rules['perfis'] = 'required|array|min:1';
+
+        return $rules;
+    }
 }

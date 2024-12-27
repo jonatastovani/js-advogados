@@ -78,6 +78,7 @@ Route::middleware([
             require __DIR__ . '/modulos/rotas_financeiro.php';
             require __DIR__ . '/modulos/rotas_pessoa.php';
             require __DIR__ . '/modulos/rotas_servico.php';
+            require __DIR__ . '/modulos/rotas_sistema.php';
         });
     });
 

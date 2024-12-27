@@ -27,6 +27,9 @@ export class PessoaPerfilModule {
                 objModal.setDataEnvModal = {
                     pessoa_tipo_aplicavel: self._objConfigs.data.pessoa_tipo_aplicavel,
                 };
+                // Se for o form do cadastro da empresa, passa a informação para o modal personalizar a lista de perfis
+                self._objConfigs?.formEmpresa ? objModal.setDataEnvModal.formEmpresa = self._objConfigs.formEmpresa : null;
+
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {

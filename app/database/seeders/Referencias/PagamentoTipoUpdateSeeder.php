@@ -30,7 +30,7 @@ class PagamentoTipoUpdateSeeder extends Seeder
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
         foreach ($insert as $data) {
-            $resource = $this->model::find($data['id']);
+            $resource = isset($data['id']) ? $this->model::find($data['id']) : null;
             if (!$resource) {
                 $resource = new $this->model;
                 $data['created_user_id'] = $adminTenantUserId;

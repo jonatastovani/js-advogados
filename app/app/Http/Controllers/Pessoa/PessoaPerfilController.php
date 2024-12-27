@@ -18,4 +18,10 @@ class PessoaPerfilController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->show($fluentData));
     }
+
+    public function showEmpresa(PessoaPerfilFormRequestShow $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->showEmpresa($fluentData));
+    }
 }

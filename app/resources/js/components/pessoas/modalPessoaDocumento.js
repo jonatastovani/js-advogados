@@ -2,6 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 import { URLHelper } from "../../helpers/URLHelper";
 
 export class modalPessoaDocumento extends modalRegistrationAndEditing {
@@ -97,12 +98,17 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
             objConn.setParam(self._dataEnvModal.documento_tipo_tenant_id);
             const response = await objConn.getRequest();
 
-            self._objConfigs.data.documento_tipo_tenant = response.data;
-            self._objConfigs.data.documento_tipo_tenant_id = response.data.id;
-            self._updateModalTitle(`${response.data.nome}`);
-            $(`#divCamposDocumento${self.getSufixo}`).html(response.data.campos_html);
-            self.#addEventosCamposPersonalizados();
-            return true;
+            if(response.data.campos_html){
+                self._objConfigs.data.documento_tipo_tenant = response.data;
+                self._objConfigs.data.documento_tipo_tenant_id = response.data.id;
+                self._updateModalTitle(`${response.data.nome}`);
+                $(`#divCamposDocumento${self.getSufixo}`).html(response.data.campos_html);
+                self.#addEventosCamposPersonalizados();
+                return true;
+            } else {
+                commonFunctions.generateNotification('HTML não encontrado.', 'error');
+                return false;
+            }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
@@ -113,23 +119,11 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         const self = this;
         const modal = $(self.getIdModal);
 
-        commonFunctions.cpfMask(modal.find('.campo-cpf'));
-        modal.find('.campo-cpf').on('focusout', function () {
-            if (commonFunctions.validateCPF(this.value)) {
-                $(this).removeClass('is-invalid').addClass('is-valid');
-            } else {
-                $(this).removeClass('is-valid').addClass('is-invalid');
-            }
-        });
+        MasksAndValidateHelpers.cpfMask(modal.find('.campo-cpf'));
+        MasksAndValidateHelpers.addEventCheckCPF({ selector: modal.find('.campo-cpf'), event: 'focusout' });
 
-        commonFunctions.cnpjMask(modal.find('.campo-cnpj'));
-        modal.find('.campo-cnpj').on('focusout', function () {
-            if (commonFunctions.validateCNPJ(this.value)) {
-                $(this).removeClass('is-invalid').addClass('is-valid');
-            } else {
-                $(this).removeClass('is-valid').addClass('is-invalid');
-            }
-        });
+        MasksAndValidateHelpers.cnpjMask(modal.find('.campo-cnpj'));
+        MasksAndValidateHelpers.addEventCheckCNPJ({ selector: modal.find('.campo-cnpj'), event: 'focusout' });
     }
 
     async #buscarDados() {

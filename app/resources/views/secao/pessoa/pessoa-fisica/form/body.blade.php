@@ -57,6 +57,11 @@
     </div>
 </div>
 <div class="row">
+    <div class="col legenda-campos-obrigatorios text-end mt-2">
+        * Campos obrigatórios
+    </div>
+</div>
+<div class="row">
     <div class="col text-end mt-2">
         <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save w-50"
             style="max-width: 7rem">

@@ -11,7 +11,7 @@
 
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 dadosCron">
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="parcela_valor{{ $sufixo }}" class="form-label">Valor da parcela*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="parcela_valor{{ $sufixo }}">R$</label></div>
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início*</label>
         <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
             class="form-control text-center inputCron" {{ $readonly }}>
@@ -40,7 +40,7 @@
 <div class="fs-5 mt-2">Selecione o intervalo de recorrência</div>
 <div class="row row-cols-1 row-cols-lg-2 dadosCron">
 
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronDay{{ $sufixo }}">Todo dia</label>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronMonth{{ $sufixo }}">Todo mês</label>
@@ -69,7 +69,8 @@
             </select>
         </div>
     </div>
-    <div class="col mt-2">
+
+    <div class="col mt-2 align-content-end">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="cronWeekday{{ $sufixo }}">Todo dia da semana</label>
@@ -89,7 +90,7 @@
 </div>
 
 <div class="row row-cols-1 dadosCron">
-    <div class="col mt-2">
+    <div class="col mt-2 align-content-end">
         <label for="cronExpression{{ $sufixo }}">Verifique a recorrência gerada</label>
         <input type="text" id="cronExpression{{ $sufixo }}" class="form-control mt-2 inputCron" readonly>
     </div>

@@ -22,7 +22,20 @@ export class ServicoParticipacaoHelpers {
 
             switch (participante.participacao_registro_tipo_id) {
                 case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                    nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+
+                    switch (participante.referencia.pessoa.pessoa_dados_type) {
+                        case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                            nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+                            break;
+                        case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                            nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome_fantasia}`;
+                            break;
+
+                        default:
+                            commonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                            console.error('O tipo de pessoa ainda nao foi implementado.', participante);
+                            return false;
+                    }
                     break;
 
                 case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
@@ -31,8 +44,20 @@ export class ServicoParticipacaoHelpers {
                         let nomeIntegrante = '';
                         switch (integrante.participacao_registro_tipo_id) {
                             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                                nomeIntegrante = integrante.referencia.pessoa.pessoa_dados.nome;
 
+                                switch (integrante.referencia.pessoa.pessoa_dados_type) {
+                                    case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                                        nomeIntegrante = integrante.referencia.pessoa.pessoa_dados.nome;
+                                        break;
+                                    case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                                        nomeIntegrante = integrante.referencia.pessoa.pessoa_dados.nome_fantasia;
+                                        break;
+
+                                    default:
+                                        commonFunctions.generateNotification(`O tipo de pessoa <b>${integrante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                                        console.error('O tipo de pessoa ainda nao foi implementado.', integrante);
+                                        return false;
+                                }
                                 break;
                         }
 
@@ -60,7 +85,20 @@ export class ServicoParticipacaoHelpers {
 
             switch (participante.participacao_registro_tipo_id) {
                 case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                    nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+
+                    switch (participante.referencia.pessoa.pessoa_dados_type) {
+                        case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                            nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome}`;
+                            break;
+                        case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                            nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${participante.referencia.pessoa.pessoa_dados.nome_fantasia}`;
+                            break;
+
+                        default:
+                            commonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                            console.error('O tipo de pessoa ainda nao foi implementado.', participante);
+                            return false;
+                    }
                     break;
             }
             nomeParticipante += ` > <b>${descricao_automatica}</b> - ${valor}`;

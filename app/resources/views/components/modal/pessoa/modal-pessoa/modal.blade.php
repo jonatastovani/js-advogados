@@ -69,7 +69,7 @@
                                 @php
                                     $sufixoConsulta = $sufixo . 'Fisica';
                                 @endphp
-                                @include('components.modal.pessoa.modal-pessoa.painel-busca-filtro', [
+                                @include('components.modal.pessoa.modal-pessoa.painel-busca-filtro-fisica', [
                                     'sufixo' => $sufixoConsulta,
                                 ])
                                 <x-consulta.section-paginacao.componente :sufixo="$sufixoConsulta" />
@@ -79,7 +79,7 @@
                                 @php
                                     $sufixoConsulta = $sufixo . 'Juridica';
                                 @endphp
-                                @include('components.modal.pessoa.modal-pessoa.painel-busca-filtro', [
+                                @include('components.modal.pessoa.modal-pessoa.painel-busca-filtro-juridica', [
                                     'sufixo' => $sufixoConsulta,
                                 ])
                                 <x-consulta.section-paginacao.componente :sufixo="$sufixoConsulta" />
