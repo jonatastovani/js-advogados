@@ -53,18 +53,18 @@ enum MovimentacaoContaTipoEnum: int
         ];
     }
 
-    /**
-     * Retorna o tipo de movimentação contrária a partir do tipo de movimentação informado.
-     *
-     * @param int $id O ID do tipo de movimentação.
-     *
-     * @return int O tipo de movimentação contrária.
-     */
-    static public function tipoMovimentacaoContraria($id): int
-    {
-        return match ($id) {
-            self::CREDITO->value => self::DEBITO->value,
-            self::DEBITO->value => self::CREDITO->value,
-        };
-    }
+    // /**
+    //  * Retorna o tipo de movimentação contrária a partir do tipo de movimentação informado.
+    //  *
+    //  * @param int $id O ID do tipo de movimentação.
+    //  *
+    //  * @return int O tipo de movimentação contrária.
+    //  */
+    // static public function tipoMovimentacaoContraria($id): int
+    // {
+    //     return match ($id) {
+    //         self::CREDITO->value => self::DEBITO->value,
+    //         self::DEBITO->value => self::CREDITO->value,
+    //     };
+    // }
 }

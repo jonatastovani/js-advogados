@@ -51,6 +51,12 @@ class PagePainelContaIndex {
                 commonFunctions.simulateLoading(btn, false);
             }
         });
+
+        $(`#atualizarDados${self.#objConfigs.sufixo}`).on('click', async function () {
+            await self.#buscarDados();
+            // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
+        });
+
     }
 
     async #buscarDados() {

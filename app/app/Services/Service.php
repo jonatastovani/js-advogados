@@ -30,6 +30,15 @@ abstract class Service
         $this->model = $model;
     }
 
+    /**
+     * Traduz os campos com base no array de dados fornecido.
+     *
+     * @param array $dados O array de dados contendo as informações de como traduzir os campos.
+     * - 'campos_busca' (array de campos que devem ser traduzidos). Os campos que podem ser enviados dentro do array são:
+     * - ex: 'campos_busca' => ['col_titulo'] (mapeado para '[tableAsName].titulo')
+     * - 'campos_busca_todos' (se definido, todos os campos serão traduzidos)
+     * @return array Os campos traduzidos com base nos dados fornecidos.
+     */
     abstract protected function traducaoCampos(array $dados);
 
     /**

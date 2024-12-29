@@ -23,7 +23,6 @@ class DocumentoGerado extends Model
         'configuracao' => 'array',
     ];
 
-
     public function documento_gerado_tipo()
     {
         return $this->belongsTo(DocumentoGeradoTipo::class);

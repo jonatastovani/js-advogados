@@ -3,7 +3,6 @@
 namespace App\Enums;
 
 use App\Traits\EnumTrait;
-use Illuminate\Support\Arr;
 
 enum MovimentacaoContaStatusTipoEnum: int
 {
@@ -13,6 +12,7 @@ enum MovimentacaoContaStatusTipoEnum: int
     case CANCELADA = 2;
     case FINALIZADA = 3;
     case ROLLBACK = 4;
+    case EM_REPASSE_COMPENSACAO = 5;
 
     public function detalhes(): array
     {
@@ -36,6 +36,11 @@ enum MovimentacaoContaStatusTipoEnum: int
                 'id' => self::ROLLBACK->value,
                 'nome' => 'Rollback',
                 'descricao' => 'Movimentação de ajuste para desfazer outra.',
+            ],
+            self::EM_REPASSE_COMPENSACAO => [
+                'id' => self::EM_REPASSE_COMPENSACAO->value,
+                'nome' => 'Em Repasse/Compensação',
+                'descricao' => 'Movimentação em repasse/compensação de valores.',
             ],
         };
     }
@@ -90,6 +95,7 @@ enum MovimentacaoContaStatusTipoEnum: int
         return [
             self::ATIVA->value,
             self::FINALIZADA->value,
+            self::EM_REPASSE_COMPENSACAO->value,
         ];
     }
 
@@ -101,6 +107,7 @@ enum MovimentacaoContaStatusTipoEnum: int
         return [
             self::ATIVA->value,
             self::FINALIZADA->value,
+            self::EM_REPASSE_COMPENSACAO->value,
         ];
     }
 

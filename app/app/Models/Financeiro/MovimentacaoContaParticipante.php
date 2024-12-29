@@ -2,6 +2,7 @@
 
 namespace App\Models\Financeiro;
 
+use App\Models\Referencias\MovimentacaoContaParticipanteStatusTipo;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -22,7 +23,30 @@ class MovimentacaoContaParticipante extends Model
 
     protected $casts = [
         'valor_participante' => 'float',
+        'metadata' => 'array',
     ];
+
+    /**
+     * Obtém o valor do atributo 'metadata', garantindo que ele seja decodificado corretamente.
+     * 
+     * Esta função existe devido ao uso do método `hydrate()` na função `carregarDadosAdicionaisBalancoRepasseParceiro`.
+     * O `hydrate()` recria os modelos a partir de um array, mas como o Laravel já converte o campo `metadata`
+     * automaticamente (por causa do cast definido na model), os dados podem ser decodificados novamente,
+     * resultando em um erro. Para evitar isso, esta função verifica se o valor já foi decodificado (é um array)
+     * e, caso contrário, aplica `json_decode` apenas em valores do tipo string.
+     *
+     * Isso garante que o campo `metadata` sempre retorne um array válido, independentemente do contexto.
+     * 
+     * @param mixed $value O valor do atributo 'metadata'.
+     * @return array|null O valor decodificado como array ou nulo.
+     */
+    public function getMetadataAttribute($value)
+    {
+        if (is_string($value)) {
+            return json_decode($value, true); // Decodifica JSON para array se for uma string
+        }
+        return $value; // Retorna o array diretamente, se já estiver decodificado
+    }
 
     public function parent()
     {
@@ -39,6 +63,11 @@ class MovimentacaoContaParticipante extends Model
         return $this->belongsTo(ServicoParticipacaoTipoTenant::class);
     }
     
+    public function status()
+    {
+        return $this->belongsTo(MovimentacaoContaParticipanteStatusTipo::class);
+    }
+
     /**
      * Insere uma cláusula de junção da Movimentação Conta Participante com a Movimentação Conta.
      * 

@@ -38,6 +38,11 @@ return new class extends Migration
 
             $table->smallInteger('participacao_registro_tipo_id');
             $table->foreign('participacao_registro_tipo_id', "fk_{$this->model->getTableAsName()}_participacao_registro_tipo_id")->references('id')->on((new App\Models\Referencias\ParticipacaoRegistroTipo)->getTableName());
+          
+            $table->smallInteger('status_id');
+            $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaParticipanteStatusTipo())->getTableName());
+                    
+            $table->json('metadata')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

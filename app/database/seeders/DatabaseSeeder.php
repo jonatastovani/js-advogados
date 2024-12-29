@@ -18,6 +18,7 @@ use Database\Seeders\Referencias\ParticipacaoRegistroTipoSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoSeeder;
 use Database\Seeders\Referencias\LancamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\LancamentoStatusTipoUpdateSeeder;
+use Database\Seeders\Referencias\MovimentacaoContaParticipanteStatusTipoSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaStatusTipoSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaStatusTipoUpdateSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
@@ -41,7 +42,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,
@@ -60,6 +61,7 @@ class DatabaseSeeder extends Seeder
                 ContaSubtipoSeeder::class,
                 ContaStatusTipoSeeder::class,
                 MovimentacaoContaStatusTipoSeeder::class,
+                MovimentacaoContaParticipanteStatusTipoSeeder::class,
                 PagamentoStatusTipoSeeder::class,
                 PagamentoTipoSeeder::class,
                 LancamentoStatusTipoSeeder::class,
@@ -96,13 +98,13 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                DocumentoGeradoTipoSeeder::class,
+                // DocumentoGeradoTipoSeeder::class,
                 // PessoaPerfilTipoUpdateSeeder::class,
                 // DocumentoTipoUpdateSeeder::class,
                 // DocumentoTipoTenantUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
-                // MovimentacaoContaStatusTipoUpdateSeeder::class,
+                MovimentacaoContaStatusTipoUpdateSeeder::class,
             ]);
         }
     }

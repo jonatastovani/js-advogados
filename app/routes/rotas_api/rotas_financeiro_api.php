@@ -57,7 +57,7 @@ Route::group([
     Route::prefix('movimentacao-conta')->group(function () {
 
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
-            
+
             Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
             Route::post('consulta-filtros', 'postConsultaFiltros');
             // Route::post('transferencia-conta', 'storeTransferenciaConta')->name('api.financeiro.movimentacao-conta.transferencia-conta');
@@ -86,15 +86,10 @@ Route::group([
 
         Route::get('', function () {})->name('api.financeiro.repasse-parceiro');
 
-        Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaController::class)->group(function () {
-
-            Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
-        });
-        
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaParticipanteController::class)->group(function () {
 
+            Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
             Route::post('lancar', 'storeLancarRepasseParceiro')->name('api.financeiro.repasse-parceiro.lancar');
         });
-
     });
 });

@@ -1,8 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
-import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -21,17 +18,13 @@ class PageMovimentacaoContaIndex extends templateSearch {
             }
         },
         url: {
-            baseLancamento: window.apiRoutes.baseLancamento,
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
-            baseMovimentacoesStatusTipo: window.apiRoutes.baseMovimentacoesStatusTipo,
-            baseLancarRepasseParceiro: window.apiRoutes.baseLancarRepasseParceiro,
         },
         data: {
             // Pré carregamento de dados vindo da URL
             preload: {},
-            selecionados: [],
         }
     };
 
@@ -90,44 +83,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
                     } else {
                         self.#buscarContas();
                     }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const selecionados = self._objConfigs.data.selecionados;
-                if (selecionados.length == 0) {
-                    commonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
-                    return;
-                }
-                let movimentacoesIds = selecionados.map(movimentacao => movimentacao.id);
-                console.log(movimentacoesIds)
-                
-                const message = movimentacoesIds.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`;
-                const objMessage = new modalMessage();
-                objMessage.setDataEnvModal = {
-                    title: 'Efetuar Repasse',
-                    message: message,
-                }
-                const responseMessage = await objMessage.modalOpen();
-                if (!responseMessage.confirmResult) return;
-
-                const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-                objConn.setAction(enumAction.POST);
-                objConn.setData({
-                    movimentacoes: movimentacoesIds
-                });
-                const response = await objConn.envRequest();
-                console.log(response.data);
-                if (response.data) {
-                    
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -210,7 +165,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         BootstrapFunctionsHelper.removeEventPopover();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._objConfigs.data.selecionados = [];
         await self._generateQueryFilters(getAppendDataQuery());
     }
 
@@ -221,6 +175,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         } = options;
 
         let strBtns = self.#htmlBtns(item);
+        // let strBtns = '';
 
         const status = item.status.nome;
         const valorMovimentado = commonFunctions.formatNumberToCurrency(item.valor_movimentado);
@@ -259,10 +214,10 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                if (item.participantes && item.participantes.length &&
+                if (item.movimentacao_conta_participante && item.movimentacao_conta_participante.length &&
                     (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
                 ) {
-                    const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.participantes);
+                    const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante);
                     htmlThParticipantesIntegrantes = `
                         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes da Movimentação ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                     `;
@@ -293,19 +248,19 @@ class PageMovimentacaoContaIndex extends templateSearch {
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(item);
+        // self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
 
-    #htmlBtns() {
+    #htmlBtns(item) {
 
-        let strBtns = `
-            <div class="input-group">
-                <div class="input-group-text border-0 rounded-end-0">
-                    <input class="form-check-input mt-0 ckbSelecionado" type="checkbox" value="" aria-label="Checkbox for following text input">
-                </div>
-            </div>
+        const metadata = item.metadata;
+        console.log(metadata);
+
+        let strBtns = '';
+
+        strBtns = `
             <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-three-dots-vertical"></i>
             </button>

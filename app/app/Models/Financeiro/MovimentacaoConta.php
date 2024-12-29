@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
@@ -53,6 +54,28 @@ class MovimentacaoConta extends Model
         'deleted_at',
     ];
 
+    /**
+     * Obtém o valor do atributo 'metadata', garantindo que ele seja decodificado corretamente.
+     * 
+     * Esta função existe devido ao uso do método `hydrate()` na função `carregarDadosAdicionaisMovimentacaoConta`.
+     * O `hydrate()` recria os modelos a partir de um array, mas como o Laravel já converte o campo `metadata`
+     * automaticamente (por causa do cast definido na model), os dados podem ser decodificados novamente,
+     * resultando em um erro. Para evitar isso, esta função verifica se o valor já foi decodificado (é um array)
+     * e, caso contrário, aplica `json_decode` apenas em valores do tipo string.
+     *
+     * Isso garante que o campo `metadata` sempre retorne um array válido, independentemente do contexto.
+     * 
+     * @param mixed $value O valor do atributo 'metadata'.
+     * @return array|null O valor decodificado como array ou nulo.
+     */
+    public function getMetadataAttribute($value)
+    {
+        if (is_string($value)) {
+            return json_decode($value, true); // Decodifica JSON para array se for uma string
+        }
+        return $value; // Retorna o array diretamente, se já estiver decodificado
+    }
+
     public function movimentacao_tipo()
     {
         return $this->belongsTo(MovimentacaoContaTipo::class);
@@ -81,11 +104,6 @@ class MovimentacaoConta extends Model
     public function movimentacao_conta_participante()
     {
         return $this->morphMany(MovimentacaoContaParticipante::class, 'parent');
-    }
-
-    public function movimentacao_participante()
-    {
-        return $this->belongsTo(MovimentacaoContaParticipante::class);
     }
 
     /**

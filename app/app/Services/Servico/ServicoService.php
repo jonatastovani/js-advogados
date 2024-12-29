@@ -173,18 +173,13 @@ class ServicoService extends Service
         return parent::buscarRecurso($requestData, array_merge(['message' => 'O Serviço não foi encontrado.'], $options));
     }
 
-    /**
-     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
-     *
-     * @param array $options Opções para manipulação de relacionamentos.
-     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
-     *       para evitar referências circulares.
-     * @return array Array de relacionamentos manipulados.
-     */
     public function loadFull($options = []): array
     {
         // Lista de classes a serem excluídas para evitar referência circular
-        $withOutClass = (array)($options['withOutClass'] ?? []);
+        $withOutClass = array_merge(
+            (array)($options['withOutClass'] ?? []), // Mescla com os existentes em $options
+            [self::class] // Adiciona a classe atual
+        );
 
         $relationships = [
             'area_juridica',
@@ -202,7 +197,12 @@ class ServicoService extends Service
         if (!in_array($classImport, $withOutClass)) {
             $relationships = $this->mergeRelationships(
                 $relationships,
-                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                app($classImport)->loadFull(array_merge(
+                    $options, // Passa os mesmos $options
+                    [
+                        'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+                    ]
+                )),
                 [
                     'addPrefix' => 'pagamento.'
                 ]

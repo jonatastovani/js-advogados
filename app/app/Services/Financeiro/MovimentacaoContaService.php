@@ -6,12 +6,14 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\ContaStatusTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Documento\DocumentoGerado;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Financeiro\MovimentacaoConta;
@@ -166,13 +168,11 @@ class MovimentacaoContaService extends Service
 
         // Processa os carregamentos personalizados para cada tipo
         $agrupados = $agrupados->map(function ($registros, $tipo) {
-            switch ($tipo) {
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    return $this->loadServicoLancamentoRelacionamentosMovimentacaoConta($registros);
-                    // Adicione outros tipos conforme necessário
-                default:
-                    return $registros; // Retorna sem modificações
-            }
+
+            $registros = MovimentacaoConta::hydrate($registros->toArray());
+            return $registros->load($this->loadFull([
+                'caseTipoReferencia' => $tipo,
+            ]));
         });
 
         // Reorganiza os registros com base na ordem original
@@ -187,51 +187,46 @@ class MovimentacaoContaService extends Service
         if ($withOutPagination) {
             $data = $registrosOrdenados;
         } else {
+            $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
             $data['data'] = $registrosOrdenados;
         }
 
         return $data;
     }
 
-    protected function loadServicoLancamentoRelacionamentosMovimentacaoConta($registros)
+    private function carregamentoMetadataDocumentoGerado(array $registros): array
     {
-        $relationships = $this->loadFull();
-        $relationships = array_merge(
-            [
-                'movimentacao_conta_participante.referencia.perfil_tipo',
-                'movimentacao_conta_participante.referencia.pessoa.pessoa_dados',
-            ],
-            $relationships
-        );
+        // Carregar dados adicionais do metadata
+        return collect($registros)->map(function ($registro) {
+            // Certifique-se de que o metadata existe e é um array
+            if (!empty($registro['metadata']) && is_array($registro['metadata'])) {
+                $metadata = $registro['metadata'];
 
-        $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
+                // Carregar documentos gerados
+                if (!empty($metadata['documento_gerado'])) {
+                    $documentos = DocumentoGerado::findMany($metadata['documento_gerado']);
+                    $registro['documentos_gerados'] = $documentos->toArray(); // Adiciona os documentos gerados
+                } else {
+                    $registro['documentos_gerados'] = []; // Adiciona array vazio caso não tenha
+                }
 
-        // Mescla relacionamentos de ServicoPagamentoService
-        $relationships = $this->mergeRelationships(
-            $relationships,
-            $relacionamentosServicoLancamento,
-            [
-                'addPrefix' => 'referencia_servico_lancamento.',
-                'removePrefix' => [
-                    'participantes.',
-                ]
-            ]
-        );
+                // Carregar movimentações de repasse, se necessário
+                if (!empty($metadata['movimentacao_repasse'])) {
+                    $movimentacoesRepasse = MovimentacaoConta::findMany($metadata['movimentacao_repasse']);
+                    $registro['movimentacoes_repasse'] = $movimentacoesRepasse->toArray();
+                } else {
+                    $registro['movimentacoes_repasse'] = [];
+                }
+            } else {
+                // Adiciona campos vazios para manter a consistência
+                $registro['documentos_gerados'] = [];
+                $registro['movimentacoes_repasse'] = [];
+            }
 
-        // Carrega os relacionamentos personalizados em lote
-        $modelos = MovimentacaoConta::hydrate($registros->toArray());
-        $modelos->load($relationships);
-
-        return collect($modelos->toArray())->map(function ($registro) {
-            // Substitui 'referencia_servico_lancamento' por 'referencia'
-            $registro['referencia'] = $registro['referencia_servico_lancamento'];
-            unset($registro['referencia_servico_lancamento']);
-
-            $registro['participantes'] = $registro['movimentacao_conta_participante'];
-            unset($registro['movimentacao_conta_participante']);
             return $registro;
-        });
+        })->toArray();
     }
+
 
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
@@ -412,10 +407,14 @@ class MovimentacaoContaService extends Service
     {
         $valorRecebido = $movimentacao->valor_movimentado;
         $valorRestante = $valorRecebido;
+        $possuiParticipanteComValorFixo = false;
+        $possuiParticipanteComPorcentagem = false;
 
         // Subtrair os valores fixos
         foreach ($participantes as $index => $participante) {
             if ($participante['valor_tipo'] === 'valor_fixo') {
+                $possuiParticipanteComValorFixo = true;
+
                 $valor = round($participante['valor'], 2);
                 if ($valor > $valorRestante) {
                     throw new Exception("Os valores fixos dos participantes excedem o valor a ser dividido.");
@@ -423,13 +422,21 @@ class MovimentacaoContaService extends Service
 
                 $participantes[$index]['valor'] = $valor;
                 $valorRestante = bcsub((string) $valorRestante, (string) $valor, 2);
+            } else {
+                $possuiParticipanteComPorcentagem = true;
             }
         }
 
         // Verificar se ainda há valor para distribuir
-        if ($valorRestante < 0) {
-            throw new Exception("Os valores fixos excedem o valor recebido.");
+        if ($valorRestante < 1 && $possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
+            $valorMinimo = bcadd($valorRecebido, 1, 2);
+            throw new Exception("Participante(s) com valor(es) fixo(s) consomem todo o valor a ser dividido. O valor mínimo do recebimento deve ser R$" . number_format($valorMinimo, 2, ',', '.') . ".");
+        } else if ($valorRestante != 0 && $possuiParticipanteComValorFixo && !$possuiParticipanteComPorcentagem) {
+            throw new Exception("Os valor a ser dividido não está sendo totalmente distribuído ao(s) participante(s) com valor(es) fixo(s).");
         }
+        // else if ($valorRestante < 1 && !$possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
+        //     throw new Exception("Os valor a ser dividido é menor que R$ 1,00.");
+        // }
 
         // Calcular os valores baseados em porcentagens
         $totalPorcentagem = array_sum(array_map(function ($participante) {
@@ -487,6 +494,7 @@ class MovimentacaoContaService extends Service
             $newParticipante->valor_participante = $dados['valor'];
             $newParticipante->participacao_tipo_id = $dados['participacao_tipo_id'];
             $newParticipante->participacao_registro_tipo_id = $dados['participacao_registro_tipo_id'];
+            $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
 
             $newParticipante->save();
             return $newParticipante;
@@ -1143,200 +1151,7 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
-    {
-        $filtrosData = $this->extrairFiltros($requestData, $options);
-
-        $query = $this->model::query()
-            ->from($this->model->getTableNameAsName())
-            ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            ->select(
-                DB::raw("{$this->model->getTableAsName()}.*"),
-                DB::raw("{$this->modelParticipanteConta->getTableAsName()}.id as movimentacao_participante_id"),
-            );
-
-        // RestResponse::createTestResponse(LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings())));
-        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($query, $filtrosData['filtros'], $requestData, $options);
-
-        // $ordenacao = $requestData->ordenacao ?? [];
-        // if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
-        //     $requestData->ordenacao = array_merge(
-        //         $ordenacao,
-        //         [['campo' => 'data_vencimento', 'direcao' => 'asc']]
-        //     );
-        // }
-
-        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.data_movimentacao");
-
-        $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'data_movimentacao',
-        ], $options));
-
-        $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
-
-        return $resources;
-    }
-
-    /**
-     * Aplica filtros específicos baseados nos campos de busca fornecidos.
-     *
-     * @param Builder $query Instância do query builder.
-     * @param array $filtros Filtros fornecidos na requisição.
-     * @param Fluent $requestData Dados da requisição.
-     * @param array $options Opcionalmente, define parâmetros adicionais.
-     * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
-     */
-    protected function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, $requestData, array $options = [])
-    {
-
-        $query = $this->joinsBalancoRepasseParceiro($query);
-
-        $query->where("{$this->modelParticipanteConta->getTableAsName()}.referencia_id", $requestData->parceiro_id);
-        $query->where("{$this->modelParticipanteConta->getTableAsName()}.referencia_type", PessoaPerfil::class);
-
-        if ($requestData->conta_id) {
-            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
-        }
-        if ($requestData->movimentacao_tipo_id) {
-            $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
-        }
-        if ($requestData->movimentacao_status_tipo_id) {
-            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
-        }
-
-        $query->whereIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiro());
-        $query = $this->aplicarScopesPadrao($query, $this->model, $options);
-
-        $query->whereNotIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
-
-        return $query;
-    }
-
-    private function joinsBalancoRepasseParceiro(Builder $query)
-    {
-        $query = $this->model::joinMovimentacaoLancamentoPagamentoServico($query);
-        $query = $this->model::joinMovimentacaoParticipante($query);
-        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelParticipanteConta, [
-            'campoFK' => "referencia_id",
-            "whereAppendPerfil" => [
-                ['column' => "{$this->modelParticipanteConta->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
-            ]
-        ]);
-        return $query;
-    }
-
-    protected function carregarDadosAdicionaisBalancoRepasseParceiro(Builder $query, Fluent $requestData, array $options = [])
-    {
-        // Retira a paginação, em casos de busca feita para geração de PDF
-        $withOutPagination = $options['withOutPagination'] ?? false;
-
-        if ($withOutPagination) {
-            // Sem paginação busca todos
-            $consulta = $query->get();
-            // Converte os registros para um array
-            $data = $consulta->toArray();
-            $collection = collect($data);
-        } else {
-            /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
-            $paginator = $query->paginate($requestData->perPage ?? 25);
-            // Converte os registros para um array
-            $data = $paginator->toArray();
-            $collection = collect($data['data']);
-        }
-
-        // Salva a ordem original dos registros
-        $ordemOriginal = $collection->pluck('id')->toArray();
-
-        // Agrupa os registros por referencia_type
-        $agrupados = $collection->groupBy('referencia_type');
-
-        // Processa os carregamentos personalizados para cada tipo
-        $agrupados = $agrupados->map(function ($registros, $tipo) {
-
-            $registros = MovimentacaoConta::hydrate($registros->toArray());
-
-            switch ($tipo) {
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-
-                    // Busca os relacionamentos do lancamento de serviço e remove a busca de todos os participantes da movimentação
-                    $relationships = $this->loadFull(['caseTipoReferencia' => ServicoPagamentoLancamento::class, 'withOutClass' => [
-                        MovimentacaoContaParticipanteService::class
-                    ]]);
-
-                    // Adicionar este em específico para buscar os dados específicos do participante
-                    $relationships = array_merge(
-                        [
-                            'movimentacao_participante.referencia.perfil_tipo',
-                            'movimentacao_participante.referencia.pessoa.pessoa_dados',
-                        ],
-                        $relationships
-                    );
-
-                    return $registros->load($relationships);
-                    // return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
-                    // Adicione outros tipos conforme necessário
-                default:
-                    return $registros; // Retorna sem modificações
-            }
-        });
-
-        // Reorganiza os registros com base na ordem original
-        $registrosOrdenados = collect($agrupados->flatten(1))
-            ->sortBy(function ($registro) use ($ordemOriginal) {
-                return array_search($registro['id'], $ordemOriginal);
-            })
-            ->values()
-            ->toArray();
-
-        // Atualiza os registros na resposta mantendo a ordem
-        if ($withOutPagination) {
-            $data = $registrosOrdenados;
-        } else {
-            $data['data'] = $registrosOrdenados;
-        }
-
-        return $data;
-    }
-
-    protected function loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros)
-    {
-        $relationships = $this->loadFull();
-        // $relationships = array_merge(
-        //     [
-        //         'movimentacao_participante.referencia.perfil_tipo',
-        //         'movimentacao_participante.referencia.pessoa.pessoa_dados',
-        //     ],
-        //     $relationships
-        // );
-
-        $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
-
-        // Mescla relacionamentos de ServicoPagamentoService
-        $relationships = $this->mergeRelationships(
-            $relationships,
-            $relacionamentosServicoLancamento,
-            [
-                'addPrefix' => 'referencia_servico_lancamento.',
-                'removePrefix' => [
-                    'participantes.',
-                ]
-            ]
-        );
-
-        // Carrega os relacionamentos personalizados em lote
-        $modelos = MovimentacaoConta::hydrate($registros->toArray());
-        $modelos->load($relationships);
-
-        return collect($modelos->toArray())->map(function ($registro) {
-            // Substitui 'referencia_servico_lancamento' por 'referencia'
-            $registro['referencia'] = $registro['referencia_servico_lancamento'];
-            unset($registro['referencia_servico_lancamento']);
-            return $registro;
-        });
-    }
-
-    private function storeRepasseParceiro(Fluent $dadosMovimentacao)
+    public function storeLancarRepasseParceiro(Fluent $dadosMovimentacao)
     {
 
         $resource = new $this->model;
@@ -1355,7 +1170,7 @@ class MovimentacaoContaService extends Service
         $resource->saldo_atualizado = $novoSaldo;
         $resource->save();
 
-        return $resource->toArray();
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
@@ -1366,45 +1181,51 @@ class MovimentacaoContaService extends Service
     }
 
     /**
-     * Carrega os relacionamentos completos para o serviço, aplicando manipulações dinâmicas
+     * Carrega os relacionamentos completos para a movimentação de conta, aplicando manipulações dinâmicas
      * com base nas opções fornecidas. Este método ajusta os relacionamentos a serem carregados
-     * dependendo do tipo de pessoa (Física ou Jurídica) e considera se a chamada é externa 
-     * para evitar carregamentos duplicados ou redundantes.
+     * dependendo do tipo de referência (Serviço Lançamento ou genérico) e considera se a chamada 
+     * é externa para evitar carregamentos duplicados ou redundantes.
      *
      * @param array $options Opções para manipulação de relacionamentos:
-     *     - 'caseTipoReferencia' (PessoaTipoEnum|null): Define o tipo de pessoa para o carregamento
-     *       específico. Pode ser Pessoa Física ou Jurídica. Se não for informado, aplica um 
-     *       comportamento padrão.
+     *     - 'caseTipoReferencia' (MovimentacaoContaReferenciaEnum|null): Define o tipo de referência para 
+     *       o carregamento específico. Pode ser relacionado a Serviço Lançamento ou genérico. Se não for 
+     *       informado, aplica um comportamento padrão.
      *     - 'withOutClass' (array|string|null): Classes que devem ser excluídas do carregamento
      *       de relacionamentos, útil para evitar referências circulares.
      *
      * @return array Retorna um array de relacionamentos manipulados.
      *
-     * @throws Exception Se houver algum erro durante o carregamento dinâmico dos serviços.
+     * @throws Exception Se houver algum erro durante o carregamento dinâmico dos relacionamentos.
      *
      * Lógica:
-     * - Verifica o tipo de pessoa (Física ou Jurídica) e ajusta os relacionamentos com base
-     *   no serviço correspondente (PessoaFisicaService ou PessoaJuridicaService).
-     * - Se nenhum tipo de pessoa for especificado, adiciona o relacionamento genérico 'pessoa_dados'.
-     * - Utiliza a função `mergeRelationships` para mesclar relacionamentos existentes com 
-     *   os novos, aplicando prefixos onde necessário.
+     * - Verifica o tipo de referência (Serviço Lançamento ou genérico) e ajusta os relacionamentos com base
+     *   no serviço correspondente (ex.: ServicoPagamentoLancamentoService).
+     * - Se nenhum tipo de referência for especificado, adiciona o relacionamento genérico 'referencia'.
+     * - Verifica se o serviço `MovimentacaoContaParticipanteService` está na lista de exclusão e, se não estiver,
+     *   carrega seus relacionamentos com prefixo aplicado.
+     * - Utiliza a função `mergeRelationships` para mesclar relacionamentos existentes com os novos,
+     *   aplicando prefixos onde necessário.
      *
      * Exemplo de Uso:
      * ```php
-     * $service = new PessoaService();
+     * $service = new MovimentacaoContaService();
      * $relationships = $service->loadFull([
-     *     'caseTipoReferencia' => PessoaTipoEnum::PESSOA_FISICA,
+     *     'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO,
      * ]);
      * ```
      */
     public function loadFull($options = []): array
     {
         // Lista de classes a serem excluídas para evitar referência circular
-        $withOutClass = (array)($options['withOutClass'] ?? []);
-        // Tipo de pessoa enviado para o carregamento específico do tipo de referência
+        $withOutClass = array_merge(
+            (array)($options['withOutClass'] ?? []), // Mescla com os existentes em $options
+            [self::class] // Adiciona a classe atual
+        );
+
+        // Tipo de referência enviado para o carregamento específico
         $caseTipoReferencia = $options['caseTipoReferencia'] ?? null;
 
-        // Função para carregar dados de Pessoa Física ou Jurídica dinamicamente
+        // Função para carregar dados de referência específica dinamicamente
         $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options) {
             $relationships = $this->mergeRelationships(
                 $relationships,
@@ -1417,6 +1238,7 @@ class MovimentacaoContaService extends Service
             return $relationships;
         };
 
+        // Relacionamentos iniciais padrão
         $relationships = [
             'movimentacao_tipo',
             'conta',
@@ -1428,14 +1250,19 @@ class MovimentacaoContaService extends Service
         if (!in_array($classImport, $withOutClass)) {
             $relationships = $this->mergeRelationships(
                 $relationships,
-                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                app($classImport)->loadFull(array_merge(
+                    $options, // Passa os mesmos $options
+                    [
+                        'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+                    ]
+                )),
                 [
                     'addPrefix' => 'movimentacao_conta_participante.'
                 ]
             );
         }
 
-        // Verifica o tipo de pessoa e ajusta os relacionamentos
+        // Verifica o tipo de referência e ajusta os relacionamentos
         if ($caseTipoReferencia === MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value) {
             $relationships = $carregarReferenciaPorTipo(ServicoPagamentoLancamentoService::class, $relationships);
         } else {
@@ -1449,32 +1276,6 @@ class MovimentacaoContaService extends Service
 
         return $relationships;
     }
-
-    // public function storeLancarRepasseParceiro(Fluent $requestData, array $options = [])
-    // {
-    //     $query = $this->model::query()
-    //         ->from($this->model->getTableNameAsName())
-    //         ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-    //         ->select(
-    //             DB::raw("{$this->model->getTableAsName()}.*"),
-    //             DB::raw("{$this->modelParticipanteConta->getTableAsName()}.id as movimentacao_participante_id"),
-    //         );
-
-    //     $query = $this->joinsBalancoRepasseParceiro($query);
-    //     // RestResponse::createTestResponse(LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings())));
-
-    //     $query = $query->whereIn("{$this->model->getTableAsName()}.id", $requestData->movimentacoes)
-    //         ->where("{$this->model->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::ATIVA->value);
-
-    //     $query = $this->aplicarScopesPadrao($query, $this->model, $options);
-
-    //     $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
-
-    //     $resources = MovimentacaoConta::hydrate($resources);
-    //     // $resources->load('movimentacao_participante');
-
-    //     return $resources->toArray();
-    // }
 
     // public function storeTransferenciaConta(Fluent $requestData)
     // {

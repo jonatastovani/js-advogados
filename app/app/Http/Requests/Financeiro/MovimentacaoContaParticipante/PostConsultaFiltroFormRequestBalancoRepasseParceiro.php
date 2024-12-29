@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Financeiro\MovimentacaoConta;
+namespace App\Http\Requests\Financeiro\MovimentacaoContaParticipante;
 
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use Illuminate\Support\Arr;

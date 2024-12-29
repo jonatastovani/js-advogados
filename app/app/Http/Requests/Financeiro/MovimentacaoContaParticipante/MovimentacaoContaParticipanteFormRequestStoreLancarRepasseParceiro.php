@@ -19,8 +19,8 @@ class MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro extends
     public function rules(): array
     {
         return [
-            'movimentacoes' => 'required|array|min:1',
-            'movimentacoes.*' => 'required|uuid',
+            'participacoes' => 'required|array|min:1',
+            'participacoes.*' => 'required|uuid',
         ];
     }
 }

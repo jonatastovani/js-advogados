@@ -15,11 +15,12 @@
     @endcomponent
     <div class="row">
         <div id="dados-parceiro{{ $sufixo }}" class="col mt-2">
-            <div class="card card-parceiro">   
+            <div class="card card-parceiro">
                 <div class="card-body align-items-center justify-content-between py-0">
                     <div class="row">
                         <div class="d-grid d-sm-block text-end mt-2">
-                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm border-0">
+                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
+                                class="btn btn-outline-primary btn-sm border-0">
                                 Selecionar parceiro</button>
                         </div>
                         <div class="col">
@@ -38,7 +39,7 @@
             </div>
         </div>
     </div>
-   
+
     <div id="camposConsulta{{ $sufixo }}">
         <div class="row">
             @php
@@ -102,6 +103,8 @@
         <div class="d-grid gap-2 d-sm-block mt-2">
             <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm"
                 id="btnImprimirConsulta">Imprimir consulta</button>
+            <button id="btnLancarRepasse{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Efetuar
+                repasse</button>
         </div>
     </div>
 
@@ -109,7 +112,16 @@
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
-                    <th class="text-center"><i class="fa-solid fa-fire"></i></th>
+                    <th class="text-center">
+                        <div class="text-nowrap">
+                            <div class="input-group">
+                                <div class="input-group-text border-0 bg-transparent">
+                                    <input class="form-check-input mt-0" id="ckbCheckAll{{ $sufixo }}" type="checkbox" aria-label="Checkbox for following text input">
+                                </div>
+                                <div class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-fire"></i></div>
+                            </div>
+                        </div>
+                    </th>
                     <th class="text-nowrap">Status</th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Valor</th>
@@ -144,15 +156,14 @@
     @vite('resources/js/views/financeiro/balanco-repasse-parceiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseRepasseParceiro' => route('api.financeiro.repasse-parceiro'),
-            'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseContas' => route('api.tenant.conta'),
+            'baseLancarRepasseParceiro' => route('api.financeiro.repasse-parceiro.lancar'),
+            'baseRepasseParceiro' => route('api.financeiro.repasse-parceiro'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('financeiro.index'),
             'baseFrontImpressao' => route('financeiro.balanco-repasse-parceiro.impressao'),
         ],
     ])

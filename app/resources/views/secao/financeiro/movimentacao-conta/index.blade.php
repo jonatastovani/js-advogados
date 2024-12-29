@@ -77,8 +77,6 @@
     <div class="d-grid gap-2 d-sm-block mt-2">
         <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
             consulta</button>
-        <button id="btnLancarRepasse{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Efetuar
-            repasse</button>
         {{-- <button id="btnOpenTranferenciaConta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm"
                 id="btnOpenTranferenciaConta" title="Transferência entre Contas">Transf. Conta</button> --}}
     </div>
@@ -119,15 +117,12 @@
     @component('components.api.api-routes', [
         'routes' => [
             'baseMovimentacaoConta' => route('api.financeiro.movimentacao-conta'),
-            'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseContas' => route('api.tenant.conta'),
-            'baseLancarRepasseParceiro' => route('api.financeiro.repasse-parceiro.lancar'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('financeiro.index'),
             'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
         ],
     ])
