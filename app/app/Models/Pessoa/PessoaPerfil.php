@@ -123,7 +123,14 @@ class PessoaPerfil extends Model
             $envOptions->wheres = array_merge($envOptions->wheres, $options['whereAppendPerfil']);
         }
 
-        $query = (new self())->joinWithConditions($query, (new self())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.$campoFK", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions(
+            $query,
+            (new self())->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.$campoFK",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
 
         // Join com a Pessoa
         $aliasTable = $envOptions->aliasJoin;
@@ -133,7 +140,14 @@ class PessoaPerfil extends Model
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        $query = (new self())->joinWithConditions($query, (new Pessoa())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions(
+            $query,
+            (new Pessoa())->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.pessoa_id",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
 
         // Join com a PessoaFisica
         $modelTipo = new PessoaFisica();
@@ -145,19 +159,33 @@ class PessoaPerfil extends Model
             ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => $modelTipo::class],
         ];
 
-        $query = (new self())->joinWithConditions($query, $modelTipo->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions(
+            $query,
+            $modelTipo->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.pessoa_dados_id",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
 
         // Ativar quando criar as colunas da pessoa juridica
-        // // Join com a PessoaJuridica
-        // $modelTipo = new PessoaJuridica();
-        // $envOptions->aliasJoin = $options['aliasJoinJuridica'] ?? "{$modelAsName}_" . $modelTipo->getTableAsName();
-        // $envOptions->typeJoin = $options['typeJoinJuridica'] ?? 'left';
-        // $envOptions->wheres = [
-        //     ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
-        //     ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => "{$modelAsName}_" . $modelTipo::class],
-        // ];
+        // Join com a PessoaJuridica
+        $modelTipo = new PessoaJuridica();
+        $envOptions->aliasJoin = $options['aliasJoinJuridica'] ?? "{$modelAsName}_" . $modelTipo->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoinJuridica'] ?? 'left';
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => $modelTipo::class],
+        ];
 
-        // $query = (new self())->joinWithConditions($query, $modelTipo->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.pessoa_dados_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions(
+            $query,
+            $modelTipo->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.pessoa_dados_id",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
 
         return $query;
     }

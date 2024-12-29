@@ -38,6 +38,7 @@ class MovimentacaoConta extends Model
     protected $casts = [
         'valor_movimentado' => 'float',
         'saldo_atualizado' => 'float',
+        'metadata' => 'array',
     ];
 
     protected $hidden = [

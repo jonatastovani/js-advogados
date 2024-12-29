@@ -2,26 +2,35 @@
 
 namespace App\Services\Financeiro;
 
+use App\Common\RestResponse;
+use App\Enums\DocumentoGeradoTipoEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
+use App\Enums\MovimentacaoContaTipoEnum;
+use App\Enums\PessoaTipoEnum;
+use App\Models\Documento\DocumentoGerado;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
+use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaFisica;
+use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
+use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Services\Service;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaParticipanteService extends Service
 {
 
-    /**Armazenar os dados dos participantes em casos de liquidado parcial */
-    private array $arrayParticipantesOriginal = [];
-
     public function __construct(
         MovimentacaoContaParticipante $model,
         public MovimentacaoConta $modelMovimentacaoConta,
+        public DocumentoGerado $modelDocumentoGerado,
     ) {
         parent::__construct($model);
     }
@@ -78,6 +87,43 @@ class MovimentacaoContaParticipanteService extends Service
 
     public function storeLancarRepasseParceiro(Fluent $requestData, array $options = [])
     {
+        try {
+            $resources = $this->buscarParticipantesLancamentoRepasse($requestData, $options);
+
+            return DB::transaction(function () use ($requestData, $resources) {
+
+                // Agrupar os registros pelo id da Pessoa
+                $pessoas = collect($resources)->groupBy('referencia.pessoa_id');
+                $movimentacoesFinalizar = collect($resources)->pluck('parent_id')->unique()->values()->toArray();
+
+                $newDocumento = new $this->modelDocumentoGerado;
+                $newDocumento->dados = $pessoas->toArray();
+                $newDocumento->documento_gerado_tipo_id = DocumentoGeradoTipoEnum::REPASSE_PARCEIRO;
+                $newDocumento->save();
+
+                // Salvar o ID do documento gerado nas movimentações Finalizadas
+                $movimentacoes = $this->modelMovimentacaoConta::whereIn('id', $movimentacoesFinalizar)->get();
+
+                foreach ($movimentacoes as $movimentacao) {
+                    // Mescla as informações para não perder os dados que possa conter no metadata
+                    $metadata = array_merge($movimentacao->metadata ?? [], [
+                        'documento_gerado_id' => $newDocumento->id,
+                    ]);
+
+                    $movimentacao->metadata = $metadata;
+                    $movimentacao->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
+                    $movimentacao->save();
+                }
+
+                return $newDocumento->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    private function buscarParticipantesLancamentoRepasse(Fluent $requestData, array $options = [])
+    {
         $query = $this->model::query()
             ->from($this->model->getTableNameAsName())
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
@@ -86,114 +132,120 @@ class MovimentacaoContaParticipanteService extends Service
             );
 
         $query = $this->model::joinMovimentacao($query);
+        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
+            'campoFK' => "referencia_id",
+            "whereAppendPerfil" => [
+                ['column' => "{$this->model->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+            ]
+        ]);
 
-        // RestResponse::createTestResponse(LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings())));
+        // Filtrar somente as movimentações de recebimento de serviços
+        $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", ServicoPagamentoLancamento::class);
 
-        $query = $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.id", $requestData->movimentacoes)
+        $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.id", $requestData->movimentacoes)
             ->where("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::ATIVA->value);
 
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
+        // Ordenação dos registros
+        $asNameModel = $this->model->getTableAsName();
+        $requestData->ordenacao = [
+            ['campo' => "{$asNameModel}_" . (new PessoaFisica())->getTableAsName() . ".nome"],
+            ['campo' => "{$asNameModel}_" . (new PessoaJuridica())->getTableAsName() . ".nome_fantasia"],
+            ['campo' => "{$asNameModel}_" . (new PessoaJuridica())->getTableAsName() . ".razao_social"],
+            ['campo' => "{$asNameModel}_" . (new PessoaPerfil())->getTableAsName() . ".perfil_tipo_id"],
+            ['campo' => "{$asNameModel}_" . (new Pessoa())->getTableAsName() . ".created_at"],
+        ];
+
+        $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
+            'campoOrdenacao' => 'created_at',
+        ], $options));
+
         $resources = $query->get();
+
+        if ($resources->isEmpty()) {
+            return RestResponse::createErrorResponse(404, 'As movimentações enviadas encontram-sem em estado que não permite lançamento de repasse.')->throwResponse();
+        }
+
         $resources->load($this->loadFull());
-        
-        // $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
 
-        // $resources = MovimentacaoConta::hydrate($resources);
-        // $resources->load('movimentacao_participante');
-
-        return $resources->toArray();
+        return $resources;
     }
 
-    protected function carregarDadosAdicionaisBalancoRepasseParceiro(Builder $query, Fluent $requestData, array $options = [])
+    private function lancarMovimentacaoRepassePorPessoa(Fluent $requestData, Collection $agrupadoPessoa, DocumentoGerado $documento,  array $options = [])
     {
-        // Retira a paginação, em casos de busca feita para geração de PDF
-        $withOutPagination = $options['withOutPagination'] ?? false;
+        $agrupadoContaADebitar = $agrupadoPessoa->groupBy('parent.conta_id');
+        $movimentacoesRepasse = collect();
 
-        if ($withOutPagination) {
-            // Sem paginação busca todos
-            $consulta = $query->get();
-            // Converte os registros para um array
-            $data = $consulta->toArray();
-            $collection = collect($data);
-        } else {
-            /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
-            $paginator = $query->paginate($requestData->perPage ?? 25);
-            // Converte os registros para um array
-            $data = $paginator->toArray();
-            $collection = collect($data['data']);
-        }
+        $agrupadoContaADebitar->each(function ($grupoConta) use ($documento, &$movimentacoesRepasse) {
 
-        // Salva a ordem original dos registros
-        $ordemOriginal = $collection->pluck('id')->toArray();
+            // Inicializa o total com bcadd para precisão
+            $totalRepasse = '0.00';
+            // Salvar os ids do participante da movimentação para iserir no metadata da movimentacao de repasse
+            $participanteMovimentacao = [];
 
-        // Agrupa os registros por referencia_type
-        $agrupados = $collection->groupBy('referencia_type');
+            // Itera sobre a Collection e usa bcadd para somar os valores com precisão
+            $grupoConta->each(function ($participacao) use (&$totalRepasse, &$participanteMovimentacao) {
 
-        // Processa os carregamentos personalizados para cada tipo
-        $agrupados = $agrupados->map(function ($registros, $tipo) {
-            switch ($tipo) {
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
-                    // Adicione outros tipos conforme necessário
-                default:
-                    return $registros; // Retorna sem modificações
+                // Obtem a movimentação contrária, para somar ou subtrair, de acordo com o tipo da movimentacao da conta existente
+                $movimentacaoContraria = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria($participacao->parent->movimentacao_tipo_id);
+
+                switch ($movimentacaoContraria) {
+                    case MovimentacaoContaTipoEnum::CREDITO->value:
+                        // Soma o valor do participante ao total com precisão
+                        $totalRepasse = bcadd($totalRepasse, $participacao->valor_participante, 2);
+                        break;
+
+                    case MovimentacaoContaTipoEnum::DEBITO->value:
+                        // Subtrai o valor do participante ao total com precisão
+                        $totalRepasse = bcsub($totalRepasse, $participacao->valor_participante, 2);
+                        break;
+
+                    default:
+                        throw new Exception('Tipo de contrário de movimentação de conta não definido.');
+                        break;
+                }
+
+                // Armazena o id do participante da movimentação
+                $participanteMovimentacao[] = $participacao->id;
+            });
+
+            // Define os dados da movimentação
+            $dadosMovimentacao = new Fluent();
+            $dadosMovimentacao->referencia_id = $documento->id;
+            $dadosMovimentacao->referencia_type = $documento->getMorphClass();
+            $dadosMovimentacao->conta_id = $grupoConta->first()->parent->conta_id;
+
+            // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
+            if ($totalRepasse < 0) {
+                $dadosMovimentacao->valor_movimentado = bcmul($totalRepasse, '-1', 2); // Transforma em positivo
+                $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value; // Crédito
+            } else {
+                $dadosMovimentacao->valor_movimentado = $totalRepasse; // Mantém o valor
+                $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::DEBITO->value; // Débito
             }
+
+            $nomeParceiro = "";
+            $pessoa = $grupoConta->first()->referencia->pessoa;
+
+            switch ($pessoa->pessoa_dados_type) {
+                case PessoaTipoEnum::PESSOA_FISICA->value:
+                    $nomeParceiro = $pessoa->pessoa_dados->nome;
+                    break;
+                case PessoaTipoEnum::PESSOA_JURIDICA->value:
+                    $nomeParceiro = $pessoa->pessoa_dados->nome_fantasia;
+                    break;
+            }
+
+            $dadosMovimentacao->data_movimentacao = Carbon::now();
+            $dadosMovimentacao->descricao_automatica = "Repasse/Compensação - $nomeParceiro";
+            $dadosMovimentacao->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
+
+            // Lança o repasse para a pessoa atual
+            $movimentacoesRepasse = $this->modelMovimentacaoConta->storeLancarRepasseParceiro($dadosMovimentacao);
         });
 
-        // Reorganiza os registros com base na ordem original
-        $registrosOrdenados = collect($agrupados->flatten(1))
-            ->sortBy(function ($registro) use ($ordemOriginal) {
-                return array_search($registro['id'], $ordemOriginal);
-            })
-            ->values()
-            ->toArray();
-
-        // Atualiza os registros na resposta mantendo a ordem
-        if ($withOutPagination) {
-            $data = $registrosOrdenados;
-        } else {
-            $data['data'] = $registrosOrdenados;
-        }
-
-        return $data;
-    }
-
-    protected function loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros)
-    {
-        $relationships = $this->loadFull();
-        $relationships = array_merge(
-            [
-                'movimentacao_participante.referencia.perfil_tipo',
-                'movimentacao_participante.referencia.pessoa.pessoa_dados',
-            ],
-            $relationships
-        );
-
-        $relacionamentosServicoLancamento = $this->servicoPagamentoLancamentoService->loadFull();
-
-        // Mescla relacionamentos de ServicoPagamentoService
-        $relationships = $this->mergeRelationships(
-            $relationships,
-            $relacionamentosServicoLancamento,
-            [
-                'addPrefix' => 'referencia_servico_lancamento.',
-                'removePrefix' => [
-                    'participantes.',
-                ]
-            ]
-        );
-
-        // Carrega os relacionamentos personalizados em lote
-        $modelos = MovimentacaoConta::hydrate($registros->toArray());
-        $modelos->load($relationships);
-
-        return collect($modelos->toArray())->map(function ($registro) {
-            // Substitui 'referencia_servico_lancamento' por 'referencia'
-            $registro['referencia'] = $registro['referencia_servico_lancamento'];
-            unset($registro['referencia_servico_lancamento']);
-            return $registro;
-        });
+        return $movimentacoesRepasse;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

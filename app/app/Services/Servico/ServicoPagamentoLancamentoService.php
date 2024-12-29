@@ -9,6 +9,7 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Pessoa\PessoaFisica;
+use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
@@ -61,8 +62,31 @@ class ServicoPagamentoLancamentoService extends Service
     {
         $config = [
             [
+                'sufixos' => ['razao_social', 'nome_fantasia', 'responsavel_legal'],
+                'campos' => [
+                    'col_nome_participante',
+                    'col_nome_integrante',
+                ],
+            ],
+        ];
+        $dados = $this->addCamposBuscaGenerico($dados, $config);
+
+        $config = [
+            [
                 'sufixos' => ['pagamento', 'servico'],
-                'campos' => ['col_nome_participante', 'col_nome_grupo', 'col_observacao'],
+                'campos' => [
+                    'col_nome_participante',
+                    'col_nome_participante_razao_social',
+                    'col_nome_participante_nome_fantasia',
+                    'col_nome_participante_responsavel_legal',
+                    'col_nome_integrante',
+                    'col_nome_integrante_razao_social',
+                    'col_nome_integrante_nome_fantasia',
+                    'col_nome_integrante_responsavel_legal',
+                    'col_nome_grupo',
+                    'col_nome_grupo',
+                    'col_observacao'
+                ],
             ],
             [
                 'sufixos' => ['servico'],
@@ -74,17 +98,36 @@ class ServicoPagamentoLancamentoService extends Service
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaJuridicaAsName = (new PessoaJuridica())->getTableAsName();
 
         $participanteAsName = $this->modelParticipante->getTableAsName();
-        $pessoaFisicaParticipanteAsName = "{$this->modelParticipante->getTableAsName()}_{$pessoaFisicaAsName}";
-        $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaFisicaParticipanteAsName = "{$participanteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaParticipanteAsName = "{$participanteAsName}_{$pessoaJuridicaAsName}";
+
+        $integranteAsName = $this->modelIntegrante->getTableAsName();
+        $pessoaFisicaIntegranteAsName = "{$integranteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaIntegranteAsName = "{$integranteAsName}_{$pessoaJuridicaAsName}";
 
         $participantePagamentoAsName = $this->modelParticipantePagamento->getTableAsName();
-        $pessoaFisicaParticipantePagamentoAsName = "{$this->modelParticipantePagamento->getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaFisicaParticipantePagamentoAsName = "{$participantePagamentoAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaParticipantePagamentoAsName = "{$participantePagamentoAsName}_{$pessoaJuridicaAsName}";
+
+        $integrantePagamentoAsName = $this->modelIntegrantePagamento->getTableAsName();
+        $pessoaFisicaIntegrantePagamentoAsName = "{$integrantePagamentoAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaIntegrantePagamentoAsName = "{$integrantePagamentoAsName}_{$pessoaJuridicaAsName}";
 
         $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
-        $pessoaFisicaParticipanteServicoAsName = "{$this->modelParticipanteServico->getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaFisicaParticipanteServicoAsName = "{$participanteServicoAsName}_{$pessoaFisicaAsName}";
+
         $servicoAsName = $this->modelServico->getTableAsName();
+
+        $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
+        $pessoaFisicaParticipanteServicoAsName = "{$participanteServicoAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaParticipanteServicoAsName = "{$participanteServicoAsName}_{$pessoaJuridicaAsName}";
+
+        $integranteServicoAsName = $this->modelIntegranteServico->getTableAsName();
+        $pessoaFisicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaJuridicaAsName}";
 
         $arrayAliasCampos = [
 
@@ -95,13 +138,28 @@ class ServicoPagamentoLancamentoService extends Service
             'col_observacao_participante' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
 
             'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
+            'col_nome_participante_razao_social' => isset($aliasCampos['col_nome_participante_razao_social']) ? $aliasCampos['col_nome_participante_razao_social'] : $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_nome_fantasia' => isset($aliasCampos['col_nome_participante_nome_fantasia']) ? $aliasCampos['col_nome_participante_nome_fantasia'] : $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_responsavel_legal' => isset($aliasCampos['col_nome_participante_responsavel_legal']) ? $aliasCampos['col_nome_participante_responsavel_legal'] : $pessoaJuridicaParticipanteAsName,
+            
             'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
+            'col_nome_integrante_razao_social' => isset($aliasCampos['col_nome_integrante_razao_social']) ? $aliasCampos['col_nome_integrante_razao_social'] : $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_nome_fantasia' => isset($aliasCampos['col_nome_integrante_nome_fantasia']) ? $aliasCampos['col_nome_integrante_nome_fantasia'] : $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_responsavel_legal' => isset($aliasCampos['col_nome_integrante_responsavel_legal']) ? $aliasCampos['col_nome_integrante_responsavel_legal'] : $pessoaJuridicaIntegranteAsName,
 
             'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
             'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
             'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $participantePagamentoAsName,
 
             'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
+            'col_nome_participante_razao_social_pagamento' => isset($aliasCampos['col_nome_participante_razao_social_pagamento']) ? $aliasCampos['col_nome_participante_razao_social_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
+            'col_nome_participante_nome_fantasia_pagamento' => isset($aliasCampos['col_nome_participante_nome_fantasia_pagamento']) ? $aliasCampos['col_nome_participante_nome_fantasia_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
+            'col_nome_participante_responsavel_legal_pagamento' => isset($aliasCampos['col_nome_participante_responsavel_legal_pagamento']) ? $aliasCampos['col_nome_participante_responsavel_legal_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
+
+            'col_nome_integrante_pagamento' => isset($aliasCampos['col_nome_integrante_pagamento']) ? $aliasCampos['col_nome_integrante_pagamento'] : $pessoaFisicaIntegrantePagamentoAsName,
+            'col_nome_integrante_razao_social_pagamento' => isset($aliasCampos['col_nome_integrante_razao_social_pagamento']) ? $aliasCampos['col_nome_integrante_razao_social_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
+            'col_nome_integrante_nome_fantasia_pagamento' => isset($aliasCampos['col_nome_integrante_nome_fantasia_pagamento']) ? $aliasCampos['col_nome_integrante_nome_fantasia_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
+            'col_nome_integrante_responsavel_legal_pagamento' => isset($aliasCampos['col_nome_integrante_responsavel_legal_pagamento']) ? $aliasCampos['col_nome_integrante_responsavel_legal_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
 
             'col_nome_grupo_servico' => isset($aliasCampos['col_nome_grupo_servico']) ? $aliasCampos['col_nome_grupo_servico'] : $participanteServicoAsName,
             'col_observacao_servico' => isset($aliasCampos['col_observacao_servico']) ? $aliasCampos['col_observacao_servico'] : $participanteServicoAsName,
@@ -111,6 +169,16 @@ class ServicoPagamentoLancamentoService extends Service
             'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
             'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
             'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
+
+            'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
+            'col_nome_participante_razao_social_servico' => isset($aliasCampos['col_nome_participante_razao_social_servico']) ? $aliasCampos['col_nome_participante_razao_social_servico'] : $pessoaJuridicaParticipanteServicoAsName,
+            'col_nome_participante_nome_fantasia_servico' => isset($aliasCampos['col_nome_participante_nome_fantasia_servico']) ? $aliasCampos['col_nome_participante_nome_fantasia_servico'] : $pessoaJuridicaParticipanteServicoAsName,
+            'col_nome_participante_responsavel_legal_servico' => isset($aliasCampos['col_nome_participante_responsavel_legal_servico']) ? $aliasCampos['col_nome_participante_responsavel_legal_servico'] : $pessoaJuridicaParticipanteServicoAsName,
+
+            'col_nome_integrante_servico' => isset($aliasCampos['col_nome_integrante_servico']) ? $aliasCampos['col_nome_integrante_servico'] : $pessoaFisicaIntegranteServicoAsName,
+            'col_nome_integrante_razao_social_servico' => isset($aliasCampos['col_nome_integrante_razao_social_servico']) ? $aliasCampos['col_nome_integrante_razao_social_servico'] : $pessoaJuridicaIntegranteServicoAsName,
+            'col_nome_integrante_nome_fantasia_servico' => isset($aliasCampos['col_nome_integrante_nome_fantasia_servico']) ? $aliasCampos['col_nome_integrante_nome_fantasia_servico'] : $pessoaJuridicaIntegranteServicoAsName,
+            'col_nome_integrante_responsavel_legal_servico' => isset($aliasCampos['col_nome_integrante_responsavel_legal_servico']) ? $aliasCampos['col_nome_integrante_responsavel_legal_servico'] : $pessoaJuridicaIntegranteServicoAsName,
         ];
 
         $arrayCampos = [
@@ -120,12 +188,28 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
             'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
             'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
+            'col_nome_participante_razao_social' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social'] . '.razao_social'],
+            'col_nome_participante_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_participante_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal'] . '.responsavel_legal'],
+
             'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
+            'col_nome_integrante_razao_social' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social'] . '.razao_social'],
+            'col_nome_integrante_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_integrante_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal'] . '.responsavel_legal'],
 
             'col_nome_grupo_pagamento' => ['campo' => $arrayAliasCampos['col_nome_grupo_pagamento'] . '.nome_grupo'],
             'col_observacao_pagamento' => ['campo' => $arrayAliasCampos['col_observacao_pagamento'] . '.observacao'],
             'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
+            
             'col_nome_participante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_pagamento'] . '.nome'],
+            'col_nome_participante_razao_social_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social_pagamento'] . '.razao_social'],
+            'col_nome_participante_nome_fantasia_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia_pagamento'] . '.nome_fantasia'],
+            'col_nome_participante_responsavel_legal_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal_pagamento'] . '.responsavel_legal'],
+            
+            'col_nome_integrante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_pagamento'] . '.nome'],
+            'col_nome_integrante_razao_social_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social_pagamento'] . '.razao_social'],
+            'col_nome_integrante_nome_fantasia_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_pagamento'] . '.nome_fantasia'],
+            'col_nome_integrante_responsavel_legal_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal_pagamento'] . '.responsavel_legal'],
 
             'col_nome_grupo_servico' => ['campo' => $arrayAliasCampos['col_nome_grupo_servico'] . '.nome_grupo'],
             'col_observacao_servico' => ['campo' => $arrayAliasCampos['col_observacao_servico'] . '.observacao'],
@@ -134,6 +218,17 @@ class ServicoPagamentoLancamentoService extends Service
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
             'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
             'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
+                        
+            'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
+            'col_nome_participante_razao_social_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social_servico'] . '.razao_social'],
+            'col_nome_participante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia_servico'] . '.nome_fantasia'],
+            'col_nome_participante_responsavel_legal_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal_servico'] . '.responsavel_legal'],
+            
+            'col_nome_integrante_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_servico'] . '.nome'],
+            'col_nome_integrante_razao_social_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social_servico'] . '.razao_social'],
+            'col_nome_integrante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_servico'] . '.nome_fantasia'],
+            'col_nome_integrante_responsavel_legal_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal_servico'] . '.responsavel_legal'],
+
         ];
         // RestResponse::createTestResponse($dados);
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);

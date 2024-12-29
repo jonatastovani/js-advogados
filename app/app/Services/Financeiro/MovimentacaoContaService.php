@@ -34,6 +34,7 @@ use App\Traits\ServicoParticipacaoTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
@@ -1252,9 +1253,28 @@ class MovimentacaoContaService extends Service
 
         // Processa os carregamentos personalizados para cada tipo
         $agrupados = $agrupados->map(function ($registros, $tipo) {
+
+            $registros = MovimentacaoConta::hydrate($registros->toArray());
+
             switch ($tipo) {
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
+
+                    // Busca os relacionamentos do lancamento de serviço e remove a busca de todos os participantes da movimentação
+                    $relationships = $this->loadFull(['caseTipoReferencia' => ServicoPagamentoLancamento::class, 'withOutClass' => [
+                        MovimentacaoContaParticipanteService::class
+                    ]]);
+
+                    // Adicionar este em específico para buscar os dados específicos do participante
+                    $relationships = array_merge(
+                        [
+                            'movimentacao_participante.referencia.perfil_tipo',
+                            'movimentacao_participante.referencia.pessoa.pessoa_dados',
+                        ],
+                        $relationships
+                    );
+
+                    return $registros->load($relationships);
+                    // return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
                     // Adicione outros tipos conforme necessário
                 default:
                     return $registros; // Retorna sem modificações
@@ -1314,6 +1334,120 @@ class MovimentacaoContaService extends Service
             unset($registro['referencia_servico_lancamento']);
             return $registro;
         });
+    }
+
+    private function storeRepasseParceiro(Fluent $dadosMovimentacao)
+    {
+
+        $resource = new $this->model;
+        $resource->fill($dadosMovimentacao->toArray());
+        $resource->status_id = $dadosMovimentacao->status_id;
+        $resource->movimentacao_tipo_id = $dadosMovimentacao->movimentacao_tipo_id;
+
+        $ultimoSaldo = $this->buscarSaldoConta($resource->conta_id);
+
+        // Realiza o cálculo do novo saldo
+        $novoSaldo = $this->calcularNovoSaldo(
+            $ultimoSaldo,
+            $resource->valor_movimentado,
+            $resource->movimentacao_tipo_id
+        );
+        $resource->saldo_atualizado = $novoSaldo;
+        $resource->save();
+
+        return $resource->toArray();
+    }
+
+    public function buscarRecurso(Fluent $requestData, array $options = [])
+    {
+        return parent::buscarRecurso($requestData, array_merge([
+            'message' => 'A Movimentacao de Conta não foi encontrada.',
+        ], $options));
+    }
+
+    /**
+     * Carrega os relacionamentos completos para o serviço, aplicando manipulações dinâmicas
+     * com base nas opções fornecidas. Este método ajusta os relacionamentos a serem carregados
+     * dependendo do tipo de pessoa (Física ou Jurídica) e considera se a chamada é externa 
+     * para evitar carregamentos duplicados ou redundantes.
+     *
+     * @param array $options Opções para manipulação de relacionamentos:
+     *     - 'caseTipoReferencia' (PessoaTipoEnum|null): Define o tipo de pessoa para o carregamento
+     *       específico. Pode ser Pessoa Física ou Jurídica. Se não for informado, aplica um 
+     *       comportamento padrão.
+     *     - 'withOutClass' (array|string|null): Classes que devem ser excluídas do carregamento
+     *       de relacionamentos, útil para evitar referências circulares.
+     *
+     * @return array Retorna um array de relacionamentos manipulados.
+     *
+     * @throws Exception Se houver algum erro durante o carregamento dinâmico dos serviços.
+     *
+     * Lógica:
+     * - Verifica o tipo de pessoa (Física ou Jurídica) e ajusta os relacionamentos com base
+     *   no serviço correspondente (PessoaFisicaService ou PessoaJuridicaService).
+     * - Se nenhum tipo de pessoa for especificado, adiciona o relacionamento genérico 'pessoa_dados'.
+     * - Utiliza a função `mergeRelationships` para mesclar relacionamentos existentes com 
+     *   os novos, aplicando prefixos onde necessário.
+     *
+     * Exemplo de Uso:
+     * ```php
+     * $service = new PessoaService();
+     * $relationships = $service->loadFull([
+     *     'caseTipoReferencia' => PessoaTipoEnum::PESSOA_FISICA,
+     * ]);
+     * ```
+     */
+    public function loadFull($options = []): array
+    {
+        // Lista de classes a serem excluídas para evitar referência circular
+        $withOutClass = (array)($options['withOutClass'] ?? []);
+        // Tipo de pessoa enviado para o carregamento específico do tipo de referência
+        $caseTipoReferencia = $options['caseTipoReferencia'] ?? null;
+
+        // Função para carregar dados de Pessoa Física ou Jurídica dinamicamente
+        $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($serviceTipoReferencia)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'referencia.' // Adiciona um prefixo aos relacionamentos externos
+                ]
+            );
+
+            return $relationships;
+        };
+
+        $relationships = [
+            'movimentacao_tipo',
+            'conta',
+            'status',
+        ];
+
+        // Verifica se MovimentacaoContaParticipanteService está na lista de exclusão
+        $classImport = MovimentacaoContaParticipanteService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                [
+                    'addPrefix' => 'movimentacao_conta_participante.'
+                ]
+            );
+        }
+
+        // Verifica o tipo de pessoa e ajusta os relacionamentos
+        if ($caseTipoReferencia === MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value) {
+            $relationships = $carregarReferenciaPorTipo(ServicoPagamentoLancamentoService::class, $relationships);
+        } else {
+            $relationships = array_merge(
+                $relationships,
+                [
+                    'referencia',
+                ]
+            );
+        }
+
+        return $relationships;
     }
 
     // public function storeLancarRepasseParceiro(Fluent $requestData, array $options = [])
@@ -1429,98 +1563,6 @@ class MovimentacaoContaService extends Service
 
     //     return $fluentResource;
     // }
-
-    public function buscarRecurso(Fluent $requestData, array $options = [])
-    {
-        return parent::buscarRecurso($requestData, array_merge([
-            'message' => 'A Movimentacao de Conta não foi encontrada.',
-        ], $options));
-    }
-
-    /**
-     * Carrega os relacionamentos completos para o serviço, aplicando manipulações dinâmicas
-     * com base nas opções fornecidas. Este método ajusta os relacionamentos a serem carregados
-     * dependendo do tipo de pessoa (Física ou Jurídica) e considera se a chamada é externa 
-     * para evitar carregamentos duplicados ou redundantes.
-     *
-     * @param array $options Opções para manipulação de relacionamentos:
-     *     - 'caseTipoReferencia' (PessoaTipoEnum|null): Define o tipo de pessoa para o carregamento
-     *       específico. Pode ser Pessoa Física ou Jurídica. Se não for informado, aplica um 
-     *       comportamento padrão.
-     *     - 'withOutClass' (array|string|null): Classes que devem ser excluídas do carregamento
-     *       de relacionamentos, útil para evitar referências circulares.
-     *
-     * @return array Retorna um array de relacionamentos manipulados.
-     *
-     * @throws Exception Se houver algum erro durante o carregamento dinâmico dos serviços.
-     *
-     * Lógica:
-     * - Verifica o tipo de pessoa (Física ou Jurídica) e ajusta os relacionamentos com base
-     *   no serviço correspondente (PessoaFisicaService ou PessoaJuridicaService).
-     * - Se nenhum tipo de pessoa for especificado, adiciona o relacionamento genérico 'pessoa_dados'.
-     * - Utiliza a função `mergeRelationships` para mesclar relacionamentos existentes com 
-     *   os novos, aplicando prefixos onde necessário.
-     *
-     * Exemplo de Uso:
-     * ```php
-     * $service = new PessoaService();
-     * $relationships = $service->loadFull([
-     *     'caseTipoReferencia' => PessoaTipoEnum::PESSOA_FISICA,
-     * ]);
-     * ```
-     */
-    public function loadFull($options = []): array
-    {
-        // Lista de classes a serem excluídas para evitar referência circular
-        $withOutClass = (array)($options['withOutClass'] ?? []);
-        // Tipo de pessoa enviado para o carregamento específico do tipo de referência
-        $caseTipoReferencia = $options['caseTipoReferencia'] ?? null;
-
-        // Função para carregar dados de Pessoa Física ou Jurídica dinamicamente
-        $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options) {
-            $relationships = $this->mergeRelationships(
-                $relationships,
-                app($serviceTipoReferencia)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
-                [
-                    'addPrefix' => 'referencia.' // Adiciona um prefixo aos relacionamentos externos
-                ]
-            );
-
-            return $relationships;
-        };
-
-        $relationships = [
-            'movimentacao_tipo',
-            'conta',
-            'status',
-        ];
-
-        // Verifica se MovimentacaoContaParticipanteService está na lista de exclusão
-        $classImport = MovimentacaoContaParticipanteService::class;
-        if (!in_array($classImport, $withOutClass)) {
-            $relationships = $this->mergeRelationships(
-                $relationships,
-                app($classImport)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
-                [
-                    'addPrefix' => 'movimentacao_conta_participante.'
-                ]
-            );
-        }
-
-        // Verifica o tipo de pessoa e ajusta os relacionamentos
-        if ($caseTipoReferencia === ServicoPagamentoLancamento::class) {
-            $relationships = $carregarReferenciaPorTipo(ServicoPagamentoLancamentoService::class, $relationships);
-        } else {
-            $relationships = array_merge(
-                $relationships,
-                [
-                    'referencia',
-                ]
-            );
-        }
-
-        return $relationships;
-    }
 
     // private function executarEventoWebsocket()
     // {

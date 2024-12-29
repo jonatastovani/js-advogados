@@ -10,6 +10,7 @@ use Database\Seeders\Tenant\AreaJuridicaTenantSeeder;
 use Database\Seeders\Referencias\ContaStatusTipoSeeder;
 use Database\Seeders\Referencias\ContaSubtipoSeeder;
 use Database\Seeders\Referencias\ContaTipoSeeder;
+use Database\Seeders\Referencias\DocumentoGeradoTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
@@ -62,6 +63,7 @@ class DatabaseSeeder extends Seeder
                 PagamentoStatusTipoSeeder::class,
                 PagamentoTipoSeeder::class,
                 LancamentoStatusTipoSeeder::class,
+                DocumentoGeradoTipoSeeder::class,
             ]);
 
             if (env('APP_ENV') == 'local') {
@@ -94,7 +96,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                PessoaPerfilTipoUpdateSeeder::class,
+                DocumentoGeradoTipoSeeder::class,
+                // PessoaPerfilTipoUpdateSeeder::class,
                 // DocumentoTipoUpdateSeeder::class,
                 // DocumentoTipoTenantUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,

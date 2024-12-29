@@ -125,7 +125,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                     movimentacoes: movimentacoesIds
                 });
                 const response = await objConn.envRequest();
-                console.log(response);
+                console.log(response.data);
                 if (response.data) {
                     
                 }
@@ -210,6 +210,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         BootstrapFunctionsHelper.removeEventPopover();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        self._objConfigs.data.selecionados = [];
         await self._generateQueryFilters(getAppendDataQuery());
     }
 
