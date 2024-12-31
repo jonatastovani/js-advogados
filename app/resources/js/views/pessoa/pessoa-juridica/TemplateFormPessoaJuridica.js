@@ -74,6 +74,10 @@ export class TemplateFormPessoaJuridica {
             e.preventDefault();
             self.#saveButtonAction();
         });
+
+        if (typeof self.addEventosBotoesEspecificoPerfilTipo === 'function') {
+            self.addEventosBotoesEspecificoPerfilTipo();
+        }
     }
 
     async _buscarDados() {

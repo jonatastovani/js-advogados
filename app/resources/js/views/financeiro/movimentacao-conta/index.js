@@ -21,6 +21,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
+            baseFrontDocumentoGeradoImpressao: window.frontRoutes.baseFrontDocumentoGeradoImpressao,
         },
         data: {
             // Pré carregamento de dados vindo da URL
@@ -254,22 +255,31 @@ class PageMovimentacaoContaIndex extends templateSearch {
     }
 
     #htmlBtns(item) {
-
+        const self = this;
+        
         const metadata = item.metadata;
         console.log(metadata);
 
         let strBtns = '';
 
+        if (metadata?.documento_gerado.length) {
+            metadata.documento_gerado.map((doc) => {
+                const descricao = doc.documento_gerado_tipo.descricao;
+                strBtns += `
+                    <li>
+                        <a href="${self._objConfigs.url.baseFrontDocumentoGeradoImpressao}/${doc.id}" target="_blank" class="dropdown-item fs-6 btn-edit" ${descricao ? `title="${descricao}"` : ''}>
+                            ${doc.documento_gerado_tipo.nome}
+                        </a>
+                    </li>`;
+            })
+        }
+
         strBtns = `
-            <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu">
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-edit" title="Efetuar aos participantes.">
-                        Efetuar repasse
-                    </button>
-                </li>
+                ${strBtns}
             </ul>`;
 
         return strBtns;

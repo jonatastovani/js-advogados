@@ -11,6 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'PDF Document')</title>
+    <link rel="shortcut icon" href="{{ asset('img/logo-js-sem-fundo-1600x1600-ico.ico') }}" type="image/x-icon">
     <style>
         {!! file_get_contents(public_path('css/pdf-bootstrap-styles.css')) !!}
     </style>
@@ -31,11 +32,11 @@
             margin-bottom: {{ $margins['margin_bottom'] . 'cm' }};
         }
 
-        
+
         /** Define the header rules **/
         header {
             position: fixed;
-            top: 0cm;
+            top: 0.5cm;
             left: 0cm;
             right: 0cm;
             height: 1.5cm;
@@ -55,14 +56,30 @@
 <body>
     <!-- Define header and footer blocks before your content -->
     <header>
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-adv.jpg'))) }}"
-            alt="Logo" height="100%">
+        <div class="row">
+            <div class="col-sm-2 text-right mt-2">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-sem-fundo-1600x1600.png'))) }}"
+                    alt="Logo" height="100%">
+            </div>
+            <div class="col-sm-7 text-center">
+                <h4 class="mb-0">JS Advogados</h2>
+            </div>
+            <div class="col-sm-2 text-left mt-2">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-20-anos-sem-fundo-1870x1870.png'))) }}"
+                    alt="Logo" height="100%">
+            </div>
+        </div>
     </header>
 
     <footer>
         @yield('footer')
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-adv.jpg'))) }}"
-            alt="Logo" height="100%">
+        {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-adv.jpg'))) }}"
+            alt="Logo" height="100%"> --}}
+        <div class="col-12 text-center">
+            <h5 class="mb-0">JORGE SILVA SOCIEDADE INDIVIDUAL DE ADVOCACIA</h5>
+            <p class="mb-0">Av. Monte Castelo, 759 - Centro, Santa Bárbara d'Oeste - SP, 13450-031, Brasil</p>
+            <p class="mb-0"><span class="me-1">juridico@jsassociados.com.br</span><span class="ms-1">CNPJ 40.910.109/0001-80</span></p>
+        </div>
     </footer>
 
     <!-- Wrap the content of your PDF inside a main tag -->

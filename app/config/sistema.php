@@ -4,7 +4,7 @@ return [
     'nome' => 'JS - Advogados',
     'sigla' => 'JSADV',
     'sigla_front' => 'JS - Advogados',
-    'logo' => 'img/logo-js-adv.jpg',
+    'logo' => 'img/logo-js-sem-fundo-1600x1600-ico.ico',
     // 'versao' => '1.0',
     // 'urlApi' => 'http://prisonguardpro.test/api',
     // 'versionApi' => '/v1',

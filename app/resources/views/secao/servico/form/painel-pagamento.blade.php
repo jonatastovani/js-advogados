@@ -11,6 +11,8 @@
     <div class="col mt-2">
         <button type="button" class="btn btn-outline-primary btn-sm"
             id="btnInserirPagamento{{ $sufixo }}">Inserir Pagamento</button>
+        <button type="button" class="btn btn-outline-primary btn-sm"
+            id="atualizarPagamentos{{ $sufixo }}">Atualizar Pagamentos</button>
     </div>
 </div>
 

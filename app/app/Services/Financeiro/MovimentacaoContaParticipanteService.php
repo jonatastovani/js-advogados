@@ -23,8 +23,10 @@ use App\Services\Service;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaParticipanteService extends Service
@@ -182,7 +184,7 @@ class MovimentacaoContaParticipanteService extends Service
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
 
                     return $registros->load($this->loadFull([
-                        'caseTipoReferencia' => ServicoPagamentoLancamento::class,
+                        'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value,
                     ]));
                     // return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
                     // Adicione outros tipos conforme necessário
@@ -216,72 +218,20 @@ class MovimentacaoContaParticipanteService extends Service
         try {
             return DB::transaction(function () use ($requestData, $resources, $options) {
 
-                $movimentacoesFinalizar = collect($resources)->pluck('parent_id')->unique()->values()->toArray();
-
                 $newDocumento = new $this->modelDocumentoGerado;
-                $newDocumento->dados = $resources->toArray();
+                $newDocumento->dados = ['dados_participantes' => $resources->toArray()];
                 $newDocumento->documento_gerado_tipo_id = DocumentoGeradoTipoEnum::REPASSE_PARCEIRO;
                 $newDocumento->save();
 
+                // Insere no campo documento_gerado do metadata somente os campos da model DocumentoGerado
+                $documentoGeradoInserir = Arr::except($newDocumento->toArray(), ['dados', 'tenant']);
+
                 // Lança as movimentações de repasse por conta
-                $movimentacoesRepasse = $this->lancarMovimentacaoRepassePorPessoa($requestData, $resources, $newDocumento, $options);
+                $movimentacoesRepasse = $this->lancarMovimentacaoRepassePorPessoa($requestData, $resources, $documentoGeradoInserir, $options);
 
-                foreach ($resources as $resource) {
+                $this->inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse);
 
-                    $metadata = (array) $resource->metadata;
-
-                    // Verifica se já existe a chave 'documento_gerado' e adiciona o novo ID
-                    if (isset($metadata['documento_gerado']) && is_array($metadata['documento_gerado'])) {
-                        $metadata['documento_gerado'][] = $newDocumento->id;
-                    } else {
-                        $metadata['documento_gerado'] = [$newDocumento->id];
-                    }
-
-                    // Só vai existir um repasse por participação
-                    $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->where('conta_id', $resource->parent->conta_id)->pluck('id')->first();
-
-                    $resource->metadata = $metadata;
-                    $resource->status_id = MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value;
-                    $resource->save();
-                }
-
-                // Salvar o ID do documento gerado nas movimentações Finalizadas
-                $movimentacoes = $this->modelMovimentacaoConta::whereIn('id', $movimentacoesFinalizar)->get();
-
-                foreach ($movimentacoes as $movimentacao) {
-                    // Certifique-se de que metadata é tratado como array
-                    $metadata = (array) $movimentacao->metadata;
-
-                    // Verifica se já existe a chave 'documento_gerado' e adiciona o novo ID
-                    if (isset($metadata['documento_gerado']) && is_array($metadata['documento_gerado'])) {
-                        $metadata['documento_gerado'][] = $newDocumento->id;
-                    } else {
-                        $metadata['documento_gerado'] = [$newDocumento->id];
-                    }
-
-                    // Verifica se já existe a chave 'movimentacao_repasse' e adiciona o novo ID
-                    if (isset($metadata['movimentacao_repasse']) && is_array($metadata['movimentacao_repasse'])) {
-                        $metadata['movimentacao_repasse'] = array_merge(
-                            $metadata['movimentacao_repasse'],
-                            collect($movimentacoesRepasse)->pluck('id')->toArray()
-                        );
-                    } else {
-                        $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->pluck('id')->toArray();
-                    }
-
-                    // Verifica os status dos participantes da movimentação
-                    $todosFinalizados = $movimentacao->movimentacao_conta_participante
-                        ->every(fn($participante) => $participante->status_id === MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value);
-
-                    // Define o status da movimentação com base no status dos participantes
-                    $movimentacao->status_id = $todosFinalizados
-                        ? MovimentacaoContaStatusTipoEnum::FINALIZADA->value
-                        : MovimentacaoContaStatusTipoEnum::EM_REPASSE_COMPENSACAO->value;
-
-                    // Atualiza o metadata e salva a movimentação
-                    $movimentacao->metadata = $metadata;
-                    $movimentacao->save();
-                }
+                $this->inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse);
 
                 return $newDocumento->toArray();
             });
@@ -355,17 +305,19 @@ class MovimentacaoContaParticipanteService extends Service
         // Atualiza $resources para conter apenas as participações ativas
         $resources = $resourcesAtivas;
 
-        $resources->load($this->loadFull());
+        $resources->load($this->loadFull([
+            'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value,
+        ]));
 
         return $resources;
     }
 
-    private function lancarMovimentacaoRepassePorPessoa(Fluent $requestData, $resources, DocumentoGerado $documento,  array $options = [])
+    private function lancarMovimentacaoRepassePorPessoa(Fluent $requestData, $resources, array $documentoGeradoInserir,  array $options = [])
     {
         $agrupadoContaADebitar = collect($resources)->groupBy('parent.conta_id');
         $movimentacoesRepasse = [];
 
-        $agrupadoContaADebitar->each(function ($grupoConta) use ($documento, &$movimentacoesRepasse) {
+        $agrupadoContaADebitar->each(function ($grupoConta) use ($documentoGeradoInserir, &$movimentacoesRepasse) {
 
             // Inicializa o total com bcadd para precisão
             $totalRepasse = '0.00';
@@ -395,10 +347,12 @@ class MovimentacaoContaParticipanteService extends Service
                 $participanteMovimentacao[] = $participacao->id;
             });
 
+            Log::debug("documentoGeradoInserir" . json_encode($documentoGeradoInserir));
+
             // Define os dados da movimentação
             $dadosMovimentacao = new Fluent();
-            $dadosMovimentacao->referencia_id = $documento->id;
-            $dadosMovimentacao->referencia_type = $documento->getMorphClass();
+            $dadosMovimentacao->referencia_id = $documentoGeradoInserir['id'];
+            $dadosMovimentacao->referencia_type = DocumentoGerado::class;
             $dadosMovimentacao->conta_id = $grupoConta->first()->parent->conta_id;
 
             // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
@@ -422,6 +376,9 @@ class MovimentacaoContaParticipanteService extends Service
                     break;
             }
 
+            $dadosMovimentacao->metadata = [
+                'documento_gerado' => [$documentoGeradoInserir],
+            ];
             $dadosMovimentacao->data_movimentacao = Carbon::now();
             $dadosMovimentacao->descricao_automatica = "Repasse/Compensação - $nomeParceiro";
             $dadosMovimentacao->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
@@ -431,6 +388,87 @@ class MovimentacaoContaParticipanteService extends Service
         });
 
         return $movimentacoesRepasse;
+    }
+
+    /**
+     * Insere as informações de documento gerado e movimentação de repasse na movimentação de conta participante.
+     *
+     * @param array $resources Os recursos a serem atualizados.
+     * @param array $documentoGeradoInserir O documento gerado a ser inserido.
+     * @param array $movimentacoesRepasse As movimentações de repasse a serem inseridas.
+     */
+    private function inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse)
+    {
+        foreach ($resources as $resource) {
+
+            $metadata = (array) $resource->metadata;
+
+            // Verifica se já existe a chave 'documento_gerado' e adiciona o novo ID
+            if (isset($metadata['documento_gerado']) && is_array($metadata['documento_gerado'])) {
+                $metadata['documento_gerado'][] = $documentoGeradoInserir;
+            } else {
+                $metadata['documento_gerado'] = [$documentoGeradoInserir];
+            }
+
+            // Só vai existir um repasse por participação
+            $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->where('conta_id', $resource->parent->conta_id)->pluck('id')->first();
+
+            $resource->metadata = $metadata;
+            $resource->status_id = MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value;
+            $resource->save();
+        }
+    }
+
+    /**
+     * Salva o ID do documento gerado nas movimentações Finalizadas.
+     * Também salva as movimentações de repasse nas movimentações de conta.
+     * Além disso, verifica os status dos participantes da movimentação e define o status da movimentação com base neles.
+     *
+     * @param array $resources Os recursos que estão sendo atualizados.
+     * @param array $documentoGeradoInserir O documento gerado que deve ser inserido.
+     * @param array $movimentacoesRepasse As movimentações de repasse que devem ser inseridas.
+     */
+    private function inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse)
+    {
+        $movimentacoesFinalizar = collect($resources)->pluck('parent_id')->unique()->values()->toArray();
+
+        // Salvar o ID do documento gerado nas movimentações Finalizadas
+        $movimentacoes = $this->modelMovimentacaoConta::whereIn('id', $movimentacoesFinalizar)->get();
+
+        foreach ($movimentacoes as $movimentacao) {
+
+            // Certifique-se de que metadata é tratado como array
+            $metadata = (array) $movimentacao->metadata;
+
+            // Verifica se já existe a chave 'documento_gerado' e adiciona o novo ID
+            if (isset($metadata['documento_gerado']) && is_array($metadata['documento_gerado'])) {
+                $metadata['documento_gerado'][] = $documentoGeradoInserir;
+            } else {
+                $metadata['documento_gerado'] = [$documentoGeradoInserir];
+            }
+
+            // Filtra pela conta porque na movimentação lançada, haverá somente uma movimentação para cada conta, tanto faz para crédito quanto para débito
+            $movimentacoesRepasse = collect($movimentacoesRepasse)->where('conta_id', $movimentacao->conta_id)->pluck('id')->toArray();
+            // Verifica se já existe a chave 'movimentacao_repasse' e adiciona o novo ID
+            if (isset($metadata['movimentacao_repasse']) && is_array($metadata['movimentacao_repasse'])) {
+                $metadata['movimentacao_repasse'][] = $movimentacoesRepasse;
+            } else {
+                $metadata['movimentacao_repasse'] = [$movimentacoesRepasse];
+            }
+
+            // Verifica os status dos participantes da movimentação
+            $todosFinalizados = $movimentacao->movimentacao_conta_participante
+                ->every(fn($participante) => $participante->status_id === MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value);
+
+            // Define o status da movimentação com base no status dos participantes
+            $movimentacao->status_id = $todosFinalizados
+                ? MovimentacaoContaStatusTipoEnum::FINALIZADA->value
+                : MovimentacaoContaStatusTipoEnum::EM_REPASSE_COMPENSACAO->value;
+
+            // Atualiza o metadata e salva a movimentação
+            $movimentacao->metadata = $metadata;
+            $movimentacao->save();
+        }
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

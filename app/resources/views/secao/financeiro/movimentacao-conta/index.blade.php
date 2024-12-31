@@ -124,6 +124,7 @@
     @component('components.pagina.front-routes', [
         'routes' => [
             'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
+            'baseFrontDocumentoGeradoImpressao' => route('documento-gerado.impressao'),
         ],
     ])
     @endcomponent

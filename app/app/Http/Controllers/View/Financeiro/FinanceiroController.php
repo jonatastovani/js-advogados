@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\View\Financeiro;
 
 use App\Enums\MovimentacaoContaReferenciaEnum;
-use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
-use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
+use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
-use App\Models\Financeiro\MovimentacaoConta;
+use App\Services\Financeiro\MovimentacaoContaParticipanteService;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Pdf\PdfGenerator;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -24,7 +22,10 @@ class FinanceiroController extends Controller
 {
     use CommonsControllerMethodsTrait;
 
-    public function __construct(public MovimentacaoContaService $service) {}
+    public function __construct(
+        public MovimentacaoContaService $service,
+        public MovimentacaoContaParticipanteService $serviceMovimentacaoContaParticipante
+    ) {}
 
     public function financeiroIndex()
     {
@@ -124,7 +125,7 @@ class FinanceiroController extends Controller
     public function balancoRepasseParceiroImpressao(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
-        $dados = $this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData, ['withOutPagination' => true]);
+        $dados = $this->serviceMovimentacaoContaParticipante->postConsultaFiltrosBalancoRepasseParceiro($fluentData, ['withOutPagination' => true]);
 
         // dd($dados);
         $dataEnv = new Fluent([

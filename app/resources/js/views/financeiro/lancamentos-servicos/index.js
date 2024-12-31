@@ -460,17 +460,17 @@ class PageLancamentoServicoIndex extends templateSearch {
                 </li>`;
             }
 
-            strBtns = `
-                <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    ${strBtns}
-                </ul>`;
-
         }
-        return strBtns;
 
+        strBtns = `
+            <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+                ${strBtns}
+            </ul>`;
+
+        return strBtns;
     }
 
     #addEventosRegistrosConsulta(item) {

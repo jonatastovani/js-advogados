@@ -23,6 +23,20 @@ class DocumentoGerado extends Model
         'configuracao' => 'array',
     ];
 
+    protected $hidden = [
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+        'created_ip',
+        // 'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+    
     public function documento_gerado_tipo()
     {
         return $this->belongsTo(DocumentoGeradoTipo::class);

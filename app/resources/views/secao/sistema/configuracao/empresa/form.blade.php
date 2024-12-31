@@ -29,6 +29,12 @@
 
 @push('scripts')
     @vite('resources/js/views/sistema/configuracao/empresa/form.js')
+    @component('components.api.api-routes', [
+        'routes' => [
+            'baseContas' => route('api.tenant.conta'),
+        ],
+    ])
+    @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
             'frontRedirectForm' => route('sistema.configuracao.empresa.form'),

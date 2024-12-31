@@ -187,7 +187,7 @@ class MovimentacaoContaService extends Service
         if ($withOutPagination) {
             $data = $registrosOrdenados;
         } else {
-            $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
+            // $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
             $data['data'] = $registrosOrdenados;
         }
 
@@ -204,29 +204,26 @@ class MovimentacaoContaService extends Service
 
                 // Carregar documentos gerados
                 if (!empty($metadata['documento_gerado'])) {
-                    $documentos = DocumentoGerado::findMany($metadata['documento_gerado']);
-                    $registro['documentos_gerados'] = $documentos->toArray(); // Adiciona os documentos gerados
+                    $documentos = DocumentoGerado::with('documento_gerado_tipo')->findMany($metadata['documento_gerado']);
+                    $metadata['documento_gerado'] = $documentos->toArray(); // Adiciona os documentos gerados
                 } else {
-                    $registro['documentos_gerados'] = []; // Adiciona array vazio caso não tenha
+                    $metadata['documento_gerado'] = []; // Adiciona array vazio caso não tenha
                 }
 
-                // Carregar movimentações de repasse, se necessário
-                if (!empty($metadata['movimentacao_repasse'])) {
-                    $movimentacoesRepasse = MovimentacaoConta::findMany($metadata['movimentacao_repasse']);
-                    $registro['movimentacoes_repasse'] = $movimentacoesRepasse->toArray();
-                } else {
-                    $registro['movimentacoes_repasse'] = [];
-                }
-            } else {
-                // Adiciona campos vazios para manter a consistência
-                $registro['documentos_gerados'] = [];
-                $registro['movimentacoes_repasse'] = [];
+                // // Carregar movimentações de repasse, se necessário
+                // if (!empty($metadata['movimentacao_repasse'])) {
+                //     $movimentacoesRepasse = MovimentacaoConta::findMany($metadata['movimentacao_repasse']);
+                //     $registro['movimentacoes_repasse'] = $movimentacoesRepasse->toArray();
+                // } else {
+                //     $registro['movimentacoes_repasse'] = [];
+                // }
+
+                $registro['metadata'] = $metadata;
             }
 
             return $registro;
         })->toArray();
     }
-
 
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.

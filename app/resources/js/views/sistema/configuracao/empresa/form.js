@@ -1,3 +1,4 @@
+import { commonFunctions } from "../../../../commons/commonFunctions";
 import { connectAjax } from "../../../../commons/connectAjax";
 import { enumAction } from "../../../../commons/enumAction";
 import { TemplateFormPessoaJuridica } from "../../../pessoa/pessoa-juridica/TemplateFormPessoaJuridica";
@@ -7,6 +8,7 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
     #objConfigs = {
         url: {
             base: window.apiRoutes.basePessoaJuridica,
+            baseContas: window.apiRoutes.baseContas,
         },
         sufixo: 'PagePessoaJuridicaFormEmpresa',
         data: {
@@ -33,6 +35,54 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
         await self.buscaEmpresa();
 
         self._addEventosBotoes();
+        self.#buscarContas();
+    }
+
+    async addEventosBotoesEspecificoPerfilTipo() {
+        const self = this;
+
+        $(`#openModalConta${self._objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalContaTenant();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+                await self._modalHideShow(false);
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selecteds.length > 0) {
+                        const item = response.selecteds[0];
+                        self.#buscarContas(item.id);
+                    } else {
+                        self.#buscarContas();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+                await self._modalHideShow();
+            }
+        });
+    }
+
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(`#conta_id${self.#objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(select, self.#objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     async buscaEmpresa() {

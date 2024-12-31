@@ -165,6 +165,11 @@ class PageServicoForm {
             }
         });
 
+        $(`#atualizarPagamentos${self.#objConfigs.sufixo}`).on('click', async function () {
+            await self.#buscarPagamentos();
+            // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
+        });
+
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
     }
 
@@ -781,6 +786,8 @@ class PageServicoForm {
     async #buscarPagamentos() {
         const self = this;
         try {
+            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' });
+
             const obj = new connectAjax(self.#objConfigs.url.basePagamentos);
             const response = await obj.getRequest();
             $(`#divPagamento${self.#objConfigs.sufixo}`).html('');
@@ -790,7 +797,10 @@ class PageServicoForm {
             await self.#buscarValores();
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            await commonFunctions.loadingModalDisplay(false);
         }
+
     }
 
     async #buscarValores() {

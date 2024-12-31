@@ -15,7 +15,7 @@ enum DocumentoGeradoTipoEnum: int
         return match ($this) {
             self::REPASSE_PARCEIRO => [
                 'id' => self::REPASSE_PARCEIRO->value,
-                'nome' => 'Repasse Parceiro',
+                'nome' => 'Repasse/Compensação Parceiro',
             ],
         };
     }
