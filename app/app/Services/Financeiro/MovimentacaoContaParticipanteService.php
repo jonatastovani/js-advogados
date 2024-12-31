@@ -8,7 +8,9 @@ use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
+use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
+use App\Helpers\LogHelper;
 use App\Models\Documento\DocumentoGerado;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
@@ -41,6 +43,8 @@ class MovimentacaoContaParticipanteService extends Service
         public ServicoPagamento $modelServicoPagamento,
 
         public MovimentacaoContaService $modelMovimentacaoContaService,
+
+        public PessoaPerfil $modelPessoaPerfil,
     ) {
         parent::__construct($model);
     }
@@ -119,15 +123,15 @@ class MovimentacaoContaParticipanteService extends Service
 
         $query = $this->model::joinMovimentacao($query);
         $query = $this->modelMovimentacaoConta::joinMovimentacaoLancamentoPagamentoServico($query);
-        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
+        $query = $this->modelPessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
             'campoFK' => "referencia_id",
             "whereAppendPerfil" => [
-                ['column' => "{$this->model->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                ['column' => "{$this->model->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => $this->modelPessoaPerfil->getMorphClass()],
             ]
         ]);
 
         $query->where("{$this->model->getTableAsName()}.referencia_id", $requestData->parceiro_id);
-        $query->where("{$this->model->getTableAsName()}.referencia_type", PessoaPerfil::class);
+        $query->where("{$this->model->getTableAsName()}.referencia_type", $this->modelPessoaPerfil->getMorphClass());
 
         if ($requestData->conta_id) {
             $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.conta_id", $requestData->conta_id);
@@ -143,6 +147,17 @@ class MovimentacaoContaParticipanteService extends Service
         $query = $this->aplicarScopesPadrao($query, $this->modelMovimentacaoConta, $options);
 
         $query->whereNotIn("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+
+        // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
+        $query->where(function (Builder $query) {
+            $query->where(function (Builder $query) {
+                $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
+                    ->where("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
+                    ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
+            })->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
+        });
+
+        // Log::debug("Query: " . json_encode(LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings()))));
 
         return $query;
     }
@@ -169,6 +184,20 @@ class MovimentacaoContaParticipanteService extends Service
             $collection = collect($data['data']);
         }
 
+        $registrosOrdenados = $this->carregamentoDinamicoPorReferenciaType($collection, $options);
+
+        // Atualiza os registros na resposta mantendo a ordem
+        if ($withOutPagination) {
+            $data = $registrosOrdenados;
+        } else {
+            $data['data'] = $registrosOrdenados;
+        }
+
+        return $data;
+    }
+
+    private function carregamentoDinamicoPorReferenciaType(Collection $collection, array $options = [])
+    {
         // Salva a ordem original dos registros
         $ordemOriginal = $collection->pluck('id')->toArray();
 
@@ -176,21 +205,14 @@ class MovimentacaoContaParticipanteService extends Service
         $agrupados = $collection->groupBy('parent.referencia_type');
 
         // Processa os carregamentos personalizados para cada tipo
-        $agrupados = $agrupados->map(function ($registros, $tipo) {
+        $agrupados = $agrupados->map(function ($registros, $tipo) use ($options) {
 
             $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
 
-            switch ($tipo) {
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-
-                    return $registros->load($this->loadFull([
-                        'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value,
-                    ]));
-                    // return $this->loadServicoLancamentoRelacionamentosBalancoRepasseParceiro($registros);
-                    // Adicione outros tipos conforme necessário
-                default:
-                    return $registros; // Retorna sem modificações
-            }
+            // Faz o carregamento dinâmico conforme o tipo
+            return $registros->load($this->loadFull(array_merge($options, [
+                'caseTipoReferenciaMovimentacaoConta' => $tipo,
+            ])));
         });
 
         // Reorganiza os registros com base na ordem original
@@ -201,14 +223,7 @@ class MovimentacaoContaParticipanteService extends Service
             ->values()
             ->toArray();
 
-        // Atualiza os registros na resposta mantendo a ordem
-        if ($withOutPagination) {
-            $data = $registrosOrdenados;
-        } else {
-            $data['data'] = $registrosOrdenados;
-        }
-
-        return $data;
+        return $registrosOrdenados;
     }
 
     public function storeLancarRepasseParceiro(Fluent $requestData, array $options = [])
@@ -250,15 +265,15 @@ class MovimentacaoContaParticipanteService extends Service
             );
 
         $query = $this->model::joinMovimentacao($query);
-        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
+        $query = $this->modelPessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
             'campoFK' => "referencia_id",
             "whereAppendPerfil" => [
-                ['column' => "{$this->model->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
+                ['column' => "{$this->model->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => $this->modelPessoaPerfil->getMorphClass()],
             ]
         ]);
 
         // Filtrar somente as movimentações de recebimento de serviços
-        $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", ServicoPagamentoLancamento::class);
+        // $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", ServicoPagamentoLancamento::class);
 
         $query->whereIn("{$this->model->getTableAsName()}.id", $requestData->participacoes);
         // o status tem que estar como ativa
@@ -268,6 +283,17 @@ class MovimentacaoContaParticipanteService extends Service
             MovimentacaoContaStatusTipoEnum::ATIVA->value,
             MovimentacaoContaStatusTipoEnum::EM_REPASSE_COMPENSACAO->value
         ]);
+
+        // // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lançamento de serviços
+        // $query->where(function (Builder $query) {
+        //     $query->where(function (Builder $query) {
+        //         $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_conta_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
+        //             ->where("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
+        //             ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
+        //     })->orWhereNot("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
+        // });
+
+        // Log::debug("Query: " . LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings())));
 
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
@@ -305,9 +331,11 @@ class MovimentacaoContaParticipanteService extends Service
         // Atualiza $resources para conter apenas as participações ativas
         $resources = $resourcesAtivas;
 
-        $resources->load($this->loadFull([
-            'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value,
-        ]));
+        // $resources->load($this->loadFull([
+        //     'caseTipoReferenciaMovimentacaoConta' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value,
+        // ]));
+
+        $resources = MovimentacaoContaParticipante::hydrate($this->carregamentoDinamicoPorReferenciaType(collect($resources), $options));
 
         return $resources;
     }
@@ -327,7 +355,7 @@ class MovimentacaoContaParticipanteService extends Service
             // Itera sobre a Collection e usa bcadd para somar os valores com precisão
             $grupoConta->each(function ($participacao) use (&$totalRepasse, &$participanteMovimentacao) {
 
-                switch ($participacao->parent->movimentacao_tipo_id) {
+                switch ($participacao->parent['movimentacao_tipo_id']) {
                     case MovimentacaoContaTipoEnum::CREDITO->value:
                         // Soma o valor do participante ao total com precisão
                         $totalRepasse = bcadd($totalRepasse, $participacao->valor_participante, 2);
@@ -347,13 +375,13 @@ class MovimentacaoContaParticipanteService extends Service
                 $participanteMovimentacao[] = $participacao->id;
             });
 
-            Log::debug("documentoGeradoInserir" . json_encode($documentoGeradoInserir));
+            // Log::debug("Dados: " . json_encode($grupoConta->first()->parent));
 
             // Define os dados da movimentação
             $dadosMovimentacao = new Fluent();
             $dadosMovimentacao->referencia_id = $documentoGeradoInserir['id'];
             $dadosMovimentacao->referencia_type = DocumentoGerado::class;
-            $dadosMovimentacao->conta_id = $grupoConta->first()->parent->conta_id;
+            $dadosMovimentacao->conta_id = $grupoConta->first()->parent['conta_id'];
 
             // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
             if ($totalRepasse < 0) {
@@ -365,14 +393,14 @@ class MovimentacaoContaParticipanteService extends Service
             }
 
             $nomeParceiro = "";
-            $pessoa = $grupoConta->first()->referencia->pessoa;
+            $pessoa = $grupoConta->first()->referencia['pessoa'];
 
-            switch ($pessoa->pessoa_dados_type) {
+            switch ($pessoa['pessoa_dados_type']) {
                 case PessoaTipoEnum::PESSOA_FISICA->value:
-                    $nomeParceiro = $pessoa->pessoa_dados->nome;
+                    $nomeParceiro = $pessoa['pessoa_dados']['nome'];
                     break;
                 case PessoaTipoEnum::PESSOA_JURIDICA->value:
-                    $nomeParceiro = $pessoa->pessoa_dados->nome_fantasia;
+                    $nomeParceiro = $pessoa['pessoa_dados']['nome_fantasia'];
                     break;
             }
 
@@ -411,7 +439,7 @@ class MovimentacaoContaParticipanteService extends Service
             }
 
             // Só vai existir um repasse por participação
-            $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->where('conta_id', $resource->parent->conta_id)->pluck('id')->first();
+            $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->where('conta_id', $resource->parent['conta_id'])->pluck('id')->first();
 
             $resource->metadata = $metadata;
             $resource->status_id = MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value;

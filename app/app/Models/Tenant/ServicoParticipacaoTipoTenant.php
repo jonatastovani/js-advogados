@@ -17,6 +17,10 @@ class ServicoParticipacaoTipoTenant extends Model
         ModelsLogsTrait,
         BelongsToTenant;
 
-    protected $table = 'tenant.servico_atuacao_tipo_tenants';
-    protected $tableAsName = 'serv_atu_tip_ten';
+    protected $table = 'tenant.servico_participacao_tipo_tenants';
+    protected $tableAsName = 'serv_part_tip_ten';
+
+    protected $casts = [
+        'configuracao' => 'array'
+    ];
 }

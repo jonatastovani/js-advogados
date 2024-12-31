@@ -23,8 +23,29 @@ class ServicoParticipacaoTipoTenantService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->all();
+
+        $resource = $this->model->where(function ($query) {
+            $query->whereNull('configuracao->oculto_para_usuario')
+                ->orWhere('configuracao->oculto_para_usuario', '!=', true);
+        })->get();
+
         return $resource->toArray();
+    }
+
+    public function postConsultaFiltros(Fluent $requestData, array $options = [])
+    {
+        $filtrosData = $this->extrairFiltros($requestData, $options);
+        $query = $this->aplicarFiltrosTexto($filtrosData['query'], $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+        $query = $this->aplicarScopesPadrao($query, null, $options);
+
+        // Filtrar a tipo de participação oculto para usuários
+        $query->where(function ($query) {
+            $query->whereNull('configuracao->oculto_para_usuario')
+                ->orWhere('configuracao->oculto_para_usuario', '!=', true);
+        });
+
+        $query = $this->aplicarOrdenacoes($query, $requestData, $options);
+        return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
     public function select2(Request $request)

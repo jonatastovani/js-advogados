@@ -4,7 +4,7 @@
             <div class="col d-flex flex-column">
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2 align-items-end">
                     <div class="col mt-2">
-                        <label for="razao_social{{ $sufixo }}" class="form-label">Razão Social</label>
+                        <label for="razao_social{{ $sufixo }}" class="form-label">Razão Social*</label>
                         <input type="text" id="razao_social{{ $sufixo }}" name="razao_social"
                             class="form-control">
                     </div>
@@ -40,18 +40,6 @@
                             class="form-control campo-cpf">
                     </div>
                     <div class="col mt-2">
-                        <label for="inscricao_estadual{{ $sufixo }}" class="form-label">Inscrição
-                            Estadual</label>
-                        <input type="text" id="inscricao_estadual{{ $sufixo }}" name="inscricao_estadual"
-                            class="form-control text-center">
-                    </div>
-                    <div class="col mt-2">
-                        <label for="inscricao_municipal{{ $sufixo }}" class="form-label">Inscrição
-                            Municipal</label>
-                        <input type="text" id="inscricao_municipal{{ $sufixo }}" name="inscricao_municipal"
-                            class="form-control text-center">
-                    </div>
-                    <div class="col mt-2">
                         <label for="capital_social{{ $sufixo }}" class="form-label"
                             title="Valor do capital social declarado">Capital Social</label>
                         <div class="input-group">
@@ -59,12 +47,6 @@
                             <input type="text" id="capital_social{{ $sufixo }}" name="capital_social"
                                 class="form-control text-end campo-monetario">
                         </div>
-                    </div>
-                    <div class="col mt-2">
-                        <label for="cnae{{ $sufixo }}" class="form-label"
-                            title="Código CNAE (Classificação Nacional de Atividades Econômicas) da empresa">CNAE</label>
-                        <input type="text" id="cnae{{ $sufixo }}" name="cnae"
-                            class="form-control text-center">
                     </div>
                     <div class="col mt-2">
                         <label for="data_fundacao{{ $sufixo }}" class="form-label">Data de Fundação</label>
@@ -86,15 +68,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col mt-2">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
-                                id="ativo_bln{{ $sufixo }}" checked>
-                            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro Ativo</label>
+                
+                @if ($paginaDados->perfil_tipo != 'empresa')
+                    <div class="row">
+                        <div class="col mt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
+                                    id="ativo_bln{{ $sufixo }}" checked>
+                                <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro
+                                    Ativo</label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </form>

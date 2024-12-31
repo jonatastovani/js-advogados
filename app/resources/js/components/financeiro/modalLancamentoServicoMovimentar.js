@@ -129,6 +129,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         const self = this;
         $(self.getIdModal).find(`#dados-lancamento${self._objConfigs.sufixo}-tab`).trigger('click');
         $(self.getIdModal).find('.btn-simular').show();
+        $(self.getIdModal).find('select').val(0);
         self.#bloquearLiberarCamposParticipacao();
     }
 

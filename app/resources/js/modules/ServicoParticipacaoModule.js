@@ -4,6 +4,7 @@ import { modalMessage } from "../components/comum/modalMessage";
 import { modalNome } from "../components/comum/modalNome";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
 import { modalServicoParticipacaoParticipante } from "../components/servico/modalServicoParticipacaoParticipante";
+import { modalServicoParticipacaoPreset } from "../components/servico/modalServicoParticipacaoPreset";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -82,6 +83,49 @@ export class ServicoParticipacaoModule {
             } finally {
                 commonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
+            }
+        });
+
+        $(`#btnOpenModalPresetParticipacao${self._objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalServicoParticipacaoPreset();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+
+                let hideShowModal = false;
+                if (self._extraConfigs?.typeParent == 'modal') {
+                    hideShowModal = await self._parentInstance._modalHideShow(false)
+                };
+
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+
+                        if (hideShowModal) {
+                            await self._parentInstance._modalHideShow();
+                            hideShowModal = false;
+                        }
+                        await self._buscarPresetParticipacaoTenant(response.selected.id);
+                        $(`#preset_id${self._objConfigs.sufixo}`).trigger('change');
+                    } else {
+                        self._buscarPresetParticipacaoTenant();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+                if (self._extraConfigs?.typeParent == 'modal') {
+                    if (hideShowModal) await self._parentInstance._modalHideShow()
+                };
             }
         });
 

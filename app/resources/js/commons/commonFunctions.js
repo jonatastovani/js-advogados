@@ -735,8 +735,10 @@ export class commonFunctions {
             }
             loading.setDataEnvModal = objDataEnv;
             await loading.modalOpen();
+            return true;
         } else {
             await loading.modalClose();
+            return true;
         }
     }
 

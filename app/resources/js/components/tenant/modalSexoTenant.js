@@ -8,7 +8,6 @@ export class modalSexoTenant extends modalSearchAndFormRegistration {
      * Configuração local do modal
      */
     #objConfigs = {
-        formRegistros: true,
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',

@@ -1,8 +1,8 @@
-{{-- <div class="d-grid g-2 gap-2 py-2">
+<div class="d-grid g-2 gap-2 py-2">
 
     <div class="card">
         <div class="card-body">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-xxl-3">
+            <div class="row row-cols-1 row-cols-md-2">
                 <div class="col">
                     <label for="conta_id{{ $sufixo }}" class="form-label">Conta para repasse</label>
                     <div class="input-group">
@@ -19,4 +19,4 @@
         </div>
     </div>
 
-</div> --}}
+</div>

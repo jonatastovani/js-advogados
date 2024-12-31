@@ -6,12 +6,14 @@ Route::controller(App\Http\Controllers\View\Sistema\SistemaController::class)->g
 
     Route::prefix('sistema')->group(function () {
 
-        Route::get('', 'sistemaIndex')->name('sistema.index');
-
         Route::prefix('empresa')->group(function () {
 
             Route::get('', 'configuracaoEmpresaForm')->name('sistema.configuracao.empresa.form');
         });
 
+        // Route::prefix('preenchimento-automatico')->group(function () {
+
+        //     Route::get('', 'preenchimentoAutomatico')->name('sistema.configuracao.preenchimento-automatico.form');
+        // });
     });
 });

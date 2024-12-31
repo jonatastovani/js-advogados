@@ -19,6 +19,11 @@
                         <span class="nav-link-text">Dados da Empresa</span>
                     </a>
                 </li>
+                {{-- <li class="nav-item">
+                    <a class="nav-link" href="{{ route('sistema.configuracao.preenchimento-automatico.form') }}">
+                        <span class="nav-link-text">Preenchimento Automático</span>
+                    </a>
+                </li> --}}
             </ul>
         </div>
     </div>

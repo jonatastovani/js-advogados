@@ -7,7 +7,7 @@
                     <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
                         <option value="0">Selecione</option>
                     </select>
-                    <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao"><i
+                    <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao" id="btnOpenModalPresetParticipacao{{ $sufixo }}"><i
                             class="bi bi-search"></i></button>
                 </div>
             </div>

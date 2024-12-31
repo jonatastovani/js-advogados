@@ -75,6 +75,7 @@
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
     <x-modal.servico.modal-servico-participacao-participante.modal />
+    <x-modal.servico.modal-servico-participacao-preset.modal />
     <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 

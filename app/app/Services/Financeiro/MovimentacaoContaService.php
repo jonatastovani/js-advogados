@@ -27,6 +27,7 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
 use App\Services\Servico\ServicoParticipacaoService;
@@ -64,6 +65,8 @@ class MovimentacaoContaService extends Service
 
         public LancamentoGeral $modelLancamentoGeral,
         public LancamentoGeralService $lancamentoGeralService,
+
+        public PessoaPerfilService $pessoaPerfilService,
     ) {
         parent::__construct($model);
     }
@@ -171,7 +174,7 @@ class MovimentacaoContaService extends Service
 
             $registros = MovimentacaoConta::hydrate($registros->toArray());
             return $registros->load($this->loadFull([
-                'caseTipoReferencia' => $tipo,
+                'caseTipoReferenciaMovimentacaoConta' => $tipo,
             ]));
         });
 
@@ -911,9 +914,9 @@ class MovimentacaoContaService extends Service
     {
         return match ($movimentacaoTipoId) {
             MovimentacaoContaTipoEnum::CREDITO->value => $saldoAtual + $valorMovimentado,
-            MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value => $saldoAtual + $valorMovimentado,
+            MovimentacaoContaTipoEnum::LIBERACAO_CREDITO->value => $saldoAtual + $valorMovimentado,
             MovimentacaoContaTipoEnum::DEBITO->value => $saldoAtual - $valorMovimentado,
-            MovimentacaoContaTipoEnum::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value => $saldoAtual - $valorMovimentado,
+            MovimentacaoContaTipoEnum::DEBITO_LIBERACAO_CREDITO->value => $saldoAtual - $valorMovimentado,
             default => throw new \InvalidArgumentException('Tipo de movimentação inválido.')
         };
     }
@@ -1053,11 +1056,46 @@ class MovimentacaoContaService extends Service
                 $resource->saldo_atualizado = $novoSaldo;
                 $resource->save();
 
+                // Inserir o participante empresa para a movimentação
+                $this->inserirParticipanteEmpresaNoLancamento([
+                    'parent_id' => $resource->id,
+                    'descricao_automatica' => "Empresa",
+                    'valor' => $resource->valor_movimentado
+                ]);
+
                 return $resource->toArray();
             });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
+    }
+
+    private function inserirParticipanteEmpresaNoLancamento($dados)
+    {
+
+        $empresa = $this->pessoaPerfilService->showEmpresa();
+        if (!is_array($empresa) || empty($empresa)) {
+            throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
+        }
+
+        $participacaoEmpresaMovimentacao = ServicoParticipacaoTipoTenant::where('configuracao->tipo', 'participacao_empresa_movimentacao')->first();
+        if (!$participacaoEmpresaMovimentacao) {
+            throw new Exception('Tipo de Participação da empresa não foi configurada. Favor consultar o desenvolvedor.');
+        }
+
+        $newParticipante = new $this->modelParticipanteConta;
+        $newParticipante->parent_id = $dados['parent_id'];
+        $newParticipante->parent_type = $this->model->getMorphClass();
+        $newParticipante->referencia_id = $empresa['id'];
+        $newParticipante->referencia_type = PessoaPerfil::class;
+        $newParticipante->descricao_automatica = $dados['descricao_automatica'];
+        $newParticipante->valor_participante = $dados['valor'];
+        $newParticipante->participacao_tipo_id = $participacaoEmpresaMovimentacao->id;
+        $newParticipante->participacao_registro_tipo_id = ParticipacaoRegistroTipoEnum::PERFIL;
+        $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
+
+        $newParticipante->save();
+        return $newParticipante;
     }
 
     public function alterarStatusLancamentoGeral(Fluent $requestData)
@@ -1184,7 +1222,7 @@ class MovimentacaoContaService extends Service
      * é externa para evitar carregamentos duplicados ou redundantes.
      *
      * @param array $options Opções para manipulação de relacionamentos:
-     *     - 'caseTipoReferencia' (MovimentacaoContaReferenciaEnum|null): Define o tipo de referência para 
+     *     - 'caseTipoReferenciaMovimentacaoConta' (MovimentacaoContaReferenciaEnum|null): Define o tipo de referência para 
      *       o carregamento específico. Pode ser relacionado a Serviço Lançamento ou genérico. Se não for 
      *       informado, aplica um comportamento padrão.
      *     - 'withOutClass' (array|string|null): Classes que devem ser excluídas do carregamento
@@ -1207,7 +1245,7 @@ class MovimentacaoContaService extends Service
      * ```php
      * $service = new MovimentacaoContaService();
      * $relationships = $service->loadFull([
-     *     'caseTipoReferencia' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO,
+     *     'caseTipoReferenciaMovimentacaoConta' => MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO,
      * ]);
      * ```
      */
@@ -1220,7 +1258,7 @@ class MovimentacaoContaService extends Service
         );
 
         // Tipo de referência enviado para o carregamento específico
-        $caseTipoReferencia = $options['caseTipoReferencia'] ?? null;
+        $caseTipoReferenciaMovimentacaoConta = $options['caseTipoReferenciaMovimentacaoConta'] ?? null;
 
         // Função para carregar dados de referência específica dinamicamente
         $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options) {
@@ -1260,15 +1298,23 @@ class MovimentacaoContaService extends Service
         }
 
         // Verifica o tipo de referência e ajusta os relacionamentos
-        if ($caseTipoReferencia === MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value) {
-            $relationships = $carregarReferenciaPorTipo(ServicoPagamentoLancamentoService::class, $relationships);
-        } else {
-            $relationships = array_merge(
-                $relationships,
-                [
-                    'referencia',
-                ]
-            );
+        switch ($caseTipoReferenciaMovimentacaoConta) {
+            case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+                $relationships = $carregarReferenciaPorTipo(ServicoPagamentoLancamentoService::class, $relationships);
+                break;
+
+            case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+                $relationships = $carregarReferenciaPorTipo(LancamentoGeralService::class, $relationships);
+                break;
+
+            default:
+                $relationships = array_merge(
+                    $relationships,
+                    [
+                        'referencia',
+                    ]
+                );
+                break;
         }
 
         return $relationships;

@@ -22,7 +22,7 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    'nome' => ['nome' => 'Título'],
+                    'nome' => ['nome' => 'Nome'],
                     'descricao' => ['nome' => 'Descrição'],
                     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_participante' => ['nome' => 'Nome Participante'],

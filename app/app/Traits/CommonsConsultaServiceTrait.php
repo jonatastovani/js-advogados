@@ -41,7 +41,6 @@ trait CommonsConsultaServiceTrait
         return $this->consultaSimplesComFiltros($requestData);
     }
 
-
     public function consultaSimplesComFiltros(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);

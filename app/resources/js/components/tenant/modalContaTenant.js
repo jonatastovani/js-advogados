@@ -8,7 +8,6 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
      * Configuração local do modal
      */
     #objConfigs = {
-        formRegistros: true,
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',

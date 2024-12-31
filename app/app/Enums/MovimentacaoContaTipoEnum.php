@@ -10,10 +10,12 @@ enum MovimentacaoContaTipoEnum: int
 
     case CREDITO = 1;
     case DEBITO = 2;
-    case TRANSFERENCIA_ENTRE_CONTAS_CREDITO = 3;
-    case TRANSFERENCIA_ENTRE_CONTAS_DEBITO = 4;
-    case AJUSTE_CREDITO = 5;
-    case AJUSTE_DEBITO = 6;
+    case DEBITO_LIBERACAO_CREDITO = 3;
+    case LIBERACAO_CREDITO = 4;
+    // case TRANSFERENCIA_ENTRE_CONTAS_CREDITO = 3;
+    // case TRANSFERENCIA_ENTRE_CONTAS_DEBITO = 4;
+    // case AJUSTE_CREDITO = 5;
+    // case AJUSTE_DEBITO = 6;
 
     public function detalhes(): array
     {
@@ -26,22 +28,32 @@ enum MovimentacaoContaTipoEnum: int
                 'id' => self::DEBITO->value,
                 'nome' => 'Débito',
             ],
-            self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO => [
-                'id' => self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value,
-                'nome' => 'Transferência entre contas - Crédito',
+            self::DEBITO_LIBERACAO_CREDITO => [
+                'id' => self::DEBITO_LIBERACAO_CREDITO->value,
+                'nome' => 'Débito para Liberação de Crédito',
+                'descricao' => 'Débito do valor da Movimentação de Crédito pertencente a Empresa na confirmação do repasse. Ação que antecede a Movimentação de Liberação de Crédito.',
             ],
-            self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO => [
-                'id' => self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value,
-                'nome' => 'Transferência entre contas - Debito',
+            self::LIBERACAO_CREDITO => [
+                'id' => self::LIBERACAO_CREDITO->value,
+                'nome' => 'Liberação de Crédito',
+                'descricao' => 'Liberação de valor da Movimentação de Crédito pertencente a Empresa no momento da confirmação do repasse.',
             ],
-            self::AJUSTE_CREDITO => [
-                'id' => self::AJUSTE_CREDITO->value,
-                'nome' => 'Ajuste - Crédito',
-            ],
-            self::AJUSTE_DEBITO => [
-                'id' => self::AJUSTE_DEBITO->value,
-                'nome' => 'Ajuste - Debito',
-            ],
+            // self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO => [
+            //     'id' => self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value,
+            //     'nome' => 'Transferência entre contas - Crédito',
+            // ],
+            // self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO => [
+            //     'id' => self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value,
+            //     'nome' => 'Transferência entre contas - Debito',
+            // ],
+            // self::AJUSTE_CREDITO => [
+            //     'id' => self::AJUSTE_CREDITO->value,
+            //     'nome' => 'Ajuste - Crédito',
+            // ],
+            // self::AJUSTE_DEBITO => [
+            //     'id' => self::AJUSTE_DEBITO->value,
+            //     'nome' => 'Ajuste - Debito',
+            // ],
         };
     }
 

@@ -7,14 +7,13 @@ use Illuminate\Http\Request;
 
 class SistemaController extends Controller
 {
-    public function sistemaIndex()
-    {
-        // return view('secao.sistema.index');
-        return $this->configuracaoEmpresaForm();
-    }
-
     public function configuracaoEmpresaForm()
     {
         return view('secao.sistema.configuracao.empresa.form');
+    }
+
+    public function preenchimentoAutomatico()
+    {
+        return view('secao.sistema.configuracao.preenchimento-automatico.form');
     }
 }

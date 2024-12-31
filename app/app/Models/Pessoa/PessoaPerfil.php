@@ -107,6 +107,7 @@ class PessoaPerfil extends Model
     public static function joinPerfilPessoaCompleto(Builder $query, Model $model, array $options = [])
     {
 
+        // Prefixo obrigatório para os aliases
         $modelAsName = $model->getTableAsName();
 
         // Join com o Perfil

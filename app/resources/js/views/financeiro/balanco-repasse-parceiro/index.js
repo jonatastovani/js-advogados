@@ -337,22 +337,29 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
     #htmlBtns() {
 
+        // let strBtns = `
+        //     <div class="input-group">
+        //         <div class="input-group-text border-0 rounded-end-0 bg-transparent">
+        //             <input class="form-check-input mt-0 ckbSelecionado" type="checkbox" value="" aria-label="Checkbox for following text input">
+        //         </div>
+        //     </div>
+        //     <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        //         <i class="bi bi-three-dots-vertical"></i>
+        //     </button>
+        //     <ul class="dropdown-menu">
+        //         <li>
+        //             <button type="button" class="dropdown-item fs-6 btn-edit" title="Efetuar aos participantes.">
+        //                 Efetuar repasse
+        //             </button>
+        //         </li>
+        //     </ul>`;
+        
         let strBtns = `
             <div class="input-group">
                 <div class="input-group-text border-0 rounded-end-0 bg-transparent">
                     <input class="form-check-input mt-0 ckbSelecionado" type="checkbox" value="" aria-label="Checkbox for following text input">
                 </div>
-            </div>
-            <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-three-dots-vertical"></i>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-edit" title="Efetuar aos participantes.">
-                        Efetuar repasse
-                    </button>
-                </li>
-            </ul>`;
+            </div>`;
 
         return strBtns;
     }

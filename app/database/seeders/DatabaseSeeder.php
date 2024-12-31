@@ -31,6 +31,7 @@ use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
 use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
 use Database\Seeders\Tenant\EstadoCivilTenantSeeder;
 use Database\Seeders\Tenant\LancamentoCategoriaTipoTenantSeeder;
+use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantObrigatorioSeeder;
 use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
 use Database\Seeders\Tenant\SexoTenantSeeder;
 use Illuminate\Database\Seeder;
@@ -81,6 +82,7 @@ class DatabaseSeeder extends Seeder
                 LancamentoCategoriaTipoTenantSeeder::class,
                 PagamentoTipoTenantSeeder::class,
                 ServicoParticipacaoTipoTenantSeeder::class,
+                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
                 SexoTenantSeeder::class,
             ]);
 
@@ -104,7 +106,8 @@ class DatabaseSeeder extends Seeder
                 // DocumentoTipoTenantUpdateSeeder::class,
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
-                MovimentacaoContaStatusTipoUpdateSeeder::class,
+                // MovimentacaoContaStatusTipoUpdateSeeder::class,
+                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }
     }
