@@ -1,13 +1,13 @@
 <?php
 
-use App\Traits\SchemaTrait;
+use App\Traits\MigrateTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use SchemaTrait;
+    use MigrateTrait;
 
     protected $model;
     protected $schema;

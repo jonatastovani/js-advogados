@@ -59,9 +59,11 @@ class DocumentoGeradoController extends Controller
 
         //Dados do fluent
         $dados = $dataEnv->dados;
+        $campoDadosDocumentoGerado = $dados['dados'];
+        $dadosParticipantes = $campoDadosDocumentoGerado['dados_participantes'];
 
         // Processa os dados da busca
-        foreach ($dados['dados'] as $value) {
+        foreach ($dadosParticipantes as $value) {
             $dadosRetorno = new Fluent();
 
             $dadosRetorno->movimentacao_tipo = $value['parent']['movimentacao_tipo']['nome'];
@@ -94,7 +96,7 @@ class DocumentoGeradoController extends Controller
         $dataEnv->processedData = $processedData;
 
         $nomeParticipante = '';
-        $pessoa = $dados['dados'][0]['referencia']['pessoa'];
+        $pessoa = $dadosParticipantes[0]['referencia']['pessoa'];
         switch ($pessoa['pessoa_dados_type']) {
             case PessoaTipoEnum::PESSOA_FISICA->value:
                 $nomeParticipante = $pessoa['pessoa_dados']['nome'];
@@ -107,14 +109,14 @@ class DocumentoGeradoController extends Controller
 
         $dataEnv->title = $dataEnv->dados['documento_gerado_tipo']['nome'];
         $dataEnv->nome_participante = $nomeParticipante;
-        $dataEnv->mes_ano = Carbon::parse($dataEnv->dados['dados'][0]['parent']['data_movimentacao'])->translatedFormat('F/Y');
+        $dataEnv->mes_ano = Carbon::parse($dadosParticipantes[0]['parent']['data_movimentacao'])->translatedFormat('F/Y');
         $dataEnv->data_documento = Carbon::parse($dataEnv->dados['created_at'])->translatedFormat('d/F/Y');
 
         $dataEnv->pessoa = $pessoa;
 
-        $dataEnv->total_credito = collect($dados['dados'])->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('valor_participante');
+        $dataEnv->total_credito = collect($dadosParticipantes)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('valor_participante');
 
-        $dataEnv->total_debito = collect($dados['dados'])->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('valor_participante');
+        $dataEnv->total_debito = collect($dadosParticipantes)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('valor_participante');
 
         $dataEnv->total_saldo = CurrencyFormatterUtils::toBRL(bcsub($dataEnv->total_credito, $dataEnv->total_debito, 2));
         $dataEnv->total_credito = CurrencyFormatterUtils::toBRL($dataEnv->total_credito);

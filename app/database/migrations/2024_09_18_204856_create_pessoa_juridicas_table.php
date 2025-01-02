@@ -1,13 +1,13 @@
 <?php
 
-use App\Traits\SchemaTrait;
+use App\Traits\MigrateTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use SchemaTrait;
+    use MigrateTrait;
     protected $model;
 
     public function __construct()
@@ -26,7 +26,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->string('razao_social');
-            $table->string('nome_fantasia')->nullable();
+            $table->string('nome_fantasia');
             $table->string('natureza_juridica')->nullable();
             $table->date('data_fundacao')->nullable();
 

@@ -113,13 +113,12 @@
             <thead>
                 <tr>
                     <th class="text-center">
-                        <div class="text-nowrap">
-                            <div class="input-group">
-                                <div class="input-group-text border-0 bg-transparent">
-                                    <input class="form-check-input mt-0" id="ckbCheckAll{{ $sufixo }}" type="checkbox" aria-label="Checkbox for following text input">
-                                </div>
-                                <div class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-fire"></i></div>
+                        <div class="input-group flex-nowrap">
+                            <div class="input-group-text border-0 bg-transparent">
+                                <input class="form-check-input mt-0" id="ckbCheckAll{{ $sufixo }}" type="checkbox"
+                                    aria-label="Checkbox for following text input">
                             </div>
+                            <div class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-fire"></i></div>
                         </div>
                     </th>
                     <th class="text-nowrap">Status</th>

@@ -367,7 +367,7 @@ class MovimentacaoContaParticipanteService extends Service
                         break;
 
                     default:
-                        throw new Exception('Tipo de contrário de movimentação de conta não definido.');
+                        throw new Exception('Tipo de movimentação de conta não configurado.');
                         break;
                 }
 
@@ -383,17 +383,9 @@ class MovimentacaoContaParticipanteService extends Service
             $dadosMovimentacao->referencia_type = DocumentoGerado::class;
             $dadosMovimentacao->conta_id = $grupoConta->first()->parent['conta_id'];
 
-            // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
-            if ($totalRepasse < 0) {
-                $dadosMovimentacao->valor_movimentado = bcmul($totalRepasse, '-1', 2); // Transforma em positivo
-                $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value; // Crédito
-            } else {
-                $dadosMovimentacao->valor_movimentado = $totalRepasse; // Mantém o valor
-                $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::DEBITO->value; // Débito
-            }
-
+            $perfil = $grupoConta->first()->referencia;
             $nomeParceiro = "";
-            $pessoa = $grupoConta->first()->referencia['pessoa'];
+            $pessoa = $perfil['pessoa'];
 
             switch ($pessoa['pessoa_dados_type']) {
                 case PessoaTipoEnum::PESSOA_FISICA->value:
@@ -411,8 +403,43 @@ class MovimentacaoContaParticipanteService extends Service
             $dadosMovimentacao->descricao_automatica = "Repasse/Compensação - $nomeParceiro";
             $dadosMovimentacao->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
 
-            // Lança o repasse para a pessoa atual
-            $movimentacoesRepasse[] = $this->modelMovimentacaoContaService->storeLancarRepasseParceiro($dadosMovimentacao);
+            switch ($perfil['perfil_tipo_id']) {
+
+                    // Somente existirá um perfil de empresa para cada domínio
+                    // Se for o perfil empresa, somente trará os créditos
+                    // Deverá ser lançado o debito e crédito de liberação de valor para a mesma conta
+                case PessoaPerfilTipoEnum::EMPRESA->value:
+
+                    $dadosMovimentacao->valor_movimentado = $totalRepasse; // Mantém o valor
+
+                    // Lança o debito como se fosse um repasse, mas com código diferente por ser empresa
+                    $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::DEBITO_LIBERACAO_CREDITO->value;
+
+                    // Lança a movimentação
+                    $movimentacoesRepasse[] = $this->modelMovimentacaoContaService->storeLancarRepasseParceiro($dadosMovimentacao);
+
+                    // Lança o crédito de liberação para a empresa saber que este valor é de circulação
+                    $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::LIBERACAO_CREDITO->value;
+
+                    // Lança a movimentação
+                    $movimentacoesRepasse[] = $this->modelMovimentacaoContaService->storeLancarRepasseParceiro($dadosMovimentacao);
+
+                    break;
+
+                default:
+                    // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
+                    if ($totalRepasse < 0) {
+                        $dadosMovimentacao->valor_movimentado = bcmul($totalRepasse, '-1', 2); // Transforma em positivo
+                        $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value; // Crédito
+                    } else {
+                        $dadosMovimentacao->valor_movimentado = $totalRepasse; // Mantém o valor
+                        $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::DEBITO->value; // Débito
+                    }
+
+                    // Lança o repasse para a pessoa
+                    $movimentacoesRepasse[] = $this->modelMovimentacaoContaService->storeLancarRepasseParceiro($dadosMovimentacao);
+                    break;
+            }
         });
 
         return $movimentacoesRepasse;

@@ -190,7 +190,7 @@ class MovimentacaoContaService extends Service
         if ($withOutPagination) {
             $data = $registrosOrdenados;
         } else {
-            // $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
+            $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
             $data['data'] = $registrosOrdenados;
         }
 
@@ -207,7 +207,7 @@ class MovimentacaoContaService extends Service
 
                 // Carregar documentos gerados
                 if (!empty($metadata['documento_gerado'])) {
-                    $documentos = DocumentoGerado::with('documento_gerado_tipo')->findMany($metadata['documento_gerado']);
+                    $documentos = DocumentoGerado::with('documento_gerado_tipo')->findMany(collect($metadata['documento_gerado'])->pluck('id')->toArray());
                     $metadata['documento_gerado'] = $documentos->toArray(); // Adiciona os documentos gerados
                 } else {
                     $metadata['documento_gerado'] = []; // Adiciona array vazio caso não tenha

@@ -2,7 +2,7 @@
     <div class="col mt-2">
         <span class="d-block">Valor fixo: R$ <span id="valor_fixo{{ $sufixo }}">0,00</span></span>
         <span class="d-block">Porcentagem comprometida: <span id="porcentagem{{ $sufixo }}">0,00</span>%</span>
-        <span class="d-block">Valor mínimo para uso do preset: R$ <span
+        <span class="d-block">Valor mínimo do lançamento para uso do preset: R$ <span
                 id="valor_minimo{{ $sufixo }}">0,00</span></span>
     </div>
 </div>

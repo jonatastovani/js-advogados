@@ -223,11 +223,14 @@ class CommonsFunctions
     static function formatarDataTimeZonaAmericaSaoPaulo($value)
     {
         if ($value) {
-            return Carbon::parse($value)->timezone(config('app.timezone'))->toDateTimeString();
+            return Carbon::parse($value)
+                ->timezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s.u'); // Inclui os milissegundos
         }
 
         return null;
     }
+
 
     static function getIdUsuarioNoTenant()
     {
@@ -263,6 +266,8 @@ class CommonsFunctions
         $resource->deleted_at = null;
         $resource->deleted_ip = null;
         $resource->deleted_user_id = null;
+
+        // Log::debug("Model: " . get_class($resource) . " - dados created: " . json_encode($resource->toArray()));
     }
 
     static function inserirInfoUpdated($resource)

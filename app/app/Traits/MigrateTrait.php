@@ -9,7 +9,7 @@ use App\Models\Auth\UserTenantDomain;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 
-trait SchemaTrait
+trait MigrateTrait
 {
     public function createSchemaIfNotExists(string $schemaName)
     {
@@ -33,21 +33,21 @@ trait SchemaTrait
             $table->foreign('created_user_id')->references('id')->on((new UserTenantDomain())->getTableName());
         }
         $table->string('created_ip')->nullable();
-        $table->timestamp('created_at')->useCurrent();
+        $table->timestamp('created_at', 6)->useCurrent();
 
         $table->uuid('updated_user_id')->nullable();
         if ($updatedIdReferenced && !$allNotReferenced) {
             $table->foreign('updated_user_id')->references('id')->on((new UserTenantDomain())->getTableName());
         }
         $table->string('updated_ip')->nullable();
-        $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
+        $table->timestamp('updated_at', 6)->nullable()->useCurrentOnUpdate();
 
         $table->uuid('deleted_user_id')->nullable();
         if ($deletedIdReferenced && !$allNotReferenced) {
             $table->foreign('deleted_user_id')->references('id')->on((new UserTenantDomain())->getTableName());
         }
         $table->string('deleted_ip')->nullable();
-        $table->softDeletes();
+        $table->timestamp('deleted_at', 6)->nullable();
     }
 
     public function addIDFieldAsUUID(Blueprint $table)

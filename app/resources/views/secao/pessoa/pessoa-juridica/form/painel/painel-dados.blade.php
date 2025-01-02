@@ -9,7 +9,7 @@
                             class="form-control">
                     </div>
                     <div class="col mt-2">
-                        <label for="nome_fantasia{{ $sufixo }}" class="form-label">Nome Fantasia</label>
+                        <label for="nome_fantasia{{ $sufixo }}" class="form-label">Nome Fantasia*</label>
                         <input type="text" id="nome_fantasia{{ $sufixo }}" name="nome_fantasia"
                             class="form-control">
                     </div>
