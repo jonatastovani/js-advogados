@@ -59,8 +59,9 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
         const form = $(`#formDados${self._objConfigs.sufixo}`);
 
         self._objConfigs.data.user = responseData.user;
-        if (responseData?.user?.username) {
-            form.find('input[name="username"]').val(responseData.user.username);
+        if (responseData?.user?.email) {
+            form.find('input[name="email"]').val(responseData.user.email);
+            form.find('input[name="nome_exibicao"]').val(responseData.user.nome_exibicao);
         } else {
             $(`#alterar_senha_bln${self._objConfigs.sufixo}`).prop('checked', true).trigger('change');
             $(`#rowAlterarSenhaBln${self._objConfigs.sufixo}`).remove();
@@ -84,18 +85,33 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
 
         const self = this;
         const formRegistration = $(`#formDados${self._objConfigs.sufixo}`);
-        let blnSave = commonFunctions.verificationData(data.username, { field: formRegistration.find('input[name="username"]'), messageInvalid: 'O campo <b>usuário</b> deve ser informado.', setFocus: setFocus, returnForcedFalse: returnForcedFalse });
+
+        let blnSave = commonFunctions.verificationData(data.email, {
+            field: formRegistration.find('input[name="email"]'),
+            messageInvalid: 'O campo <b>email</b> deve ser informado.',
+            setFocus: setFocus,
+            returnForcedFalse: returnForcedFalse
+        });
+
+        blnSave = commonFunctions.verificationData(data.nome_exibicao, {
+            field: formRegistration.find('input[name="nome_exibicao"]'),
+            messageInvalid: 'O campo <b>Nome de exibição</b> deve ser informado.',
+            setFocus: blnSave == false,
+            returnForcedFalse: blnSave == false
+        });
 
         if (self._objConfigs.data.user) {
             data.user = {
                 id: self._objConfigs.data.user.id,
-                username: self._objConfigs.data.user.username,
+                nome_exibicao: self._objConfigs.data.user.nome_exibicao,
+                email: self._objConfigs.data.user.email,
                 domain_id: self._objConfigs.data.user.domain_id
             };
         } else {
             data.user = {};
         }
-        data.user.username = data.username;
+        data.user.nome_exibicao = data.nome_exibicao;
+        data.user.email = data.email;
 
         if (
             [undefined, null].includes(self._idRegister)

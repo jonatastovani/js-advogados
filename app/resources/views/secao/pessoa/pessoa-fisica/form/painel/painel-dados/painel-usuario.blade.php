@@ -1,18 +1,22 @@
 <div class="row">
     <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mt-2">
-        <label for="username{{ $sufixo }}" class="form-label">Usuário</label>
-        <input type="text" id="username{{ $sufixo }}" name="username" class="form-control">
+        <label for="nome_exibicao{{ $sufixo }}" class="form-label">Nome de exibição*</label>
+        <input type="text" id="nome_exibicao{{ $sufixo }}" name="nome_exibicao" class="form-control">
+    </div>
+    <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mt-2">
+        <label for="email{{ $sufixo }}" class="form-label">Email*</label>
+        <input type="text" id="email{{ $sufixo }}" name="email" class="form-control">
     </div>
     <div id="divSenha{{ $sufixo }}" class="col-12 col-md-8 col-lg-12 col-xl-8 mt-2" 
         {{ $recurso ? "style=display:none;" : '' }}>
         <div class="row">
             <div class="col-12 col-sm-6">
-                <label for="password{{ $sufixo }}" class="form-label">Senha</label>
+                <label for="password{{ $sufixo }}" class="form-label">Senha*</label>
                 <input type="text" id="password{{ $sufixo }}" name="password"
                     class="form-control" {{ $recurso ? 'disabled' : '' }}>
             </div>
             <div class="col-12 col-sm-6">
-                <label for="password_confirmation{{ $sufixo }}" class="form-label">Confirmação da senha</label>
+                <label for="password_confirmation{{ $sufixo }}" class="form-label">Confirmação da senha*</label>
                 <input type="text" id="password_confirmation{{ $sufixo }}" name="password_confirmation"
                     class="form-control" {{ $recurso ? 'disabled' : '' }}>
             </div>

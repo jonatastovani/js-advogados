@@ -190,42 +190,10 @@ class MovimentacaoContaService extends Service
         if ($withOutPagination) {
             $data = $registrosOrdenados;
         } else {
-            $registrosOrdenados = $this->carregamentoMetadataDocumentoGerado($registrosOrdenados);
             $data['data'] = $registrosOrdenados;
         }
 
         return $data;
-    }
-
-    private function carregamentoMetadataDocumentoGerado(array $registros): array
-    {
-        // Carregar dados adicionais do metadata
-        return collect($registros)->map(function ($registro) {
-            // Certifique-se de que o metadata existe e é um array
-            if (!empty($registro['metadata']) && is_array($registro['metadata'])) {
-                $metadata = $registro['metadata'];
-
-                // Carregar documentos gerados
-                if (!empty($metadata['documento_gerado'])) {
-                    $documentos = DocumentoGerado::with('documento_gerado_tipo')->findMany(collect($metadata['documento_gerado'])->pluck('id')->toArray());
-                    $metadata['documento_gerado'] = $documentos->toArray(); // Adiciona os documentos gerados
-                } else {
-                    $metadata['documento_gerado'] = []; // Adiciona array vazio caso não tenha
-                }
-
-                // // Carregar movimentações de repasse, se necessário
-                // if (!empty($metadata['movimentacao_repasse'])) {
-                //     $movimentacoesRepasse = MovimentacaoConta::findMany($metadata['movimentacao_repasse']);
-                //     $registro['movimentacoes_repasse'] = $movimentacoesRepasse->toArray();
-                // } else {
-                //     $registro['movimentacoes_repasse'] = [];
-                // }
-
-                $registro['metadata'] = $metadata;
-            }
-
-            return $registro;
-        })->toArray();
     }
 
     /**
@@ -1191,6 +1159,7 @@ class MovimentacaoContaService extends Service
 
         $resource = new $this->model;
         $resource->fill($dadosMovimentacao->toArray());
+        $resource->metadata = $dadosMovimentacao->metadata;
         $resource->status_id = $dadosMovimentacao->status_id;
         $resource->movimentacao_tipo_id = $dadosMovimentacao->movimentacao_tipo_id;
 
@@ -1206,6 +1175,42 @@ class MovimentacaoContaService extends Service
         $resource->save();
 
         return $resource;
+    }
+
+    public function getDocumentoGerado(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $resource = $this->carregamentoMetadataDocumentoGerado($resource);
+        $documentoGerado = $resource->metadata['documento_gerado'];
+        return !empty($documentoGerado) ? $documentoGerado : [];
+    }
+
+    private function carregamentoMetadataDocumentoGerado(Model $registro)
+    {
+        // Certifique-se de que o metadata existe e é um array
+        if (!empty($registro->metadata) && is_array($registro->metadata)) {
+            $metadata = $registro->metadata;
+
+            // Carregar documentos gerados
+            if (!empty($metadata['documento_gerado'])) {
+                $documentos = DocumentoGerado::with('documento_gerado_tipo')->findMany(collect($metadata['documento_gerado'])->pluck('id')->toArray());
+                $metadata['documento_gerado'] = $documentos->toArray(); // Adiciona os documentos gerados
+            } else {
+                $metadata['documento_gerado'] = []; // Adiciona array vazio caso não tenha
+            }
+
+            // // Carregar movimentações de repasse, se necessário
+            // if (!empty($metadata['movimentacao_repasse'])) {
+            //     $movimentacoesRepasse = MovimentacaoConta::findMany($metadata['movimentacao_repasse']);
+            //     $registro['movimentacoes_repasse'] = $movimentacoesRepasse->toArray();
+            // } else {
+            //     $registro['movimentacoes_repasse'] = [];
+            // }
+
+            $registro->metadata = $metadata;
+        }
+
+        return $registro;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

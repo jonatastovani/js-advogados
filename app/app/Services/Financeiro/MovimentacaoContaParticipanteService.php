@@ -140,13 +140,12 @@ class MovimentacaoContaParticipanteService extends Service
             $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
         }
         if ($requestData->movimentacao_status_tipo_id) {
-            $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
+            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
         }
 
-        $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiro());
-        $query = $this->aplicarScopesPadrao($query, $this->modelMovimentacaoConta, $options);
+        $query->whereIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseParceiro());
 
-        $query->whereNotIn("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", MovimentacaoContaStatusTipoEnum::statusOcultoNasConsultas());
+        $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
         // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
         $query->where(function (Builder $query) {
@@ -234,7 +233,7 @@ class MovimentacaoContaParticipanteService extends Service
             return DB::transaction(function () use ($requestData, $resources, $options) {
 
                 $newDocumento = new $this->modelDocumentoGerado;
-                $newDocumento->dados = ['dados_participantes' => $resources->toArray()];
+                $newDocumento->dados = ['dados_participacao' => $resources->toArray()];
                 $newDocumento->documento_gerado_tipo_id = DocumentoGeradoTipoEnum::REPASSE_PARCEIRO;
                 $newDocumento->save();
 
@@ -243,6 +242,19 @@ class MovimentacaoContaParticipanteService extends Service
 
                 // Lança as movimentações de repasse por conta
                 $movimentacoesRepasse = $this->lancarMovimentacaoRepassePorPessoa($requestData, $resources, $documentoGeradoInserir, $options);
+
+                //Faz o carregamento da conta para ter o snapshot da conta para o documento gerado
+                $movimentacoesRepasse = collect($movimentacoesRepasse)->map(function ($movimentacao) {
+                    $movimentacao->load('conta');
+                    unset($movimentacao->tenant, $movimentacao->metadata);
+                    return $movimentacao;
+                });
+
+                // Insere as movimentações geradas de repasse no dados[movimentacao_repasse] do documento gerado
+                $dados = $newDocumento->dados;
+                $dados['movimentacao_repasse'] = $movimentacoesRepasse;
+                $newDocumento->dados = $dados;
+                $newDocumento->save();
 
                 $this->inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse);
 
@@ -503,12 +515,12 @@ class MovimentacaoContaParticipanteService extends Service
             }
 
             // Filtra pela conta porque na movimentação lançada, haverá somente uma movimentação para cada conta, tanto faz para crédito quanto para débito
-            $movimentacoesRepasse = collect($movimentacoesRepasse)->where('conta_id', $movimentacao->conta_id)->pluck('id')->toArray();
+            $movimentacoesRepasseId = collect($movimentacoesRepasse)->where('conta_id', $movimentacao->conta_id)->pluck('id')->first();
             // Verifica se já existe a chave 'movimentacao_repasse' e adiciona o novo ID
             if (isset($metadata['movimentacao_repasse']) && is_array($metadata['movimentacao_repasse'])) {
-                $metadata['movimentacao_repasse'][] = $movimentacoesRepasse;
+                $metadata['movimentacao_repasse'][] = $movimentacoesRepasseId;
             } else {
-                $metadata['movimentacao_repasse'] = [$movimentacoesRepasse];
+                $metadata['movimentacao_repasse'] = [$movimentacoesRepasseId];
             }
 
             // Verifica os status dos participantes da movimentação

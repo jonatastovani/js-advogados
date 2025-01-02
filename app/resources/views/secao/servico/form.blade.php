@@ -112,6 +112,7 @@
     <x-modal.servico.modal-servico-pagamento.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
     <x-modal.servico.modal-servico-participacao.modal />
+    <x-modal.servico.modal-servico-participacao-preset.modal />
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
 @endpush

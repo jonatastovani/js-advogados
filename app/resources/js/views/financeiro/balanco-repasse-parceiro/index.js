@@ -433,7 +433,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Statics.MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseParceiroFrontEnd;
+            const arrayOpcoes = window.Statics.statusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd;
+            console.log(arrayOpcoes)
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',

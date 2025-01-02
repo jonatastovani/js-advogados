@@ -109,6 +109,7 @@
 
 @push('modals')
     <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.documento.modal-selecionar-documento.modal />
     {{-- <x-modal.financeiro.modal-conta-transferencia.modal /> --}}
 @endpush
 

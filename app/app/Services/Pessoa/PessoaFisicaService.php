@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class PessoaFisicaService extends Service
@@ -377,9 +378,13 @@ class PessoaFisicaService extends Service
     protected function verificarUsuario(Fluent $requestData, Model $resource, Fluent $arrayErrors): Fluent
     {
         // Verifica se os dados do usuário foram enviados
-        if (empty($requestData->user) || !isset($requestData->user['username'])) {
+        if (empty($requestData->user) || !isset($requestData->user['email']) || !isset($requestData->user['nome_exibicao'])) {
             $arrayErrors->user = LogHelper::gerarLogDinamico(404, 'Os dados do usuário devem ser informados.', $requestData)->error;
-            return $arrayErrors;
+
+            $retorno = new Fluent();
+            $retorno->user = null;
+            $retorno->arrayErrors = $arrayErrors;
+            return $retorno;
         }
 
         // Busca ou cria o usuário
@@ -387,32 +392,26 @@ class PessoaFisicaService extends Service
             ? User::find($requestData->user['id'])
             : ($resource->id ? $resource->pessoa->perfil_usuario->user ?? null : null);
 
-        // Verifica duplicidade de username no mesmo tenant
+        // Verifica duplicidade de email no mesmo tenant
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente(
             User::class,
-            ['username' => $requestData->user['username']],
+            ['email' => $requestData->user['email']],
             $user->id ?? null
         );
 
         if ($validacaoRecursoExistente->count()) {
-            $arrayErrors->user_username = LogHelper::gerarLogDinamico(
+            $arrayErrors->user_email = LogHelper::gerarLogDinamico(
                 404,
-                "O nome de usuário informado já existe cadastrado para outra pessoa.",
+                "O email informado já existe cadastrado para outra pessoa.",
                 $requestData
             )->error;
         } else {
-
-            // Prepara os dados do usuário
-            $dataUser = [
-                'username' => $requestData->user['username'],
-                'nome' => $requestData->nome,
-            ];
 
             if (!$user) {
                 $user = new User();
             }
 
-            $user->fill($dataUser);
+            $user->fill(collect($requestData->user)->toArray());
 
             // Adiciona a senha se necessário
             if (!$user->id || !empty($requestData->user['password'])) {

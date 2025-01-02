@@ -56,4 +56,14 @@ enum MovimentacaoContaParticipanteStatusTipoEnum: int
             self::FINALIZADA->value,
         ];
     }
+    
+    static public function statusMostrarBalancoRepasseParceiroFrontEnd(): array
+    {
+        $mostrar = self::statusMostrarBalancoRepasseParceiro();
+
+        return array_values(array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => in_array($detalhe['id'], $mostrar)
+        ));
+    }
 }

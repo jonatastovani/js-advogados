@@ -30,7 +30,7 @@ class PageLogin {
             $('.error_login').html('');
         });
 
-        $('#username').val('admin');
+        $('#email').val('admin@byteforge.com.br');
         $('#password').val('admin123');    
     }
 }

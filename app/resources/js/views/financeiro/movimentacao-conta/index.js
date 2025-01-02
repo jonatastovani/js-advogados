@@ -1,8 +1,10 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { templateSearch } from "../../../commons/templates/templateSearch";
+import { modalSelecionarDocumento } from "../../../components/documento/modalSelecionarDocumento";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -21,7 +23,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
             baseMovimentacaoConta: window.apiRoutes.baseMovimentacaoConta,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
             baseContas: window.apiRoutes.baseContas,
-            baseFrontDocumentoGeradoImpressao: window.frontRoutes.baseFrontDocumentoGeradoImpressao,
         },
         data: {
             // Pré carregamento de dados vindo da URL
@@ -119,24 +120,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
-                // Flatten o objeto para gerar os parâmetros
-                let flattenedParams = URLHelper.flattenObject(self._objConfigs.querys.consultaFiltros.dataPost);
-                let queryString = '';
-
-                // Constrói a query string
-                Object.keys(flattenedParams).forEach(function (key) {
-                    queryString += encodeURIComponent(key) + '=' + encodeURIComponent(flattenedParams[key]) + '&';
-                });
-
-                // Remove o último '&'
-                queryString = queryString.slice(0, -1);
-
-
-                // Crie a URL base (substitua pela URL desejada)
-                const baseURL = self._objConfigs.url.baseFrontImpressao;
-
-                // Abre em uma nova guia
-                window.open(`${baseURL}?${queryString}`, '_blank');
+                RedirectHelper.openURLWithParams(self._objConfigs.url.baseFrontImpressao, self._objConfigs.querys.consultaFiltros.dataPost);
             }
         });
     }
@@ -249,29 +233,23 @@ class PageMovimentacaoContaIndex extends templateSearch {
             </tr>
         `);
 
-        // self.#addEventosRegistrosConsulta(item);
+        self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
 
     #htmlBtns(item) {
-        const self = this;
-        
         const metadata = item.metadata;
-        console.log(metadata);
 
         let strBtns = '';
 
         if (metadata?.documento_gerado.length) {
-            metadata.documento_gerado.map((doc) => {
-                const descricao = doc.documento_gerado_tipo.descricao;
-                strBtns += `
-                    <li>
-                        <a href="${self._objConfigs.url.baseFrontDocumentoGeradoImpressao}/${doc.id}" target="_blank" class="dropdown-item fs-6 btn-edit" ${descricao ? `title="${descricao}"` : ''}>
-                            ${doc.documento_gerado_tipo.nome}
-                        </a>
-                    </li>`;
-            })
+            strBtns += `
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-documento-gerado">
+                        Documentos gerados (${metadata.documento_gerado.length})
+                    </button>
+                </li>`;
         }
 
         strBtns = `
@@ -288,25 +266,21 @@ class PageMovimentacaoContaIndex extends templateSearch {
     #addEventosRegistrosConsulta(item) {
         const self = this;
 
-        const buscaIndex = (itemVerificar) => {
-            return self._objConfigs.data.selecionados.findIndex(itemBusca => itemBusca.id == itemVerificar.id);
-        };
+        $(`#${item.idTr}`).find(`.btn-documento-gerado`).on('click', async function () {
 
-        $(`#${item.idTr}`).find(`.ckbSelecionado`).on('change', async function () {
-            try {
-                let selecionados = self._objConfigs.data.selecionados;
-                const index = buscaIndex(item);
-                const prop = $(this).prop('checked');
-
-                if (index === -1 && prop) {
-                    // Adiciona o item se ele não estiver na lista e estiver selecionado
-                    selecionados.push(item);
-                } else if (index > -1 && !prop) {
-                    // Remove o item se ele estiver na lista e não estiver selecionado
-                    selecionados.splice(index, 1); // Remove diretamente pelo índice
+            if (item.metadata?.documento_gerado.length) {
+                try {
+                    commonFunctions.simulateLoading(this);
+                    const objModal = new modalSelecionarDocumento();
+                    objModal.setDataEnvModal = {
+                        idRegister: item.id,
+                    };
+                    const response = await objModal.modalOpen();
+                } catch (error) {
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(this, false);
                 }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }

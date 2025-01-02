@@ -62,6 +62,8 @@ Route::group([
             Route::post('consulta-filtros', 'postConsultaFiltros');
             // Route::post('transferencia-conta', 'storeTransferenciaConta')->name('api.financeiro.movimentacao-conta.transferencia-conta');
 
+            Route::get('{uuid}/documento-gerado', 'getDocumentoGerado');
+
             Route::prefix('lancamentos')->group(function () {
 
                 Route::get('', function () {})->name('api.financeiro.movimentacao-conta.lancamentos');

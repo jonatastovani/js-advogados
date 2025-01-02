@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Financeiro;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestGetDocumentoGerado;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoGeral;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoServico;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
@@ -46,6 +47,12 @@ class MovimentacaoContaController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated());
         return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
+
+    public function getDocumentoGerado(MovimentacaoContaFormRequestGetDocumentoGerado $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->getDocumentoGerado($fluentData));
     }
 
     // public function storeTransferenciaConta(MovimentacaoContaFormRequestStoreTransferenciaConta $formRequest)

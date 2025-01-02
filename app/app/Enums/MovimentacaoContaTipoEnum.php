@@ -30,7 +30,7 @@ enum MovimentacaoContaTipoEnum: int
             ],
             self::DEBITO_LIBERACAO_CREDITO => [
                 'id' => self::DEBITO_LIBERACAO_CREDITO->value,
-                'nome' => 'Débito para Liberação de Crédito',
+                'nome' => 'Débito - Liberação de Crédito',
                 'descricao' => 'Débito do valor da Movimentação de Crédito pertencente a Empresa na confirmação do repasse. Ação que antecede a Movimentação de Liberação de Crédito.',
             ],
             self::LIBERACAO_CREDITO => [

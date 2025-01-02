@@ -303,7 +303,8 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 form.find('.pValor').html(pValor);
                 form.find('input[name="observacao"]').val(responseData.observacao);
                 form.find('select[name="conta_id"]').val(conta_id);
-                form.find('input[name="data_recebimento"]').val(responseData.data_vencimento);
+                const diferenca = DateTimeHelper.retornaDiferencaDeDataEHora(responseData.data_vencimento, new Date(), 1);
+                form.find('input[name="data_recebimento"]').val(diferenca > 0 ? responseData.data_vencimento : DateTimeHelper.retornaDadosDataHora(new Date(), 1));
 
                 await self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(participantes);
 

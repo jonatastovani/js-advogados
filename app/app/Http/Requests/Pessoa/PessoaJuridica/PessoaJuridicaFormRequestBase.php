@@ -10,7 +10,7 @@ class PessoaJuridicaFormRequestBase extends BaseFormRequest
     {
         return [
             'razao_social' => 'required|string|min:3',
-            'nome_fantasia' => 'nullable|string',
+            'nome_fantasia' => 'required|string',
             'natureza_juridica' => 'nullable|string',
             'data_fundacao' => 'nullable|date',
             'inscricao_estadual' => 'nullable|string',

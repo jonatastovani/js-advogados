@@ -18,8 +18,8 @@ class UserSeeder extends Seeder
         $insert = [
             [
                 'id' => $adminId,
-                'nome' => 'Administrador',
-                'username' => 'admin',
+                'nome_exibicao' => 'Administrador',
+                'email' => 'admin@byteforge.com.br',
                 'password' => 'admin123',
                 'tenant_id' => 'admin',
                 'created_user_id' => $adminId
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
 
         // User::create([
         //     'nome' => 'Administrador',
-        //     'username' => 'admin',
+        //     'email' => 'admin',
         //     'password' => '!@#$56Qw',
         //     // 'descricao' => 'Acesso de administrador do sistema.',
         //     // 'tenant_id' => 'admin',
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
         // ]);
         // User::create([
         //     'nome' => 'GPU Online API - Legacy',
-        //     'username' => 'gpuonlineapi',
+        //     'email' => 'gpuonlineapi',
         //     'password' => '!@#$56Qw',
         //     // 'descricao' => 'Acesso do Front do GPU.',
         //     // 'tenant_id' => 'gpu-online-api',

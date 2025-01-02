@@ -3,6 +3,7 @@ import { URLHelper } from "./URLHelper";
 import { UUIDHelper } from "./UUIDHelper";
 
 export class RedirectHelper {
+
     /**
      * Gera um UUID, armazena uma mensagem no localStorage e redireciona para a URL com o UUID como parâmetro.
      * A mensagem será exibida apenas na página de destino que contiver o UUID na URL.
@@ -55,4 +56,31 @@ export class RedirectHelper {
         commonFunctions.generateNotification(message, type);
     }
 
+    /**
+     * Gera e redireciona para uma URL com parâmetros opcionais, abrindo em uma nova aba.
+     * Se nenhum parâmetro for enviado, redireciona apenas para a URL base.
+     * 
+     * @param {string} url - A URL base.
+     * @param {Object} params - (Opcional) Objeto contendo os parâmetros para a query string.
+     */
+    static openURLWithParams(url, params = {}) {
+        let queryString = '';
+
+        if (params && typeof params === 'object') {
+            // Flatten o objeto para gerar os parâmetros
+            const flattenedParams = URLHelper.flattenObject(params);
+
+            // Constrói a query string
+            Object.keys(flattenedParams).forEach(function (key) {
+                queryString += encodeURIComponent(key) + '=' + encodeURIComponent(flattenedParams[key]) + '&';
+            });
+
+            // Remove o último '&'
+            queryString = queryString.slice(0, -1);
+        }
+
+        // Abre a URL em uma nova aba
+        const fullURL = queryString ? `${url}?${queryString}` : url;
+        window.open(fullURL, '_blank');
+    }
 }

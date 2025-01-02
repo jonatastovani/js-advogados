@@ -27,20 +27,20 @@ return new class extends Migration
         Schema::create("{$this->schema}.users", function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
 
-            $table->string('nome');
-            $table->string('username');
+            $table->string('nome_exibicao');
+            // $table->string('username');
             $table->string('password');
 
             $this->addTenantIDField($table);
 
-            // $table->string('email')->unique();
-            // $table->timestamp('email_verified_at')->nullable();
+            $table->string('email');
+            $table->timestamp('email_verified_at')->nullable();
 
             $table->rememberToken();
             // $table->timestamps();
 
-            // Índice único para garantir unicidade entre username e tenant_id
-            $table->unique(['username', 'tenant_id'], 'unique_username_tenant');
+            // Índice único para garantir unicidade entre email e tenant_id
+            $table->unique(['email', 'tenant_id'], 'unique_email_tenant');
             $this->addCommonFieldsCreatedUpdatedDeleted($table, ['allNotReferenced' => true, 'createdIdNullable' => true]);
         });
 

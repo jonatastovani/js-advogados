@@ -222,7 +222,7 @@
     fill: currentColor;
 }
 
-.bd-mode-toggle .btn-bd-primary {
+/* .bd-mode-toggle .btn-bd-primary {
     --bd-violet-bg: #712cf9;
     --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
 
@@ -237,7 +237,7 @@
     --bs-btn-active-color: var(--bs-btn-hover-color);
     --bs-btn-active-bg: #5a23c8;
     --bs-btn-active-border-color: #5a23c8;
-}
+} */
 
 /* 
 @media (min-width: 992px) {

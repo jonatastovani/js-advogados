@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -30,7 +31,6 @@ trait CommonsModelsMethodsTrait
             'deleted_at',
         ];
     }
-
 
     /**
      * Get the name of the table associated with the model.
@@ -88,6 +88,18 @@ trait CommonsModelsMethodsTrait
         $tableAsName = $this->getTableAsName();
 
         return $tableName === $tableAsName ? $tableName : "$tableName as $tableAsName";
+    }
+
+    public function setCreatedAtAttribute($value)
+    {
+        // Certifique-se de que o valor seja formatado corretamente com milissegundos
+        $this->attributes['created_at'] = (new DateTime($value))->format('Y-m-d H:i:s.u');
+    }
+
+    public function setUpdatedAtAttribute($value)
+    {
+        // Certifique-se de que o valor seja formatado corretamente com milissegundos
+        $this->attributes['updated_at'] = $value ? (new DateTime($value))->format('Y-m-d H:i:s.u') : null;
     }
 
     /**

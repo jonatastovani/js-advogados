@@ -20,14 +20,14 @@ class LoginService
     public function session_start(Request $request)
     {
         try {
-            $credentials = $request->only('username', 'password');
-            $username = $credentials['username'];
+            $credentials = $request->only('email', 'password');
+            $email = $credentials['email'];
             $password = $credentials['password'];
 
             // Verifica se o usuário é "admin"
-            if ($username === 'admin') {
-                // $user = User::withoutTenancy()->where('username', 'admin')->first();
-                $user = User::where('username', 'admin')->first();
+            if ($email === 'admin@byteforge.com.br') {
+                // $user = User::withoutTenancy()->where('email', 'admin@byteforge.com.br')->first();
+                $user = User::where('email', 'admin@byteforge.com.br')->first();
 
                 // Valida a senha do administrador
                 if (!$user || !Hash::check($password, $user->password)) {
@@ -61,10 +61,10 @@ class LoginService
      */
     private function invalidCredentialsResponse(Request $request)
     {
-        $responseErroLogin = RestResponse::createErrorResponse(401, 'Usuário ou senha inválidos.');
+        $responseErroLogin = RestResponse::createErrorResponse(401, 'Email ou senha inválidos.');
         return redirect()->back()->with('error_login', [
             'error' => $responseErroLogin->toArray(),
-            'username' => $request->input('username'),
+            'email' => $request->input('email'),
         ]);
     }
 }

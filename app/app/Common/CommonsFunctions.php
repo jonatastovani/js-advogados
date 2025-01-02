@@ -231,7 +231,6 @@ class CommonsFunctions
         return null;
     }
 
-
     static function getIdUsuarioNoTenant()
     {
 
@@ -267,7 +266,6 @@ class CommonsFunctions
         $resource->deleted_ip = null;
         $resource->deleted_user_id = null;
 
-        // Log::debug("Model: " . get_class($resource) . " - dados created: " . json_encode($resource->toArray()));
     }
 
     static function inserirInfoUpdated($resource)

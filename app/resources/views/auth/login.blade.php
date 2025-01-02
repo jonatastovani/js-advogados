@@ -20,17 +20,17 @@
 
                 @php
                     $erro_login = new Illuminate\Support\Fluent(Session::get('error_login') ?? []);
-                    $username = $erro_login->username ?? '';
+                    $email = $erro_login->email ?? '';
                     $password = $erro_login->password ?? '';
                 @endphp
 
                 <form id="form_login" method="POST" enctype="multipart/form-data" action="{{ route('login.post') }}">
                     @csrf
                     <div class="form-floating mt-3 mb-3">
-                        <input type="text" id="username" name="username" class="form-control"
-                            placeholder="Digite seu nome de usuário" aria-label="Nome de Usuário"
-                            aria-describedby="label-username" value="{{ $username }}" required autofocus>
-                        <label for="username" id="label-username">Usuário</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                            placeholder="Digite seu email" aria-label="Email"
+                            aria-describedby="label-email" value="{{ $email }}" required autofocus>
+                        <label for="email" id="label-email">Email</label>
                     </div>
                     <div class="input-group mt-3 mb-3">
                         <div class="form-floating">

@@ -18,7 +18,7 @@
                             <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
                                 <option value="0">Selecione</option>
                             </select>
-                            <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao"><i
+                            <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao" id="btnOpenModalPresetParticipacao{{ $sufixo }}"><i
                                     class="bi bi-search"></i></button>
                         </div>
                     </div>
@@ -40,6 +40,7 @@
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
     <x-modal.servico.modal-servico-participacao-participante.modal />
+    <x-modal.servico.modal-servico-participacao-preset.modal />
 @endpush
 
 @component('components.api.api-routes', [

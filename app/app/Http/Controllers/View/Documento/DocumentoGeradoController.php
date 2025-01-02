@@ -60,7 +60,7 @@ class DocumentoGeradoController extends Controller
         //Dados do fluent
         $dados = $dataEnv->dados;
         $campoDadosDocumentoGerado = $dados['dados'];
-        $dadosParticipantes = $campoDadosDocumentoGerado['dados_participantes'];
+        $dadosParticipantes = $campoDadosDocumentoGerado['dados_participacao'];
 
         // Processa os dados da busca
         foreach ($dadosParticipantes as $value) {

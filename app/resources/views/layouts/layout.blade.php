@@ -13,8 +13,8 @@
 
 <body>
     {{ Session::put('tenantDados', \App\Models\Auth\Tenant::find(tenant('id'))) }}
-{{-- 
-    @component('components.toggleMode')
+
+    {{-- @component('components.toggleMode')
     @endcomponent --}}
 
     @component('components.nav.nav-vertical')
