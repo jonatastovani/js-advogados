@@ -1,5 +1,5 @@
 <div class="row h-100">
-    <form id="formDados{{ $sufixo }}">
+    <form id="form{{ $sufixo }}">
         <div class="row h-100">
             <div class="col d-flex flex-column">
                 <div class="row">

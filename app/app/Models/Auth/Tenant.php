@@ -11,24 +11,24 @@ use Stancl\Tenancy\Database\Concerns\HasDomains;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
-    use HasDatabase, HasDomains,
+    use HasDatabase,
+        HasDomains,
         CommonsModelsMethodsTrait;
 
     protected $table = 'auth.tenants';
     protected $tableAsName = 'ten';
 
+    protected $casts = [
+        'data' => 'array',
+    ];
+
     public static function getCustomColumns(): array
     {
         return [
             'id',
-            'nome',
-            'dados_unidade_gepen_id',
+            'name',
             'tenant_type_id',
+            'data',
         ];
-    }
-
-    public function dadosUnidade()
-    {
-        return $this->belongsTo(DadosUnidadeGPU::class, 'du_cd_unidade', 'dados_unidade_gepen_id')->withDefault([]);
     }
 }

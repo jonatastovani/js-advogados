@@ -1185,4 +1185,44 @@ export class commonFunctions {
     //     }
     // }
 
+    /**
+     * Merge objetos recursivamente. Se o valor for um objeto, chama o método
+     * recursivamente. Caso contrário, sobrescreve o valor diretamente.
+     * @param {Object} target - Objeto alvo da merge
+     * @param {Object} source - Objeto fonte da merge
+     * @return {Object} O objeto resultante da merge
+     */
+    static deepMergeObject(target = {}, source = {}) {
+        // Garante que o target e source são objetos
+        if (typeof target !== "object" || target === null) {
+            throw new TypeError("O target deve ser um objeto válido.");
+        }
+        if (typeof source !== "object" || source === null) {
+            throw new TypeError("O source deve ser um objeto válido.");
+        }
+
+        // Itera pelas chaves do objeto source
+        for (const key in source) {
+            if (source.hasOwnProperty(key)) {
+                if (
+                    typeof source[key] === "object" &&
+                    source[key] !== null &&
+                    !Array.isArray(source[key])
+                ) {
+                    // Inicializa target[key] como objeto vazio se não existir
+                    if (!target[key] || typeof target[key] !== "object") {
+                        target[key] = {};
+                    }
+                    // Chamada recursiva
+                    commonFunctions.deepMergeObject(target[key], source[key]);
+                } else {
+                    // Caso contrário, sobrescrevemos o valor diretamente
+                    target[key] = source[key];
+                }
+            }
+        }
+        return target;
+    }
+
+
 }

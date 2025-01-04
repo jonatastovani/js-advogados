@@ -6,7 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Auth\User;
+use App\Mail\FirstAccessMail;
 use App\Models\Auth\UserTenantDomain;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
@@ -18,6 +18,7 @@ use App\Models\Tenant\EstadoCivilTenant;
 use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
 use App\Traits\PessoaDocumentosMethodsTrait;
+use App\Traits\PessoaFisicaUsuarioMethodsTrait;
 use App\Traits\PessoaPerfilMethodsTrait;
 use App\Traits\UserDomainMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,11 +26,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Fluent;
+use Illuminate\Support\Str;
 
 class PessoaFisicaService extends Service
 {
-    use PessoaDocumentosMethodsTrait, PessoaPerfilMethodsTrait, UserDomainMethodsTrait;
+    use PessoaDocumentosMethodsTrait, PessoaPerfilMethodsTrait, UserDomainMethodsTrait, PessoaFisicaUsuarioMethodsTrait;
 
     public function __construct(
         PessoaFisica $model,
@@ -159,7 +163,7 @@ class PessoaFisicaService extends Service
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
         try {
-            return DB::transaction(function () use ($resource) {
+            return DB::transaction(function () use ($resource, $requestData) {
 
                 $documentos = $resource->documentos;
                 unset($resource->documentos);
@@ -174,8 +178,11 @@ class PessoaFisicaService extends Service
                 }
 
                 $userDomains = null;
-                if ($resource->userDomains) {
-                    $userDomains = $resource->userDomains;
+                // Somente se for update do tipo usuário para verificar domínios
+                if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+                    if ($resource->userDomains) {
+                        $userDomains = $resource->userDomains;
+                    }
                     unset($resource->userDomains);
                 }
 
@@ -210,7 +217,7 @@ class PessoaFisicaService extends Service
                 if ($user && $perfilUsuario) {
                     $user->pessoa_perfil_id = $perfilUsuario->id;
                     $user->tenant_id = tenant('id');
-                    $user->save();
+                    $user = $this->atualizarOuCriarUsuarioEnviado($resource, $user);
 
                     if (collect($userDomains)->isNotEmpty()) {
                         // Fazer salvamento dos domínios
@@ -276,15 +283,7 @@ class PessoaFisicaService extends Service
 
                 // Se for enviado dados de usuário
                 if ($user) {
-                    if ($user->id) {
-                        $user->save();
-                    } else {
-                        $perfilUsuario = $this->modelPessoaPerfil::where('pessoa_id', $resource->pessoa->id)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->first();
-
-                        $user->pessoa_perfil_id = $perfilUsuario->id;
-                        $user->tenant_id = tenant('id');
-                        $user->save();
-                    }
+                    $user = $this->atualizarOuCriarUsuarioEnviado($resource, $user);
 
                     if ($userDomains || $userDomainsExistentes) {
                         // Fazer salvamento dos domínios
@@ -370,60 +369,6 @@ class PessoaFisicaService extends Service
         }
 
         return $arrayErrors;
-    }
-
-    /**
-     * Verifica e preenche dados do usuário para perfis do tipo USUARIO.
-     */
-    protected function verificarUsuario(Fluent $requestData, Model $resource, Fluent $arrayErrors): Fluent
-    {
-        // Verifica se os dados do usuário foram enviados
-        if (empty($requestData->user) || !isset($requestData->user['email']) || !isset($requestData->user['nome_exibicao'])) {
-            $arrayErrors->user = LogHelper::gerarLogDinamico(404, 'Os dados do usuário devem ser informados.', $requestData)->error;
-
-            $retorno = new Fluent();
-            $retorno->user = null;
-            $retorno->arrayErrors = $arrayErrors;
-            return $retorno;
-        }
-
-        // Busca ou cria o usuário
-        $user = isset($requestData->user['id'])
-            ? User::find($requestData->user['id'])
-            : ($resource->id ? $resource->pessoa->perfil_usuario->user ?? null : null);
-
-        // Verifica duplicidade de email no mesmo tenant
-        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente(
-            User::class,
-            ['email' => $requestData->user['email']],
-            $user->id ?? null
-        );
-
-        if ($validacaoRecursoExistente->count()) {
-            $arrayErrors->user_email = LogHelper::gerarLogDinamico(
-                404,
-                "O email informado já existe cadastrado para outra pessoa.",
-                $requestData
-            )->error;
-        } else {
-
-            if (!$user) {
-                $user = new User();
-            }
-
-            $user->fill(collect($requestData->user)->toArray());
-
-            // Adiciona a senha se necessário
-            if (!$user->id || !empty($requestData->user['password'])) {
-                $user->password = Hash::make($requestData->user['password']);
-            }
-        }
-
-        $retorno = new Fluent();
-        $retorno->user = $user;
-        $retorno->arrayErrors = $arrayErrors;
-
-        return $retorno;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

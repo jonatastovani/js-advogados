@@ -10,6 +10,13 @@ Route::group([
     ],
 ], function () {
 
+    Route::controller(App\Http\Controllers\Auth\TenantController::class)->group(function () {
+        Route::get('', 'index')->name('api.tenant');
+
+        Route::get('current', 'current');
+        Route::get('{id}', 'show');
+        Route::post('update-cliente/{id}', 'updateCliente');
+    });
 
     Route::prefix('area-juridica')->group(function () {
 
@@ -50,6 +57,14 @@ Route::group([
             Route::match(['get', 'post'], '{uuid}', 'show');
             Route::put('{uuid}', 'update');
             Route::delete('{uuid}', 'destroy');
+        });
+    });
+
+    Route::prefix('domains')->group(function () {
+
+        Route::controller(App\Http\Controllers\Auth\DomainController::class)->group(function () {
+            Route::get('', 'index')->name('api.tenant.domains');
+            Route::get('{id}', 'show');
         });
     });
 
@@ -130,14 +145,6 @@ Route::group([
             Route::post('', 'store')->name('api.tenant.sexo');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');
-        });
-    });
-
-    Route::prefix('domains')->group(function () {
-
-        Route::controller(App\Http\Controllers\Auth\DomainController::class)->group(function () {
-            Route::get('', 'index')->name('api.tenant.domains');
-            Route::get('{id}', 'show');
         });
     });
 });

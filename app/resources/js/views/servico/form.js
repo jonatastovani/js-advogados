@@ -206,7 +206,7 @@ class PageServicoForm {
                                     </div>
                                 </div>
                             </h5>
-                            <div class="card-text overflow-auto scrollbar" style="max-height: 10rem;">
+                            <div class="card-text overflow-auto scrollbar text-start" style="max-height: 10rem;">
                                 <p class="my-0 pText">${strToHtml}</p>
                             </div>
                         </div>

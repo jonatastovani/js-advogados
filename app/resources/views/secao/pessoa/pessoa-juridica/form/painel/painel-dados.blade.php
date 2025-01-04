@@ -1,5 +1,5 @@
 <div class="row h-100">
-    <form id="formDados{{ $sufixo }}">
+    <form id="form{{ $sufixo }}">
         <div class="row h-100">
             <div class="col d-flex flex-column">
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2 align-items-end">
@@ -32,7 +32,7 @@
                     </div>
                 </div>
 
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-xl-6 align-items-end">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 align-items-end">
                     <div class="col mt-2">
                         <label for="cpf_responsavel{{ $sufixo }}" class="form-label"
                             title="CPF do responsável legal">CPF do Responsável</label>

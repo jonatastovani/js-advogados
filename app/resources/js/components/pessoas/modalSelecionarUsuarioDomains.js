@@ -37,6 +37,10 @@ export class modalSelecionarUsuarioDomains extends modalDefault {
         return await self._modalOpen();
     }
 
+    async preenchimentoDados(response, options){
+
+    }
+
     _modalReset() {
         const self = this;
         const modal = $(self.getIdModal);

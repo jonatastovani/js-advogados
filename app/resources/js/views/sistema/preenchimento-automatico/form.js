@@ -1,10 +1,10 @@
-import { commonFunctions } from "../../../../commons/commonFunctions";
-import { enumAction } from "../../../../commons/enumAction";
-import { TemplateForm } from "../../../../commons/templates/TemplateForm";
-import { modalAreaJuridicaTenant } from "../../../../components/tenant/modalAreaJuridicaTenant";
-import { URLHelper } from "../../../../helpers/URLHelper";
-import { UUIDHelper } from "../../../../helpers/UUIDHelper";
-import { ServicoParticipacaoModule } from "../../../../modules/ServicoParticipacaoModule";
+import { commonFunctions } from "../../../commons/commonFunctions";
+import { enumAction } from "../../../commons/enumAction";
+import { TemplateForm } from "../../../commons/templates/TemplateForm";
+import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
+import { URLHelper } from "../../../helpers/URLHelper";
+import { UUIDHelper } from "../../../helpers/UUIDHelper";
+import { ServicoParticipacaoModule } from "../../../modules/ServicoParticipacaoModule";
 
 class PagePreenchimentoAutomatico extends TemplateForm {
 

@@ -79,7 +79,7 @@ class PageUsuarioPFIndex extends templateSearch {
         const pessoa = item.pessoa;
         const pessoaDados = item;
         const nome = pessoaDados.nome;
-        const usuario = pessoa?.perfil_usuario?.user?.username ?? '***';
+        const usuario = pessoa?.perfil_usuario?.user?.email ?? '***';
         const mae = pessoaDados.mae ?? '***';
         const pai = pessoaDados.pai ?? '***';
         const estadoCivil = pessoaDados?.estado_civil?.nome ?? '***';

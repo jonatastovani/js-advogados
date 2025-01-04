@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mt-2">
-        <label for="nome_exibicao{{ $sufixo }}" class="form-label">Nome de exibição*</label>
-        <input type="text" id="nome_exibicao{{ $sufixo }}" name="nome_exibicao" class="form-control">
+        <label for="name{{ $sufixo }}" class="form-label">Nome de exibição*</label>
+        <input type="text" id="name{{ $sufixo }}" name="name" class="form-control">
     </div>
     <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mt-2">
         <label for="email{{ $sufixo }}" class="form-label">Email*</label>
         <input type="text" id="email{{ $sufixo }}" name="email" class="form-control">
     </div>
-    <div id="divSenha{{ $sufixo }}" class="col-12 col-md-8 col-lg-12 col-xl-8 mt-2" 
+    {{-- <div id="divSenha{{ $sufixo }}" class="col-12 col-md-8 col-lg-12 col-xl-8 mt-2" 
         {{ $recurso ? "style=display:none;" : '' }}>
         <div class="row">
             <div class="col-12 col-sm-6">
@@ -21,10 +21,10 @@
                     class="form-control" {{ $recurso ? 'disabled' : '' }}>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 {{-- Se houver o recurso, significa que é uma alteração, então se dá a opção de alterar a senha --}}
-@if ($recurso)
+{{-- @if ($recurso)
     <div class="row" id="rowAlterarSenhaBln{{ $sufixo }}">
         <div class="col mt-2">
             <div class="form-check form-switch">
@@ -34,4 +34,4 @@
             </div>
         </div>
     </div>
-@endif
+@endif --}}

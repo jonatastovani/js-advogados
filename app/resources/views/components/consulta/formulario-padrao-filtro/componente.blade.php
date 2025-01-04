@@ -6,7 +6,7 @@
     $col_personalizacao = 'col-md-6';
     $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
     $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
-    $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
+    $row_cols_filtros = 'row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5';
 
     if (isset($dados->preset_tamanho)) {
         switch ($variable = $dados['preset_tamanho']) {
@@ -16,7 +16,7 @@
                 $row_col_campo_data = 'col-sm-8 col-md-6 col-lg-8 col-xl-6';
                 $row_cols_datas = 'col-sm-6 col-md-3 col-lg-6 col-xl-3';
                 $col_personalizacao = 'col-md-6';
-                $row_cols_filtros = 'row-cols-2 row-cols-md-3 row-cols-lg-4';
+                $row_cols_filtros = 'row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5';
                 break;
 
             case 'md':
@@ -24,7 +24,7 @@
                 $row_col_campo_data = 'col-8';
                 $row_cols_datas = 'col-6';
                 $col_personalizacao = 'col-12';
-                $row_cols_filtros = 'row-cols-1 row-cols-md-2';
+                $row_cols_filtros = 'row-cols-1 row-cols-md-2 row-cols-xl-3';
                 break;
         }
     }

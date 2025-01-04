@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class SistemaController extends Controller
 {
-    public function configuracaoEmpresaForm()
+    public function sistemaDadosDaEmpresaForm()
     {
-        return view('secao.sistema.configuracao.empresa.form');
+        return view('secao.sistema.dados-da-empresa.form');
+    }
+
+    public function sistemaConfiguracaoForm()
+    {
+        return view('secao.sistema.configuracao.form');
     }
 
     public function preenchimentoAutomatico()

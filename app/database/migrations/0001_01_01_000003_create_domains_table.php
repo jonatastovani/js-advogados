@@ -30,6 +30,9 @@ return new class extends Migration
             $table->increments('id');
             $table->string('domain', 255)->unique();
 
+            $table->string('name');
+            $table->json('data')->nullable();
+
             $this->addTenantIDField($table);
             $this->addCommonFieldsCreatedUpdatedDeleted($table, ['allNotReferenced' => true, 'createdIdNullable' => true]);
         });

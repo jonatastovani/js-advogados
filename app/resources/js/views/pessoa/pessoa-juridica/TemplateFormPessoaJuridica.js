@@ -1,34 +1,34 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
+import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { MasksAndValidateHelpers } from "../../../helpers/MasksAndValidateHelpers";
-import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
 
-export class TemplateFormPessoaJuridica {
+export class TemplateFormPessoaJuridica extends TemplateForm {
 
-    _objConfigs = {
-        url: {
-            basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
-            baseEstadoCivilTenant: window.apiRoutes.baseEstadoCivilTenant,
-            baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
-            baseSexoTenant: window.apiRoutes.baseSexoTenant,
-        },
-        data: {
-            pessoa_dados_id: undefined,
-            pessoa_perfil_tipo_id: undefined,
-            pessoa_tipo_aplicavel: [],
-            documentosNaTela: [],
-            perfisNaTela: [],
-        },
-    };
-    _action;
-    _idRegister;
     _pessoaDocumentoModule;
     _pessoaPerfilModule;
+
+    constructor(objSuper) {
+        const objConfigs = {
+            url: {
+                basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
+            },
+            data: {
+                pessoa_dados_id: undefined,
+                pessoa_perfil_tipo_id: undefined,
+                pessoa_tipo_aplicavel: [],
+                documentosNaTela: [],
+                perfisNaTela: [],
+            },
+        };
+
+        objSuper.objConfigs = commonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
+        super(objSuper);
+    }
 
     async initEvents() {
         const self = this;
@@ -46,7 +46,9 @@ export class TemplateFormPessoaJuridica {
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
             self._action = enumAction.PUT;
-            await self._buscarDados();
+            await self._buscarDados({
+                urlApi: self._objConfigs.url.basePessoaPerfil,
+            });
         } else {
             self._action = enumAction.POST;
             self._pessoaPerfilModule._inserirPerfilObrigatorio();
@@ -70,92 +72,55 @@ export class TemplateFormPessoaJuridica {
         MasksAndValidateHelpers.cpfMask($('.campo-cpf'));
         MasksAndValidateHelpers.addEventCheckCPF({ selector: $('.campo-cpf'), event: 'focusout' });
 
-        $(`#btnSave${self._objConfigs.sufixo}`).on('click', async function (e) {
-            e.preventDefault();
-            self.#saveButtonAction();
-        });
-
         if (typeof self.addEventosBotoesEspecificoPerfilTipo === 'function') {
             self.addEventosBotoesEspecificoPerfilTipo();
         }
     }
 
-    async _buscarDados() {
+    async preenchimentoDados(response, options = {}) {
         const self = this;
+        const form = $(options.form);
 
-        try {
-            await commonFunctions.loadingModalDisplay();
+        const responseData = response.data;
+        const pessoaDados = responseData.pessoa.pessoa_dados;
 
-            const response = await self.#getRecurse({ urlApi: self._objConfigs.url.basePessoaPerfil });
+        self._objConfigs.data.pessoa_dados_id = pessoaDados.id;
+        form.find('input[name="razao_social"]').val(pessoaDados.razao_social);
+        form.find('input[name="nome_fantasia"]').val(pessoaDados.nome_fantasia);
+        form.find('input[name="natureza_juridica"]').val(pessoaDados.natureza_juridica);
+        form.find('input[name="regime_tributario"]').val(pessoaDados.regime_tributario);
+        form.find('input[name="responsavel_legal"]').val(pessoaDados.responsavel_legal);
+        form.find('input[name="cpf_responsavel"]').val(pessoaDados.cpf_responsavel).trigger('input');
+        form.find('input[name="inscricao_estadual"]').val(pessoaDados.inscricao_estadual);
+        form.find('input[name="inscricao_municipal"]').val(pessoaDados.inscricao_municipal);
+        form.find('input[name="capital_social"]').val(pessoaDados.capital_social);
+        form.find('input[name="cnae"]').val(pessoaDados.cnae);
+        form.find('input[name="data_fundacao"]').val(pessoaDados.data_fundacao);
+        form.find('textarea[name="observacao"]').val(pessoaDados.observacao);
+        form.find('input[name="ativo_bln"]').prop('checked', pessoaDados.ativo_bln);
 
-            if (response?.data) {
-                const responseData = response.data;
-                const pessoaDados = responseData.pessoa.pessoa_dados;
-                const form = $(`#formDados${self._objConfigs.sufixo}`);
-
-                self._objConfigs.data.pessoa_dados_id = pessoaDados.id;
-                form.find('input[name="razao_social"]').val(pessoaDados.razao_social);
-                form.find('input[name="nome_fantasia"]').val(pessoaDados.nome_fantasia);
-                form.find('input[name="natureza_juridica"]').val(pessoaDados.natureza_juridica);
-                form.find('input[name="regime_tributario"]').val(pessoaDados.regime_tributario);
-                form.find('input[name="responsavel_legal"]').val(pessoaDados.responsavel_legal);
-                form.find('input[name="cpf_responsavel"]').val(pessoaDados.cpf_responsavel).trigger('input');
-                form.find('input[name="inscricao_estadual"]').val(pessoaDados.inscricao_estadual);
-                form.find('input[name="inscricao_municipal"]').val(pessoaDados.inscricao_municipal);
-                form.find('input[name="capital_social"]').val(pessoaDados.capital_social);
-                form.find('input[name="cnae"]').val(pessoaDados.cnae);
-                form.find('input[name="data_fundacao"]').val(pessoaDados.data_fundacao);
-                form.find('textarea[name="observacao"]').val(pessoaDados.observacao);
-                form.find('input[name="ativo_bln"]').prop('checked', pessoaDados.ativo_bln);
-
-                if (responseData.pessoa?.documentos.length) {
-                    responseData.pessoa.documentos.map(documento => {
-                        // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
-                        self._pessoaDocumentoModule._inserirDocumento(documento);
-                    });
-                }
-                if (responseData.pessoa?.pessoa_perfil.length) {
-                    responseData.pessoa.pessoa_perfil.map(perfil => {
-                        // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
-                        self._pessoaPerfilModule._inserirPerfil(perfil);
-                    });
-                }
-
-                if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
-                    await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
-                }
-
-            } else {
-                $('#myTab, #myTabContent').find('input, textarea, select, button').prop('disabled', true);
-                $('.btn-save').prop('disabled', true);
-            }
-
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        } finally {
-            await commonFunctions.loadingModalDisplay(false);
+        if (responseData.pessoa?.documentos.length) {
+            responseData.pessoa.documentos.map(documento => {
+                // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
+                self._pessoaDocumentoModule._inserirDocumento(documento);
+            });
         }
+        if (responseData.pessoa?.pessoa_perfil.length) {
+            responseData.pessoa.pessoa_perfil.map(perfil => {
+                // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
+                self._pessoaPerfilModule._inserirPerfil(perfil);
+            });
+        }
+
+        if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
+            await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
+        }
+
     }
 
-    async #getRecurse(options = {}) {
+    saveButtonAction() {
         const self = this;
-        const { idRegister = self._idRegister,
-            urlApi = self._objConfigs.url.base,
-        } = options;
-
-        try {
-            const obj = new connectAjax(urlApi);
-            obj.setParam(idRegister);
-            return await obj.getRequest();
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    #saveButtonAction() {
-        const self = this;
-        const formRegistration = $(`#formDados${self._objConfigs.sufixo}`);
+        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
@@ -169,25 +134,18 @@ export class TemplateFormPessoaJuridica {
         data = self._tratarValoresNulos(data);
 
         if (self._saveVerifications(data, formRegistration)) {
-            self.#save(data, self._objConfigs.url.base);
+            self._save(data, self._objConfigs.url.base, {
+                idRegister: self._objConfigs.data.pessoa_dados_id
+            });
         }
         return false;
-    }
-
-    _tratarValoresNulos(data) {
-        return Object.fromEntries(
-            Object.entries(data).map(([key, value]) => {
-                if (value === "null") {
-                    value = null;
-                }
-                return [key, value];
-            })
-        );
     }
 
     _saveVerifications(data, formRegistration) {
         const self = this;
         let blnSave = commonFunctions.verificationData(data.razao_social, { field: formRegistration.find('input[name="razao_social"]'), messageInvalid: 'O campo <b>Razão Social</b> deve ser informado.', setFocus: true });
+
+        blnSave = commonFunctions.verificationData(data.nome_fantasia, { field: formRegistration.find('input[name="nome_fantasia"]'), messageInvalid: 'O campo <b>Nome Fantasia</b> deve ser informado.', setFocus: true });
 
         if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
             blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);
@@ -195,36 +153,4 @@ export class TemplateFormPessoaJuridica {
 
         return blnSave;
     }
-
-    async #save(data, urlApi, options = {}) {
-        const self = this;
-        const {
-            btnSave = $(`#btnSave${self._objConfigs.sufixo}`),
-        } = options;
-
-        try {
-            commonFunctions.simulateLoading(btnSave);
-            const obj = new connectAjax(urlApi);
-            obj.setAction(self._action);
-            obj.setData(data);
-            if (self._action === enumAction.PUT) {
-                obj.setParam(self._objConfigs.data.pessoa_dados_id);
-            }
-            const response = await obj.envRequest();
-
-            if (response) {
-                RedirectHelper.redirectWithUUIDMessage(window.frontRoutes.frontRedirectForm, 'Dados enviados com sucesso!', 'success');
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        }
-        finally {
-            commonFunctions.simulateLoading(btnSave, false);
-        };
-    }
-
 }
-
-$(function () {
-    new TemplateFormPessoaJuridica();
-});

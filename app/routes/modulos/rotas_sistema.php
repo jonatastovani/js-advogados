@@ -6,10 +6,16 @@ Route::controller(App\Http\Controllers\View\Sistema\SistemaController::class)->g
 
     Route::prefix('sistema')->group(function () {
 
+        Route::prefix('configuracao')->group(function () {
+
+            Route::get('', 'sistemaConfiguracaoForm')->name('sistema.configuracao.form');
+        });
+
         Route::prefix('empresa')->group(function () {
 
-            Route::get('', 'configuracaoEmpresaForm')->name('sistema.configuracao.empresa.form');
+            Route::get('', 'sistemaDadosDaEmpresaForm')->name('sistema.dados-da-empresa.form');
         });
+
 
         // Route::prefix('preenchimento-automatico')->group(function () {
 

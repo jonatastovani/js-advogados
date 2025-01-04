@@ -46,9 +46,8 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'observacao' => 'observação',
             'ativo_bln' => 'ativo',
 
-            'user.nome_exibicao' => 'nome de exibição',
+            'user.name' => 'nome de exibição',
             'user.email' => 'email',
-            'user.password' => 'senha',
             'user_domains.*.domain_id' => 'domínio',
         ];
     }

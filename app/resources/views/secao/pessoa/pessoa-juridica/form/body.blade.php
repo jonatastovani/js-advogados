@@ -22,15 +22,6 @@
                     Perfis
                 </button>
             </li>
-            @if ($paginaDados->perfil_tipo == 'usuario')
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="painelDominio{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelDominio{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelDominio{{ $sufixo }}-tab-pane" aria-selected="false">
-                        Domínios
-                    </button>
-                </li>
-            @endif
             {{-- @if ($paginaDados->perfil_tipo == 'empresa')
                 <li class="nav-item" role="presentation">
                     <button class="nav-link px-2" id="painelPreferencias{{ $sufixo }}-tab" data-bs-toggle="tab"
@@ -57,12 +48,6 @@
             aria-labelledby="painelPerfil{{ $sufixo }}-tab" tabindex="0">
             @include('secao.pessoa.pessoa-juridica.form.painel.painel-perfil')
         </div>
-        @if ($paginaDados->perfil_tipo == 'usuario')
-            <div class="tab-pane fade h-100" id="painelDominio{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelDominio{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-juridica.form.painel.painel-dominio')
-            </div>
-        @endif
         {{-- @if ($paginaDados->perfil_tipo == 'empresa')
             <div class="tab-pane fade h-100" id="painelPreferencias{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelPreferencias{{ $sufixo }}-tab" tabindex="0">

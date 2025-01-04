@@ -22,17 +22,8 @@ class PessoaFisicaFormRequestStore extends PessoaFisicaFormRequestBase
         switch (request()->input('pessoa_perfil_tipo_id')) {
             case PessoaPerfilTipoEnum::USUARIO->value:
                 $rules['user'] = 'required|array';
-                $rules['user.username'] = 'required|string|min:3';
-                $rules['user.nome_exibicao'] = 'required|string|min:3';
+                $rules['user.name'] = 'required|string|min:3';
                 $rules['user.email'] = 'required|email';
-
-                // Validação da senha
-                $rules['user.password'] = 'required|string|min:8';
-                //     'regex:/[A-Z]/', // Pelo menos uma letra maiúscula
-                //     'regex:/[a-z]/', // Pelo menos uma letra minúscula
-                //     'regex:/[0-9]/', // Pelo menos um número
-                //     'regex:/[@$!%*#?&]/', // Pelo menos um caractere especial
-                // ];
 
                 $rules['user_domains'] = 'nullable|array';
                 $rules['user_domains.*.domain_id'] = 'nullable|integer';

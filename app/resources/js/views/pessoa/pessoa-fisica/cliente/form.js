@@ -2,28 +2,26 @@ import { TemplateFormPessoaFisica } from "../TemplateFormPessoaFisica";
 
 class PagePessoaFisicaFormCliente extends TemplateFormPessoaFisica {
 
-    #objConfigs = {
-        url: {
-            base: window.apiRoutes.basePessoaFisica,
-        },
-        sufixo: 'PagePessoaFisicaFormCliente',
-        data: {
-            pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
-            pessoa_tipo_aplicavel: [
-                window.Enums.PessoaTipoEnum.PESSOA_FISICA,
-            ],
-        },
-    };
-
     constructor() {
-        super();
-        this._objConfigs.url.base = this.#objConfigs.url.base; 
-        this._objConfigs.sufixo = this.#objConfigs.sufixo; 
-        this._objConfigs.data.pessoa_perfil_tipo_id = this.#objConfigs.data.pessoa_perfil_tipo_id; 
-        this._objConfigs.data.pessoa_tipo_aplicavel = this.#objConfigs.data.pessoa_tipo_aplicavel; 
+        const objConfigs = {
+            url: {
+                base: window.apiRoutes.basePessoaFisica,
+            },
+            sufixo: 'PagePessoaFisicaFormCliente',
+            data: {
+                pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+                pessoa_tipo_aplicavel: [
+                    window.Enums.PessoaTipoEnum.PESSOA_FISICA,
+                ],
+            },
+        };
+
+        super({
+            objConfigs: objConfigs
+        });
+
         this.initEvents();
     }
-
 }
 
 $(function () {

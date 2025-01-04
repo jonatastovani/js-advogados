@@ -486,7 +486,7 @@ export class ServicoParticipacaoModule {
                 try {
                     const objModalNome = new modalNome();
                     objModalNome.setDataEnvModal = {
-                        title: 'Novo grupo',
+                        title: 'Nome grupo',
                         mensagem: 'Informe o nome do grupo',
                         nome: registro.nome_grupo,
                     }

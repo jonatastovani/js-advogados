@@ -65,6 +65,21 @@ export class URLHelper {
     }
 
     /**
+     * Converte uma URL para o formato HTTP(S) se ela não contiver um protocolo.
+     * 
+     * @param {string} url - A URL a ser convertida.
+     * @returns {string} - A URL no formato HTTP(S).
+     */
+    static formatUrlHttp(url) {
+        const currentDomain = window.location.origin;
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        } else {
+            return currentDomain.startsWith('http://') ? `http://${url}` : `https://${url}`;
+        }
+    }
+
+    /**
      * Converte um objeto em um formato de `key=value` para envio, com booleanos convertidos para 0 e 1.
      */
     static flattenObject(obj, parentKey = null) {

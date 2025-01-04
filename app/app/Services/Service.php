@@ -170,12 +170,7 @@ abstract class Service
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
-        $resource = null;
-        if ($id) {
-            $resource = $this->buscarRecurso($requestData);
-        } else {
-            $resource = new $this->model;
-        }
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
 
         // Preenche os atributos da model com os dados do request e conforme os campos $fillable definido na model
         $resource->fill($requestData->toArray());

@@ -4,6 +4,7 @@ import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
 
+
 export class TemplateForm {
 
     /**
@@ -14,48 +15,59 @@ export class TemplateForm {
     /**
      * Objeto para reservar configurações do template
      */
-    _objConfigs = {
-        runningSearchBln: false,
-        typeCurrentSearch: undefined,
-    };
+    _objConfigs = {};
 
+    /**
+     * Variável para reservar a ação a ser executada
+     */
     _action;
 
+    /**
+     * Variável para reservar o id do que está sendo editado
+     */
     _idRegister;
 
-    constructor(objSuper) {
-        this._objConfigs = Object.assign(this._objConfigs, objSuper.objConfigs ?? {});
-        this._sufixo = objSuper.sufixo ?? this._objConfigs.sufixo;
+    constructor(objSuper = {}) {
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
+        let sufixo = objSuper.sufixo ?? this._objConfigs.sufixo ?? undefined;
 
-        if (this._sufixo) this._initEvents();
+        if (sufixo) {
+            this._sufixo = sufixo;
+        }
+
+        this.#addEventsDefault();
     }
 
     /**
      * Retorna o sufixo da página.
      */
     get getSufixo() {
-        return this._sufixo;
+        return this._sufixo ?? this._objConfigs.sufixo ?? undefined;
     }
 
-    _initEvents() {
+    async #addEventsDefault() {
         const self = this;
 
-        self._addEventosBotoes();
+        self.#addEventBtnSave();
     }
 
-    async _addEventosBotoesPadrao() {
-        const self = this;
+    //#region Botões padrão
 
-        $(`#btnSave${self._objConfigs.sufixo}`).on('click', async function (e) {
+    #addEventBtnSave() {
+        const btnSave = `#btnSave${this._objConfigs.sufixo}`;
+        const self = this;
+        $(btnSave).on("click", function (e) {
             e.preventDefault();
             self.saveButtonAction();
         });
-
     }
+
+    //#endregion
 
     async _getRecurse(options = {}) {
         const self = this;
-        const { idRegister = self._idRegister,
+        const {
+            idRegister = self._idRegister,
             urlApi = self._objConfigs.url.base,
         } = options;
 
@@ -69,7 +81,7 @@ export class TemplateForm {
         }
     }
 
-    async _buscarDados(options) {
+    async _buscarDados(options = {}) {
         const self = this;
         const {
             message = null,
@@ -79,6 +91,7 @@ export class TemplateForm {
             form = $(`#form${self.getSufixo}`),
         } = options;
 
+        options.form = form;
         try {
             await commonFunctions.loadingModalDisplay(true, {
                 message: message ?? null,
@@ -86,10 +99,10 @@ export class TemplateForm {
                 elementFocus: elementFocus ?? null
             });
 
-            const response = await self._getRecurse();
+            const response = await self._getRecurse(options);
 
             if (response?.data) {
-                const retorno = await self[functionPreenchimento](response, { options: options });
+                await self[functionPreenchimento](response, options);
             } else {
                 form.find('input, textarea, select, button').prop('disabled', true);
             }
@@ -101,12 +114,25 @@ export class TemplateForm {
         }
     }
 
+    _tratarValoresNulos(data) {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => {
+                if (value === "null") {
+                    value = null;
+                }
+                return [key, value];
+            })
+        );
+    }
+
     async _save(data, urlApi, options = {}) {
         const self = this;
         const {
+            idRegister = self._idRegister,
             btnSave = $(`#btnSave${self._objConfigs.sufixo}`),
             success = 'Dados enviados com sucesso!',
             redirectBln = true,
+            frontRedirectForm = window.frontRoutes.frontRedirectForm,
         } = options;
 
         try {
@@ -115,13 +141,13 @@ export class TemplateForm {
             obj.setAction(self._action);
             obj.setData(data);
             if (self._action === enumAction.PUT) {
-                obj.setParam(self._idRegister);
+                obj.setParam(idRegister);
             }
             const response = await obj.envRequest();
 
             if (response) {
                 if (redirectBln) {
-                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, success, 'success');
+                    RedirectHelper.redirectWithUUIDMessage(frontRedirectForm, success, 'success');
                 } else {
                     commonFunctions.generateNotification(success, 'success');
                 }

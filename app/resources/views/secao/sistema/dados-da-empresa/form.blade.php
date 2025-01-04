@@ -28,7 +28,7 @@
 @include('secao.pessoa.pessoa-juridica.form.push')
 
 @push('scripts')
-    @vite('resources/js/views/sistema/configuracao/empresa/form.js')
+    @vite('resources/js/views/sistema/dados-da-empresa/form.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseContas' => route('api.tenant.conta'),
@@ -37,7 +37,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirectForm' => route('sistema.configuracao.empresa.form'),
+            'frontRedirectForm' => route('sistema.dados-da-empresa.form'),
         ],
     ])
     @endcomponent
