@@ -17,7 +17,7 @@
         <div id="dados-parceiro{{ $sufixo }}" class="col mt-2">
             <div class="card card-parceiro">
                 <div class="card-body align-items-center justify-content-between py-0">
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="d-grid d-sm-block text-end mt-2">
                             <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
                                 class="btn btn-outline-primary btn-sm border-0">
@@ -33,6 +33,20 @@
                                     <label class="form-label card-perfil-referencia">***</label>
                                 </div>
                             </div>
+                        </div>
+                    </div> --}}
+                    <div class="row">
+                        <div class="col-12 col-sm-8 align-content-center my-2">
+                            <h5 class="nome-parceiro">Selecione um parceiro</h5>
+                        </div>
+                        {{-- <div class="col-12 col-sm-4">
+                            <div class="form-text">Perfil referência</div>
+                            <label class="form-label card-perfil-referencia">***</label>
+                        </div> --}}
+                        <div class="d-grid d-sm-block col-12 col-sm-4 text-end my-2">
+                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
+                                class="btn btn-outline-primary btn-sm border-0">
+                                Selecionar parceiro</button>
                         </div>
                     </div>
                 </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\View\Admin\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\AddIdentifierRequestMiddleware;
 use App\Http\Middleware\ClearModalSessionMiddleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -43,25 +44,20 @@ Route::middleware([
         'perfil_uuid' => '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
     ]);
 
-    Route::get('', function () {
-        return redirect(route('advocacia.index'));
-    });
+    Auth::routes(
+        [
+            // 'verify' => true,
+            'register' => false,
+        ]
+    );
+
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     // Route::get('', function () {})->middleware("auth:sanctum");
 
-    #Rotas para autenticação de usuários
-    Route::controller(LoginController::class)->group(function () {
-
-        Route::get('login', 'index')->name('login');
-        Route::post('login', 'session_start')->name('login.post');
-
-        Route::middleware('auth:sanctum')->group(function () {
-            // Route::get('', 'lobby');
-            Route::get('lobby', 'lobby')->name('lobby');
-            Route::get('logout', 'logout')->name('logout');
-        });
+    Route::get('', function () {
+        return redirect(route('advocacia.index'));
     });
-
 
     Route::middleware([
         'auth:sanctum',
@@ -82,7 +78,6 @@ Route::middleware([
             require __DIR__ . '/modulos/rotas_sistema.php';
         });
     });
-
 
     // Route::get('test', function () {
     //     return view('test');

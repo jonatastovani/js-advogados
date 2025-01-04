@@ -18,9 +18,9 @@ class UserSeeder extends Seeder
         $insert = [
             [
                 'id' => $adminId,
-                'nome_exibicao' => 'Administrador',
-                'email' => 'admin@byteforge.com.br',
-                'password' => 'admin123',
+                'name' => 'Administrador',
+                'email' => 'byteforgesuporte@gmail.com',
+                'password' => 'admin987123',
                 'tenant_id' => 'admin',
                 'created_user_id' => $adminId
             ],

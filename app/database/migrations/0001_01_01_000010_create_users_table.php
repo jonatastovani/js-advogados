@@ -27,7 +27,7 @@ return new class extends Migration
         Schema::create("{$this->schema}.users", function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
 
-            $table->string('nome_exibicao');
+            $table->string('name');
             // $table->string('username');
             $table->string('password');
 

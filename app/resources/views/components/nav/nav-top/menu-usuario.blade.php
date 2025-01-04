@@ -20,12 +20,12 @@
                             <img class="rounded-circle border" src="{{ asset(config('sistema.logo')) }}" alt=""
                                 width="40">
                         </div>
-                        <h6 class="mt-2 text-body-emphasis">{{ $user->nome_exibicao }}</h6>
+                        <h6 class="mt-2 text-body-emphasis">{{ $user->name }}</h6>
                     </div>
                     {{-- <div class="mb-3 mx-3"><input class="form-control form-control-sm" id="statusUpdateInput"
                             type="text" placeholder="Update your status"></div> --}}
                 </div>
-                <div class="overflow-auto scrollbar" {{-- style="height: 10rem;" --}}>
+                <div class="overflow-auto scrollbar" style="height: 10rem;">
                     <ul class="nav d-flex flex-column mb-2 pb-1">
 
                         <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
@@ -175,16 +175,15 @@
                                 </svg>Add another account</a></li>
                     </ul>
                     <hr> --}}
-                    <div class="px-3"> <a class="btn btn-phoenix-secondary d-flex flex-center w-100"
-                            href="{{ route('logout') }}"> <svg xmlns="http://www.w3.org/2000/svg" width="16px"
-                                height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="feather feather-log-out me-2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12">
-                                </line>
-                            </svg>Sign out</a></div>
+                    <div class="px-3">
+                        <form action="{{ route('logout') }}" method="post">
+                            @csrf
+                            <button type="submit" class="btn w-100">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                     {{-- <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a
                             class="text-body-quaternary me-1" href="#!">Privacy policy</a>•<a
                             class="text-body-quaternary mx-1" href="#!">Terms</a>•<a

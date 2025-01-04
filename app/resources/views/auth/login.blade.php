@@ -1,80 +1,81 @@
 @extends('layouts.layout-guest')
-@section('title', 'Login')
 
 @section('conteudo')
-
     <div class="row justify-content-center align-items-center h-100">
-        <div class="card shadow-lg" style="max-width: 30rem;">
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col mt-3">
-                        {{-- <h2 class="text-center fw-bolder">{{ config('sistema.nome') }}</h2> --}}
-                        <div class="d-flex align-items-center justify-content-center">
-                            <img src="{{ asset(config('sistema.logo')) }}" alt="Logo {{ config('sistema.sigla_front') }}"
-                                width="27">
-                            <h2 class="ms-2 d-inline-flex">{{ config('sistema.nome') }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <p class="fst-italic card-title">Insira suas credenciais para login</p>
+        <div class="col-md-8 col-lg-5" style="max-width: 30rem;">
+            <div class="card shadow border-0">
+                {{-- <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">{{ __('Login') }}</h4>
+                </div> --}}
+                <div class="card-body p-4">
 
-                @php
-                    $erro_login = new Illuminate\Support\Fluent(Session::get('error_login') ?? []);
-                    $email = $erro_login->email ?? '';
-                    $password = $erro_login->password ?? '';
-                @endphp
-
-                <form id="form_login" method="POST" enctype="multipart/form-data" action="{{ route('login.post') }}">
-                    @csrf
-                    <div class="form-floating mt-3 mb-3">
-                        <input type="email" id="email" name="email" class="form-control"
-                            placeholder="Digite seu email" aria-label="Email"
-                            aria-describedby="label-email" value="{{ $email }}" required autofocus>
-                        <label for="email" id="label-email">Email</label>
-                    </div>
-                    <div class="input-group mt-3 mb-3">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Senha"
-                                aria-label="Senha" aria-describedby="label-password" value="{{ $password }}" required>
-                            <label for="password" id="label-password">Senha</label>
-                        </div>
-                        <button class="btn btn-outline-secondary" type="button" id="show-password"
-                            title="Mostrar/Ocultar senha">
-                            <i class="bi bi-eye-fill"></i>
-                        </button>
-                    </div>
-
-                    <div class="row error_login">
-                        @if ($erro_login->error)
-                            {{-- @dump($erro_login) --}}
-                            <div class="alert alert-danger alert-dismissible mb-0 fade show" role="alert">
-                                <strong class="py-1">Houve um problema ao realizar o login</strong>
-                                <hr>
-                                {{ $erro_login->error['message'] }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
+                    <div class="row mb-3">
+                        <div class="col mt-3">
+                            {{-- <h2 class="text-center fw-bolder">{{ config('sistema.nome') }}</h2> --}}
+                            <div class="d-flex align-items-center justify-content-center">
+                                <img src="{{ asset(config('sistema.logo')) }}" alt="Logo {{ config('sistema.sigla_front') }}"
+                                    width="27">
+                                <h3 class="ms-2 mb-0 d-inline-flex">{{ config('sistema.nome') }}</h3>
                             </div>
-                        @endif
-                    </div>
-
-                    {{-- @if ($errors->any())
-                        @foreach ($errors->all() as $error)
-                            {{ $error }} <br>
-                        @endforeach
-                    @endif --}}
-
-                    <div class="row mt-3 mb-3">
-                        <div class="col-12 text-center">
-                            <button id="send" type="submit" class="btn btn-outline-primary w-50">Entrar</button>
                         </div>
                     </div>
-                </form>
+
+                    <form method="POST" action="{{ route('login') }}">
+                        @csrf
+
+                        <!-- Email Field -->
+                        <div class="form-floating mb-3">
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
+                                placeholder="E-mail">
+                            <label for="email">{{ __('Email Address') }}</label>
+                            @error('email')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating mb-3">
+                            <input id="password" type="password"
+                                class="form-control @error('password') is-invalid @enderror" name="password" required
+                                autocomplete="current-password" placeholder="Senha">
+                            <label for="password">{{ __('Password') }}</label>
+                            @error('password')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember"
+                                {{ old('remember') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="remember">
+                                {{ __('Remember Me') }}
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid d-sm-block text-end">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {{ __('Login') }}
+                            </button>
+                        </div>
+
+                        <!-- Forgot Password Link -->
+                        <div class="text-end mt-3">
+                            @if (Route::has('password.request'))
+                                <a class="btn btn-link p-0" href="{{ route('password.request') }}">
+                                    {{ __('Forgot Your Password?') }}
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-
 @endsection
-
-@push('scripts')
-    @vite('resources/js/views/auth/login.js')
-@endpush

@@ -13,7 +13,8 @@
                     <ul class="navbar-nav flex-column" id="navbarVerticalNav">
                         <li class="nav-item">
                             <div class="nav-item-wrapper">
-                                <a class="nav-link" href="{{ Session::get('paginaDados')->home ?? route('lobby') }}">
+                                <a class="nav-link" href="{{ Session::get('paginaDados')->home ?? "#"
+                                 {{-- route('lobby') --}} }}">
                                     <div class="d-flex align-items-center">
                                         <span class="nav-link-icon">
                                             <i class="bi bi-house"></i>
