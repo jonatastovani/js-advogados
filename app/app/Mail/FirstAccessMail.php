@@ -51,9 +51,9 @@ class FirstAccessMail extends Mailable
                 'actionText' => 'Definir Senha',
                 'actionUrl' => $this->resetLink,
                 'displayableActionUrl' => $this->resetLink,
-                // 'outroLines' => [
-                //     'Se você não solicitou este cadastro, entre em contato com o suporte.',
-                // ],
+                'outroLines' => [
+                    'Se você não solicitou este cadastro, entre em contato com o suporte.',
+                ],
             ]
         );
     }

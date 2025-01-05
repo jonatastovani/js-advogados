@@ -1,4 +1,13 @@
+@php
+    // $sufixo = 'PageMovimentacaoContaIndex';
+    $paginaDados = new Illuminate\Support\Fluent([
+        'nome' => 'Home',
+    ]);
+    Session::put('paginaDados', $paginaDados);
+@endphp
+
 @extends('layouts.layout')
+@section('title', $paginaDados->nome)
 
 @section('conteudo')
     <div class="row justify-content-center align-items-center h-100">

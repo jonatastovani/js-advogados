@@ -22,6 +22,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     //     'data' => 'array',
     // ];
 
+    protected $fillable = [
+        'id',
+        'tenant_type_id',
+        'name',
+        'sigla',
+        'created_user_id',
+    ];
+
     public static function getCustomColumns(): array
     {
         return [

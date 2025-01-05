@@ -254,6 +254,7 @@ class CommonsFunctions
 
     static function inserirInfoCreated($resource)
     {
+        Log::debug("resouce: " . json_encode($resource));
         if (!$resource->created_user_id) {
             $resource->created_user_id = self::getIdUsuarioNoTenant();
         }

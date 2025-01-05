@@ -18,6 +18,9 @@ class Domain extends BaseDomain
     protected $tableAsName = 'dom';
 
     protected $fillable = [
+        'id',
+        'domain',
         'name',
+        'created_user_id',
     ];
 }

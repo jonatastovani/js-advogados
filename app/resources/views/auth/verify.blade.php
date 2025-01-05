@@ -1,3 +1,11 @@
+@php
+    // $sufixo = 'PageMovimentacaoContaIndex';
+    $paginaDados = new Illuminate\Support\Fluent([
+        'nome' => 'Verificação de Email',
+    ]);
+    Session::put('paginaDados', $paginaDados);
+@endphp
+
 @extends('layouts.layout-guest')
 
 @section('conteudo')

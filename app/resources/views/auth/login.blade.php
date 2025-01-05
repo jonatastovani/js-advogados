@@ -1,5 +1,11 @@
 @php
     use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+
+    // $sufixo = 'PageMovimentacaoContaIndex';
+    $paginaDados = new Illuminate\Support\Fluent([
+        'nome' => 'Login',
+    ]);
+    Session::put('paginaDados', $paginaDados);
 @endphp
 
 @extends('layouts.layout-guest')

@@ -20,7 +20,7 @@
                 <tr>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Valor Lançado</th>
-                    <th class="text-nowrap">Valor Partecipante</th>
+                    <th class="text-nowrap">Valor Participante</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Descrição Específica</th>

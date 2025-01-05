@@ -1,3 +1,11 @@
+@php
+    // $sufixo = 'PageMovimentacaoContaIndex';
+    $paginaDados = new Illuminate\Support\Fluent([
+        'nome' => 'Registre-se',
+    ]);
+    Session::put('paginaDados', $paginaDados);
+@endphp
+
 @extends('layouts.layout-guest')
 
 @section('conteudo')
