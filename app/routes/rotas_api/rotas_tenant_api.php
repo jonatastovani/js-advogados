@@ -15,7 +15,7 @@ Route::group([
 
         Route::get('current', 'current');
         Route::get('{id}', 'show');
-        Route::post('update-cliente/{id}', 'updateCliente');
+        Route::put('update-cliente/current', 'updateCliente');
     });
 
     Route::prefix('area-juridica')->group(function () {

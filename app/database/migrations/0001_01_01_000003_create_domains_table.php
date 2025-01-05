@@ -30,7 +30,7 @@ return new class extends Migration
             $table->increments('id');
             $table->string('domain', 255)->unique();
 
-            $table->string('name');
+            $table->string('name', 30);
             $table->json('data')->nullable();
 
             $this->addTenantIDField($table);

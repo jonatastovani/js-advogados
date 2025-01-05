@@ -91,7 +91,9 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
         if (response?.data?.id) {
             self._idRegister = response.data.id;
             self._action = enumAction.PUT;
-            await self._buscarDados();
+            await self._buscarDados({
+                urlApi: self._objConfigs.url.basePessoaPerfil,
+            });
         } else {
             self._action = enumAction.POST;
             self._pessoaPerfilModule._inserirPerfilObrigatorio();

@@ -26,7 +26,7 @@ class TenantController extends Controller
     public function updateCliente(TenantFormRequestUpdateCliente $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->update($fluentData));
+        return $this->retornoPadrao($this->service->updateCliente($fluentData));
     }
 
     public function show(TenantFormRequestShow $formRequest)

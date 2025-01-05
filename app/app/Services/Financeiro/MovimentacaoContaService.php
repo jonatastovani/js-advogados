@@ -39,7 +39,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
@@ -615,8 +614,6 @@ class MovimentacaoContaService extends Service
             throw new \InvalidArgumentException("O valor faltante deve ser maior que zero.");
         }
 
-        Log::debug("Valor faltante: {$valorFalta}");
-
         foreach ($existingRegisters as $participante) {
             $integrantes = $participante->participacao_registro_tipo_id == 2 ? $participante->integrantes : null;
 
@@ -628,8 +625,6 @@ class MovimentacaoContaService extends Service
 
                 // Calcula o valor faltante correto do participante
                 $valorFaltanteParticipante = bcsub($valorOriginalParticipante, bcmul($valorOriginalParticipante, $porcentagemRecebida / 100, 2), 2);
-                Log::debug("Valor original participante: $valorOriginalParticipante");
-                Log::debug("Valor faltante do participante: $valorFaltanteParticipante");
             }
 
             foreach ($diluicoes as $index => $diluicao) {
@@ -641,7 +636,6 @@ class MovimentacaoContaService extends Service
                 if ($participante->valor_tipo === 'valor_fixo') {
                     // Quantos porcento do valor faltante a diluição irá receber
                     $porcentagemDiluicao = bcdiv(bcmul($diluicao->valor_esperado, 100, 2), $valorFalta, 2);
-                    Log::debug("Porcentagem da diluição: $porcentagemDiluicao");
 
                     // Calcula o valor a ser atribuído à diluição
                     $valorFixoDiluicao = bcdiv(bcmul($valorFaltanteParticipante, $porcentagemDiluicao, 2), 100, 2);
@@ -652,9 +646,6 @@ class MovimentacaoContaService extends Service
                     }
 
                     $totalDistribuidoParticipante = bcadd($totalDistribuidoParticipante, $valorFixoDiluicao, 2);
-
-                    Log::debug("Valor fixo da diluição (ajustado): $valorFixoDiluicao");
-                    Log::debug("Total distribuído do participante (até o momento): $totalDistribuidoParticipante");
 
                     $newParticipante->valor = $valorFixoDiluicao;
                 }
@@ -1266,10 +1257,15 @@ class MovimentacaoContaService extends Service
         $caseTipoReferenciaMovimentacaoConta = $options['caseTipoReferenciaMovimentacaoConta'] ?? null;
 
         // Função para carregar dados de referência específica dinamicamente
-        $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options) {
+        $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options, $withOutClass) {
             $relationships = $this->mergeRelationships(
                 $relationships,
-                app($serviceTipoReferencia)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                app($serviceTipoReferencia)->loadFull(array_merge(
+                    $options, // Passa os mesmos $options
+                    [
+                        'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+                    ]
+                )),
                 [
                     'addPrefix' => 'referencia.' // Adiciona um prefixo aos relacionamentos externos
                 ]

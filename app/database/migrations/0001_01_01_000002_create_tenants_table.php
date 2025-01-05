@@ -29,7 +29,7 @@ return new class extends Migration
         Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $table->string('id')->primary();
 
-            $table->string('name');
+            $table->string('name', 30);
 
             $table->smallInteger('tenant_type_id');
             $table->foreign('tenant_type_id')->references('id')->on((new App\Models\Auth\TenantType)->getTableName());

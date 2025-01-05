@@ -12,10 +12,10 @@
             <a class="navbar-brand me-1 me-sm-3 " href="{{ route('home') }}">
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <img src="{{ asset(config('sistema.logo')) }}" alt="Logo {{ Session::get('tenantDados')->name }}"
-                            width="27">
-                        <h5 class="logo-text ms-2 d-none d-sm-block">{{ Session::get('tenantDados')->name }} -
-                            {{ DomainTenantResolver::$currentDomain->name }}
+                        <img src="{{ asset(config('sistema.logo')) }}"
+                            alt="Logo {{ Session::get('tenantDados')->name }}" width="27">
+                        <h5 class="logo-text ms-2 d-none d-sm-block">
+                            {{ tenant('name') }} - {{ DomainTenantResolver::$currentDomain->name }}
                     </div>
                 </div>
             </a>

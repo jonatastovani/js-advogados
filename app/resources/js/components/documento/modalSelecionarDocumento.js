@@ -132,7 +132,7 @@ export class modalSelecionarDocumento extends modalRegistrationAndEditing {
         documento.idButton = UUIDHelper.generateUUID();
         const strButton = `
             <div id="${documento.idButton}" class="col">
-                <button type="button" class="btn btn-dark w-100 border-0">
+                <button type="button" class="btn btn-dark w-100 border-1" style="border-color: inherit;>
                     <h5 class="card-title">${documento.documento_gerado_tipo.nome}</h5>
                     <p class="card-text">${dadosEspecifico}</p>
                 </button>

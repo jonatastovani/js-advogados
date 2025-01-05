@@ -159,6 +159,7 @@
                     </ul>
 
                 </div>
+                <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
                 <div class="card-footer p-0 border-top border-translucent">
                     {{-- <ul class="nav d-flex flex-column my-3">
                         <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <svg

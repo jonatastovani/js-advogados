@@ -1,4 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
+import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { modalNome } from "../../../components/comum/modalNome";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -25,134 +26,10 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        self._idRegister = 'current'
+        self._idRegister = 'current';
+        self._action = enumAction.PUT;
 
         await self._buscarDados();
-
-        self.#addEventosBotoes();
-    }
-
-    #addEventosBotoes() {
-        const self = this;
-
-        // $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalEstadoCivilTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 self.#buscarEstadoCivil(response.selected.id);
-        //             } else {
-        //                 self.#buscarEstadoCivil();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
-
-        // $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalEscolaridadeTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 self.#buscarEscolaridade(response.selected.id);
-        //             } else {
-        //                 self.#buscarEscolaridade();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
-
-        // $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalSexoTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 self.#buscarSexo(response.selected.id);
-        //             } else {
-        //                 self.#buscarSexo();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
-    }
-
-    async addEventosBotoesEspecificoPerfilTipo() {
-        const self = this;
-
-        // $(`#openModalConta${self._objConfigs.sufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalContaTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         await self._modalHideShow(false);
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selecteds.length > 0) {
-        //                 const item = response.selecteds[0];
-        //                 self.#buscarContas(item.id);
-        //             } else {
-        //                 self.#buscarContas();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //         await self._modalHideShow();
-        //     }
-        // });
     }
 
     async preenchimentoDados(response, options = {}) {
@@ -163,7 +40,9 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         const domains = responseData.domains;
 
         form.find('input[name="name"]').val(responseData.name);
-
+        if (responseData.sigla) {
+            form.find('input[name="sigla"]').val(responseData.sigla);
+        }
         if (domains.length) domains.map(domain => { self._inserirDominio(domain); });
     }
 
@@ -203,10 +82,15 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
 
         divDominio.append(strCard);
         self.#addEventosDominio(domain);
-        self._objConfigs.data.domainsNaTela.push(domain);
+        self._objConfigs.data.domainsNaTela.push({
+            idCol: domain.idCol,
+            id: domain.id,
+            name: domain.name,
+        });
 
         return true;
     }
+
     async #addEventosDominio(dominio) {
         const self = this;
 
@@ -242,24 +126,25 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         });
     }
 
-
     saveButtonAction() {
         const self = this;
-        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        const formData = $(`#form${self._objConfigs.sufixo}`);
+        let data = commonFunctions.getInputsValues(formData[0]);
+
         data.domains = self._objConfigs.data.domainsNaTela;
 
-        if (self._saveVerifications(data, formRegistration)) {
-            self._save(data, `${self._objConfigs.url.base}/update-cliente`, {
-                // idRegister: 'current',
-            });
+        if (self._saveVerifications(data, formData)) {
+            self._save(data, `${self._objConfigs.url.base}/update-cliente`);
         }
         return false;
     }
 
-    _saveVerifications(data, formRegistration) {
+    _saveVerifications(data, formData) {
         const self = this;
-        let blnSave = commonFunctions.verificationData(data.name, { field: formRegistration.find('input[name="name"]'), messageInvalid: 'O campo <b>Nome da Empresa</b> deve ser informado.', setFocus: true });
+
+        let blnSave = commonFunctions.verificationData(data.name, { field: formData.find('input[name="name"]'), messageInvalid: 'O campo <b>Nome da Empresa</b> deve ser informado.', setFocus: true });
+
+        blnSave = commonFunctions.verificationData(data.sigla, { field: formData.find('input[name="sigla"]'), messageInvalid: 'O campo <b>Sigla</b> deve ser informado.', setFocus: true });
 
         return blnSave;
     }

@@ -1,9 +1,13 @@
+@php
+    use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+@endphp
+
 @extends('layouts.layout-guest')
 
 @section('conteudo')
     <div class="row justify-content-center align-items-center h-100">
         <div class="col-md-8 col-lg-5" style="max-width: 30rem;">
-            <div class="card shadow border-0">
+            <div class="card shadow-lg border-0">
                 {{-- <div class="card-header bg-primary text-white text-center">
                     <h4 class="mb-0">{{ __('Login') }}</h4>
                 </div> --}}
@@ -11,11 +15,16 @@
 
                     <div class="row mb-3">
                         <div class="col mt-3">
-                            {{-- <h2 class="text-center fw-bolder">{{ config('sistema.nome') }}</h2> --}}
                             <div class="d-flex align-items-center justify-content-center">
-                                <img src="{{ asset(config('sistema.logo')) }}" alt="Logo {{ config('sistema.sigla_front') }}"
-                                    width="27">
-                                <h3 class="ms-2 mb-0 d-inline-flex">{{ config('sistema.nome') }}</h3>
+                                <img src="{{ asset(config('sistema.logo')) }}" alt="Logo {{ tenant('name') }}" width="75">
+                                <div class="ms-2 text-center">
+                                    <h3 class="d-block mb-0">
+                                        {{ tenant('name') }}
+                                    </h3>
+                                    <h5 class="d-block mb-0">
+                                        {{ DomainTenantResolver::$currentDomain->name }}
+                                    </h5>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -73,6 +82,7 @@
                                 </a>
                             @endif
                         </div>
+                        <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
                     </form>
                 </div>
             </div>

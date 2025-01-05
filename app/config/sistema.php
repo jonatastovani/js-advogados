@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'nome' => 'JS - Advogados',
-    'sigla' => 'JSADV',
-    'sigla_front' => 'JS - Advogados',
+    'nome' => 'ByteForge Sistemas',
+    'sigla' => 'ByForSis',
+    'sigla_front' => 'BFS',
     'logo' => 'img/logo-js-sem-fundo-1600x1600-ico.ico',
     // 'versao' => '1.0',
     // 'urlApi' => 'http://prisonguardpro.test/api',

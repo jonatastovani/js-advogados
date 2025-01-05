@@ -56,7 +56,7 @@ Route::middleware([
     // Route::get('', function () {})->middleware("auth:sanctum");
 
     Route::get('', function () {
-        return redirect(route('advocacia.index'));
+        return redirect(route('home'));
     });
 
     Route::middleware([

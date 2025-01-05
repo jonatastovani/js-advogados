@@ -151,43 +151,47 @@ class FinanceiroController extends Controller
 
         foreach ($dataEnv->dados as $value) {
             $dadosRetorno = new Fluent();
+            $parent = $value['parent'];
 
-            $dadosRetorno->status = $value['status']['nome'];
-            $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
-            $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($value['movimentacao_participante']['valor_participante']);
-            $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
-            $dadosRetorno->descricao_automatica = $value['movimentacao_participante']['descricao_automatica'];
+            $dadosRetorno->status = $parent['status']['nome'];
+            $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
+            $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($value['valor_participante']);
+            $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
+            $dadosRetorno->descricao_automatica = $parent['descricao_automatica'];
 
-            $dadosEspecificos = $value['descricao_automatica'];
+            $dadosEspecificos = $value['parent']['descricao_automatica'];
 
-            switch ($value['referencia_type']) {
+            switch ($value['parent']['referencia_type']) {
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    $dadosEspecificos .= " - Serviço {$value['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= " - Pagamento - {$value['referencia']['pagamento']['numero_pagamento']}";
-                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['area_juridica']['nome']}";
-                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
+                    $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - Pagamento - {$parent['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['area_juridica']['nome']}";
+                    $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
                     break;
 
                 default:
                     break;
             }
             $dadosRetorno->dados_especificos = $dadosEspecificos;
-            $dadosRetorno->conta = $value['conta']['nome'];
+            $dadosRetorno->conta = $parent['conta']['nome'];
 
-            $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
+            $dadosRetorno->created_at = (new DateTime($parent['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
         }
 
         // Cria a chave `processedData` no objeto Fluent
         $dataEnv->processedData = $processedData;
-        $dataEnv->dados_participante = $dataEnv->dados[0]['movimentacao_participante']; // Pega os dados do primeiro item
-        $dataEnv->total_credito = collect($dataEnv->dados)->where('movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('movimentacao_participante.valor_participante');
-        $dataEnv->total_debito = collect($dataEnv->dados)->where('movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('movimentacao_participante.valor_participante');
+        $dataEnv->total_credito = collect($dataEnv->dados)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('valor_participante');
+        $dataEnv->total_debito = collect($dataEnv->dados)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('valor_participante');
         $dataEnv->total_saldo = CurrencyFormatterUtils::toBRL(bcsub($dataEnv->total_credito, $dataEnv->total_debito, 2));
         $dataEnv->total_credito = CurrencyFormatterUtils::toBRL($dataEnv->total_credito);
         $dataEnv->total_debito = CurrencyFormatterUtils::toBRL($dataEnv->total_debito);
 
+        $first = $dataEnv->dados[0];
+        
+        $dataEnv->dados_participante = $dataEnv->dados[0];
+        
         return $dataEnv;
     }
 

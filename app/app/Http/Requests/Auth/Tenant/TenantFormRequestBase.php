@@ -10,14 +10,15 @@ class TenantFormRequestBase extends BaseFormRequest
     {
         // Define as regras básicas
         $rules = [
-            'id' => 'required|string|max:20',
-            'name' => 'required|string|max:255',
+            'id' => 'required|string',
+            'name' => 'required|string|max:30',
             'tenant_type_id' => 'required|integer',
-            'data' => 'nullable|array',
+            // Pode mandar o sigla desta forma porque a trait VirtualColumn faz o encode e o decode dentro do json
+            'sigla' => 'required|string|max:10',
             'domains' => 'required|array|min:1',
+            'domains.*.id' => 'required|integer',
             'domains.*.domain' => 'required|string|max:100',
             'domains.*.name' => 'required|string|max:30',
-            'domains.*.data' => 'nullable|array',
         ];
 
         return $rules;

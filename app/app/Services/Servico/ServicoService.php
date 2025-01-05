@@ -16,7 +16,6 @@ use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class ServicoService extends Service

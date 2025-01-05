@@ -76,25 +76,24 @@ class TenantService extends Service
     protected function verificacaoEPreenchimentoRecursoUpdateCliente(Fluent $requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
-        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
+        $resource = $this->model::find(tenant('id'));
 
         $domains = [];
         foreach ($requestData['domains'] as $value) {
 
-            $validacaoDomainId = ValidationRecordsHelper::validateRecord(Domain::class, ['id' => $value->id]);
+            $validacaoDomainId = ValidationRecordsHelper::validateRecord(Domain::class, ['id' => $value['id']]);
             if (!$validacaoDomainId->count()) {
-                $arrayErrors->{"domain_" . $value->id} = LogHelper::gerarLogDinamico(404, 'O Domínio informado não existe ou foi excluída.', $requestData)->error;
+                $arrayErrors->{"domain_" . $value['id']} = LogHelper::gerarLogDinamico(404, 'O Domínio informado não existe ou foi excluída.', $requestData)->error;
             }
 
-            $domains[] = new Domain([
-                'id' => $value->id,
-                'name' => $value->name
-            ]);
+            $domains[] = Domain::find($value['id'])->fill($value);
         }
 
         // Preenche os atributos da model com os dados do request e conforme os campos $fillable definido na model
         $resource->fill($requestData->toArray());
         $resource->domains = $domains;
+
+        // RestResponse::createTestResponse([$resource->toArray(), $requestData->toArray()]);
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());

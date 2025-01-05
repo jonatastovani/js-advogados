@@ -2,6 +2,14 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Auth\PermissionConfigSeeder;
+use Database\Seeders\Auth\PermissionGroupSeeder;
+use Database\Seeders\Auth\PermissionModuleSeeder;
+use Database\Seeders\Auth\PermissionSeeder;
+use Database\Seeders\Auth\TenantDomainSeeder;
+use Database\Seeders\Auth\TenantTypeSeeder;
+use Database\Seeders\Auth\UserSeeder;
+use Database\Seeders\Auth\UserTenantDomainSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroClienteSeeder;
@@ -100,6 +108,7 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
+                UserTenantDomainSeeder::class,
                 // DocumentoGeradoTipoSeeder::class,
                 // PessoaPerfilTipoUpdateSeeder::class,
                 // DocumentoTipoUpdateSeeder::class,
@@ -107,7 +116,7 @@ class DatabaseSeeder extends Seeder
                 // PagamentoTipoUpdateSeeder::class,
                 // LancamentoStatusTipoUpdateSeeder::class,
                 // MovimentacaoContaStatusTipoUpdateSeeder::class,
-                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
+                // ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }
     }

@@ -1,11 +1,15 @@
+@php
+    use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+@endphp
+
 <nav class="navbar navbar-vertical navbar-expand-lg border-end">
     <div class="navbar-vertical-content scrollbar">
         <div id="navbarMenuPrincipal" class="navbar navbar-collapse">
             <div class="offcanvas offcanvas-start" tabindex="-1" id="navbarNavDropdown"
                 aria-labelledby="navbarNavDropdownLabel">
                 <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="navbarNavDropdownLabel">{{ config('sistema.nome') }}
-                        - {{ Session::get('tenantDados')->nome }}
+                    <h5 class="offcanvas-title" id="navbarNavDropdownLabel">{{ tenant('name') }}
+                        - {{ DomainTenantResolver::$currentDomain->name }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>

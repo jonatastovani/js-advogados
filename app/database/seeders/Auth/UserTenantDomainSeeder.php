@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Auth;
 
 use App\Helpers\UUIDsHelpers;
 use App\Models\Auth\UserTenantDomain;
@@ -27,6 +27,11 @@ class UserTenantDomainSeeder extends Seeder
                 'user_id' => $adminId,
                 'tenant_id' => 'jsadvogados',
                 'domain_id' => 2,
+            ],
+            [
+                'user_id' => $adminId,
+                'tenant_id' => 'jsadvogados',
+                'domain_id' => 3,
             ],
         ];
 

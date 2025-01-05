@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Auth;
 
 use App\Models\Auth\TenantType;
 use Illuminate\Database\Seeder;

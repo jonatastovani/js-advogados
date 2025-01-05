@@ -1,14 +1,15 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Auth;
 
-use App\Enums\PermissionsEnum;
+use App\Enums\PermissionModulesEnum;
 use App\Helpers\UUIDsHelpers;
-use App\Models\Auth\Permission;
+use App\Models\Auth\PermissionModule;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class PermissionSeeder extends Seeder
+class PermissionModuleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,20 +17,21 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $insert = [];
-        foreach (PermissionsEnum::cases() as $enumValue) {
+        foreach (PermissionModulesEnum::cases() as $enumValue) {
             $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
+
         foreach ($insert as $data) {
             $data['created_user_id'] = $adminTenantUserId;
-            Permission::create($data);
+            PermissionModule::create($data);
         }
 
-        $maxId = Permission::max('id');  // Obtém o maior ID atual na tabela
+        $maxId = PermissionModule::max('id');  // Obtém o maior ID atual na tabela
         if ($maxId) {
             // Substitua "tenant_types_id_seq" pelo nome correto da sequência para sua tabela e coluna
-            $sequenceName = (new Permission)->getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
+            $sequenceName = (new PermissionModule)->getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
             DB::statement('SELECT setval(\'' . $sequenceName . '\', ' . ($maxId + 1) . ', false)');
         }
     }

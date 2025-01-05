@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Auth;
 
 use App\Helpers\UUIDsHelpers;
 use App\Models\Auth\User;
