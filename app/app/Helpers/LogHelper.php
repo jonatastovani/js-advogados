@@ -39,6 +39,7 @@ class LogHelper
 
         // Retornar o fluent com os campos de erro e trace ID, junto com os campos adicionais
         return new Fluent(array_merge([
+            'code' => $codigo,
             'error' => $mensagem,
             'trace_id' => $traceId,
         ], $camposAdicionais));

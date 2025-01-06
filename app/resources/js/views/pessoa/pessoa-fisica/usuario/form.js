@@ -54,7 +54,7 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
 
     async preenchimentoEspecificoBuscaPerfilTipo(responseData) {
         const self = this;
-        const form = $(`#formDados${self._objConfigs.sufixo}`);
+        const form = $(`#form${self._objConfigs.sufixo}`);
 
         self._objConfigs.data.user = responseData.user;
         if (responseData?.user?.email) {
@@ -81,7 +81,7 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
     saveVerificationsEspecificoPerfilTipo(data, setFocus, returnForcedFalse) {
 
         const self = this;
-        const formRegistration = $(`#formDados${self._objConfigs.sufixo}`);
+        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
 
         let blnSave = commonFunctions.verificationData(data.email, {
             field: formRegistration.find('input[name="email"]'),

@@ -33,14 +33,9 @@
 
                         <!-- Email Field -->
                         <div class="form-floating mb-3">
-                            <input id="email" type="email"
-                                   class="form-control @error('email') is-invalid @enderror"
-                                   name="email"
-                                   value="{{ $email ?? old('email') }}"
-                                   required
-                                   autocomplete="email"
-                                   autofocus
-                                   placeholder="E-mail">
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus
+                                placeholder="E-mail">
                             <label for="email">{{ __('Email Address') }}</label>
                             @error('email')
                                 <span class="invalid-feedback" role="alert">
@@ -52,11 +47,8 @@
                         <!-- Password Field -->
                         <div class="form-floating mb-3">
                             <input id="password" type="password"
-                                   class="form-control @error('password') is-invalid @enderror"
-                                   name="password"
-                                   required
-                                   autocomplete="new-password"
-                                   placeholder="Senha">
+                                class="form-control @error('password') is-invalid @enderror" name="password" required
+                                autocomplete="new-password" placeholder="Senha">
                             <label for="password">{{ __('Password') }}</label>
                             @error('password')
                                 <span class="invalid-feedback" role="alert">
@@ -67,12 +59,8 @@
 
                         <!-- Confirm Password Field -->
                         <div class="form-floating mb-3">
-                            <input id="password-confirm" type="password"
-                                   class="form-control"
-                                   name="password_confirmation"
-                                   required
-                                   autocomplete="new-password"
-                                   placeholder="Confirme sua senha">
+                            <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
+                                required autocomplete="new-password" placeholder="Confirme sua senha">
                             <label for="password-confirm">{{ __('Confirm Password') }}</label>
                         </div>
 
@@ -83,6 +71,7 @@
                             </button>
                         </div>
                     </form>
+                    <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
                 </div>
             </div>
         </div>

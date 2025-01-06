@@ -1,7 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
+import { TemplateForm } from "../../commons/templates/TemplateForm";
 import { modalMessage } from "../../components/comum/modalMessage";
+import { modalPessoa } from "../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { modalServicoParticipacao } from "../../components/servico/modalServicoParticipacao";
@@ -9,40 +11,44 @@ import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotac
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { RedirectHelper } from "../../helpers/RedirectHelper";
-import { RequestsHelpers } from "../../helpers/RequestsHelpers";
 import { ServicoParticipacaoHelpers } from "../../helpers/ServicoParticipacaoHelpers";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 
-class PageServicoForm {
+class PageServicoForm extends TemplateForm {
 
-    #objConfigs = {
-        url: {
-            base: window.apiRoutes.baseServico,
-            baseAnotacao: undefined,
-            basePagamentos: undefined,
-            baseParticipacao: undefined,
-            baseValores: undefined,
-            baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
-            baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
-            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
-        },
-        sufixo: 'PageServicoForm',
-        data: {
-            porcentagemOcupada: 0,
-            participantesNaTela: [],
-        },
-    };
-    #action;
-    #idRegister;
     #functionsServicoParticipacao;
 
     constructor() {
+
+        const objConfigs = {
+            url: {
+                base: window.apiRoutes.baseServico,
+                baseAnotacao: undefined,
+                basePagamentos: undefined,
+                baseParticipacao: undefined,
+                baseValores: undefined,
+                baseCliente: undefined,
+                baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
+                baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
+                baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            },
+            sufixo: 'PageServicoForm',
+            data: {
+                porcentagemOcupada: 0,
+                participantesNaTela: [],
+                clientesNaTela: [],
+            },
+        };
+
+        super({
+            objConfigs: objConfigs
+        });
+
         const objData = {
-            objConfigs: this.#objConfigs,
+            objConfigs: this._objConfigs,
             extraConfigs: {
                 modeParent: 'searchAndUse',
             }
@@ -57,16 +63,17 @@ class PageServicoForm {
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
-            self.#idRegister = uuid;
-            const url = `${self.#objConfigs.url.base}/${self.#idRegister}`;
-            self.#objConfigs.url.baseAnotacao = `${url}/anotacao`;
-            self.#objConfigs.url.basePagamentos = `${url}/pagamentos`;
-            self.#objConfigs.url.baseParticipacao = `${url}/participacao`;
-            self.#objConfigs.url.baseValores = `${url}/relatorio/valores`;
-            this.#action = enumAction.PUT;
-            await self.#buscarDados();
+            self._idRegister = uuid;
+            const url = `${self._objConfigs.url.base}/${self._idRegister}`;
+            self._objConfigs.url.baseAnotacao = `${url}/anotacao`;
+            self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
+            self._objConfigs.url.baseParticipacao = `${url}/participacao`;
+            self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
+            self._objConfigs.url.baseCliente = `${url}/cliente`;
+            this._action = enumAction.PUT;
+            await self._buscarDados();
         } else {
-            this.#action = enumAction.POST;
+            this._action = enumAction.POST;
         }
 
         self.#addEventosBotoes();
@@ -75,7 +82,7 @@ class PageServicoForm {
     #addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenAreaJuridicaTenant${self.#objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -103,25 +110,46 @@ class PageServicoForm {
             }
         });
 
-        $(`#btnSave${self.#objConfigs.sufixo}`).on('click', async function (e) {
-            e.preventDefault();
-            self.#saveButtonAction();
-        });
-
-        $(`#btnSaveParticipantes${self.#objConfigs.sufixo}`).on('click', async function (e) {
+        $(`#btnSaveParticipantes${self._objConfigs.sufixo}`).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionParticipacao();
         });
 
-        $(`#btnAdicionarCliente${self.#objConfigs.sufixo}`).on('click', async function () {
-            commonFunctions.generateNotification('Funcionalidade em desenvolvimento.', 'warning');
-        });
+        $(`#btnAdicionarCliente${self._objConfigs.sufixo}`).on('click', async function () {
 
-        $(`#btnAdicionarAnotacao${self.#objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAnotacaoLembreteTenant(self.#objConfigs.url.baseAnotacao);
+                const objModal = new modalPessoa();
+                objModal.setDataEnvModal = {
+                    perfis_busca: window.Statics.PerfisPermitidoClienteServico,
+                };
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.selecteds) {
+                    response.selecteds.map(item => {
+                        self.#inserirCliente({
+                            perfil_id: item.id,
+                            perfil: item
+                        });
+                    })
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
+
+        $(`#btnSaveClientes${self._objConfigs.sufixo}`).on('click', async function (e) {
+            e.preventDefault();
+            self.#saveButtonActionCliente();
+        });
+
+        $(`#btnAdicionarAnotacao${self._objConfigs.sufixo}`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -134,11 +162,11 @@ class PageServicoForm {
             }
         });
 
-        $(`#btnInserirPagamento${self.#objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnInserirPagamento${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarPagamentoTipo(`${self.#objConfigs.url.base}/${self.#idRegister}`);
+                const objModal = new modalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -151,13 +179,13 @@ class PageServicoForm {
             }
         });
 
-        $(`#btnExcluirParticipante${self.#objConfigs.sufixo}`).on('click', async function () {
-            const response = await self.#delButtonAction(`${self.#idRegister}/participacao`, null, {
+        $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).on('click', async function () {
+            const response = await self._delButtonAction(`${self._idRegister}/participacao`, null, {
                 title: `Exclusão de Participantes`,
                 message: `Confirma a exclusão do(s) participante(s) deste serviço?`,
                 success: `Participantes excluídos com sucesso!`,
                 button: this,
-                urlApi: `${self.#objConfigs.url.base}`,
+                urlApi: `${self._objConfigs.url.base}`,
             });
 
             if (response) {
@@ -165,7 +193,7 @@ class PageServicoForm {
             }
         });
 
-        $(`#atualizarPagamentos${self.#objConfigs.sufixo}`).on('click', async function () {
+        $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
             await self.#buscarPagamentos();
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
@@ -173,9 +201,135 @@ class PageServicoForm {
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
     }
 
+
+
+
+    async #inserirCliente(item) {
+        const self = this;
+        const divClientes = $(`#divClientes${self._objConfigs.sufixo}`);
+        item.idCard = UUIDHelper.generateUUID();
+
+        let nome = '';
+
+        const naTela = self.#verificaClienteNaTela(item);
+
+        switch (item.perfil.pessoa.pessoa_dados_type) {
+            case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                nome = item.perfil.pessoa.pessoa_dados.nome;
+                break;
+            case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                nome = item.perfil.pessoa.pessoa_dados.nome_fantasia;
+                break;
+
+            default:
+                commonFunctions.generateNotification(`O tipo de pessoa <b>${item.perfil.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'warning');
+                console.error('O tipo de pessoa ainda nao foi implementado.', item);
+                return false;
+        }
+
+        if (naTela) {
+            commonFunctions.generateNotification(`Cliente <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
+            return false;
+        }
+
+        const strCard = `
+            <div id="${item.idCard}" class="card card-cliente">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center justify-content-between">
+                        <span class="spanNome">${nome}</span>
+                        <div>
+                            <div class="dropdown dropdown-acoes-cliente">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="button" class="dropdown-item fs-6 btn-delete">Excluir</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </h5>
+                </div>
+            </div>`;
+
+        self._objConfigs.data.clientesNaTela.push(item);
+
+        divClientes.append(strCard);
+
+        await self.#addEventoCliente(item);
+        return item;
+    }
+
+    // async #atualizaClienteNaTela(item) {
+    //     const self = this;
+
+    //     if (item.observacao) {
+    //         $(`#${item.idCard} .lblObservacao`).html(item.observacao);
+    //         $(`#${item.idCard} .rowObservacao`).show('fast');
+    //     } else {
+    //         $(`#${item.idCard} .rowObservacao`).hide('fast');
+    //     }
+    // }
+
+    async #addEventoCliente(item) {
+        const self = this;
+
+        $(`#${item.idCard} .btn-delete`).on('click', async function () {
+            try {
+                const obj = new modalMessage();
+                obj.setDataEnvModal = {
+                    title: 'Remoção de Cliente',
+                    message: 'Tem certeza que deseja remover este cliente?',
+                };
+                obj.setFocusElementWhenClosingModal = $(this);
+                const result = await obj.modalOpen();
+                if (result.confirmResult) {
+
+                    $(`#${item.idCard}`).remove();
+                    const clientes = self._objConfigs.data.clientesNaTela;
+                    const indexPart = clientes.findIndex(cliente => cliente.idCard === item.idCard);
+
+                    if (indexPart > -1) {
+                        clientes.splice(indexPart, 1);
+                    }
+
+                    commonFunctions.generateNotification('Cliente removido.', 'success');
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            }
+        });
+    }
+
+    #verificaClienteNaTela(item) {
+        const self = this;
+        for (const element of self._objConfigs.data.clientesNaTela) {
+            if (element.perfil_id == item.perfil_id) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    async #buscarClientes() {
+        const self = this;
+        try {
+            const obj = new connectAjax(self._objConfigs.url.baseParticipacao);
+            const response = await obj.getRequest();
+            if (response.data) {
+                self.#inserirCliente(response.data);
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+
+
+
+
     async #inserirAnotacao(item) {
         const self = this;
-        const divAnotacao = $(`#divAnotacao${self.#objConfigs.sufixo}`);
+        const divAnotacao = $(`#divAnotacao${self._objConfigs.sufixo}`);
 
         item.idCol = UUIDHelper.generateUUID();
         let created_at = '';
@@ -230,7 +384,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAnotacaoLembreteTenant(self.#objConfigs.url.baseAnotacao);
+                const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 };
@@ -247,12 +401,12 @@ class PageServicoForm {
         });
 
         $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
-            const response = await self.#delButtonAction(item.id, item.titulo, {
+            const response = await self._delButtonAction(item.id, item.titulo, {
                 title: `Exclusão de Anotação`,
                 message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
                 success: `Anotação excluída com sucesso!`,
                 button: this,
-                urlApi: self.#objConfigs.url.baseAnotacao,
+                urlApi: self._objConfigs.url.baseAnotacao,
             });
 
             if (response) {
@@ -263,9 +417,9 @@ class PageServicoForm {
 
     async #inserirPagamento(item) {
         const self = this;
-        const divPagamento = $(`#divPagamento${self.#objConfigs.sufixo}`);
+        const divPagamento = $(`#divPagamento${self._objConfigs.sufixo}`);
 
-        item.idCard = `${UUIDHelper.generateUUID()}${self.#objConfigs.sufixo}`;
+        item.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
         const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
@@ -467,7 +621,7 @@ class PageServicoForm {
             }
 
             const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
-            lancamento.idCard = `${UUIDHelper.generateUUID()}${self.#objConfigs.sufixo}`;
+            lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
 
             let htmlAppend = '';
 
@@ -578,7 +732,7 @@ class PageServicoForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento({ urlApi: self.#objConfigs.url.basePagamentos });
+                const objModal = new modalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }
@@ -594,12 +748,12 @@ class PageServicoForm {
         });
 
         $(`#${item.idCard}`).find(`.btn-delete`).on('click', async function () {
-            const response = await self.#delButtonAction(item.id, item.pagamento_tipo_tenant.nome, {
+            const response = await self._delButtonAction(item.id, item.pagamento_tipo_tenant.nome, {
                 title: `Exclusão de Pagamento`,
                 message: `Confirma a exclusão do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
                 success: `Pagamento excluído com sucesso!`,
                 button: this,
-                urlApi: self.#objConfigs.url.basePagamentos,
+                urlApi: self._objConfigs.url.basePagamentos,
             });
 
             if (response) {
@@ -612,7 +766,7 @@ class PageServicoForm {
             commonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalServicoParticipacao({
-                    urlApi: `${self.#objConfigs.url.basePagamentos}/${item.id}/participacao`
+                    urlApi: `${self._objConfigs.url.basePagamentos}/${item.id}/participacao`
                 });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.registers) {
@@ -626,12 +780,12 @@ class PageServicoForm {
         });
 
         $(`#${item.idCard}`).find(`.btn-delete-participante-pagamento`).on('click', async function () {
-            const response = await self.#delButtonAction(`${item.id}/participacao`, item.pagamento_tipo_tenant.nome, {
+            const response = await self._delButtonAction(`${item.id}/participacao`, item.pagamento_tipo_tenant.nome, {
                 title: `Exclusão de Participantes`,
                 message: `Confirma a exclusão do(s) participante(s) personalizado(s) do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
                 success: `Participantes excluídos com sucesso!`,
                 button: this,
-                urlApi: `${self.#objConfigs.url.basePagamentos}`,
+                urlApi: `${self._objConfigs.url.basePagamentos}`,
             });
 
             if (response) {
@@ -645,11 +799,11 @@ class PageServicoForm {
     async #addEventosLancamento(item) {
         const self = this;
         const accordionBody = $(`#accordionPagamento${item.id} .accordion-body`);
-        const urlLancamentos = `${self.#objConfigs.url.basePagamentos}/${item.id}/lancamentos`;
+        const urlLancamentos = `${self._objConfigs.url.basePagamentos}/${item.id}/lancamentos`;
 
         const atualizaLancamentos = async () => {
             try {
-                const response = await self.#getRecurse({ idRegister: item.id, urlApi: self.#objConfigs.url.basePagamentos });
+                const response = await self._getRecurse({ idRegister: item.id, urlApi: self._objConfigs.url.basePagamentos });
                 const htmlLancamentos = self.#htmlLancamentos(response.data);
                 accordionBody.html(htmlLancamentos);
                 BootstrapFunctionsHelper.addEventPopover();
@@ -682,7 +836,7 @@ class PageServicoForm {
                 });
 
                 $(`#${lancamento.idCard}`).find(`.btn-delete-participante-lancamento`).on('click', async function () {
-                    const response = await self.#delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
+                    const response = await self._delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
                         title: `Exclusão de Participantes`,
                         message: `Confirma a exclusão do(s) participante(s) personalizado(s) do lançamento <b>${lancamento.descricao_automatica}</b>?`,
                         success: `Participantes excluídos com sucesso!`,
@@ -698,43 +852,33 @@ class PageServicoForm {
         }
     }
 
-    async #buscarDados() {
+    async preenchimentoDados(response, options) {
         const self = this;
+        const form = $(options.form);
 
-        try {
-            await commonFunctions.loadingModalDisplay();
+        const responseData = response.data;
+        form.find('input[name="titulo"]').val(responseData.titulo);
+        self.#buscarAreasJuridicas(responseData.area_juridica_id);
+        form.find('textarea[name="descricao"]').val(responseData.descricao);
 
-            const response = await self.#getRecurse();
-            const form = $(`#formServico${self.#objConfigs.sufixo}`);
+        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
+        responseData.anotacao.forEach(item => {
+            self.#inserirAnotacao(item);
+        });
 
-            if (response?.data) {
-                const responseData = response.data;
-                form.find('input[name="titulo"]').val(responseData.titulo);
-                commonFunctions.updateSelect2Value($(`#area_juridica_id${self.#objConfigs.sufixo}`), responseData.area_juridica.nome, responseData.area_juridica_id);
-                form.find('textarea[name="descricao"]').val(responseData.descricao);
+        $(`#divPagamento${self._objConfigs.sufixo}`).html('');
+        responseData.pagamento.forEach(item => {
+            self.#inserirPagamento(item);
+        });
 
-                $(`#divAnotacao${self.#objConfigs.sufixo}`).html('');
-                responseData.anotacao.forEach(item => {
-                    self.#inserirAnotacao(item);
-                });
+        $(`#divCliente${self._objConfigs.sufixo}`).html('');
+        responseData.cliente.forEach(item => {
+            self.#inserirCliente(item);
+        });
 
-                $(`#divPagamento${self.#objConfigs.sufixo}`).html('');
-                responseData.pagamento.forEach(item => {
-                    self.#inserirPagamento(item);
-                });
+        self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
-                self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
-
-                self.#atualizaTodosValores(response.data);
-            } else {
-                form.find('input, textarea, select, button').prop('disabled', true);
-            }
-
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        } finally {
-            await commonFunctions.loadingModalDisplay(false);
-        }
+        self.#atualizaTodosValores(response.data);
     }
 
     #atualizaTodosValores(data) {
@@ -748,35 +892,35 @@ class PageServicoForm {
 
     #atualizarValorServico(valor) {
         const self = this;
-        $(`#valorServico${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#valorServico${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalAguardando(valor) {
         const self = this;
-        $(`#totalAguardando${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalAguardando${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalEmAnalise(valor) {
         const self = this;
-        $(`#totalEmAnalise${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalEmAnalise${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalLiquidado(valor) {
         const self = this;
-        $(`#totalLiquidado${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalLiquidado${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalInadimplente(valor) {
         const self = this;
-        $(`#totalInadimplente${self.#objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalInadimplente${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     async #buscarAreasJuridicas(selected_id = null) {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selArea = $(`#area_juridica_id${self.#objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selArea, self.#objConfigs.url.baseAreaJuridicaTenant, options); 0
+            const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -788,9 +932,9 @@ class PageServicoForm {
         try {
             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' });
 
-            const obj = new connectAjax(self.#objConfigs.url.basePagamentos);
+            const obj = new connectAjax(self._objConfigs.url.basePagamentos);
             const response = await obj.getRequest();
-            $(`#divPagamento${self.#objConfigs.sufixo}`).html('');
+            $(`#divPagamento${self._objConfigs.sufixo}`).html('');
             for (const item of response.data) {
                 self.#inserirPagamento(item);
             }
@@ -806,7 +950,7 @@ class PageServicoForm {
     async #buscarValores() {
         const self = this;
         try {
-            const obj = new connectAjax(self.#objConfigs.url.baseValores);
+            const obj = new connectAjax(self._objConfigs.url.baseValores);
             const response = await obj.getRequest();
             self.#atualizaTodosValores(response.data);
         } catch (error) {
@@ -814,80 +958,23 @@ class PageServicoForm {
         }
     }
 
-    async #getRecurse(options = {}) {
+    saveButtonAction() {
         const self = this;
-        const { idRegister = self.#idRegister,
-            urlApi = self.#objConfigs.url.base,
-        } = options;
-
-        try {
-            const obj = new connectAjax(urlApi);
-            obj.setParam(idRegister);
-            return await obj.getRequest();
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    async #delButtonAction(idDel, nameDel, options = {}) {
-        const self = this;
-        const { button = null,
-            title = 'Exclusão de Registro',
-            message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
-            success = `Registro excluído com sucesso!`,
-        } = options;
-
-        try {
-            const obj = new modalMessage();
-            obj.setDataEnvModal = {
-                title: title,
-                message: message,
-            };
-            obj.setFocusElementWhenClosingModal = button;
-            const result = await obj.modalOpen();
-            if (result.confirmResult) {
-                if (await self.#delRecurse(idDel, options)) {
-                    commonFunctions.generateNotification(success, 'success');
-                    return true;
-                }
-            }
-            return false;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    async #delRecurse(idDel, options = {}) {
-        const self = this;
-        const {
-            urlApi = self.#objConfigs.url.base,
-        } = options;
-
-        try {
-            await RequestsHelpers.delRecurse({ idRegister: idDel, urlApi: urlApi });
-            return true;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
-    }
-
-    #saveButtonAction() {
-        const self = this;
-        const formRegistration = $(`#formServico${self.#objConfigs.sufixo}`);
+        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
-            self.#save(data, self.#objConfigs.url.base);
+            self._save(data, self._objConfigs.url.base, {
+                success: 'Serviço cadastrado com sucesso!',
+                redirectWithIdBln: true,
+            });
         }
         return false;
     }
 
     #saveVerifications(data, formRegistration) {
         const self = this;
-        if (self.#action == enumAction.POST) {
+        if (self._action == enumAction.POST) {
             let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
             blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
             blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
@@ -896,71 +983,43 @@ class PageServicoForm {
         return true;
     }
 
-    async #save(data, urlApi, options = {}) {
+    async #saveButtonActionCliente() {
         const self = this;
-        const {
-            btnSave = $(`#btnSave${self.#objConfigs.sufixo}`),
-        } = options;
-
-        try {
-            commonFunctions.simulateLoading(btnSave);
-            const obj = new connectAjax(urlApi);
-            obj.setAction(self.#action);
-            obj.setData(data);
-            if (self.#action === enumAction.PUT) {
-                obj.setParam(self.#idRegister);
-            }
-            const response = await obj.envRequest();
-
-            if (response) {
-                if (self.#action === enumAction.PUT) {
-                    commonFunctions.generateNotification('Dados do serviço alterados com sucesso!', 'success');
-                } else {
-                    RedirectHelper.redirectWithUUIDMessage(`${window.frontRoutes.frontRedirectForm}/${response.data.id}`, 'Serviço iniciado com sucesso!', 'success');
-                }
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+        let data = {
+            clientes: self._objConfigs.data.clientesNaTela,
         }
-        finally {
-            commonFunctions.simulateLoading(btnSave, false);
-        };
+
+        if (data.clientes.length) {
+            const response = await self._save(data, self._objConfigs.url.baseCliente, {
+                action: enumAction.POST,
+                btnSave: $(`#btnSaveClientes${self._objConfigs.sufixo}`),
+                redirectBln: false,
+                returnObjectSuccess: true,
+            });
+            if (response) {
+                $(`#divCliente${self._objConfigs.sufixo}`).html('');
+                response.data.map(item => { self.#inserirCliente(item); });
+            }
+        }
     }
 
     async #saveButtonActionParticipacao() {
         const self = this;
         let data = {
-            participantes: self.#objConfigs.data.participantesNaTela,
+            participantes: self._objConfigs.data.participantesNaTela,
         }
 
         if (self.#functionsServicoParticipacao._saveVerificationsParticipantes(data)) {
-            await self.#saveParticipantes(data, self.#objConfigs.url.baseParticipacao, { fieldRegisterName: 'registers' });
-        }
-    }
-
-    async #saveParticipantes(data, urlApi, options = {}) {
-        const self = this;
-        const {
-            btnSave = $(`#btnSaveParticipantes${self.#objConfigs.sufixo}`),
-        } = options;
-
-        try {
-            commonFunctions.simulateLoading(btnSave);
-            const obj = new connectAjax(urlApi);
-            obj.setAction(enumAction.POST);
-            obj.setData(data);
-
-            const response = await obj.envRequest();
+            const response = await self._save(data, self._objConfigs.url.baseParticipacao, {
+                action: enumAction.POST,
+                btnSave: $(`#btnSaveParticipantes${self._objConfigs.sufixo}`),
+                redirectBln: false,
+                returnObjectSuccess: true,
+            });
             if (response) {
-                commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
                 self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(response.data);
             }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
         }
-        finally {
-            commonFunctions.simulateLoading(btnSave, false);
-        };
     }
 }
 

@@ -29,10 +29,12 @@ return new class extends Migration
             $table->uuid('servico_id');
             $table->foreign('servico_id')->references('id')->on((new App\Models\Servico\Servico)->getTableName());
 
-            $table->uuid('pessoa_perfil_id');
-            $table->foreign('pessoa_perfil_id')->references('id')->on((new App\Models\Pessoa\PessoaPerfil)->getTableName());
+            $table->uuid('perfil_id');
+            $table->foreign('perfil_id')->references('id')->on((new App\Models\Pessoa\PessoaPerfil)->getTableName());
 
             $table->string('observacao')->nullable();
+            
+            $table->json('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

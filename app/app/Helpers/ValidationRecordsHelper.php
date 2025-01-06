@@ -35,7 +35,6 @@ class ValidationRecordsHelper
         return $query->get();
     }
 
-
     /**
      * Valida se o recurso já existe com os campos enviados na requisição.
      *

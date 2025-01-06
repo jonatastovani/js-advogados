@@ -1,3 +1,4 @@
+import { commonFunctions } from "../commonFunctions";
 
 export class modalDefault {
 
@@ -53,13 +54,16 @@ export class modalDefault {
     constructor(objSuper) {
         this._urlApi = objSuper.urlApi ?? undefined;
         this._idModal = objSuper.idModal;
-        this._promisseReturnValue = objSuper.promisseReturnValue ?? {};
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, {
+        
+        this._promisseReturnValue = commonFunctions.deepMergeObject({
             refresh: false,
-        })
+        }, objSuper.promisseReturnValue ?? {});
+
         this._focusElementWhenClosingModal = objSuper.focusElementWhenClosingModal ?? undefined;
         this._dataEnvModal = objSuper.dataEnvModal ?? {};
-        this._objConfigs = Object.assign(this._objConfigs, objSuper.objConfigs ?? {});
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
+        console.log(JSON.parse(JSON.stringify(this._objConfigs)));
+
         this._endTimer = false;
         this.#addEventsDefault();
     }
@@ -175,9 +179,9 @@ export class modalDefault {
     _nameClassModal = "modal";
     #addEventClickBackdrop() {
         const self = this;
-        
+
         const modalCloseOnClickBackdrop = self._objConfigs?.modalConfig?.modalCloseOnClickBackdrop;
-        if(modalCloseOnClickBackdrop !== undefined || modalCloseOnClickBackdrop === false) {
+        if (modalCloseOnClickBackdrop !== undefined || modalCloseOnClickBackdrop === false) {
             return;
         }
 
@@ -192,7 +196,7 @@ export class modalDefault {
         const self = this;
 
         const modalCloseOnEscape = self._objConfigs?.modalConfig?.modalCloseOnEscape;
-        if(modalCloseOnEscape !== undefined || modalCloseOnEscape === false) {
+        if (modalCloseOnEscape !== undefined || modalCloseOnEscape === false) {
             return;
         }
 

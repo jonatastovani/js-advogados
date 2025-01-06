@@ -52,8 +52,8 @@ class Servico extends Model
         'deleted_at',
         'tenant_id',
         'domain_id',
-   ];
-    
+    ];
+
     // Variável estática para armazenar a sequência temporariamente
     protected static $sequenciaTemporaria;
 
@@ -76,7 +76,12 @@ class Servico extends Model
     {
         return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
     }
-    
+
+    public function cliente()
+    {
+        return $this->hasMany(ServicoCliente::class);
+    }
+
     /**
      * Acessor para obter a soma total dos pagamentos associados a um serviço.
      *

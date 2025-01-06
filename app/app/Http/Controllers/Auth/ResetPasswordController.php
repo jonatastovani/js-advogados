@@ -13,7 +13,7 @@ class ResetPasswordController extends Controller
 {
     use ResetsPasswords, AuthFuncoesControllerTrait;
 
-    protected $redirectTo = '/adv';
+    protected $redirectTo = '/home';
 
     /**
      * Reset the given user's password.

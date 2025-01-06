@@ -55,6 +55,7 @@
                             </button>
                         </div>
                     </form>
+                    <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
                 </div>
             </div>
         </div>

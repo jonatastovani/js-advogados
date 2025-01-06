@@ -71,6 +71,13 @@ enum PessoaPerfilTipoEnum: int
         ];
     }
 
+    static public function perfisPermitidoClienteServico(): array
+    {
+        return [
+            self::CLIENTE->detalhes(),
+        ];
+    }
+
     /**
      * Retorna as rotas de form de pessoa física para cada perfil, para uso de redirecionamento para o form no front.
      * @return array

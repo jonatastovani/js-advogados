@@ -23,12 +23,18 @@ class ServicoCliente extends Model
     protected $table = 'servico.servico_clientes';
     protected $tableAsName = 'serv_cli';
 
+    protected $fillable = [
+        'id',
+        'servico_id',
+        'perfil_id',
+    ];
+
     public function servico()
     {
         return $this->belongsTo(Servico::class);
     }
 
-    public function pessoa_perfil()
+    public function perfil()
     {
         return $this->belongsTo(PessoaPerfil::class);
     }

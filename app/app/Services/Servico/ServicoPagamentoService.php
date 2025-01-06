@@ -238,14 +238,6 @@ class ServicoPagamentoService extends Service
         ]);
     }
 
-    /**
-     * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
-     *
-     * @param array $options Opções para manipulação de relacionamentos.
-     *     - 'withOutClass' (array|string|null): Lista de classes que não devem ser chamadas
-     *       para evitar referências circulares.
-     * @return array Array de relacionamentos manipulados.
-     */
     public function loadFull($options = []): array
     {
         // Lista de classes a serem excluídas para evitar referência circular

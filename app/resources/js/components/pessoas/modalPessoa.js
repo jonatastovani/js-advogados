@@ -7,50 +7,6 @@ import { modalSelecionarPerfil } from "./modalSelecionarPerfil";
 
 export class modalPessoa extends modalSearchAndFormRegistration {
 
-    /**
-     * Configuração local do modal
-     */
-    #objConfigs = {
-        formRegister: false,
-        querys: {
-            consultaFiltrosFisica: {
-                name: 'consulta-filtros-fisica',
-                url: window.apiRoutes.basePessoaFisica,
-                urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-filtros`,
-                tbody: $('#tableDataModalPessoaFisica').find('tbody'),
-                footerPagination: $('#footerPaginationModalPessoaFisica'),
-                formDataSearch: $('#formDataSearchModalPessoaFisica'),
-                insertTableData: 'insertTableDataPessoaFisica',
-            },
-            consultaFiltrosJuridica: {
-                name: 'consulta-filtros-juridica',
-                url: window.apiRoutes.basePessoaJuridica,
-                urlSearch: `${window.apiRoutes.basePessoaJuridica}/consulta-filtros`,
-                tbody: $('#tableDataModalPessoaJuridica').find('tbody'),
-                footerPagination: $('#footerPaginationModalPessoaJuridica'),
-                formDataSearch: $('#formDataSearchModalPessoaJuridica'),
-                insertTableData: 'insertTableDataPessoaJuridica',
-            },
-            consultaFisicaCriterios: {
-                name: 'consulta-criterios',
-                url: window.apiRoutes.basePessoaFisica,
-                urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-criterios`,
-                tbody: $('#tableDataModalPessoaFisicaCriterios').find('tbody'),
-                footerPagination: $('#footerPaginationModalPessoaFisicaCriterios'),
-                formDataSearch: $('#formDataSearchModalPessoaFisicaCriterios'),
-            },
-            consultaJuridicaCriterios: {
-                name: 'consulta-criterios',
-                url: window.apiRoutes.basePessoaJuridica,
-                urlSearch: `${window.apiRoutes.basePessoaJuridica}/consulta-criterios`,
-                tbody: $('#tableDataModalPessoaJuridicaCriterios').find('tbody'),
-                footerPagination: $('#footerPaginationModalPessoaJuridicaCriterios'),
-                formDataSearch: $('#formDataSearchModalPessoaJuridicaCriterios'),
-            },
-        },
-        sufixo: 'ModalPessoa',
-    };
-
     #dataEnvModal = {
         attributes: {
             select: {
@@ -64,13 +20,59 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         const envSuper = {
             idModal: "#modalPessoa",
         };
-        if (objData.dataEnvModal) {
-            envSuper.dataEnvModal = objData.dataEnvModal;
-        }
+
+        envSuper.objConfigs = commonFunctions.deepMergeObject({
+            formRegister: false,
+            querys: {
+                consultaFiltrosFisica: {
+                    name: 'consulta-filtros-fisica',
+                    url: window.apiRoutes.basePessoaFisica,
+                    urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-filtros`,
+                    tbody: '#tableDataModalPessoaFisica tbody',
+                    footerPagination: '#footerPaginationModalPessoaFisica',
+                    formDataSearch: '#formDataSearchModalPessoaFisica',
+                    insertTableData: 'insertTableDataPessoaFisica',
+                },
+                consultaFiltrosJuridica: {
+                    name: 'consulta-filtros-juridica',
+                    url: window.apiRoutes.basePessoaJuridica,
+                    urlSearch: `${window.apiRoutes.basePessoaJuridica}/consulta-filtros`,
+                    tbody: '#tableDataModalPessoaJuridica tbody',
+                    footerPagination: '#footerPaginationModalPessoaJuridica',
+                    formDataSearch: '#formDataSearchModalPessoaJuridica',
+                    insertTableData: 'insertTableDataPessoaJuridica',
+                },
+                consultaFisicaCriterios: {
+                    name: 'consulta-criterios',
+                    url: window.apiRoutes.basePessoaFisica,
+                    urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-criterios`,
+                    tbody: '#tableDataModalPessoaFisicaCriterios tbody',
+                    footerPagination: '#footerPaginationModalPessoaFisicaCriterios',
+                    formDataSearch: '#formDataSearchModalPessoaFisicaCriterios',
+                },
+                consultaJuridicaCriterios: {
+                    name: 'consulta-criterios',
+                    url: window.apiRoutes.basePessoaJuridica,
+                    urlSearch: `${window.apiRoutes.basePessoaJuridica}/consulta-criterios`,
+                    tbody: '#tableDataModalPessoaJuridicaCriterios tbody',
+                    footerPagination: '#footerPaginationModalPessoaJuridicaCriterios',
+                    formDataSearch: '#formDataSearchModalPessoaJuridicaCriterios',
+                },
+            },
+            sufixo: 'ModalPessoa',
+        }, objData.objConfigs ?? {});
+
+        envSuper.dataEnvModal = commonFunctions.deepMergeObject({
+            attributes: {
+                select: {
+                    quantity: 1,
+                    autoReturn: true,
+                }
+            },
+        }, objData.dataEnvModal ?? {});
+
         super(envSuper);
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this.functionsCriteria = new functionsQueryCriteria(this, this._idModal);
     }
 

@@ -36,11 +36,8 @@
                         <!-- Password Field -->
                         <div class="form-floating mb-3">
                             <input id="password" type="password"
-                                   class="form-control @error('password') is-invalid @enderror"
-                                   name="password"
-                                   required
-                                   autocomplete="current-password"
-                                   placeholder="Senha">
+                                class="form-control @error('password') is-invalid @enderror" name="password" required
+                                autocomplete="current-password" placeholder="Senha">
                             <label for="password">{{ __('Password') }}</label>
                             @error('password')
                                 <span class="invalid-feedback" role="alert">
@@ -65,6 +62,7 @@
                             @endif
                         </div>
                     </form>
+                    <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
                 </div>
             </div>
         </div>

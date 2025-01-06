@@ -34,6 +34,15 @@ Route::group([
                 });
             });
 
+            Route::prefix('cliente')->group(function () {
+
+                Route::controller(App\Http\Controllers\Servico\ServicoClienteController::class)->group(function () {
+
+                    Route::get('', 'index');
+                    Route::post('', 'store');
+                });
+            });
+
             Route::prefix('pagamentos')->group(function () {
 
                 Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {
@@ -79,13 +88,6 @@ Route::group([
                 });
             });
 
-            Route::prefix('relatorio/valores')->group(function () {
-
-                Route::controller(App\Http\Controllers\Servico\ServicoController::class)->group(function () {
-                    Route::get('', 'getRelatorioValores');
-                });
-            });
-
             Route::prefix('participacao')->group(function () {
 
                 Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
@@ -93,6 +95,13 @@ Route::group([
                     Route::get('', 'indexServico');
                     Route::post('', 'storeServico');
                     Route::delete('', 'destroyServico');
+                });
+            });
+
+            Route::prefix('relatorio/valores')->group(function () {
+
+                Route::controller(App\Http\Controllers\Servico\ServicoController::class)->group(function () {
+                    Route::get('', 'getRelatorioValores');
                 });
             });
         });

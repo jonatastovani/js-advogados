@@ -19,25 +19,15 @@ export class modalSearchAndFormRegistration extends modalDefault {
     _idRegister;
 
     constructor(objSuper) {
-        let objConfigsAppend = {
+        objSuper.objConfigs = commonFunctions.deepMergeObject({
             formRegister: true,
             runningSearchBln: false,
-            typeCurrentSearch: undefined,
-        };
+            typeCurrentSearch: null,
+        }, objSuper.objConfigs ?? {});
 
-        let promisseReturnValueAppend = {
+        objSuper.promisseReturnValue = commonFunctions.deepMergeObject({
             selecteds: []
-        };
-
-        objSuper.objConfigs = Object.assign(
-            objConfigsAppend,
-            objSuper.objConfigs ?? {}
-        );
-
-        objSuper.promisseReturnValue = Object.assign(
-            promisseReturnValueAppend,
-            objSuper.promisseReturnValue ?? {}
-        );
+        }, objSuper.promisseReturnValue ?? {});
 
         super(objSuper);
 
@@ -181,10 +171,10 @@ export class modalSearchAndFormRegistration extends modalDefault {
    */
     async _generateQueryFilters(options = {}) {
         const self = this;
-        const { formDataSearch = $(options.formDataSearch ?? $(self.getIdModal).find('.formDataSearch')) } = options;
+        const formDataSearch = $(options.formDataSearch ?? `${self.getIdModal} .formDataSearch`);
         const texto = formDataSearch.find('input[name="texto"]').val();
-        let arrayMensagens = [];
 
+        let arrayMensagens = [];
         let data = {
             texto: texto,
             parametros_like: self._returnQueryParameters(formDataSearch.find('select[name="selFormaBusca"]').val()),
@@ -341,10 +331,9 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     async #fillPagination(data, options) {
         const self = this;
-        const {
-            footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination')),
-            selector = $(options.pagination ?? $(footerPagination).find('.pagination')),
-        } = options;
+
+        const footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination'));
+        const selector = $(options.pagination ?? $(footerPagination).find('.pagination'));
 
         selector.html('');
 
@@ -395,7 +384,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     #addEventsQueryPagination(idBtn, link, options) {
         const self = this;
-        const { dataPost = options.dataPost } = options;
+        const dataPost = options.dataPost;
 
         if (link.url) {
             const page = URLHelper.getParameterURL('page', link.url);
@@ -411,10 +400,8 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     _paginationDefault(options = {}) {
         const self = this;
-        const {
-            footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination')),
-            pagination = $(options.pagination ?? $(footerPagination).find('.pagination')),
-        } = options;
+        const footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination'));
+        const pagination = $(options.pagination ?? $(footerPagination).find('.pagination'));
 
         pagination.html(`
             <li class="page-item disabled">
@@ -432,10 +419,8 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     _refreshQueryStatus(html, options = {}) {
         const self = this;
-        const {
-            footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination')),
-            selector = options.selector ?? footerPagination.find('.queryStatus'),
-        } = options;
+        const footerPagination = $(options.footerPagination ?? `${self.getIdModal} .footerPagination`);
+        const selector = options.selector ?? footerPagination.find('.queryStatus');
 
         if (selector) {
             selector.html(html);
@@ -444,10 +429,8 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     _refreshQueryQuantity(html, options = {}) {
         const self = this;
-        const {
-            footerPagination = $(options.footerPagination ?? $(self.getIdModal).find('.footerPagination')),
-            selector = options.selector ?? footerPagination.find('.totalRegisters'),
-        } = options;
+        const footerPagination = $(options.footerPagination ?? `${self.getIdModal} .footerPagination`);
+        const selector = options.selector ?? footerPagination.find('.totalRegisters');
 
         $(selector).html(html);
     }
@@ -569,10 +552,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
     //#region Metodos auxiliares
     _updateTitleRegistration(html, options = {}) {
         const self = this;
-        const {
-            formRegistration = $(self.getIdModal).find('.formRegistration'),
-            title = $(options.title ?? $(self.getIdModal).find('.registration-title')),
-        } = options;
+        const title = $(options.title ?? `${self.getIdModal} .registration-title`);
         title.html(html);
     }
     //#endregion

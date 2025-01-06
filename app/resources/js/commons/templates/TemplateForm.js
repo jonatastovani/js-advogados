@@ -51,8 +51,6 @@ export class TemplateForm {
         self.#addEventBtnSave();
     }
 
-    //#region Botões padrão
-
     #addEventBtnSave() {
         const btnSave = `#btnSave${this._objConfigs.sufixo}`;
         const self = this;
@@ -61,8 +59,6 @@ export class TemplateForm {
             self.saveButtonAction();
         });
     }
-
-    //#endregion
 
     async _getRecurse(options = {}) {
         const self = this;
@@ -125,33 +121,57 @@ export class TemplateForm {
         );
     }
 
+    /**
+     * Envia os dados para uma API, salvando-os no banco de dados.
+     * 
+     * @param {Object} data - Dados a serem enviados.
+     * @param {string} urlApi - URL da API.
+     * @param {Object} options - Opções adicionais.
+     * @param {string} options.idRegister - ID do registro a ser editado.
+     * @param {string} options.action - Ação a ser executada (POST, PUT).
+     * @param {jQuery} options.btnSave - Elemento do botão de salvar.
+     * @param {string} options.success - Mensagem de sucesso.
+     * @param {boolean} options.redirectBln - Redirecionar após o salvamento.
+     * @param {string} options.frontRedirectForm - Rota da página de redirecionamento.
+     * @param {boolean} options.redirectWithIdBln - Redirecionar com o ID do registro.
+     * @param {string} options.redirectWithId - Nome do campo que contém o ID do registro.
+     * @param {boolean} options.returnObjectSuccess - Retornar o objeto de resposta da API.
+     * 
+     * @returns {Promise<boolean|Object>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicitação seja bem-sucedida ou false caso contrario.
+     */
     async _save(data, urlApi, options = {}) {
         const self = this;
         const {
             idRegister = self._idRegister,
+            action = self._action,
             btnSave = $(`#btnSave${self._objConfigs.sufixo}`),
             success = 'Dados enviados com sucesso!',
             redirectBln = true,
             frontRedirectForm = window.frontRoutes.frontRedirectForm,
+            redirectWithIdBln = false,
+            redirectWithId = 'id',
+            returnObjectSuccess = false,
         } = options;
 
         try {
             commonFunctions.simulateLoading(btnSave);
             const obj = new connectAjax(urlApi);
-            obj.setAction(self._action);
+            obj.setAction(action);
             obj.setData(data);
-            if (self._action === enumAction.PUT) {
+            if (action === enumAction.PUT) {
                 obj.setParam(idRegister);
             }
             const response = await obj.envRequest();
 
             if (response) {
                 if (redirectBln) {
-                    RedirectHelper.redirectWithUUIDMessage(frontRedirectForm, success, 'success');
+                    RedirectHelper.redirectWithUUIDMessage(
+                        `${frontRedirectForm}${redirectWithIdBln ? `/${response.data[redirectWithId]}` : ''}`,
+                        success, 'success');
                 } else {
                     commonFunctions.generateNotification(success, 'success');
                 }
-                return true;
+                return returnObjectSuccess ? response : true;
             }
             return false
         } catch (error) {
@@ -193,10 +213,9 @@ export class TemplateForm {
                         commonFunctions.generateNotification(success, 'success');
                     };
                     return true;
-                } else {
-                    return false;
-                };
+                }
             }
+            return false;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {

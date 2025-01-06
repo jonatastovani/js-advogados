@@ -208,6 +208,23 @@ class ServicoService extends Service
             );
         }
 
+        // Verifica se ServicoClienteService está na lista de exclusão
+        $classImport = ServicoClienteService::class;
+        if (!in_array($classImport, $withOutClass)) {
+            $relationships = $this->mergeRelationships(
+                $relationships,
+                app($classImport)->loadFull(array_merge(
+                    $options, // Passa os mesmos $options
+                    [
+                        'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+                    ]
+                )),
+                [
+                    'addPrefix' => 'cliente.'
+                ]
+            );
+        }
+
         return $relationships;
     }
 
