@@ -115,4 +115,4 @@ volumes:
     app-data: # Volume nomeado para compartilhar arquivos da aplicação
     postgres_data:
     phpredis_data:
-    # pgadmin_data:
+    pgadmin_data:
