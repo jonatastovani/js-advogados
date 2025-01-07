@@ -68,20 +68,20 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
 
-    # Serviço PgAdmin
-    pgadmin:
-        image: dpage/pgadmin4
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
-        environment:
-            PGADMIN_DEFAULT_EMAIL: "dev@example.com"
-            PGADMIN_DEFAULT_PASSWORD: "admin"
-        networks:
-            - laravel
-        volumes:
-            - pgadmin_data:/var/lib/pgadmin
+    # # Serviço PgAdmin
+    # pgadmin:
+    #     image: dpage/pgadmin4
+    #     deploy:
+    #         replicas: 1
+    #         restart_policy:
+    #             condition: on-failure
+    #     environment:
+    #         PGADMIN_DEFAULT_EMAIL: "dev@example.com"
+    #         PGADMIN_DEFAULT_PASSWORD: "admin"
+    #     networks:
+    #         - laravel
+    #     volumes:
+    #         - pgadmin_data:/var/lib/pgadmin
 
     # Serviço Certbot ajustado para criar certificados inicialmente
     certbot:
@@ -115,4 +115,4 @@ volumes:
     app-data: # Volume nomeado para compartilhar arquivos da aplicação
     postgres_data:
     phpredis_data:
-    pgadmin_data:
+    # pgadmin_data:
