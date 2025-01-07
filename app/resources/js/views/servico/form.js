@@ -140,6 +140,10 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
+        $(`#atualizarClientes${self._objConfigs.sufixo}`).on('click', async function () {
+            await self.#buscarClientes();
+        });
+
         $(`#btnSaveClientes${self._objConfigs.sufixo}`).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionCliente();
@@ -201,9 +205,6 @@ class PageServicoForm extends TemplateForm {
         self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
     }
 
-
-
-
     async #inserirCliente(item) {
         const self = this;
         const divClientes = $(`#divClientes${self._objConfigs.sufixo}`);
@@ -251,24 +252,12 @@ class PageServicoForm extends TemplateForm {
                 </div>
             </div>`;
 
-        self._objConfigs.data.clientesNaTela.push(item);
-
+        self.inserirClienteNaTela(item);
         divClientes.append(strCard);
 
         await self.#addEventoCliente(item);
         return item;
     }
-
-    // async #atualizaClienteNaTela(item) {
-    //     const self = this;
-
-    //     if (item.observacao) {
-    //         $(`#${item.idCard} .lblObservacao`).html(item.observacao);
-    //         $(`#${item.idCard} .rowObservacao`).show('fast');
-    //     } else {
-    //         $(`#${item.idCard} .rowObservacao`).hide('fast');
-    //     }
-    // }
 
     async #addEventoCliente(item) {
         const self = this;
@@ -310,22 +299,39 @@ class PageServicoForm extends TemplateForm {
         return null;
     }
 
+    inserirClienteNaTela(item) {
+        const self = this;
+        if (!self._objConfigs.data?.clientesNaTela) {
+            self._objConfigs.data.clientesNaTela = []
+        }
+        self._objConfigs.data.clientesNaTela.push(item);
+    }
+
+    #limparClientes() {
+        const self = this;
+        self._objConfigs.data.clientesNaTela = [];
+        $(`#divClientes${self._objConfigs.sufixo}`).html('');
+    }
+
     async #buscarClientes() {
         const self = this;
         try {
-            const obj = new connectAjax(self._objConfigs.url.baseParticipacao);
+            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' });
+            const obj = new connectAjax(self._objConfigs.url.baseCliente);
             const response = await obj.getRequest();
             if (response.data) {
-                self.#inserirCliente(response.data);
+                self.#limparClientes();
+                response.data.map(item => {
+                    self.#inserirCliente(item);
+                })
+                commonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success');
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            await commonFunctions.loadingModalDisplay(false);
         }
     }
-
-
-
-
 
     async #inserirAnotacao(item) {
         const self = this;
@@ -871,7 +877,7 @@ class PageServicoForm extends TemplateForm {
             self.#inserirPagamento(item);
         });
 
-        $(`#divCliente${self._objConfigs.sufixo}`).html('');
+        self.#limparClientes();
         responseData.cliente.forEach(item => {
             self.#inserirCliente(item);
         });
@@ -986,7 +992,11 @@ class PageServicoForm extends TemplateForm {
     async #saveButtonActionCliente() {
         const self = this;
         let data = {
-            clientes: self._objConfigs.data.clientesNaTela,
+            clientes: self._objConfigs.data.clientesNaTela.map(item => {
+                let obj = { perfil_id: item.perfil_id };
+                item.id ? obj.id = item.id : null;
+                return obj;
+            }),
         }
 
         if (data.clientes.length) {
@@ -997,7 +1007,7 @@ class PageServicoForm extends TemplateForm {
                 returnObjectSuccess: true,
             });
             if (response) {
-                $(`#divCliente${self._objConfigs.sufixo}`).html('');
+                self.#limparClientes();
                 response.data.map(item => { self.#inserirCliente(item); });
             }
         }

@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $adminId = UUIDsHelpers::getAdmin();
+        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
 
         $insert = [
             [
@@ -22,40 +23,12 @@ class UserSeeder extends Seeder
                 'email' => 'byteforgesuporte@gmail.com',
                 'password' => 'admin987123',
                 'tenant_id' => 'admin',
-                'created_user_id' => $adminId
+                'created_user_id' => $adminTenantUserId
             ],
         ];
 
         foreach ($insert as $data) {
             User::create($data);
         }
-
-        // User::create([
-        //     'nome' => 'Administrador',
-        //     'email' => 'admin',
-        //     'password' => '!@#$56Qw',
-        //     // 'descricao' => 'Acesso de administrador do sistema.',
-        //     // 'tenant_id' => 'admin',
-        //     // 'email' => 'admin@gpu.sap.sp.br',
-        //     // 'origin_ip_access' => 'all',
-        // ]);
-        // User::create([
-        //     'nome' => 'GPU Online API - Legacy',
-        //     'email' => 'gpuonlineapi',
-        //     'password' => '!@#$56Qw',
-        //     // 'descricao' => 'Acesso do Front do GPU.',
-        //     // 'tenant_id' => 'gpu-online-api',
-        //     // 'email' => 'gpuonline@gpu.sap.sp.br',
-        //     // 'origin_ip_access' => env('APP_ENV') === 'production' ?  env('ALLOWED_IP_FRONT_PROD') : env('ALLOWED_IP_FRONT_DEV'),
-        // ]);
-
-        // // $adminId = UUIDsHelpers::getAdmin();
-        // // User::create([
-        // //     'id' => $adminId,
-        // //     'name' => 'Admin',
-        // //     'email' => 'admin@ravel',
-        // //     'password' => bcrypt('password'),
-        // //     'tenant_id' => 'admin'
-        // // ]);
     }
 }

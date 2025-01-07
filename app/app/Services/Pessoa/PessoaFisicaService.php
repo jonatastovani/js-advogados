@@ -6,7 +6,6 @@ use App\Common\CommonsFunctions;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Mail\FirstAccessMail;
 use App\Models\Auth\UserTenantDomain;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
@@ -24,12 +23,7 @@ use App\Traits\UserDomainMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Fluent;
-use Illuminate\Support\Str;
 
 class PessoaFisicaService extends Service
 {

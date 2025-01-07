@@ -4,8 +4,6 @@ namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
-use App\Enums\LancamentoStatusTipoEnum;
-use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Helpers\LogHelper;
@@ -13,14 +11,9 @@ use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoCliente;
-use App\Models\Servico\ServicoPagamento;
-use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Services\Service;
-use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
-use Symfony\Component\Console\Descriptor\ReStructuredTextDescriptor;
 
 class ServicoClienteService extends Service
 {
@@ -96,14 +89,21 @@ class ServicoClienteService extends Service
 
                 foreach ($clientes as $cliente) {
 
-                    if (!$cliente->id) {
+                    $salvarELoad = function ($clienteSave) use (&$arrayRetorno) {
+
+                        $clienteSave->save();
+                        $clienteSave->load($this->loadFull());
+                        $arrayRetorno[] = $clienteSave->toArray();
+                    };
+
+                    if ($cliente->id) {
+                        $clienteUpdate = $this->model::find($cliente->id);
+                        $clienteUpdate->fill($cliente->toArray());
+                        $salvarELoad($clienteUpdate);
+                    } else {
                         $cliente->servico_id = $requestData->servico_uuid;
+                        $salvarELoad($cliente);
                     }
-
-                    $cliente->save();
-
-                    $cliente->load($this->loadFull());
-                    $arrayRetorno[] = $cliente->toArray();
                 }
 
                 return $arrayRetorno;

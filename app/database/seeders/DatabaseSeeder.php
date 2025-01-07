@@ -8,9 +8,11 @@ use Database\Seeders\Auth\PermissionModuleSeeder;
 use Database\Seeders\Auth\PermissionSeeder;
 use Database\Seeders\Auth\TenantDomainSeeder;
 use Database\Seeders\Auth\TenantTypeSeeder;
+use Database\Seeders\Auth\UserEscritorioSeeder;
 use Database\Seeders\Auth\UserSeeder;
 use Database\Seeders\Auth\UserTenantDomainSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
+use Database\Seeders\Pessoa\PessoaPerfilEmpresaSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroClienteSeeder;
 use Database\Seeders\Tenant\PagamentoTipoTenantSeeder;
@@ -98,6 +100,13 @@ class DatabaseSeeder extends Seeder
                 $this->call([
                     PessoaPerfilParceiroSeeder::class,
                     PessoaPerfilParceiroClienteSeeder::class,
+                    PessoaPerfilEmpresaSeeder::class,
+                    UserEscritorioSeeder::class,
+                ]);
+            } else {
+                $this->call([
+                    PessoaPerfilEmpresaSeeder::class,
+                    UserEscritorioSeeder::class,
                 ]);
             }
 
@@ -108,7 +117,7 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                UserTenantDomainSeeder::class,
+                // UserTenantDomainSeeder::class,
                 // DocumentoGeradoTipoSeeder::class,
                 // PessoaPerfilTipoUpdateSeeder::class,
                 // DocumentoTipoUpdateSeeder::class,

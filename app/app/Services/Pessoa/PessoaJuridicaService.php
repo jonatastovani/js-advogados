@@ -138,18 +138,6 @@ class PessoaJuridicaService extends Service
                 $perfis = $resource->perfis;
                 unset($resource->perfis);
 
-                // $user = null;
-                // if ($resource->user) {
-                //     $user = $resource->user;
-                //     unset($resource->user);
-                // }
-
-                // $userDomains = null;
-                // if ($resource->userDomains) {
-                //     $userDomains = $resource->userDomains;
-                //     unset($resource->userDomains);
-                // }
-
                 //Salva os dados da Pessoa Jurídica
                 $resource->save();
 
@@ -167,30 +155,11 @@ class PessoaJuridicaService extends Service
                     }
                 }
 
-                // $perfilUsuario = null;
                 // Fazer salvamento dos perfis
                 foreach ($perfis as $perfil) {
                     $perfil->pessoa_id = $pessoa->id;
                     $perfil->save();
-                    // if ($perfil->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
-                    //     $perfilUsuario = $perfil;
-                    // }
                 }
-
-                // // Se foi enviado user, então é um salvamento de dados de usuário, logo, se cria o usuário e depois se faz a verificação de salvamento de domínios 
-                // if ($user && $perfilUsuario) {
-                //     $user->pessoa_perfil_id = $perfilUsuario->id;
-                //     $user->tenant_id = tenant('id');
-                //     $user->save();
-
-                //     if (collect($userDomains)->isNotEmpty()) {
-                //         // Fazer salvamento dos domínios
-                //         foreach ($userDomains as $domain) {
-                //             $domain->user_id = $user->id;
-                //             $domain->save();
-                //         }
-                //     }
-                // }
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -214,24 +183,6 @@ class PessoaJuridicaService extends Service
                 $perfis = $resource->perfis;
                 unset($resource->perfis);
 
-                // $user = null;
-                // if ($resource->user) {
-                //     $user = $resource->user;
-                // }
-                // unset($resource->user);
-
-                // $userDomains = [];
-                // $userDomainsExistentes = [];
-                // // Somente se for update do tipo usuário para alterar os domínios
-                // if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
-                //     if ($resource->userDomains) {
-                //         $userDomains = $resource->userDomains;
-                //     }
-                //     // Busca os dominios existentes
-                //     $userDomainsExistentes = $resource->pessoa->perfil_usuario->user->user_tenant_domains ?? [];
-                //     unset($resource->userDomains);
-                // }
-
                 // Busca os documentos existentes
                 $documentosExistentes = $resource->pessoa->documentos;
                 // Busca os perfis existentes
@@ -244,24 +195,6 @@ class PessoaJuridicaService extends Service
 
                 // Fazer salvamento dos perfis
                 $this->atualizarPerfisEnviados($resource, $perfisExistentes, $perfis);
-
-                // // Se for enviado dados de usuário
-                // if ($user) {
-                //     if ($user->id) {
-                //         $user->save();
-                //     } else {
-                //         $perfilUsuario = $this->modelPessoaPerfil::where('pessoa_id', $resource->pessoa->id)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->first();
-
-                //         $user->pessoa_perfil_id = $perfilUsuario->id;
-                //         $user->tenant_id = tenant('id');
-                //         $user->save();
-                //     }
-
-                //     if ($userDomains || $userDomainsExistentes) {
-                //         // Fazer salvamento dos domínios
-                //         $this->atualizarUserDomainsEnviados($resource, $userDomainsExistentes, $userDomains, $user);
-                //     }
-                // }
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -288,20 +221,6 @@ class PessoaJuridicaService extends Service
         $resource->perfis = $perfisProcessados->perfis;
         $arrayErrors = $perfisProcessados->arrayErrors;
 
-        // // Verificação específica para tipo de perfil USUARIO
-        // if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
-
-        //     // Verifica e processa domínios
-        //     $userDomainsProcessados = $this->verificacaoUserDomains($requestData, $resource, $arrayErrors);
-        //     $resource->userDomains = $userDomainsProcessados->userDomains;
-        //     $arrayErrors = $userDomainsProcessados->arrayErrors;
-
-        //     // Verifica e processa o usuário
-        //     $userProcessado = $this->verificarUsuario($requestData, $resource, $arrayErrors);
-        //     $resource->user = $userProcessado->user;
-        //     $arrayErrors = $userProcessado->arrayErrors;
-        // }
-
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
@@ -310,90 +229,6 @@ class PessoaJuridicaService extends Service
 
         return $resource;
     }
-
-    // public function store(Fluent $requestData)
-    // {
-    //     $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
-    //     try {
-    //         return DB::transaction(function () use ($resource, $requestData) {
-
-    //             $documentos = $resource->documentos;
-    //             unset($resource->documentos);
-
-    //             //Salva os dados da Pessoa Jurídica
-    //             $resource->save();
-
-    //             // Salva os dados da Pessoa
-    //             $pessoa = new $this->modelPessoa;
-    //             $pessoa->pessoa_dados_type = $this->model->getMorphClass();
-    //             $pessoa->pessoa_dados_id = $resource->id;
-    //             $pessoa->save();
-
-    //             // Salva os dados do perfil
-    //             $pessoaPerfil = new $this->modelPessoaPerfil;
-    //             $pessoaPerfil->pessoa_id = $pessoa->id;
-    //             $pessoaPerfil->perfil_tipo_id = $requestData->pessoa_perfil_tipo_id;
-    //             $pessoaPerfil->save();
-
-    //             // Fazer salvamento dos documentos
-    //             foreach ($documentos as $documento) {
-    //                 $documento->pessoa_id = $pessoa->id;
-    //                 $documento->save();
-    //             }
-
-    //             // $this->executarEventoWebsocket();
-    //             return $resource->toArray();
-    //         });
-    //     } catch (\Exception $e) {
-    //         return $this->gerarLogExceptionErroSalvar($e);
-    //     }
-    // }
-
-    // public function update(Fluent $requestData)
-    // {
-    //     $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
-
-    //     try {
-    //         return DB::transaction(function () use ($resource) {
-
-    //             // Obter e remover do resource os documentos
-    //             $documentos = $resource->documentos;
-    //             unset($resource->documentos);
-
-    //             // Busca os documentos existentes
-    //             $documentosExistentes = $resource->pessoa->documentos;
-
-    //             $resource->save();
-
-    //             // Fazer salvamento dos documentos
-    //             $this->atualizarDocumentosEnviados($resource, $documentosExistentes, $documentos);
-
-    //             // $this->executarEventoWebsocket();
-    //             return $resource->toArray();
-    //         });
-    //     } catch (\Exception $e) {
-    //         return $this->gerarLogExceptionErroSalvar($e);
-    //     }
-    // }
-
-    // protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
-    // {
-    //     $arrayErrors = new Fluent();
-
-    //     $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
-
-    //     $documentosProcessados = $this->verificacaoDocumentos($requestData, $resource);
-    //     $resource->documentos = $documentosProcessados->documentos;
-    //     $arrayErrors = new Fluent(array_merge($arrayErrors->toArray(), $documentosProcessados->arrayErrors->toArray()));
-
-    //     // Erros que impedem o processamento
-    //     CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
-
-    //     $resource->fill($requestData->toArray());
-
-    //     return $resource;
-    // }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {

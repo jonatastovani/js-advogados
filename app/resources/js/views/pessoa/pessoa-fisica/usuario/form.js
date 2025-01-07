@@ -35,21 +35,7 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
     }
 
     initEvents() {
-        const self = this;
         super.initEvents();
-        self.#addEventosBotoes();
-    }
-
-    #addEventosBotoes() {
-        const self = this;
-        // commonFunctions.eventRBCkBHidden($(`#alterar_senha_bln${self._objConfigs.sufixo}`), [{
-        //     'div_group': `#divSenha${self._objConfigs.sufixo}`,
-        //     'button': `#alterar_senha_bln${self._objConfigs.sufixo}`,
-        //     'input': [
-        //         `#password${self._objConfigs.sufixo}`,
-        //         `#password_confirmation${self._objConfigs.sufixo}`,
-        //     ]
-        // }]);
     }
 
     async preenchimentoEspecificoBuscaPerfilTipo(responseData) {
@@ -60,9 +46,6 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
         if (responseData?.user?.email) {
             form.find('input[name="email"]').val(responseData.user.email);
             form.find('input[name="name"]').val(responseData.user.name);
-        // } else {
-        //     $(`#alterar_senha_bln${self._objConfigs.sufixo}`).prop('checked', true).trigger('change');
-        //     $(`#rowAlterarSenhaBln${self._objConfigs.sufixo}`).remove();
         }
 
         if (responseData?.user?.user_tenant_domains.length) {
@@ -109,25 +92,6 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
         }
         data.user.name = data.name;
         data.user.email = data.email;
-
-        // if (
-        //     [undefined, null].includes(self._idRegister)
-        //     || data.password
-        //     || !self._objConfigs.data.user?.id
-        //     || !formRegistration.find('input[name="password"]').prop('disabled')
-        // ) {
-        //     if (data.password) {
-        //         if (data.password != data.password_confirmation) {
-        //             blnSave = false;
-        //             commonFunctions.generateNotification('Os campos <b>senha</b> e <b>confirmação</b> devem ser iguais.', 'warning');
-        //         } else {
-        //             data.user.password = data.password;
-        //         }
-        //     } else {
-        //         blnSave = false;
-        //         commonFunctions.generateNotification('O campo <b>senha</b> e <b>confirmação</b> devem ser informados.', 'warning');
-        //     }
-        // }
 
         return blnSave;
     }
