@@ -79,7 +79,7 @@
                     <th class="text-nowrap">Pai</th>
                     <th class="text-nowrap">Estado Civil</th>
                     <th class="text-nowrap">Escolaridade</th>
-                    <th class="text-nowrap">Gênero</th>
+                    <th class="text-nowrap">Sexo</th>
                     <th class="text-nowrap" title="Data de Nascimento">Data Nasc.</th>
                     <th class="text-nowrap">Naturalidade</th>
                     <th class="text-nowrap">Nacionalidade</th>

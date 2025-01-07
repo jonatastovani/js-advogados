@@ -1,0 +1,46 @@
+@charset "UTF-8";
+.blink-100 {
+  animation: blinker-100 1s linear infinite;
+}
+
+@keyframes blinker-100 {
+  50% {
+    opacity: 0;
+  }
+}
+.blink-75 {
+  animation: blinker-75 1s linear infinite;
+}
+
+@keyframes blinker-75 {
+  50% {
+    opacity: 0.25;
+  }
+}
+.blink-50 {
+  animation: blinker-50 1s linear infinite;
+}
+
+@keyframes blinker-50 {
+  50% {
+    opacity: 0.5;
+  }
+}
+.blink-25 {
+  animation: blinker-25 1s linear infinite;
+}
+
+@keyframes blinker-25 {
+  50% {
+    opacity: 0.75;
+  }
+}
+.blink {
+  animation: blinker-50 1s linear infinite;
+}
+
+.legenda-campos-obrigatorios {
+  font-size: 0.875rem; /* Tamanho menor */
+  color: #6c757d; /* Cinza padrão do Bootstrap */
+  margin-top: 0.5rem; /* Espaço acima */
+}/*# sourceMappingURL=style-custom.css.map */

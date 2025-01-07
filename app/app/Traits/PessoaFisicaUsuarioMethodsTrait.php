@@ -27,7 +27,7 @@ trait PessoaFisicaUsuarioMethodsTrait
         } else {
             $perfilUsuario = $this->modelPessoaPerfil::where('pessoa_id', $resource->pessoa->id)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->first();
 
-            $user->perfil_id = $perfilUsuario->id;
+            $user->pessoa_perfil_id = $perfilUsuario->id;
             $user->tenant_id = tenant('id');
             $user = $this->salvarUsuarioEEnviarEmail($user, 'first_access', $options);
         }
