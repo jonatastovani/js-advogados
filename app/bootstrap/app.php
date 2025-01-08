@@ -34,6 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.rota.tipo' => \App\Http\Middleware\Modulo\RotaEspecificaPorTipoTenantMiddleware::class,
             'usuario.tenant' => \App\Http\Middleware\Modulo\UsuarioNoTenantMiddleware::class,
         ]);
+
+        // Substitui o middleware ValidateCsrfToken por CustomVerifyCsrfToken
+        $middleware->replaceInGroup('web', \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class, \App\Http\Middleware\CustomVerifyCsrfToken::class);
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new LancamentoAgendamentoJob)
@@ -48,25 +51,25 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->dontReportDuplicates();
         $exceptions->level(PDOException::class, LogLevel::CRITICAL);
         $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->expectsJson()) {
                 $response = RestResponse::createErrorResponse(405, $e->getMessage());
                 return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
             }
         });
         $exceptions->render(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->expectsJson()) {
                 $response = RestResponse::createErrorResponse(401, "Usuário não autenticado.");
                 return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
             }
         });
         $exceptions->render(function (AuthorizationException $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->expectsJson()) {
                 $response = RestResponse::createErrorResponse(403, $e->getMessage());
                 return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
             }
         });
         $exceptions->render(function (TenantCouldNotBeIdentifiedByPathException $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->expectsJson()) {
                 $response = RestResponse::createErrorResponse(403, $e->getMessage());
                 return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
             } else {

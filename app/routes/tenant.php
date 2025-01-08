@@ -51,13 +51,9 @@ Route::middleware([
         ]
     );
 
+    Route::get('', function () {})->middleware("auth:sanctum");
+
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-    // Route::get('', function () {})->middleware("auth:sanctum");
-
-    Route::get('', function () {
-        return redirect(route('home'));
-    });
 
     Route::middleware([
         'auth:sanctum',
@@ -77,6 +73,10 @@ Route::middleware([
             require __DIR__ . '/modulos/rotas_servico.php';
             require __DIR__ . '/modulos/rotas_sistema.php';
         });
+    });
+
+    Route::get('', function () {
+        return redirect(route('home'));
     });
 
     // Route::get('test', function () {

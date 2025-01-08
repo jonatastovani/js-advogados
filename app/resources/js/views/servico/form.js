@@ -631,11 +631,17 @@ class PageServicoForm extends TemplateForm {
 
             let htmlAppend = '';
 
-            if (!tachado) htmlAppend += self.#htmlParticipantes(lancamento, 'lancamento', item.status_id);
-
             if (lancamento.observacao) {
-                htmlAppend += `<p class="mb-0 text-truncate" title="${lancamento.observacao}">${lancamento.observacao}</p>`;
+                htmlAppend += `
+                <div class="row">
+                    <div class="col">
+                        <div class="form-text mt-0">Observação</div>
+                        <p class="text-truncate text-wrap" title="${lancamento.observacao}">${lancamento.observacao}</p>
+                    </div>
+                </div>`;
             }
+
+            if (!tachado) htmlAppend += self.#htmlParticipantes(lancamento, 'lancamento', item.status_id);
 
             htmlLancamentos += `
                 <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">

@@ -71,7 +71,7 @@
                             </button>
                         </div>
                     </form>
-                    <p class="form-text text-end fw-bolder mb-0 my-1 mx-3">By {{ config('sistema.nome') }}</p>
+                    <p class="form-text text-end fw-bolder my-1 mx-3">By {{ config('sistema.nome') }}</p>
                 </div>
             </div>
         </div>

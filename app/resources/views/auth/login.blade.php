@@ -73,6 +73,12 @@
                             </label>
                         </div>
 
+                        @error('csrf_error')
+                            <div class="alert alert-danger">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
                         <!-- Submit Button -->
                         <div class="d-grid d-sm-block text-end">
                             <button type="submit" class="btn btn-primary btn-lg">
@@ -88,7 +94,7 @@
                                 </a>
                             @endif
                         </div>
-                        <p class="form-text text-end fw-bolder mb-0 my-1">By {{ config('sistema.nome') }}</p>
+                        <p class="form-text text-end fw-bolder my-1 mx-3">By {{ config('sistema.nome') }}</p>
                     </form>
                 </div>
             </div>
