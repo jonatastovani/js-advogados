@@ -70,26 +70,22 @@ services:
 
     # Serviço Certbot ajustado para criar certificados inicialmente
     certbot:
-        image: certbot/certbot
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
-        environment:
-            CERTBOT_EMAIL: byteforgesuporte@gmail.com
-        volumes:
-            - ./docker/certbot/conf:/etc/letsencrypt
-            - ./docker/certbot/logs:/var/log/letsencrypt
-            - app-data:/var/www/app
-        networks:
-            - laravel
-        command: >
-            certbot certonly --webroot 
-            --webroot-path=/var/www/app/public 
-            --email byteforgesuporte@gmail.com 
-            --agree-tos 
-            --non-interactive 
-            --domains jsadvogadosmc.byteforge.com.br,jsadvogadosprev.byteforge.com.br,teste.byteforge.com.br,admin.byteforge.com.br
+    image: certbot/certbot
+    deploy:
+        replicas: 1
+        restart_policy:
+            condition: none
+    volumes:
+        - ./docker/certbot/conf:/etc/letsencrypt
+        - ./docker/certbot/logs:/var/log/letsencrypt
+        - ./docker/nginx:/var/www/app/public
+    command: >
+        certbot certonly --webroot
+        --webroot-path=/var/www/app/public
+        --email byteforgesuporte@gmail.com
+        --agree-tos
+        --non-interactive
+        --domains jsadvogadosmc.byteforge.com.br,jsadvogadosprev.byteforge.com.br,teste.byteforge.com.br,admin.byteforge.com.br
 
 networks:
     laravel:
