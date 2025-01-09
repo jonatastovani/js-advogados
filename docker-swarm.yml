@@ -76,9 +76,9 @@ services:
             restart_policy:
                 condition: none
         volumes:
-            # - ./docker/certbot/conf:/etc/letsencrypt
-            # - ./docker/certbot/logs:/var/log/letsencrypt
-            - ./docker/nginx:/var/www/app/public
+            - ./docker/certbot/conf:/etc/letsencrypt # Certificados gerados
+            - ./docker/certbot/logs:/var/log/letsencrypt # Logs do Certbot
+            - app-data:/var/www/app # Acesso aos arquivos da aplicação
         networks:
             - laravel
         command:
