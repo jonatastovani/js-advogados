@@ -81,13 +81,14 @@ services:
             - ./docker/nginx:/var/www/app/public
         networks:
             - laravel
-        command: >
-            certbot certonly --webroot
-            --webroot-path=/var/www/app/public
-            --email byteforgesuporte@gmail.com
-            --agree-tos
-            --non-interactive
-            --domains jsadvogadosmc.byteforge.com.br,jsadvogadosprev.byteforge.com.br,teste.byteforge.com.br,admin.byteforge.com.br
+        command: [
+            "certbot", "certonly", "--webroot",
+            "--webroot-path=/var/www/app/public",
+            "--email", "byteforgesuporte@gmail.com",
+            "--agree-tos",
+            "--non-interactive",
+            "--domains", "jsadvogadosmc.byteforge.com.br,jsadvogadosprev.byteforge.com.br,teste.byteforge.com.br,admin.byteforge.com.br"
+        ]
 
 networks:
     laravel:
