@@ -79,10 +79,10 @@ services:
             - ./docker/certbot/conf:/etc/letsencrypt
             - ./docker/certbot/logs:/var/log/letsencrypt
             - app-data:/var/www/app
-            - ./renew_certificates.sh:/renew_certificates.sh
+            - ./renew_certificates.sh:/renew_certificates.sh # Monta o script no container
         networks:
             - laravel
-        command: ["/renew_certificates.sh"]
+        entrypoint: ["/bin/sh", "/renew_certificates.sh"] # Define o script como comando principal
 
 networks:
     laravel:
