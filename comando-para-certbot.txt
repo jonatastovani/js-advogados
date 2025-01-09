@@ -1,21 +1,47 @@
-docker run --rm --name certbot \
-    -v "$(pwd)/docker/certbot/conf:/etc/letsencrypt" \
-    -v "$(pwd)/docker/certbot/logs:/var/log/letsencrypt" \
-    -v "$(pwd)/public:/var/www/app/public" \
-    certbot/certbot certonly --webroot \
-    -w /var/www/app/public \
-    -d jsadvogadosmc.byteforge.com.br \
-    -d jsadvogadosprev.byteforge.com.br \
-    -d admin.byteforge.com.br \
-    --email byteforgesuporte@gmail.com \
-    --agree-tos
+1. Verificar se o Certbot está funcionando corretamente
+Verificar os logs do serviço Certbot:
 
-docker run --rm --name certbot \
-    -v "$(pwd)/docker/certbot/conf:/etc/letsencrypt" \
-    -v "$(pwd)/docker/certbot/logs:/var/log/letsencrypt" \
-    -v "$(pwd)/public:/var/www/app/public" \
-   certbot/certbot certonly --manual \
-    --preferred-challenges dns \
-    -d "*.byteforge.com.br" \
-    --email byteforgesuporte@gmail.com \
-    --agree-tos
+    docker service logs application_certbot -f
+Use para monitorar o comportamento do Certbot e verificar se há mensagens de erro ou atividades recentes.
+
+
+Confirmar se o script de renovação está rodando no container:
+
+    docker exec -it $(docker ps -q -f name=application_certbot) ps aux
+Procure pelo processo renew_certificates.sh.
+
+2. Testar manualmente a renovação do certificado
+Simular a renovação sem alterar nada:
+
+    docker exec -it $(docker ps -q -f name=application_certbot) certbot renew --dry-run
+Use para garantir que a configuração está correta. Deve retornar "Congratulations" se tudo estiver bem.
+
+3. Renovar os certificados manualmente
+Forçar a renovação de todos os certificados:
+
+    docker exec -it $(docker ps -q -f name=application_certbot) certbot renew
+Use caso os certificados precisem ser renovados imediatamente.
+
+4. Listar os certificados existentes
+Exibir todos os certificados emitidos pelo Certbot:
+
+    docker exec -it $(docker ps -q -f name=application_certbot) certbot certificates
+Mostra informações sobre os certificados, incluindo a data de validade.
+
+5. Verificar o status do Nginx
+Reiniciar o Nginx (após renovar certificados manualmente):
+
+    docker service update --force application_nginx
+Reinicia o container para recarregar os novos certificados.
+
+6. Monitorar a validade do certificado
+Verificar a validade do certificado diretamente no servidor:
+
+    echo | openssl s_client -servername jsadvogadosmc.byteforge.com.br -connect jsadvogadosmc.byteforge.com.br:443 2>/dev/null | openssl x509 -noout -dates
+Substitua jsadvogadosmc.byteforge.com.br pelo domínio desejado. Este comando exibe as datas de validade do certificado.
+
+7. Remover certificados antigos (se necessário)
+Remover um certificado específico:
+
+    docker exec -it $(docker ps -q -f name=application_certbot) certbot delete
+Siga as instruções para selecionar o certificado a ser removido.
