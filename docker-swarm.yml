@@ -76,16 +76,13 @@ services:
             restart_policy:
                 condition: any
         volumes:
-            - ./docker/certbot/conf:/etc/letsencrypt # Certificados gerados
-            - ./docker/certbot/logs:/var/log/letsencrypt # Logs do Certbot
-            - app-data:/var/www/app # Acesso aos arquivos da aplicação
+            - ./docker/certbot/conf:/etc/letsencrypt
+            - ./docker/certbot/logs:/var/log/letsencrypt
+            - app-data:/var/www/app
+            - ./renew_certificates.sh:/renew_certificates.sh
         networks:
             - laravel
-        command: >
-            sh -c "while :; do
-            certbot renew --quiet --webroot --webroot-path=/var/www/app/public;
-            sleep 5184000; # 60 dias em segundos
-            done"
+        command: ["/renew_certificates.sh"]
 
 networks:
     laravel:
