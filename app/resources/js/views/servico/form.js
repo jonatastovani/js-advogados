@@ -189,7 +189,7 @@ class PageServicoForm extends TemplateForm {
                 message: `Confirma a exclusão do(s) participante(s) deste serviço?`,
                 success: `Participantes excluídos com sucesso!`,
                 button: this,
-                urlApi: `${self._objConfigs.url.base}`,
+                url: `${self._objConfigs.url.base}`,
             });
 
             if (response) {
@@ -412,7 +412,7 @@ class PageServicoForm extends TemplateForm {
                 message: `Confirma a exclusão da anotação <b>${item.titulo}</b>?`,
                 success: `Anotação excluída com sucesso!`,
                 button: this,
-                urlApi: self._objConfigs.url.baseAnotacao,
+                url: self._objConfigs.url.baseAnotacao,
             });
 
             if (response) {
@@ -765,7 +765,7 @@ class PageServicoForm extends TemplateForm {
                 message: `Confirma a exclusão do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
                 success: `Pagamento excluído com sucesso!`,
                 button: this,
-                urlApi: self._objConfigs.url.basePagamentos,
+                url: self._objConfigs.url.basePagamentos,
             });
 
             if (response) {
@@ -792,12 +792,13 @@ class PageServicoForm extends TemplateForm {
         });
 
         $(`#${item.idCard}`).find(`.btn-delete-participante-pagamento`).on('click', async function () {
+
             const response = await self._delButtonAction(`${item.id}/participacao`, item.pagamento_tipo_tenant.nome, {
                 title: `Exclusão de Participantes`,
                 message: `Confirma a exclusão do(s) participante(s) personalizado(s) do pagamento <b>${item.pagamento_tipo_tenant.nome}</b>?`,
                 success: `Participantes excluídos com sucesso!`,
                 button: this,
-                urlApi: `${self._objConfigs.url.basePagamentos}`,
+                url: `${self._objConfigs.url.basePagamentos}`,
             });
 
             if (response) {
@@ -848,12 +849,13 @@ class PageServicoForm extends TemplateForm {
                 });
 
                 $(`#${lancamento.idCard}`).find(`.btn-delete-participante-lancamento`).on('click', async function () {
+
                     const response = await self._delButtonAction(`${lancamento.id}/participacao`, lancamento.descricao_automatica, {
                         title: `Exclusão de Participantes`,
                         message: `Confirma a exclusão do(s) participante(s) personalizado(s) do lançamento <b>${lancamento.descricao_automatica}</b>?`,
                         success: `Participantes excluídos com sucesso!`,
                         button: this,
-                        urlApi: urlLancamentos
+                        url: urlLancamentos
                     });
                     if (response) {
                         atualizaLancamentos();

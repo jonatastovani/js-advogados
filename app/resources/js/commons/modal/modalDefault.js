@@ -62,7 +62,6 @@ export class modalDefault {
         this._focusElementWhenClosingModal = objSuper.focusElementWhenClosingModal ?? undefined;
         this._dataEnvModal = objSuper.dataEnvModal ?? {};
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
-        console.log(JSON.parse(JSON.stringify(this._objConfigs)));
 
         this._endTimer = false;
         this.#addEventsDefault();

@@ -163,6 +163,7 @@
 @push('modals')
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.financeiro.modal-selecionar-conta.modal />
 @endpush
 
 @push('scripts')

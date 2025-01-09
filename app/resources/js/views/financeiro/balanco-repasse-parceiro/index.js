@@ -3,6 +3,7 @@ import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
+import { modalSelecionarConta } from "../../../components/financeiro/modalSelecionarConta";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
@@ -166,6 +167,13 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 }
                 let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
 
+                const objModal = new modalSelecionarConta();
+                const responseConta = await objModal.modalOpen();
+                console.log(responseConta);
+                if (responseConta.refresh) {
+                    
+                }
+                return;
                 const message = participacoesIds.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`;
                 const objMessage = new modalMessage();
                 objMessage.setDataEnvModal = {
@@ -353,7 +361,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         //             </button>
         //         </li>
         //     </ul>`;
-        
+
         let strBtns = `
             <div class="input-group">
                 <div class="input-group-text border-0 rounded-end-0 bg-transparent">

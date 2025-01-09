@@ -14,14 +14,14 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
-                            <p>Confirma o repasse das movimentações selecionadas?</p>
+                            <p>Selecione a conta para débito do repasse/compensação.</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mt-2">
-                            <label for="conta_id{{ $sufixo }}" class="form-label">Selecione a Conta*</label>
+                            <label for="conta_debito_id{{ $sufixo }}" class="form-label">Selecione a Conta*</label>
                             <div class="input-group">
-                                <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
+                                <select name="conta_debito_id" id="conta_debito_id{{ $sufixo }}" class="form-select">
                                     <option value="0">Selecione</option>
                                 </select>
                                 {{-- <button type="button" class="btn btn-outline-primary openModalDocumentoTipoTenant">
@@ -50,7 +50,7 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseDocumentoTipoTenants' => route('api.tenant.documento-tipo-tenant'),
+        'baseContas' => route('api.tenant.conta'),
     ],
 ])
 @endcomponent

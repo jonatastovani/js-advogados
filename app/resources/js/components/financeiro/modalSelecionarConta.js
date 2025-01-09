@@ -1,7 +1,5 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
 import { modalDefault } from "../../commons/modal/modalDefault";
-import { modalPessoaDocumento } from "./modalPessoaDocumento";
 
 export class modalSelecionarConta extends modalDefault {
 
@@ -10,45 +8,33 @@ export class modalSelecionarConta extends modalDefault {
      */
     #objConfigs = {
         url: {
-            base: `${window.apiRoutes.baseDocumentoTipoTenants}/pessoa-tipo-aplicavel`,
+            base: window.apiRoutes.baseContas,
         },
         sufixo: 'ModalSelecionarConta',
     };
-
-    #dataEnvModal = {
-        pessoa_tipo_aplicavel: [],
-    }
 
     constructor() {
         super({
             idModal: "#modalSelecionarConta",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
         let blnOpen = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de documento...', title: 'Aguarde...', elementFocus: null });
-
-        participacoesIds.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`
-        if (!self._dataEnvModal.pessoa_tipo_aplicavel) {
-            commonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
-            return await self._returnPromisseResolve();
-        }
+        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
 
         try {
-            await self.#buscarDocumentoTipos();
-            blnOpen = true;
+            blnOpen = await self.#buscarContas();
         } catch (error) {
             blnOpen = false;
         } finally {
             await commonFunctions.loadingModalDisplay(false);
         }
-
+        
         if (!blnOpen) {
             return await self._returnPromisseResolve();
         }
@@ -106,18 +92,16 @@ export class modalSelecionarConta extends modalDefault {
         });
     }
 
-    async #buscarDocumentoTipos(selected_id = null) {
-        const self = this;
-        let options = {
-            typeRequest: enumAction.POST,
-            envData: {
-                pessoa_tipo_aplicavel: self._dataEnvModal.pessoa_tipo_aplicavel,
-            }
-        };
-
-        selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
-        const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
-        return await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(`#conta_debito_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     async saveButtonAction() {
