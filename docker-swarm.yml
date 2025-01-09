@@ -82,10 +82,9 @@ services:
         networks:
             - laravel
         command: >
-            sh -c "
-            while :; do
-                certbot renew --quiet --webroot --webroot-path=/var/www/app/public;
-                sleep $((60*60*24*60)); # Espera 60 dias
+            sh -c "while :; do
+            certbot renew --quiet --webroot --webroot-path=/var/www/app/public;
+            sleep 5184000; # 60 dias em segundos
             done"
 
 networks:
