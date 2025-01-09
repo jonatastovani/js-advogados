@@ -68,35 +68,25 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
 
-    # Serviço Certbot
+        # Serviço Certbot com renovação automática
     certbot:
         image: certbot/certbot
         deploy:
             replicas: 1
             restart_policy:
-                condition: none
+                condition: any
         volumes:
             - ./docker/certbot/conf:/etc/letsencrypt # Certificados gerados
             - ./docker/certbot/logs:/var/log/letsencrypt # Logs do Certbot
             - app-data:/var/www/app # Acesso aos arquivos da aplicação
         networks:
             - laravel
-        command:
-            - certonly
-            - --webroot
-            - --webroot-path=/var/www/app/public
-            - --email
-            - byteforgesuporte@gmail.com
-            - --agree-tos
-            - --non-interactive
-            - --domains
-            - jsadvogadosmc.byteforge.com.br
-            - --domains
-            - jsadvogadosprev.byteforge.com.br
-            - --domains
-            - teste.byteforge.com.br
-            - --domains
-            - admin.byteforge.com.br
+        command: >
+            sh -c "
+            while :; do
+                certbot renew --quiet --webroot --webroot-path=/var/www/app/public;
+                sleep $((60*60*24*60)); # Espera 60 dias
+            done"
 
 networks:
     laravel:

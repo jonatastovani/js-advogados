@@ -1,0 +1,17 @@
+server {
+    listen 80 default_server;
+    server_name jsadvogadosmc.byteforge.com.br jsadvogadosprev.byteforge.com.br teste.byteforge.com.br admin.byteforge.com.br;
+
+    root /var/www/app/public;
+
+    # Exceção para validação do Certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/app/public; # Certifique-se de que o webroot está correto
+        allow all;
+    }
+
+    # Rota padrão do Laravel
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+}
