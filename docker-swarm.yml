@@ -15,12 +15,8 @@ services:
                     memory: 20M
             restart_policy:
                 condition: on-failure
-        volumes:
-            - app-data:/var/www/app # Monta o volume nomeado no container web
         networks:
             - laravel
-        environment:
-            - PHP_VERSION=8.3.9-fpm-bullseye
 
     # Serviço Nginx
     nginx:
@@ -28,15 +24,15 @@ services:
         deploy:
             replicas: 1
             placement:
-                constraints: [node.role == manager] # Opcional: rodar apenas nos nodes managers
+                constraints: [node.role == manager]
         ports:
-            - "80:80" # Porta para HTTP
-            - "443:443" # Porta para HTTPS
+            - "80:80"
+            - "443:443"
         volumes:
+            - /var/lib/docker/volumes/app-data/_data:/var/www/app:ro
             - ./docker/nginx/sites.conf:/etc/nginx/conf.d/default.conf
             - ./docker/nginx/error.html:/var/www/html/error.html
-            # - ./app:/var/www/app
-            - app-data:/var/www/app # Monta o volume nomeado no container nginx
+            - ./docker/certbot/conf:/etc/letsencrypt
         networks:
             - laravel
 
@@ -51,7 +47,6 @@ services:
             - laravel
         volumes:
             - phpredis_data:/data
-        # Remove as portas para manter acesso apenas pela rede interna
 
     # Serviço PostgreSQL
     postgres:
@@ -68,23 +63,27 @@ services:
             - laravel
         volumes:
             - postgres_data:/var/lib/postgresql/data
-        # Remove as portas para manter acesso apenas pela rede interna
 
-    # Serviço PgAdmin
-    pgadmin:
-        image: dpage/pgadmin4
+    # Serviço Certbot
+    certbot:
+        image: certbot/certbot
         deploy:
             replicas: 1
             restart_policy:
                 condition: on-failure
-        environment:
-            PGADMIN_DEFAULT_EMAIL: "dev@example.com"
-            PGADMIN_DEFAULT_PASSWORD: "admin"
+        volumes:
+            - /var/lib/docker/volumes/app-data/_data:/var/www/app
+            - ./docker/certbot/conf:/etc/letsencrypt
+            - ./docker/certbot/logs:/var/log/letsencrypt
         networks:
             - laravel
-        volumes:
-            - pgadmin_data:/var/lib/pgadmin
-        # Remove as portas para manter acesso apenas pela rede interna
+        command: >
+            certbot certonly --webroot 
+            --webroot-path=/var/www/app/public 
+            --email byteforgesuporte@gmail.com 
+            --agree-tos 
+            --non-interactive 
+            --domains jsadvogadosmc.byteforge.com.br,jsadvogadosprev.byteforge.com.br,teste.byteforge.com.br,admin.byteforge.com.br
 
 networks:
     laravel:
@@ -92,7 +91,5 @@ networks:
         attachable: true
 
 volumes:
-    app-data: # Volume nomeado para compartilhar arquivos da aplicação
     postgres_data:
     phpredis_data:
-    pgadmin_data:
