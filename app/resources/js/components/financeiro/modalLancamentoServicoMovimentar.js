@@ -9,12 +9,6 @@ import { modalContaTenant } from "../tenant/modalContaTenant";
 
 export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
 
-    #dataEnvModal = {
-        idRegister: undefined,
-        pagamento_id: undefined,
-        status_id: undefined,
-    }
-
     /**
      * Configuração local do modal
      */
@@ -36,12 +30,11 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         },
     };
 
-    /** 
-     * Conteúdo a ser retornado na promisse como resolve()
-    */
-    #promisseReturnValue = {
-        refresh: false,
-    };
+    #dataEnvModal = {
+        idRegister: undefined,
+        pagamento_id: undefined,
+        status_id: undefined,
+    }
 
     #functionsServicoParticipacao;
 
@@ -51,7 +44,6 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._action = enumAction.POST;
         const objData = {

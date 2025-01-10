@@ -7,40 +7,68 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title text-truncate">Selecione a Conta</h4>
+                <h4 class="modal-title text-truncate">Conta base para repasse/compensação</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <form class="formRegistration">
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <p>Selecione a conta para débito do repasse/compensação.</p>
+                    <p class="messageConfirmacao">Mensagem para o usuário</p>
+
+                    <div class="divParticipanteParceiro">
+                        <p class="mb-0">Selecione abaixo a conta de onde o valor será repassado/compensado.</p>
+                        <div class="row row-cols-1">
+                            <div class="col mt-2">
+                                <div class="form-check" title="Conta de onde o valor será repassado/compensado">
+                                    <input type="radio" class="form-check-input" id="rbContaDebito{{ $sufixo }}"
+                                        name="conta_movimentar" value="conta_debito" checked>
+                                    <label class="form-check-label" for="rbContaDebito{{ $sufixo }}">Conta
+                                        débito específica</label>
+                                    <div class="form-text">Conta de onde o valor será repassado/compensado, independente
+                                        de
+                                        qual conta foi cadastrado.</div>
+                                </div>
+                            </div>
+                            <div class="col mt-2">
+                                <div class="form-check" title="Conta onde a movimentação original foi cadastrada">
+                                    <input type="radio" class="form-check-input" id="rbContaOrigem{{ $sufixo }}"
+                                        name="conta_movimentar" value="conta_origem">
+                                    <label class="form-check-label" for="rbContaOrigem{{ $sufixo }}">Conta
+                                        Origem</label>
+                                    <div class="form-text">Conta onde a movimentação original foi cadastrada, sendo
+                                        realizado a
+                                        movimentações de repasse/compensação nas respectivas contas.</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col mt-2">
-                            <label for="conta_debito_id{{ $sufixo }}" class="form-label">Selecione a Conta*</label>
-                            <div class="input-group">
-                                <select name="conta_debito_id" id="conta_debito_id{{ $sufixo }}" class="form-select">
-                                    <option value="0">Selecione</option>
-                                </select>
-                                {{-- <button type="button" class="btn btn-outline-primary openModalDocumentoTipoTenant">
-                                    <i class="bi bi-search"></i>
-                                </button> --}}
+                        <div class="divGroupContaDebito">
+                            <div class="row">
+                                <div class="col mt-2">
+                                    <label for="conta_debito_id{{ $sufixo }}" class="form-label">Selecione a
+                                        Conta*</label>
+                                    <div class="input-group">
+                                        <select name="conta_debito_id" id="conta_debito_id{{ $sufixo }}"
+                                            class="form-select">
+                                            <option value="0">Selecione</option>
+                                        </select>
+                                        <button type="button" class="btn btn-outline-primary openModalConta">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col legenda-campos-obrigatorios text-end mt-2">
+                                    * Campos obrigatórios
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col legenda-campos-obrigatorios text-end mt-2">
-                            * Campos obrigatórios
+                        <div class="col-12 text-end mt-2">
+                            <button type="submit" class="btn btn-outline-success btn-save">
+                                Confirmar
+                            </button>
                         </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-12 text-end">
-                        <button type="submit" class="btn btn-outline-primary btn-save">
-                            Selecionar
-                        </button>
                     </div>
                 </div>
             </form>

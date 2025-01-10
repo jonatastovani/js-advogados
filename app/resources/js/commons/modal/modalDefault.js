@@ -54,7 +54,7 @@ export class modalDefault {
     constructor(objSuper) {
         this._urlApi = objSuper.urlApi ?? undefined;
         this._idModal = objSuper.idModal;
-        
+
         this._promisseReturnValue = commonFunctions.deepMergeObject({
             refresh: false,
         }, objSuper.promisseReturnValue ?? {});
@@ -218,6 +218,12 @@ export class modalDefault {
 
     //#endregion
 
+    /**
+     * Executa o foco em um elemento dentro do modal após um tempo especificado.
+     *
+     * @param {jQuery} elem - O elemento jQuery no qual o foco será aplicado.
+     * @param {number} [timeOut=500] - O tempo de espera em milissegundos antes de aplicar o foco.
+     */
     _executeFocusElementOnModal(elem, timeOut = 500) {
         if (elem !== null && $(elem).length) {
             setTimeout(function () {

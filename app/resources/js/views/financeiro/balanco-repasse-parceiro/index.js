@@ -2,7 +2,6 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { templateSearch } from "../../../commons/templates/templateSearch";
-import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalSelecionarConta } from "../../../components/financeiro/modalSelecionarConta";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
@@ -81,6 +80,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             card.find(`.nome-parceiro`).html(nome);
             card.find(`.card-perfil-referencia`).html(perfilNome);
             self._objConfigs.data.parceiro_id = perfil.id;
+            self._objConfigs.data.perfil = perfil;
             self.#statusCampos(true);
         }
 
@@ -168,30 +168,26 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
 
                 const objModal = new modalSelecionarConta();
-                const responseConta = await objModal.modalOpen();
-                console.log(responseConta);
-                if (responseConta.refresh) {
-                    
-                }
-                return;
-                const message = participacoesIds.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`;
-                const objMessage = new modalMessage();
-                objMessage.setDataEnvModal = {
-                    title: 'Efetuar Repasse',
-                    message: message,
-                }
-                const responseMessage = await objMessage.modalOpen();
-                if (!responseMessage.confirmResult) return;
+                objModal.setDataEnvModal = {
+                    participacoes: participacoesIds,
+                    perfil: self._objConfigs.data.perfil,
+                };
 
-                const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-                objConn.setAction(enumAction.POST);
-                objConn.setData({
-                    participacoes: participacoesIds
-                });
-                const response = await objConn.envRequest();
-                if (response.data) {
-                    commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
-                    await self.#executarBusca();
+                const responseConta = await objModal.modalOpen();
+
+                if (responseConta.refresh) {
+                    const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                    objConn.setAction(enumAction.POST);
+                    objConn.setData(
+                        commonFunctions.deepMergeObject(responseConta.register, {
+                            participacoes: participacoesIds
+                        })
+                    );
+                    const response = await objConn.envRequest();
+                    if (response.data) {
+                        commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
+                        await self.#executarBusca();
+                    }
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

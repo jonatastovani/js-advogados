@@ -238,7 +238,7 @@ class MovimentacaoContaParticipanteService extends Service
                 $documentoGeradoInserir = Arr::except($newDocumento->toArray(), ['dados', 'tenant']);
 
                 // Lança as movimentações de repasse por conta
-                $movimentacoesRepasse = $this->lancarMovimentacaoRepassePorPessoa($requestData, $resources, $documentoGeradoInserir, $options);
+                $movimentacoesRepasse = $this->lancarMovimentacaoRepasse($requestData, $resources, $documentoGeradoInserir, $options);
 
                 //Faz o carregamento da conta para ter o snapshot da conta para o documento gerado
                 $movimentacoesRepasse = collect($movimentacoesRepasse)->map(function ($movimentacao) {
@@ -253,9 +253,9 @@ class MovimentacaoContaParticipanteService extends Service
                 $newDocumento->dados = $dados;
                 $newDocumento->save();
 
-                $this->inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse);
+                $this->inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse, $requestData);
 
-                $this->inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse);
+                $this->inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse, $requestData);
 
                 return $newDocumento->toArray();
             });
@@ -293,14 +293,14 @@ class MovimentacaoContaParticipanteService extends Service
             MovimentacaoContaStatusTipoEnum::EM_REPASSE_COMPENSACAO->value
         ]);
 
-        // // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lançamento de serviços
-        // $query->where(function (Builder $query) {
-        //     $query->where(function (Builder $query) {
-        //         $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_conta_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
-        //             ->where("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
-        //             ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
-        //     })->orWhereNot("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
-        // });
+        // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
+        $query->where(function (Builder $query) {
+            $query->where(function (Builder $query) {
+                $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
+                    ->where("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
+                    ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
+            })->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
+        });
 
         // Log::debug("Query: " . LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings())));
 
@@ -349,48 +349,22 @@ class MovimentacaoContaParticipanteService extends Service
         return $resources;
     }
 
-    private function lancarMovimentacaoRepassePorPessoa(Fluent $requestData, $resources, array $documentoGeradoInserir,  array $options = [])
+    private function lancarMovimentacaoRepasse(Fluent $requestData, $resources, array $documentoGeradoInserir,  array $options = [])
     {
-        $agrupadoContaADebitar = collect($resources)->groupBy('parent.conta_id');
+        $collectContaADebitar = $this->obterColecaoMovimentacoes($requestData, $resources, $options);
+
         $movimentacoesRepasse = [];
 
-        $agrupadoContaADebitar->each(function ($grupoConta) use ($documentoGeradoInserir, &$movimentacoesRepasse) {
+        $collectContaADebitar->each(function ($grupoConta, $chave) use ($documentoGeradoInserir, &$movimentacoesRepasse, $options) {
 
             // Inicializa o total com bcadd para precisão
-            $totalRepasse = '0.00';
-            // Salvar os ids do participante da movimentação para iserir no metadata da movimentacao de repasse
-            $participanteMovimentacao = [];
-
-            // Itera sobre a Collection e usa bcadd para somar os valores com precisão
-            $grupoConta->each(function ($participacao) use (&$totalRepasse, &$participanteMovimentacao) {
-
-                switch ($participacao->parent['movimentacao_tipo_id']) {
-                    case MovimentacaoContaTipoEnum::CREDITO->value:
-                        // Soma o valor do participante ao total com precisão
-                        $totalRepasse = bcadd($totalRepasse, $participacao->valor_participante, 2);
-                        break;
-
-                    case MovimentacaoContaTipoEnum::DEBITO->value:
-                        // Subtrai o valor do participante ao total com precisão
-                        $totalRepasse = bcsub($totalRepasse, $participacao->valor_participante, 2);
-                        break;
-
-                    default:
-                        throw new Exception('Tipo de movimentação de conta não configurado.');
-                        break;
-                }
-
-                // Armazena o id do participante da movimentação
-                $participanteMovimentacao[] = $participacao->id;
-            });
-
-            // Log::debug("Dados: " . json_encode($grupoConta->first()->parent));
+            $totalRepasse = $this->obterTotalRepassePorAgrupamento($grupoConta, $options)->total_repasse;
 
             // Define os dados da movimentação
             $dadosMovimentacao = new Fluent();
             $dadosMovimentacao->referencia_id = $documentoGeradoInserir['id'];
             $dadosMovimentacao->referencia_type = DocumentoGerado::class;
-            $dadosMovimentacao->conta_id = $grupoConta->first()->parent['conta_id'];
+            $dadosMovimentacao->conta_id = $chave;
 
             $perfil = $grupoConta->first()->referencia;
             $nomeParceiro = "";
@@ -454,6 +428,67 @@ class MovimentacaoContaParticipanteService extends Service
         return $movimentacoesRepasse;
     }
 
+    private function obterColecaoMovimentacoes(Fluent $requestData, $resources,  array $options = [])
+    {
+        $retornaCollectContaOrigem = function () use ($resources) {
+            return collect($resources)->groupBy('parent.conta_id');
+        };
+
+        $first = $resources[0];
+
+        // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
+        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+
+            return $retornaCollectContaOrigem();
+        } else {
+
+            // Se não for empresa, verifica a conta a debitar
+            switch ($requestData->conta_movimentar) {
+                case 'conta_debito':
+                    return collect($resources)->groupBy(fn($item) => $requestData->conta_debito_id);
+                    break;
+
+                case 'conta_origem':
+                    return $retornaCollectContaOrigem();
+                    break;
+
+                default:
+                    throw new Exception('Conta movimentar não configurado.', 500);
+            }
+        }
+    }
+
+    private function obterTotalRepassePorAgrupamento($grupoConta,  array $options = [])
+    {
+        // Inicializa o total com bcadd para precisão
+        $totalRepasse = '0.00';
+
+        // Itera sobre a Collection e usa bcadd para somar os valores com precisão
+        $grupoConta->each(function ($participacao) use (&$totalRepasse) {
+
+            switch ($participacao->parent['movimentacao_tipo_id']) {
+                case MovimentacaoContaTipoEnum::CREDITO->value:
+                    // Soma o valor do participante ao total com precisão
+                    $totalRepasse = bcadd($totalRepasse, $participacao->valor_participante, 2);
+                    break;
+
+                case MovimentacaoContaTipoEnum::DEBITO->value:
+                    // Subtrai o valor do participante ao total com precisão
+                    $totalRepasse = bcsub($totalRepasse, $participacao->valor_participante, 2);
+                    break;
+
+                default:
+                    throw new Exception('Tipo de movimentação de conta não configurado.');
+                    break;
+            }
+        });
+
+        return new Fluent([
+            'total_repasse' => $totalRepasse,
+        ]);
+    }
+
+
     /**
      * Insere as informações de documento gerado e movimentação de repasse na movimentação de conta participante.
      *
@@ -461,7 +496,7 @@ class MovimentacaoContaParticipanteService extends Service
      * @param array $documentoGeradoInserir O documento gerado a ser inserido.
      * @param array $movimentacoesRepasse As movimentações de repasse a serem inseridas.
      */
-    private function inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse)
+    private function inserirInformacaoDocumentoGeradoMovimentacaoContaParticipante($resources, $documentoGeradoInserir, $movimentacoesRepasse, $requestData)
     {
         foreach ($resources as $resource) {
 
@@ -474,12 +509,43 @@ class MovimentacaoContaParticipanteService extends Service
                 $metadata['documento_gerado'] = [$documentoGeradoInserir];
             }
 
-            // Só vai existir um repasse por participação
-            $metadata['movimentacao_repasse'] = collect($movimentacoesRepasse)->where('conta_id', $resource->parent['conta_id'])->pluck('id')->first();
+            $metadata['movimentacao_repasse'] = $this->obterMovimentacaoRepasseMetadataParticipante($movimentacoesRepasse, $resources, $requestData);
 
             $resource->metadata = $metadata;
             $resource->status_id = MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value;
             $resource->save();
+        }
+    }
+
+    private function obterMovimentacaoRepasseMetadataParticipante($movimentacoesRepasse, $resources, $requestData)
+    {
+
+        $first = $resources[0];
+
+        $retornaMovimentacaoPorContaId = function () use ($movimentacoesRepasse, $first) {
+            // Só vai existir um repasse por participação
+            return collect($movimentacoesRepasse)->where('conta_id', $first->parent['conta_id'])->pluck('id')->first();
+        };
+
+        // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
+        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+
+            return $retornaMovimentacaoPorContaId();
+        } else {
+
+            // Se não for empresa, verifica a conta a debitar
+            switch ($requestData->conta_movimentar) {
+                case 'conta_debito':
+                    return collect($movimentacoesRepasse)->where('conta_id', $requestData->conta_debito_id)->pluck('id')->first();
+                    break;
+
+                case 'conta_origem':
+                    return $retornaMovimentacaoPorContaId();
+                    break;
+
+                default:
+                    throw new Exception('Conta movimentar não configurado.', 500);
+            }
         }
     }
 
@@ -492,7 +558,7 @@ class MovimentacaoContaParticipanteService extends Service
      * @param array $documentoGeradoInserir O documento gerado que deve ser inserido.
      * @param array $movimentacoesRepasse As movimentações de repasse que devem ser inseridas.
      */
-    private function inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse)
+    private function inserirInformacaoDocumentoGeradoMovimentacaoConta($resources, $documentoGeradoInserir, $movimentacoesRepasse, $requestData)
     {
         $movimentacoesFinalizar = collect($resources)->pluck('parent_id')->unique()->values()->toArray();
 
@@ -512,7 +578,7 @@ class MovimentacaoContaParticipanteService extends Service
             }
 
             // Filtra pela conta porque na movimentação lançada, haverá somente uma movimentação para cada conta, tanto faz para crédito quanto para débito
-            $movimentacoesRepasseId = collect($movimentacoesRepasse)->where('conta_id', $movimentacao->conta_id)->pluck('id')->first();
+            $movimentacoesRepasseId = $this->obterMovimentacaoRepasseMetadataMovimentacao($movimentacoesRepasse, $resources, $requestData, $movimentacao);
             // Verifica se já existe a chave 'movimentacao_repasse' e adiciona o novo ID
             if (isset($metadata['movimentacao_repasse']) && is_array($metadata['movimentacao_repasse'])) {
                 $metadata['movimentacao_repasse'][] = $movimentacoesRepasseId;
@@ -532,6 +598,38 @@ class MovimentacaoContaParticipanteService extends Service
             // Atualiza o metadata e salva a movimentação
             $movimentacao->metadata = $metadata;
             $movimentacao->save();
+        }
+    }
+
+    private function obterMovimentacaoRepasseMetadataMovimentacao($movimentacoesRepasse, $resources, $requestData, $movimentacao)
+    {
+
+        $first = $resources[0];
+
+        $retornaMovimentacaoPorContaId = function () use ($movimentacoesRepasse, $movimentacao) {
+            // Só vai existir um repasse por participação
+            return collect($movimentacoesRepasse)->where('conta_id', $movimentacao->conta_id)->pluck('id')->first();
+        };
+
+        // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
+        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+
+            return $retornaMovimentacaoPorContaId();
+        } else {
+
+            // Se não for empresa, verifica a conta a debitar
+            switch ($requestData->conta_movimentar) {
+                case 'conta_debito':
+                    return collect($movimentacoesRepasse)->pluck('id')->first();
+                    break;
+
+                case 'conta_origem':
+                    return $retornaMovimentacaoPorContaId();
+                    break;
+
+                default:
+                    throw new Exception('Conta movimentar não configurado.', 500);
+            }
         }
     }
 
