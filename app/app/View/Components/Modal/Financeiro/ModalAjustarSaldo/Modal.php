@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Financeiro\ModalSelecionarConta;
+namespace App\View\Components\Modal\Financeiro\ModalAjustarSaldo;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalSelecionarConta', request('request_uuid'))) {
-            return view('components.modal.financeiro.modal-selecionar-conta.modal');
+        if (ModalSessionHelper::registerModal('modalAjustarSaldo', request('request_uuid'))) {
+            return view('components.modal.financeiro.modal-ajustar-saldo.modal');
         }
         return '';
     }

@@ -14,8 +14,8 @@ class PermissionModuleController extends Controller
 
     public function getModulos()
     {
-        $resouces = $this->permissionModuleService->getModulos();
-        return RestResponse::createSuccessResponse($resouces->toArray())->autoResponse();
+        $resources = $this->permissionModuleService->getModulos();
+        return RestResponse::createSuccessResponse($resources->toArray())->autoResponse();
     }
 
     

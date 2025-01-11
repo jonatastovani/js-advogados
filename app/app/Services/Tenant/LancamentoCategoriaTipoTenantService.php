@@ -60,16 +60,16 @@ class LancamentoCategoriaTipoTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = null;
+        $resource = null;
         if ($id) {
-            $resouce = $this->buscarRecurso($requestData);
+            $resource = $this->buscarRecurso($requestData);
         } else {
-            $resouce = new $this->model();
+            $resource = new $this->model();
         }
 
-        $resouce->fill($requestData->toArray());
+        $resource->fill($requestData->toArray());
 
-        return $resouce;
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

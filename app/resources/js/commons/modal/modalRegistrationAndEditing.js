@@ -52,10 +52,7 @@ export class modalRegistrationAndEditing extends modalDefault {
     _modalReset() {
         const self = this;
         self._clearForm();
-        const titleDefault = $(self.getIdModal).find('.modal-title').data('title-default');
-        if (titleDefault) {
-            self._updateModalTitle(titleDefault);
-        }
+        self._resetDefaultTitle();
     }
 
     _clearForm() {

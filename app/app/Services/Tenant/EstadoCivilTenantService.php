@@ -60,10 +60,10 @@ class EstadoCivilTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = $id ? $this->buscarRecurso($requestData) : new $this->model();
-        $resouce->fill($requestData->toArray());
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
+        $resource->fill($requestData->toArray());
 
-        return $resouce;
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

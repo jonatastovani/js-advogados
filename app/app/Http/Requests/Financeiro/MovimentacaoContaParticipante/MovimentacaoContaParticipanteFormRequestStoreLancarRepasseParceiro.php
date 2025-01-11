@@ -27,7 +27,11 @@ class MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro extends
                 'string',
                 'in:conta_debito,conta_origem',
             ],
-            'conta_debito_id' => 'nullable|required_if:conta_movimentar,conta_debito|uuid',
+            'conta_debito_id' => [
+                'sometimes', // Valida apenas se o campo estiver presente
+                'required_if:conta_movimentar,conta_debito',
+                'uuid',
+            ],
             'participacoes' => 'required|array|min:1',
             'participacoes.*' => 'required|uuid',
         ];

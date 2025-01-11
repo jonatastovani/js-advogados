@@ -726,7 +726,15 @@ export class commonFunctions {
             title = null,
             elementFocus = null,
         } = options;
+        
         const loading = instanceManager.setInstance('modalLoading', new modalLoading());
+        const isModalVisible = $(loading.getIdModal).hasClass('show');
+
+        // Se o estado já é o desejado, retorna a Promise imediatamente
+        if ((displayBln && isModalVisible) || (!displayBln && !isModalVisible)) {
+            return Promise.resolve(true);
+        }
+
         if (displayBln) {
             const objDataEnv = {
                 title: title,

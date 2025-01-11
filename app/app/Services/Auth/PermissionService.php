@@ -130,30 +130,30 @@ class PermissionService
      */
     public function store($request)
     {
-        $resouceOriginal = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request);
+        $resourceOriginal = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
 
-            $resoucePermission = $resouceOriginal;
-            $resouceConfig = $resouceOriginal->config;
+            $resourcePermission = $resourceOriginal;
+            $resourceConfig = $resourceOriginal->config;
 
-            unset($resoucePermission->config);
+            unset($resourcePermission->config);
             // Salva o resource primeiro, para obter o ID
-            CommonsFunctions::inserirInfoCreated($resoucePermission);
-            $resoucePermission->save();
+            CommonsFunctions::inserirInfoCreated($resourcePermission);
+            $resourcePermission->save();
 
-            CommonsFunctions::inserirInfoCreated($resouceConfig);
-            $resouceConfig->permissao_id = $resoucePermission->id; // Associa o ID do resource ao config
-            $resouceConfig->save(); // Salva o config
+            CommonsFunctions::inserirInfoCreated($resourceConfig);
+            $resourceConfig->permissao_id = $resourcePermission->id; // Associa o ID do resource ao config
+            $resourceConfig->save(); // Salva o config
 
             DB::commit();
 
             // $this->executarEventoWebsocket();
 
-            return $resoucePermission->load('config')->toArray();
+            return $resourcePermission->load('config')->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -172,34 +172,34 @@ class PermissionService
 
     public function update($request)
     {
-        $resouceOriginal = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request, $request->id);
+        $resourceOriginal = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request, $request->id);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
 
-            $resoucePermission = $resouceOriginal;
-            $resouceConfig = $resouceOriginal->config;
+            $resourcePermission = $resourceOriginal;
+            $resourceConfig = $resourceOriginal->config;
 
-            unset($resoucePermission->config);
+            unset($resourcePermission->config);
             // Salva o resource primeiro, para obter o ID
-            CommonsFunctions::inserirInfoUpdated($resoucePermission);
-            $resoucePermission->save();
+            CommonsFunctions::inserirInfoUpdated($resourcePermission);
+            $resourcePermission->save();
 
-            if (!$resouceConfig->created_at) {
-                CommonsFunctions::inserirInfoCreated($resouceConfig);
-                $resouceConfig->permissao_id = $resoucePermission->id; // Associa o ID do resource ao config
+            if (!$resourceConfig->created_at) {
+                CommonsFunctions::inserirInfoCreated($resourceConfig);
+                $resourceConfig->permissao_id = $resourcePermission->id; // Associa o ID do resource ao config
             } else {
-                CommonsFunctions::inserirInfoUpdated($resouceConfig);
+                CommonsFunctions::inserirInfoUpdated($resourceConfig);
             }
-            $resouceConfig->save(); // Salva o config
+            $resourceConfig->save(); // Salva o config
 
             DB::commit();
 
             // $this->executarEventoWebsocket();
 
-            return $resoucePermission->toArray();
+            return $resourcePermission->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -213,17 +213,17 @@ class PermissionService
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = null;
+        $resource = null;
         if ($id) {
-            $resouce = $this->buscarRecurso($request);
-            $resouce->load('config');
+            $resource = $this->buscarRecurso($request);
+            $resource->load('config');
         } else {
-            $resouce = new $this->model();
-            $resouce->config = new PermissionConfig();
+            $resource = new $this->model();
+            $resource->config = new PermissionConfig();
         }
 
-        if (!$resouce->config) {
-            $resouce->config = new PermissionConfig();
+        if (!$resource->config) {
+            $resource->config = new PermissionConfig();
         }
 
         $arrayErrors = new Fluent();
@@ -260,18 +260,18 @@ class PermissionService
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        $resouce->nome = $request->input('nome');
-        $resouce->nome_completo = $request->input('nome_completo');
-        $resouce->descricao = $request->input('descricao');
-        $resouce->ativo = $request->input('ativo');
+        $resource->nome = $request->input('nome');
+        $resource->nome_completo = $request->input('nome_completo');
+        $resource->descricao = $request->input('descricao');
+        $resource->ativo = $request->input('ativo');
 
-        $resouce->config->permite_subst_bln = $request->input('permite_subst_bln');
-        $resouce->config->gerencia_perm_bln = $request->input('gerencia_perm_bln');
-        $resouce->config->permissao_pai_id = $request->input('permissao_pai_id');
-        $resouce->config->grupo_id = $request->input('grupo_id');
-        $resouce->config->ordem = $request->input('ordem');
+        $resource->config->permite_subst_bln = $request->input('permite_subst_bln');
+        $resource->config->gerencia_perm_bln = $request->input('gerencia_perm_bln');
+        $resource->config->permissao_pai_id = $request->input('permissao_pai_id');
+        $resource->config->grupo_id = $request->input('grupo_id');
+        $resource->config->ordem = $request->input('ordem');
 
-        return $resouce;
+        return $resource;
     }
 
     private function buscarRecurso($request)

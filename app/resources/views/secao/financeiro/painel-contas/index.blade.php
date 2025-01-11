@@ -32,6 +32,7 @@
 
 @push('modals')
     <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.financeiro.modal-ajustar-saldo.modal />
 @endpush
 
 @push('scripts')

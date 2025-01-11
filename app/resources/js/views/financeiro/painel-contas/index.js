@@ -1,7 +1,9 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
+import { modalAjustarSaldo } from "../../../components/financeiro/modalAjustarSaldo";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
+import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PagePainelContaIndex {
 
@@ -95,11 +97,26 @@ class PagePainelContaIndex {
         let dataHoraUltimaAtualizacao = item?.ultima_movimentacao?.created_at ? item.ultima_movimentacao.created_at : null;
         dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(item.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
 
+        item.idCol = UUIDHelper.generateUUID();
         const htmlConta = `
-            <div class="col">
+            <div id="${item.idCol}" class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">${nome}</h5>
+                        <h5 class="card-title d-flex align-items-center justify-content-between">
+                            <span class="text-truncate">
+                                ${nome}
+                            </span>
+                            <div>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><button type="button" class="dropdown-item fs-6 btn-ajustar" title="Ajustar saldo da conta ${nome}">Ajustar saldo</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </h5>
                         <p class="card-text mb-0">Descrição: <span class="lblDescricao">${descricao}</span></p>
                         <p class="card-text mb-0">Banco: <span class="lblBanco">${banco}</span></p>
                         <div class="row row-cols-2 row-cols-sm-3">
@@ -126,6 +143,31 @@ class PagePainelContaIndex {
         `;
 
         $(`#divContas${self.#objConfigs.sufixo}`).append(htmlConta);
+
+        self.#addEventosPagamento(item);
+    }
+
+    async #addEventosPagamento(item) {
+        const self = this;
+
+        $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalAjustarSaldo();
+                objModal.setDataEnvModal = {
+                    idRegister: item.id,
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh && response.register) {
+                    self.#buscarDados();
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
+        });
     }
 }
 

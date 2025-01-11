@@ -232,6 +232,18 @@ export class modalDefault {
         }
     }
 
+    /**
+     * Abre o modal atual e aguarda uma confirmação para fechamento.
+     * 
+     * A função inicializa o modal se ele ainda não estiver inicializado. 
+     * Em seguida, ela cria um intervalo que verifica continuamente se a variável 
+     * _endTimer foi definida como true, indicando que o modal deve ser fechado.
+     * Quando o modal fecha, a função _modalClose é chamada e a promise é resolvida 
+     * com o valor contido em _promisseReturnValue.
+     * 
+     * @return {Promise<*>} Uma promise que é resolvida com o valor de _promisseReturnValue
+     * após o modal ser fechado.
+     */
     async _modalOpen() {
         const self = this;
         return new Promise(function (resolve) {
@@ -246,22 +258,52 @@ export class modalDefault {
         });
     }
 
+    /**
+     * Altera o estado do modal (mostra ou oculta).
+     * Retorna uma promise que é resolvida quando o estado do modal é alterado.
+     *
+     * @param {boolean} [status=true] - Se true, o modal é exibido. Caso contrário, o modal é ocultado.
+     *
+     * @return {Promise<boolean>} - Uma promise que é resolvida com true se o estado do modal for alterado com sucesso.
+     */
     async _modalHideShow(status = true) {
         return new Promise((resolve) => {
             const modalElement = document.querySelector(this._idModal);
             let modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+            // Verifica o estado atual do modal
+            const isShown = modalElement.classList.contains('show');
+            if ((status && isShown) || (!status && !isShown)) {
+                // Se o estado já é o desejado, resolve imediatamente
+                resolve(true);
+                return;
+            }
+
+            // Define o evento correspondente
             const eventName = status ? 'shown.bs.modal' : 'hidden.bs.modal';
 
+            // Callback para resolver a promise após o evento
             const callback = () => {
                 modalElement.removeEventListener(eventName, callback);
                 resolve(true);
             };
 
+            // Adiciona o listener do evento
             modalElement.addEventListener(eventName, callback);
+
+            // Executa a ação
             status ? modal.show() : modal.hide();
         });
     }
 
+    /**
+     * Fecha o modal atual, removendo eventos associados e resetando o estado conforme necessário.
+     * 
+     * A função verifica se o modal está visível e, se estiver, chama _modalHideShow para escondê-lo.
+     * Remove todos os eventos associados ao modal e seus elementos filhos.
+     * Se a função _modalReset existir, ela será chamada para resetar o estado do modal.
+     * Finalmente, move o foco para o elemento especificado ao fechar o modal.
+     */
     async _modalClose() {
         const self = this;
         const modal = $(self.getIdModal);
@@ -278,6 +320,29 @@ export class modalDefault {
 
     //#region Metodos auxiliares
 
+    /**
+     * Restaura o título do modal para o valor padrão.
+     *
+     * O valor padrão é obtido da propriedade `data-title-default` do elemento `.modal-title`.
+     * Se o valor padrão for encontrado, a função `_updateModalTitle` é chamada para atualizar o título do modal.
+     */
+    _resetDefaultTitle() {
+        const self = this;
+        const titleDefault = $(self.getIdModal).find('.modal-title').data('title-default');
+        if (titleDefault) {
+            self._updateModalTitle(titleDefault);
+        }
+    }
+
+    /**
+     * Atualiza o título do modal com o valor especificado.
+     * 
+     * O título do modal é obtido da propriedade `title` do objeto `options` ou, se não for especificado, do primeiro elemento `.modal-title` encontrado no modal.
+     * 
+     * @param {string} html - O valor a ser atribuído ao título do modal.
+     * @param {Object} [options={}] - O objeto com opções para personalizar a atualização do título do modal.
+     * @param {jQuery} [options.title] - O elemento jQuery do título do modal a ser atualizado.
+     */
     _updateModalTitle(html, options = {}) {
         const self = this;
         const {
@@ -286,6 +351,14 @@ export class modalDefault {
         title.html(html);
     }
 
+    /**
+     * Retorna uma promise que é resolvida com o valor de `_promisseReturnValue`.
+     * 
+     * Essa função é utilizada para retornar o valor de `_promisseReturnValue` em uma promise,
+     * permitindo que o chamador espere a resolução da promise antes de continuar a execução.
+     * 
+     * @return {Promise<any>} - Uma promise que é resolvida com o valor de `_promisseReturnValue`.
+     */
     async _returnPromisseResolve() {
         const self = this;
         return new Promise(function (resolve) { resolve(self._promisseReturnValue) });

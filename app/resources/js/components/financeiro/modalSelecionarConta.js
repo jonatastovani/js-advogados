@@ -42,13 +42,16 @@ export class modalSelecionarConta extends modalDefault {
     async modalOpen() {
         const self = this;
         let blnOpen = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
 
         try {
             if (self._dataEnvModal.perfil.perfil_tipo_id == window.Enums.PessoaPerfilTipoEnum.EMPRESA) {
-                $(`${self.getIdModal} .divParticipanteParceiro`).hide('fast');
+
+                self.#eventosTipoEmpresa(true);
                 blnOpen = true;
             } else {
+
+                await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
+
                 if (await self.#buscarContas()) {
                     blnOpen = self.#addEventosPadrao();
                 }
@@ -71,12 +74,16 @@ export class modalSelecionarConta extends modalDefault {
 
     _modalReset() {
         const self = this;
+        self.#eventosTipoEmpresa(false);
+
         const modal = $(self.getIdModal);
-        modal.find('.divParticipanteParceiro').show('fast');
         const formRegistration = modal.find('.formRegistration');
         formRegistration.find('select').val(0);
         formRegistration[0].reset();
-        formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
+        formRegistration.find('input, select, textarea')
+            .removeClass('is-valid')
+            .removeClass('is-invalid')
+            .removeAttr('disabled');
     }
 
     #addEventosPadrao() {
@@ -129,6 +136,22 @@ export class modalSelecionarConta extends modalDefault {
         return true;
     }
 
+    #eventosTipoEmpresa(bln = false) {
+        const self = this;
+        const divParticipanteParceiro = $(`${self.getIdModal} .divParticipanteParceiro`);
+
+        if (bln) {
+            divParticipanteParceiro.hide('fast');
+            divParticipanteParceiro.find('select, input').attr('disabled', 'disabled');
+            self._updateModalTitle('Confirmação')
+
+        } else {
+            divParticipanteParceiro.show('fast');
+            self._resetDefaultTitle();
+        }
+
+    }
+
     #renderMensagem() {
         const self = this;
         if (self._dataEnvModal.participacoes.length) {
@@ -140,8 +163,9 @@ export class modalSelecionarConta extends modalDefault {
     }
 
     async #buscarContas(selected_id = null) {
+        const self = this;
+
         try {
-            const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(`#conta_debito_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);

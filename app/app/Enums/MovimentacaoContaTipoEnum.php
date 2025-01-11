@@ -12,9 +12,9 @@ enum MovimentacaoContaTipoEnum: int
     case DEBITO = 2;
     case DEBITO_LIBERACAO_CREDITO = 3;
     case LIBERACAO_CREDITO = 4;
+    case AJUSTE_SALDO = 5;
     // case TRANSFERENCIA_ENTRE_CONTAS_CREDITO = 3;
     // case TRANSFERENCIA_ENTRE_CONTAS_DEBITO = 4;
-    // case AJUSTE_CREDITO = 5;
     // case AJUSTE_DEBITO = 6;
 
     public function detalhes(): array
@@ -38,6 +38,10 @@ enum MovimentacaoContaTipoEnum: int
                 'nome' => 'Liberação de Crédito',
                 'descricao' => 'Liberação de valor da Movimentação de Crédito pertencente a Empresa no momento da confirmação do repasse.',
             ],
+            self::AJUSTE_SALDO => [
+                'id' => self::AJUSTE_SALDO->value,
+                'nome' => 'Ajuste de Saldo',
+            ],
             // self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO => [
             //     'id' => self::TRANSFERENCIA_ENTRE_CONTAS_CREDITO->value,
             //     'nome' => 'Transferência entre contas - Crédito',
@@ -45,10 +49,6 @@ enum MovimentacaoContaTipoEnum: int
             // self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO => [
             //     'id' => self::TRANSFERENCIA_ENTRE_CONTAS_DEBITO->value,
             //     'nome' => 'Transferência entre contas - Debito',
-            // ],
-            // self::AJUSTE_CREDITO => [
-            //     'id' => self::AJUSTE_CREDITO->value,
-            //     'nome' => 'Ajuste - Crédito',
             // ],
             // self::AJUSTE_DEBITO => [
             //     'id' => self::AJUSTE_DEBITO->value,

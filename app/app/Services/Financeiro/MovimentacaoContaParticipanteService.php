@@ -351,6 +351,7 @@ class MovimentacaoContaParticipanteService extends Service
 
     private function lancarMovimentacaoRepasse(Fluent $requestData, $resources, array $documentoGeradoInserir,  array $options = [])
     {
+        // Agrupa as movimentações por conta, caso for efetuar o repasse/compensação na conta de origem, caso contrário agrupa pela conta_debito_id informada
         $collectContaADebitar = $this->obterColecaoMovimentacoes($requestData, $resources, $options);
 
         $movimentacoesRepasse = [];
@@ -428,6 +429,17 @@ class MovimentacaoContaParticipanteService extends Service
         return $movimentacoesRepasse;
     }
 
+    /**
+     * Retorna uma coleção com as movimentações agrupadas por conta.
+     * Verifica se a conta a debitar é a conta de origem ou a conta debitada.
+     * Caso seja a conta de origem, agrupa por conta_id.
+     * Caso seja a conta debitada, agrupa pela conta_debito_id.
+     * Caso seja empresa, a liberação de crédito é na conta que recebeu a movimentação.
+     * @param Fluent $requestData
+     * @param array $resources
+     * @param array $options
+     * @return \Illuminate\Support\Collection
+     */
     private function obterColecaoMovimentacoes(Fluent $requestData, $resources,  array $options = [])
     {
         $retornaCollectContaOrigem = function () use ($resources) {
@@ -437,7 +449,7 @@ class MovimentacaoContaParticipanteService extends Service
         $first = $resources[0];
 
         // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
-        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+        if ($first['referencia']['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
 
             return $retornaCollectContaOrigem();
         } else {
@@ -458,6 +470,13 @@ class MovimentacaoContaParticipanteService extends Service
         }
     }
 
+    /**
+     * Calcula o total do repasse para uma conta, agrupada por conta.
+     *
+     * @param Collection $grupoConta Coleção de participações agrupadas por conta.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Fluent Retorna o total do repasse para a conta.
+     */
     private function obterTotalRepassePorAgrupamento($grupoConta,  array $options = [])
     {
         // Inicializa o total com bcadd para precisão
@@ -528,7 +547,7 @@ class MovimentacaoContaParticipanteService extends Service
         };
 
         // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
-        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+        if ($first['referencia']['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
 
             return $retornaMovimentacaoPorContaId();
         } else {
@@ -612,7 +631,7 @@ class MovimentacaoContaParticipanteService extends Service
         };
 
         // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
-        if ($first['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
+        if ($first['referencia']['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
 
             return $retornaMovimentacaoPorContaId();
         } else {

@@ -18,8 +18,8 @@ class PermissionController extends Controller
 
     public function getPermissoes()
     {
-        $resouces = $this->service->getPermissoes();
-        return RestResponse::createSuccessResponse($resouces->toArray())->autoResponse();
+        $resources = $this->service->getPermissoes();
+        return RestResponse::createSuccessResponse($resources->toArray())->autoResponse();
     }
 
     public function postConsultaFiltros(Request $request)

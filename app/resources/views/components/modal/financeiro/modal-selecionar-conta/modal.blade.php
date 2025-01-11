@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title text-truncate">Conta base para repasse/compensação</h4>
+                <h4 class="modal-title text-truncate"data-title-default="Conta base para repasse/compensação">Conta base para repasse/compensação</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <form class="formRegistration">
@@ -22,7 +22,7 @@
                                     <input type="radio" class="form-check-input" id="rbContaDebito{{ $sufixo }}"
                                         name="conta_movimentar" value="conta_debito" checked>
                                     <label class="form-check-label" for="rbContaDebito{{ $sufixo }}">Conta
-                                        débito específica</label>
+                                        específica</label>
                                     <div class="form-text">Conta de onde o valor será repassado/compensado, independente
                                         de
                                         qual conta foi cadastrado.</div>
@@ -33,7 +33,7 @@
                                     <input type="radio" class="form-check-input" id="rbContaOrigem{{ $sufixo }}"
                                         name="conta_movimentar" value="conta_origem">
                                     <label class="form-check-label" for="rbContaOrigem{{ $sufixo }}">Conta
-                                        Origem</label>
+                                        origem</label>
                                     <div class="form-text">Conta onde a movimentação original foi cadastrada, sendo
                                         realizado a
                                         movimentações de repasse/compensação nas respectivas contas.</div>

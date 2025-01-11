@@ -95,21 +95,21 @@ class PermissionGroupService
     public function store($request)
     {
 
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
 
-            CommonsFunctions::inserirInfoCreated($resouce);
-            $resouce->save();
+            CommonsFunctions::inserirInfoCreated($resource);
+            $resource->save();
 
             DB::commit();
 
             // $this->executarEventoWebsocket();
 
-            return $resouce->toArray();
+            return $resource->toArray();
         } catch (\Exception $e) {
            return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -128,21 +128,21 @@ class PermissionGroupService
 
     public function update($request)
     {
-        $resouce = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request, $request->id);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($request, $request->id);
 
         // Inicia a transação
         DB::beginTransaction();
 
         try {
 
-            CommonsFunctions::inserirInfoUpdated($resouce);
-            $resouce->save();
+            CommonsFunctions::inserirInfoUpdated($resource);
+            $resource->save();
 
             DB::commit();
 
             // $this->executarEventoWebsocket();
 
-            return $resouce->toArray();
+            return $resource->toArray();
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -156,11 +156,11 @@ class PermissionGroupService
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = null;
+        $resource = null;
         if ($id) {
-            $resouce = $this->buscarRecurso($request);
+            $resource = $this->buscarRecurso($request);
         } else {
-            $resouce = new $this->model();
+            $resource = new $this->model();
         }
 
         $arrayErrors = new Fluent();
@@ -196,7 +196,7 @@ class PermissionGroupService
 
         // Se for update, o id é informado
         if ($id) {
-            if ($resouce->modulo_id != $request->input('modulo_id') && PermissionGroup::where('grupo_pai_id', $id)->exists()) {
+            if ($resource->modulo_id != $request->input('modulo_id') && PermissionGroup::where('grupo_pai_id', $id)->exists()) {
                 $arrayErrors->grupo_pai_refenciado = LogHelper::gerarLogDinamico(422, "Este grupo possui referências a outros grupos. A alteração de módulo está afetando o relacionamento. Verifique!", $request)->error;
             }
         }
@@ -204,14 +204,14 @@ class PermissionGroupService
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        $resouce->nome = $request->input('nome');
-        $resouce->descricao = $request->input('descricao');
-        $resouce->modulo_id = $request->input('modulo_id');
-        $resouce->individuais = $request->input('individuais');
-        $resouce->grupo_pai_id = $request->input('grupo_pai_id');
-        $resouce->ativo = $request->input('ativo');
+        $resource->nome = $request->input('nome');
+        $resource->descricao = $request->input('descricao');
+        $resource->modulo_id = $request->input('modulo_id');
+        $resource->individuais = $request->input('individuais');
+        $resource->grupo_pai_id = $request->input('grupo_pai_id');
+        $resource->ativo = $request->input('ativo');
 
-        return $resouce;
+        return $resource;
     }
 
     private function buscarRecurso($request)

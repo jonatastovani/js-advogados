@@ -34,6 +34,7 @@ use App\Services\Servico\ServicoParticipacaoService;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use App\Traits\MovimentacaoContaServiceRepasseTrait;
 use App\Traits\ServicoParticipacaoTrait;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -1202,6 +1203,42 @@ class MovimentacaoContaService extends Service
         }
 
         return $registro;
+    }
+
+    public function atualizarSaldoConta(Fluent $requestData)
+    {
+        try {
+            return DB::transaction(function () use ($requestData) {
+
+                $ultimaMovimentacao = $this->model::where($requestData->conta_id)->orderBy('created_at', 'desc')->first();
+                $movimentacaoAjuste = new $this->model;
+                $movimentacaoAjuste->referencia_id = $ultimaMovimentacao->id;
+                $movimentacaoAjuste->referencia_type = $this->model->getMorphClass();
+                $movimentacaoAjuste->valor_movimentado = $this->calcularValorMovimentadoAtualizarSaldo(
+                    $ultimaMovimentacao,
+                    $requestData->novoSaldo
+                );
+                $movimentacaoAjuste->conta_id = $requestData->conta_id;
+                $movimentacaoAjuste->data_movimentacao = Carbon::now()->format('Y-m-d');
+                $movimentacaoAjuste->descricao_automatica = 'Ajuste de Saldo';
+                $movimentacaoAjuste->observacao = $requestData->observacao;
+                $movimentacaoAjuste->status_id = MovimentacaoContaTipoEnum::AJUSTE_SALDO->value;
+                $movimentacaoAjuste->save();
+
+                return $movimentacaoAjuste->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    private function calcularValorMovimentadoAtualizarSaldo($ultimaMovimentacao, $novoSaldo)
+    {
+        $diferenca = bcsub($novoSaldo, $ultimaMovimentacao->saldo_atualizado, 2);
+        if ($diferenca < 0) {
+            $diferenca = bcmul($diferenca, '-1', 2);
+        }
+        return $diferenca;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

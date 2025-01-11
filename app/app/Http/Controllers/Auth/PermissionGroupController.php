@@ -19,8 +19,8 @@ class PermissionGroupController extends Controller
 
     public function getGrupos()
     {
-        $resouces = $this->service->getGrupos();
-        return RestResponse::createSuccessResponse($resouces->toArray())->autoResponse();
+        $resources = $this->service->getGrupos();
+        return RestResponse::createSuccessResponse($resources->toArray())->autoResponse();
     }
 
     public function getGruposPorModulo(Request $request)

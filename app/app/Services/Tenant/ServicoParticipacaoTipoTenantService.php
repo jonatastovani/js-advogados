@@ -90,17 +90,12 @@ class ServicoParticipacaoTipoTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resouce = null;
-        if ($id) {
-            $resouce = $this->buscarRecurso($requestData);
-        } else {
-            $resouce = new $this->model();
-        }
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
 
-        $resouce->nome = $requestData->nome;
-        $resouce->descricao = $requestData->descricao;
+        $resource->nome = $requestData->nome;
+        $resource->descricao = $requestData->descricao;
 
-        return $resouce;
+        return $resource;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
