@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Financeiro;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestAlterarStatusLancamento;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestGetDocumentoGerado;
+use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreAtualizarSaldoConta;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoGeral;
 use App\Http\Requests\Financeiro\MovimentacaoConta\MovimentacaoContaFormRequestStoreLancamentoServico;
-use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaService;
 use App\Traits\CommonsConsultaControllerTrait;
@@ -53,6 +53,12 @@ class MovimentacaoContaController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->getDocumentoGerado($fluentData));
+    }
+
+    public function postAtualizarSaldoConta(MovimentacaoContaFormRequestStoreAtualizarSaldoConta $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->postAtualizarSaldoConta($fluentData));
     }
 
     // public function storeTransferenciaConta(MovimentacaoContaFormRequestStoreTransferenciaConta $formRequest)

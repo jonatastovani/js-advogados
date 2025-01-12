@@ -1,4 +1,5 @@
 import { commonFunctions } from "../../commons/commonFunctions";
+import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 
@@ -10,6 +11,10 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
     #objConfigs = {
         url: {
             base: window.apiRoutes.baseContas,
+            baseAtualizarSaldoConta: window.apiRoutes.baseAtualizarSaldoConta,
+        },
+        data: {
+            conta_id: undefined,
         },
         sufixo: 'ModalAjustarSaldo',
     };
@@ -25,6 +30,7 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = enumAction.POST;
     }
 
     async modalOpen() {
@@ -65,12 +71,13 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
             if (!response) { return false; }
 
             const responseData = response.data;
+            self._objConfigs.data.conta_id = responseData.id;
+
             const nomeConta = responseData.nome;
             let saldo = responseData?.ultima_movimentacao?.saldo_atualizado ? responseData.ultima_movimentacao.saldo_atualizado : 0;
             let saldoFormatado = commonFunctions.formatNumberToCurrency(saldo);
-            console.log(responseData.ultima_movimentacao)
             let dataHoraUltimaAtualizacao = responseData?.ultima_movimentacao?.created_at ? responseData.ultima_movimentacao.created_at : null;
-            dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(responseData.ultima_movimentacao.created_at, 12) : '<spa    n class="fst-italic">Nenhuma movimentação registrada</spa>';
+            dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(responseData.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
 
             const modal = $(self.getIdModal);
             modal.find('.pNomeConta').html(nomeConta);
@@ -89,31 +96,19 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        data.perfil_tipo_id = self._dataEnvModal.perfil.perfil_tipo_id;
-
+        data.conta_id = self._objConfigs.data.conta_id;
+        data.novo_saldo = commonFunctions.removeCommasFromCurrencyOrFraction(data.novo_saldo);
+        
         if (self.#saveVerifications(data, formRegistration)) {
-            try {
-                self._promisseReturnValue.register = data;
-                self._promisseReturnValue.refresh = true;
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                self._setEndTimer = true;
-            }
+            await self._save(data, `${self._objConfigs.url.baseAtualizarSaldoConta}`);
         }
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = true;
-
-        if (data.perfil_tipo_id != window.Enums.PessoaPerfilTipoEnum.EMPRESA) {
-            if (data.conta_movimentar == 'conta_debito') {
-                blnSave = commonFunctions.verificationData(data.conta_debito_id, {
-                    field: formRegistration.find('select[name="conta_debito_id"]'),
-                    messageInvalid: 'Selecione uma conta.', setFocus: true
-                });
-            }
-        }
+        let blnSave = commonFunctions.verificationData(data.novo_saldo, {
+            field: formRegistration.find('input[name="novo_saldo"]'),
+            messageInvalid: 'Informe um novo saldo.', setFocus: true
+        });
 
         return blnSave;
     }

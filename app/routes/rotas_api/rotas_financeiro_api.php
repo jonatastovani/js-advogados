@@ -60,6 +60,7 @@ Route::group([
 
             Route::get('', function () {})->name('api.financeiro.movimentacao-conta');
             Route::post('consulta-filtros', 'postConsultaFiltros');
+            Route::post('atualizar-saldo-conta', 'postAtualizarSaldoConta')->name('api.financeiro.movimentacao-conta.atualizar-saldo-conta');
             // Route::post('transferencia-conta', 'storeTransferenciaConta')->name('api.financeiro.movimentacao-conta.transferencia-conta');
 
             Route::get('{uuid}/documento-gerado', 'getDocumentoGerado');

@@ -13,7 +13,7 @@ enum MovimentacaoContaReferenciaEnum: string
     use EnumTrait;
 
     case SERVICO_LANCAMENTO = ServicoPagamentoLancamento::class;
-    case CONTA = ContaTenant::class;
+    case CONTA = ContaTenant::class; // Usado para atualização de saldo
     case DOCUMENTO_GERADO = DocumentoGerado::class;
     case LANCAMENTO_GERAL = LancamentoGeral::class;
 }

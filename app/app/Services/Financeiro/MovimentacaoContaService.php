@@ -34,6 +34,7 @@ use App\Services\Servico\ServicoParticipacaoService;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use App\Traits\MovimentacaoContaServiceRepasseTrait;
 use App\Traits\ServicoParticipacaoTrait;
+use App\Utils\CurrencyFormatterUtils;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -1205,24 +1206,34 @@ class MovimentacaoContaService extends Service
         return $registro;
     }
 
-    public function atualizarSaldoConta(Fluent $requestData)
+    public function postAtualizarSaldoConta(Fluent $requestData)
     {
         try {
             return DB::transaction(function () use ($requestData) {
 
-                $ultimaMovimentacao = $this->model::where($requestData->conta_id)->orderBy('created_at', 'desc')->first();
+                $ultimaMovimentacao = $this->model::where('conta_id', $requestData->conta_id)->orderBy('created_at', 'desc')->first();
+
+                if (!$ultimaMovimentacao) {
+                    $ultimaMovimentacao = new $this->model;
+                    $ultimaMovimentacao->saldo_atualizado = 0;
+                }
+
                 $movimentacaoAjuste = new $this->model;
-                $movimentacaoAjuste->referencia_id = $ultimaMovimentacao->id;
-                $movimentacaoAjuste->referencia_type = $this->model->getMorphClass();
+                $movimentacaoAjuste->referencia_id = $requestData->conta_id;
+                $movimentacaoAjuste->referencia_type = MovimentacaoContaReferenciaEnum::CONTA->value;
                 $movimentacaoAjuste->valor_movimentado = $this->calcularValorMovimentadoAtualizarSaldo(
                     $ultimaMovimentacao,
-                    $requestData->novoSaldo
+                    $requestData->novo_saldo
                 );
+                $movimentacaoAjuste->saldo_atualizado = $requestData->novo_saldo;
                 $movimentacaoAjuste->conta_id = $requestData->conta_id;
                 $movimentacaoAjuste->data_movimentacao = Carbon::now()->format('Y-m-d');
-                $movimentacaoAjuste->descricao_automatica = 'Ajuste de Saldo';
-                $movimentacaoAjuste->observacao = $requestData->observacao;
-                $movimentacaoAjuste->status_id = MovimentacaoContaTipoEnum::AJUSTE_SALDO->value;
+
+                $movimentacaoAjuste->descricao_automatica = "Ajuste de Saldo - (" . CurrencyFormatterUtils::toBRL($ultimaMovimentacao->saldo_atualizado) . " -> " . CurrencyFormatterUtils::toBRL($requestData->novo_saldo) . ")";
+
+                $movimentacaoAjuste->observacao = $requestData->observacao ?? null;
+                $movimentacaoAjuste->movimentacao_tipo_id = MovimentacaoContaTipoEnum::AJUSTE_SALDO->value;
+                $movimentacaoAjuste->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
                 $movimentacaoAjuste->save();
 
                 return $movimentacaoAjuste->toArray();

@@ -32,6 +32,7 @@ use Database\Seeders\Referencias\MovimentacaoContaParticipanteStatusTipoSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaStatusTipoSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaStatusTipoUpdateSeeder;
 use Database\Seeders\Referencias\MovimentacaoContaTipoSeeder;
+use Database\Seeders\Referencias\MovimentacaoContaTipoUpdateSeeder;
 use Database\Seeders\Referencias\PagamentoStatusTipoSeeder;
 use Database\Seeders\Referencias\PagamentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\PessoaPerfilTipoUpdateSeeder;
@@ -53,7 +54,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,
@@ -117,6 +118,7 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
+                MovimentacaoContaTipoUpdateSeeder::class,
                 // UserTenantDomainSeeder::class,
                 // DocumentoGeradoTipoSeeder::class,
                 // PessoaPerfilTipoUpdateSeeder::class,

@@ -48,7 +48,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12 text-end mt-2">
-                            <button type="submit" class="btn btn-outline-success btn-save">
+                            <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
                                 Salvar
                             </button>
                         </div>
@@ -62,6 +62,7 @@
 @component('components.api.api-routes', [
     'routes' => [
         'baseContas' => route('api.tenant.conta'),
+        'baseAtualizarSaldoConta' => route('api.financeiro.movimentacao-conta.atualizar-saldo-conta'),
     ],
 ])
 @endcomponent
