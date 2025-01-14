@@ -5,7 +5,7 @@ services:
     web:
         image: tovanijonatas/php839-jsadvogados:v1
         deploy:
-            replicas: 1
+            replicas: 3
             resources:
                 limits:
                     cpus: "1"
@@ -15,6 +15,11 @@ services:
                     memory: 20M
             restart_policy:
                 condition: on-failure
+        healthcheck: # Healthcheck para verificar se o serviço está saudável
+            test: ["CMD", "curl", "-f", "http://localhost"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
         volumes:
             - app-data:/var/www/app # Volume nomeado para a aplicação
         networks:
@@ -26,9 +31,12 @@ services:
     nginx:
         image: nginx:alpine
         deploy:
-            replicas: 1
+            replicas: 2
             placement:
                 constraints: [node.role == manager]
+            update_config: # Atualização progressiva para evitar interrupções
+                parallelism: 1
+                delay: 10s
         ports:
             - "80:80" # Porta HTTP
             - "443:443" # Porta HTTPS
