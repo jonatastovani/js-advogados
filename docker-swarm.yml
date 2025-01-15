@@ -22,6 +22,8 @@ services:
             retries: 5
         volumes:
             - app-data:/var/www/app # Volume nomeado para a aplicação
+        depends_on:
+            - laravel
         networks:
             - laravel
         environment:
