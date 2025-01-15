@@ -15,11 +15,11 @@ services:
                     memory: 20M
             restart_policy:
                 condition: on-failure
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9000"]
-            interval: 30s
-            timeout: 10s
-            retries: 5
+        # healthcheck:
+        #     test: ["CMD", "curl", "-f", "http://localhost:9000"]
+        #     interval: 30s
+        #     timeout: 10s
+        #     retries: 5
         volumes:
             - app-data:/var/www/app # Volume nomeado para a aplicação
         depends_on:
