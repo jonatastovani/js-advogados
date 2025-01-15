@@ -7,7 +7,8 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form class="modal-content formRegistration">
             <div class="modal-header py-1">
-                <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos Gerais</h4>
+                <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos Gerais
+                </h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
@@ -21,13 +22,13 @@
                                     aria-controls="dados-lancamento{{ $sufixo }}-tab-pane"
                                     aria-selected="true">Dados lançamentos</button>
                             </li>
-                            {{-- <li class="nav-item" role="presentation">
+                            <li class="nav-item" role="presentation">
                                 <button class="nav-link px-2" id="participantes{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#participantes{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
                                     aria-controls="participantes{{ $sufixo }}-tab-pane"
                                     aria-selected="false">Participantes</button>
-                            </li> --}}
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -42,7 +43,7 @@
                                 ]
                             )
                         </div>
-                        {{-- <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
+                        <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral-movimentar.painel-participantes',
@@ -50,7 +51,7 @@
                                     'sufixo' => $sufixo,
                                 ]
                             )
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
                 <div class="row">

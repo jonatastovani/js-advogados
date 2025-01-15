@@ -28,6 +28,13 @@
                                     aria-controls="agendamento{{ $sufixo }}-tab-pane" aria-selected="false">Dados
                                     Agendamento</button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link px-2" id="participantes{{ $sufixo }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#participantes{{ $sufixo }}-tab-pane"
+                                    type="button" role="tab"
+                                    aria-controls="participantes{{ $sufixo }}-tab-pane"
+                                    aria-selected="false">Participantes</button>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -51,6 +58,15 @@
                                 ]
                             )
                         </div>
+                        <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
+                            aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
+                            @include(
+                                'components.modal.financeiro.modal-lancamento-geral.painel-participantes',
+                                [
+                                    'sufixo' => $sufixo,
+                                ]
+                            )
+                        </div>
                     </div>
                 </div>
                 <div class="row divUltimaExecucao">
@@ -58,7 +74,9 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch"
                                 id="resetar_execucao_bln{{ $sufixo }}" name="resetar_execucao_bln">
-                            <label class="form-check-label" for="resetar_execucao_bln{{ $sufixo }}" title="Exclui os agendamentos que ainda não foram liquidados e gera os novos agendamentos desde a data início cadastrada.">Resetar execução</label>
+                            <label class="form-check-label" for="resetar_execucao_bln{{ $sufixo }}"
+                                title="Exclui os agendamentos que ainda não foram liquidados e gera os novos agendamentos desde a data início cadastrada.">Resetar
+                                execução</label>
                         </div>
                     </div>
                     <div class="form-text mt-2">

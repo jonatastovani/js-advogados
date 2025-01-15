@@ -7,8 +7,8 @@
                     <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
                         <option value="0">Selecione</option>
                     </select>
-                    <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao" id="btnOpenModalPresetParticipacao{{ $sufixo }}"><i
-                            class="bi bi-search"></i></button>
+                    <button type="button" class="btn btn-outline-primary btnOpenModalPresetParticipacao"
+                        id="btnOpenModalPresetParticipacao{{ $sufixo }}"><i class="bi bi-search"></i></button>
                 </div>
             </div>
         </div>
@@ -17,8 +17,8 @@
                 <span class="d-block">Valor fixo: R$ <span id="valor_fixo{{ $sufixo }}">0,00</span></span>
                 <span class="d-block">Porcentagem comprometida: <span
                         id="porcentagem{{ $sufixo }}">0,00</span>%</span>
-                <span class="d-block">Valor mínimo para uso do preset: R$ <span
-                        id="valor_minimo{{ $sufixo }}">0,00</span></span>
+                {{-- <span class="d-block">Valor mínimo para uso do preset: R$ <span
+                        id="valor_minimo{{ $sufixo }}">0,00</span></span> --}}
             </div>
         </div>
         <div class="progress mt-2" role="progressbar" aria-label="Porcentagem comprometida" aria-valuenow="0"

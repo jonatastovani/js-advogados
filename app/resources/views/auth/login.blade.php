@@ -94,7 +94,7 @@
                                 </a>
                             @endif
                         </div>
-                        <p class="form-text text-end fw-bolder my-1 mx-3">By {{ config('sistema.nome') }}</p>
+                        <p class="form-text text-end fw-bolder my-1">By {{ config('sistema.nome') }}</p>
                     </form>
                 </div>
             </div>
