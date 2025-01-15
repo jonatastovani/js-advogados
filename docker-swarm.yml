@@ -45,6 +45,8 @@ services:
             - ./docker/nginx/error.html:/var/www/html/error.html
             - ./docker/certbot/conf:/etc/letsencrypt
             - app-data:/var/www/app # Compartilha os dados da aplicação
+        depends_on:
+            - web
         networks:
             - laravel
 
