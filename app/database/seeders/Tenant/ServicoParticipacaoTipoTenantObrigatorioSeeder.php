@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
+use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use Illuminate\Database\Seeder;
@@ -18,9 +19,13 @@ class ServicoParticipacaoTipoTenantObrigatorioSeeder extends Seeder
         $insert = [
             [
                 "nome" => "Empresa",
+                "descricao" => "Participação da empresa em lançamentos gerais",
                 "configuracao" => [
-                    "oculto_para_usuario" => true,
-                    "tipo" => "participacao_empresa_movimentacao",
+                    "bloqueado_para_usuario_comum" => true,
+                    "tipo" => ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL->value,
+                    "tag" => [
+                        "participacao_empresa_movimentacao"
+                    ],
                 ]
             ],
         ];

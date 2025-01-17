@@ -2,16 +2,6 @@
     <div class="col d-flex flex-column">
         <div class="row">
             <div class="col mt-2">
-                <label for="preset_id{{ $sufixo }}" class="form-label">Presets</label>
-                <div class="input-group">
-                    <select name="preset_id" id="preset_id{{ $sufixo }}" class="form-select">
-                        <option value="0">Selecione</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mt-2">
                 <span class="d-block">Valor fixo: R$ <span id="valor_fixo{{ $sufixo }}">0,00</span></span>
                 <span class="d-block">Porcentagem comprometida: <span
                         id="porcentagem{{ $sufixo }}">0,00</span>%</span>
@@ -26,9 +16,6 @@
             <button type="button" class="btn btn-outline-primary btn-sm mt-2"
                 id="btnInserirPessoa{{ $sufixo }}">Inserir
                 Pessoa</button>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                id="btnInserirGrupo{{ $sufixo }}">Inserir
-                Grupo</button>
         </div>
 
         <div id="divParticipantes{{ $sufixo }}" class="row flex-column g-2 mt-2 flex-fill"></div>
