@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form class="modal-content formRegistration">
             <div class="modal-header py-1">
-                <h4 class="modal-title" data-title-default="Movimentação Lançamentos">Movimentação Lançamentos</h4>
+                <h4 class="modal-title" data-title-default="Lançamento Geral">Lançamento Geral</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
@@ -103,9 +103,10 @@
 </div>
 
 @push('modals')
-    {{-- <x-modal.pessoa.modal-pessoa.modal /> --}}
+    <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
+    <x-modal.servico.modal-servico-participacao-participante.modal />
 @endpush
 
 @component('components.api.api-routes', [

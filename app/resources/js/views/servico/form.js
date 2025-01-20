@@ -40,6 +40,9 @@ class PageServicoForm extends TemplateForm {
                 porcentagemOcupada: 0,
                 participantesNaTela: [],
                 clientesNaTela: [],
+                participacao_tipo_tenant: {
+                    configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
+                },
             },
         };
 

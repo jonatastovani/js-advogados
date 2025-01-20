@@ -118,7 +118,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                MovimentacaoContaTipoUpdateSeeder::class,
+                ServicoParticipacaoTipoTenantSeeder::class,
+                // MovimentacaoContaTipoUpdateSeeder::class,
                 // UserTenantDomainSeeder::class,
                 // DocumentoGeradoTipoSeeder::class,
                 // PessoaPerfilTipoUpdateSeeder::class,

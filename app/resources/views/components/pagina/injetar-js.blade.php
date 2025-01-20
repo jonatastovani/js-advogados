@@ -11,6 +11,7 @@
         MovimentacaoContaTipoEnum: @json(\App\Enums\MovimentacaoContaTipoEnum::toArray()),
         PagamentoTipoEnum: @json(\App\Enums\PagamentoTipoEnum::toArray()),
         DocumentoGeradoTipoEnum: @json(\App\Enums\DocumentoGeradoTipoEnum::toArray()),
+        ParticipacaoTipoTenantConfiguracaoTipoEnum: @json(\App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum::toArray()),
     };
 
     window.Statics = {

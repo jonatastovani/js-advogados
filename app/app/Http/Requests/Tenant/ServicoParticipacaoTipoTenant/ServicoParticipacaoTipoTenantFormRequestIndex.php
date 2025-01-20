@@ -18,6 +18,11 @@ class ServicoParticipacaoTipoTenantFormRequestIndex extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return array_merge(
+            $this->rulesShowWithTrashed(),
+            [
+                'configuracao_tipo' => 'required|string',
+            ]
+        );
     }
 }

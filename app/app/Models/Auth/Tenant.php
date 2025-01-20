@@ -34,8 +34,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return [
             'id',
-            'name',
-            'tenant_type_id',
+            'nome',
+            'descricao',
             'created_user_id',
             'created_ip',
             'created_at',

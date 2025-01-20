@@ -46,20 +46,25 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
     async modalOpen() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
+        try {
+            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
 
-        if (!self._dataEnvModal.dados_participacao.participacao_registro_tipo_id) {
-            commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
-            return await self._returnPromisseResolve();
+            if (!self._dataEnvModal.dados_participacao.participacao_registro_tipo_id) {
+                commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
+                return await self._returnPromisseResolve();
+            }
+
+            await self.#buscarTipoParticipacaoTenant();
+            if (! await self.#preencherDados()) {
+                return await self._returnPromisseResolve();
+            };
+
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            await commonFunctions.loadingModalDisplay(false);
         }
 
-        await self.#buscarTipoParticipacaoTenant();
-        if (! await self.#preencherDados()) {
-            await commonFunctions.loadingModalDisplay(false);
-            return await self._returnPromisseResolve();
-        };
-
-        await commonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         $(self.getIdModal).find('select[name="participacao_tipo_id"]').trigger('focus');
         return await self._modalOpen();
@@ -80,7 +85,8 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
                             quantity: 1,
                             autoReturn: true,
                         }
-                    }
+                    },
+                    configuracao_tipo: self._dataEnvModal.configuracao_tipo,
                 }
                 await self._modalHideShow(false);
                 const response = await objModal.modalOpen();
@@ -203,9 +209,15 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
 
     async #buscarTipoParticipacaoTenant(selected_id = null) {
         const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
+        let options = {
+            typeRequest: enumAction.POST,
+            envData: {
+                configuracao_tipo: self._dataEnvModal.configuracao_tipo,
+            },
+        }
+        selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
-        await commonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoTipo, options);
+        await commonFunctions.fillSelect(select, `${self._objConfigs.url.baseParticipacaoTipo}/index-configuracao-tipo`, options);
     }
 
     saveButtonAction() {

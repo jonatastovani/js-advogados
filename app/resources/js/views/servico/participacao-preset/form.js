@@ -17,7 +17,10 @@ class PageServicoParticipacaoPresetForm {
         sufixo: 'PageServicoParticipacaoPresetForm',
         data: {
             porcentagemOcupada: 0,
-            participantesNaTela: []
+            participantesNaTela: [],
+            participacao_tipo_tenant: {
+                configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
+            },
         },
     };
     #action;

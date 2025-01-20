@@ -3,6 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
 import { modalContaTenant } from "../tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
 
@@ -22,11 +23,16 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             baseLancamentoGeral: window.apiRoutes.baseLancamentoGeral,
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
+            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
         },
         sufixo: 'ModalLancamentoGeral',
         data: {
             idRegister: undefined,
+            participantesNaTela: [],
             cronExpressao: undefined,
+            participacao_tipo_tenant: {
+                configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL,
+            },
         },
         modoAgendamento: false,
     };
@@ -38,15 +44,25 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         refresh: false,
     };
 
+    #functionsServicoParticipacao;
+
     constructor(options = {}) {
         super({
             idModal: "#modalLancamentoGeral",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._action = enumAction.POST;
+        const objData = {
+            objConfigs: this._objConfigs,
+            extraConfigs: {
+                typeParent: 'modal',
+                modeParent: 'searchAndUse',
+            }
+        }
+        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
         if (options.modoAgendamento) {
             this._objConfigs.modoAgendamento = true;
             this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
@@ -63,13 +79,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
         self.#addEventosPadrao();
 
-        const carregamentosSelects = async () => {
-            await self.#buscarContas();
-            await self.#buscarMovimentacoesTipo();
-            await self.#buscarLancamentoCategoriaTipoTenant();
-        }
+        await self.#buscarContas();
+        await self.#buscarMovimentacoesTipo();
+        await self.#buscarLancamentoCategoriaTipoTenant();
 
-        await carregamentosSelects();
         if (self._dataEnvModal.idRegister) {
             open = await self.#buscarDados();
         }
@@ -150,6 +163,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
         if (self._objConfigs.modoAgendamento) {
+            self._updateModalTitle('Agendamento');
             self.#visualizacaoModoAgendamento(true);
             // Evento para monitorar mudanças no checkbox `ckbRecorrente`
             modal.find(`input[name="recorrente_bln"]`).on('change', function () {
@@ -282,7 +296,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const self = this;
         const divUltimaExecucao = $(self.getIdModal).find('.divUltimaExecucao');
         const spanUltimaExecucao = divUltimaExecucao.find('.spanUltimaExecucao');
-        
+
         if (status) {
             divUltimaExecucao.show();
             if (dataUltimaExecucao) {

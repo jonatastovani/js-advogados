@@ -22,10 +22,6 @@ class ServicoParticipacaoTipoTenant extends Model
     protected $table = 'tenant.servico_participacao_tipo_tenants';
     protected $tableAsName = 'serv_part_tip_ten';
 
-    // protected $casts = [
-    //     'configuracao' => 'array'
-    // ];
-    
     /**
      * Get the name of the column that stores additional data.
      */
@@ -38,6 +34,18 @@ class ServicoParticipacaoTipoTenant extends Model
     {
         return [
             'id',
+            'nome',
+            'tenant_id',
+            'descricao',
+            'created_user_id',
+            'created_ip',
+            'created_at',
+            'updated_user_id',
+            'updated_ip',
+            'updated_at',
+            'deleted_user_id',
+            'deleted_ip',
+            'deleted_at',
         ];
     }
 }

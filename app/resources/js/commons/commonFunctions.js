@@ -216,6 +216,7 @@ export class commonFunctions {
      * @param {string} options.selectedIdOption - O ID da opção a ser marcada como selecionada (padrão: o valor atual do elemento select).
      * @param {string} options.displayColumnName - O nome da coluna a ser exibida nas opções (padrão: 'nome').
      * @param {string} options.typeRequest - O tipo de solicitação (por exemplo, "GET" ou "POST").
+     * @param {Object} options.envData - Os dados da solicitação (por exemplo, os dados de envio).
      * @returns {Promise} - Uma promessa que é resolvida quando o elemento selecionado é preenchido ou rejeitado por erro.
      */
     static async fillSelect(elem, urlApi, options = {}) {

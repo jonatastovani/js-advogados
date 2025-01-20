@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title">Tipo de Participação em Serviços</h4>
+                <h4 class="modal-title" data-title-default="Tipo de Participação">Tipo de Participação</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">

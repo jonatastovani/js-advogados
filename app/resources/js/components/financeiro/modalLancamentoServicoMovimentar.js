@@ -27,6 +27,9 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             participantesNaTela: undefined,
             idRegister: undefined,
             status_id: undefined,
+            participacao_tipo_tenant: {
+                configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
+            },
         },
     };
 

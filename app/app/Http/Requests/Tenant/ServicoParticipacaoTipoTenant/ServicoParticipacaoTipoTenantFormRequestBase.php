@@ -11,7 +11,7 @@ class ServicoParticipacaoTipoTenantFormRequestBase extends BaseFormRequest
         return [
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',
+            'configuracao_tipo' => 'required|string',
         ];
     }
-
 }

@@ -24,9 +24,8 @@ class ServicoParticipacaoTipoTenantService extends Service
     public function index(Fluent $requestData)
     {
 
-        $resource = $this->model->where(function ($query) {
-            $query->whereNull('configuracao->oculto_para_usuario')
-                ->orWhere('configuracao->oculto_para_usuario', '!=', true);
+        $resource = $this->model->where(function ($query) use ($requestData) {
+            $query->where('configuracao->tipo', $requestData->configuracao_tipo);
         })->get();
 
         return $resource->toArray();
@@ -39,9 +38,8 @@ class ServicoParticipacaoTipoTenantService extends Service
         $query = $this->aplicarScopesPadrao($query, null, $options);
 
         // Filtrar a tipo de participação oculto para usuários
-        $query->where(function ($query) {
-            $query->whereNull('configuracao->oculto_para_usuario')
-                ->orWhere('configuracao->oculto_para_usuario', '!=', true);
+        $query->where(function ($query) use ($requestData) {
+            $query->where('configuracao->tipo', $requestData->configuracao_tipo);
         });
 
         $query = $this->aplicarOrdenacoes($query, $requestData, $options);

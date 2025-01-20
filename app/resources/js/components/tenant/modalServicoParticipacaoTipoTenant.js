@@ -32,31 +32,69 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-
-        this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
+        if (!self.#verificarConfiguracaoTipo()) {
+            return self._returnPromisseResolve();
+        }
         await self._modalHideShow();
+        self.#addEventosPadrao();
         return await self._modalOpen();
+    }
+
+    #verificarConfiguracaoTipo() {
+        const self = this;
+        if (!self._dataEnvModal.configuracao_tipo) {
+            commonFunctions.generateNotification('Configuração de tipo de participação não informada.', 'error');
+            console.error('Configuração de tipo de participação não informada.', self._dataEnvModal);
+            return false;
+        } else {
+            switch (self._dataEnvModal.configuracao_tipo) {
+                case window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL:
+                    self._updateModalTitle('Tipo de Participação Geral');
+                    break;
+                case window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO:
+                    self._updateModalTitle('Tipo de Participação em Serviços');
+                    break;
+                default:
+                    commonFunctions.generateNotification(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao_tipo}</b> ainda nao foi implementado.`, 'error');
+                    console.error(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao.tipo}</b> ainda nao foi implementado.`, self._dataEnvModal);
+                    return false;
+            }
+            return true;
+        }
     }
 
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearch = modal.find(`#formDataSearch${self._objConfigs.sufixo}`);
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Novo Tipo de Participação');
         });
 
-        formDataSearch.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            await self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self.#executarBusca();
+            })
             .trigger('click');
+    }
+
+    async #executarBusca() {
+        const self = this;
+
+        const getAppendDataQuery = () => {
+            let appendData = {
+                configuracao_tipo: self._dataEnvModal.configuracao_tipo
+            };
+            return { appendData: appendData };
+        }
+
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters(getAppendDataQuery());
     }
 
     async insertTableData(item, options = {}) {
@@ -122,6 +160,7 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
         });
 
         $(`#${item.idTr}`).find(`.btn-select`).on('click', async function () {
+
             if (self._dataEnvModal?.attributes?.select) {
                 const select = self._dataEnvModal.attributes.select;
                 const promisseReturnValue = self._promisseReturnValue;

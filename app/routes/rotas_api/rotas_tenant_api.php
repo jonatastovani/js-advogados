@@ -128,7 +128,7 @@ Route::group([
 
             Route::post('consulta-filtros', 'postConsultaFiltros');
 
-            Route::get('', 'index');
+            Route::post('index-configuracao-tipo', 'index');
             Route::post('', 'store')->name('api.tenant.servico-participacao-tipo');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');

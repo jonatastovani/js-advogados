@@ -24,11 +24,13 @@ export class ServicoParticipacaoModule {
     #addEventosBotoes() {
         const self = this;
 
+
         const openModalServicoParticipacao = async (dados_participacao) => {
             const objModal = new modalServicoParticipacaoParticipante();
             objModal.setDataEnvModal = {
                 dados_participacao: dados_participacao,
                 porcentagem_ocupada: self._objConfigs.data.porcentagem_ocupada,
+                configuracao_tipo: self._objConfigs.data.participacao_tipo_tenant.configuracao_tipo,
             }
             const response = await objModal.modalOpen();
             if (response.refresh) {
@@ -100,19 +102,16 @@ export class ServicoParticipacaoModule {
                     }
                 }
 
-                let hideShowModal = false;
                 if (self._extraConfigs?.typeParent == 'modal') {
-                    hideShowModal = await self._parentInstance._modalHideShow(false)
+                    await self._parentInstance._modalHideShow(false)
                 };
 
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     if (response.selected) {
 
-                        if (hideShowModal) {
-                            await self._parentInstance._modalHideShow();
-                            hideShowModal = false;
-                        }
+                        await self._parentInstance._modalHideShow();
+
                         await self._buscarPresetParticipacaoTenant(response.selected.id);
                         $(`#preset_id${self._objConfigs.sufixo}`).trigger('change');
                     } else {
@@ -124,7 +123,7 @@ export class ServicoParticipacaoModule {
             } finally {
                 commonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') {
-                    if (hideShowModal) await self._parentInstance._modalHideShow()
+                    await self._parentInstance._modalHideShow()
                 };
             }
         });
@@ -137,6 +136,10 @@ export class ServicoParticipacaoModule {
                     let blnInserir = false;
                     const preset_id = $(this).val();
                     const divParticipantes = $(`#divParticipantes${self._objConfigs.sufixo}`);
+
+                    const resetPreset = () => {
+                        $(this).val(0).trigger('change');
+                    }
 
                     const inserirPreset = async (hideShowModal) => {
                         try {
@@ -189,6 +192,8 @@ export class ServicoParticipacaoModule {
                                 if (result.confirmResult) {
                                     blnInserir = true;
                                     await inserirPreset(false);
+                                } else {
+                                    resetPreset();
                                 }
                             } catch (error) {
                                 commonFunctions.generateNotificationErrorCatch(error);
@@ -200,6 +205,7 @@ export class ServicoParticipacaoModule {
                         }
                     } else {
                         if (preset_id != '0') commonFunctions.generateNotification('O ID do preset é inválido.', 'error');
+                        resetPreset();
                     }
                 });
                 break;
@@ -426,6 +432,7 @@ export class ServicoParticipacaoModule {
                 objModal.setDataEnvModal = {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,
+                    configuracao_tipo: self._objConfigs.data.participacao_tipo_tenant.configuracao_tipo,
                 }
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();

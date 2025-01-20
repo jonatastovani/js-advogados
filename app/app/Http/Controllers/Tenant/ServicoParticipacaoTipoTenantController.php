@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant\PostConsultaFiltroFormRequestServicoParticipacaoTipoTenant;
 use App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant\ServicoParticipacaoTipoTenantFormRequestIndex;
 use App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant\ServicoParticipacaoTipoTenantFormRequestShow;
 use App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant\ServicoParticipacaoTipoTenantFormRequestStore;
@@ -16,6 +17,12 @@ class ServicoParticipacaoTipoTenantController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public ServicoParticipacaoTipoTenantService $service) {}
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestServicoParticipacaoTipoTenant $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function index(ServicoParticipacaoTipoTenantFormRequestIndex $formRequest)
     {
