@@ -118,17 +118,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                ServicoParticipacaoTipoTenantSeeder::class,
-                // MovimentacaoContaTipoUpdateSeeder::class,
-                // UserTenantDomainSeeder::class,
-                // DocumentoGeradoTipoSeeder::class,
-                // PessoaPerfilTipoUpdateSeeder::class,
-                // DocumentoTipoUpdateSeeder::class,
-                // DocumentoTipoTenantUpdateSeeder::class,
-                // PagamentoTipoUpdateSeeder::class,
-                // LancamentoStatusTipoUpdateSeeder::class,
-                // MovimentacaoContaStatusTipoUpdateSeeder::class,
-                // ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
+                // ServicoParticipacaoTipoTenantSeeder::class,
+                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }
     }

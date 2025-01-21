@@ -24,7 +24,7 @@ class LogHelper
         $logData = [
             'codigo' => $codigo,
             'mensagem' => $mensagem,
-            'request' => $request->toArray(),  // Incluindo os dados do request
+            'request' => $request,  // Incluindo os dados do request
         ];
 
         // Adicionar campos adicionais dinamicamente ao log

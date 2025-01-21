@@ -3,7 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { modalContaTenant } from "../tenant/modalContaTenant";
 
 export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing {
@@ -51,7 +51,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }

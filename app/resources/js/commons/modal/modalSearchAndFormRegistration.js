@@ -461,6 +461,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
         const modal = $(self.getIdModal);
         const {
             btnSave = modal.find('.btn-save'),
+            functionExecuteAfterSuccess = '_executarBusca',
         } = options;
 
         try {
@@ -475,7 +476,9 @@ export class modalSearchAndFormRegistration extends modalDefault {
             if (response) {
                 commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
                 self._promisseReturnValue.refresh = true;
-                self._generateQueryFilters();
+                if (functionExecuteAfterSuccess) {
+                    self[functionExecuteAfterSuccess]();
+                }
                 if (self._action === enumAction.PUT) {
                     self.modalCancel();
                 } else {

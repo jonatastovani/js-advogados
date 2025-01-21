@@ -85,13 +85,13 @@ class ServicoParticipacaoTipoTenantService extends Service
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este tipo de atuação já existe.', $requestData->toArray());
-            return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+            return RestResponse::createErrorResponse(409, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
-
         $resource->nome = $requestData->nome;
         $resource->descricao = $requestData->descricao;
+        $resource->tipo = $requestData->configuracao['tipo'];
 
         return $resource;
     }

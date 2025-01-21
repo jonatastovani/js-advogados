@@ -5,10 +5,21 @@ namespace Database\Seeders\Tenant;
 use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
 use App\Helpers\UUIDsHelpers;
 use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
 class ServicoParticipacaoTipoTenantObrigatorioSeeder extends Seeder
 {
+
+    use CommonsSeederMethodsTrait;
+
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new \App\Models\Tenant\ServicoParticipacaoTipoTenant();
+    }
+
     /**
      * Run the database seeds.
      *
@@ -16,26 +27,19 @@ class ServicoParticipacaoTipoTenantObrigatorioSeeder extends Seeder
      */
     public function run(): void
     {
-        $insert = [
+        $dataList = [
             [
                 "nome" => "Empresa",
                 "descricao" => "Participação da empresa em lançamentos gerais",
-                "configuracao" => [
-                    "bloqueado_para_usuario_comum" => true,
-                    "tipo" => ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL->value,
-                    "tag" => [
-                        "participacao_empresa_movimentacao"
-                    ],
-                ]
+                "bloqueado_para_usuario_comum" => true,
+                "tipo" => ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL->value,
+                "tag" => [
+                    "participacao_empresa_movimentacao"
+                ],
             ],
         ];
 
-        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-
-        foreach ($insert as $data) {
-            $data['created_user_id'] = $adminTenantUserId;
-            $data['tenant_id'] = 'jsadvogados';
-            ServicoParticipacaoTipoTenant::create($data);
-        }
+        // Chama o método genérico para inserção/atualização
+        $this->setDefaultTenantId('jsadvogados')->upsertData($dataList);
     }
 }

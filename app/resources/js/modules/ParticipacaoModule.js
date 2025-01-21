@@ -8,7 +8,7 @@ import { modalServicoParticipacaoPreset } from "../components/servico/modalServi
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
-export class ServicoParticipacaoModule {
+export class ParticipacaoModule {
 
     _objConfigs;
     _parentInstance;
@@ -331,7 +331,7 @@ export class ServicoParticipacaoModule {
                 <div class="row ${rowColsDados}">
                     <div class="col">
                         <div class="form-text">Participação</div>
-                        <label class="form-label text-truncate lblParticipacao">${participacao_tipo.nome}</label>
+                        <label class="form-label text-truncate w-100 lblParticipacao">${participacao_tipo.nome}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Método</div>
@@ -339,13 +339,13 @@ export class ServicoParticipacaoModule {
                     </div>
                     <div class="col">
                         <div class="form-text">Valor</div>
-                        <label class="form-label text-truncate lblValor">${valor}</label>
+                        <label class="form-label text-truncate w-100 lblValor">${valor}</label>
                     </div>
                 </div>
                 <div class="row rowObservacao" style="display: ${displayObservacao};">
                     <div class="col">
                         <div class="form-text">Observação</div>
-                        <label class="form-label text-truncate lblObservacao" title="${item.observacao ?? ''}">${item.observacao ?? ''}</label>
+                        <label class="form-label lblObservacao" title="${item.observacao ?? ''}">${item.observacao ?? ''}</label>
                     </div>
                 </div>
                 ${accordionIntegrantes}
@@ -824,5 +824,19 @@ export class ServicoParticipacaoModule {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
+    }
+
+    async _inserirParticipanteObrigatorioEmpresaParticipacaoGeral() {
+        const self = this;
+
+        try {
+            const response = await self.#getRecurse({
+                urlApi: self._objConfigs.url.basePessoaPerfilEmpresa
+            });
+            console.log(response);
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+
     }
 }

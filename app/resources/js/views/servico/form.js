@@ -15,7 +15,7 @@ import { ServicoParticipacaoHelpers } from "../../helpers/ServicoParticipacaoHel
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 
 class PageServicoForm extends TemplateForm {
 
@@ -56,7 +56,7 @@ class PageServicoForm extends TemplateForm {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
         this.initEvents();
     }
 

@@ -13,9 +13,9 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
                 name: 'consulta-filtros',
                 url: window.apiRoutes.baseContas,
                 urlSearch: `${window.apiRoutes.baseContas}/consulta-filtros`,
-                sufixo: 'ModalContaTenant',
             }
         },
+        sufixo: 'ModalContaTenant',
     };
 
     /** 
@@ -30,8 +30,8 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             idModal: "#modalContaTenant",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -45,22 +45,28 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalConta = modal.find(`#formDataSearch${self._objConfigs.querys.consultaFiltros.sufixo}`);
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Nova Conta');
         });
 
-        formDataSearchModalConta.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self._executarBusca();
+            })
             .trigger('click');
+
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_subtipo_id"]`), window.apiRoutes.baseContasSubtipo);
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_status_id"]`), window.apiRoutes.baseContasStatus, { selectedIdOption: 1 });
+    }
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
     }
 
     async insertTableData(item, options = {}) {
@@ -169,7 +175,7 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
                 pushSelected(item);
             }
         });
-        
+
         $(`#${item.idTr}`).find(`.btn-delete`).on('click', async function () {
             self._delButtonAction(item.id, item.nome, {
                 title: `Exclusão de Conta`,

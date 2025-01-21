@@ -1,3 +1,4 @@
+import { commonFunctions } from "../../commons/commonFunctions";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
@@ -18,6 +19,7 @@ export class modalServicoParticipacaoPreset extends modalSearchAndFormRegistrati
                 sufixo: 'ModalServicoParticipacaoPreset',
             }
         },
+        sufixo: 'ModalServicoParticipacaoPreset',
     };
 
     /** 
@@ -32,8 +34,8 @@ export class modalServicoParticipacaoPreset extends modalSearchAndFormRegistrati
             idModal: "#modalServicoParticipacaoPreset",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -46,16 +48,20 @@ export class modalServicoParticipacaoPreset extends modalSearchAndFormRegistrati
 
     #addEventosPadrao() {
         const self = this;
-        const modal = $(self.getIdModal);
-        const formDataSearchModalConta = modal.find(`#formDataSearch${self._objConfigs.querys.consultaFiltros.sufixo}`);
 
-        formDataSearchModalConta.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self._executarBusca();
+            })
             .trigger('click');
+    }
+
+    async _executarBusca() {
+        const self = this;
+        BootstrapFunctionsHelper.removeEventPopover();
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
     }
 
     async insertTableData(item, options = {}) {

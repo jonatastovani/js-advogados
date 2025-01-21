@@ -3,7 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { modalContaTenant } from "../tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
 
@@ -24,6 +24,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
             baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            basePessoaPerfilEmpresa: window.apiRoutes.basePessoaPerfilEmpresa,
         },
         sufixo: 'ModalLancamentoGeral',
         data: {
@@ -62,7 +63,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
         if (options.modoAgendamento) {
             this._objConfigs.modoAgendamento = true;
             this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;

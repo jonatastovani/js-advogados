@@ -15,6 +15,7 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
                 urlSearch: `${window.apiRoutes.baseLancamentoCategoriaTipoTenant}/consulta-filtros`,
             }
         },
+        sufixo: 'ModalLancamentoCategoriaTipoTenant',
     };
 
     /** 
@@ -29,8 +30,8 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
             idModal: "#modalLancamentoCategoriaTipoTenant",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -44,18 +45,24 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalLancamentoCategoriaTipoTenant = modal.find('#formDataSearchModalLancamentoCategoriaTipoTenant');
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Nova Categoria de Lancamento');
         });
 
-        formDataSearchModalLancamentoCategoriaTipoTenant.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            await self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self._executarBusca();
+            })
             .trigger('click');
+
+    }
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
     }
 
     async insertTableData(item, options = {}) {

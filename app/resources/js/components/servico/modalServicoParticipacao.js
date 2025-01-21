@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { RequestsHelpers } from "../../helpers/RequestsHelpers";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { modalServicoParticipacaoTipoTenant } from "../tenant/modalServicoParticipacaoTipoTenant";
 
 export class modalServicoParticipacao extends modalRegistrationAndEditing {
@@ -57,7 +57,7 @@ export class modalServicoParticipacao extends modalRegistrationAndEditing {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }

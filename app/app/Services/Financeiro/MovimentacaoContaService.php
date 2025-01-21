@@ -11,6 +11,7 @@ use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
+use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Documento\DocumentoGerado;
@@ -1039,7 +1040,7 @@ class MovimentacaoContaService extends Service
             throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
         }
 
-        $participacaoEmpresaMovimentacao = ServicoParticipacaoTipoTenant::where('configuracao->tipo', 'participacao_empresa_movimentacao')->first();
+        $participacaoEmpresaMovimentacao = ServicoParticipacaoTipoTenant::where('configuracao->tag', 'participacao_empresa_movimentacao')->where('configuracao->tipo', ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL)->first();
         if (!$participacaoEmpresaMovimentacao) {
             throw new Exception('Tipo de Participação da empresa não foi configurada. Favor consultar o desenvolvedor.');
         }

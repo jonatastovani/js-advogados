@@ -16,7 +16,7 @@ Route::group([
             Route::get('', function () {})->name('api.pessoa.perfil');
 
             Route::get('{uuid}', 'show');
-            Route::get('empresa', 'showEmpresa'); // Busca a empresa do domínio
+            Route::get('empresa', 'showEmpresa')->name('api.pessoa.perfil.empresa'); // Busca a empresa do domínio
         });
     });
 

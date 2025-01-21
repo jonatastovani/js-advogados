@@ -30,8 +30,8 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
             idModal: "#modalServicoParticipacaoTipoTenant",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
     }
 
     async modalOpen() {
@@ -78,12 +78,12 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
         $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
             .find('.btnBuscar').on('click', async (e) => {
                 e.preventDefault();
-                await self.#executarBusca();
+                await self._executarBusca();
             })
             .trigger('click');
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {
@@ -190,6 +190,9 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
+        data.configuracao = {
+            tipo: self._dataEnvModal.configuracao_tipo
+        }
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.querys.consultaFiltros.url);

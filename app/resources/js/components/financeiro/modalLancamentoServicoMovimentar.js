@@ -4,7 +4,7 @@ import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { ServicoParticipacaoModule } from "../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { modalContaTenant } from "../tenant/modalContaTenant";
 
 export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
@@ -56,7 +56,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }

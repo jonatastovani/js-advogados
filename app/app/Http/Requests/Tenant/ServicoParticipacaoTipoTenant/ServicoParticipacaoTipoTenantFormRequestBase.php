@@ -11,7 +11,10 @@ class ServicoParticipacaoTipoTenantFormRequestBase extends BaseFormRequest
         return [
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',
-            'configuracao_tipo' => 'required|string',
+            'configuracao' => 'required|array',
+            'configuracao.bloqueado_para_usuario_comum' => 'nullable|boolean',
+            'configuracao.tipo' => 'required|string',
+            'configuracao.tag' => 'nullable|array',
         ];
     }
 }

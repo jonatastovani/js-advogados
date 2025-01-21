@@ -15,6 +15,7 @@ export class modalEscolaridadeTenant extends modalSearchAndFormRegistration {
                 urlSearch: `${window.apiRoutes.baseEscolaridadeTenant}/consulta-filtros`,
             }
         },
+        sufixo: 'ModalEscolaridadeTenant',
     };
 
     /** 
@@ -29,8 +30,8 @@ export class modalEscolaridadeTenant extends modalSearchAndFormRegistration {
             idModal: "#modalEscolaridadeTenant",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -44,18 +45,24 @@ export class modalEscolaridadeTenant extends modalSearchAndFormRegistration {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalEscolaridadeTenant = modal.find('#formDataSearchModalEscolaridadeTenant');
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Nova Escolaridade');
         });
 
-        formDataSearchModalEscolaridadeTenant.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            await self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self._executarBusca();
+            })
             .trigger('click');
+
+    }
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
     }
 
     async insertTableData(item, options = {}) {

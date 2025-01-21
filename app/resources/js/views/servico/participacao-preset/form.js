@@ -5,7 +5,7 @@ import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
-import { ServicoParticipacaoModule } from "../../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 
 class PageServicoParticipacaoPresetForm {
 
@@ -32,7 +32,7 @@ class PageServicoParticipacaoPresetForm {
         const objData = {
             objConfigs: this._objConfigs,
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
     }
 
     initEvents() {

@@ -4,7 +4,7 @@ import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
-import { ServicoParticipacaoModule } from "../../../modules/ServicoParticipacaoModule";
+import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 
 class PagePreenchimentoAutomatico extends TemplateForm {
 
@@ -30,7 +30,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ServicoParticipacaoModule(this, objData);
+        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
         this.initEvents();
     }
 

@@ -15,6 +15,7 @@ export class modalSexoTenant extends modalSearchAndFormRegistration {
                 urlSearch: `${window.apiRoutes.baseSexoTenant}/consulta-filtros`,
             }
         },
+        sufixo: 'ModalSexoTenant',
     };
 
     /** 
@@ -29,8 +30,8 @@ export class modalSexoTenant extends modalSearchAndFormRegistration {
             idModal: "#modalSexoTenant",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -44,18 +45,23 @@ export class modalSexoTenant extends modalSearchAndFormRegistration {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self.getIdModal);
-        const formDataSearchModalSexoTenant = modal.find('#formDataSearchModalSexoTenant');
 
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Novo Gênero');
         });
 
-        formDataSearchModalSexoTenant.find('.btnBuscar').on('click', async (e) => {
-            e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            await self._generateQueryFilters();
-        })
+        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+            .find('.btnBuscar').on('click', async (e) => {
+                e.preventDefault();
+                await self._executarBusca();
+            })
             .trigger('click');
+    }
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
     }
 
     async insertTableData(item, options = {}) {
