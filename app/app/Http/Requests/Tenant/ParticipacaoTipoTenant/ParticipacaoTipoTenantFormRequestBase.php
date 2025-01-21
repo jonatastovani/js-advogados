@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant;
+namespace App\Http\Requests\Tenant\ParticipacaoTipoTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoParticipacaoTipoTenantFormRequestBase extends BaseFormRequest
+class ParticipacaoTipoTenantFormRequestBase extends BaseFormRequest
 {
     public function rules()
     {

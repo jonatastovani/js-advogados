@@ -33,12 +33,12 @@
 </div>
 
 @push('modals')
-    <x-modal.tenant.modal-servico-participacao-tipo-tenant.modal />
+    <x-modal.tenant.modal-participacao-tipo-tenant.modal />
 @endpush
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+        'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
     ],
 ])
 @endcomponent

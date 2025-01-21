@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
-class ServicoParticipacaoTipoTenant extends Model
+class ParticipacaoTipoTenant extends Model
 {
     use HasFactory,
         HasUuids,
@@ -19,8 +19,8 @@ class ServicoParticipacaoTipoTenant extends Model
         BelongsToTenant,
         HasDataColumn;
 
-    protected $table = 'tenant.servico_participacao_tipo_tenants';
-    protected $tableAsName = 'serv_part_tip_ten';
+    protected $table = 'tenant.participacao_tipo_tenants';
+    protected $tableAsName = 'part_tip_ten';
 
     /**
      * Get the name of the column that stores additional data.

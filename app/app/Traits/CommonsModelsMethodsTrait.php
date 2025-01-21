@@ -31,11 +31,10 @@ trait CommonsModelsMethodsTrait
             'deleted_at',
         ];
     }
-
     /**
-     * Get the name of the table associated with the model.
+     * Obtém o nome completo da tabela associada ao modelo, incluindo o schema.
      *
-     * @return string The name of the table.
+     * @return string O nome completo da tabela.
      */
     public function getTableName(): string
     {
@@ -43,9 +42,11 @@ trait CommonsModelsMethodsTrait
     }
 
     /**
-     * Get the schema name of the table associated with the model.
+     * Obtém o nome do schema da tabela associada ao modelo.
+     * 
+     * Caso o schema não seja explicitamente definido, retorna 'public' como padrão.
      *
-     * @return string The schema name.
+     * @return string O nome do schema.
      */
     public static function getSchemaName(): string
     {
@@ -53,6 +54,22 @@ trait CommonsModelsMethodsTrait
         $explode = explode('.', $table);
 
         return count($explode) > 1 ? $explode[0] : 'public';
+    }
+
+    /**
+     * Obtém apenas o nome da tabela, sem o schema.
+     *
+     * Caso o nome da tabela contenha o schema (ex.: "schema.tabela"),
+     * esta função extrai apenas a parte após o ponto (".").
+     *
+     * @return string O nome da tabela sem o schema.
+     */
+    public static function getTableWithoutSchema(): string
+    {
+        $table = (new self())->getTable();
+        $explode = explode('.', $table);
+
+        return count($explode) > 1 ? $explode[1] : $table;
     }
 
     /**

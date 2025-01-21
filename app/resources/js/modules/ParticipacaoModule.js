@@ -830,10 +830,21 @@ export class ParticipacaoModule {
         const self = this;
 
         try {
-            const response = await self.#getRecurse({
-                urlApi: self._objConfigs.url.basePessoaPerfilEmpresa
+            const responsePerfilEmpresa = await self.#getRecurse({
+                idRegister: 'empresa',
+                urlApi: self._objConfigs.url.basePessoaPerfil
             });
-            console.log(response);
+            console.log(responsePerfilEmpresa);
+            const responseEmpresa = await self.#getRecurse({
+                idRegister: responsePerfilEmpresa.data.id,
+                urlApi: self._objConfigs.url.basePessoaPerfil
+            });
+            console.log(responseEmpresa);
+            const responseParticipacaoEmpresa = await self.#getRecurse({
+                idRegister: responsePerfilEmpresa.data.id,
+                urlApi: self._objConfigs.url.basePessoaPerfil
+            });
+            console.log(responseParticipacaoEmpresa);
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }

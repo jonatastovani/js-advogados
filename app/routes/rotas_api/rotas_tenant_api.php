@@ -122,14 +122,14 @@ Route::group([
         });
     });
 
-    Route::prefix('servico-participacao-tipo')->group(function () {
+    Route::prefix('participacao-tipo-tenant')->group(function () {
 
-        Route::controller(App\Http\Controllers\Tenant\ServicoParticipacaoTipoTenantController::class)->group(function () {
+        Route::controller(App\Http\Controllers\Tenant\ParticipacaoTipoTenantController::class)->group(function () {
 
             Route::post('consulta-filtros', 'postConsultaFiltros');
 
             Route::post('index-configuracao-tipo', 'index');
-            Route::post('', 'store')->name('api.tenant.servico-participacao-tipo');
+            Route::post('', 'store')->name('api.tenant.participacao-tipo-tenant');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');
         });

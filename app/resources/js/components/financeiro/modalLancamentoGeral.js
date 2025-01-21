@@ -23,8 +23,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             baseLancamentoGeral: window.apiRoutes.baseLancamentoGeral,
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
-            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
-            basePessoaPerfilEmpresa: window.apiRoutes.basePessoaPerfilEmpresa,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
+            basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
         },
         sufixo: 'ModalLancamentoGeral',
         data: {

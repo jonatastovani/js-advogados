@@ -12,7 +12,7 @@ class PageServicoParticipacaoPresetForm {
     _objConfigs = {
         url: {
             base: window.apiRoutes.baseParticipacaoPreset,
-            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
         sufixo: 'PageServicoParticipacaoPresetForm',
         data: {

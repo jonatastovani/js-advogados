@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Tenant\ServicoParticipacaoTipoTenant();
+        $this->model = new App\Models\Tenant\ParticipacaoTipoTenant();
     }
 
     /**

@@ -27,7 +27,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Servico\ServicoParticipacaoParticipante;
 use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
@@ -472,7 +472,7 @@ class MovimentacaoContaService extends Service
 
         // Lança os participantes e os respectivos valores
         foreach ($participantes as $index => $value) {
-            $participacaoTipo = ServicoParticipacaoTipoTenant::withTrashed()->find($value['participacao_tipo_id']);
+            $participacaoTipo = ParticipacaoTipoTenant::withTrashed()->find($value['participacao_tipo_id']);
             $descricaoAutomatica = $participacaoTipo->nome;
 
             switch ($value['participacao_registro_tipo_id']) {
@@ -1040,7 +1040,7 @@ class MovimentacaoContaService extends Service
             throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
         }
 
-        $participacaoEmpresaMovimentacao = ServicoParticipacaoTipoTenant::where('configuracao->tag', 'participacao_empresa_movimentacao')->where('configuracao->tipo', ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL)->first();
+        $participacaoEmpresaMovimentacao = ParticipacaoTipoTenant::where('configuracao->tag', 'participacao_empresa_movimentacao')->where('configuracao->tipo', ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL)->first();
         if (!$participacaoEmpresaMovimentacao) {
             throw new Exception('Tipo de Participação da empresa não foi configurada. Favor consultar o desenvolvedor.');
         }

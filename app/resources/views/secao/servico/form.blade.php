@@ -124,7 +124,7 @@
             'baseServico' => route('api.servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
             'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
-            'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+            'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         ],
     ])
     @endcomponent

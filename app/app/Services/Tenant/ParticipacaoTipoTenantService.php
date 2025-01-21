@@ -5,18 +5,18 @@ namespace App\Services\Tenant;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
-class ServicoParticipacaoTipoTenantService extends Service
+class ParticipacaoTipoTenantService extends Service
 {
     use ConsultaSelect2ServiceTrait;
 
-    public function __construct(ServicoParticipacaoTipoTenant $model)
+    public function __construct(ParticipacaoTipoTenant $model)
     {
         parent::__construct($model);
     }

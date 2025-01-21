@@ -301,8 +301,8 @@ class ServicoParticipacaoPresetService extends Service
         //     $participante = new Fluent($participante);
 
         //     //Verifica se o tipo de registro de participação informado existe
-        //     $validacaoServicoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ServicoParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
-        //     if (!$validacaoServicoParticipacaoTipoTenantId->count()) {
+        //     $validacaoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
+        //     if (!$validacaoParticipacaoTipoTenantId->count()) {
         //         $arrayErrors["participacao_tipo_id_{$participante->participacao_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Participação informado não existe ou foi excluído.', $requestData)->error;
         //     }
 
@@ -312,7 +312,7 @@ class ServicoParticipacaoPresetService extends Service
         //         $arrayErrors["participacao_registro_tipo_id_{$participante->participacao_registro_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Registro de Participação informado não existe ou foi excluído.', $requestData)->error;
         //     }
         //     if (
-        //         $validacaoServicoParticipacaoTipoTenantId->count() &&
+        //         $validacaoParticipacaoTipoTenantId->count() &&
         //         $validacaoParticipacaoRegistroTipoId->count()
         //     ) {
         //         $integrantes = [];

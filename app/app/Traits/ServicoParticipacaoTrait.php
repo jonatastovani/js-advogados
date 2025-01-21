@@ -7,7 +7,7 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\ParticipacaoRegistroTipo;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Tenant\ParticipacaoTipoTenant;
 use Illuminate\Support\Fluent;
 
 trait ServicoParticipacaoTrait
@@ -25,8 +25,8 @@ trait ServicoParticipacaoTrait
             $participante = new Fluent($participante);
 
             //Verifica se o tipo de registro de participação informado existe
-            $validacaoServicoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ServicoParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
-            if (!$validacaoServicoParticipacaoTipoTenantId->count()) {
+            $validacaoParticipacaoTipoTenantId = ValidationRecordsHelper::validateRecord(ParticipacaoTipoTenant::class, ['id' => $participante->participacao_tipo_id]);
+            if (!$validacaoParticipacaoTipoTenantId->count()) {
                 $arrayErrors["participacao_tipo_id_{$participante->participacao_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Participação informado não existe ou foi excluído.', $participantesData)->error;
             }
 
@@ -36,7 +36,7 @@ trait ServicoParticipacaoTrait
                 $arrayErrors["participacao_registro_tipo_id_{$participante->participacao_registro_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Registro de Participação informado não existe ou foi excluído.', $participantesData)->error;
             }
             if (
-                $validacaoServicoParticipacaoTipoTenantId->count() &&
+                $validacaoParticipacaoTipoTenantId->count() &&
                 $validacaoParticipacaoRegistroTipoId->count()
             ) {
                 $integrantes = [];

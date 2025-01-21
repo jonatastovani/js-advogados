@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Tenant\ModalServicoParticipacaoTipoTenant;
+namespace App\View\Components\Modal\Tenant\ModalParticipacaoTipoTenant;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalServicoParticipacaoTipoTenant', request('request_uuid'))) {
-            return view('components.modal.tenant.modal-servico-participacao-tipo-tenant.modal');
+        if (ModalSessionHelper::registerModal('modalParticipacaoTipoTenant', request('request_uuid'))) {
+            return view('components.modal.tenant.modal-participacao-tipo-tenant.modal');
         }
         return '';
     }

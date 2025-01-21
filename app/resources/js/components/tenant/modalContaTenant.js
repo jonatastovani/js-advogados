@@ -57,7 +57,6 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             })
             .trigger('click');
 
-
         commonFunctions.fillSelect(modal.find(`select[name="conta_subtipo_id"]`), window.apiRoutes.baseContasSubtipo);
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_status_id"]`), window.apiRoutes.baseContasStatus, { selectedIdOption: 1 });

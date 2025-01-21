@@ -3,7 +3,7 @@
 namespace App\Models\Financeiro;
 
 use App\Models\Referencias\MovimentacaoContaParticipanteStatusTipo;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -60,7 +60,7 @@ class MovimentacaoContaParticipante extends Model
 
     public function participacao_tipo()
     {
-        return $this->belongsTo(ServicoParticipacaoTipoTenant::class);
+        return $this->belongsTo(ParticipacaoTipoTenant::class);
     }
     
     public function status()

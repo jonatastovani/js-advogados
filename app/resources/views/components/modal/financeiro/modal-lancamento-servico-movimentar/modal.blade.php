@@ -85,7 +85,7 @@
         'baseLancamento' => route('api.financeiro.lancamentos'),
         'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
         'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
-        'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+        'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         'baseContas' => route('api.tenant.conta'),
     ],
 ])

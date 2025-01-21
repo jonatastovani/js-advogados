@@ -33,7 +33,7 @@ class PageServicoForm extends TemplateForm {
                 baseCliente: undefined,
                 baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
                 baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
-                baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+                baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
             },
             sufixo: 'PageServicoForm',
             data: {

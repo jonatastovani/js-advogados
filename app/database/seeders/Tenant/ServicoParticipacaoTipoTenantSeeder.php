@@ -7,7 +7,7 @@ use App\Helpers\UUIDsHelpers;
 use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
-class ServicoParticipacaoTipoTenantSeeder extends Seeder
+class ParticipacaoTipoTenantSeeder extends Seeder
 {
 
     use CommonsSeederMethodsTrait;
@@ -16,7 +16,7 @@ class ServicoParticipacaoTipoTenantSeeder extends Seeder
 
     public function __construct()
     {
-        $this->model = new \App\Models\Tenant\ServicoParticipacaoTipoTenant();
+        $this->model = new \App\Models\Tenant\ParticipacaoTipoTenant();
     }
 
     /**

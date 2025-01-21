@@ -84,7 +84,7 @@
         'baseMovimentacaoContasGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
         'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
         'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
-        'baseServicoParticipacaoTipoTenant' => route('api.tenant.servico-participacao-tipo'),
+        'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         'baseContas' => route('api.tenant.conta'),
     ],
 ])

@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { modalServicoParticipacaoTipoTenant } from "../tenant/modalServicoParticipacaoTipoTenant";
+import { modalParticipacaoTipoTenant } from "../tenant/modalParticipacaoTipoTenant";
 
 export class modalServicoParticipacaoParticipante extends modalRegistrationAndEditing {
 
@@ -15,7 +15,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
      */
     #objConfigs = {
         url: {
-            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
         sufixo: 'ModalServicoParticipacaoParticipante',
         data: {
@@ -78,7 +78,7 @@ export class modalServicoParticipacaoParticipante extends modalRegistrationAndEd
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoParticipacaoTipoTenant();
+                const objModal = new modalParticipacaoTipoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

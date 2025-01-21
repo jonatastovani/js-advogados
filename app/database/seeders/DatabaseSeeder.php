@@ -42,8 +42,8 @@ use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
 use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
 use Database\Seeders\Tenant\EstadoCivilTenantSeeder;
 use Database\Seeders\Tenant\LancamentoCategoriaTipoTenantSeeder;
-use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantObrigatorioSeeder;
-use Database\Seeders\Tenant\ServicoParticipacaoTipoTenantSeeder;
+use Database\Seeders\Tenant\ParticipacaoTipoTenantObrigatorioSeeder;
+use Database\Seeders\Tenant\ParticipacaoTipoTenantSeeder;
 use Database\Seeders\Tenant\SexoTenantSeeder;
 use Illuminate\Database\Seeder;
 
@@ -92,8 +92,8 @@ class DatabaseSeeder extends Seeder
                 EscolaridadeTenantSeeder::class,
                 LancamentoCategoriaTipoTenantSeeder::class,
                 PagamentoTipoTenantSeeder::class,
-                ServicoParticipacaoTipoTenantSeeder::class,
-                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
+                ParticipacaoTipoTenantSeeder::class,
+                ParticipacaoTipoTenantObrigatorioSeeder::class,
                 SexoTenantSeeder::class,
             ]);
 
@@ -118,8 +118,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                // ServicoParticipacaoTipoTenantSeeder::class,
-                ServicoParticipacaoTipoTenantObrigatorioSeeder::class,
+                // ParticipacaoTipoTenantSeeder::class,
+                ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }
     }

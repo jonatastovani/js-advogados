@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Tenant\ServicoParticipacaoTipoTenant;
+namespace App\Http\Requests\Tenant\ParticipacaoTipoTenant;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ServicoParticipacaoTipoTenantFormRequestShow extends BaseFormRequest
+class ParticipacaoTipoTenantFormRequestIndex extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,11 @@ class ServicoParticipacaoTipoTenantFormRequestShow extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return array_merge(
+            $this->rulesShowWithTrashed(),
+            [
+                'configuracao_tipo' => 'required|string',
+            ]
+        );
     }
 }

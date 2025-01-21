@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 
-export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegistration {
+export class modalParticipacaoTipoTenant extends modalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -11,11 +11,11 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseServicoParticipacaoTipoTenant,
-                urlSearch: `${window.apiRoutes.baseServicoParticipacaoTipoTenant}/consulta-filtros`,
+                url: window.apiRoutes.baseParticipacaoTipoTenant,
+                urlSearch: `${window.apiRoutes.baseParticipacaoTipoTenant}/consulta-filtros`,
             }
         },
-        sufixo: 'ModalServicoParticipacaoTipoTenant',
+        sufixo: 'ModalParticipacaoTipoTenant',
     };
 
     /** 
@@ -27,7 +27,7 @@ export class modalServicoParticipacaoTipoTenant extends modalSearchAndFormRegist
 
     constructor() {
         super({
-            idModal: "#modalServicoParticipacaoTipoTenant",
+            idModal: "#modalParticipacaoTipoTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

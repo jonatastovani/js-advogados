@@ -4,7 +4,7 @@ namespace App\Models\Servico;
 
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\ParticipacaoRegistroTipo;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
+use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -45,7 +45,7 @@ class ServicoParticipacaoParticipante extends Model
 
     public function participacao_tipo()
     {
-        return $this->belongsTo(ServicoParticipacaoTipoTenant::class);
+        return $this->belongsTo(ParticipacaoTipoTenant::class);
     }
 
     public function integrantes()

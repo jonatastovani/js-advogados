@@ -18,7 +18,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             baseLancamento: `${window.apiRoutes.baseLancamento}/servicos`,
             baseLancamentoStatusTipo: window.apiRoutes.baseLancamentoStatusTipo,
             baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
-            baseParticipacaoTipo: window.apiRoutes.baseServicoParticipacaoTipoTenant,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
             baseContas: window.apiRoutes.baseContas,
         },
         sufixo: 'ModalLancamentoServicoMovimentar',

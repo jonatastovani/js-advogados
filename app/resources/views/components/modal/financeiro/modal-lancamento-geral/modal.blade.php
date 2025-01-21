@@ -115,7 +115,7 @@
         'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
         'baseContas' => route('api.tenant.conta'),
         'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
-        'basePessoaPerfilEmpresa' => route('api.pessoa.perfil.empresa'),
-    ],
+        'basePessoaPerfil' => route('api.pessoa.perfil'),
+        ],
 ])
 @endcomponent

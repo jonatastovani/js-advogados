@@ -3,12 +3,10 @@
 namespace Database\Seeders\Tenant;
 
 use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
-use App\Helpers\UUIDsHelpers;
-use App\Models\Tenant\ServicoParticipacaoTipoTenant;
 use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
-class ServicoParticipacaoTipoTenantObrigatorioSeeder extends Seeder
+class ParticipacaoTipoTenantObrigatorioSeeder extends Seeder
 {
 
     use CommonsSeederMethodsTrait;
@@ -17,7 +15,7 @@ class ServicoParticipacaoTipoTenantObrigatorioSeeder extends Seeder
 
     public function __construct()
     {
-        $this->model = new \App\Models\Tenant\ServicoParticipacaoTipoTenant();
+        $this->model = new \App\Models\Tenant\ParticipacaoTipoTenant();
     }
 
     /**
