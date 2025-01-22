@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Servico\ServicoParticipacaoParticipanteIntegrante();
+        $this->model = new App\Models\Comum\ParticipacaoParticipanteIntegrante();
     }
 
     /**
@@ -27,7 +27,7 @@ return new class extends Migration
             $this->addDomainIDField($table);
 
             $table->uuid('participante_id');
-            $table->foreign('participante_id', "fk_{$this->model->getTableAsName()}_participante_id")->references('id')->on((new App\Models\Servico\ServicoParticipacaoParticipante)->getTableName());
+            $table->foreign('participante_id', "fk_{$this->model->getTableAsName()}_participante_id")->references('id')->on((new App\Models\Comum\ParticipacaoParticipante)->getTableName());
 
             $table->smallInteger('participacao_registro_tipo_id');
             $table->foreign('participacao_registro_tipo_id', "{fk_{$this->model->getTableAsName()}_participacao_registro_tipo_id")->references('id')->on((new App\Models\Referencias\ParticipacaoRegistroTipo)->getTableName());

@@ -3,7 +3,6 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -14,8 +13,8 @@ use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
-use App\Models\Servico\ServicoParticipacaoParticipante;
-use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
+use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,20 +26,20 @@ class ServicoPagamentoLancamentoService extends Service
 
     public function __construct(
         ServicoPagamentoLancamento $model,
-        public ServicoParticipacaoParticipante $modelParticipante,
-        public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
+        public ParticipacaoParticipante $modelParticipante,
+        public ParticipacaoParticipanteIntegrante $modelIntegrante,
 
         public ServicoPagamento $modelPagamento,
-        public ServicoParticipacaoParticipante $modelParticipantePagamento,
-        public ServicoParticipacaoParticipanteIntegrante $modelIntegrantePagamento,
+        public ParticipacaoParticipante $modelParticipantePagamento,
+        public ParticipacaoParticipanteIntegrante $modelIntegrantePagamento,
 
         public Servico $modelServico,
-        public ServicoParticipacaoParticipante $modelParticipanteServico,
-        public ServicoParticipacaoParticipanteIntegrante $modelIntegranteServico,
+        public ParticipacaoParticipante $modelParticipanteServico,
+        public ParticipacaoParticipanteIntegrante $modelIntegranteServico,
     ) {
         parent::__construct($model);
-        $asNameParticipante = (new ServicoParticipacaoParticipante())->getTableAsName();
-        $asNameIntegrante = (new ServicoParticipacaoParticipanteIntegrante())->getTableAsName();
+        $asNameParticipante = (new ParticipacaoParticipante())->getTableAsName();
+        $asNameIntegrante = (new ParticipacaoParticipanteIntegrante())->getTableAsName();
 
         $this->modelParticipantePagamento->setTableAsName("{$asNameParticipante}_pag");
         $this->modelParticipanteServico->setTableAsName("{$asNameParticipante}_serv");

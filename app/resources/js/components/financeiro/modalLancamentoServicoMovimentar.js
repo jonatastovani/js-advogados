@@ -39,7 +39,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         status_id: undefined,
     }
 
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor(options = {}) {
         super({
@@ -56,7 +56,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }
@@ -116,7 +116,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             }
         });
 
-        self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
+        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
     }
 
     _modalReset() {
@@ -301,7 +301,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 const diferenca = DateTimeHelper.retornaDiferencaDeDataEHora(responseData.data_vencimento, new Date(), 1);
                 form.find('input[name="data_recebimento"]').val(diferenca > 0 ? responseData.data_vencimento : DateTimeHelper.retornaDadosDataHora(new Date(), 1));
 
-                await self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(participantes);
+                await self.#functionsParticipacao._inserirParticipantesEIntegrantes(participantes);
 
                 if (responseData.parent_id && responseData.metadata?.diluicao_pagamento_parcial) {
                     self.#bloquearLiberarCamposParticipacao(false);
@@ -372,7 +372,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         const configuracao = self._objConfigs.data.lancamento_status_tipos.configuracao;
         let blnSave = false;
 
-        blnSave = self.#functionsServicoParticipacao._saveVerificationsParticipantes(data);
+        blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
         blnSave = commonFunctions.verificationData(data.conta_id, {
             field: formRegistration.find('select[name="conta_id"]'),
             messageInvalid: 'A <b>Conta</b> deve ser informada.',

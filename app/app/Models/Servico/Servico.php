@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
@@ -74,7 +75,7 @@ class Servico extends Model
 
     public function participantes()
     {
-        return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
     public function cliente()

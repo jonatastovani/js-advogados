@@ -67,4 +67,33 @@ trait MigrateTrait
         $table->unsignedBigInteger('domain_id')->nullable($nullable);
         $table->foreign('domain_id')->references('id')->on((new Domain())->getTableName());
     }
+
+    /**
+     * Altera o nome e/ou o schema de uma tabela de forma dinâmica.
+     *
+     * @param string $oldSchema Nome do schema antigo.
+     * @param string $oldTableName Nome da tabela antiga sem schema.
+     * @param string $newSchema Nome do novo schema.
+     * @param string $newTableName Nome da nova tabela sem schema.
+     * @return void
+     */
+    public function alterTableSchemaAndName(string $oldSchema, string $oldTableName, string $newSchema, string $newTableName): void
+    {
+        $oldFullTableName = "{$oldSchema}.{$oldTableName}";
+        $newFullTableName = "{$newSchema}.{$newTableName}";
+
+        // Verifica se a tabela antiga existe
+        if (\Illuminate\Support\Facades\Schema::hasTable($oldFullTableName)) {
+            // Cria o novo schema, se não existir
+            $this->createSchemaIfNotExists($newSchema);
+
+            // Move a tabela para o novo schema
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE {$oldFullTableName} SET SCHEMA {$newSchema}");
+
+            // Renomeia a tabela dentro do novo schema
+            if ($oldTableName !== $newTableName) {
+                \Illuminate\Support\Facades\Schema::rename("{$newSchema}.{$oldTableName}", $newTableName);
+            }
+        }
+    }
 }

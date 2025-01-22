@@ -1,5 +1,5 @@
 @php
-    $sufixo = 'PageServicoParticipacaoIndex';
+    $sufixo = 'PageParticipacaoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'nome' => 'Listagem de Presets de Participação',
         'descricao' => [
@@ -75,7 +75,7 @@
     @vite('resources/js/views/servico/participacao-preset/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseServicoParticipacaoPreset' => route('api.servico-participacao-preset'),
+            'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
             // 'baseAreaJuridicaTenant' => route('api.referencias.area-juridica'),
         ],
     ])

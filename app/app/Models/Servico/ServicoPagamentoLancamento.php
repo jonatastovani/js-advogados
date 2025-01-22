@@ -2,6 +2,7 @@
 
 namespace App\Models\Servico;
 
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\LancamentoStatusTipo;
@@ -79,7 +80,7 @@ class ServicoPagamentoLancamento extends Model
 
     public function participantes()
     {
-        return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
     public function movimentacao_conta()

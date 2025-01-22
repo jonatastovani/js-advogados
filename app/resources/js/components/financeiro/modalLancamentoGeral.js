@@ -45,7 +45,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         refresh: false,
     };
 
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor(options = {}) {
         super({
@@ -63,7 +63,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
         if (options.modoAgendamento) {
             this._objConfigs.modoAgendamento = true;
             this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
@@ -86,6 +86,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
         if (self._dataEnvModal.idRegister) {
             open = await self.#buscarDados();
+        } else {
+            self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
         }
 
         await commonFunctions.loadingModalDisplay(false);
@@ -370,6 +372,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
                 form.find('input[name="observacao"]').val(responseData.observacao);
 
+                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+
                 return true;
             }
             return false;
@@ -421,6 +425,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.valor_esperado = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
 
         if (self._objConfigs.modoAgendamento) {
             data.cron_expressao = self._objConfigs.data.cronExpressao;
@@ -434,8 +439,16 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     #saveVerifications(data) {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
+        let blnSave = false;
 
-        let blnSave = commonFunctions.verificationData(data.movimentacao_tipo_id, { field: formRegistration.find('select[name="movimentacao_tipo_id"]'), messageInvalid: 'O tipo de movimentação deve ser selecionado.', setFocus: true });
+        blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
+
+        blnSave = commonFunctions.verificationData(data.movimentacao_tipo_id, {
+            field: formRegistration.find('select[name="movimentacao_tipo_id"]'),
+            messageInvalid: 'O tipo de movimentação deve ser selecionado.',
+            setFocus: blnSave == true,
+            returnForcedFalse: blnSave == false
+        });
 
         blnSave = commonFunctions.verificationData(data.categoria_id, {
             field: formRegistration.find('select[name="categoria_id"]'),

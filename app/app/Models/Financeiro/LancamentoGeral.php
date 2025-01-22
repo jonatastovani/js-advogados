@@ -3,6 +3,7 @@
 namespace App\Models\Financeiro;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\ContaTenant;
@@ -82,6 +83,11 @@ class LancamentoGeral extends Model
     public function agendamento()
     {
         return $this->belongsTo(LancamentoAgendamento::class);
+    }
+
+    public function participantes()
+    {
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
     protected static function boot()

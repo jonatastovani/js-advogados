@@ -9,7 +9,7 @@ import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJur
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
+import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoServicoIndex extends templateSearch {
@@ -311,7 +311,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         const observacaoPagamento = item.pagamento.observacao ?? '***';
         const statusPagamento = item.status.nome;
 
-        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
                 (item.pagamento.participantes.length ? item.pagamento.participantes :
                     (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])

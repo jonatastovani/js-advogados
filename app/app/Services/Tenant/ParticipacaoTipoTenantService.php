@@ -3,11 +3,13 @@
 namespace App\Services\Tenant;
 
 use App\Common\RestResponse;
+use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
@@ -96,6 +98,15 @@ class ParticipacaoTipoTenantService extends Service
         return $resource;
     }
 
+    public function getParticipacaoEmpresaLancamentoGeral()
+    {
+        $resource = ParticipacaoTipoTenant::whereJsonContains('configuracao->tag', 'participacao_empresa_movimentacao')->where('configuracao->tipo', ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL)->first();
+        if (!$resource) {
+            throw new Exception('Tipo de Participação da empresa não foi configurada. Favor consultar o desenvolvedor.', 404);
+        }
+
+        return $resource->toArray();
+    }
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [

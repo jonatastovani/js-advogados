@@ -53,7 +53,7 @@ enum PessoaPerfilTipoEnum: int
             self::EMPRESA => [
                 'id' => self::EMPRESA->value,
                 'nome' => 'Empresa',
-                'descricao' => "Perfil para empresas do domínio.",
+                'descricao' => "Perfil para empresa do domínio.",
                 'configuracao' => [
                     'pessoa_tipo_aplicavel' => [
                         PessoaJuridica::class,

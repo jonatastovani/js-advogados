@@ -264,7 +264,7 @@ class PageLancamentoGeralIndex extends templateSearch {
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        }).click();
+        });
     }
 
     async #executarBusca() {

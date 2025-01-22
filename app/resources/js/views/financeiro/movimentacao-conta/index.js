@@ -4,8 +4,8 @@ import { modalSelecionarDocumento } from "../../../components/documento/modalSel
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import { RedirectHelper } from "../../../helpers/RedirectHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -202,7 +202,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 if (item.movimentacao_conta_participante && item.movimentacao_conta_participante.length &&
                     (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
                 ) {
-                    const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante);
+                    const arrays = ParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante);
                     htmlThParticipantesIntegrantes = `
                         <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes da Movimentação ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                     `;

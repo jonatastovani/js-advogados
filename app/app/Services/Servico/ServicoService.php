@@ -3,16 +3,14 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
-use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Models\Servico\Servico;
-use App\Models\Servico\ServicoPagamento;
-use App\Models\Servico\ServicoParticipacaoParticipante;
-use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
+use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -22,8 +20,8 @@ class ServicoService extends Service
 {
     public function __construct(
         Servico $model,
-        public ServicoParticipacaoParticipante $modelParticipante,
-        public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
+        public ParticipacaoParticipante $modelParticipante,
+        public ParticipacaoParticipanteIntegrante $modelIntegrante,
     ) {
         parent::__construct($model);
     }

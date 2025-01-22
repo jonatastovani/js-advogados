@@ -6,8 +6,8 @@
                 <p class="pNumeroLancamento"></p>
             </div>
             <div class="col">
-                <div class="form-text mt-0">Descrição</div>
-                <p class="pDescricao"></p>
+                <div class="form-text mt-0">Categoria</div>
+                <p class="pCategoria text-truncate w-100"></p>
             </div>
             <div class="col">
                 <div class="form-text mt-0">Data de vencimento</div>
@@ -16,6 +16,12 @@
             <div class="col">
                 <div class="form-text mt-0">Valor</div>
                 <p class="pValor"></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-text mt-0">Descrição</div>
+                <p class="pDescricao text-truncate w-100"></p>
             </div>
         </div>
         <div class="divDadosLancamento">

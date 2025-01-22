@@ -111,8 +111,8 @@
     <x-modal.tenant.modal-anotacao-lembrete-tenant.modal />
     <x-modal.servico.modal-servico-pagamento.modal />
     <x-modal.servico.modal-selecionar-pagamento-tipo.modal />
-    <x-modal.servico.modal-servico-participacao.modal />
-    <x-modal.servico.modal-servico-participacao-preset.modal />
+    <x-modal.comum.modal-participacao.modal />
+    <x-modal.comum.modal-participacao-preset.modal />
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
 @endpush
@@ -123,7 +123,7 @@
         'routes' => [
             'baseServico' => route('api.servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
-            'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
+            'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
             'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         ],
     ])

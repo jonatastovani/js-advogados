@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Referencias\PagamentoTipo;
@@ -103,7 +104,7 @@ class ServicoPagamento extends Model
 
     public function participantes()
     {
-        return $this->morphMany(ServicoParticipacaoParticipante::class, 'parent');
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
     protected static function boot()

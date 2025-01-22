@@ -1,23 +1,23 @@
 import { templateSearch } from "../../../commons/templates/templateSearch";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../../helpers/ServicoParticipacaoHelpers";
+import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 
-class PageServicoParticipacaoIndex extends templateSearch {
+class PageParticipacaoIndex extends templateSearch {
 
     #objConfigs = {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseServicoParticipacaoPreset,
-                urlSearch: `${window.apiRoutes.baseServicoParticipacaoPreset}/consulta-filtros`,
+                url: window.apiRoutes.baseParticipacaoPreset,
+                urlSearch: `${window.apiRoutes.baseParticipacaoPreset}/consulta-filtros`,
                 baseFront: window.frontRoutes.baseFront,
             }
         },
     };
 
     constructor() {
-        super({ sufixo: 'PageServicoParticipacaoIndex' });
+        super({ sufixo: 'PageParticipacaoIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -48,7 +48,7 @@ class PageServicoParticipacaoIndex extends templateSearch {
 
         let strBtns = self.#htmlBtns(item);
 
-        const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
+        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
@@ -110,5 +110,5 @@ class PageServicoParticipacaoIndex extends templateSearch {
 }
 
 $(function () {
-    new PageServicoParticipacaoIndex();
+    new PageParticipacaoIndex();
 });

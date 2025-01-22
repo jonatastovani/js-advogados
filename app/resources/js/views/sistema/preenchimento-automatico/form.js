@@ -21,7 +21,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
             },
         },
     };
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor() {
         const objData = {
@@ -30,7 +30,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
         this.initEvents();
     }
 
@@ -96,11 +96,11 @@ class PagePreenchimentoAutomatico extends TemplateForm {
         //     });
 
         //     if (response) {
-        //         self.#functionsServicoParticipacao._buscarParticipantes();
+        //         self.#functionsParticipacao._buscarParticipantes();
         //     }
         // });
 
-        self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
+        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
     }
 
     async preenchimentoDados(response) {

@@ -16,6 +16,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             base: window.apiRoutes.baseMovimentacaoContasGeral,
             baseLancamentoGeral: window.apiRoutes.baseLancamentoGeral,
             baseContas: window.apiRoutes.baseContas,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
         sufixo: 'ModalLancamentoGeralMovimentar',
         data: {
@@ -34,7 +35,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
         status_id: undefined,
     }
 
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor(options = {}) {
         super({
@@ -51,7 +52,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
 
         this.#addEventosPadrao();
     }
@@ -140,7 +141,6 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             const objConn = new connectAjax(self._objConfigs.url.baseLancamentoGeral);
             objConn.setParam(self._dataEnvModal.idRegister);
             const response = await objConn.getRequest();
-            console.log(response);
 
             if (response?.data) {
                 const responseData = response.data;
@@ -150,6 +150,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
                 self._objConfigs.data.valor_esperado = responseData.valor_esperado;
 
                 const numero_lancamento = responseData.numero_lancamento;
+                const categoria = responseData.categoria.nome;
                 const descricao = responseData.descricao;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
                 const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
@@ -160,14 +161,17 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
                 const data_quitado = diferenca_data <= 0 ? responseData.data_vencimento : hoje;
 
                 const form = $(self.getIdModal).find('.formRegistration');
-                form.find('.pNumeroLancamento').html(numero_lancamento);
-                form.find('.pDescricao').html(descricao);
-                form.find('.pDataVencimento').html(data_vencimento);
-                form.find('.pValor').html(pValor);
+                form.find('.pNumeroLancamento').attr('title', numero_lancamento).html(numero_lancamento);
+                form.find('.pCategoria').attr('title', categoria).html(categoria);
+                form.find('.pDataVencimento').attr('title', data_vencimento).html(data_vencimento);
+                form.find('.pValor').attr('title', pValor).html(pValor);
+                form.find('.pDescricao').attr('title', descricao).html(descricao);
                 form.find('input[name="observacao"]').val(responseData.observacao);
                 form.find('select[name="conta_id"]').val(conta_id);
                 form.find('input[name="valor_quitado"]').val(valor_esperado);
                 form.find('input[name="data_quitado"]').val(data_quitado);
+
+                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
                 return true;
             }
@@ -184,6 +188,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
         data.valor_quitado = data.valor_quitado ? commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_quitado) : null;
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);
@@ -193,8 +198,11 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
     #saveVerifications(data) {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
+        let blnSave = false;
 
-        let blnSave = commonFunctions.verificationData(data.conta_id, {
+        blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
+
+        blnSave = commonFunctions.verificationData(data.conta_id, {
             field: formRegistration.find('select[name="conta_id"]'),
             messageInvalid: 'A <b>Conta</b> deve ser selecionada.',
             setFocus: true

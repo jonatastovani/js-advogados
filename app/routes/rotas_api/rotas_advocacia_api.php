@@ -58,7 +58,7 @@ Route::group([
 
                     Route::prefix('participacao')->group(function () {
 
-                        Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+                        Route::controller(App\Http\Controllers\Comum\ParticipacaoController::class)->group(function () {
 
                             Route::get('', 'indexPagamento');
                             Route::post('', 'storePagamento');
@@ -77,7 +77,7 @@ Route::group([
 
                         Route::prefix('{lancamento_uuid}/participacao')->group(function () {
 
-                            Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+                            Route::controller(App\Http\Controllers\Comum\ParticipacaoController::class)->group(function () {
 
                                 Route::get('', 'indexLancamento');
                                 Route::post('', 'storeLancamento');
@@ -90,7 +90,7 @@ Route::group([
 
             Route::prefix('participacao')->group(function () {
 
-                Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoController::class)->group(function () {
+                Route::controller(App\Http\Controllers\Comum\ParticipacaoController::class)->group(function () {
 
                     Route::get('', 'indexServico');
                     Route::post('', 'storeServico');
@@ -105,14 +105,17 @@ Route::group([
                 });
             });
         });
+    });
+
+    Route::prefix('comum')->group(function () {
 
         Route::prefix('participacao-preset')->group(function () {
 
-            Route::controller(App\Http\Controllers\Servico\ServicoParticipacaoPresetController::class)->group(function () {
+            Route::controller(App\Http\Controllers\Comum\ParticipacaoPresetController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
 
-                Route::get('', 'index')->name('api.servico-participacao-preset');
+                Route::get('', 'index')->name('api.comum.participacao-preset');
                 Route::post('', 'store');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');

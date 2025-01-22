@@ -6,12 +6,11 @@ import { modalMessage } from "../../components/comum/modalMessage";
 import { modalPessoa } from "../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
-import { modalServicoParticipacao } from "../../components/servico/modalServicoParticipacao";
 import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { ServicoParticipacaoHelpers } from "../../helpers/ServicoParticipacaoHelpers";
+import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -19,7 +18,7 @@ import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 
 class PageServicoForm extends TemplateForm {
 
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor() {
 
@@ -56,7 +55,7 @@ class PageServicoForm extends TemplateForm {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
         this.initEvents();
     }
 
@@ -196,7 +195,7 @@ class PageServicoForm extends TemplateForm {
             });
 
             if (response) {
-                self.#functionsServicoParticipacao._buscarParticipantes();
+                self.#functionsParticipacao._buscarParticipantes();
             }
         });
 
@@ -205,7 +204,7 @@ class PageServicoForm extends TemplateForm {
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
-        self.#functionsServicoParticipacao._buscarPresetParticipacaoTenant();
+        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
     }
 
     async #inserirCliente(item) {
@@ -725,7 +724,7 @@ class PageServicoForm extends TemplateForm {
         }
 
         if (item?.participantes && item.participantes.length > 0) {
-            const arrays = ServicoParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
+            const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
             html = `
                 <p class="mb-0">
                 Participação personalizada:
@@ -780,7 +779,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoParticipacao({
+                const objModal = new modalParticipacao({
                     urlApi: `${self._objConfigs.url.basePagamentos}/${item.id}/participacao`
                 });
                 const response = await objModal.modalOpen();
@@ -837,7 +836,7 @@ class PageServicoForm extends TemplateForm {
                     const btn = $(this);
                     commonFunctions.simulateLoading(btn);
                     try {
-                        const objModal = new modalServicoParticipacao({
+                        const objModal = new modalParticipacao({
                             urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
                         });
                         const response = await objModal.modalOpen();
@@ -893,7 +892,7 @@ class PageServicoForm extends TemplateForm {
             self.#inserirCliente(item);
         });
 
-        self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+        self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
         self.#atualizaTodosValores(response.data);
     }
@@ -1030,7 +1029,7 @@ class PageServicoForm extends TemplateForm {
             participantes: self._objConfigs.data.participantesNaTela,
         }
 
-        if (self.#functionsServicoParticipacao._saveVerificationsParticipantes(data)) {
+        if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {
             const response = await self._save(data, self._objConfigs.url.baseParticipacao, {
                 action: enumAction.POST,
                 btnSave: $(`#btnSaveParticipantes${self._objConfigs.sufixo}`),
@@ -1038,7 +1037,7 @@ class PageServicoForm extends TemplateForm {
                 returnObjectSuccess: true,
             });
             if (response) {
-                self.#functionsServicoParticipacao._inserirParticipantesEIntegrantes(response.data);
+                self.#functionsParticipacao._inserirParticipantesEIntegrantes(response.data);
             }
         }
     }

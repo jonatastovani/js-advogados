@@ -3,8 +3,8 @@ import { connectAjax } from "../commons/connectAjax";
 import { modalMessage } from "../components/comum/modalMessage";
 import { modalNome } from "../components/comum/modalNome";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
-import { modalServicoParticipacaoParticipante } from "../components/servico/modalServicoParticipacaoParticipante";
-import { modalServicoParticipacaoPreset } from "../components/servico/modalServicoParticipacaoPreset";
+import { modalParticipacaoParticipante } from "../components/servico/modalParticipacaoParticipante";
+import { modalParticipacaoPreset } from "../components/servico/modalParticipacaoPreset";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -25,8 +25,8 @@ export class ParticipacaoModule {
         const self = this;
 
 
-        const openModalServicoParticipacao = async (dados_participacao) => {
-            const objModal = new modalServicoParticipacaoParticipante();
+        const openmodalParticipacao = async (dados_participacao) => {
+            const objModal = new modalParticipacaoParticipante();
             objModal.setDataEnvModal = {
                 dados_participacao: dados_participacao,
                 porcentagem_ocupada: self._objConfigs.data.porcentagem_ocupada,
@@ -49,7 +49,7 @@ export class ParticipacaoModule {
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
-                    await openModalServicoParticipacao({
+                    await openmodalParticipacao({
                         participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
                         referencia: response.selected,
                         referencia_id: response.selected.id,
@@ -75,7 +75,7 @@ export class ParticipacaoModule {
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModalNome.modalOpen();
                 if (response.refresh) {
-                    await openModalServicoParticipacao({
+                    await openmodalParticipacao({
                         participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.GRUPO,
                         nome_grupo: response.name
                     });
@@ -92,7 +92,7 @@ export class ParticipacaoModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoParticipacaoPreset();
+                const objModal = new modalParticipacaoPreset();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -428,7 +428,7 @@ export class ParticipacaoModule {
                 if (item.valor_tipo == 'porcentagem') {
                     porcentagem_ocupada -= item.valor;
                 }
-                const objModal = new modalServicoParticipacaoParticipante();
+                const objModal = new modalParticipacaoParticipante();
                 objModal.setDataEnvModal = {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,
@@ -787,6 +787,32 @@ export class ParticipacaoModule {
         );
     }
 
+    _getParticipantesNaTela() {
+        const self = this;
+        return self._objConfigs.data.participantesNaTela.map(part => {
+            let participante = {};
+            part.id ? participante.id = part.id : null;
+            participante.participacao_registro_tipo_id = part.participacao_registro_tipo_id;
+            participante.nome_grupo = part.nome_grupo;
+            participante.referencia_id = part.referencia_id;
+            participante.participacao_tipo_id = part.participacao_tipo_id;
+            participante.valor_tipo = part.valor_tipo;
+            participante.valor = part.valor;
+            participante.observacao = part.observacao;
+
+            if (part.integrantes) {
+                participante.integrantes = part.integrantes.map(integ => {
+                    let integrante = {};
+                    integ.id ? integrante.id = integ.id : null;
+                    integrante.participacao_registro_tipo_id = integ.participacao_registro_tipo_id;
+                    integrante.referencia_id = integ.referencia_id;
+                    return integrante;
+                });
+            }
+            return participante;
+        });
+    }
+
     _saveVerificationsParticipantes(data) {
         const self = this;
         let blnSave = true;
@@ -834,17 +860,23 @@ export class ParticipacaoModule {
                 idRegister: 'empresa',
                 urlApi: self._objConfigs.url.basePessoaPerfil
             });
-            console.log(responsePerfilEmpresa);
             const responseEmpresa = await self.#getRecurse({
                 idRegister: responsePerfilEmpresa.data.id,
                 urlApi: self._objConfigs.url.basePessoaPerfil
             });
-            console.log(responseEmpresa);
             const responseParticipacaoEmpresa = await self.#getRecurse({
-                idRegister: responsePerfilEmpresa.data.id,
-                urlApi: self._objConfigs.url.basePessoaPerfil
+                idRegister: 'empresa-geral',
+                urlApi: self._objConfigs.url.baseParticipacaoTipo
             });
-            console.log(responseParticipacaoEmpresa);
+            self._inserirParticipanteNaTela({
+                participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
+                referencia_id: responseEmpresa.data.id,
+                referencia: responseEmpresa.data,
+                participacao_tipo_id: responseParticipacaoEmpresa.data.id,
+                participacao_tipo: responseParticipacaoEmpresa.data,
+                valor: 100,
+                valor_tipo: 'porcentagem',
+            })
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }

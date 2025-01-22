@@ -20,28 +20,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $oldTableName = 'tenant.servico_participacao_tipo_tenants'; // Nome antigo da tabela com schema
-        $newTableName = $this->model->getTableWithoutSchema();       // Novo nome da tabela
+        $oldSchema = 'tenant'; // Schema antigo
+        $oldTableName = 'servico_participacao_tipo_tenants'; // Nome antigo da tabela sem schema
+        $newSchema = $this->model->getSchemaName(); // Novo schema
+        $newTableName = $this->model->getTableWithoutSchema(); // Novo nome da tabela sem schema
 
-        if (Schema::hasTable($oldTableName)) {
-            Schema::rename($oldTableName, $newTableName);
-        }
+        $this->alterTableSchemaAndName($oldSchema, $oldTableName, $newSchema, $newTableName);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {
         // Não terá alteração de volta
-        
-        // $oldTableName = 'servico_participacao_tipo_tenants'; // Nome antigo da tabela
-        // $newTableName = $this->model->getTableName();       // Novo nome da tabela
-
-        // if (Schema::hasTable($newTableName)) {
-        //     Schema::rename($newTableName, $oldTableName);
-        // }
     }
 };

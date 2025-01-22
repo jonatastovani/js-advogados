@@ -132,6 +132,7 @@ Route::group([
             Route::post('', 'store')->name('api.tenant.participacao-tipo-tenant');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');
+            Route::get('empresa-geral', 'getParticipacaoEmpresaLancamentoGeral');
         });
     });
 

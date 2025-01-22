@@ -6,7 +6,7 @@ use App\Enums\PessoaTipoEnum;
 use App\Models\Auth\User;
 use App\Models\Referencias\PessoaPerfilTipo;
 use App\Models\Referencias\PessoaTipo;
-use App\Models\Servico\ServicoParticipacaoPresetParticipante;
+use App\Models\Comum\ParticipacaoPresetParticipante;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -64,7 +64,7 @@ class PessoaPerfil extends Model
 
     // public function servico_participacao_participante_preset()
     // {
-    //     return $this->morphOne(ServicoParticipacaoPresetParticipante::class, 'referencia');
+    //     return $this->morphOne(ParticipacaoPresetParticipante::class, 'referencia');
     // }
 
     /**
@@ -73,8 +73,8 @@ class PessoaPerfil extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
      * @param array $options O array de opcões de personalização.
      *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
-     *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPreset.
-     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoParticipacaoPresetParticipante.
+     *              - 'aliasTable' (opcional) Alias da tabela pessoa. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Comum\ParticipacaoPreset.
+     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Comum\ParticipacaoPresetParticipante.
      * 
      * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
      */

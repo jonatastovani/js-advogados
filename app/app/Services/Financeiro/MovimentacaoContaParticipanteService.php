@@ -507,7 +507,6 @@ class MovimentacaoContaParticipanteService extends Service
         ]);
     }
 
-
     /**
      * Insere as informações de documento gerado e movimentação de repasse na movimentação de conta participante.
      *

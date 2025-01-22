@@ -74,8 +74,8 @@
 @push('modals')
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
-    <x-modal.servico.modal-servico-participacao-participante.modal />
-    <x-modal.servico.modal-servico-participacao-preset.modal />
+    <x-modal.comum.modal-participacao-participante.modal />
+    <x-modal.comum.modal-participacao-preset.modal />
     <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
@@ -84,7 +84,7 @@
         'baseMovimentacaoContas' => route('api.financeiro.movimentacao-conta.lancamentos'),
         'baseLancamento' => route('api.financeiro.lancamentos'),
         'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
-        'baseParticipacaoPreset' => route('api.servico-participacao-preset'),
+        'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
         'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         'baseContas' => route('api.tenant.conta'),
     ],

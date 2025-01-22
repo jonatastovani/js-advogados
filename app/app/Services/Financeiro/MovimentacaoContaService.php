@@ -25,28 +25,25 @@ use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
-use App\Models\Servico\ServicoParticipacaoParticipante;
-use App\Models\Servico\ServicoParticipacaoParticipanteIntegrante;
+use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
-use App\Services\Servico\ServicoParticipacaoService;
 use App\Traits\ConsultaSelect2ServiceTrait;
-use App\Traits\MovimentacaoContaServiceRepasseTrait;
-use App\Traits\ServicoParticipacaoTrait;
+use App\Traits\ParticipacaoTrait;
 use App\Utils\CurrencyFormatterUtils;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
 {
-    use ConsultaSelect2ServiceTrait, ServicoParticipacaoTrait;
+    use ConsultaSelect2ServiceTrait, ParticipacaoTrait;
 
     /**Armazenar os dados dos participantes em casos de liquidado parcial */
     private array $arrayParticipantesOriginal = [];
@@ -56,11 +53,8 @@ class MovimentacaoContaService extends Service
         public ContaTenant $modelConta,
         public MovimentacaoContaParticipante $modelParticipanteConta,
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
-        public ServicoParticipacaoParticipante $modelParticipante,
-        public ServicoParticipacaoParticipanteIntegrante $modelIntegrante,
-
-        public ServicoParticipacaoService $servicoParticipacaoService,
-        public ServicoPagamentoLancamentoService $servicoPagamentoLancamentoService,
+        public ParticipacaoParticipante $modelParticipante,
+        public ParticipacaoParticipanteIntegrante $modelIntegrante,
 
         public Servico $modelServico,
         public ServicoPagamento $modelServicoPagamento,
@@ -69,6 +63,8 @@ class MovimentacaoContaService extends Service
         public LancamentoGeralService $lancamentoGeralService,
 
         public PessoaPerfilService $pessoaPerfilService,
+
+        // public ParticipacaoTipoTenantService $participacaoTipoTenantService,
     ) {
         parent::__construct($model);
     }
@@ -335,7 +331,6 @@ class MovimentacaoContaService extends Service
                     default:
                         throw new Exception('Status inválido para o lançamento.');
                 }
-
 
                 $resource->referencia_id = $lancamento->id;
                 $resource->referencia_type = $modelParent->getMorphClass();
@@ -662,108 +657,10 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $participantes, string $idParent, Model  $modelParent, array $options = [])
-    {
-        $porcentagemRecebida = isset($options['porcentagem_recebida']) ? $options['porcentagem_recebida'] : null;
-
-        // IDs dos registros já salvos
-        $existingRegisters = $this->modelParticipante::where('parent_type', $modelParent->getMorphClass())
-            ->where('parent_id', $idParent)
-            ->pluck('id')->toArray();
-
-        // IDs enviados (exclui novos registros sem ID)
-        $submittedRegisters = collect($participantes)->pluck('id')->filter()->toArray();
-
-        // Registros ausentes no PUT devem ser excluídos
-        $idsToDelete = array_diff($existingRegisters, $submittedRegisters);
-        if ($idsToDelete) {
-            foreach ($idsToDelete as $id) {
-                $registroDelete = $this->modelParticipante::find($id);
-                if ($registroDelete) {
-                    $registroDelete->delete();
-                }
-            }
-        }
-
-        foreach ($participantes as $participante) {
-            if (isset($participante['integrantes'])) {
-                $integrantes = $participante['integrantes'];
-                unset($participante->integrantes);
-            }
-
-            if ($participante->id) {
-                $participanteUpdate = $this->modelParticipante::find($participante->id);
-                $participanteUpdate->fill($participante->toArray());
-            } else {
-                $participanteUpdate = $participante;
-                $participanteUpdate->parent_id = $idParent;
-                $participanteUpdate->parent_type = $modelParent->getMorphClass();
-            }
-
-            $valorOriginal = $participanteUpdate->valor;
-            if ($porcentagemRecebida) {
-                switch ($participanteUpdate->valor_tipo) {
-                    case 'valor_fixo':
-                        $participanteUpdate->valor = round(($participanteUpdate->valor * $porcentagemRecebida / 100), 2);
-                        break;
-                }
-            }
-
-            $participanteUpdate->save();
-            $fluent = new Fluent($participanteUpdate->toArray());
-            $fluent->valor_original = $valorOriginal;
-            $this->arrayParticipantesOriginal[] = $fluent->toArray();
-
-            if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
-
-                if (!count($integrantes)) {
-                    throw new Exception("O grupo {$participante->nome_grupo} precisa de pelo menos um integrante", 422);
-                }
-
-                $this->verificarRegistrosExcluindoIntegrantesNaoEnviado($participanteUpdate, $integrantes, $options);
-            }
-
-            $participanteUpdate->load($this->servicoParticipacaoService->loadFull());
-            $arrayRetorno[] = $participanteUpdate->toArray();
-        }
-    }
-
-    public function verificarRegistrosExcluindoIntegrantesNaoEnviado(Model $modelParticipante, array $colecao, array $options = [])
-    {
-        // IDs dos registros já salvos
-        $existingRegisters = $modelParticipante->integrantes()->pluck('id')->toArray();
-
-        // IDs enviados (exclui novos registros sem ID)
-        $submittedRegisters = collect($colecao)->pluck('id')->filter()->toArray();
-
-        // Registros ausentes no PUT devem ser excluídos
-        $idsToDelete = array_diff($existingRegisters, $submittedRegisters);
-        if ($idsToDelete) {
-            foreach ($idsToDelete as $id) {
-                $registroDelete = $this->modelIntegrante::find($id);
-                if ($registroDelete) {
-                    $registroDelete->delete();
-                }
-            }
-        }
-
-        foreach ($colecao as $integrante) {
-            if ($integrante->id) {
-                $integranteUpdate = $this->modelIntegrante::find($integrante->id);
-                $integranteUpdate->fill($integrante->toArray());
-            } else {
-                $integranteUpdate = $integrante;
-                $integranteUpdate->participante_id = $modelParticipante->id;
-            }
-
-            $integranteUpdate->save();
-        }
-    }
-
     public function alterarStatusLancamentoServico(Fluent $requestData)
     {
         $arrayErrors = new Fluent();
-        $resourceLancamento = $this->servicoPagamentoLancamentoService->buscarRecurso($requestData, ['conditions' => [
+        $resourceLancamento = app(ServicoPagamentoLancamentoService::class)->buscarRecurso($requestData, ['conditions' => [
             'id' => $requestData->lancamento_id,
         ]]);
 
@@ -902,9 +799,10 @@ class MovimentacaoContaService extends Service
 
         switch ($modelParent->getMorphClass()) {
             case $this->modelPagamentoLancamento->getMorphClass():
+            case $this->modelLancamentoGeral->getMorphClass():
 
-                $participacao = $this->verificacaoParticipacaoStore($requestData);
-                $arrayErrors = new Fluent(array_merge($arrayErrors->toArray(), $participacao->arrayErrors));
+                $participacao = $this->verificacaoParticipacaoStore($requestData, $arrayErrors);
+                $arrayErrors = $participacao->arrayErrors;
                 $resource->participantes = $participacao->participantes;
                 break;
         }
@@ -947,13 +845,13 @@ class MovimentacaoContaService extends Service
         ]);
     }
 
-    protected function verificacaoParticipacaoStore(Fluent $requestData): Fluent
+    protected function verificacaoParticipacaoStore(Fluent $requestData, Fluent $arrayErrors): Fluent
     {
-        $participantesData = $this->verificacaoParticipantes($requestData->participantes);
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $arrayErrors);
 
         $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
-        $arrayErrors =  $participantesData->arrayErrors->toArray();
+        $arrayErrors = $participantesData->arrayErrors;
         $participantes = $participantesData->participantes;
 
         if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
@@ -977,11 +875,15 @@ class MovimentacaoContaService extends Service
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+                $participantes = $resource->participantes;
+                unset($resource->participantes);
 
                 $lancamento = $modelParent::find($idParent);
 
                 switch ($requestData->status_id) {
                     case LancamentoStatusTipoEnum::LIQUIDADO->value:
+
+                        $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $idParent, $modelParent);
 
                         $lancamento->conta_id = $requestData->conta_id;
                         $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO->value;
@@ -1018,12 +920,15 @@ class MovimentacaoContaService extends Service
                 $resource->saldo_atualizado = $novoSaldo;
                 $resource->save();
 
-                // Inserir o participante empresa para a movimentação
-                $this->inserirParticipanteEmpresaNoLancamento([
-                    'parent_id' => $resource->id,
-                    'descricao_automatica' => "Empresa",
-                    'valor' => $resource->valor_movimentado
-                ]);
+                $participantesComIntegrantes = $lancamento->participantes()->with('integrantes')->get();
+                $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray());
+
+                // // Inserir o participante empresa para a movimentação
+                // $this->inserirParticipanteEmpresaNoLancamento([
+                //     'parent_id' => $resource->id,
+                //     'descricao_automatica' => "Empresa",
+                //     'valor' => $resource->valor_movimentado
+                // ]);
 
                 return $resource->toArray();
             });
@@ -1032,33 +937,30 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    private function inserirParticipanteEmpresaNoLancamento($dados)
-    {
+    // private function inserirParticipanteEmpresaNoLancamento($dados)
+    // {
 
-        $empresa = $this->pessoaPerfilService->showEmpresa();
-        if (!is_array($empresa) || empty($empresa)) {
-            throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
-        }
+    //     $empresa = $this->pessoaPerfilService->showEmpresa();
+    //     if (!is_array($empresa) || empty($empresa)) {
+    //         throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
+    //     }
 
-        $participacaoEmpresaMovimentacao = ParticipacaoTipoTenant::where('configuracao->tag', 'participacao_empresa_movimentacao')->where('configuracao->tipo', ParticipacaoTipoTenantConfiguracaoTipoEnum::LANCAMENTO_GERAL)->first();
-        if (!$participacaoEmpresaMovimentacao) {
-            throw new Exception('Tipo de Participação da empresa não foi configurada. Favor consultar o desenvolvedor.');
-        }
+    //     $participacaoEmpresaMovimentacao = $this->participacaoTipoTenantService->getParticipacaoEmpresaLancamentoGeral();
 
-        $newParticipante = new $this->modelParticipanteConta;
-        $newParticipante->parent_id = $dados['parent_id'];
-        $newParticipante->parent_type = $this->model->getMorphClass();
-        $newParticipante->referencia_id = $empresa['id'];
-        $newParticipante->referencia_type = PessoaPerfil::class;
-        $newParticipante->descricao_automatica = $dados['descricao_automatica'];
-        $newParticipante->valor_participante = $dados['valor'];
-        $newParticipante->participacao_tipo_id = $participacaoEmpresaMovimentacao->id;
-        $newParticipante->participacao_registro_tipo_id = ParticipacaoRegistroTipoEnum::PERFIL;
-        $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
+    //     $newParticipante = new $this->modelParticipanteConta;
+    //     $newParticipante->parent_id = $dados['parent_id'];
+    //     $newParticipante->parent_type = $this->model->getMorphClass();
+    //     $newParticipante->referencia_id = $empresa['id'];
+    //     $newParticipante->referencia_type = PessoaPerfil::class;
+    //     $newParticipante->descricao_automatica = $dados['descricao_automatica'];
+    //     $newParticipante->valor_participante = $dados['valor'];
+    //     $newParticipante->participacao_tipo_id = $participacaoEmpresaMovimentacao['id'];
+    //     $newParticipante->participacao_registro_tipo_id = ParticipacaoRegistroTipoEnum::PERFIL;
+    //     $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
 
-        $newParticipante->save();
-        return $newParticipante;
-    }
+    //     $newParticipante->save();
+    //     return $newParticipante;
+    // }
 
     public function alterarStatusLancamentoGeral(Fluent $requestData)
     {

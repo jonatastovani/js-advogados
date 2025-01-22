@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\ParticipacaoTipoTenant\ParticipacaoTipoTenantFormRequestGetParticipacaoEmpresaLancamentoGeral;
 use App\Http\Requests\Tenant\ParticipacaoTipoTenant\PostConsultaFiltroFormRequestParticipacaoTipoTenant;
 use App\Http\Requests\Tenant\ParticipacaoTipoTenant\ParticipacaoTipoTenantFormRequestIndex;
 use App\Http\Requests\Tenant\ParticipacaoTipoTenant\ParticipacaoTipoTenantFormRequestShow;
@@ -46,5 +47,11 @@ class ParticipacaoTipoTenantController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->update($fluentData));
+    }
+
+    public function getParticipacaoEmpresaLancamentoGeral(ParticipacaoTipoTenantFormRequestGetParticipacaoEmpresaLancamentoGeral $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->getParticipacaoEmpresaLancamentoGeral($fluentData));
     }
 }

@@ -7,14 +7,14 @@ import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 
-class PageServicoParticipacaoPresetForm {
+class PageParticipacaoPresetForm {
 
     _objConfigs = {
         url: {
             base: window.apiRoutes.baseParticipacaoPreset,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
-        sufixo: 'PageServicoParticipacaoPresetForm',
+        sufixo: 'PageParticipacaoPresetForm',
         data: {
             porcentagemOcupada: 0,
             participantesNaTela: [],
@@ -25,14 +25,14 @@ class PageServicoParticipacaoPresetForm {
     };
     #action;
     #idRegister;
-    #functionsServicoParticipacao;
+    #functionsParticipacao;
 
     constructor() {
         this.initEvents();
         const objData = {
             objConfigs: this._objConfigs,
         }
-        this.#functionsServicoParticipacao = new ParticipacaoModule(this, objData);
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
     }
 
     initEvents() {
@@ -140,10 +140,10 @@ class PageServicoParticipacaoPresetForm {
                     responseData.participantes.map(async (participante) => {
                         const integrantes = participante.integrantes ?? [];
                         delete participante.integrantes;
-                        const item = await self.#functionsServicoParticipacao._inserirParticipanteNaTela(participante);
+                        const item = await self.#functionsParticipacao._inserirParticipanteNaTela(participante);
                         await Promise.all(
                             integrantes.map(async (integrante) => {
-                                await self.#functionsServicoParticipacao._inserirIntegrante(item, integrante);
+                                await self.#functionsParticipacao._inserirIntegrante(item, integrante);
                             })
                         );
                     })
@@ -174,5 +174,5 @@ class PageServicoParticipacaoPresetForm {
 }
 
 $(function () {
-    new PageServicoParticipacaoPresetForm();
+    new PageParticipacaoPresetForm();
 });

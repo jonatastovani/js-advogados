@@ -39,7 +39,7 @@
 
 <div class="row row-cols-1 row-cols-md-2">
     <div class="col mt-2">
-        <label for="valor_esperado{{ $sufixo }}" class="form-label">Valor Pagamento*</label>
+        <label for="valor_esperado{{ $sufixo }}" class="form-label">Valor*</label>
         <div class="input-group">
             <div class="input-group-text"><label for="valor_esperado{{ $sufixo }}">R$</label></div>
             <input type="text" id="valor_esperado{{ $sufixo }}" name="valor_esperado"
