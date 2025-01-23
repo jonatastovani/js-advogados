@@ -199,6 +199,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
+            case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
                 if (item.movimentacao_conta_participante && item.movimentacao_conta_participante.length &&
                     (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
                 ) {
@@ -252,13 +253,15 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 </li>`;
         }
 
-        strBtns = `
+        if (strBtns) {
+            strBtns = `
             <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu">
                 ${strBtns}
             </ul>`;
+        }
 
         return strBtns;
     }
@@ -334,7 +337,6 @@ class PageMovimentacaoContaIndex extends templateSearch {
             return false;
         }
     }
-
 }
 
 $(function () {
