@@ -7,6 +7,7 @@ use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LancamentoAgendamentoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoAgendamento;
 use App\Models\Financeiro\LancamentoGeral;
@@ -14,6 +15,7 @@ use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use App\Traits\CronValidationTrait;
+use App\Traits\ParticipacaoTrait;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -22,10 +24,14 @@ use Illuminate\Support\Fluent;
 
 class LancamentoAgendamentoService extends Service
 {
-    use CronValidationTrait;
+    use ParticipacaoTrait, CronValidationTrait;
 
-    public function __construct(LancamentoAgendamento $model)
-    {
+    public function __construct(
+        LancamentoAgendamento $model,
+
+        public ParticipacaoParticipante $modelParticipante,
+        // public ParticipacaoParticipanteIntegrante $modelIntegrante,
+    ) {
         parent::__construct($model);
     }
 
@@ -156,8 +162,14 @@ class LancamentoAgendamentoService extends Service
 
         try {
             return DB::transaction(function () use ($resource) {
+                $participantes = $resource->participantes;
+                unset($resource->participantes);
 
+                $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
                 $resource->save();
+
+                $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
                 LancamentoAgendamentoHelper::processarAgendamento($resource->id);
 
                 // $this->executarEventoWebsocket();
@@ -174,7 +186,12 @@ class LancamentoAgendamentoService extends Service
 
         try {
             return DB::transaction(function () use ($resource, $requestData) {
+                $participantes = $resource->participantes;
+                unset($resource->participantes);
 
+                $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
+                // Se for resetar a execução, deleta-se todos os agendamentos futuros que não estiverem quitados
                 if ($requestData->resetar_execucao_bln) {
                     $resource->cron_ultima_execucao = null;
                     $resource->save();
@@ -240,8 +257,16 @@ class LancamentoAgendamentoService extends Service
             $resource->cron_data_fim = null;
         }
 
-        // após alterar, zera a última execuçãof
-        $resource->cron_ultima_execucao = null;
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $arrayErrors);
+
+        $porcentagemOcupada = $participantesData->porcentagem_ocupada;
+        $porcentagemOcupada = round($porcentagemOcupada, 2);
+        $arrayErrors = $participantesData->arrayErrors;
+        $resource->participantes = $participantesData->participantes;
+
+        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
+        }
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
@@ -270,6 +295,12 @@ class LancamentoAgendamentoService extends Service
             'movimentacao_tipo',
             'categoria',
             'conta',
+            'participantes.participacao_tipo',
+            'participantes.integrantes.referencia.perfil_tipo',
+            'participantes.integrantes.referencia.pessoa.pessoa_dados',
+            'participantes.referencia.perfil_tipo',
+            'participantes.referencia.pessoa.pessoa_dados',
+            'participantes.participacao_registro_tipo',
         ];
     }
 

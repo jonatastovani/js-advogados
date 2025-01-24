@@ -184,17 +184,10 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 break;
         }
 
-        let classCor = '';
-        // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
-        //     if (StatusLancamento.id == item.status_id) {
-        //         classCor = StatusLancamento.cor ?? '';
-        //         break;
-        //     }
-        // }     
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         let htmlThParticipantesIntegrantes = `
-            <td class="text-center ${classCor}">***</td>
+            <td class="text-center">***</td>
         `;
 
         switch (item.referencia_type) {
@@ -205,7 +198,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 ) {
                     const arrays = ParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante);
                     htmlThParticipantesIntegrantes = `
-                        <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes da Movimentação ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes da Movimentação ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                     `;
                 }
                 break;
@@ -221,16 +214,16 @@ class PageMovimentacaoContaIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorMovimentado}">${valorMovimentado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
+                <td class="text-nowrap text-center" title="${valorMovimentado}">${valorMovimentado}</td>
+                <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
+                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${observacaoLancamento}">${observacaoLancamento}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificos}">${dadosEspecificos}</td>
                 ${htmlThParticipantesIntegrantes}
-                <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
+                <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 

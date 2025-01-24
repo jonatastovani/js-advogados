@@ -35,7 +35,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL,
             },
         },
-        modoAgendamento: false,
+        modoOperacao: undefined,
     };
 
     /** 
@@ -64,8 +64,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             }
         }
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
-        if (options.modoAgendamento) {
-            this._objConfigs.modoAgendamento = true;
+        if (options.modoOperacao) {
+            this._objConfigs.modoOperacao = options.modoOperacao;
             this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
         } else {
             this._objConfigs.url.base = this._objConfigs.url.baseLancamentoGeral;
@@ -165,31 +165,55 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
         commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
-        if (self._objConfigs.modoAgendamento) {
-            self._updateModalTitle('Agendamento');
-            self.#visualizacaoModoAgendamento(true);
-            // Evento para monitorar mudanças no checkbox `ckbRecorrente`
-            modal.find(`input[name="recorrente_bln"]`).on('change', function () {
-                self.#toggleCronInputs($(this).is(':checked'));
-                self.#gerarCronExpressao();
-            });
+        switch (self._objConfigs.modoOperacao) {
+            case 'agendamento':
+                self._updateModalTitle('Agendamento');
+                self.#visualizacaoModoOperacaoAgendamento(true);
 
-            // aqui vai a ação dos elementos inputs e selects do cron
-            modal.find('.dadosCron .inputCron').on('change', function () {
-                self.#gerarCronExpressao();
-            });
-        } else {
-            self.#visualizacaoModoAgendamento(false);
+                // Evento para monitorar mudanças no checkbox `ckbRecorrente`
+                modal.find(`input[name="recorrente_bln"]`).on('change', function () {
+                    self.#toggleCronInputs($(this).is(':checked'));
+                    self.#gerarCronExpressao();
+                });
+
+                // Ação dos elementos inputs e selects do cron
+                modal.find('.dadosCron .inputCron').on('change', function () {
+                    self.#gerarCronExpressao();
+                });
+
+                break;
+
+            case 'ressarcimento':
+                self._updateModalTitle('Ressarcimento');
+                self.#visualizacaoModoOperacaoAgendamento(false);
+
+                break;
+
+            default:
+                self.#visualizacaoModoOperacaoAgendamento(false);
+
+                break;
         }
+        self.#visualizacaoGuiaParticipantes();
     }
 
-    #visualizacaoModoAgendamento(status) {
+    #visualizacaoModoOperacaoAgendamento(status) {
         const self = this;
 
         if (status) {
             $(self.getIdModal).find(`.modoAgendamento`).css('display', '');
         } else {
             $(self.getIdModal).find(`.modoAgendamento`).hide('fast');
+        }
+    }
+
+    #visualizacaoGuiaParticipantes() {
+        const self = this;
+
+        if (self.#functionsParticipacao.getExibirPainelParticipantesPersonalizaveisBln) {
+            $(self.getIdModal).find(`.guiaParticipantes`).css('display', '');
+        } else {
+            $(self.getIdModal).find(`.guiaParticipantes`).hide('fast');
         }
     }
 
@@ -341,28 +365,38 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
                 const form = $(self.getIdModal).find('.formRegistration');
 
-                if (self._objConfigs.modoAgendamento) {
-                    self._updateModalTitle(`Editar agendamento`);
-                    form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
-                    form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
-                    if (responseData.recorrente_bln) {
-                        const arrCron = responseData.cron_expressao.split(' ');
-                        if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
-                            console.error('A expressão cron é inválida.', responseData.cron_expressao);
-                        } else {
-                            form.find('select[name="cronDay"]').val(arrCron[2]);
-                            form.find('select[name="cronMonth"]').val(arrCron[3]);
-                            form.find('select[name="cronWeekday"]').val(arrCron[4]);
-                        }
-                        self.#gerarCronExpressao();
-                        form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
-                        form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
+                switch (self._objConfigs.modoOperacao) {
+                    case 'agendamento':
+                        self._updateModalTitle(`Editar agendamento`);
+                        form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
+                        form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
+                        if (responseData.recorrente_bln) {
+                            const arrCron = responseData.cron_expressao.split(' ');
+                            if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
+                                console.error('A expressão cron é inválida.', responseData.cron_expressao);
+                            } else {
+                                form.find('select[name="cronDay"]').val(arrCron[2]);
+                                form.find('select[name="cronMonth"]').val(arrCron[3]);
+                                form.find('select[name="cronWeekday"]').val(arrCron[4]);
+                            }
+                            self.#gerarCronExpressao();
+                            form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
+                            form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
 
-                        self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
-                    }
-                } else {
-                    self._updateModalTitle(`Editar lancamento ${numero_lancamento}`);
+                            self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
+                        }
+                        break;
+
+                    case 'ressarcimento':
+                        self._updateModalTitle(`Editar ressarcimento ${numero_lancamento}`);
+
+                        break;
+
+                    default:
+                        self._updateModalTitle(`Editar lancamento ${numero_lancamento}`);
+                        break;
                 }
+                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
                 form.find('select[name="conta_id"]').val(responseData.conta_id);
                 form.find('select[name="categoria_id"]').val(responseData.categoria_id);
@@ -371,8 +405,6 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 form.find('input[name="valor_esperado').val(valor_esperado);
                 form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
                 form.find('input[name="observacao"]').val(responseData.observacao);
-
-                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
                 return true;
             }
@@ -427,10 +459,6 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         data.valor_esperado = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
         data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
 
-        if (self._objConfigs.modoAgendamento) {
-            data.cron_expressao = self._objConfigs.data.cronExpressao;
-        }
-
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);
         }
@@ -439,15 +467,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     #saveVerifications(data) {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let blnSave = false;
 
-        blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
-
-        blnSave = commonFunctions.verificationData(data.movimentacao_tipo_id, {
+        let blnSave = commonFunctions.verificationData(data.movimentacao_tipo_id, {
             field: formRegistration.find('select[name="movimentacao_tipo_id"]'),
             messageInvalid: 'O tipo de movimentação deve ser selecionado.',
-            setFocus: blnSave == true,
-            returnForcedFalse: blnSave == false
         });
 
         blnSave = commonFunctions.verificationData(data.categoria_id, {
@@ -478,7 +501,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             returnForcedFalse: blnSave == false
         });
 
-        if (self._objConfigs.modoAgendamento && (data.recorrente_bln && data.recorrente_bln == true)) {
+        if (self._objConfigs.modoOperacao == 'agendamento' && (data.recorrente_bln && data.recorrente_bln == true)) {
             if (!self._objConfigs.data.cronExpressao) {
                 blnSave = commonFunctions.verificationData(self._objConfigs.data.cronExpressao, {
                     field: formRegistration.find('select[name="cronDay"]'),
@@ -495,6 +518,9 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 returnForcedFalse: blnSave == false
             });
         }
+
+        blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data, blnSave);
+
         return blnSave;
     }
 }

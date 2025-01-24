@@ -114,7 +114,7 @@ class LancamentoAgendamentoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({ modoAgendamento: true });
+                const objModal = new modalLancamentoGeral({ modoOperacao: 'agendamento' });
                 // objModal.setDataEnvModal = {
                 //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
                 //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
@@ -221,7 +221,7 @@ class LancamentoAgendamentoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({ modoAgendamento: true });
+                const objModal = new modalLancamentoGeral({ modoOperacao: 'agendamento' });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }

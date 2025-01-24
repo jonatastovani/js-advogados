@@ -10,6 +10,11 @@ import { UUIDHelper } from "../helpers/UUIDHelper";
 
 export class ParticipacaoModule {
 
+    #objConfigs = {
+        operacaoComParticipantesPersonalizaveis: [
+            'ressarcimento',
+        ]
+    };
     _objConfigs;
     _parentInstance;
     _extraConfigs;
@@ -19,6 +24,13 @@ export class ParticipacaoModule {
         this._parentInstance = parentInstance;
         this._extraConfigs = objData.extraConfigs;
         this.#addEventosBotoes();
+    }
+
+    get getExibirPainelParticipantesPersonalizaveisBln() {
+        if (this.#objConfigs.operacaoComParticipantesPersonalizaveis.includes(this._objConfigs.modoOperacao)) {
+            return true;
+        }
+        return false;
     }
 
     #addEventosBotoes() {
@@ -358,6 +370,11 @@ export class ParticipacaoModule {
         await self.#addEventoParticipante(item);
         await self._atualizaPorcentagemLivre(item);
         return item;
+    }
+
+    _inserirObjetoParticipanteNaTela(item) {
+        const self = this;
+        self._objConfigs.data.participantesNaTela.push(item);
     }
 
     async #atualizaParticipanteNaTela(item) {
@@ -813,9 +830,8 @@ export class ParticipacaoModule {
         });
     }
 
-    _saveVerificationsParticipantes(data) {
+    _saveVerificationsParticipantes(data, blnSave = true) {
         const self = this;
-        let blnSave = true;
 
         let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
         if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
@@ -868,7 +884,11 @@ export class ParticipacaoModule {
                 idRegister: 'empresa-geral',
                 urlApi: self._objConfigs.url.baseParticipacaoTipo
             });
-            self._inserirParticipanteNaTela({
+
+            let nomeFuncao = self.getExibirPainelParticipantesPersonalizaveisBln ?
+                '_inserirParticipanteNaTela' : '_inserirObjetoParticipanteNaTela';
+
+            self[nomeFuncao]({
                 participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
                 referencia_id: responseEmpresa.data.id,
                 referencia: responseEmpresa.data,

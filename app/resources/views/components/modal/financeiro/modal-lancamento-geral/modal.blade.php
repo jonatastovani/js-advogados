@@ -28,7 +28,7 @@
                                     aria-controls="agendamento{{ $sufixo }}-tab-pane" aria-selected="false">Dados
                                     Agendamento</button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item guiaParticipantes" role="presentation">
                                 <button class="nav-link px-2" id="participantes{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#participantes{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
@@ -58,7 +58,7 @@
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
+                        <div class="tab-pane fade h-100 guiaParticipantes" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral.painel-participantes',

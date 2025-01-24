@@ -48,14 +48,14 @@ class ParticipacaoTipoTenantService extends Service
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
-    public function select2(Request $request)
-    {
-        $dados = new Fluent([
-            'camposFiltros' => ['nome', 'descricao'],
-        ]);
+    // public function select2(Request $request)
+    // {
+    //     $dados = new Fluent([
+    //         'camposFiltros' => ['nome', 'descricao'],
+    //     ]);
 
-        return $this->executaConsultaSelect2($request, $dados);
-    }
+    //     return $this->executaConsultaSelect2($request, $dados);
+    // }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -86,11 +86,16 @@ class ParticipacaoTipoTenantService extends Service
     {
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
-            $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este tipo de atuação já existe.', $requestData->toArray());
+            $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este tipo de participação já existe.', $requestData->toArray());
             return RestResponse::createErrorResponse(409, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
+        if ($resource->bloqueado_para_usuario_comum && $resource->bloqueado_para_usuario_comum == true) {
+            $arrayErrors =  LogHelper::gerarLogDinamico(422, 'A edição deste tipo de Participação é somente para administradores.', $requestData->toArray());
+            return RestResponse::createErrorResponse(422, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+        }
+        
         $resource->nome = $requestData->nome;
         $resource->descricao = $requestData->descricao;
         $resource->tipo = $requestData->configuracao['tipo'];
@@ -110,7 +115,7 @@ class ParticipacaoTipoTenantService extends Service
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [
-            'message' => 'O Tipo de Atuação não foi encontrado.',
+            'message' => 'O Tipo de Participação não foi encontrado.',
         ]);
     }
 

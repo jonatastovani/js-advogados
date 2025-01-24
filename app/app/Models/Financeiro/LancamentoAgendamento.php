@@ -2,6 +2,7 @@
 
 namespace App\Models\Financeiro;
 
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
@@ -51,7 +52,7 @@ class LancamentoAgendamento extends Model
         'deleted_user_id',
         'deleted_ip',
         'deleted_at',
-        'tenant_id', 
+        'tenant_id',
         'domain_id',
     ];
 
@@ -73,5 +74,10 @@ class LancamentoAgendamento extends Model
     public function agendamento()
     {
         return $this->belongsTo(LancamentoAgendamento::class);
+    }
+
+    public function participantes()
+    {
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 }

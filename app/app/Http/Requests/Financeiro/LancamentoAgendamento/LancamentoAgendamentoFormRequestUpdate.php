@@ -14,6 +14,10 @@ class LancamentoAgendamentoFormRequestUpdate extends LancamentoAgendamentoFormRe
 
     public function rules()
     {
-        return array_merge(parent::rules(), ['resetar_execucao_bln' => 'nullable|boolean']);
+        return  array_merge(parent::rules(), [
+            'resetar_execucao_bln' => 'nullable|boolean',
+            'participantes.*.id' => 'nullable|uuid',
+            // 'participantes.*.integrantes.*.id' => 'nullable|uuid',
+        ]);
     }
 }
