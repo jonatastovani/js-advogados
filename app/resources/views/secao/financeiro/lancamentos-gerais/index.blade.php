@@ -96,8 +96,8 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
-            consulta</button>
+        {{-- <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
+            consulta</button> --}}
         <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
             lançamento</button>
     </div>
@@ -146,12 +146,6 @@
             'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
             'baseContas' => route('api.tenant.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
-        ],
-    ])
-    @endcomponent
-    @component('components.pagina.front-routes', [
-        'routes' => [
-            'baseFront' => route('financeiro.index'),
         ],
     ])
     @endcomponent

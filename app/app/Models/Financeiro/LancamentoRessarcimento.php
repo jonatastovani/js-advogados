@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Models\Financeiro;
+
+use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Referencias\LancamentoStatusTipo;
+use App\Models\Referencias\MovimentacaoContaTipo;
+use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\LancamentoCategoriaTipoTenant;
+use App\Traits\BelongsToDomain;
+use App\Traits\CommonsModelsMethodsTrait;
+use App\Traits\ModelsLogsTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+
+class LancamentoRessarcimento extends Model
+{
+    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain;
+
+    protected $table = 'financeiro.lancamento_ressarcimentos';
+    protected $tableAsName = 'lanc_ressar';
+    // Variável estática para armazenar a sequência temporariamente
+    protected static $sequenciaTemporaria;
+
+    protected $casts = [
+        'valor_esperado' => 'float',
+        'valor_quitado' => 'float',
+    ];
+
+    protected $fillable = [
+        'movimentacao_tipo_id',
+        'descricao',
+        'valor_esperado',
+        'data_vencimento',
+        'categoria_id',
+        'conta_id',
+        'observacao',
+        'agendamento_id',
+        'status_id',
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+    ];
+
+    // Define as colunas padrão a serem ocultadas
+    protected $hidden = [
+        'tenant_id',
+        'domain_id',
+        'created_user_id',
+        'created_ip',
+        // 'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+
+    public function movimentacao_tipo()
+    {
+        return $this->belongsTo(MovimentacaoContaTipo::class);
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(LancamentoCategoriaTipoTenant::class);
+    }
+
+    public function conta()
+    {
+        return $this->belongsTo(ContaTenant::class);
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(LancamentoStatusTipo::class);
+    }
+
+    public function agendamento()
+    {
+        return $this->belongsTo(LancamentoAgendamento::class);
+    }
+
+    public function participantes()
+    {
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (Model $model) {
+            // Verifica se já foi informado um número e ano
+            if (!$model->numero_ressarcimento) {
+                $tenantId = $model->tenant_id ?? tenant('id');
+                $sequencia = NumeracaoSequencialHelper::obterProximoNumero('lancamento_ressarcimento', $tenantId);
+                // Preenche o campo numero_ressarcimento com o número obtido
+                $model->numero_ressarcimento = $sequencia['numero'];
+
+                // Armazena a sequência temporariamente para ser usada após a criação
+                self::$sequenciaTemporaria = $sequencia;
+            }
+        });
+
+        static::created(function (Model $model) {
+            // Após a criação bem-sucedida, confirma a numeração sequencial
+            if (self::$sequenciaTemporaria) {
+                NumeracaoSequencialHelper::confirmarNumeracao(self::$sequenciaTemporaria['registroNumeracao']);
+                // Limpa a sequência temporária
+                self::$sequenciaTemporaria = null;
+            }
+        });
+    }
+}

@@ -24,6 +24,7 @@
         TiposMovimentacaoParaLancamentos: @json(\App\Enums\MovimentacaoContaTipoEnum::tiposMovimentacaoParaLancamentos()),
         MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusParaFiltrosFrontEnd()),
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoGeral()),
+        LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoRessarcimento: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoRessarcimento()),
         MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
         PessoaPerfilTipoRotasPessoaPerfilFormFront: @json(\App\Enums\PessoaPerfilTipoEnum::rotasPessoaPerfilFormFront()),
         PerfisPermitidoClienteServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoClienteServico()),

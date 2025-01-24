@@ -10,9 +10,9 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
 
         Route::prefix('lancamentos')->group(function () {
 
-            Route::prefix('servicos')->group(function () {
+            Route::prefix('agendamentos')->group(function () {
 
-                Route::get('', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
+                Route::get('', 'lancamentosAgendamentosIndex')->name('financeiro.lancamentos-agendamentos.index');
             });
 
             Route::prefix('gerais')->group(function () {
@@ -20,9 +20,14 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
                 Route::get('', 'lancamentosGeraisIndex')->name('financeiro.lancamentos-gerais.index');
             });
 
-            Route::prefix('agendamentos')->group(function () {
+            Route::prefix('ressarcimentos')->group(function () {
 
-                Route::get('', 'lancamentosAgendamentosIndex')->name('financeiro.lancamentos-agendamentos.index');
+                Route::get('', 'lancamentosRessarcimentosIndex')->name('financeiro.lancamentos-ressarcimentos.index');
+            });
+
+            Route::prefix('servicos')->group(function () {
+
+                Route::get('', 'lancamentosServicosIndex')->name('financeiro.lancamentos-servicos.index');
             });
         });
 

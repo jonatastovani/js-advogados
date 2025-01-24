@@ -14,13 +14,17 @@ Route::group([
 
         Route::get('', function () {})->name('api.financeiro.lancamentos');
 
-        Route::prefix('servicos')->group(function () {
+        Route::prefix('agendamento')->group(function () {
 
-            Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
+            Route::controller(App\Http\Controllers\Financeiro\LancamentoAgendamentoController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
-                Route::post('{uuid}', 'show');
-                Route::put('reagendar/{uuid}', 'storeLancamentoReagendadoServico');
+
+                Route::get('', 'index');
+                Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-agendamento');
+                Route::get('{uuid}', 'show');
+                Route::put('{uuid}', 'update');
+                Route::delete('{uuid}', 'destroy');
             });
         });
 
@@ -39,17 +43,28 @@ Route::group([
             });
         });
 
-        Route::prefix('agendamento')->group(function () {
+        Route::prefix('ressarcimentos')->group(function () {
 
-            Route::controller(App\Http\Controllers\Financeiro\LancamentoAgendamentoController::class)->group(function () {
+            Route::controller(App\Http\Controllers\Financeiro\LancamentoRessarcimentoController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
 
                 Route::get('', 'index');
-                Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-agendamento');
+                Route::post('', 'store')->name('api.financeiro.lancamentos.lancamento-ressarcimento');
                 Route::get('{uuid}', 'show');
                 Route::put('{uuid}', 'update');
+                Route::put('reagendar/{uuid}', 'updateLancamentoRessarcimentoReagendado');
                 Route::delete('{uuid}', 'destroy');
+            });
+        });
+
+        Route::prefix('servicos')->group(function () {
+
+            Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
+
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+                Route::post('{uuid}', 'show');
+                Route::put('reagendar/{uuid}', 'storeLancamentoReagendadoServico');
             });
         });
     });

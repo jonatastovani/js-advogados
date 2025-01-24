@@ -173,6 +173,11 @@ enum LancamentoStatusTipoEnum: int
         return self::AGUARDANDO_PAGAMENTO->value;
     }
 
+    static public function statusPadraoSalvamentoLancamentoRessarcimento(): int
+    {
+        return self::AGUARDANDO_PAGAMENTO->value;
+    }
+
     static public function statusPadraoLiquidadoParcialNovaDiluicao(): int
     {
         return self::AGUARDANDO_PAGAMENTO->value;
@@ -260,11 +265,37 @@ enum LancamentoStatusTipoEnum: int
     }
 
     /**
+     * Status que não serão permitidos atribuir, como status de reagendado e liquidado parcialmente.
+     */
+    static public function statusNaoPermitidoParaLancamentoRessarcimento(): array
+    {
+        return [
+            self::REAGENDADO_EM_ANALISE->value,
+            self::REAGENDADO->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
+
+    /**
      * Retorna os status que serão exibidos nos filtros do front-end.
      */
     static public function statusParaFiltrosFrontEndLancamentoGeral(): array
     {
         $ocultos = self::statusNaoPermitidoParaLancamentoGeral();
+
+        return array_values(array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => !in_array($detalhe['id'], $ocultos)
+        ));
+    }
+
+    /**
+     * Retorna os status que serão exibidos nos filtros do front-end.
+     */
+    static public function statusParaFiltrosFrontEndLancamentoRessarcimento(): array
+    {
+        $ocultos = self::statusNaoPermitidoParaLancamentoRessarcimento();
 
         return array_values(array_filter(
             self::staticDetailsToArray(),

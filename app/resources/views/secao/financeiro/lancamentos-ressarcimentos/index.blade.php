@@ -1,10 +1,10 @@
 @php
-    $sufixo = 'LancamentoAgendamentoIndex';
+    $sufixo = 'PageLancamentoRessarcimentoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Agendamento de lançamentos',
+        'nome' => 'Lançamentos de Ressarcimentos',
         'descricao' => [
             [
-                'texto' => 'Agendamento de lançamentos de caráter geral.',
+                'texto' => 'Ressarcimento/compensação da empresa para parceiros e vice-versa.',
             ],
         ],
     ]);
@@ -47,6 +47,16 @@
                     ],
                     [
                         'tipo' => 'select',
+                        'nome' => 'lancamento_status_tipo_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='lancamento_status_tipo_id{$sufixo}'>Status</label></span>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'select',
                         'nome' => 'conta_id',
                         'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
                         'input_group' => [
@@ -73,56 +83,6 @@
                             ],
                         ],
                     ],
-                    [
-                        'tipo' => 'radio',
-                        'nome' => 'ativo_bln',
-                        'opcoes' => [
-                            [
-                                'id' => "rbStatusTodos{$sufixo}",
-                                'valor' => '',
-                                'label' => 'Todos os tipos',
-                                'checked' => true,
-                                'title' => 'Todos os tipos de agendamentos',
-                            ],
-                            [
-                                'id' => "rbStatusAtivo{$sufixo}",
-                                'valor' => '1',
-                                'label' => 'Ativos',
-                                'title' => 'Agendamentos ativos',
-                            ],
-                            [
-                                'id' => "rbStatusInativo{$sufixo}",
-                                'valor' => '0',
-                                'label' => 'Inativos',
-                                'title' => 'Agendamentos inativos',
-                            ],
-                        ],
-                    ],
-                    [
-                        'tipo' => 'radio',
-                        'nome' => 'recorrente_bln',
-                        'opcoes' => [
-                            [
-                                'id' => "rbRecorrenteTodos{$sufixo}",
-                                'valor' => '',
-                                'label' => 'Todos os status',
-                                'checked' => true,
-                                'title' => 'Todos os status de agendamentos',
-                            ],
-                            [
-                                'id' => "rbRecorrenteSim{$sufixo}",
-                                'valor' => '1',
-                                'label' => 'Recorrentes',
-                                'title' => 'Somente registros recorrentes',
-                            ],
-                            [
-                                'id' => "rbRecorrenteNao{$sufixo}",
-                                'valor' => '0',
-                                'label' => 'Não recorrentes',
-                                'title' => 'Somente registros não recorrentes',
-                            ],
-                        ],
-                    ],
                 ],
             ]);
         @endphp
@@ -130,8 +90,10 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
-            agendamento</button>
+        {{-- <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
+            consulta</button> --}}
+        <button id="btnInserirRessarcimento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
+            ressarcimento</button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">
@@ -140,12 +102,14 @@
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
+                    <th class="text-nowrap">Status</th>
+                    <th class="text-center" title="Número do Lançamento">N.L.</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Categoria</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap">Data Vencimento</th>
-                    <th class="text-nowrap">Recorrente</th>
-                    <th class="text-nowrap">Ativo</th>
+                    <th class="text-nowrap">Valor Quitado</th>
+                    <th class="text-nowrap">Data Quitado</th>
                     <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Cadastro</th>
@@ -159,18 +123,21 @@
 
 @endsection
 
+
 @push('modals')
     <x-modal.financeiro.modal-lancamento-geral.modal />
+    <x-modal.financeiro.modal-lancamento-geral-movimentar.modal />
     <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
+    <x-modal.servico.modal-lancamento-reagendar.modal />
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/lancamentos-agendamentos/index.js')
+    @vite('resources/js/views/financeiro/lancamentos-ressarcimentos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
-            'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
+            'baseLancamentoRessarcimento' => route('api.financeiro.lancamentos.lancamento-ressarcimento'),
+            'baseMovimentacaoContaLancamentoRessarcimento' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
             'baseContas' => route('api.tenant.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         ],

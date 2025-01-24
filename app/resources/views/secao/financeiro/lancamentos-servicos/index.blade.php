@@ -135,10 +135,4 @@
         ],
     ])
     @endcomponent
-    @component('components.pagina.front-routes', [
-        'routes' => [
-            'baseFront' => route('financeiro.index'),
-        ],
-    ])
-    @endcomponent
 @endpush
