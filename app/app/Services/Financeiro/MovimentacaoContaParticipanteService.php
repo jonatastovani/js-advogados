@@ -11,6 +11,7 @@ use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Models\Documento\DocumentoGerado;
+use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Pessoa\Pessoa;
@@ -104,6 +105,45 @@ class MovimentacaoContaParticipanteService extends Service
         $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
 
         return $resources;
+    }
+
+
+    private function gerarQueryLancamentoRessarcimento(array $dados = [])
+    {
+        $camposBusca = $dados['camposBusca'] ?? [];
+
+        // Query para consulta na tabela lancamento_ressarcimento
+        $query = LancamentoRessarcimento::query()
+            ->from((new LancamentoRessarcimento())->getTableNameAsName())
+            ->select(
+                DB::raw("'" . (new LancamentoRessarcimento())->getTableName() . "' as tabela"),
+                DB::raw("1 as pessoa_tipo_tabela_id"),
+                DB::raw('CAST(psi.psi_id_preso AS TEXT) as referencia_id'),
+                DB::raw('CAST(psi.psi_matricula AS TEXT) as matricula'),
+                'psi.psi_nome as nome',
+                'psi.psi_pre_nome_social as nome_social',
+                'psi.psi_no_pai as pai',
+                'psi.psi_no_mae as mae',
+                'psi.psi_cd_rg as rg',
+                'psi.psi_cd_cic as cpf',
+                'psi.psi_data_nascimento as data_nascimento',
+                DB::raw("null as perfis"),
+                DB::raw("null as aliases"),
+                DB::raw("null as rs"),
+            )
+            ->distinct()
+            ->groupBy('psi.psi_id_preso', 'psi.psi_matricula', 'psi.psi_nome', 'psi.psi_pre_nome_social', 'psi.psi_no_pai', 'psi.psi_no_mae', 'psi.psi_cd_rg', 'psi.psi_cd_cic', 'psi.psi_data_nascimento');
+
+        // Adiciona os left join para os campos que tem filtros, mas não estão no retorno da busca principal
+        foreach ($camposBusca as $key) {
+            switch ($key) {
+                case 'col_vulgo_alias':
+                    // Adicionar o left join para vulgo
+                    $query = LancamentoRessarcimento::inserirVulgo($query);
+                    break;
+            }
+        }
+        return $query;
     }
 
     /**

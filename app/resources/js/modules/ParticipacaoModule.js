@@ -13,7 +13,10 @@ export class ParticipacaoModule {
     #objConfigs = {
         operacaoComParticipantesPersonalizaveis: [
             'ressarcimento',
-        ]
+        ],
+        participacao: {
+            perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+        }
     };
     _objConfigs;
     _parentInstance;
@@ -21,13 +24,16 @@ export class ParticipacaoModule {
 
     constructor(parentInstance, objData) {
         this._objConfigs = objData.objConfigs;
+        // Mescla na variável restrita para depois mesclar na compartilhada para manter as relações
+        commonFunctions.deepMergeObject(this.#objConfigs, this._objConfigs);
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._parentInstance = parentInstance;
         this._extraConfigs = objData.extraConfigs;
         this.#addEventosBotoes();
     }
 
     get getExibirPainelParticipantesPersonalizaveisBln() {
-        if (this.#objConfigs.operacaoComParticipantesPersonalizaveis.includes(this._objConfigs.modoOperacao)) {
+        if (this._objConfigs.operacaoComParticipantesPersonalizaveis.includes(this._objConfigs.modoOperacao)) {
             return true;
         }
         return false;
@@ -35,7 +41,6 @@ export class ParticipacaoModule {
 
     #addEventosBotoes() {
         const self = this;
-
 
         const openmodalParticipacao = async (dados_participacao) => {
             const objModal = new modalParticipacaoParticipante();
@@ -55,7 +60,7 @@ export class ParticipacaoModule {
             commonFunctions.simulateLoading(btn);
             try {
                 const dataEnvModalAppend = {
-                    perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                    perfis_busca: self._objConfigs.participacao.perfis_busca,
                 };
                 const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);

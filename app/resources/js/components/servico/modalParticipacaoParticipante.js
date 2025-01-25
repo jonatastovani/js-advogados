@@ -21,6 +21,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         data: {
             porcentagem_livre: 0,
         },
+        valor_tipo_permitido: ['porcentagem', 'valor_fixo'],
     };
 
     /** 
@@ -39,8 +40,10 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._action = enumAction.POST;
+    }
 
-        this.#addEventosPadrao();
+    get getValorTipoPermitido() {
+        return this._objConfigs.participacao.valor_tipo_permitido;
     }
 
     async modalOpen() {
@@ -49,20 +52,21 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         try {
             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
 
+            this.#addEventosPadrao();
+
             if (!self._dataEnvModal.dados_participacao.participacao_registro_tipo_id) {
-                commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
-                return await self._returnPromisseResolve();
+                throw new Error('Tipo de registro de participação não informado.', 'error');
             }
 
             await self.#buscarTipoParticipacaoTenant();
             if (! await self.#preencherDados()) {
-                return await self._returnPromisseResolve();
             };
 
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {
             await commonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve();
         }
 
         await self._modalHideShow();
@@ -73,6 +77,8 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
     #addEventosPadrao() {
         const self = this;
         const modal = $(self._idModal);
+
+        self.#configuraValorTipoPermitido();
 
         modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
             const btn = $(this);
@@ -147,6 +153,45 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
                 valor.val(commonFunctions.formatWithCurrencyCommasOrFraction(porcentagem_livre));
             }
         });
+    }
+
+    /**
+     * Configura os tipos de valor permitidos nos elementos de rádio.
+     * - Se apenas um tipo for permitido, desabilita o outro.
+     * - Se ambos forem permitidos, mantém ambos habilitados e seleciona "porcentagem".
+     */
+    #configuraValorTipoPermitido() {
+        const self = this;
+        const tiposPermitidos = self.getValorTipoPermitido;
+
+        // Valida se há tipos permitidos
+        if (tiposPermitidos === undefined || !tiposPermitidos.length) {
+            throw new Error('Nenhum tipo de valor permitido foi informado para a participação.');
+        }
+
+        // Seletores para os elementos derádio
+        const $radioPorcentagem = $(`#rbPorcentagem${self.getSufixo}`);
+        const $radioValorFixo = $(`#rbValorFixo${self.getSufixo}`);
+
+        // Garante que os elementos existem antes de manipular
+        if (!$radioPorcentagem.length || !$radioValorFixo.length) {
+            throw new Error('Os elementos de rádio não foram encontrados.');
+        }
+
+        // Configura os estados dos elementos com base nos tipos permitidos
+        if (tiposPermitidos.includes('porcentagem') && tiposPermitidos.includes('valor_fixo')) {
+            // Ambos permitidos: habilita ambos e seleciona "porcentagem"
+            $radioPorcentagem.prop('disabled', false).prop('checked', true);
+            $radioValorFixo.prop('disabled', false);
+        } else if (tiposPermitidos.includes('porcentagem')) {
+            // Apenas "porcentagem" permitido
+            $radioPorcentagem.prop('disabled', false).prop('checked', true);
+            $radioValorFixo.prop('disabled', true);
+        } else if (tiposPermitidos.includes('valor_fixo')) {
+            // Apenas "valor_fixo" permitido
+            $radioPorcentagem.prop('disabled', true);
+            $radioValorFixo.prop('disabled', false).prop('checked', true);
+        }
     }
 
     async #preencherDados() {

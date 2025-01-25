@@ -7,7 +7,7 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class LancamentoAgendamentoIndex extends templateSearch {
+class PageLancamentoAgendamentoIndex extends templateSearch {
 
     #objConfigs = {
         querys: {
@@ -28,7 +28,7 @@ class LancamentoAgendamentoIndex extends templateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'LancamentoAgendamentoIndex' });
+        super({ sufixo: 'PageLancamentoAgendamentoIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -115,11 +115,6 @@ class LancamentoAgendamentoIndex extends templateSearch {
             commonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalLancamentoGeral({ modoOperacao: 'agendamento' });
-                // objModal.setDataEnvModal = {
-                //     idRegister: "9d7f9116-eb25-4090-993d-cdf0ae143c03",
-                //     pagamento_id: "9d7f9116-d30a-4559-9231-3083ad482553",
-                //     status_id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE
-                // }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#executarBusca();
@@ -323,5 +318,5 @@ class LancamentoAgendamentoIndex extends templateSearch {
 }
 
 $(function () {
-    new LancamentoAgendamentoIndex();
+    new PageLancamentoAgendamentoIndex();
 });

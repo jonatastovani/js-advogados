@@ -83,7 +83,7 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
             modal.find('.pNomeConta').html(nomeConta);
             modal.find('.pSaldoAtual').html(saldoFormatado);
             modal.find('.pUltimaMovimentacao').html(dataHoraUltimaAtualizacao);
-            modal.find('input[name="novo_saldo"]').val(saldo).trigger('input');
+            modal.find('input[name="novo_saldo"]').val(commonFunctions.formatWithCurrencyCommasOrFraction(saldo)).trigger('input');
 
             return true;
         } catch (error) {

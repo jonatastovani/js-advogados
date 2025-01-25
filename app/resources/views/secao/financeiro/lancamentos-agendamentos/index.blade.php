@@ -1,5 +1,5 @@
 @php
-    $sufixo = 'LancamentoAgendamentoIndex';
+    $sufixo = 'PageLancamentoAgendamentoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'nome' => 'Agendamento de lançamentos',
         'descricao' => [

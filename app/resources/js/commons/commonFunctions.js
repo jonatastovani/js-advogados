@@ -1232,6 +1232,4 @@ export class commonFunctions {
         }
         return target;
     }
-
-
 }

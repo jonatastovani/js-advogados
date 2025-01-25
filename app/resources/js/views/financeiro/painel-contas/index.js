@@ -88,8 +88,8 @@ class PagePainelContaIndex {
 
         const self = this;
         const nome = item.nome;
-        const descricao = item.descricao;
-        const banco = item.banco;
+        const descricao = item.descricao ? `<p class="card-text mb-0">Descrição: <span class="lblDescricao">${item.descricao}</span></p>` : ``;
+        const banco = item.banco ? `<p class="card-text mb-0">Banco: <span class="lblBanco">${item.banco}</span></p>` : '';
         const status = item.conta_status.nome
         const subtipo = item.conta_subtipo.nome
         let saldo = item?.ultima_movimentacao?.saldo_atualizado ? item.ultima_movimentacao.saldo_atualizado : 0;
@@ -99,7 +99,7 @@ class PagePainelContaIndex {
 
         item.idCol = UUIDHelper.generateUUID();
         const htmlConta = `
-            <div id="${item.idCol}" class="col">
+            <div div id = "${item.idCol}" class="col" >
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title d-flex align-items-center justify-content-between">
@@ -117,8 +117,8 @@ class PagePainelContaIndex {
                                 </div>
                             </div>
                         </h5>
-                        <p class="card-text mb-0">Descrição: <span class="lblDescricao">${descricao}</span></p>
-                        <p class="card-text mb-0">Banco: <span class="lblBanco">${banco}</span></p>
+                        ${descricao}
+                        ${banco}
                         <div class="row row-cols-2 row-cols-sm-3">
                             <div class="col mt-2">
                                 <div class="form-text">Saldo</div>
@@ -139,10 +139,10 @@ class PagePainelContaIndex {
                         Última movimentação da conta: <span class="spUltimaMovimentacao">${dataHoraUltimaAtualizacao}</span>
                     </div>
                 </div>
-            </div>
-        `;
+            </div >
+            `;
 
-        $(`#divContas${self.#objConfigs.sufixo}`).append(htmlConta);
+        $(`#divContas${self.#objConfigs.sufixo} `).append(htmlConta);
 
         self.#addEventosPagamento(item);
     }
@@ -150,7 +150,7 @@ class PagePainelContaIndex {
     async #addEventosPagamento(item) {
         const self = this;
 
-        $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
+        $(`#${item.idCol} .btn - ajustar`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {

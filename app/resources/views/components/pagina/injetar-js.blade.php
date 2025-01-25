@@ -16,6 +16,7 @@
 
     window.Statics = {
         PerfisPermitidoParticipacaoServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoParticipacaoServico()),
+        PerfisPermitidoParticipacaoRessarcimento: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoParticipacaoRessarcimento()),
         StatusImpossibilitaEdicaoParticipantes: @json(\App\Enums\LancamentoStatusTipoEnum::statusImpossibilitaEdicaoParticipantes()),
         StatusLancamentoTachado: @json(\App\Enums\LancamentoStatusTipoEnum::statusLancamentoTachado()),
         StatusPagamentoTachado: @json(\App\Enums\PagamentoStatusTipoEnum::statusPagamentoTachado()),

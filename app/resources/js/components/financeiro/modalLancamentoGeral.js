@@ -20,6 +20,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         url: {
             base: undefined,
             baseLancamentoAgendamento: window.apiRoutes.baseLancamentoAgendamento,
+            baseLancamentoRessarcimento: window.apiRoutes.baseLancamentoRessarcimento,
             baseLancamentoGeral: window.apiRoutes.baseLancamentoGeral,
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
@@ -31,11 +32,14 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             idRegister: undefined,
             participantesNaTela: [],
             cronExpressao: undefined,
-            participacao_tipo_tenant: {
-                configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL,
-            },
         },
         modoOperacao: undefined,
+        participacao: {
+            perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
+            participacao_tipo_tenant: {
+                configuracao_tipo: undefined,
+            },
+        }
     };
 
     /** 
@@ -63,42 +67,62 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
-        if (options.modoOperacao) {
-            this._objConfigs.modoOperacao = options.modoOperacao;
-            this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
-        } else {
-            this._objConfigs.url.base = this._objConfigs.url.baseLancamentoGeral;
+
+        switch (options.modoOperacao) {
+            case 'agendamento':
+                this._objConfigs.modoOperacao = 'agendamento';
+                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
+
+                break;
+
+            case 'ressarcimento':
+                this._objConfigs.modoOperacao = 'ressarcimento';
+                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoRessarcimento;
+                this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO;
+                // this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
+                break;
+
+            default:
+                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoGeral;
+                // this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL;
+                break;
         }
+
+        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
     }
 
     async modalOpen() {
         const self = this;
         let open = true;
 
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
+        try {
+            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
-        self.#addEventosPadrao();
+            await self.#addEventosPadrao();
+            await self.#buscarContas();
+            await self.#buscarMovimentacoesTipo();
+            await self.#buscarLancamentoCategoriaTipoTenant();
 
-        await self.#buscarContas();
-        await self.#buscarMovimentacoesTipo();
-        await self.#buscarLancamentoCategoriaTipoTenant();
-
-        if (self._dataEnvModal.idRegister) {
-            open = await self.#buscarDados();
-        } else {
-            self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
-        }
-
-        await commonFunctions.loadingModalDisplay(false);
-        if (open) {
+            if (self._dataEnvModal.idRegister) {
+                await self.#buscarDados();
+            } else {
+                if (self._objConfigs.modoOperacao != 'ressarcimento') {
+                    self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
+                }
+            }
+            await commonFunctions.loadingModalDisplay(false);
             await self._modalHideShow();
             return await self._modalOpen();
+
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            await commonFunctions.loadingModalDisplay(false);
         }
+
         return await self._returnPromisseResolve();
     }
 
-    #addEventosPadrao() {
+    async #addEventosPadrao() {
         const self = this;
         const modal = $(self._idModal);
 
@@ -184,7 +208,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 break;
 
             case 'ressarcimento':
-                self._updateModalTitle('Ressarcimento');
+                self._updateModalTitle('Ressarcimento/Compensação');
                 self.#visualizacaoModoOperacaoAgendamento(false);
 
                 break;
@@ -194,6 +218,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
                 break;
         }
+
         self.#visualizacaoGuiaParticipantes();
     }
 
@@ -347,72 +372,65 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     async #buscarDados() {
         const self = this;
 
-        try {
+        self._clearForm();
+        const objConn = new connectAjax(self._objConfigs.url.base);
+        objConn.setParam(self._dataEnvModal.idRegister);
+        const response = await objConn.getRequest();
 
-            self._clearForm();
-            const objConn = new connectAjax(self._objConfigs.url.base);
-            objConn.setParam(self._dataEnvModal.idRegister);
-            const response = await objConn.getRequest();
+        if (response?.data) {
+            const responseData = response.data;
 
-            if (response?.data) {
-                const responseData = response.data;
+            self._action = enumAction.PUT;
+            self._objConfigs.data.idRegister = self._dataEnvModal.idRegister;
 
-                self._action = enumAction.PUT;
-                self._objConfigs.data.idRegister = self._dataEnvModal.idRegister;
+            const descricao = responseData.descricao;
+            const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+            const form = $(self.getIdModal).find('.formRegistration');
 
-                const numero_lancamento = responseData.numero_lancamento ?? null;
-                const descricao = responseData.descricao;
-                const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
-                const form = $(self.getIdModal).find('.formRegistration');
-
-                switch (self._objConfigs.modoOperacao) {
-                    case 'agendamento':
-                        self._updateModalTitle(`Editar agendamento`);
-                        form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
-                        form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
-                        if (responseData.recorrente_bln) {
-                            const arrCron = responseData.cron_expressao.split(' ');
-                            if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
-                                console.error('A expressão cron é inválida.', responseData.cron_expressao);
-                            } else {
-                                form.find('select[name="cronDay"]').val(arrCron[2]);
-                                form.find('select[name="cronMonth"]').val(arrCron[3]);
-                                form.find('select[name="cronWeekday"]').val(arrCron[4]);
-                            }
-                            self.#gerarCronExpressao();
-                            form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
-                            form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
-
-                            self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
+            switch (self._objConfigs.modoOperacao) {
+                case 'agendamento':
+                    self._updateModalTitle(`Editar agendamento`);
+                    form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
+                    form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
+                    if (responseData.recorrente_bln) {
+                        const arrCron = responseData.cron_expressao.split(' ');
+                        if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
+                            console.error('A expressão cron é inválida.', responseData.cron_expressao);
+                        } else {
+                            form.find('select[name="cronDay"]').val(arrCron[2]);
+                            form.find('select[name="cronMonth"]').val(arrCron[3]);
+                            form.find('select[name="cronWeekday"]').val(arrCron[4]);
                         }
-                        break;
+                        self.#gerarCronExpressao();
+                        form.find('input[name="cron_data_inicio"]').val(responseData.cron_data_inicio);
+                        form.find('input[name="cron_data_fim"]').val(responseData.cron_data_fim);
 
-                    case 'ressarcimento':
-                        self._updateModalTitle(`Editar ressarcimento ${numero_lancamento}`);
+                        self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
+                    }
+                    break;
 
-                        break;
+                case 'ressarcimento':
+                    self._updateModalTitle(`Editar ressarcimento ${responseData.numero_ressarcimento ?? null}`);
 
-                    default:
-                        self._updateModalTitle(`Editar lancamento ${numero_lancamento}`);
-                        break;
-                }
-                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+                    break;
 
-                form.find('select[name="conta_id"]').val(responseData.conta_id);
-                form.find('select[name="categoria_id"]').val(responseData.categoria_id);
-                form.find('select[name="movimentacao_tipo_id"]').val(responseData.movimentacao_tipo_id);
-                form.find('input[name="descricao"]').val(descricao);
-                form.find('input[name="valor_esperado').val(valor_esperado);
-                form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
-                form.find('input[name="observacao"]').val(responseData.observacao);
-
-                return true;
+                default:
+                    self._updateModalTitle(`Editar lancamento ${responseData.numero_lancamento ?? null}`);
+                    break;
             }
-            return false;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
+            self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+
+            form.find('select[name="conta_id"]').val(responseData.conta_id);
+            form.find('select[name="categoria_id"]').val(responseData.categoria_id);
+            form.find('select[name="movimentacao_tipo_id"]').val(responseData.movimentacao_tipo_id);
+            form.find('input[name="descricao"]').val(descricao);
+            form.find('input[name="valor_esperado').val(valor_esperado);
+            form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
+            form.find('input[name="observacao"]').val(responseData.observacao);
+
+            return true;
         }
+        throw new Error("Erro ao preencher formulário: Dados não encontrados.");
     }
 
     async #buscarContas(selected_id = null) {

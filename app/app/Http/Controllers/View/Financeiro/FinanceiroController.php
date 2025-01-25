@@ -82,12 +82,18 @@ class FinanceiroController extends Controller
             $dadosEspecificos = $value['parent']['descricao_automatica'];
 
             switch ($value['parent']['referencia_type']) {
+
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= " - Pagamento - {$parent['referencia']['pagamento']['numero_pagamento']}";
-                    $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['area_juridica']['nome']}";
+                    // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - NP#{$parent['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= " - ({$parent['referencia']['pagamento']['servico']['area_juridica']['nome']})";
                     $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
                     break;
+
+                case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+
+                    $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
+                    $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
 
                 default:
                     break;
@@ -109,9 +115,9 @@ class FinanceiroController extends Controller
         $dataEnv->total_debito = CurrencyFormatterUtils::toBRL($dataEnv->total_debito);
 
         $first = $dataEnv->dados[0];
-        
+
         $dataEnv->dados_participante = $dataEnv->dados[0];
-        
+
         return $dataEnv;
     }
 

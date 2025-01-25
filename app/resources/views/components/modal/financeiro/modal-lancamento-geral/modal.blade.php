@@ -58,7 +58,8 @@
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100 guiaParticipantes" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
+                        <div class="tab-pane fade h-100 guiaParticipantes"
+                            id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral.painel-participantes',
@@ -113,6 +114,7 @@
     'routes' => [
         'baseLancamentoGeral' => route('api.financeiro.lancamentos.lancamento-geral'),
         'baseLancamentoAgendamento' => route('api.financeiro.lancamentos.lancamento-agendamento'),
+        'baseLancamentoRessarcimento' => route('api.financeiro.lancamentos.lancamento-ressarcimento'),
         'baseContas' => route('api.tenant.conta'),
         'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         'basePessoaPerfil' => route('api.pessoa.perfil'),

@@ -58,6 +58,9 @@ export class modalParticipacaoTipoTenant extends modalSearchAndFormRegistration 
                 case window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO:
                     self._updateModalTitle('Tipo de Participação em Serviços');
                     break;
+                case window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                    self._updateModalTitle('Tipo de Participação em Ressarcimentos');
+                    break;
                 default:
                     commonFunctions.generateNotification(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao_tipo}</b> ainda nao foi implementado.`, 'error');
                     console.error(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao.tipo}</b> ainda nao foi implementado.`, self._dataEnvModal);

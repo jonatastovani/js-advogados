@@ -116,6 +116,14 @@ export class modalPessoa extends modalSearchAndFormRegistration {
         if (!self._dataEnvModal.perfis_busca) {
             commonFunctions.generateNotification('Perfis de busca não definidos.', 'warning');
             return false;
+        } else {
+            let perfis_busca = '';
+            self._dataEnvModal.perfis_busca.forEach(item => {
+                if (perfis_busca != '') perfis_busca += ', ';
+                perfis_busca += item.nome;
+            });
+            perfis_busca = `${self._dataEnvModal.perfis_busca.length > 1 ? 'Perfis de busca:' : 'Perfil de busca:'} ${perfis_busca}`;
+            modal.find('.perfisBusca').html(perfis_busca);
         }
 
         formPessoaFisica.find('.btnBuscar').on('click', async function (e) {

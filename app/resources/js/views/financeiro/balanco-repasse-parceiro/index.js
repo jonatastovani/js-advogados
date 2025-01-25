@@ -289,24 +289,23 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         let dadosEspecificos = movimentacao.descricao_automatica;
 
         switch (movimentacao.referencia_type) {
+
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                dadosEspecificos += ` - Serviço ${movimentacao.referencia.pagamento.servico.numero_servico}`;
-                dadosEspecificos += ` - Pagamento - ${movimentacao.referencia.pagamento.numero_pagamento}`;
-                dadosEspecificos += ` - ${movimentacao.referencia.pagamento.servico.area_juridica.nome}`;
+                // dadosEspecificos += ` - Serviço ${movimentacao.referencia.pagamento.servico.numero_servico}`;
+                dadosEspecificos += ` - NP#${movimentacao.referencia.pagamento.numero_pagamento}`;
+                dadosEspecificos += ` - (${movimentacao.referencia.pagamento.servico.area_juridica.nome})`;
                 dadosEspecificos += ` - ${movimentacao.referencia.pagamento.servico.titulo}`;
+                break;
+
+            case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
+                dadosEspecificos += ` - NL#${movimentacao.referencia.numero_lancamento}`;
+                dadosEspecificos += ` - (${movimentacao.referencia.categoria.nome})`;
                 break;
 
             default:
                 break;
         }
 
-        let classCor = '';
-        // for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
-        //     if (StatusLancamento.id == item.status_id) {
-        //         classCor = StatusLancamento.cor ?? '';
-        //         break;
-        //     }
-        // }
         const created_at = DateTimeHelper.retornaDadosDataHora(movimentacao.created_at, 12);
 
         $(tbody).append(`
@@ -316,14 +315,14 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorParticipante}">${valorParticipante}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${dadosEspecificos}">${dadosEspecificos}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${conta}">${conta}</td>
-                <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
+                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
+                <td class="text-nowrap text-center" title="${valorParticipante}">${valorParticipante}</td>
+                <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
+                <td class="text-nowrap text-truncate" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-nowrap text-truncate" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate" title="${conta}">${conta}</td>
+                <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 

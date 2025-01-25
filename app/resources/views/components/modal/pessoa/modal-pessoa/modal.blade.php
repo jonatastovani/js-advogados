@@ -13,6 +13,7 @@
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex flex-column pt-1">
+                <p class="text-end mb-0 perfisBusca"></p>
                 <div class="row">
                     <div class="col mt-2 px-0">
                         <ul class="nav nav-tabs" id="myTab{{ $sufixo }}" role="tablist">
