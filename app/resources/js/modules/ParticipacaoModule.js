@@ -2,9 +2,9 @@ import { commonFunctions } from "../commons/commonFunctions";
 import { connectAjax } from "../commons/connectAjax";
 import { modalMessage } from "../components/comum/modalMessage";
 import { modalNome } from "../components/comum/modalNome";
+import { modalParticipacaoParticipante } from "../components/comum/modalParticipacaoParticipante";
+import { modalParticipacaoPreset } from "../components/comum/modalParticipacaoPreset";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
-import { modalParticipacaoParticipante } from "../components/servico/modalParticipacaoParticipante";
-import { modalParticipacaoPreset } from "../components/servico/modalParticipacaoPreset";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -43,12 +43,16 @@ export class ParticipacaoModule {
         const self = this;
 
         const openmodalParticipacao = async (dados_participacao) => {
+
             const objModal = new modalParticipacaoParticipante();
+            if (this._objConfigs?.participacao?.valor_tipo_permitido) {
+                objModal.setValorTipoPermitido = this._objConfigs.participacao.valor_tipo_permitido;
+            }
             objModal.setDataEnvModal = {
                 dados_participacao: dados_participacao,
                 porcentagem_ocupada: self._objConfigs.data.porcentagem_ocupada,
-                configuracao_tipo: self._objConfigs.data.participacao_tipo_tenant.configuracao_tipo,
-            }
+                configuracao_tipo: self._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo,
+            };
             const response = await objModal.modalOpen();
             if (response.refresh) {
                 await self._inserirParticipanteNaTela(Object.assign(dados_participacao, response.register));
@@ -451,10 +455,13 @@ export class ParticipacaoModule {
                     porcentagem_ocupada -= item.valor;
                 }
                 const objModal = new modalParticipacaoParticipante();
+                if (this._objConfigs?.participacao?.valor_tipo_permitido) {
+                    objModal.setValorTipoPermitido = this._objConfigs.participacao.valor_tipo_permitido;
+                }
                 objModal.setDataEnvModal = {
                     dados_participacao: item,
                     porcentagem_ocupada: porcentagem_ocupada,
-                    configuracao_tipo: self._objConfigs.data.participacao_tipo_tenant.configuracao_tipo,
+                    configuracao_tipo: self._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo,
                 }
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();

@@ -2,7 +2,6 @@
 
 namespace App\Models\Auth;
 
-use App\Models\GPU\DadosUnidadeGPU;
 use App\Traits\CommonsModelsMethodsTrait;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
@@ -34,8 +33,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return [
             'id',
-            'nome',
-            'descricao',
+            'name',
+            'tenant_type_id',
             'created_user_id',
             'created_ip',
             'created_at',

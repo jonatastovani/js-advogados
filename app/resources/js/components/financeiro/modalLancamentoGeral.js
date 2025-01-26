@@ -39,6 +39,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             participacao_tipo_tenant: {
                 configuracao_tipo: undefined,
             },
+            valor_tipo_permitido: ['valor_fixo'],
         }
     };
 
@@ -79,7 +80,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
                 this._objConfigs.modoOperacao = 'ressarcimento';
                 this._objConfigs.url.base = this._objConfigs.url.baseLancamentoRessarcimento;
                 this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO;
-                // this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
+                this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
                 break;
 
             default:

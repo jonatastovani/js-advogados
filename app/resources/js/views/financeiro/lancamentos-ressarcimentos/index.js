@@ -23,117 +23,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
         },
-        data: {
-            configAcoes: {
-                AGUARDANDO_PAGAMENTO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                    cor: 'text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                AGUARDANDO_PAGAMENTO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                    cor: null,
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                LIQUIDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                    cor: 'text-success bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                LIQUIDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                    cor: 'text-success',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                REAGENDADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    cor: 'fst-italic text-bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                    ]
-                },
-                REAGENDADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                    ]
-                },
-                CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger text-decoration-line-through bg-warning',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    ]
-                },
-                CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                    opcao_nos_status: [
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
-                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
-                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    ]
-                },
-                PAGAMENTO_CANCELADO_EM_ANALISE: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-                PAGAMENTO_CANCELADO: {
-                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
-                },
-            }
-        }
+        data: {},
     };
 
     constructor() {
@@ -315,14 +205,6 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
         const conta = item.conta.nome
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
-        let classCor = '';
-        for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
-            if (StatusLancamento.id == item.status_id) {
-                classCor = StatusLancamento.cor ?? '';
-                break;
-            }
-        }
-
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">
@@ -330,18 +212,18 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
-                <td class="text-nowrap ${classCor}" title="${numero_ressarcimento}">${numero_ressarcimento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorQuitado}">${valorQuitado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataQuitado}">${dataQuitado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacao}">${observacao}</td>
-                <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
+                <td class="text-nowrap text-truncate" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
+                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
+                <td class="text-nowrap" title="${numero_ressarcimento}">${numero_ressarcimento}</td>
+                <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
+                <td class="text-nowrap text-truncate" title="${categoriaTipo}">${categoriaTipo}</td>
+                <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
+                <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-nowrap text-center" title="${valorQuitado}">${valorQuitado}</td>
+                <td class="text-nowrap text-center" title="${dataQuitado}">${dataQuitado}</td>
+                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
+                <td class="text-nowrap text-truncate" title="${observacao}">${observacao}</td>
+                <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 

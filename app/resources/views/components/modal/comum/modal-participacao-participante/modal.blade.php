@@ -1,5 +1,5 @@
 @php
-    $sufixo = 'modalParticipacaoParticipante';
+    $sufixo = 'ModalParticipacaoParticipante';
 @endphp
 
 <div class="modal fade" id="modalParticipacaoParticipante" data-bs-backdrop="static" data-bs-keyboard="false"

@@ -847,16 +847,16 @@ class MovimentacaoContaService extends Service
 
     protected function verificacaoParticipacaoStore(Fluent $requestData, Fluent $arrayErrors): Fluent
     {
-        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $arrayErrors);
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, ['conferencia_valor_consumido' => true]);
 
         $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
         $arrayErrors = $participantesData->arrayErrors;
         $participantes = $participantesData->participantes;
 
-        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        }
+        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
+        // }
 
         return new Fluent([
             'participantes' => $participantes,

@@ -42,8 +42,12 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         this._action = enumAction.POST;
     }
 
+    set setValorTipoPermitido(tipo) {
+        this._objConfigs.valor_tipo_permitido = tipo;
+    }
+
     get getValorTipoPermitido() {
-        return this._objConfigs.participacao.valor_tipo_permitido;
+        return this._objConfigs.valor_tipo_permitido;
     }
 
     async modalOpen() {
@@ -52,25 +56,24 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         try {
             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
 
-            this.#addEventosPadrao();
+            self.#addEventosPadrao();
 
             if (!self._dataEnvModal.dados_participacao.participacao_registro_tipo_id) {
                 throw new Error('Tipo de registro de participação não informado.', 'error');
             }
 
             await self.#buscarTipoParticipacaoTenant();
-            if (! await self.#preencherDados()) {
-            };
+            await self.#preencherDados();
 
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
+            return await self._returnPromisseResolve();
         } finally {
             await commonFunctions.loadingModalDisplay(false);
-            return await self._returnPromisseResolve();
         }
 
         await self._modalHideShow();
-        $(self.getIdModal).find('select[name="participacao_tipo_id"]').trigger('focus');
+        self._executeFocusElementOnModal($(self.getIdModal).find('select[name="participacao_tipo_id"]'));
         return await self._modalOpen();
     }
 
@@ -111,40 +114,6 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             }
         });
 
-        const aplicarMascaraPorcentagem = (campo) => {
-            const regexPorcentagem = /^(100|[0-9]{1,2}(,\d{0,2})?)$/;
-            campo.on('input', function () {
-                if (!regexPorcentagem.test($(this).val())) {
-                    $(this).val('');
-                }
-            });
-        }
-
-        const visibilidadeDadosPorcentagem = (status = true) => {
-            if (status == true) {
-                modal.find('.divTextPorcentagemLivre, .btnAplicarRestante').show('fast');
-            } else {
-                modal.find('.divTextPorcentagemLivre, .btnAplicarRestante').hide('fast');
-            }
-        }
-
-        const valor = modal.find('input[name="valor"]');
-        modal.find('input[name="valor_tipo"]').on('click', async function () {
-            valor.off('input');
-            valor.val('');
-            valor.unmask();
-
-            if ($(this).val() == 'porcentagem') {
-                aplicarMascaraPorcentagem(valor);
-                visibilidadeDadosPorcentagem(true);
-            } else {
-                commonFunctions.applyCustomNumberMask(valor, { format: '#.##0,00', reverse: true });
-                visibilidadeDadosPorcentagem(false);
-            }
-        });
-
-        aplicarMascaraPorcentagem(valor);
-
         modal.find('.btnAplicarRestante').on('click', async function () {
             const porcentagem_livre = self._objConfigs.data.porcentagem_livre;
             if (porcentagem_livre == 100) {
@@ -162,6 +131,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
      */
     #configuraValorTipoPermitido() {
         const self = this;
+        const modal = $(self._idModal);
         const tiposPermitidos = self.getValorTipoPermitido;
 
         // Valida se há tipos permitidos
@@ -178,78 +148,119 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             throw new Error('Os elementos de rádio não foram encontrados.');
         }
 
+        const aplicarMascaraPorcentagem = (campo) => {
+            const regexPorcentagem = /^(100|[0-9]{1,2}(,\d{0,2})?)$/;
+            campo.on('input', function () {
+                if (!regexPorcentagem.test($(this).val())) {
+                    $(this).val('');
+                }
+            });
+        }
+
+        const visibilidadeDadosPorcentagem = (status = true) => {
+            if (status == true) {
+                modal.find('.divTextPorcentagemLivre, .btnAplicarRestante').show('fast');
+            } else {
+                modal.find('.divTextPorcentagemLivre, .btnAplicarRestante').hide('fast');
+            }
+        }
+
+        const executarAcoesPorcentagem = () => {
+            aplicarMascaraPorcentagem(valor);
+            visibilidadeDadosPorcentagem(true);
+            self._objConfigs.data.valor_tipo = 'porcentagem';
+        }
+
+        const executarAcoesValorFixo = () => {
+            commonFunctions.applyCustomNumberMask(valor, { format: '#.##0,00', reverse: true });
+            visibilidadeDadosPorcentagem(false);
+            self._objConfigs.data.valor_tipo = 'valor_fixo';
+        }
+
+        const valor = modal.find('input[name="valor"]');
+
+        if (tiposPermitidos.length > 1) {
+            modal.find('input[name="valor_tipo"]').on('click', async function () {
+                valor.off('input');
+                valor.val('');
+                valor.unmask();
+
+                if ($(this).val() == 'porcentagem') {
+                    executarAcoesPorcentagem();
+                } else {
+                    executarAcoesValorFixo();
+                }
+            });
+        }
+
         // Configura os estados dos elementos com base nos tipos permitidos
-        if (tiposPermitidos.includes('porcentagem') && tiposPermitidos.includes('valor_fixo')) {
+        if (tiposPermitidos.includes('porcentagem') || (tiposPermitidos.includes('porcentagem') && tiposPermitidos.includes('valor_fixo'))) {
             // Ambos permitidos: habilita ambos e seleciona "porcentagem"
+            // Ou Apenas "porcentagem" permitido
             $radioPorcentagem.prop('disabled', false).prop('checked', true);
             $radioValorFixo.prop('disabled', false);
-        } else if (tiposPermitidos.includes('porcentagem')) {
-            // Apenas "porcentagem" permitido
-            $radioPorcentagem.prop('disabled', false).prop('checked', true);
-            $radioValorFixo.prop('disabled', true);
+            executarAcoesPorcentagem();
         } else if (tiposPermitidos.includes('valor_fixo')) {
             // Apenas "valor_fixo" permitido
             $radioPorcentagem.prop('disabled', true);
             $radioValorFixo.prop('disabled', false).prop('checked', true);
+            executarAcoesValorFixo();
         }
     }
 
     async #preencherDados() {
         const self = this;
-        try {
-            const modal = $(self.getIdModal);
-            const dados = self._dataEnvModal.dados_participacao;
-            let nome = '';
 
-            switch (dados.participacao_registro_tipo_id) {
-                case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
-                    modal.find('.lblTipoParticipante').html('Pessoa');
+        const modal = $(self.getIdModal);
+        const dados = self._dataEnvModal.dados_participacao;
+        let nome = '';
 
-                    switch (dados.referencia.pessoa.pessoa_dados_type) {
-                        case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
-                            nome = dados.referencia.pessoa.pessoa_dados.nome;
-                            break;
-                        case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
-                            nome = dados.referencia.pessoa.pessoa_dados.nome_fantasia;
-                            break;
+        switch (dados.participacao_registro_tipo_id) {
+            case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
+                modal.find('.lblTipoParticipante').html('Pessoa');
 
-                        default:
-                            break;
-                    }
-                    break;
+                switch (dados.referencia.pessoa.pessoa_dados_type) {
+                    case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                        nome = dados.referencia.pessoa.pessoa_dados.nome;
+                        break;
+                    case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                        nome = dados.referencia.pessoa.pessoa_dados.nome_fantasia;
+                        break;
 
-                case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
-                    modal.find('.lblTipoParticipante').html('Grupo');
-                    nome = dados.nome_grupo;
-                    break;
-            }
+                    default:
+                        break;
+                }
+                break;
 
-            const ocupada = self._dataEnvModal.porcentagem_ocupada ?? 0;
-            const livre = (100 - ocupada);
-            let valor = dados.valor ?? 0;
-
-            if (dados.valor_tipo == 'valor_fixo' || dados.valor_tipo == 'porcentagem' && dados.valor < 100) {
-                valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
-            }
-
-            if (!livre) {
-                modal.find('.btnAplicarRestante').attr('disabled', true);
-            } else {
-                modal.find('.btnAplicarRestante').removeAttr('disabled');
-                self._objConfigs.data.porcentagem_livre = livre;
-            }
-
-            modal.find('.lblNome').html(nome);
-            modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
-            modal.find(`input[name="valor_tipo"][value="${dados.valor_tipo ?? 'porcentagem'}"]`).prop('checked', true).trigger('click');
-            modal.find('input[name="valor"]').val(valor).trigger('input');
-            modal.find('input[name="observacao"]').val(dados.observacao ?? '');
-            modal.find('select[name="participacao_tipo_id"]').val(dados.participacao_tipo_id ?? 0);
-            return true;
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
+            case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
+                modal.find('.lblTipoParticipante').html('Grupo');
+                nome = dados.nome_grupo;
+                break;
         }
+
+        const ocupada = self._dataEnvModal.porcentagem_ocupada ?? 0;
+        const livre = (100 - ocupada);
+        let valor = dados.valor ?? 0;
+
+        if (dados.valor_tipo == 'valor_fixo' || dados.valor_tipo == 'porcentagem' && dados.valor < 100) {
+            valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
+        }
+
+        if (!livre) {
+            modal.find('.btnAplicarRestante').attr('disabled', true);
+        } else {
+            modal.find('.btnAplicarRestante').removeAttr('disabled');
+            self._objConfigs.data.porcentagem_livre = livre;
+        }
+
+        modal.find('.lblNome').html(nome);
+        modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
+        if (dados.valor_tipo) {
+            modal.find(`input[name="valor_tipo"][value="${dados.valor_tipo}"]`).prop('checked', true).trigger('click');
+        }
+        modal.find('input[name="valor"]').val(valor).trigger('input');
+        modal.find('input[name="observacao"]').val(dados.observacao ?? '');
+        modal.find('select[name="participacao_tipo_id"]').val(dados.participacao_tipo_id ?? 0);
     }
 
     async #buscarTipoParticipacaoTenant(selected_id = null) {
@@ -269,7 +280,8 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-
+        data.valor_tipo = self._objConfigs.data.valor_tipo;
+        
         if (self.#saveVerifications(data)) {
             self._promisseReturnValue.register = data;
             self._promisseReturnValue.refresh = true;

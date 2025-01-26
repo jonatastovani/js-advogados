@@ -192,16 +192,16 @@ class LancamentoRessarcimentoService extends Service
 
         $resource->fill($requestData->toArray());
 
-        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $arrayErrors);
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, ['conferencia_valor_consumido' => true]);
 
         $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
         $arrayErrors = $participantesData->arrayErrors;
         $resource->participantes = $participantesData->participantes;
 
-        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        }
+        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
+        // }
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());

@@ -83,9 +83,9 @@ class ParticipacaoService extends Service
         return $this->indexPadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 
-    public function storePadrao(Fluent $requestData, string $idParent, Model $modelParent)
+    public function storePadrao(Fluent $requestData, string $idParent, Model $modelParent, $options = [])
     {
-        $resources = $this->verificacaoEPreenchimentoRecursoStore($requestData);
+        $resources = $this->verificacaoEPreenchimentoRecursoStore($requestData, $options);
         $arrayRetorno = [];
 
         // Inicia a transação
@@ -200,7 +200,7 @@ class ParticipacaoService extends Service
         if (in_array($resource->status_id, LancamentoStatusTipoEnum::StatusImpossibilitaEdicaoParticipantes())) {
             return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de participantes")->throwResponse();
         }
-        return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelLancamentoGeral);
+        return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelLancamentoGeral, ['conferencia_valor_consumido' => true]);
     }
 
     public function destroyPadrao(Fluent $requestData, string $idParent, Model $modelParent)
@@ -235,19 +235,19 @@ class ParticipacaoService extends Service
         return $this->destroyPadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
     }
 
-    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData): Fluent
+    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData, $options = []): Fluent
     {
         $arrayErrors = new Fluent();
-        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $arrayErrors);
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, $options);
 
         $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
         $arrayErrors = $participantesData->arrayErrors;
         $participantes = $participantesData->participantes;
 
-        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-            $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        }
+        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
+        // }
 
         return new Fluent([
             'participantes' => $participantes,

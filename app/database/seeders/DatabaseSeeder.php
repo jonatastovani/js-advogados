@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 2) {
+        if (1 == 1) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,

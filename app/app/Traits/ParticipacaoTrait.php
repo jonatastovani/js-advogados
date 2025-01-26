@@ -15,14 +15,17 @@ use Illuminate\Support\Fluent;
 
 trait ParticipacaoTrait
 {
-    protected function verificacaoParticipantes(array $participantesData, Fluent $arrayErrors): Fluent
+    protected function verificacaoParticipantes(array $participantesData, Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
     {
         $retorno = new Fluent();
+        $conferenciaValorConsumido = $options['conferencia_valor_consumido'] ?? false;
+        $campoValorTotal = $options['campo_valor_total'] ?? 'valor_esperado';
 
         $arrayNomesGrupos = [];
         $porcentagemOcupada = 0;
         $valorFixo = 0;
         $participantes = [];
+
         foreach ($participantesData as $participante) {
             $participante = new Fluent($participante);
 
@@ -88,10 +91,8 @@ trait ParticipacaoTrait
 
                 $newParticipante = new $this->modelParticipante;
                 $newParticipante->fill($participante->toArray());
-                if (
-                    $participante->participacao_registro_tipo_id ==
-                    ParticipacaoRegistroTipoEnum::GRUPO->value
-                ) {
+
+                if ($participante->participacao_registro_tipo_id == ParticipacaoRegistroTipoEnum::GRUPO->value) {
                     $newParticipante->integrantes = $integrantes;
                 }
 
@@ -104,6 +105,31 @@ trait ParticipacaoTrait
                     case 'valor_fixo':
                         $valorFixo += $participante->valor;
                         break;
+                }
+            }
+        }
+
+        $blnPorcentagemAplicada = $porcentagemOcupada > 0;
+        
+        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+            $arrayErrors->porcentagem_ocupada = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', (new Fluent(request()))->toArray())->error;
+        }
+
+        // Caso seja necessário conferir o valor consumido, faz a validação
+        if ($conferenciaValorConsumido) {
+            $valorTotal = $requestData->$campoValorTotal; // Valor total informado
+
+            // Verifica se a soma dos valores fixos é igual ao valor total
+            if ($valorFixo !== $valorTotal) {
+                // Se a soma não bater, dilui a diferença de forma proporcional
+                $diferenca = $valorTotal - $valorFixo;
+                if ($diferenca > 0) {
+                    $porcentagemRestante = max(1, $diferenca); // A diferença mínima que pode ser diluída é 1
+                    // Aqui seria necessário distribuir a porcentagem restante entre os participantes (ou grupos).
+                    // Adicione a lógica de distribuição conforme necessário.
+                } else {
+                    // O valor fixo consome tudo
+                    $porcentagemOcupada = 0; // Desabilita a porcentagem restante
                 }
             }
         }
