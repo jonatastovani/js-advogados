@@ -97,7 +97,7 @@ class MovimentacaoContaParticipanteService extends Service
     public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
     {
 
-        LogHelper::habilitaQueryLog();
+        // LogHelper::habilitaQueryLog();
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
 
@@ -179,7 +179,7 @@ class MovimentacaoContaParticipanteService extends Service
             });
         });
 
-        LogHelper::escreverLogSomenteComQuery($query);
+        // LogHelper::escreverLogSomenteComQuery($query);
 
         return $query;
     }
@@ -206,7 +206,8 @@ class MovimentacaoContaParticipanteService extends Service
             $collection = collect($data['data']);
         }
 
-        $registrosOrdenados = $this->carregamentoDinamicoPorReferenciaType($collection, $options);
+        // $registrosOrdenados = $this->carregamentoDinamicoPorReferenciaType($collection, $options);
+        $registrosOrdenados = $this->carregamentoDinamicoPorParentType($collection, $options);
 
         // Atualiza os registros na resposta mantendo a ordem
         if ($withOutPagination) {
@@ -218,17 +219,62 @@ class MovimentacaoContaParticipanteService extends Service
         return $data;
     }
 
+    private function carregamentoDinamicoPorParentType(Collection $collection, array $options = [])
+    {
+        // Salva a ordem original dos registros
+        $ordemOriginal = $collection->pluck('id')->toArray();
+
+        // Agrupa os registros por parent_type
+        $agrupados = $collection->groupBy('parent_type');
+
+        // Processa os carregamentos personalizados para cada tipo
+        $agrupados = $agrupados->map(function ($registros, $tipo) use ($options) {
+
+            $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
+
+            switch ($tipo) {
+                case LancamentoRessarcimento::class:
+                    // Faz o carregamento dinâmico conforme o tipo
+                    return $registros->load($this->loadFull(array_merge($options, [
+                        'caseTipoReferenciaParentMovimentacaoContaParticipante' => $tipo,
+                    ])));
+                    break;
+
+                case MovimentacaoConta::class:
+                    // Faz o carregamento dinâmico conforme o tipo
+                    return $this->carregamentoDinamicoPorReferenciaType(collect($registros), $options);
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+        });
+
+        // Reorganiza os registros com base na ordem original
+        $registrosOrdenados = collect($agrupados->flatten(1))
+            ->sortBy(function ($registro) use ($ordemOriginal) {
+                return array_search($registro['id'], $ordemOriginal);
+            })
+            ->values()
+            ->toArray();
+        Log::debug("Linha: " . __LINE__);
+
+        return $registrosOrdenados;
+    }
+
     private function carregamentoDinamicoPorReferenciaType(Collection $collection, array $options = [])
     {
         // Salva a ordem original dos registros
         $ordemOriginal = $collection->pluck('id')->toArray();
 
         // Agrupa os registros por referencia_type
-        $agrupados = $collection->groupBy('parent.referencia_type');
+        $agrupados = $collection->groupBy('referencia_type');
 
         // Processa os carregamentos personalizados para cada tipo
         $agrupados = $agrupados->map(function ($registros, $tipo) use ($options) {
 
+            Log::debug("tipo: " . $tipo);
             $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
 
             // Faz o carregamento dinâmico conforme o tipo
@@ -699,22 +745,64 @@ class MovimentacaoContaParticipanteService extends Service
             'status',
         ];
 
-        // Verifica se MovimentacaoContaService está na lista de exclusão
-        $classImport = MovimentacaoContaService::class;
-        if (!in_array($classImport, $withOutClass)) {
-            // Mescla relacionamentos de MovimentacaoContaService
+
+        // Tipo de referência enviado para o carregamento específico
+        $caseTipoReferenciaParentMovimentacaoContaParticipante = $options['caseTipoReferenciaParentMovimentacaoContaParticipante'] ?? null;
+
+        // Função para carregar dados de referência específica dinamicamente
+        $carregarReferenciaPorTipo = function ($serviceTipoReferencia, $relationships) use ($options, $withOutClass) {
             $relationships = $this->mergeRelationships(
                 $relationships,
-                app($classImport)->loadFull(array_merge(
+                app($serviceTipoReferencia)->loadFull(array_merge(
                     $options, // Passa os mesmos $options
                     [
                         'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
                     ]
                 )),
                 [
-                    'addPrefix' => 'parent.'
+                    'addPrefix' => 'parent.' // Adiciona um prefixo aos relacionamentos externos
                 ]
             );
+
+            return $relationships;
+        };
+
+        // // Verifica se MovimentacaoContaService está na lista de exclusão
+        // $classImport = MovimentacaoContaService::class;
+        // if (!in_array($classImport, $withOutClass)) {
+        //     // Mescla relacionamentos de MovimentacaoContaService
+        //     $relationships = $this->mergeRelationships(
+        //         $relationships,
+        //         app($classImport)->loadFull(array_merge(
+        //             $options, // Passa os mesmos $options
+        //             [
+        //                 'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+        //             ]
+        //         )),
+        //         [
+        //             'addPrefix' => 'parent.'
+        //         ]
+        //     );
+        // }
+
+        // Verifica o tipo de referência e ajusta os relacionamentos
+        switch ($caseTipoReferenciaParentMovimentacaoContaParticipante) {
+            case LancamentoRessarcimento::class:
+                $relationships = $carregarReferenciaPorTipo(LancamentoRessarcimentoService::class, $relationships);
+                break;
+
+            case MovimentacaoConta::class:
+                $relationships = $carregarReferenciaPorTipo(MovimentacaoContaService::class, $relationships);
+                break;
+
+            default:
+                $relationships = array_merge(
+                    $relationships,
+                    [
+                        'parent',
+                    ]
+                );
+                break;
         }
 
         return $relationships;
