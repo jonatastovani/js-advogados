@@ -75,8 +75,8 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
         } = options;
 
         let btns = `
-            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar Conta ${item.nome}">Editar</button></li>
-            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir Conta ${item.nome}">Excluir</button></li>`;
+            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar registro ${item.nome}">Editar</button></li>
+            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir registro ${item.nome}">Excluir</button></li>`;
 
         let btnSelect = '';
         if (self._dataEnvModal?.attributes?.select) {

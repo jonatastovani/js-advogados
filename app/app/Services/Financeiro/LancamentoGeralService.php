@@ -102,6 +102,27 @@ class LancamentoGeralService extends Service
         }
     }
 
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        // Verificar se tem movimentações lançadas
+        if ($resource->movimentacao_conta()->count() > 0) {
+            RestResponse::createErrorResponse(422, 'O lancamento geral não pode ser excluído, pois já possui movimentações.')->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
 

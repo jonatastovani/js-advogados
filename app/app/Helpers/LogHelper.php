@@ -4,7 +4,9 @@ namespace App\Helpers;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class LogHelper
@@ -111,5 +113,15 @@ class LogHelper
     {
         $create = self::createQueryLogFormat($sql, $bindings);
         return self::formatQueryLog($create);
+    }
+
+    public static function escreverLogSomenteComQuery(Builder $query)
+    {
+        $logFormat = self::createQueryLogFormat($query->toSql(), $query->getBindings());
+        $logFormat = self::formatQueryLog($logFormat);
+
+        foreach ($logFormat as $key => $value) {
+            Log::debug("Query: $key -> " . $value);
+        }
     }
 }

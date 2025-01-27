@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -15,6 +16,18 @@ use Illuminate\Support\Fluent;
 
 trait ParticipacaoTrait
 {
+
+    /**
+     * Verifica e valida os participantes da operação, incluindo cálculos de porcentagem e valores fixos.
+     *
+     * @param array $participantesData Dados dos participantes a serem validados.
+     * @param Fluent $requestData Dados adicionais da requisição.
+     * @param Fluent $arrayErrors Array para registrar mensagens de erro.
+     * @param array $options Configurações opcionais:
+     *  - 'conferencia_valor_consumido' (bool): Verifica o consumo total dos valores.
+     *  - 'campo_valor_total' (string): Campo que contém o valor total esperado.
+     * @return Fluent Retorna um objeto contendo os participantes validados, porcentagem ocupada, valor fixo e erros.
+     */
     protected function verificacaoParticipantes(array $participantesData, Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
     {
         $retorno = new Fluent();
@@ -40,6 +53,7 @@ trait ParticipacaoTrait
             if (!$validacaoParticipacaoRegistroTipoId->count()) {
                 $arrayErrors["participacao_registro_tipo_id_{$participante->participacao_registro_tipo_id}"] = LogHelper::gerarLogDinamico(404, 'O Tipo de Registro de Participação informado não existe ou foi excluído.', $participantesData)->error;
             }
+
             if (
                 $validacaoParticipacaoTipoTenantId->count() &&
                 $validacaoParticipacaoRegistroTipoId->count()
@@ -109,29 +123,10 @@ trait ParticipacaoTrait
             }
         }
 
-        $blnPorcentagemAplicada = $porcentagemOcupada > 0;
-        
-        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-            $arrayErrors->porcentagem_ocupada = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', (new Fluent(request()))->toArray())->error;
-        }
-
-        // Caso seja necessário conferir o valor consumido, faz a validação
+        // Validações gerais
+        $this->validarPorcentagem($porcentagemOcupada, $arrayErrors);
         if ($conferenciaValorConsumido) {
-            $valorTotal = $requestData->$campoValorTotal; // Valor total informado
-
-            // Verifica se a soma dos valores fixos é igual ao valor total
-            if ($valorFixo !== $valorTotal) {
-                // Se a soma não bater, dilui a diferença de forma proporcional
-                $diferenca = $valorTotal - $valorFixo;
-                if ($diferenca > 0) {
-                    $porcentagemRestante = max(1, $diferenca); // A diferença mínima que pode ser diluída é 1
-                    // Aqui seria necessário distribuir a porcentagem restante entre os participantes (ou grupos).
-                    // Adicione a lógica de distribuição conforme necessário.
-                } else {
-                    // O valor fixo consome tudo
-                    $porcentagemOcupada = 0; // Desabilita a porcentagem restante
-                }
-            }
+            $this->validarConsumoValores($valorFixo, $porcentagemOcupada, $requestData->{$campoValorTotal}, $arrayErrors);
         }
 
         $retorno->participantes = $participantes;
@@ -140,6 +135,52 @@ trait ParticipacaoTrait
         $retorno->arrayErrors = $arrayErrors;
 
         return $retorno;
+    }
+
+    /**
+     * Valida se a soma das porcentagens é igual a 100%.
+     */
+    protected function validarPorcentagem(float $porcentagemOcupada, Fluent &$arrayErrors)
+    {
+        if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
+            $arrayErrors->porcentagem_ocupada = LogHelper::gerarLogDinamico(
+                422,
+                'A somatória das porcentagens deve ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%',
+                request()->toArray()
+            )->error;
+        }
+    }
+
+    /**
+     * Valida o consumo de valores com base nos valores fixos e porcentagens.
+     *
+     * @param float $valorFixo Soma dos valores fixos.
+     * @param float $porcentagemOcupada Soma das porcentagens atribuídas.
+     * @param float $valorTotal Valor total esperado para distribuição.
+     * @param Fluent $arrayErrors Array para armazenar mensagens de erro.
+     */
+    protected function validarConsumoValores(float $valorFixo, float $porcentagemOcupada, float $valorTotal, Fluent &$arrayErrors)
+    {
+        // Calcula o valor restante após subtrair os valores fixos
+        $valorRestante = bcsub($valorTotal, $valorFixo, 2);
+
+        // Se houver porcentagens, verifica se o valor restante é suficiente (pelo menos R$1,00)
+        if ($porcentagemOcupada > 0 && bccomp($valorRestante, '1.00', 2) < 0) {
+            $arrayErrors->valor_restante = LogHelper::gerarLogDinamico(
+                422,
+                'O valor restante para porcentagens deve ser de pelo menos R$1,00 após subtrair os valores fixos.',
+                request()->toArray()
+            )->error;
+        }
+
+        // Se não houver porcentagens, verifica se os valores fixos consomem exatamente o total
+        if ($porcentagemOcupada == 0 && bccomp($valorFixo, $valorTotal, 2) !== 0) {
+            $arrayErrors->valor_fixo = LogHelper::gerarLogDinamico(
+                422,
+                'Os valores fixos atribuídos devem consumir totalmente o valor total.',
+                request()->toArray()
+            )->error;
+        }
     }
 
     public function verificarRegistrosExcluindoParticipanteNaoEnviado(array $participantes, string $idParent, Model $modelParent, array $options = [])
@@ -240,6 +281,177 @@ trait ParticipacaoTrait
             }
 
             $integranteUpdate->save();
+        }
+    }
+
+    /**
+     * Realiza a divisão de um valor recebido entre participantes com base em valores fixos e porcentagens.
+     * Para participantes do tipo GRUPO, o valor é dividido igualmente entre os integrantes do grupo,
+     * com os centavos de diferença sendo atribuídos ao primeiro integrante.
+     *
+     * @param Model $parent A model pai dos participantes.
+     * @param array $participantes Array de participantes, onde cada participante tem:
+     * - id: ID do participante.
+     * - nome: Nome do participante.
+     * - valor_tipo: Tipo do valor do participante (valor_fixo ou porcentagem).
+     * - valor: Valor do participante.
+     * - integrantes: Array de integrantes do grupo, se o participante for do tipo GRUPO.
+     * @param array $options Opções adicionais.
+     * 
+     * @throws Exception Se houver inconsistências no cálculo (ex.: valor restante ou excedente).
+     */
+    function lancarParticipantesValorRecebidoDividido(Model $parent, array $participantes, array $options = []): void
+    {
+        $campoValorTotal = $options['campo_valor_movimentado'] ?? 'valor_movimentado';
+
+        $valorRecebido = $parent->{$campoValorTotal};
+        $valorRestante = $valorRecebido;
+        $possuiParticipanteComValorFixo = false;
+        $possuiParticipanteComPorcentagem = false;
+
+        // Subtrair os valores fixos
+        foreach ($participantes as $index => $participante) {
+            if ($participante['valor_tipo'] === 'valor_fixo') {
+                $possuiParticipanteComValorFixo = true;
+
+                $valor = round($participante['valor'], 2);
+                if ($valor > $valorRestante) {
+                    throw new Exception("Os valores fixos dos participantes excedem o valor a ser dividido.");
+                }
+
+                $participantes[$index]['valor'] = $valor;
+                $valorRestante = bcsub((string) $valorRestante, (string) $valor, 2);
+            } else {
+                $possuiParticipanteComPorcentagem = true;
+            }
+        }
+
+        // Verificar se ainda há valor para distribuir
+        if ($valorRestante < 1 && $possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
+            $valorMinimo = bcadd($valorRecebido, 1, 2);
+            throw new Exception("Participante(s) com valor(es) fixo(s) consomem todo o valor a ser dividido. O valor mínimo do recebimento deve ser R$" . number_format($valorMinimo, 2, ',', '.') . ".");
+        } else if ($valorRestante != 0 && $possuiParticipanteComValorFixo && !$possuiParticipanteComPorcentagem) {
+            throw new Exception("Os valor a ser dividido não está sendo totalmente distribuído ao(s) participante(s) com valor(es) fixo(s).");
+        }
+        // else if ($valorRestante < 1 && !$possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
+        //     throw new Exception("Os valor a ser dividido é menor que R$ 1,00.");
+        // }
+
+        // Calcular os valores baseados em porcentagens
+        $totalPorcentagem = array_sum(array_map(function ($participante) {
+            return $participante['valor_tipo'] === 'porcentagem' ? $participante['valor'] : 0;
+        }, $participantes));
+
+        if ($totalPorcentagem > 100) {
+            throw new Exception("A soma das porcentagens excede 100%.");
+        }
+
+        $somaDistribuida = '0.00';
+        $primeiroParticipantePorcentagem = null;
+        foreach ($participantes as $index => $participante) {
+            if ($participante['valor_tipo'] === 'porcentagem') {
+                if ($primeiroParticipantePorcentagem === null) {
+                    $primeiroParticipantePorcentagem = $index;
+                }
+
+                $valor = bcmul(
+                    bcdiv((string) $participante['valor'], '100', 6),
+                    (string) $valorRestante,
+                    2
+                );
+                $somaDistribuida = bcadd($somaDistribuida, $valor, 2);
+                $participantes[$index]['valor'] = $valor;
+            }
+        }
+
+        // Verificar arredondamento e ajustar centavos no primeiro participante de porcentagem
+        $valorRestanteFinal = bcsub((string) $valorRestante, $somaDistribuida, 2);
+        if (bccomp($valorRestanteFinal, '0.00', 2) !== 0 && $primeiroParticipantePorcentagem !== null) {
+            $participantes[$primeiroParticipantePorcentagem]['valor'] = bcadd(
+                $participantes[$primeiroParticipantePorcentagem]['valor'],
+                $valorRestanteFinal,
+                2
+            );
+        }
+
+        // Verificar consistência final
+        $somaFinal = array_reduce($participantes, function ($carry, $item) {
+            return bcadd($carry, $item['valor'], 2);
+        }, '0.00');
+
+        if (bccomp($somaFinal, (string) $valorRecebido, 2) !== 0) {
+            throw new Exception("Inconsistência detectada no cálculo. Verifique os valores.");
+        }
+
+        $adicionarNovoParticipante = function ($dados) {
+            $newParticipante = new $this->modelParticipanteConta;
+            $newParticipante->parent_id = $dados['parent_id'];
+            $newParticipante->parent_type = $dados['parent_type'];
+            $newParticipante->referencia_id = $dados['referencia_id'];
+            $newParticipante->referencia_type = $dados['referencia_type'];
+            $newParticipante->descricao_automatica = $dados['descricao_automatica'];
+            $newParticipante->valor_participante = $dados['valor'];
+            $newParticipante->participacao_tipo_id = $dados['participacao_tipo_id'];
+            $newParticipante->participacao_registro_tipo_id = $dados['participacao_registro_tipo_id'];
+            $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
+
+            $newParticipante->save();
+            return $newParticipante;
+        };
+
+        // Lança os participantes e os respectivos valores
+        foreach ($participantes as $index => $value) {
+            $participacaoTipo = ParticipacaoTipoTenant::withTrashed()->find($value['participacao_tipo_id']);
+            $descricaoAutomatica = $participacaoTipo->nome;
+
+            switch ($value['participacao_registro_tipo_id']) {
+                case ParticipacaoRegistroTipoEnum::PERFIL->value:
+                    $adicionarNovoParticipante([
+                        'parent_id' => $parent->id,
+                        'parent_type' => $parent->getMorphClass(),
+                        'referencia_id' => $value['referencia_id'],
+                        'referencia_type' => $value['referencia_type'],
+                        'descricao_automatica' => $descricaoAutomatica,
+                        'valor' => $value['valor'],
+                        'participacao_tipo_id' => $value['participacao_tipo_id'],
+                        'participacao_registro_tipo_id' => $value['participacao_registro_tipo_id'],
+                    ]);
+                    break;
+
+                case ParticipacaoRegistroTipoEnum::GRUPO->value:
+                    $quantidadeIntegrantes = $value['integrantes'] ? count($value['integrantes']) : 0;
+                    $descricaoAutomatica .= " - Grupo {$value['nome_grupo']} ({$quantidadeIntegrantes} Int.)";
+
+                    if ($quantidadeIntegrantes > 0) {
+                        $valorPorIntegrante = bcdiv((string) $value['valor'], (string) $quantidadeIntegrantes, 2);
+                        $valorAjuste = bcsub((string) $value['valor'], bcmul($valorPorIntegrante, (string) $quantidadeIntegrantes, 2), 2);
+
+                        foreach ($value['integrantes'] as $indexIntegrante => $integrante) {
+                            $valorFinal = $valorPorIntegrante;
+                            if ($indexIntegrante === 0) {
+                                $valorFinal = bcadd($valorFinal, $valorAjuste, 2);
+                            }
+
+                            $adicionarNovoParticipante([
+                                'parent_id' => $parent->id,
+                                'parent_type' => $parent->getMorphClass(),
+                                'referencia_id' => $integrante['referencia_id'],
+                                'referencia_type' => $integrante['referencia_type'],
+                                'descricao_automatica' => $descricaoAutomatica,
+                                'valor' => $valorFinal,
+                                'participacao_tipo_id' => $value['participacao_tipo_id'],
+                                'participacao_registro_tipo_id' => $integrante['participacao_registro_tipo_id'],
+                            ]);
+                        }
+                    } else {
+                        throw new Exception("Integrantes do grupo {$value['nome_grupo']} não encontrados.", 500);
+                    }
+                    break;
+
+                default:
+                    throw new Exception("Tipo de registro de participação não encontrado.", 500);
+                    break;
+            }
         }
     }
 }

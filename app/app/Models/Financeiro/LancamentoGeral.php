@@ -90,6 +90,11 @@ class LancamentoGeral extends Model
         return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
+    public function movimentacao_conta()
+    {
+        return $this->morphOne(MovimentacaoConta::class, 'referencia');
+    }
+
     protected static function boot()
     {
         parent::boot();

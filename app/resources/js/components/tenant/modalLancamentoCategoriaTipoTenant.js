@@ -72,8 +72,8 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
         } = options;
 
         let btns = `
-            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar categoria ${item.nome}">Editar</button></li>
-            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir categoria ${item.nome}">Excluir</button></li>`;
+            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar registro ${item.nome}">Editar</button></li>
+            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir registro ${item.nome}">Excluir</button></li>`;
 
         let btnSelect = '';
         if (self._dataEnvModal?.attributes?.select) {

@@ -10,6 +10,7 @@ use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
+use App\Helpers\LogHelper;
 use App\Models\Documento\DocumentoGerado;
 use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Financeiro\MovimentacaoConta;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaParticipanteService extends Service
@@ -35,10 +37,13 @@ class MovimentacaoContaParticipanteService extends Service
     public function __construct(
         MovimentacaoContaParticipante $model,
         public MovimentacaoConta $modelMovimentacaoConta,
+
         public DocumentoGerado $modelDocumentoGerado,
 
         public Servico $modelServico,
         public ServicoPagamento $modelServicoPagamento,
+
+        public LancamentoRessarcimento $modelLancamentoRessarcimento,
 
         public MovimentacaoContaService $modelMovimentacaoContaService,
 
@@ -91,6 +96,9 @@ class MovimentacaoContaParticipanteService extends Service
 
     public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
     {
+
+        LogHelper::habilitaQueryLog();
+
         $filtrosData = $this->extrairFiltros($requestData, $options);
 
         $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
@@ -107,45 +115,6 @@ class MovimentacaoContaParticipanteService extends Service
         return $resources;
     }
 
-
-    private function gerarQueryLancamentoRessarcimento(array $dados = [])
-    {
-        $camposBusca = $dados['camposBusca'] ?? [];
-
-        // Query para consulta na tabela lancamento_ressarcimento
-        $query = LancamentoRessarcimento::query()
-            ->from((new LancamentoRessarcimento())->getTableNameAsName())
-            ->select(
-                DB::raw("'" . (new LancamentoRessarcimento())->getTableName() . "' as tabela"),
-                DB::raw("1 as pessoa_tipo_tabela_id"),
-                DB::raw('CAST(psi.psi_id_preso AS TEXT) as referencia_id'),
-                DB::raw('CAST(psi.psi_matricula AS TEXT) as matricula'),
-                'psi.psi_nome as nome',
-                'psi.psi_pre_nome_social as nome_social',
-                'psi.psi_no_pai as pai',
-                'psi.psi_no_mae as mae',
-                'psi.psi_cd_rg as rg',
-                'psi.psi_cd_cic as cpf',
-                'psi.psi_data_nascimento as data_nascimento',
-                DB::raw("null as perfis"),
-                DB::raw("null as aliases"),
-                DB::raw("null as rs"),
-            )
-            ->distinct()
-            ->groupBy('psi.psi_id_preso', 'psi.psi_matricula', 'psi.psi_nome', 'psi.psi_pre_nome_social', 'psi.psi_no_pai', 'psi.psi_no_mae', 'psi.psi_cd_rg', 'psi.psi_cd_cic', 'psi.psi_data_nascimento');
-
-        // Adiciona os left join para os campos que tem filtros, mas não estão no retorno da busca principal
-        foreach ($camposBusca as $key) {
-            switch ($key) {
-                case 'col_vulgo_alias':
-                    // Adicionar o left join para vulgo
-                    $query = LancamentoRessarcimento::inserirVulgo($query);
-                    break;
-            }
-        }
-        return $query;
-    }
-
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
      *
@@ -159,6 +128,8 @@ class MovimentacaoContaParticipanteService extends Service
     {
 
         $query = $this->model::joinMovimentacao($query);
+        $query = $this->model::joinLancamentoRessarcimento($query);
+
         $query = $this->modelMovimentacaoConta::joinMovimentacaoLancamentoPagamentoServico($query);
         $query = $this->modelPessoaPerfil::joinPerfilPessoaCompleto($query, $this->model, [
             'campoFK' => "referencia_id",
@@ -184,16 +155,31 @@ class MovimentacaoContaParticipanteService extends Service
 
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
-        // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
+        // // Condições para Participantes da Movimentação de Contas e Lançamentos de Ressarcimentos
         $query->where(function (Builder $query) {
+
+            // Condições para Participantes da Movimentação de Contas
             $query->where(function (Builder $query) {
-                $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
-                    ->where("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
-                    ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
-            })->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
+
+                // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
+                $query->where(function (Builder $query) {
+
+                    $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
+                        ->where("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
+                        ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
+                });
+
+                $query->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
+            });
+
+            // Condições para Lançamentos de Ressarcimentos
+            $query->orWhere(function (Builder $query) {
+
+                $query->where("{$this->model->getTableAsName()}.parent_type", $this->modelLancamentoRessarcimento::class);
+            });
         });
 
-        // Log::debug("Query: " . json_encode(LogHelper::formatQueryLog(LogHelper::createQueryLogFormat($query->toSql(), $query->getBindings()))));
+        LogHelper::escreverLogSomenteComQuery($query);
 
         return $query;
     }

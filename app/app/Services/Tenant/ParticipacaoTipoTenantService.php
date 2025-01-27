@@ -84,7 +84,10 @@ class ParticipacaoTipoTenantService extends Service
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
-        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
+        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, [
+            'nome' => $requestData->nome,
+            'configuracao->tipo' => $requestData->configuracao['tipo'],
+        ], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este tipo de participação já existe.', $requestData->toArray());
             return RestResponse::createErrorResponse(409, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
@@ -95,7 +98,7 @@ class ParticipacaoTipoTenantService extends Service
             $arrayErrors =  LogHelper::gerarLogDinamico(422, 'A edição deste tipo de Participação é somente para administradores.', $requestData->toArray());
             return RestResponse::createErrorResponse(422, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
-        
+
         $resource->nome = $requestData->nome;
         $resource->descricao = $requestData->descricao;
         $resource->tipo = $requestData->configuracao['tipo'];

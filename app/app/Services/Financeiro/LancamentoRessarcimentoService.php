@@ -11,6 +11,7 @@ use App\Helpers\ValidationRecordsHelper;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\LancamentoRessarcimento;
+use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
@@ -26,6 +27,8 @@ class LancamentoRessarcimentoService extends Service
 
     public function __construct(
         LancamentoRessarcimento $model,
+
+        public MovimentacaoContaParticipante $modelParticipanteConta,
 
         public ParticipacaoParticipante $modelParticipante,
         // public ParticipacaoParticipanteIntegrante $modelIntegrante,
@@ -74,6 +77,11 @@ class LancamentoRessarcimentoService extends Service
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
+                $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
+              
+                $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
             });

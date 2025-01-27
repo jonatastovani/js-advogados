@@ -358,169 +358,6 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    /**
-     * Realiza a divisão de um valor recebido entre participantes com base em valores fixos e porcentagens.
-     * Para participantes do tipo GRUPO, o valor é dividido igualmente entre os integrantes do grupo,
-     * com os centavos de diferença sendo atribuídos ao primeiro integrante.
-     *
-     * @param MovimentacaoConta $movimentacao A nova movimentação da conta.
-     * @param array $participantes Array de participantes, onde cada participante tem:
-     *
-     * @throws Exception Se houver inconsistências no cálculo (ex.: valor restante ou excedente).
-     */
-    function lancarParticipantesValorRecebidoDividido(MovimentacaoConta $movimentacao, array $participantes): void
-    {
-        $valorRecebido = $movimentacao->valor_movimentado;
-        $valorRestante = $valorRecebido;
-        $possuiParticipanteComValorFixo = false;
-        $possuiParticipanteComPorcentagem = false;
-
-        // Subtrair os valores fixos
-        foreach ($participantes as $index => $participante) {
-            if ($participante['valor_tipo'] === 'valor_fixo') {
-                $possuiParticipanteComValorFixo = true;
-
-                $valor = round($participante['valor'], 2);
-                if ($valor > $valorRestante) {
-                    throw new Exception("Os valores fixos dos participantes excedem o valor a ser dividido.");
-                }
-
-                $participantes[$index]['valor'] = $valor;
-                $valorRestante = bcsub((string) $valorRestante, (string) $valor, 2);
-            } else {
-                $possuiParticipanteComPorcentagem = true;
-            }
-        }
-
-        // Verificar se ainda há valor para distribuir
-        if ($valorRestante < 1 && $possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
-            $valorMinimo = bcadd($valorRecebido, 1, 2);
-            throw new Exception("Participante(s) com valor(es) fixo(s) consomem todo o valor a ser dividido. O valor mínimo do recebimento deve ser R$" . number_format($valorMinimo, 2, ',', '.') . ".");
-        } else if ($valorRestante != 0 && $possuiParticipanteComValorFixo && !$possuiParticipanteComPorcentagem) {
-            throw new Exception("Os valor a ser dividido não está sendo totalmente distribuído ao(s) participante(s) com valor(es) fixo(s).");
-        }
-        // else if ($valorRestante < 1 && !$possuiParticipanteComValorFixo && $possuiParticipanteComPorcentagem) {
-        //     throw new Exception("Os valor a ser dividido é menor que R$ 1,00.");
-        // }
-
-        // Calcular os valores baseados em porcentagens
-        $totalPorcentagem = array_sum(array_map(function ($participante) {
-            return $participante['valor_tipo'] === 'porcentagem' ? $participante['valor'] : 0;
-        }, $participantes));
-
-        if ($totalPorcentagem > 100) {
-            throw new Exception("A soma das porcentagens excede 100%.");
-        }
-
-        $somaDistribuida = '0.00';
-        $primeiroParticipantePorcentagem = null;
-        foreach ($participantes as $index => $participante) {
-            if ($participante['valor_tipo'] === 'porcentagem') {
-                if ($primeiroParticipantePorcentagem === null) {
-                    $primeiroParticipantePorcentagem = $index;
-                }
-
-                $valor = bcmul(
-                    bcdiv((string) $participante['valor'], '100', 6),
-                    (string) $valorRestante,
-                    2
-                );
-                $somaDistribuida = bcadd($somaDistribuida, $valor, 2);
-                $participantes[$index]['valor'] = $valor;
-            }
-        }
-
-        // Verificar arredondamento e ajustar centavos no primeiro participante de porcentagem
-        $valorRestanteFinal = bcsub((string) $valorRestante, $somaDistribuida, 2);
-        if (bccomp($valorRestanteFinal, '0.00', 2) !== 0 && $primeiroParticipantePorcentagem !== null) {
-            $participantes[$primeiroParticipantePorcentagem]['valor'] = bcadd(
-                $participantes[$primeiroParticipantePorcentagem]['valor'],
-                $valorRestanteFinal,
-                2
-            );
-        }
-
-        // Verificar consistência final
-        $somaFinal = array_reduce($participantes, function ($carry, $item) {
-            return bcadd($carry, $item['valor'], 2);
-        }, '0.00');
-
-        if (bccomp($somaFinal, (string) $valorRecebido, 2) !== 0) {
-            throw new Exception("Inconsistência detectada no cálculo. Verifique os valores.");
-        }
-
-        $adicionarNovoParticipante = function ($dados) {
-            $newParticipante = new $this->modelParticipanteConta;
-            $newParticipante->parent_id = $dados['parent_id'];
-            $newParticipante->parent_type = $dados['parent_type'];
-            $newParticipante->referencia_id = $dados['referencia_id'];
-            $newParticipante->referencia_type = $dados['referencia_type'];
-            $newParticipante->descricao_automatica = $dados['descricao_automatica'];
-            $newParticipante->valor_participante = $dados['valor'];
-            $newParticipante->participacao_tipo_id = $dados['participacao_tipo_id'];
-            $newParticipante->participacao_registro_tipo_id = $dados['participacao_registro_tipo_id'];
-            $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
-
-            $newParticipante->save();
-            return $newParticipante;
-        };
-
-        // Lança os participantes e os respectivos valores
-        foreach ($participantes as $index => $value) {
-            $participacaoTipo = ParticipacaoTipoTenant::withTrashed()->find($value['participacao_tipo_id']);
-            $descricaoAutomatica = $participacaoTipo->nome;
-
-            switch ($value['participacao_registro_tipo_id']) {
-                case ParticipacaoRegistroTipoEnum::PERFIL->value:
-                    $adicionarNovoParticipante([
-                        'parent_id' => $movimentacao->id,
-                        'parent_type' => $movimentacao->getMorphClass(),
-                        'referencia_id' => $value['referencia_id'],
-                        'referencia_type' => $value['referencia_type'],
-                        'descricao_automatica' => $descricaoAutomatica,
-                        'valor' => $value['valor'],
-                        'participacao_tipo_id' => $value['participacao_tipo_id'],
-                        'participacao_registro_tipo_id' => $value['participacao_registro_tipo_id'],
-                    ]);
-                    break;
-
-                case ParticipacaoRegistroTipoEnum::GRUPO->value:
-                    $quantidadeIntegrantes = $value['integrantes'] ? count($value['integrantes']) : 0;
-                    $descricaoAutomatica .= " - Grupo {$value['nome_grupo']} ({$quantidadeIntegrantes} Int.)";
-
-                    if ($quantidadeIntegrantes > 0) {
-                        $valorPorIntegrante = bcdiv((string) $value['valor'], (string) $quantidadeIntegrantes, 2);
-                        $valorAjuste = bcsub((string) $value['valor'], bcmul($valorPorIntegrante, (string) $quantidadeIntegrantes, 2), 2);
-
-                        foreach ($value['integrantes'] as $indexIntegrante => $integrante) {
-                            $valorFinal = $valorPorIntegrante;
-                            if ($indexIntegrante === 0) {
-                                $valorFinal = bcadd($valorFinal, $valorAjuste, 2);
-                            }
-
-                            $adicionarNovoParticipante([
-                                'parent_id' => $movimentacao->id,
-                                'parent_type' => $movimentacao->getMorphClass(),
-                                'referencia_id' => $integrante['referencia_id'],
-                                'referencia_type' => $integrante['referencia_type'],
-                                'descricao_automatica' => $descricaoAutomatica,
-                                'valor' => $valorFinal,
-                                'participacao_tipo_id' => $value['participacao_tipo_id'],
-                                'participacao_registro_tipo_id' => $integrante['participacao_registro_tipo_id'],
-                            ]);
-                        }
-                    } else {
-                        throw new Exception("Integrantes do grupo {$value['nome_grupo']} não encontrados.", 500);
-                    }
-                    break;
-
-                default:
-                    throw new Exception("Tipo de registro de participação não encontrado.", 500);
-                    break;
-            }
-        }
-    }
-
     protected function renderizarDiluicao($lancamento, $requestData)
     {
         $dadosRetornar = new Fluent();
@@ -847,7 +684,7 @@ class MovimentacaoContaService extends Service
 
     protected function verificacaoParticipacaoStore(Fluent $requestData, Fluent $arrayErrors): Fluent
     {
-        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, ['conferencia_valor_consumido' => true]);
+        $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors);
 
         $porcentagemOcupada = $participantesData->porcentagem_ocupada;
         $porcentagemOcupada = round($porcentagemOcupada, 2);
@@ -871,7 +708,7 @@ class MovimentacaoContaService extends Service
 
         $modelParent = $this->modelLancamentoGeral;
         $idParent = $requestData->referencia_id;
-        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
+        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent, );
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {

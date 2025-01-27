@@ -128,14 +128,13 @@ abstract class Service
     {
         $resource = $this->buscarRecurso($requestData);
 
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            $resource->delete();
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
