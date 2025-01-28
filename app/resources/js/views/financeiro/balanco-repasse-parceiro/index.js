@@ -31,6 +31,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
             totais: {
                 debito: 0,
                 credito: 0,
+                debito_liquidado: 0,
+                credito_liquidado: 0,
             },
             selecionados: [],
         }
@@ -157,44 +159,80 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         });
 
         $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const selecionados = self._objConfigs.data.selecionados;
-                if (selecionados.length == 0) {
-                    commonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
-                    return;
-                }
-                let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
+            if (self._objConfigs.querys.consultaFiltros.dataPost) {
 
-                const objModal = new modalSelecionarConta();
-                objModal.setDataEnvModal = {
-                    participacoes: participacoesIds,
-                    perfil: self._objConfigs.data.perfil,
-                };
+                const btn = $(this);
+                commonFunctions.simulateLoading(btn);
 
-                const responseConta = await objModal.modalOpen();
+                try {
 
-                if (responseConta.refresh) {
-                    const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-                    objConn.setAction(enumAction.POST);
-                    objConn.setData(
-                        commonFunctions.deepMergeObject(responseConta.register, {
-                            participacoes: participacoesIds
-                        })
-                    );
-                    const response = await objConn.envRequest();
-                    if (response.data) {
-                        commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
-                        await self.#executarBusca();
+                    const objModal = new modalSelecionarConta();
+                    objModal.setDataEnvModal = {
+                        perfil: self._objConfigs.data.perfil,
+                    };
+                    const responseConta = await objModal.modalOpen();
+
+                    if (responseConta.refresh) {
+                        const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                        objConn.setAction(enumAction.POST);
+                        objConn.setData(
+                            commonFunctions.deepMergeObject(
+                                responseConta.register,
+                                self._objConfigs.querys.consultaFiltros.dataPost
+                            ));
+                        const response = await objConn.envRequest();
+                        if (response.data) {
+                            commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
+                            await self.#executarBusca();
+                        }
                     }
+                } catch (error) {
+                    commonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    commonFunctions.simulateLoading(btn, false);
                 }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
             }
         });
+
+        // $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const selecionados = self._objConfigs.data.selecionados;
+        //         if (selecionados.length == 0) {
+        //             commonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
+        //             return;
+        //         }
+        //         let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
+
+        //         const objModal = new modalSelecionarConta();
+        //         objModal.setDataEnvModal = {
+        //             participacoes: participacoesIds,
+        //             perfil: self._objConfigs.data.perfil,
+        //         };
+
+        //         const responseConta = await objModal.modalOpen();
+
+        //         if (responseConta.refresh) {
+        //             const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+        //             objConn.setAction(enumAction.POST);
+        //             objConn.setData(
+        //                 commonFunctions.deepMergeObject(responseConta.register, {
+        //                     participacoes: participacoesIds
+        //                 })
+        //             );
+        //             const response = await objConn.envRequest();
+        //             if (response.data) {
+        //                 commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
+        //                 await self.#executarBusca();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
         $(`#ckbCheckAll${self.getSufixo}`).on('change', async function () {
             const tableData = $(`#tableData${self.getSufixo} tbody`);
@@ -211,6 +249,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         self._objConfigs.data.totais = {
             debito: 0,
             credito: 0,
+            credito_liquidado: 0,
+            debito_liquidado: 0,
         };
         self._objConfigs.data.selecionados = []
         $(`#ckbCheckAll${self.getSufixo}`).prop('checked', false);
@@ -267,46 +307,73 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
         let strBtns = self.#htmlBtns(item);
 
-        const movimentacao = item.parent;
+        const parent = item.parent;
 
         const status = item.status.nome;
-        const movimentacaoTipo = movimentacao.movimentacao_tipo.nome;
+        let movimentacaoTipo = '';
         const valorParticipante = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_participante)}`;
 
-        switch (movimentacao.movimentacao_tipo_id) {
-            case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
-                self._objConfigs.data.totais.credito += item.valor_participante;
-                break;
-            case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
-                self._objConfigs.data.totais.debito += item.valor_participante;
-                break;
-        }
 
-        const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(movimentacao.data_movimentacao, 2);
+        let dataMovimentacao = '';
         const descricaoAutomatica = item.descricao_automatica;
-        const conta = movimentacao.conta.nome;
+        const conta = parent.conta.nome;
 
-        let dadosEspecificos = movimentacao.descricao_automatica;
+        let dadosEspecificos = '';
 
-        switch (movimentacao.referencia_type) {
+        switch (item.parent_type) {
+            case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
 
-            case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                // dadosEspecificos += ` - Serviço ${movimentacao.referencia.pagamento.servico.numero_servico}`;
-                dadosEspecificos += ` - NP#${movimentacao.referencia.pagamento.numero_pagamento}`;
-                dadosEspecificos += ` - (${movimentacao.referencia.pagamento.servico.area_juridica.nome})`;
-                dadosEspecificos += ` - ${movimentacao.referencia.pagamento.servico.titulo}`;
+                dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_movimentacao, 2);
+                movimentacaoTipo = parent.movimentacao_tipo.nome;
+
+                dadosEspecificos = parent.descricao_automatica;
+
+                switch (parent.referencia_type) {
+                    case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
+                        // dadosEspecificos += ` - Serviço ${movimentacao.referencia.pagamento.servico.numero_servico}`;
+                        dadosEspecificos += ` - NP#${parent.referencia.pagamento.numero_pagamento}`;
+                        dadosEspecificos += ` - (${parent.referencia.pagamento.servico.area_juridica.nome})`;
+                        dadosEspecificos += ` - ${parent.referencia.pagamento.servico.titulo}`;
+                        break;
+
+                    case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
+                        dadosEspecificos += ` - NL#${parent.referencia.numero_lancamento}`;
+                        dadosEspecificos += ` - (${parent.referencia.categoria.nome})`;
+                        break;
+
+                    // case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
+                    //     dadosEspecificos += ` - NL#${movimentacao.referencia.numero_lancamento}`;
+                    //     dadosEspecificos += ` - (${movimentacao.referencia.categoria.nome})`;
+                    //     break;
+
+                    default:
+                        const message = `Tipo de referência de movimentação de conta não configurado.`;
+                        console.error(parent.referencia_type, parent);
+                        throw new Error(message);
+                }
                 break;
 
-            case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
-                dadosEspecificos += ` - NL#${movimentacao.referencia.numero_lancamento}`;
-                dadosEspecificos += ` - (${movimentacao.referencia.categoria.nome})`;
+            case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
+
+                dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_vencimento, 2);
+                movimentacaoTipo = parent.parceiro_movimentacao_tipo.nome;
+
+                dadosEspecificos = item.descricao_automatica;
+                dadosEspecificos += ` - NR#${parent.numero_ressarcimento}`;
+                dadosEspecificos += ` - (${parent.categoria.nome})`;
+                dadosEspecificos += ` - ${parent.descricao}`;
+
                 break;
 
             default:
-                break;
+                const message = `Tipo parent de registro de balanço de parceiro não configurado.`;
+                console.error(item.parent_type, item);
+                throw new Error(message);
         }
 
-        const created_at = DateTimeHelper.retornaDadosDataHora(movimentacao.created_at, 12);
+        self.#executarSomatoriaTotais(item);
+
+        const created_at = DateTimeHelper.retornaDadosDataHora(parent.created_at, 12);
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -315,12 +382,12 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${status}">${status}</td>
                 <td class="text-nowrap text-truncate" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
                 <td class="text-nowrap text-center" title="${valorParticipante}">${valorParticipante}</td>
                 <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-truncate" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${dadosEspecificos}">${dadosEspecificos}</td>
                 <td class="text-nowrap text-truncate" title="${conta}">${conta}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
@@ -331,15 +398,76 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         return true;
     }
 
+    #executarSomatoriaTotais(item) {
+
+        const self = this;
+        let movimentacaoTipoId = null;
+
+        switch (item.parent_type) {
+            case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
+                movimentacaoTipoId = item.parent.movimentacao_tipo_id;
+                break;
+
+            case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
+                movimentacaoTipoId = item.parent.parceiro_movimentacao_tipo_id;
+                break;
+            default:
+                throw new Error(`Tipo parent de registro de balanço de parceiro não configurado.`);
+        }
+
+        switch (item.status_id) {
+            // Soma as que estão ativas
+            case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.ATIVA:
+
+                switch (movimentacaoTipoId) {
+                    case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
+                        self._objConfigs.data.totais.credito += item.valor_participante;
+                        break;
+                    case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
+                        self._objConfigs.data.totais.debito += item.valor_participante;
+                        break;
+                    default:
+                        throw new Error(`Tipo de movimentação de conta não configurado.`);
+                }
+                break;
+
+            // Soma as que estão liquidadas
+            case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.FINALIZADA:
+
+                switch (movimentacaoTipoId) {
+                    case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
+                        self._objConfigs.data.totais.credito_liquidado += item.valor_participante;
+                        break;
+                    case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
+                        self._objConfigs.data.totais.debito_liquidado += item.valor_participante;
+                        break;
+                    default:
+                        throw new Error(`Tipo de movimentação de conta não configurado.`);
+                }
+                break;
+
+            default:
+                throw new Error(`Status de movimentação de conta não configurado.`);
+
+        }
+    }
+
     #atualizaValoresTotais() {
         const self = this;
+        // Ativos
         $(`#total_credito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito)}`);
         $(`#total_debito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.debito)}`);
         $(`#total_saldo${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito - self._objConfigs.data.totais.debito)}`);
+
+        // Liquidados
+        $(`#total_credito_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito_liquidado)}`);
+        $(`#total_debito_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.debito_liquidado)}`);
+        $(`#total_saldo_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito_liquidado - self._objConfigs.data.totais.debito_liquidado)}`);
     }
 
     #htmlBtns() {
 
+        return '';
         // let strBtns = `
         //     <div class="input-group">
         //         <div class="input-group-text border-0 rounded-end-0 bg-transparent">
@@ -436,8 +564,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Statics.statusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd;
-            console.log(arrayOpcoes)
+            const arrayOpcoes = window.Statics.StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd;
             let options = {
                 insertFirstOption: true,
                 firstOptionName: 'Todos os status',

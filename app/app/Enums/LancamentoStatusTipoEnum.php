@@ -193,7 +193,7 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
-    static public function statusImpossibilitaEdicaoParticipantes(): array
+    static public function statusImpossibilitaEdicaoLancamentoServico(): array
     {
         return [
             self::LIQUIDADO->value,
@@ -265,19 +265,6 @@ enum LancamentoStatusTipoEnum: int
     }
 
     /**
-     * Status que não serão permitidos atribuir, como status de reagendado e liquidado parcialmente.
-     */
-    static public function statusNaoPermitidoParaLancamentoRessarcimento(): array
-    {
-        return [
-            self::REAGENDADO_EM_ANALISE->value,
-            self::REAGENDADO->value,
-            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-            self::LIQUIDADO_PARCIALMENTE->value,
-        ];
-    }
-
-    /**
      * Retorna os status que serão exibidos nos filtros do front-end.
      */
     static public function statusParaFiltrosFrontEndLancamentoGeral(): array
@@ -288,6 +275,37 @@ enum LancamentoStatusTipoEnum: int
             self::staticDetailsToArray(),
             fn($detalhe) => !in_array($detalhe['id'], $ocultos)
         ));
+    }
+
+    /**
+     * Retorna os status que não poderão ser excluídos quando a execução do agendamento for resetada.
+     */
+    static public function statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
+
+
+    /**
+     * Status que não serão permitidos atribuir, como status de reagendado e liquidado parcialmente.
+     */
+    static public function statusNaoPermitidoParaLancamentoRessarcimento(): array
+    {
+        return [
+            self::REAGENDADO_EM_ANALISE->value,
+            self::REAGENDADO->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+            self::PAGAMENTO_CANCELADO->value,
+            self::CANCELADO_EM_ANALISE->value,
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::INADIMPLENTE_EM_ANALISE->value,
+            self::INADIMPLENTE->value,
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+        ];
     }
 
     /**
@@ -303,10 +321,7 @@ enum LancamentoStatusTipoEnum: int
         ));
     }
 
-    /**
-     * Retorna os status que não poderão ser excluídos quando a execução do agendamento for resetada.
-     */
-    static public function statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado(): array
+    static public function statusImpossibilitaEdicaoLancamentoRessarcimento(): array
     {
         return [
             self::LIQUIDADO->value,

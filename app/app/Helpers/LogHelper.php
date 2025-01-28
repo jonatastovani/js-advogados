@@ -65,12 +65,17 @@ class LogHelper
      */
     public static function getQueryLogERetorna($dentroDeTryCatch = false)
     {
-        $queries = DB::getQueryLog();
+        $queries = self::getQueryLog();
         $formattedQueries = self::formatQueryLog($queries);
         if ($dentroDeTryCatch) {
             throw new \Exception(json_encode($formattedQueries), 500);
         }
         return RestResponse::createTestResponse($formattedQueries);
+    }
+
+    public static function getQueryLog()
+    {
+        return DB::getQueryLog();
     }
 
     /**
@@ -121,6 +126,16 @@ class LogHelper
         $logFormat = self::formatQueryLog($logFormat);
 
         foreach ($logFormat as $key => $value) {
+            Log::debug("Query: $key -> " . $value);
+        }
+    }
+
+    public static function escreverLogComGetQuery()
+    {
+        $queries = self::getQueryLog();
+        $formattedQueries = self::formatQueryLog($queries);
+
+        foreach ($formattedQueries as $key => $value) {
             Log::debug("Query: $key -> " . $value);
         }
     }

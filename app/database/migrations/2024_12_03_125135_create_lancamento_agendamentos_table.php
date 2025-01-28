@@ -48,6 +48,8 @@ return new class extends Migration
             $table->boolean('ativo_bln')->default(true);
             $table->string('observacao')->nullable();
 
+            $table->jsonb('data')->nullable();
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

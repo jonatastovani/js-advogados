@@ -3,6 +3,7 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -140,7 +141,7 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_participante_razao_social' => isset($aliasCampos['col_nome_participante_razao_social']) ? $aliasCampos['col_nome_participante_razao_social'] : $pessoaJuridicaParticipanteAsName,
             'col_nome_participante_nome_fantasia' => isset($aliasCampos['col_nome_participante_nome_fantasia']) ? $aliasCampos['col_nome_participante_nome_fantasia'] : $pessoaJuridicaParticipanteAsName,
             'col_nome_participante_responsavel_legal' => isset($aliasCampos['col_nome_participante_responsavel_legal']) ? $aliasCampos['col_nome_participante_responsavel_legal'] : $pessoaJuridicaParticipanteAsName,
-            
+
             'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
             'col_nome_integrante_razao_social' => isset($aliasCampos['col_nome_integrante_razao_social']) ? $aliasCampos['col_nome_integrante_razao_social'] : $pessoaJuridicaIntegranteAsName,
             'col_nome_integrante_nome_fantasia' => isset($aliasCampos['col_nome_integrante_nome_fantasia']) ? $aliasCampos['col_nome_integrante_nome_fantasia'] : $pessoaJuridicaIntegranteAsName,
@@ -199,12 +200,12 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_grupo_pagamento' => ['campo' => $arrayAliasCampos['col_nome_grupo_pagamento'] . '.nome_grupo'],
             'col_observacao_pagamento' => ['campo' => $arrayAliasCampos['col_observacao_pagamento'] . '.observacao'],
             'col_numero_pagamento' => ['campo' => $arrayAliasCampos['col_numero_pagamento'] . '.numero_pagamento'],
-            
+
             'col_nome_participante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_pagamento'] . '.nome'],
             'col_nome_participante_razao_social_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social_pagamento'] . '.razao_social'],
             'col_nome_participante_nome_fantasia_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia_pagamento'] . '.nome_fantasia'],
             'col_nome_participante_responsavel_legal_pagamento' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal_pagamento'] . '.responsavel_legal'],
-            
+
             'col_nome_integrante_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_pagamento'] . '.nome'],
             'col_nome_integrante_razao_social_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social_pagamento'] . '.razao_social'],
             'col_nome_integrante_nome_fantasia_pagamento' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_pagamento'] . '.nome_fantasia'],
@@ -217,12 +218,12 @@ class ServicoPagamentoLancamentoService extends Service
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
             'col_descricao_servico' => ['campo' => $arrayAliasCampos['col_descricao_servico'] . '.descricao'],
             'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
-                        
+
             'col_nome_participante_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_servico'] . '.nome'],
             'col_nome_participante_razao_social_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social_servico'] . '.razao_social'],
             'col_nome_participante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia_servico'] . '.nome_fantasia'],
             'col_nome_participante_responsavel_legal_servico' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal_servico'] . '.responsavel_legal'],
-            
+
             'col_nome_integrante_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_servico'] . '.nome'],
             'col_nome_integrante_razao_social_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social_servico'] . '.razao_social'],
             'col_nome_integrante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_servico'] . '.nome_fantasia'],
@@ -375,7 +376,15 @@ class ServicoPagamentoLancamentoService extends Service
         $arrayErrors = new Fluent();
         $resource = null;
 
-        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
+        if ($id) {
+            $resource = $this->buscarRecurso($requestData);
+
+            if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
+                return RestResponse::createErrorResponse(422, "Este lancamento possui status que impossibilita a edição de informações")->throwResponse();
+            }
+        } else {
+            $resource = new $this->model;
+        }
 
         if ($requestData->conta_id) {
             //Verifica se a conta informada existe

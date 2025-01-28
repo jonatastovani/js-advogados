@@ -26,7 +26,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table($this->model->getTableName(), function (Blueprint $table) {
-            $table->json('configuracao')->nullable()->after('descricao');
+            $table->jsonb('configuracao')->nullable()->after('descricao');
         });
     }
 

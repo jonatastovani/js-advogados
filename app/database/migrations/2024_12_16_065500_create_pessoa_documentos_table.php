@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->uuid('documento_tipo_tenant_id');
             $table->string('numero');
-            $table->json('campos_adicionais')->nullable();
+            $table->jsonb('campos_adicionais')->nullable();
             $table->string('observacao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

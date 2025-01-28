@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreign('conta_subtipo_id')->references('id')->on((new App\Models\Referencias\ContaSubtipo)->getTableName());
 
             $table->string('banco')->nullable();
-            $table->json('configuracao')->nullable();
+            $table->jsonb('configuracao')->nullable();
 
             $table->unsignedSmallInteger('conta_status_id');
             $table->foreign('conta_status_id')->references('id')->on((new App\Models\Referencias\ContaStatusTipo)->getTableName());

@@ -90,6 +90,11 @@ class LancamentoRessarcimento extends Model
         return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
+    public function movimentacao_conta_participante()
+    {
+        return $this->morphMany(MovimentacaoContaParticipante::class, 'parent');
+    }
+
     protected static function boot()
     {
         parent::boot();

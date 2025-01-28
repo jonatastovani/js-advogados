@@ -34,7 +34,7 @@ return new class extends Migration
             $table->string('descricao');
             $table->float('valor_esperado');
             $table->date('data_vencimento');
-            
+
             $table->float('valor_quitado')->nullable();
             $table->date('data_quitado')->nullable();
 
@@ -51,6 +51,8 @@ return new class extends Migration
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo())->getTableName());
 
             $table->string('observacao')->nullable();
+
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

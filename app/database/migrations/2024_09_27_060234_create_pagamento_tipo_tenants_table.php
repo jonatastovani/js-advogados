@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('pagamento_tipo_id');
             $table->foreign('pagamento_tipo_id')->references('id')->on((new App\Models\Referencias\PagamentoTipo)->getTableName());
 
-            $table->json('configuracao');
+            $table->jsonb('configuracao');
             $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

@@ -53,7 +53,7 @@ return new class extends Migration
             $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\PagamentoStatusTipo)->getTableName());
 
-            $table->json('temporary_data')->nullable(); // Armazenará dados temporários, quando o status for um status em análise.
+            $table->jsonb('temporary_data')->nullable(); // Armazenará dados temporários, quando o status for um status em análise.
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

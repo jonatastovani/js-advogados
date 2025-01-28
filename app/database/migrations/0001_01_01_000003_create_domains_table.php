@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('domain', 255)->unique();
 
             $table->string('name', 30);
-            $table->json('data')->nullable();
+            $table->jsonb('data')->nullable();
 
             $this->addTenantIDField($table);
             $this->addCommonFieldsCreatedUpdatedDeleted($table, ['allNotReferenced' => true, 'createdIdNullable' => true]);

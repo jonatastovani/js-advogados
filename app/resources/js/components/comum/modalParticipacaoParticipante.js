@@ -114,6 +114,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             }
         });
 
+        const valor = modal.find('input[name="valor"]');
         modal.find('.btnAplicarRestante').on('click', async function () {
             const porcentagem_livre = self._objConfigs.data.porcentagem_livre;
             if (porcentagem_livre == 100) {
@@ -165,6 +166,8 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             }
         }
 
+        const valor = modal.find('input[name="valor"]');
+
         const executarAcoesPorcentagem = () => {
             aplicarMascaraPorcentagem(valor);
             visibilidadeDadosPorcentagem(true);
@@ -176,8 +179,6 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             visibilidadeDadosPorcentagem(false);
             self._objConfigs.data.valor_tipo = 'valor_fixo';
         }
-
-        const valor = modal.find('input[name="valor"]');
 
         if (tiposPermitidos.length > 1) {
             modal.find('input[name="valor_tipo"]').on('click', async function () {
@@ -281,7 +282,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.valor_tipo = self._objConfigs.data.valor_tipo;
-        
+
         if (self.#saveVerifications(data)) {
             self._promisseReturnValue.register = data;
             self._promisseReturnValue.refresh = true;

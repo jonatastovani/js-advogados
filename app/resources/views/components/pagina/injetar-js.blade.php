@@ -12,16 +12,18 @@
         PagamentoTipoEnum: @json(\App\Enums\PagamentoTipoEnum::toArray()),
         DocumentoGeradoTipoEnum: @json(\App\Enums\DocumentoGeradoTipoEnum::toArray()),
         ParticipacaoTipoTenantConfiguracaoTipoEnum: @json(\App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum::toArray()),
+        BalancoRepasseParceiroTipoParentEnum: @json(\App\Enums\BalancoRepasseParceiroTipoParentEnum::toArray()),
+        MovimentacaoContaParticipanteStatusTipoEnum: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::toArray()),
     };
 
     window.Statics = {
         PerfisPermitidoParticipacaoServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoParticipacaoServico()),
         PerfisPermitidoParticipacaoRessarcimento: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoParticipacaoRessarcimento()),
-        StatusImpossibilitaEdicaoParticipantes: @json(\App\Enums\LancamentoStatusTipoEnum::statusImpossibilitaEdicaoParticipantes()),
+        StatusImpossibilitaEdicaoLancamentoServico: @json(\App\Enums\LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico()),
         StatusLancamentoTachado: @json(\App\Enums\LancamentoStatusTipoEnum::statusLancamentoTachado()),
         StatusPagamentoTachado: @json(\App\Enums\PagamentoStatusTipoEnum::statusPagamentoTachado()),
         StatusServicoLancamentoComParticipantes: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusServicoLancamentoComParticipantes()),
-        statusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
+        StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
         TiposMovimentacaoParaLancamentos: @json(\App\Enums\MovimentacaoContaTipoEnum::tiposMovimentacaoParaLancamentos()),
         MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusParaFiltrosFrontEnd()),
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoGeral()),

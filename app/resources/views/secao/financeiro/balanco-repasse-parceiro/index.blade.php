@@ -129,8 +129,8 @@
                     <th class="text-center">
                         <div class="input-group flex-nowrap">
                             <div class="input-group-text border-0 bg-transparent">
-                                <input class="form-check-input mt-0" id="ckbCheckAll{{ $sufixo }}" type="checkbox"
-                                    aria-label="Checkbox for following text input">
+                                {{-- <input class="form-check-input mt-0" id="ckbCheckAll{{ $sufixo }}" type="checkbox"
+                                    aria-label="Checkbox for following text input"> --}}
                             </div>
                             <div class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-fire"></i></div>
                         </div>
@@ -148,11 +148,16 @@
             <tbody></tbody>
         </table>
     </div>
-    <div class="row">
+    <div class="row row-cols-1 row-cols-sm-2">
         <div class="col text-end mt-2">
             <p class="mb-0">Total crédito: R$ <span id="total_credito{{ $sufixo }}">0,00</span></p>
             <p class="mb-0">Total débito: R$ <span id="total_debito{{ $sufixo }}">0,00</span></p>
             <p class="mb-0">Saldo: R$ <span id="total_saldo{{ $sufixo }}">0,00</span></p>
+        </div>
+        <div class="col text-end mt-2">
+            <p class="mb-0">Total crédito liquidado: R$ <span id="total_credito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito liquidado: R$ <span id="total_debito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo liquidado: R$ <span id="total_saldo_liquidado{{ $sufixo }}">0,00</span></p>
         </div>
     </div>
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />

@@ -44,7 +44,7 @@ return new class extends Migration
 
             // Logo abaixo tem a adição da coluna parent_id para refere-se ao pagamento principal, caso seja um pagamento parcial.
 
-            $table->json('metadata')->nullable(); // Armazenará opcionais como rastreamento ou informações originais (ex: em casos de pagamentos parciais, salvar o nome do primeiro pagamento, assim se o restante do parcial gerar mais paciais, levará o nome original.).
+            $table->jsonb('metadata')->nullable(); // Armazenará opcionais como rastreamento ou informações originais (ex: em casos de pagamentos parciais, salvar o nome do primeiro pagamento, assim se o restante do parcial gerar mais paciais, levará o nome original.).
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

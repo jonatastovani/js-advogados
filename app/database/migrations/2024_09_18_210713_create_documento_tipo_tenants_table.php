@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('documento_tipo_id');
             $table->foreign('documento_tipo_id')->references('id')->on((new App\Models\Referencias\DocumentoTipo)->getTableName());
 
-            $table->json('configuracao');
+            $table->jsonb('configuracao');
             $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

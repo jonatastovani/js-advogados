@@ -30,8 +30,8 @@ return new class extends Migration
             $table->smallInteger('documento_gerado_tipo_id');
             $table->foreign('documento_gerado_tipo_id', "fk_{$this->model->getTableAsName()}_documento_gerado_tipo_id")->references('id')->on((new App\Models\Referencias\DocumentoGeradoTipo)->getTableName());
 
-            $table->json('dados');
-            $table->json('configuracao')->nullable();
+            $table->jsonb('dados');
+            $table->jsonb('configuracao')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

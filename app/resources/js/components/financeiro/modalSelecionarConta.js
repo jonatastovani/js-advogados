@@ -34,42 +34,36 @@ export class modalSelecionarConta extends modalDefault {
             idModal: "#modalSelecionarConta",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
     }
 
     async modalOpen() {
         const self = this;
-        let blnOpen = false;
 
         try {
             if (self._dataEnvModal.perfil.perfil_tipo_id == window.Enums.PessoaPerfilTipoEnum.EMPRESA) {
 
                 self.#eventosTipoEmpresa(true);
-                blnOpen = true;
             } else {
 
                 await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
 
                 if (await self.#buscarContas()) {
-                    blnOpen = self.#addEventosPadrao();
+                    self.#addEventosPadrao();
                 }
             }
-        } catch (error) {
-            blnOpen = false;
-            commonFunctions.generateNotificationErrorCatch(error);
-        } finally {
-            await commonFunctions.loadingModalDisplay(false);
-        }
 
-        if (!blnOpen) {
+            self.#renderMensagem();
+            await commonFunctions.loadingModalDisplay(false);
+            await self._modalHideShow();
+            return await self._modalOpen();
+
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
             return await self._returnPromisseResolve();
         }
-
-        self.#renderMensagem();
-        await self._modalHideShow();
-        return await self._modalOpen();
     }
 
     _modalReset() {
@@ -132,8 +126,6 @@ export class modalSelecionarConta extends modalDefault {
         commonFunctions.eventRBCkBHidden(modal.find(`#rbContaOrigem${self.getSufixo}`), dataRbCkB);
         rbContaDebito.trigger('change');
         self._executeFocusElementOnModal(select, 1000);
-
-        return true;
     }
 
     #eventosTipoEmpresa(bln = false) {
@@ -154,12 +146,8 @@ export class modalSelecionarConta extends modalDefault {
 
     #renderMensagem() {
         const self = this;
-        if (self._dataEnvModal.participacoes.length) {
-            const message = self._dataEnvModal.participacoes.length > 1 ? `Confirma o repasse das movimentações selecionadas?` : `Confirma o repasse da movimentação selecionada?`;
-            $(`${self.getIdModal} .messageConfirmacao`).html(message);
-        } else {
-            throw new Error('Nenhuma movimentação foi selecionada.');
-        }
+        const message = `Confirma o repasse/compensação da consulta em tela?`;
+        $(`${self.getIdModal} .messageConfirmacao`).html(message);
     }
 
     async #buscarContas(selected_id = null) {

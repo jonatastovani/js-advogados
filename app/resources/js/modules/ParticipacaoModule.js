@@ -234,6 +234,14 @@ export class ParticipacaoModule {
             default:
                 break;
         }
+
+        self._limparDivParticipantes();
+    }
+
+    _limparDivParticipantes() {
+        const self = this;
+        self._objConfigs.data.participantesNaTela = [];
+        $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
     }
 
     async #buscarParticipacaoTipo(id) {
@@ -846,6 +854,7 @@ export class ParticipacaoModule {
         const self = this;
 
         let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
+        console.log(porcentagemOcupada);
         if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
             commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
             blnSave = false;

@@ -52,6 +52,8 @@ return new class extends Migration
 
             $table->string('observacao')->nullable();
 
+            $table->jsonb('data')->nullable();
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

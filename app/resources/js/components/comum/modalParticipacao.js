@@ -25,7 +25,10 @@ export class modalParticipacao extends modalRegistrationAndEditing {
         data: {
             porcentagemOcupada: 0,
             participantesNaTela: [],
+        },
+        participacao: {
             participacao_tipo_tenant: {
+                // Padrão
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },
         },
@@ -138,7 +141,7 @@ export class modalParticipacao extends modalRegistrationAndEditing {
     async saveButtonAction() {
         const self = this;
         let data = {
-            participantes: self._objConfigs.data.participantesNaTela,
+            participantes: self.#functionsParticipacao._getParticipantesNaTela(),
         }
 
         if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {

@@ -3,6 +3,7 @@ import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { TemplateForm } from "../../commons/templates/TemplateForm";
 import { modalMessage } from "../../components/comum/modalMessage";
+import { modalParticipacao } from "../../components/comum/modalParticipacao";
 import { modalPessoa } from "../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
@@ -624,7 +625,7 @@ class PageServicoForm extends TemplateForm {
             const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
 
             let editParticipante = true;
-            if (window.Statics.StatusImpossibilitaEdicaoParticipantes.findIndex(x => x == item.status_id) != -1) {
+            if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
                 editParticipante = false;
             }
 
@@ -699,7 +700,7 @@ class PageServicoForm extends TemplateForm {
         const pagamentoAtivo = pagamentoStatusId == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
 
         let editParticipante = true;
-        if (window.Statics.StatusImpossibilitaEdicaoParticipantes.findIndex(x => x == item.status_id) != -1) {
+        if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
             editParticipante = false;
         }
 

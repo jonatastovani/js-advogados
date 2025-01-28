@@ -42,7 +42,7 @@ return new class extends Migration
             $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaParticipanteStatusTipo())->getTableName());
                     
-            $table->json('metadata')->nullable();
+            $table->jsonb('metadata')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

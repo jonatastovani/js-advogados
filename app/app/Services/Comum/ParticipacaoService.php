@@ -188,7 +188,7 @@ class ParticipacaoService extends Service
     public function storeLancamento(Fluent $requestData)
     {
         $resource = app(ServicoPagamentoLancamentoService::class)->buscarRecurso($requestData, ['conditions' => ['id' => $requestData->lancamento_uuid]]);
-        if (in_array($resource->status_id, LancamentoStatusTipoEnum::StatusImpossibilitaEdicaoParticipantes())) {
+        if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
             return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de participantes")->throwResponse();
         }
         return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelPagamentoLancamento);
@@ -197,7 +197,7 @@ class ParticipacaoService extends Service
     public function storeLancamentoGeral(Fluent $requestData)
     {
         $resource = app(LancamentoGeralService::class)->buscarRecurso($requestData, ['conditions' => ['id' => $requestData->lancamento_uuid]]);
-        if (in_array($resource->status_id, LancamentoStatusTipoEnum::StatusImpossibilitaEdicaoParticipantes())) {
+        if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
             return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de participantes")->throwResponse();
         }
         return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelLancamentoGeral, ['conferencia_valor_consumido' => true]);

@@ -5,7 +5,6 @@ namespace App\Services\Financeiro;
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
-use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Comum\ParticipacaoParticipante;
@@ -79,7 +78,7 @@ class LancamentoRessarcimentoService extends Service
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
 
                 $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
-              
+
                 $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
 
                 // $this->executarEventoWebsocket();
@@ -102,6 +101,36 @@ class LancamentoRessarcimentoService extends Service
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
+                $participantesMovimentacaoContaExcluir = $this->modelParticipanteConta::where('parent_id', $resource->id)
+                    ->where('parent_type', $resource->getMorphClass())->get();
+                foreach ($participantesMovimentacaoContaExcluir as $participante) {
+                    $participante->delete();
+                }
+
+                $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
+                $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        
+        if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaExclusao())) {
+            return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a exclusão.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
             });
@@ -176,6 +205,10 @@ class LancamentoRessarcimentoService extends Service
         $resource = null;
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
+
+            if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoRessarcimento())) {
+                return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de informações.")->throwResponse();
+            }
         } else {
             $resource = new $this->model;
         }
@@ -207,10 +240,6 @@ class LancamentoRessarcimentoService extends Service
         $arrayErrors = $participantesData->arrayErrors;
         $resource->participantes = $participantesData->participantes;
 
-        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        // }
-
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
@@ -224,27 +253,6 @@ class LancamentoRessarcimentoService extends Service
         $resource->observacao = $requestData->observacao;
 
         return $resource;
-    }
-
-    public function updateLancamentoRessarcimentoReagendado(Fluent $requestData)
-    {
-        $idParent = $requestData->uuid;
-        $modelParent = $this->model;
-        try {
-            return DB::transaction(function () use ($requestData, $idParent, $modelParent) {
-
-                $lancamento = $modelParent::find($idParent);
-
-                $lancamento->data_vencimento = $requestData->data_vencimento;
-                if ($requestData->observacao) $lancamento->observacao = $requestData->observacao;
-                $lancamento->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoRessarcimento();
-                $lancamento->save();
-
-                return $lancamento->toArray();
-            });
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])
