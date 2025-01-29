@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\View\Financeiro;
 
+use App\Enums\BalancoRepasseParceiroTipoParentEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
@@ -15,6 +16,7 @@ use App\Traits\CommonsControllerMethodsTrait;
 use App\Utils\CurrencyFormatterUtils;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
@@ -79,25 +81,45 @@ class FinanceiroController extends Controller
             $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
             $dadosRetorno->descricao_automatica = $parent['descricao_automatica'];
 
-            $dadosEspecificos = $value['parent']['descricao_automatica'];
+            $dadosEspecificos = $parent['descricao_automatica'];
 
-            switch ($value['parent']['referencia_type']) {
+            switch ($value['parent_type']) {
 
-                case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= " - NP#{$parent['referencia']['pagamento']['numero_pagamento']}";
-                    $dadosEspecificos .= " - ({$parent['referencia']['pagamento']['servico']['area_juridica']['nome']})";
-                    $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
+                case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+
+                    switch ($value['parent']['referencia_type']) {
+
+                        case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
+                            // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
+                            $dadosEspecificos .= " - NP#{$parent['referencia']['pagamento']['numero_pagamento']}";
+                            $dadosEspecificos .= " - ({$parent['referencia']['pagamento']['servico']['area_juridica']['nome']})";
+                            $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
+                            break;
+
+                        case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+
+                            $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
+                            $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
+
+                        default:
+                            throw new Exception('Tipo de referência de movimentação de conta não configurado.', 500);
+                            break;
+                    }
                     break;
 
-                case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+                case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
 
-                    $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
-                    $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
+                    // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - NR#{$parent['numero_ressarcimento']}";
+                    $dadosEspecificos .= " - ({$parent['pagamento']['servico']['area_juridica']['nome']})";
+                    $dadosEspecificos .= " - {$parent['pagamento']['servico']['titulo']}";
+                    break;
 
                 default:
+                    throw new Exception('Tipo parent de registro de balanço de parceiro não configurado.', 500);
                     break;
             }
+
             $dadosRetorno->dados_especificos = $dadosEspecificos;
             $dadosRetorno->conta = $parent['conta']['nome'];
 

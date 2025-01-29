@@ -16,4 +16,14 @@ enum MovimentacaoContaReferenciaEnum: string
     case CONTA = ContaTenant::class; // Usado para atualização de saldo
     case DOCUMENTO_GERADO = DocumentoGerado::class;
     case LANCAMENTO_GERAL = LancamentoGeral::class;
+
+    /**
+     * Status que mostrarão participantes, caso a movimentação tenha participantes.
+     */
+    static public function referenciasMostrarBalancoRepasseParceiro(): array
+    {
+        return [
+            self::SERVICO_LANCAMENTO->value,
+        ];
+    }
 }

@@ -98,16 +98,7 @@ class MovimentacaoContaParticipanteService extends Service
 
     public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
     {
-
-        // LogHelper::habilitaQueryLog();
-
-        $filtrosData = $this->extrairFiltros($requestData, $options);
-
-        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
-
-        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-
-        // LogHelper::escreverLogSomenteComQuery($query);
+        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
 
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => "{$this->modelMovimentacaoConta->getTableAsName()}.data_movimentacao",
@@ -116,6 +107,145 @@ class MovimentacaoContaParticipanteService extends Service
         $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
 
         return $resources;
+    }
+
+    /**
+     * Busca somente as participações com os parâmetros de uma consulta com filtros e retorna um array com
+     * a lista de participações e seus totais. Este método não traz relacionamentos recursivos.
+     *
+     * @param Fluent $requestData
+     * @param array $options
+     * @return array
+     */
+    public function postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes(Fluent $requestData, array $options = [])
+    {
+        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
+        $resources = $query->get();
+
+        $somatorias = $this->obterTotaisParticipacoes($resources, $options);
+
+        return [
+            'participacoes' => $resources->toArray(),
+            'totais' => $somatorias->toArray(),
+        ];
+    }
+
+    /**
+     * Obtem os totais de repasse de uma collection de participações.
+     *
+     * @param Collection $resources A collection de participações.
+     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * @return Fluent Retorna um objeto Fluent com os totais de repasse.
+     * - credito: soma dos valores de crédito;
+     * - debito: soma dos valores de débito;
+     * - credito_liquidado: soma dos valores de crédito liquidado;
+     * - debito_liquidado: soma dos valores de débito liquidado;
+     * - total_saldo: soma do total de saldo (crédito - débito);
+     * - total_saldo_liquidado: soma do total de saldo liquidado (crédito liquidado - débito liquidado);
+     */
+    private function obterTotaisParticipacoes(Collection $resources,  array $options = [])
+    {
+        $fluentTotais = new Fluent([
+            'credito' => 0,
+            'debito' => 0,
+            'credito_liquidado' => 0,
+            'debito_liquidado' => 0,
+        ]);
+
+        $agrupamentoPorParentType = collect($resources)->groupBy('parent_type');
+        $agrupamentoPorParentType->each(function ($registros, $parentType) use (&$fluentTotais) {
+
+            $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
+            if ($parentType == BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value) {
+                // Somente o parent é carregado para obter o tipo de movimentação (crédito ou débito), no caso do Ressarcimento só ter esta informação em seu modelo.
+                $registros = $registros->load('parent');
+
+                $this->tratamentoMovimentacaoTipoLancamentoRessarcimento($registros);
+            }
+
+            // Itera sobre a Collection e usa bcadd para somar os valores com precisão
+            $registros->each(function ($participacao) use (&$fluentTotais) {
+
+                $movimentacaoTipoId = null;
+
+                switch ($participacao->parent_type) {
+
+                    case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                        $movimentacaoTipoId = $participacao->parent->movimentacao_tipo_id;
+                        break;
+
+                    case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                        $movimentacaoTipoId = $participacao->parent->parceiro_movimentacao_tipo_id;
+                        break;
+
+                    default:
+                        return RestResponse::createErrorResponse(500, 'Tipo parent de registro de balanço de parceiro não configurado.')->throwResponse();
+                        break;
+                }
+
+                switch ($participacao->status_id) {
+
+                    case MovimentacaoContaParticipanteStatusTipoEnum::ATIVA->value:
+
+                        switch ($movimentacaoTipoId) {
+                            case MovimentacaoContaTipoEnum::CREDITO->value:
+                                // Soma o valor do participante ao total com precisão
+                                $fluentTotais->credito = bcadd($fluentTotais->credito, $participacao->valor_participante, 2);
+                                break;
+
+                            case MovimentacaoContaTipoEnum::DEBITO->value:
+                                // Subtrai o valor do participante ao total com precisão
+                                $fluentTotais->debito = bcsub($fluentTotais->debito, $participacao->valor_participante, 2);
+                                break;
+
+                            default:
+                                return RestResponse::createErrorResponse(500, 'Tipo de movimentação de conta não configurado.')->throwResponse();
+                                break;
+                        }
+                        break;
+
+                        // Se estiver como FINALIZADA, somar com o crédito ou débito liquidado
+                    case MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value:
+
+                        switch ($movimentacaoTipoId) {
+                            case MovimentacaoContaTipoEnum::CREDITO->value:
+                                // Soma o valor do participante ao total com precisão
+                                $fluentTotais->credito_liquidado = bcadd($fluentTotais->credito_liquidado, $participacao->valor_participante, 2);
+                                break;
+
+                            case MovimentacaoContaTipoEnum::DEBITO->value:
+                                // Subtrai o valor do participante ao total com precisão
+                                $fluentTotais->debito_liquidado = bcsub($fluentTotais->debito_liquidado, $participacao->valor_participante, 2);
+                                break;
+
+                            default:
+                                return RestResponse::createErrorResponse(500, "Tipo de movimentação de conta não configurado. ID '{$movimentacaoTipoId}'.")->throwResponse();
+                                break;
+                        }
+                        break;
+
+                    default:
+                        return RestResponse::createErrorResponse(500, 'Status de participação não configurado.')->throwResponse();
+                        break;
+                }
+            });
+        });
+
+        $fluentTotais->total_saldo = bcsub($fluentTotais->credito, $fluentTotais->debito, 2);
+        $fluentTotais->total_saldo_liquidado = bcsub($fluentTotais->credito_liquidado, $fluentTotais->debito_liquidado, 2);
+
+        return $fluentTotais;
+    }
+
+    private function montaConsultaRegistrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
+    {
+        $filtrosData = $this->extrairFiltros($requestData, $options);
+
+        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
+
+        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+
+        return $query;
     }
 
     /**
@@ -176,6 +306,10 @@ class MovimentacaoContaParticipanteService extends Service
 
                     $query->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
                 });
+
+                // Aplicar filtro de quais referencias serão consideradas da movimentação de contas no balanco de repasse do parceiro
+
+                $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasseParceiro());
 
                 $query = $this->aplicarFiltroMes($query, $requestData, "{$this->modelMovimentacaoConta->getTableAsName()}.data_movimentacao");
             });
@@ -244,12 +378,7 @@ class MovimentacaoContaParticipanteService extends Service
                         'caseTipoReferenciaParentMovimentacaoContaParticipante' => $tipo,
                     ])));
 
-                    // Altera o tipo de exibição da movimentação_tipo, pois para o parceiro a movimentação é a contrária da empresa
-                    $registros->each(function ($registro) {
-                        $movimentacaoTipoParceiro = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria($registro->parent->movimentacao_tipo_id);
-                        $registro->parent->parceiro_movimentacao_tipo = $movimentacaoTipoParceiro;
-                        $registro->parent->parceiro_movimentacao_tipo_id = $movimentacaoTipoParceiro['id'];
-                    });
+                    $this->tratamentoMovimentacaoTipoLancamentoRessarcimento($registros);
 
                     return $registros;
                     break;
@@ -277,6 +406,28 @@ class MovimentacaoContaParticipanteService extends Service
             ->toArray();
 
         return $registrosOrdenados;
+    }
+
+    /**
+     * Trata a movimentação do tipo Lançamento Ressarcimento.
+     *
+     * Percorre cada registro e insere os dados de `parceiro_movimentacao_tipo` 
+     * e `parceiro_movimentacao_tipo_id`. Para o parceiro, a movimentação é a 
+     * contrária da empresa, portanto, cria informaçõess para o tipo de movimentação do parceiro 
+     * com base no tipo de movimentação da empresa.
+     *
+     * @param Collection $registros A coleção de registros que serão tratados.
+     * @return Collection Retorna a coleção de registros com os dados de movimentação 
+     * ajustados para o parceiro.
+     */
+    private function tratamentoMovimentacaoTipoLancamentoRessarcimento(Collection &$registros)
+    {
+        // Insere dados parceiro_movimentacao_tipo e parceiro_movimentacao_tipo_id, pois para o parceiro a movimentação é a contrária da empresa
+        $registros->each(function ($registro) {
+            $movimentacaoTipoParceiro = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria($registro->parent->movimentacao_tipo_id);
+            $registro->parent->parceiro_movimentacao_tipo = $movimentacaoTipoParceiro;
+            $registro->parent->parceiro_movimentacao_tipo_id = $movimentacaoTipoParceiro['id'];
+        });
     }
 
     private function carregamentoDinamicoPorReferenciaType(Collection $collection, array $options = [])
@@ -356,7 +507,7 @@ class MovimentacaoContaParticipanteService extends Service
                             break;
 
                         default:
-                            throw new Exception('Tipo parent de registro de balanço de parceiro não configurado.');
+                            throw new Exception('Tipo parent de registro de balanço de parceiro não configurado.', 500);
                             break;
                     }
                 });
@@ -371,10 +522,7 @@ class MovimentacaoContaParticipanteService extends Service
     private function buscarParticipacaoLancamentoRepasse(Fluent $requestData, array $options = [])
     {
         // LogHelper::habilitaQueryLog();
-
-        $filtrosData = $this->extrairFiltros($requestData, $options);
-
-        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
+        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
 
         // Filtros adicionais
         $query->where(function (Builder $query) {
@@ -405,8 +553,6 @@ class MovimentacaoContaParticipanteService extends Service
         // O status da MovimentacaoContaParticipante deve estar como ATIVA em todos os casos, não pode estar FINALIZADA
         $query->where("{$this->model->getTableAsName()}.status_id", MovimentacaoContaParticipanteStatusTipoEnum::ATIVA->value);
 
-        $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-
         // Ordenação dos registros
         $asNameModel = $this->model->getTableAsName();
         $requestData->ordenacao = [
@@ -418,7 +564,7 @@ class MovimentacaoContaParticipanteService extends Service
         ];
 
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'created_at',
+            'campoOrdenacao' => $this->model->getTableAsName() . ".created_at",
         ], $options));
 
         $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, array_merge($options, ['withOutPagination' => true]));
@@ -462,7 +608,7 @@ class MovimentacaoContaParticipanteService extends Service
                     $nomeParceiro = $pessoa['pessoa_dados']['nome_fantasia'];
                     break;
                 default:
-                    throw new Exception('Tipo de pessoa não configurado.');
+                    throw new Exception('Tipo de pessoa não configurado.', 500);
             }
 
             $dadosMovimentacao->metadata = [
@@ -583,7 +729,7 @@ class MovimentacaoContaParticipanteService extends Service
                     break;
 
                 default:
-                    throw new Exception('Tipo parent de registro de balanço de parceiro não configurado.');
+                    throw new Exception('Tipo parent de registro de balanço de parceiro não configurado.', 500);
                     break;
             }
 
@@ -599,7 +745,7 @@ class MovimentacaoContaParticipanteService extends Service
                     break;
 
                 default:
-                    throw new Exception('Tipo de movimentação de conta não configurado.');
+                    throw new Exception('Tipo de movimentação de conta não configurado.', 500);
                     break;
             }
         });
@@ -1086,7 +1232,7 @@ class MovimentacaoContaParticipanteService extends Service
     //                 break;
 
     //             default:
-    //                 throw new Exception('Tipo de movimentação de conta não configurado.');
+    //                 throw new Exception('Tipo de movimentação de conta não configurado.', 500);
     //                 break;
     //         }
     //     });
@@ -1282,24 +1428,6 @@ class MovimentacaoContaParticipanteService extends Service
 
             return $relationships;
         };
-
-        // // Verifica se MovimentacaoContaService está na lista de exclusão
-        // $classImport = MovimentacaoContaService::class;
-        // if (!in_array($classImport, $withOutClass)) {
-        //     // Mescla relacionamentos de MovimentacaoContaService
-        //     $relationships = $this->mergeRelationships(
-        //         $relationships,
-        //         app($classImport)->loadFull(array_merge(
-        //             $options, // Passa os mesmos $options
-        //             [
-        //                 'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
-        //             ]
-        //         )),
-        //         [
-        //             'addPrefix' => 'parent.'
-        //         ]
-        //     );
-        // }
 
         // Verifica o tipo de referência e ajusta os relacionamentos
         switch ($caseTipoReferenciaParentMovimentacaoContaParticipante) {

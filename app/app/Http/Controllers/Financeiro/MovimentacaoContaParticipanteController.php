@@ -21,10 +21,15 @@ class MovimentacaoContaParticipanteController extends Controller
         return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData));
     }
 
+    public function postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes($fluentData));
+    }
+
     public function storeLancarRepasseParceiro(MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->storeLancarRepasseParceiro($fluentData));
     }
-
 }

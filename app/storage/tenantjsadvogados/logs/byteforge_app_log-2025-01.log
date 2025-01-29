@@ -1,5 +1,0 @@
-[2025-01-28T16:22:28.171372-03:00] local.DEBUG: Linha: 343 [] []
-[2025-01-28T16:22:28.233142-03:00] local.DEBUG: Linha: 346 [] []
-[2025-01-28T16:22:28.267563-03:00] local.DEBUG: Linha: 355 [] []
-[2025-01-28T16:22:28.289753-03:00] local.DEBUG: Linha: 360 [] []
-[2025-01-28T16:25:39.174570-03:00] local.ERROR: Undefined array key "valor_movimentado" {"userId":"c2b4fea6-182f-4090-b93b-5b85754f99af","exception":"[object] (ErrorException(code: 0): Undefined array key \"valor_movimentado\" at C:\\Desenvolvimento\\js-advogados\\app\\app\\Http\\Controllers\\View\\Documento\\DocumentoGeradoController.php:70)"} []

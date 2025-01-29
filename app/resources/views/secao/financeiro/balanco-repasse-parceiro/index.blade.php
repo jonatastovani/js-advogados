@@ -150,14 +150,14 @@
     </div>
     <div class="row row-cols-1 row-cols-sm-2">
         <div class="col text-end mt-2">
-            <p class="mb-0">Total crédito: R$ <span id="total_credito{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Total débito: R$ <span id="total_debito{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Saldo: R$ <span id="total_saldo{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total crédito: R$ <span class="campo_totais{{ $sufixo }}" id="total_credito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito: R$ <span class="campo_totais{{ $sufixo }}" id="total_debito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo: R$ <span class="campo_totais{{ $sufixo }}" id="total_saldo{{ $sufixo }}">0,00</span></p>
         </div>
         <div class="col text-end mt-2">
-            <p class="mb-0">Total crédito liquidado: R$ <span id="total_credito_liquidado{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Total débito liquidado: R$ <span id="total_debito_liquidado{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Saldo liquidado: R$ <span id="total_saldo_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total crédito liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_credito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_debito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_saldo_liquidado{{ $sufixo }}">0,00</span></p>
         </div>
     </div>
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />

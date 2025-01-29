@@ -242,6 +242,7 @@ export class ParticipacaoModule {
         const self = this;
         self._objConfigs.data.participantesNaTela = [];
         $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
+        self._atualizaPorcentagemLivre();
     }
 
     async #buscarParticipacaoTipo(id) {
@@ -585,20 +586,6 @@ export class ParticipacaoModule {
 
     #verificaRegistroNaTela(item) {
         const self = this;
-
-        // if (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.PERFIL) {
-        //     for (const element of self._objConfigs.data.participantesNaTela) {
-        //         if (element.participacao_registro_tipo_id != window.Enums.ParticipacaoRegistroTipoEnum.PERFIL) {
-        //             continue;
-        //         }
-
-        //         if (element.referencia.id == item.referencia.id &&
-        //             element.participacao_tipo_id == item.participacao_tipo_id
-        //         ) {
-        //             return element;
-        //         }
-        //     }
-        // }
 
         for (const element of self._objConfigs.data.participantesNaTela) {
             if (element.participacao_registro_tipo_id == item.participacao_registro_tipo_id

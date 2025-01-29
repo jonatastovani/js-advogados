@@ -246,14 +246,15 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
     async #executarBusca() {
         const self = this;
 
-        self._objConfigs.data.totais = {
-            debito: 0,
-            credito: 0,
-            credito_liquidado: 0,
-            debito_liquidado: 0,
-        };
-        self._objConfigs.data.selecionados = []
-        $(`#ckbCheckAll${self.getSufixo}`).prop('checked', false);
+        // self._objConfigs.data.totais = {
+        //     debito: 0,
+        //     credito: 0,
+        //     credito_liquidado: 0,
+        //     debito_liquidado: 0,
+        // };
+        // self._objConfigs.data.selecionados = []
+        // $(`#ckbCheckAll${self.getSufixo}`).prop('checked', false);
+        $(`.campo_totais${self.getSufixo}`).html('<span class="spinner-border spinner-border-sm" role="loading" aria-hidden="true"></span>');
 
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
@@ -371,7 +372,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 throw new Error(message);
         }
 
-        self.#executarSomatoriaTotais(item);
+        // self.#executarSomatoriaTotais(item);
 
         const created_at = DateTimeHelper.retornaDadosDataHora(parent.created_at, 12);
 
@@ -398,71 +399,84 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         return true;
     }
 
-    #executarSomatoriaTotais(item) {
+    // #executarSomatoriaTotais(item) {
 
+    //     const self = this;
+    //     let movimentacaoTipoId = null;
+
+    //     switch (item.parent_type) {
+    //         case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
+    //             movimentacaoTipoId = item.parent.movimentacao_tipo_id;
+    //             break;
+
+    //         case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
+    //             movimentacaoTipoId = item.parent.parceiro_movimentacao_tipo_id;
+    //             break;
+    //         default:
+    //             throw new Error(`Tipo parent de registro de balanço de parceiro não configurado.`);
+    //     }
+
+    //     switch (item.status_id) {
+    //         // Soma as que estão ativas
+    //         case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.ATIVA:
+
+    //             switch (movimentacaoTipoId) {
+    //                 case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
+    //                     self._objConfigs.data.totais.credito += item.valor_participante;
+    //                     break;
+    //                 case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
+    //                     self._objConfigs.data.totais.debito += item.valor_participante;
+    //                     break;
+    //                 default:
+    //                     throw new Error(`Tipo de movimentação de conta não configurado.`);
+    //             }
+    //             break;
+
+    //         // Soma as que estão liquidadas
+    //         case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.FINALIZADA:
+
+    //             switch (movimentacaoTipoId) {
+    //                 case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
+    //                     self._objConfigs.data.totais.credito_liquidado += item.valor_participante;
+    //                     break;
+    //                 case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
+    //                     self._objConfigs.data.totais.debito_liquidado += item.valor_participante;
+    //                     break;
+    //                 default:
+    //                     throw new Error(`Tipo de movimentação de conta não configurado.`);
+    //             }
+    //             break;
+
+    //         default:
+    //             throw new Error(`Status de participação não configurado.`);
+
+    //     }
+    // }
+
+    async #atualizaValoresTotais() {
         const self = this;
-        let movimentacaoTipoId = null;
 
-        switch (item.parent_type) {
-            case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
-                movimentacaoTipoId = item.parent.movimentacao_tipo_id;
-                break;
+        try {
+            const objTotais = new connectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
+            objTotais.setAction(enumAction.POST);
+            objTotais.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+            const response = await objTotais.envRequest();
 
-            case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
-                movimentacaoTipoId = item.parent.parceiro_movimentacao_tipo_id;
-                break;
-            default:
-                throw new Error(`Tipo parent de registro de balanço de parceiro não configurado.`);
+            const totais = response.data.totais;
+            // Ativos
+            $(`#total_credito${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.credito));
+            $(`#total_debito${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.debito));
+            $(`#total_saldo${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo));
+
+            // Liquidados
+            $(`#total_credito_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.credito_liquidado));
+            $(`#total_debito_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.debito_liquidado));
+            $(`#total_saldo_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo_liquidado));
+
+        } catch (error) {
+            $(`.campo_totais${self.getSufixo}`).html('0,00');
+            commonFunctions.generateNotificationErrorCatch(error);
         }
-
-        switch (item.status_id) {
-            // Soma as que estão ativas
-            case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.ATIVA:
-
-                switch (movimentacaoTipoId) {
-                    case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
-                        self._objConfigs.data.totais.credito += item.valor_participante;
-                        break;
-                    case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
-                        self._objConfigs.data.totais.debito += item.valor_participante;
-                        break;
-                    default:
-                        throw new Error(`Tipo de movimentação de conta não configurado.`);
-                }
-                break;
-
-            // Soma as que estão liquidadas
-            case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.FINALIZADA:
-
-                switch (movimentacaoTipoId) {
-                    case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
-                        self._objConfigs.data.totais.credito_liquidado += item.valor_participante;
-                        break;
-                    case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
-                        self._objConfigs.data.totais.debito_liquidado += item.valor_participante;
-                        break;
-                    default:
-                        throw new Error(`Tipo de movimentação de conta não configurado.`);
-                }
-                break;
-
-            default:
-                throw new Error(`Status de movimentação de conta não configurado.`);
-
-        }
-    }
-
-    #atualizaValoresTotais() {
-        const self = this;
-        // Ativos
-        $(`#total_credito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito)}`);
-        $(`#total_debito${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.debito)}`);
-        $(`#total_saldo${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito - self._objConfigs.data.totais.debito)}`);
-
-        // Liquidados
-        $(`#total_credito_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito_liquidado)}`);
-        $(`#total_debito_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.debito_liquidado)}`);
-        $(`#total_saldo_liquidado${self.getSufixo}`).html(`R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(self._objConfigs.data.totais.credito_liquidado - self._objConfigs.data.totais.debito_liquidado)}`);
     }
 
     #htmlBtns() {

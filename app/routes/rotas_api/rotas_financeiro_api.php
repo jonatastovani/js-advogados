@@ -107,6 +107,8 @@ Route::group([
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaParticipanteController::class)->group(function () {
 
             Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
+            Route::post('consulta-filtros/obter-totais-participacoes', 'postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes');
+            
             Route::post('lancar', 'storeLancarRepasseParceiro')->name('api.financeiro.repasse-parceiro.lancar');
         });
     });
