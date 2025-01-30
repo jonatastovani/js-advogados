@@ -143,7 +143,7 @@ class MovimentacaoContaParticipanteService extends Service
      * - total_saldo: soma do total de saldo (crédito - débito);
      * - total_saldo_liquidado: soma do total de saldo liquidado (crédito liquidado - débito liquidado);
      */
-    private function obterTotaisParticipacoes(Collection $resources,  array $options = [])
+    public function obterTotaisParticipacoes(Collection $resources,  array $options = [])
     {
         $fluentTotais = new Fluent([
             'credito' => 0,
@@ -156,9 +156,13 @@ class MovimentacaoContaParticipanteService extends Service
         $agrupamentoPorParentType->each(function ($registros, $parentType) use (&$fluentTotais) {
 
             $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
+
             if ($parentType == BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value) {
-                // Somente o parent é carregado para obter o tipo de movimentação (crédito ou débito), no caso do Ressarcimento só ter esta informação em seu modelo.
-                $registros = $registros->load('parent');
+
+                if (!$registros[0]['parent']) {
+                    // Somente o parent é carregado para obter o tipo de movimentação (crédito ou débito), no caso do Ressarcimento só ter esta informação em seu modelo.
+                    $registros->load('parent');
+                }
 
                 $this->tratamentoMovimentacaoTipoLancamentoRessarcimento($registros);
             }
@@ -171,11 +175,12 @@ class MovimentacaoContaParticipanteService extends Service
                 switch ($participacao->parent_type) {
 
                     case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
-                        $movimentacaoTipoId = $participacao->parent->movimentacao_tipo_id;
+
+                        $movimentacaoTipoId = $participacao->parent['movimentacao_tipo_id'];
                         break;
 
                     case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
-                        $movimentacaoTipoId = $participacao->parent->parceiro_movimentacao_tipo_id;
+                        $movimentacaoTipoId = $participacao->parent['parceiro_movimentacao_tipo_id'];
                         break;
 
                     default:
@@ -195,7 +200,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                             case MovimentacaoContaTipoEnum::DEBITO->value:
                                 // Subtrai o valor do participante ao total com precisão
-                                $fluentTotais->debito = bcsub($fluentTotais->debito, $participacao->valor_participante, 2);
+                                $fluentTotais->debito = bcadd($fluentTotais->debito, $participacao->valor_participante, 2);
                                 break;
 
                             default:
@@ -215,7 +220,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                             case MovimentacaoContaTipoEnum::DEBITO->value:
                                 // Subtrai o valor do participante ao total com precisão
-                                $fluentTotais->debito_liquidado = bcsub($fluentTotais->debito_liquidado, $participacao->valor_participante, 2);
+                                $fluentTotais->debito_liquidado = bcadd($fluentTotais->debito_liquidado, $participacao->valor_participante, 2);
                                 break;
 
                             default:
@@ -424,9 +429,11 @@ class MovimentacaoContaParticipanteService extends Service
     {
         // Insere dados parceiro_movimentacao_tipo e parceiro_movimentacao_tipo_id, pois para o parceiro a movimentação é a contrária da empresa
         $registros->each(function ($registro) {
-            $movimentacaoTipoParceiro = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria($registro->parent->movimentacao_tipo_id);
-            $registro->parent->parceiro_movimentacao_tipo = $movimentacaoTipoParceiro;
-            $registro->parent->parceiro_movimentacao_tipo_id = $movimentacaoTipoParceiro['id'];
+            $movimentacaoTipoParceiro = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria($registro->parent['movimentacao_tipo_id']);
+            $parent = $registro->parent;
+            $parent['parceiro_movimentacao_tipo'] = $movimentacaoTipoParceiro;
+            $parent['parceiro_movimentacao_tipo_id'] = $movimentacaoTipoParceiro['id'];
+            $registro->parent = $parent;
         });
     }
 

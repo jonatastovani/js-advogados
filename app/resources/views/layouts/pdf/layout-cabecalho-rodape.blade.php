@@ -17,6 +17,7 @@
 
     <style>
         {!! file_get_contents(public_path('css/pdf-bootstrap-styles.css')) !!}
+        {!! file_get_contents(public_path('css/pdf-bootstrap-styles-custom.css')) !!}
     </style>
     <style>
         /**
@@ -75,7 +76,7 @@
     </header>
 
     <footer>
-        @yield('footer')
+        {{-- @yield('footer') --}}
         {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/logo-js-adv.jpg'))) }}"
             alt="Logo" height="100%"> --}}
         <div class="col-12 text-center">

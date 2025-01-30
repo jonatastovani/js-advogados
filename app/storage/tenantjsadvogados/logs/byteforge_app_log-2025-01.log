@@ -1,0 +1,1 @@
+[2025-01-29T18:16:26.979478-03:00] local.ERROR: Undefined array key "data_movimentacao" {"userId":"e335807e-60b4-4a56-b590-9b83c433416b","exception":"[object] (ErrorException(code: 0): Undefined array key \"data_movimentacao\" at E:\\Desenvolvimento\\js-advogados\\app\\app\\Http\\Controllers\\View\\Documento\\DocumentoGeradoController.php:143)"} []

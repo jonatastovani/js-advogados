@@ -40,11 +40,17 @@
             </tbody>
         </table>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <p class="text-right mb-0">Total crédito: R$ {{ $dataEnv['total_credito'] }}</p>
-            <p class="text-right mb-0">Total débito: R$ {{ $dataEnv['total_debito'] }}</p>
-            <p class="text-right mb-0">Saldo: R$ {{ $dataEnv['total_saldo'] }}</p>
+    <div class="row no-page-break">
+        <div class="col-sm-6 pdf-row-group">
+            <p class="mb-0">Total crédito: {{ $dataEnv['somatorias']['credito'] }}</p>
+            <p class="mb-0">Total débito: {{ $dataEnv['somatorias']['debito'] }}</p>
+            <p class="mb-0">Saldo: {{ $dataEnv['somatorias']['total_saldo'] }}</p>
+        </div>
+        <div class="col-sm-5 pdf-row-group">
+            <p class="mb-0">Total crédito liquidado: {{ $dataEnv['somatorias']['credito_liquidado'] }}</p>
+            <p class="mb-0">Total débito liquidado: {{ $dataEnv['somatorias']['debito_liquidado'] }}</p>
+            <p class="mb-0">Saldo liquidado: {{ $dataEnv['somatorias']['total_saldo_liquidado'] }}</p>
         </div>
     </div>
+
 @endsection

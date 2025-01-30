@@ -49,9 +49,12 @@ class FinanceiroController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated());
         $dados = $this->serviceMovimentacaoContaParticipante->postConsultaFiltrosBalancoRepasseParceiro($fluentData, ['withOutPagination' => true]);
 
+        $somatorias = $this->serviceMovimentacaoContaParticipante->obterTotaisParticipacoes(collect($dados));
+
         // dd($dados);
         $dataEnv = new Fluent([
             'dados' => $dados,
+            'somatorias' => $somatorias,
             'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
             'mes_ano' => Carbon::parse($fluentData->mes_ano)->translatedFormat('F/Y'),
         ]);
@@ -71,23 +74,24 @@ class FinanceiroController extends Controller
     {
         $processedData = [];
 
-        foreach ($dataEnv->dados as $value) {
+        foreach ($dataEnv->dados as $participacao) {
             $dadosRetorno = new Fluent();
-            $parent = $value['parent'];
 
+            $parent = $participacao['parent'];
             $dadosRetorno->status = $parent['status']['nome'];
-            $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
-            $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($value['valor_participante']);
-            $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
-            $dadosRetorno->descricao_automatica = $parent['descricao_automatica'];
+            $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($participacao['valor_participante']);
+            $dadosRetorno->descricao_automatica = $participacao['descricao_automatica'];
 
-            $dadosEspecificos = $parent['descricao_automatica'];
-
-            switch ($value['parent_type']) {
+            switch ($participacao['parent_type']) {
 
                 case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
 
-                    switch ($value['parent']['referencia_type']) {
+                    $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
+                    $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
+
+                    $dadosEspecificos = $parent['descricao_automatica'];
+
+                    switch ($participacao['parent']['referencia_type']) {
 
                         case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
                             // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
@@ -109,10 +113,13 @@ class FinanceiroController extends Controller
 
                 case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
 
-                    // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosRetorno->data_movimentacao = (new DateTime($parent['data_vencimento']))->format('d/m/Y');
+                    $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
+
+                    $dadosEspecificos = $participacao['descricao_automatica'];
                     $dadosEspecificos .= " - NR#{$parent['numero_ressarcimento']}";
-                    $dadosEspecificos .= " - ({$parent['pagamento']['servico']['area_juridica']['nome']})";
-                    $dadosEspecificos .= " - {$parent['pagamento']['servico']['titulo']}";
+                    $dadosEspecificos .= " - ({$parent['categoria']['nome']})";
+                    $dadosEspecificos .= " - {$parent['descricao']}";
                     break;
 
                 default:
@@ -122,7 +129,6 @@ class FinanceiroController extends Controller
 
             $dadosRetorno->dados_especificos = $dadosEspecificos;
             $dadosRetorno->conta = $parent['conta']['nome'];
-
             $dadosRetorno->created_at = (new DateTime($parent['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
@@ -130,15 +136,8 @@ class FinanceiroController extends Controller
 
         // Cria a chave `processedData` no objeto Fluent
         $dataEnv->processedData = $processedData;
-        $dataEnv->total_credito = collect($dataEnv->dados)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::CREDITO->value)->sum('valor_participante');
-        $dataEnv->total_debito = collect($dataEnv->dados)->where('parent.movimentacao_tipo_id', MovimentacaoContaTipoEnum::DEBITO->value)->sum('valor_participante');
-        $dataEnv->total_saldo = CurrencyFormatterUtils::toBRL(bcsub($dataEnv->total_credito, $dataEnv->total_debito, 2));
-        $dataEnv->total_credito = CurrencyFormatterUtils::toBRL($dataEnv->total_credito);
-        $dataEnv->total_debito = CurrencyFormatterUtils::toBRL($dataEnv->total_debito);
-
-        $first = $dataEnv->dados[0];
-
         $dataEnv->dados_participante = $dataEnv->dados[0];
+        $dataEnv->somatorias = CurrencyFormatterUtils::convertArrayToBRL($dataEnv->somatorias->toArray());
 
         return $dataEnv;
     }

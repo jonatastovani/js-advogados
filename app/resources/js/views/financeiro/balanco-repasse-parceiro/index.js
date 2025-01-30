@@ -337,14 +337,9 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                         dadosEspecificos += ` - ${parent.referencia.pagamento.servico.titulo}`;
                         break;
 
-                    case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
-                        dadosEspecificos += ` - NL#${parent.referencia.numero_lancamento}`;
-                        dadosEspecificos += ` - (${parent.referencia.categoria.nome})`;
-                        break;
-
                     // case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
-                    //     dadosEspecificos += ` - NL#${movimentacao.referencia.numero_lancamento}`;
-                    //     dadosEspecificos += ` - (${movimentacao.referencia.categoria.nome})`;
+                    //     dadosEspecificos += ` - NL#${parent.referencia.numero_lancamento}`;
+                    //     dadosEspecificos += ` - (${parent.referencia.categoria.nome})`;
                     //     break;
 
                     default:

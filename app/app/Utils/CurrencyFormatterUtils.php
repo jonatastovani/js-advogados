@@ -44,4 +44,39 @@ class CurrencyFormatterUtils
 
         return (float)$cleanValue;
     }
+
+    /**
+     * Converte todos os valores numéricos de um array para o formato BRL.
+     *
+     * @param array $array O array com os valores a serem convertidos.
+     * @param bool $includeSymbol Se deve incluir o símbolo "R$" nos valores.
+     * @return array O array com os valores convertidos.
+     */
+    public static function convertArrayToBRL(array $array, bool $includeSymbol = true): array
+    {
+        return array_map(function ($value) use ($includeSymbol) {
+            if (is_array($value)) {
+                return self::convertArrayToBRL($value, $includeSymbol);
+            }
+
+            return is_numeric($value) ? self::toBRL($value, $includeSymbol) : $value;
+        }, $array);
+    }
+
+    /**
+     * Converte todos os valores em formato BRL de um array para números float.
+     *
+     * @param array $array O array com os valores formatados em BRL.
+     * @return array O array com os valores convertidos para números.
+     */
+    public static function convertArrayFromBRL(array $array): array
+    {
+        return array_map(function ($value) {
+            if (is_array($value)) {
+                return self::convertArrayFromBRL($value);
+            }
+
+            return is_string($value) ? self::fromBRL($value) : $value;
+        }, $array);
+    }
 }
