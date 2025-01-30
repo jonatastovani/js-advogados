@@ -49,11 +49,7 @@ class DocumentoGeradoController extends Controller
             'margins' => PdfMarginPresetsEnum::ESTREITA->detalhes(),
         ]);
 
-        try {
-            $dataEnv = $this->processedDataRepasseCompensacaoParceiro($dataEnv);
-        } catch (\Throwable $th) {
-            dd($th);
-        }
+        $dataEnv = $this->processedDataRepasseCompensacaoParceiro($dataEnv);
         // Configurações personalizadas de PDF
         $pdfService = new PdfGenerator([
             'orientation' => 'landscape',
