@@ -9,18 +9,24 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class PagamentoTipoTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant;
+    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, HasDataColumn;
 
     protected $table = 'tenant.pagamento_tipo_tenants';
     protected $tableAsName = 'pag_tip_ten';
 
-    protected $casts = [
-        // O campo configuracao será tratado como um array
-        'configuracao' => 'array',
-    ];
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'nome',
+            'descricao',
+            'pagamento_tipo_id',
+            'ativo_bln',
+        ]);
+    }
 
     public function pagamento_tipo()
     {

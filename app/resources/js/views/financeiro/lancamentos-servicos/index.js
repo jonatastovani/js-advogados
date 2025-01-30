@@ -309,7 +309,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatNumberToCurrency(item.pagamento.total_inadimplente) : '***';
         const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.pagamento.observacao ?? '***';
-        const statusPagamento = item.status.nome;
+        const statusPagamento = item.pagamento.status.nome;
 
         const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :

@@ -16,6 +16,9 @@ class PagePreenchimentoAutomatico extends TemplateForm {
         data: {
             porcentagemOcupada: 0,
             participantesNaTela: [],
+        },
+        participacao: {
+            // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
             participacao_tipo_tenant: {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },

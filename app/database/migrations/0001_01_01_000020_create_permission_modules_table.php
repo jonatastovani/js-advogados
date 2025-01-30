@@ -31,6 +31,8 @@ return new class extends Migration
             $table->smallInteger('tenant_type_id')->nullable()->unique();
             $table->foreign('tenant_type_id')->references('id')->on((new App\Models\Auth\TenantType)->getTableName());
             
+            $table->jsonb('data')->nullable();
+
             $table->string('tipo_modulo');
            
             $table->string('tenant_id')->nullable()->unique();

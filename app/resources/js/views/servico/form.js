@@ -41,6 +41,11 @@ class PageServicoForm extends TemplateForm {
                 participantesNaTela: [],
                 clientesNaTela: [],
                 participacao_tipo_tenant: {
+                },
+            },
+            participacao: {
+                // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
+                participacao_tipo_tenant: {
                     configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
                 },
             },
@@ -994,7 +999,7 @@ class PageServicoForm extends TemplateForm {
         if (self._action == enumAction.POST) {
             let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
             blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+            // blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
             return blnSave;
         }
         return true;

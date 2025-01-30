@@ -30,7 +30,7 @@ return new class extends Migration
             $table->uuidMorphs('parent');
             $table->string('titulo');
             $table->text('descricao')->nullable();
-            $table->jsonb('configuracao')->nullable();
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

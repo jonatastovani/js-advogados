@@ -35,11 +35,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         },
         modoOperacao: undefined,
         participacao: {
-            perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
+            perfis_busca: undefined,
             participacao_tipo_tenant: {
                 configuracao_tipo: undefined,
             },
-            valor_tipo_permitido: ['porcentagem', 'valor_fixo'],
         }
     };
 
@@ -79,6 +78,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             case 'ressarcimento':
                 this._objConfigs.modoOperacao = 'ressarcimento';
                 this._objConfigs.url.base = this._objConfigs.url.baseLancamentoRessarcimento;
+                this._objConfigs.participacao.perfis_busca = window.Statics.PerfisPermitidoParticipacaoRessarcimento;
                 this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO;
                 // this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
                 break;

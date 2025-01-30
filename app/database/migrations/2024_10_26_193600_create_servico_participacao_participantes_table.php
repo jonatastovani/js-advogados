@@ -40,6 +40,7 @@ return new class extends Migration
             $table->enum('valor_tipo', ['porcentagem', 'valor_fixo']);
             $table->decimal('valor', 10, 2);
             $table->string('observacao')->nullable();
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

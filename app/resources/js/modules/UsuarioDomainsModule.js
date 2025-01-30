@@ -58,7 +58,8 @@ export class UsuarioDomainsModule {
         const self = this;
         const divDominio = $(`#divDominio${self._objConfigs.sufixo}`);
 
-        const nomeDominio = item.domain.domain;
+        const nomeDominio = item.domain.name;
+        const urlDominio = item.domain.domain;
 
         if (validarLimite) {
             if (!self.#verificaDominioAdicionado(item)) {
@@ -67,7 +68,7 @@ export class UsuarioDomainsModule {
         }
 
         item.idCol = UUIDHelper.generateUUID();
-        const dominioVigente = window.location.hostname == nomeDominio;
+        const dominioVigente = window.location.hostname == urlDominio;
 
         let strCard = `
             <div id="${item.idCol}" class="col">
@@ -76,10 +77,11 @@ export class UsuarioDomainsModule {
                         <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
                             <span class="text-truncate spanTitle">${nomeDominio}</span>
                             <div>
-                                ${!dominioObrigatorio ? `<button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Remover acesso ao domínio ${nomeDominio}">Remover</button>` : ''}
+                                ${!dominioObrigatorio ? `<button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Remover acesso ao domínio ${urlDominio}">Remover</button>` : ''}
                             </div>
                         </h5>
-                        ${!item.id ? '<div class="form-text fst-italic">Acesso ainda não cadastrado</div>' : `${!dominioVigente ? `<a href="${item.id ? `http://${nomeDominio}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}" ${item.id ? `target="_blank"` : ''}>Ir para o domínio</a>` : ''}`}
+                        <p class="text-truncate mb-0 spanDominio">${urlDominio}</p>
+                        ${!item.id ? '<div class="form-text fst-italic">Acesso ainda não cadastrado</div>' : `${!dominioVigente ? `<a href="${item.id ? `http://${urlDominio}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}" ${item.id ? `target="_blank"` : ''}>Ir para o domínio</a>` : ''}`}
                     </div>
                 </div>
             </div>`;

@@ -38,7 +38,7 @@ class DocumentoTipoTenantService extends Service
         $query = $this->model->from($this->model->getTableNameAsName())
             ->select("{$this->model->getTableAsName()}.*")
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            ->whereJsonContains("{$this->modelDocumentoTipo->getTableAsName()}.configuracao->pessoa_tipo_aplicavel", $requestData->pessoa_tipo_aplicavel)
+            ->whereJsonContains("{$this->modelDocumentoTipo->getTableAsName()}.data->pessoa_tipo_aplicavel", $requestData->pessoa_tipo_aplicavel)
             ->where("{$this->model->getTableAsName()}.deleted_at", null);
         $this->verificaUsoScopeTenant($query, $this->model);
         $query = $this->model::joinDocumentoTipo($query);
@@ -117,7 +117,7 @@ class DocumentoTipoTenantService extends Service
             $resource = new $this->model();
         }
 
-        $validacaoPagTipoId = ValidationRecordsHelper::validateRecord(DocumentoTipo::class, ['id' => $requestData->documento_tipo_id]);
+        $validacaoPagTipoId = ValidationRecordsHelper::validateRecord($this->modelDocumentoTipo::class, ['id' => $requestData->documento_tipo_id]);
         if (!$validacaoPagTipoId->count()) {
             $arrayErrors->documento_tipo_id = LogHelper::gerarLogDinamico(404, "O tipo de documento original não existe ou foi excluído.", $requestData)->error;
         }

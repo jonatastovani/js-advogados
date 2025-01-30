@@ -23,10 +23,13 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             lancamento_status_tipos: undefined,
             idRegister: undefined,
             status_id: undefined,
+        },
+        participacao: {
+            // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
             participacao_tipo_tenant: {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL,
             },
-        },
+        }
     };
 
     #dataEnvModal = {

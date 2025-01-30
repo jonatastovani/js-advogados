@@ -20,7 +20,6 @@ class DocumentoGerado extends Model
 
     protected $casts = [
         'dados' => 'array',
-        'configuracao' => 'array',
     ];
 
     protected $hidden = [

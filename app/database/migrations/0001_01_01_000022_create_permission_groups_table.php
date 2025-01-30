@@ -35,7 +35,9 @@ return new class extends Migration
 
             // Se as permissões que estão nesse grupo são atribuídas individualmente ao usuário, ou escalonadas pela ordem dentro do grupo
             $table->boolean('individuais')->default(false);
-            $table->boolean('ativo')->default(true);
+            $table->boolean('ativo_bln')->default(true);
+
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

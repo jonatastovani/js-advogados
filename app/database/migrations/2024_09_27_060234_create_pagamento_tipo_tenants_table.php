@@ -26,11 +26,12 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->string('nome');
-
+            $table->string('descricao')->nullable();
+            
             $table->unsignedSmallInteger('pagamento_tipo_id');
             $table->foreign('pagamento_tipo_id')->references('id')->on((new App\Models\Referencias\PagamentoTipo)->getTableName());
 
-            $table->jsonb('configuracao');
+            $table->jsonb('data');
             $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

@@ -11,7 +11,7 @@ class DocumentoTipoTenantFormRequestBase extends BaseFormRequest
         return [
             'nome' => 'required|string|min:3',
             'documento_tipo_id' => 'required|integer',
-            'configuracao' => 'nullable|array',
+            // 'configuracao' => 'nullable|array',
             'ativo_bln' => 'required|boolean',
         ];
     }

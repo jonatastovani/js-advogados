@@ -13,7 +13,6 @@ class ContaTenantFormRequestBase extends BaseFormRequest
             'descricao' => 'nullable|string',
             'conta_subtipo_id' => 'required|integer',
             'banco' => 'nullable|string',
-            'configuracoes_json' => 'nullable|json',
             'conta_status_id' => 'required|integer',
         ];
     }

@@ -34,6 +34,8 @@ return new class extends Migration
             $table->string('nome');
             $table->string('descricao')->nullable();
             
+            $table->jsonb('data')->nullable();
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

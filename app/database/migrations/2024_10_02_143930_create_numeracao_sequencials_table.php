@@ -28,6 +28,7 @@ return new class extends Migration
             $table->integer('ultimo_numero'); // Último número gerado
             $table->integer('ano'); // Ano corrente
             $table->string('tipo'); // Tipo de numeração (ex: 'servico')
+            $table->jsonb('data')->nullable();
 
             $table->unique(['tenant_id', 'ano', 'tipo']); // Garante que cada tenant tenha uma sequência única por tipo e ano
             $table->timestamps();

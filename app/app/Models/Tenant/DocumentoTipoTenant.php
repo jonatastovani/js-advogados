@@ -11,18 +11,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class DocumentoTipoTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant;
+    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, HasDataColumn;
 
     protected $table = 'tenant.documento_tipo_tenants';
     protected $tableAsName = 'doc_tip_ten';
 
-    protected $casts = [
-        'configuracao' => 'array',
+    protected $fillable = [
+        'nome',
+        'descricao',
+        'documento_tipo_id',
+        'ativo_bln',
     ];
 
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'nome',
+            'descricao',
+            'documento_tipo_id',
+            'ativo_bln',
+        ]);
+    }
+    
     public function documento_tipo()
     {
         return $this->belongsTo(DocumentoTipo::class);

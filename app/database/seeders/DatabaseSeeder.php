@@ -78,11 +78,9 @@ class DatabaseSeeder extends Seeder
                 PagamentoTipoSeeder::class,
                 LancamentoStatusTipoSeeder::class,
                 DocumentoGeradoTipoSeeder::class,
+                ParticipacaoRegistroTipoSeeder::class,
+                MovimentacaoContaTipoSeeder::class,
             ]);
-
-            if (env('APP_ENV') == 'local') {
-                $this->call([PessoaPerfilClienteSeeder::class]);
-            }
 
             $this->call([
                 AreaJuridicaTenantSeeder::class,
@@ -99,8 +97,7 @@ class DatabaseSeeder extends Seeder
 
             if (env('APP_ENV') == 'local') {
                 $this->call([
-                    PessoaPerfilParceiroSeeder::class,
-                    PessoaPerfilParceiroClienteSeeder::class,
+                    PessoaPerfilClienteSeeder::class,
                     PessoaPerfilEmpresaSeeder::class,
                     UserEscritorioSeeder::class,
                 ]);
@@ -111,15 +108,11 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            $this->call([
-                ParticipacaoRegistroTipoSeeder::class,
-                MovimentacaoContaTipoSeeder::class,
-            ]);
         } else {
 
             $this->call([
                 // ParticipacaoTipoTenantSeeder::class,
-                ParticipacaoTipoTenantObrigatorioSeeder::class,
+                // ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }
     }

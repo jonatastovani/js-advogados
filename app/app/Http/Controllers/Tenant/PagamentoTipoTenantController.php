@@ -24,11 +24,11 @@ class PagamentoTipoTenantController extends Controller
         return $this->retornoPadrao($this->service->index($fluentData));
     }
 
-    public function store(PagamentoTipoTenantFormRequestStore $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->store($fluentData));
-    }
+    // public function store(PagamentoTipoTenantFormRequestStore $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->store($fluentData));
+    // }
 
     public function show(PagamentoTipoTenantFormRequestShow $formRequest)
     {
@@ -36,15 +36,15 @@ class PagamentoTipoTenantController extends Controller
         return $this->retornoPadrao($this->service->show($fluentData));
     }
 
-    public function update(PagamentoTipoTenantFormRequestUpdate $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->update($fluentData));
-    }
+    // public function update(PagamentoTipoTenantFormRequestUpdate $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->update($fluentData));
+    // }
 
-    public function destroy(PagamentoTipoTenantFormRequestDestroy $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->destroy($fluentData));
-    }
+    // public function destroy(PagamentoTipoTenantFormRequestDestroy $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->destroy($fluentData));
+    // }
 }

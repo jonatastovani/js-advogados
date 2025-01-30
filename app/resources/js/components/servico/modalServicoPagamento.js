@@ -5,7 +5,7 @@ import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrati
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { modalContaTenant } from "../tenant/modalContaTenant";
+import { modalFormaPagamentoTenant } from "../tenant/modalFormaPagamentoTenant";
 import { modalServicoPagamentoLancamento } from "./modalServicoPagamentoLancamento";
 
 export class modalServicoPagamento extends modalRegistrationAndEditing {
@@ -25,6 +25,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
             baseContas: window.apiRoutes.baseContas,
             baseStatusPagamento: window.apiRoutes.baseStatusPagamento,
+            baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
         },
         sufixo: 'ModalServicoPagamento',
         data: {
@@ -57,7 +58,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
     async modalOpen() {
         const self = this;
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do pagamento...' });
-        await this.#buscarContas();
+        await this.#buscarFormaPagamento();
         await this.#buscarStatusPagamento();
 
         if (self._dataEnvModal.idRegister) {
@@ -81,11 +82,11 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalConta').on('click', async function () {
+        modal.find('.openModalFormaPagamento').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new modalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -99,9 +100,9 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 if (response.refresh) {
                     if (response.selecteds.length > 0) {
                         const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
+                        self.#buscarFormaPagamento(item.id);
                     } else {
-                        self.#buscarContas();
+                        self.#buscarFormaPagamento();
                     }
                 }
             } catch (error) {
@@ -111,6 +112,37 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 await self._modalHideShow();
             }
         });
+
+        // modal.find('.openModalConta').on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalContaTenant();
+        //         objModal.setDataEnvModal = {
+        //             attributes: {
+        //                 select: {
+        //                     quantity: 1,
+        //                     autoReturn: true,
+        //                 }
+        //             }
+        //         }
+        //         await self._modalHideShow(false);
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh) {
+        //             if (response.selecteds.length > 0) {
+        //                 const item = response.selecteds[0];
+        //                 self.#buscarContas(item.id);
+        //             } else {
+        //                 self.#buscarContas();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //         await self._modalHideShow();
+        //     }
+        // });
 
         modal.find('.btn-simular').on('click', async function () {
             commonFunctions.simulateLoading($(this));
@@ -153,10 +185,10 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
     async #buscarSimulacao(data) {
         const self = this;
-        const configuracao = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.configuracao;
+        const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
         try {
-            const objConn = new connectAjax(URLHelper.formatEndpointUrl(`${configuracao.helper.endpoint_api}/render`));
+            const objConn = new connectAjax(URLHelper.formatEndpointUrl(`${pagamentoTipo.helper.endpoint_api}/render`));
             objConn.setAction(enumAction.POST);
             objConn.setData(data);
             return await objConn.envRequest();
@@ -324,17 +356,29 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         }
     }
 
-    async #buscarContas(selected_id = null) {
+    async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
         }
     }
+
+    // async #buscarContas(selected_id = null) {
+    //     try {
+    //         const self = this;
+    //         let options = selected_id ? { selectedIdOption: selected_id } : {};
+    //         const select = $(self.getIdModal).find('select[name="conta_id"]');
+    //         await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+    //         return true;
+    //     } catch (error) {
+    //         return false;
+    //     }
+    // }
 
     async #buscarStatusPagamento(selected_id = null) {
         try {
@@ -362,7 +406,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 const responseData = response.data;
                 const pagamentoTipoTenant = responseData.pagamento_tipo_tenant;
                 const pagamentoTipo = pagamentoTipoTenant.pagamento_tipo;
-                const configuracao = pagamentoTipo.configuracao;
 
                 self._updateModalTitle(`Alterar: <b>${pagamentoTipoTenant.nome}</b>`);
                 self._dataEnvModal.pagamento_tipo_tenant_id = pagamentoTipoTenant.id;
@@ -372,7 +415,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 form.find('select[name="conta_id"]').val(responseData.conta_id);
                 form.find('select[name="status_id"]').val(responseData.status_id);
 
-                const tipoCampos = [configuracao.campos_obrigatorios, configuracao.campos_opcionais ?? []];
+                const tipoCampos = [pagamentoTipo.campos_obrigatorios, pagamentoTipo.campos_opcionais ?? []];
                 for (const tipoCampo of tipoCampos) {
                     for (const campo of tipoCampo) {
 
@@ -546,7 +589,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
-        const configuracao = pagamentoTipo.configuracao;
         let blnSave = false;
 
         if (self._action == enumAction.POST || self._action == enumAction.PUT && tipo == 'save') {
@@ -554,7 +596,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             blnSave = commonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'A <b>Conta padrão</b> deve ser informada.', setFocus: true });
 
             if (self._action == enumAction.POST) {
-                for (const campo of configuracao.campos_obrigatorios) {
+                for (const campo of pagamentoTipo.campos_obrigatorios) {
                     const rules = campo.form_request_rule.split('|');
                     const nullable = rules.find(rule => rule === 'nullable');
 

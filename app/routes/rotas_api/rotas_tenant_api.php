@@ -94,6 +94,20 @@ Route::group([
         });
     });
 
+    Route::prefix('forma-pagamento')->group(function () {
+
+        Route::controller(App\Http\Controllers\Tenant\FormaPagamentoTenantController::class)->group(function () {
+
+            Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::get('', 'index');
+            Route::post('', 'store')->name('api.tenant.forma-pagamento');
+            Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
+            Route::delete('{uuid}', 'destroy');
+        });
+    });
+
     Route::prefix('lancamento-categoria-tipo-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Tenant\LancamentoCategoriaTipoTenantController::class)->group(function () {

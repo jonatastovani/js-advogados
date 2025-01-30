@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class AnotacaoLembreteTenant extends Model
 {
@@ -17,7 +18,8 @@ class AnotacaoLembreteTenant extends Model
         CommonsModelsMethodsTrait,
         ModelsLogsTrait,
         BelongsToTenant,
-        BelongsToDomain;
+        BelongsToDomain,
+        HasDataColumn;
 
     protected $table = 'tenant.anotacao_lembrete_tenant';
     protected $tableAsName = 'anot_lemb_ten';
@@ -25,7 +27,6 @@ class AnotacaoLembreteTenant extends Model
     protected $fillable = [
         'titulo',
         'descricao',
-        'configuracao'
     ];
 
     protected $hidden = [
@@ -41,6 +42,17 @@ class AnotacaoLembreteTenant extends Model
         'tenant_id',
         'domain_id',
     ];
+
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'tipo',
+            'parent_id',
+            'parent_type',
+            'titulo',
+            'descricao',
+        ]);
+    }
 
     public function parent()
     {

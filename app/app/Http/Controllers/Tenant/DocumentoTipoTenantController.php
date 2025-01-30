@@ -24,11 +24,11 @@ class DocumentoTipoTenantController extends Controller
         return $this->retornoPadrao($this->service->indexPorPessoaTipoAplicavel($fluentData));
     }
 
-    public function store(DocumentoTipoTenantFormRequestStore $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->store($fluentData));
-    }
+    // public function store(DocumentoTipoTenantFormRequestStore $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->store($fluentData));
+    // }
 
     public function show(DocumentoTipoTenantFormRequestShow $formRequest)
     {
@@ -36,15 +36,15 @@ class DocumentoTipoTenantController extends Controller
         return $this->retornoPadrao($this->service->show($fluentData));
     }
 
-    public function update(DocumentoTipoTenantFormRequestUpdate $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->update($fluentData));
-    }
+    // public function update(DocumentoTipoTenantFormRequestUpdate $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->update($fluentData));
+    // }
 
-    public function destroy(DocumentoTipoTenantFormRequestDestroy $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->destroy($fluentData));
-    }
+    // public function destroy(DocumentoTipoTenantFormRequestDestroy $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->destroy($fluentData));
+    // }
 }

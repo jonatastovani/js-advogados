@@ -28,13 +28,19 @@
                 <div class="row flex-fill">
                     <div class="col d-flex flex-column mt-2">
                         <div class="row">
-                            <div class="col"><label for="descricao{{ $sufixo }}" class="form-label">Descrição</label></div>
+                            <div class="col"><label for="descricao{{ $sufixo }}"
+                                    class="form-label">Descrição</label></div>
                         </div>
                         <div class="row flex-fill">
                             <div class="col d-flex flex-column">
                                 <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control flex-fill"></textarea>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col legenda-campos-obrigatorios text-end mt-2">
+                        * Campos obrigatórios
                     </div>
                 </div>
                 <div class="row text-end">

@@ -135,7 +135,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
             if (registerData) {
                 const documentoTipoTenant = registerData.documento_tipo_tenant;
                 const documentoTipo = documentoTipoTenant.documento_tipo;
-                const configuracao = documentoTipo.configuracao;
+                // const configuracao = documentoTipo.configuracao;
 
                 self._updateModalTitle(`Alterar: <b>${documentoTipoTenant.nome}</b>`);
                 self._dataEnvModal.documento_tipo_tenant_id = documentoTipoTenant.id;
@@ -196,13 +196,12 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         const documentoTipo = self._objConfigs.data.documento_tipo_tenant.documento_tipo;
-        const configuracao = documentoTipo.configuracao;
 
         const inputNumero = formRegistration.find('input[name="numero"]');
         let blnSave = commonFunctions.verificationData(data.numero, { field: inputNumero, messageInvalid: 'O campo <b>número</b> deve ser preenchido.', setFocus: true });
 
-        if (data.numero && configuracao?.helper?.endpoint_api) {
-            const urlEndPoint = URLHelper.formatEndpointUrl(configuracao.helper.endpoint_api);
+        if (data.numero && documentoTipo.helper?.endpoint_api) {
+            const urlEndPoint = URLHelper.formatEndpointUrl(documentoTipo.helper.endpoint_api);
             try {
                 const objConn = new connectAjax(urlEndPoint);
                 objConn.setAction(enumAction.POST);

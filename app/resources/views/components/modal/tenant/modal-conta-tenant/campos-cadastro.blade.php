@@ -11,7 +11,7 @@
         </div>
         <div class="row">
             <div class="col mt-2">
-                <label for="conta_subtipo_id{{ $sufixo }}" class="form-label">Conta Subtip*o</label>
+                <label for="conta_subtipo_id{{ $sufixo }}" class="form-label">Conta Subtipo*</label>
                 <select name="conta_subtipo_id" class="form-select" id="conta_subtipo_id{{ $sufixo }}">
                     <option value="0">Selecione</option>
                 </select>

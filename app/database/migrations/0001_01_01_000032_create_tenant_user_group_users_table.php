@@ -39,6 +39,8 @@ return new class extends Migration
             // $table->uuid('tenant_user_id');
             // $table->foreign('tenant_user_id')->references('id')->on((new TenantUser())->getTableName());
             
+            $table->jsonb('data')->nullable();
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

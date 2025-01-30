@@ -10,9 +10,7 @@ class PagamentoTipoTenantFormRequestBase extends BaseFormRequest
     {
         return [
             'nome' => 'required|string|min:3',
-            'configuracao' => 'required|array',
-            'configuracao.metodos' => 'required|array',
-            'configuracao.metodos.*' => 'required|integer',
+            'descricao' => 'nullable|string',
             'ativo_bln' => 'required|boolean',
         ];
     }

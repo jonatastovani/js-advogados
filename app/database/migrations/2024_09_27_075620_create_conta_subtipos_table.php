@@ -28,7 +28,8 @@ return new class extends Migration
 
             $table->unsignedSmallInteger('conta_tipo_id');
             $table->foreign('conta_tipo_id')->references('id')->on((new App\Models\Referencias\ContaTipo)->getTableName());
-
+            
+            $table->jsonb('data')->nullable();
             $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

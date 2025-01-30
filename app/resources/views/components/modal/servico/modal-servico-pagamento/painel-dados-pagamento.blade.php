@@ -1,13 +1,14 @@
 <div class="row row-cols-1 row-cols-lg-2">
     <div class="col mt-2">
-        <label for="conta_id{{ $sufixo }}" class="form-label">Conta padrão* <i class="bi bi-info-circle"
-                data-bs-toggle="tooltip" data-bs-placement="top"
-                data-bs-title="Conta que virá preenchida automaticamente antes de confirmar o recebimento do pagamento."></i></label>
+        <label for="forma_pagamento_id{{ $sufixo }}" class="form-label">Forma de pagamento* <i
+                class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-bs-title="Forma de pagamento que virá preenchida automaticamente antes de confirmar o recebimento do pagamento."></i></label>
         <div class="input-group">
-            <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
+            <select name="forma_pagamento_id" id="forma_pagamento_id{{ $sufixo }}" class="form-select">
                 <option value="0">Selecione</option>
             </select>
-            <button type="button" class="btn btn-outline-primary openModalConta"><i class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-primary openModalFormaPagamento"><i
+                    class="bi bi-search"></i></button>
         </div>
     </div>
     <div class="col mt-2">

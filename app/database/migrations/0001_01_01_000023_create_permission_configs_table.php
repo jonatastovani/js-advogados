@@ -39,6 +39,8 @@ return new class extends Migration
 
             $table->integer('ordem')->nullable();
 
+            $table->jsonb('data')->nullable();
+
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
     }

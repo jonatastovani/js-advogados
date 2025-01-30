@@ -20,27 +20,22 @@ class PagamentoTipoTenantSeeder extends Seeder
             [
                 'nome' => 'Parcela Única',
                 'pagamento_tipo_id' => PagamentoTipoEnum::PAGAMENTO_UNICO,
-                'configuracao' => [],
             ],
             [
                 'nome' => 'Entrada + Parcelado',
                 'pagamento_tipo_id' => PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO,
-                'configuracao' => [],
             ],
             [
                 'nome' => 'Parcelado',
                 'pagamento_tipo_id' => PagamentoTipoEnum::PARCELADO,
-                'configuracao' => [],
             ],
             [
                 'nome' => 'Recorrente',
                 'pagamento_tipo_id' => PagamentoTipoEnum::RECORRENTE,
-                'configuracao' => [],
             ],
             [
                 'nome' => 'Condicionado',
                 'pagamento_tipo_id' => PagamentoTipoEnum::CONDICIONADO,
-                'configuracao' => [],
             ],
         ];
 

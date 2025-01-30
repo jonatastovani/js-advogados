@@ -47,7 +47,7 @@ export class PessoaDocumentoModule {
         const docsNaTela = self._objConfigs.data.documentosNaTela;
 
         // Obtém a quantidade permitida para este tipo de documento
-        const quantidadePermitida = documentoAInserir.documento_tipo_tenant.configuracao?.quantidade_permitida;
+        const quantidadePermitida = documentoAInserir.documento_tipo_tenant.quantidade_permitida;
 
         if (quantidadePermitida) {
             // Filtra os documentos na tela que possuem o mesmo documento_tipo_tenant_id

@@ -31,6 +31,28 @@ trait CommonsModelsMethodsTrait
             'deleted_at',
         ];
     }
+
+    /**
+     * Retorna os campos padrão para colunas personalizadas do VirtualColumn em modelos que usam esta funcionalidade.
+     * Os demais campos deverão ser mesclados na função getCustomColumns.
+     */
+    public static function getCustomColumnsDefault(): array
+    {
+        return [
+            'id',
+            'tenant_id',
+            'domain_id',
+            'created_user_id',
+            'created_ip',
+            'created_at',
+            'updated_user_id',
+            'updated_ip',
+            'updated_at',
+            'deleted_user_id',
+            'deleted_ip',
+            'deleted_at',
+        ];
+    }
     /**
      * Obtém o nome completo da tabela associada ao modelo, incluindo o schema.
      *

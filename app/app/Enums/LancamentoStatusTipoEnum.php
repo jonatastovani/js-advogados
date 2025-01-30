@@ -45,13 +45,11 @@ enum LancamentoStatusTipoEnum: int
                 'id' => self::LIQUIDADO->value,
                 'nome' => 'Liquidado',
                 'descricao' => 'O pagamento foi totalmente quitado.',
-                'configuracao' => [
-                    'campos_obrigatorios' => [
-                        [
-                            'nome' => 'data_recebimento',
-                            'nome_exibir' => 'Data de recebimento',
-                            'form_request_rule' => 'required|date',
-                        ],
+                'campos_obrigatorios' => [
+                    [
+                        'nome' => 'data_recebimento',
+                        'nome_exibir' => 'Data de recebimento',
+                        'form_request_rule' => 'required|date',
                     ],
                 ],
             ],
@@ -64,50 +62,48 @@ enum LancamentoStatusTipoEnum: int
                 'id' => self::LIQUIDADO_PARCIALMENTE->value,
                 'nome' => 'Liquidado parcialmente',
                 'descricao' => 'Apenas uma parte do valor foi pago, e o saldo ainda está pendente. Será gerado um novo lançamento para o saldo restante.',
-                'configuracao' => [
-                    'campos_obrigatorios' => [
-                        [
-                            'nome' => 'data_recebimento',
-                            'nome_exibir' => 'Data de recebimento',
-                            'form_request_rule' => 'required|date',
-                        ],
-                        [
-                            'nome' => 'valor_recebido',
-                            'nome_exibir' => 'Valor recebido',
-                            'form_request_rule' => 'required|numeric|min:0.01',
-                        ],
-                        [
-                            'nome' => 'diluicao_data',
-                            'nome_exibir' => 'Data diluição',
-                            'form_request_rule' => 'required|date',
-                        ],
-                        [
-                            'nome' => 'diluicao_valor',
-                            'nome_exibir' => 'Valor diluição',
-                            'form_request_rule' => 'required|numeric|min:0.01',
-                        ],
+                'campos_obrigatorios' => [
+                    [
+                        'nome' => 'data_recebimento',
+                        'nome_exibir' => 'Data de recebimento',
+                        'form_request_rule' => 'required|date',
                     ],
-                    'campos_opcionais' => [
-                        [
-                            'row_class_name' => 'rowDiluicao',
-                            'parent_type' => 'array',
-                            'parent_name' => 'diluicao_lancamento_adicionais',
-                            'parent_form_request_rule' => 'nullable|array',
-                            'children_class_name' => 'diluicao_adicionada',
-                            'fields' => [
-                                [
-                                    'nome' => 'diluicao_data',
-                                    'nome_exibir' => 'Data diluição',
-                                    'form_request_rule' => 'required|date',
-                                ],
-                                [
-                                    'nome' => 'diluicao_valor',
-                                    'nome_exibir' => 'Valor diluição',
-                                    'form_request_rule' => 'nullable|numeric|min:0.01',
-                                ],
-                            ]
+                    [
+                        'nome' => 'valor_recebido',
+                        'nome_exibir' => 'Valor recebido',
+                        'form_request_rule' => 'required|numeric|min:0.01',
+                    ],
+                    [
+                        'nome' => 'diluicao_data',
+                        'nome_exibir' => 'Data diluição',
+                        'form_request_rule' => 'required|date',
+                    ],
+                    [
+                        'nome' => 'diluicao_valor',
+                        'nome_exibir' => 'Valor diluição',
+                        'form_request_rule' => 'required|numeric|min:0.01',
+                    ],
+                ],
+                'campos_opcionais' => [
+                    [
+                        'row_class_name' => 'rowDiluicao',
+                        'parent_type' => 'array',
+                        'parent_name' => 'diluicao_lancamento_adicionais',
+                        'parent_form_request_rule' => 'nullable|array',
+                        'children_class_name' => 'diluicao_adicionada',
+                        'fields' => [
+                            [
+                                'nome' => 'diluicao_data',
+                                'nome_exibir' => 'Data diluição',
+                                'form_request_rule' => 'required|date',
+                            ],
+                            [
+                                'nome' => 'diluicao_valor',
+                                'nome_exibir' => 'Valor diluição',
+                                'form_request_rule' => 'nullable|numeric|min:0.01',
+                            ],
                         ]
-                    ],
+                    ]
                 ],
             ],
             self::INADIMPLENTE_EM_ANALISE => [

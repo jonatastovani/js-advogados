@@ -31,7 +31,7 @@ return new class extends Migration
             $table->foreign('documento_gerado_tipo_id', "fk_{$this->model->getTableAsName()}_documento_gerado_tipo_id")->references('id')->on((new App\Models\Referencias\DocumentoGeradoTipo)->getTableName());
 
             $table->jsonb('dados');
-            $table->jsonb('configuracao')->nullable();
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

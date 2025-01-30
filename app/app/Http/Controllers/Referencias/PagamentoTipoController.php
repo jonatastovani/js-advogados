@@ -29,11 +29,11 @@ class PagamentoTipoController extends Controller
         return $this->retornoPadrao($this->service->index($fluentData));
     }
 
-    public function store(PagamentoTipoFormRequestStore $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->store($fluentData));
-    }
+    // public function store(PagamentoTipoFormRequestStore $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->store($fluentData));
+    // }
 
     public function show(PagamentoTipoFormRequestShow $formRequest)
     {
@@ -41,17 +41,17 @@ class PagamentoTipoController extends Controller
         return $this->retornoPadrao($this->service->show($fluentData));
     }
 
-    public function update(PagamentoTipoFormRequestUpdate $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->update($fluentData));
-    }
+    // public function update(PagamentoTipoFormRequestUpdate $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->update($fluentData));
+    // }
 
-    public function destroy(PagamentoTipoFormRequestDestroy $formRequest)
-    {
-        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->destroy($fluentData));
-    }
+    // public function destroy(PagamentoTipoFormRequestDestroy $formRequest)
+    // {
+    //     $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+    //     return $this->retornoPadrao($this->service->destroy($fluentData));
+    // }
 
     public function renderPagamentoUnico(PagamentoTipoFormRequestRenderPagamentoUnico $formRequest)
     {

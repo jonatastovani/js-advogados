@@ -53,7 +53,7 @@ export class modalSelecionarUsuarioDomains extends modalDefault {
     async #buscarUsuarioDomains(selected_id = null) {
         try {
             const self = this;
-            let options = { displayColumnName: 'domain' };
+            let options = { displayColumnName: 'name' };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#domain_id${self._objConfigs.sufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);

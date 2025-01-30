@@ -27,10 +27,13 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             participantesNaTela: undefined,
             idRegister: undefined,
             status_id: undefined,
+        },
+        participacao: {
+            // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
             participacao_tipo_tenant: {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },
-        },
+        }
     };
 
     #dataEnvModal = {
@@ -369,7 +372,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
     #saveVerifications(data) {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        const configuracao = self._objConfigs.data.lancamento_status_tipos.configuracao;
+        const lancamentoStatusTipo = self._objConfigs.data.lancamento_status_tipos;
         let blnSave = false;
 
         blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
@@ -380,7 +383,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             returnForcedFalse: blnSave === false
         });
 
-        for (const campo of configuracao.campos_obrigatorios) {
+        for (const campo of lancamentoStatusTipo.campos_obrigatorios) {
             const rules = campo.form_request_rule.split('|');
             if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
                 data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
@@ -394,9 +397,9 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             });
         }
 
-        if (configuracao.campos_opcionais) {
+        if (lancamentoStatusTipo.campos_opcionais) {
 
-            for (const opcional of Object.values(configuracao.campos_opcionais)) {
+            for (const opcional of Object.values(lancamentoStatusTipo.campos_opcionais)) {
 
                 switch (opcional.parent_type) {
                     case 'array':

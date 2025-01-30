@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->string('nome');
             $table->string('descricao')->nullable();
-            $table->jsonb('configuracao')->nullable();
+            $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });

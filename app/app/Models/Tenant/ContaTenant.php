@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class ContaTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain;
+    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain, HasDataColumn;
 
     protected $table = 'tenant.conta_tenants';
     protected $tableAsName = 'conta_ten';
@@ -25,13 +26,19 @@ class ContaTenant extends Model
         'descricao',
         'conta_subtipo_id',
         'banco',
-        'configuracao',
         'conta_status_id',
     ];
 
-    protected $casts = [
-        'configuracao' => 'array',
-    ];
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'nome',
+            'descricao',
+            'conta_subtipo_id',
+            'banco',
+            'conta_status_id',
+        ]);
+    }
 
     public function conta_subtipo()
     {

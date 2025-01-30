@@ -34,7 +34,7 @@ enum PermissionsEnum: int
                 'nome' => 'Admin do Sistema Local',
                 'nome_completo' => 'Administrador do Sistema Local de Gerenciamento de Escritório de Advogacia',
                 'descricao' => 'Permissão de controle total do Sistema',
-                'ativo' => 1,
+                'ativo_bln' => 1,
             ],
             // self::VISUALIZAR_INFORMACOES_SUBJETIVAS => [
             //     'id' => self::VISUALIZAR_INFORMACOES_SUBJETIVAS,
