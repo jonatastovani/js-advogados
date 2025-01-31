@@ -22,6 +22,7 @@ class ContaTenant extends Model
     protected $tableAsName = 'conta_ten';
 
     protected $fillable = [
+        'id',
         'nome',
         'descricao',
         'conta_subtipo_id',

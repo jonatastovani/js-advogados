@@ -510,11 +510,11 @@ class PageServicoForm extends TemplateForm {
                 </div>`;
         }
 
-        if (item?.conta) {
+        if (item?.forma_pagamento) {
             htmlColsEspecifico += `
                 <div class="col">
-                    <div class="form-text mt-0">Conta Padrão</div>
-                    <p class="text-truncate">${item.conta.nome}</p>
+                    <div class="form-text mt-0">Forma de Pagamento Padrão</div>
+                    <p class="text-truncate">${item.forma_pagamento.nome}</p>
                 </div>`;
         }
 
@@ -625,8 +625,8 @@ class PageServicoForm extends TemplateForm {
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
             const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-            const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
-            const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
+            const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
+            const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
             const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
 
             let editParticipante = true;
@@ -681,9 +681,9 @@ class PageServicoForm extends TemplateForm {
                                 <p>${lancamento.status.nome}</p>
                             </div>
                             <div class="col">
-                                <div class="form-text mt-0">Conta</div>
-                                <p class="text-truncate" title="${title_conta}">
-                                    ${nome_conta}
+                                <div class="form-text mt-0">Forma de Pagamento</div>
+                                <p class="text-truncate" title="${title_forma_pagamento}">
+                                    ${nome_forma_pagamento}
                                 </p>
                             </div>
                         </div>

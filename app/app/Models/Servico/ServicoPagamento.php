@@ -4,9 +4,9 @@ namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Comum\ParticipacaoParticipante;
-use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Referencias\PagamentoTipo;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Scopes\Servico\ValorServicoPagamentoAguardandoScope;
 use App\Scopes\Servico\ValorServicoPagamentoEmAnaliseScope;
@@ -40,7 +40,7 @@ class ServicoPagamento extends Model
         'servico_id',
         'status_id',
         'pagamento_tipo_tenant_id',
-        'conta_id',
+        'forma_pagamento_id',
         'valor_total',
         'entrada_valor',
         'entrada_data',
@@ -97,9 +97,9 @@ class ServicoPagamento extends Model
         return $this->hasMany(ServicoPagamentoLancamento::class, 'pagamento_id')->orderBy('data_vencimento', 'asc');
     }
 
-    public function conta()
+    public function forma_pagamento()
     {
-        return $this->belongsTo(ContaTenant::class);
+        return $this->belongsTo(FormaPagamentoTenant::class);
     }
 
     public function participantes()

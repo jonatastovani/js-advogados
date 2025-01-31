@@ -8,6 +8,7 @@ trait CommonsSeederMethodsTrait
 {
 
     protected $tenantId;
+    protected $domainId;
     protected $atualizarIdIncremental = false;
 
     protected function atualizaIdIncrementalNumerico(): void
@@ -59,6 +60,11 @@ trait CommonsSeederMethodsTrait
                 $data['created_user_id'] = $adminTenantUserId;
                 $data['tenant_id'] = $this->tenantId;
 
+                // Verifica se a trait BelongsToDomain esta sendo utilizada no modelo
+                if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model))) {
+                    $data['domain_id'] = $this->domainId;
+                }
+
                 // Cria um novo registro
                 $this->model::create($data);
             }
@@ -76,12 +82,17 @@ trait CommonsSeederMethodsTrait
         return $this;
     }
 
+    public function setDomainId($domainId)
+    {
+        $this->domainId = $domainId;
+        return $this;
+    }
+
     public function setDefaultTenantId()
     {
         $this->tenantId = 'jsadvogados';
         return $this;
     }
-
 
     public function setAtualizaIdIncrementalBln($atualizarIdIncremental)
     {

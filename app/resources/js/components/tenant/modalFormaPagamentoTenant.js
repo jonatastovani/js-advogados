@@ -1,6 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { modalContaTenant } from "./modalContaTenant";
 
 export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
 
@@ -14,6 +15,9 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
                 url: window.apiRoutes.baseFormaPagamento,
                 urlSearch: `${window.apiRoutes.baseFormaPagamento}/consulta-filtros`,
             }
+        },
+        url: {
+            baseContas: window.apiRoutes.baseContas,
         },
         sufixo: 'ModalFormaPagamentoTenant',
     };
@@ -57,7 +61,37 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
             })
             .trigger('click');
 
-        commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), window.apiRoutes.baseFormaPagamento);
+        commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
+
+        modal.find('.openModalConta').on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalContaTenant();
+                objModal.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                }
+                await self._modalHideShow(false);
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    if (response.selected) {
+                        self.#buscarContas(response.selected.id);
+                    } else {
+                        self.#buscarContas();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+                await self._modalHideShow();
+            }
+        });
     }
 
     async _executarBusca() {
@@ -85,7 +119,7 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
             <div class="btn-group">
                 ${btnSelect}
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-sm dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <ul class="dropdown-menu">
@@ -94,7 +128,7 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
                 </div>
             </div>`;
 
-        const ativoBln = item.ativo ? 'Sim' : 'Não';
+        const ativoBln = item.ativo_bln ? 'Sim' : 'Não';
 
         $(tbody).append(`
             <tr id="${item.idTr}" data-id="${item.id}">
@@ -128,9 +162,8 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
                     form.find('input[name="nome"]').val(responseData.nome);
-                    form.find('select[name="conta_subtipo_id"]').val(responseData.conta_subtipo_id);
-                    form.find('select[name="conta_status_id"]').val(responseData.conta_status_id);
-                    form.find('input[name="banco"]').val(responseData.banco);
+                    form.find('select[name="conta_id"]').val(responseData.conta_id);
+                    form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
                     form.find('textarea[name="descricao"]').val(responseData.descricao);
                     self._actionsHideShowRegistrationFields(true);
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
@@ -175,6 +208,18 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
                 button: this
             });
         });
+    }
+
+    async #buscarContas(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     saveButtonAction() {

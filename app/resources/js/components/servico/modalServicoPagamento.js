@@ -98,9 +98,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 await self._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarFormaPagamento(item.id);
+                    if (response.selected) {
+                        self.#buscarFormaPagamento(response.selected.id);
                     } else {
                         self.#buscarFormaPagamento();
                     }
@@ -112,37 +111,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 await self._modalHideShow();
             }
         });
-
-        // modal.find('.openModalConta').on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalContaTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         await self._modalHideShow(false);
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selecteds.length > 0) {
-        //                 const item = response.selecteds[0];
-        //                 self.#buscarContas(item.id);
-        //             } else {
-        //                 self.#buscarContas();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //         await self._modalHideShow();
-        //     }
-        // });
 
         modal.find('.btn-simular').on('click', async function () {
             commonFunctions.simulateLoading($(this));

@@ -16,7 +16,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
         // Define as regras básicas
         $rules = [
             'pagamento_tipo_tenant_id' => 'required|uuid',
-            'conta_id' => 'required|uuid',
+            'forma_pagamento_id' => 'required|uuid',
             'observacao' => 'nullable|string',
             'status_id' => 'nullable|integer',
         ];
@@ -81,7 +81,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
     {
         return [
             'pagamento_tipo_tenant_id' => 'tipo de pagamento',
-            'conta_id' => 'conta',
+            'forma_pagamento_id' => 'forma de pagamento',
             'valor_total' => 'valor total',
             'entrada_valor' => 'valor de entrada',
             'entrada_data' => 'data de entrada',

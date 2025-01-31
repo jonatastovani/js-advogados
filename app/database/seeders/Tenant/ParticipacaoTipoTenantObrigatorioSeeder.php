@@ -38,6 +38,6 @@ class ParticipacaoTipoTenantObrigatorioSeeder extends Seeder
         ];
 
         // Chama o método genérico para inserção/atualização
-        $this->setDefaultTenantId('jsadvogados')->upsertData($dataList);
+        $this->setDefaultTenantId()->upsertData($dataList);
     }
 }

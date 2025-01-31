@@ -41,6 +41,7 @@ use Database\Seeders\Tenant\DocumentoTipoTenantSeeder;
 use Database\Seeders\Tenant\DocumentoTipoTenantUpdateSeeder;
 use Database\Seeders\Tenant\EscolaridadeTenantSeeder;
 use Database\Seeders\Tenant\EstadoCivilTenantSeeder;
+use Database\Seeders\Tenant\FormaPagamentoTenantSeeder;
 use Database\Seeders\Tenant\LancamentoCategoriaTipoTenantSeeder;
 use Database\Seeders\Tenant\ParticipacaoTipoTenantObrigatorioSeeder;
 use Database\Seeders\Tenant\ParticipacaoTipoTenantSeeder;
@@ -93,6 +94,7 @@ class DatabaseSeeder extends Seeder
                 ParticipacaoTipoTenantSeeder::class,
                 ParticipacaoTipoTenantObrigatorioSeeder::class,
                 SexoTenantSeeder::class,
+                FormaPagamentoTenantSeeder::class,
             ]);
 
             if (env('APP_ENV') == 'local') {
@@ -107,11 +109,10 @@ class DatabaseSeeder extends Seeder
                     UserEscritorioSeeder::class,
                 ]);
             }
-
         } else {
 
             $this->call([
-                // ParticipacaoTipoTenantSeeder::class,
+                // FormaPagamentoTenantSeeder::class,
                 // ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }

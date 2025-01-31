@@ -87,7 +87,7 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             <div class="btn-group">
                 ${btnSelect}
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-sm dropdown-toggle ${btnSelect ? 'rounded-start-0 border' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <ul class="dropdown-menu">

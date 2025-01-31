@@ -13,12 +13,12 @@ use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
 use App\Helpers\ServicoPagamentoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -213,10 +213,10 @@ class ServicoPagamentoService extends Service
             }
         }
 
-        //Verifica se a conta informada existe
-        $validacaoContaId = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
-        if (!$validacaoContaId->count()) {
-            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+        //Verifica se a forma de pagamento informada existe
+        $validacaoFormaPagamentoId = ValidationRecordsHelper::validateRecord(FormaPagamentoTenant::class, ['id' => $requestData->forma_pagamento_id]);
+        if (!$validacaoFormaPagamentoId->count()) {
+            $arrayErrors->forma_pagamento_id = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento informada não existe ou foi excluída.', $requestData)->error;
         }
 
         // Erros que impedem o processamento
@@ -249,7 +249,7 @@ class ServicoPagamentoService extends Service
         $relationships = [
             'status',
             'pagamento_tipo_tenant.pagamento_tipo',
-            'conta',
+            'forma_pagamento.conta',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',

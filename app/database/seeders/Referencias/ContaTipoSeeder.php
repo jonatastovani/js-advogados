@@ -26,6 +26,10 @@ class ContaTipoSeeder extends Seeder
                 'id' => '3',
                 'nome' => 'Pagamento',
             ],
+            [
+                'id' => '4',
+                'nome' => 'Cofre local',
+            ],
         ];
 
         $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();

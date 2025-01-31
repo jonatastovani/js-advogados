@@ -2,12 +2,22 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Helpers\UUIDsHelpers;
 use App\Models\Tenant\ContaTenant;
+use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 
 class ContaTenantSeeder extends Seeder
 {
+
+    use CommonsSeederMethodsTrait;
+
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new \App\Models\Tenant\ContaTenant();
+    }
+
     /**
      * Run the database seeds.
      *
@@ -15,30 +25,33 @@ class ContaTenantSeeder extends Seeder
      */
     public function run(): void
     {
-        $insert = [
+        $dataList = [
             [
-                'nome' => 'Conta Recebimento',
+                'id' => '9e18b6e1-14d6-43ed-b8ac-89a5ba725570',
+                'nome' => 'Conta JS PJ',
                 'descricao' => 'Recebimento geral',
                 'conta_subtipo_id' => 4,
                 'banco' => 'Banco do Brasil',
                 'conta_status_id' => 1,
             ],
             [
-                'nome' => 'Conta Principal',
+                'id' => '9e18b6e1-187c-4795-9e52-5e491fc95485',
+                'nome' => 'Conta Itaú PJ',
                 'descricao' => 'Recebimento geral',
                 'conta_subtipo_id' => 1,
                 'banco' => 'Banco Itaú',
                 'conta_status_id' => 1,
             ],
+            [
+                'id' => '9e18b6e1-187c-4795-9e52-5e491fc00985',
+                'nome' => 'Cofre local',
+                'descricao' => 'Cofre para recebimento em dinheiro e cheque',
+                'conta_subtipo_id' => 5,
+                'conta_status_id' => 1,
+            ],
         ];
 
-        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-
-        foreach ($insert as $data) {
-            $data['created_user_id'] = $adminTenantUserId;
-            $data['tenant_id'] = 'jsadvogados';
-            $data['domain_id'] = 2;
-            ContaTenant::create($data);
-        }
+        // Chama o método genérico para inserção/atualização
+        $this->setDefaultTenantId()->setDomainId(2)->upsertData($dataList);
     }
 }

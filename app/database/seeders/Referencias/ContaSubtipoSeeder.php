@@ -17,20 +17,29 @@ class ContaSubtipoSeeder extends Seeder
     {
         $insert = [
             [
+                'id' => 1,
                 'nome' => 'Corrente',
                 'conta_tipo_id' => 1,
             ],
             [
+                'id' => 2,
                 'nome' => 'Poupança',
                 'conta_tipo_id' => 1,
             ],
             [
+                'id' => 3,
                 'nome' => 'Salário',
                 'conta_tipo_id' => 2,
             ],
             [
+                'id' => 4,
                 'nome' => 'Pagamento',
                 'conta_tipo_id' => 3,
+            ],
+            [
+                'id' => 5,
+                'nome' => 'Cofre local',
+                'conta_tipo_id' => 4,
             ],
         ];
 

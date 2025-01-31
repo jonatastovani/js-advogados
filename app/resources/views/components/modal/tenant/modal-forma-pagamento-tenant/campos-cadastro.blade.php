@@ -12,17 +12,13 @@
         <div class="row">
             <div class="col mt-2">
                 <label for="conta_id{{ $sufixo }}" class="form-label">Conta*</label>
-                <select name="conta_id" class="form-select" id="conta_id{{ $sufixo }}">
-                    <option value="0">Selecione</option>
-                </select>
-            </div>
-            <div class="col mt-2">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}"
-                        name="ativo_bln" checked>
-                    <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Ativo</label>
+                <div class="input-group">
+                    <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
+                        <option value="0">Selecione</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-primary openModalConta"><i
+                            class="bi bi-search"></i></button>
                 </div>
-                <div class="form-text">As formas de pagamentos inativas, não serão listadas em caixas de seleção.</div>
             </div>
         </div>
         <div class="row">
@@ -30,6 +26,16 @@
                 <label for="descricao{{ $sufixo }}" class="form-label">Descrição (opcional)</label>
                 <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control"></textarea>
             </div>
+        </div>
+        <div class="row">
+            <div class="col mt-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}"
+                        name="ativo_bln" checked>
+                    <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Ativo</label>
+                </div>
+            </div>
+            <div class="form-text">As formas de pagamentos inativas, não serão listadas em caixas de seleção.</div>
         </div>
         <div class="row">
             <div class="col-12 text-end mt-2">

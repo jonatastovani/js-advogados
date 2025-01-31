@@ -34,8 +34,8 @@ return new class extends Migration
             $table->uuid('pagamento_tipo_tenant_id');
             $table->foreign('pagamento_tipo_tenant_id')->references('id')->on((new App\Models\Tenant\PagamentoTipoTenant)->getTableName());
 
-            $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
+            $table->uuid('forma_pagamento_id');
+            $table->foreign('forma_pagamento_id')->references('id')->on((new App\Models\Tenant\FormaPagamentoTenant())->getTableName());
 
             $table->float('valor_total')->nullable();
             $table->float('entrada_valor')->nullable();

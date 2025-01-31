@@ -36,8 +36,8 @@ return new class extends Migration
             $table->float('valor_recebido')->nullable();
             $table->date('data_recebimento')->nullable();
 
-            $table->uuid('conta_id')->nullable();
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
+            $table->uuid('forma_pagamento_id')->nullable();
+            $table->foreign('forma_pagamento_id')->references('id')->on((new App\Models\Tenant\FormaPagamentoTenant())->getTableName());
 
             $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo)->getTableName());
