@@ -44,7 +44,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             $pagamentoTipo = $consulta->pagamento_tipo;
 
             // Define as regras de acordo com o tipo de pagamento
-            foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+            foreach ($pagamentoTipo->campos_obrigatorios as $value) {
                 switch ($pagamentoTipo->id) {
                     case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
                         if ($value['nome'] == 'valor_total') {

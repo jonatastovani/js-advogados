@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\FormaPagamentoTenant;
 use Illuminate\Support\Fluent;
 
 class PagamentoTipoPagamentoUnicoHelper
@@ -10,7 +10,7 @@ class PagamentoTipoPagamentoUnicoHelper
     static public function renderizar(Fluent $dados, array $options = [])
     {
 
-        $conta = ContaTenant::find($dados->conta_id);
+        $formapagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         return [
             'lancamentos' => [
@@ -20,8 +20,8 @@ class PagamentoTipoPagamentoUnicoHelper
                     'data_vencimento' => $dados->entrada_data,
                     'valor_esperado' => $dados->valor_total,
                     'status' => ['nome' => 'Simulado'],
-                    'conta_id' => $conta->id,
-                    'conta' => $conta,
+                    'forma_pagamento_id' => $formapagamento->id,
+                    'forma_pagamento' => $formapagamento,
                 ]
             ]
         ];

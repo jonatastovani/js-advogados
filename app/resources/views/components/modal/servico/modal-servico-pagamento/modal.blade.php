@@ -73,7 +73,6 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseContas' => route('api.tenant.conta'),
         'basePagamentoTipoTenants' => route('api.tenant.pagamento-tipo-tenant'),
         'baseStatusPagamento' => route('api.referencias.pagamento-status-tipo'),
         'baseFormaPagamento' => route('api.tenant.forma-pagamento'),

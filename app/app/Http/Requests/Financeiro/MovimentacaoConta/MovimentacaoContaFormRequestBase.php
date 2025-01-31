@@ -9,7 +9,7 @@ class MovimentacaoContaFormRequestBase extends BaseFormRequest
     public function rules()
     {
         return [
-            'conta_id' => 'required|uuid',
+            'forma_pagamento_id' => 'required|uuid',
             'referencia_id' => 'required|uuid',
             'status_id' => 'required|integer',
             'observacao' => 'nullable|string',

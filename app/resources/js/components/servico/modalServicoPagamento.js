@@ -23,7 +23,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             base: undefined,
             baseLancamentos: undefined,
             basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
-            baseContas: window.apiRoutes.baseContas,
             baseStatusPagamento: window.apiRoutes.baseStatusPagamento,
             baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
         },
@@ -171,8 +170,8 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
         const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
         const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-        const title_conta = lancamento.conta?.nome ?? 'Conta Padrão do Pagamento';
-        const nome_conta = lancamento.conta?.nome ?? `<i>${title_conta}</i>`;
+        const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
+        const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
 
         let htmlAppend = '';
         let btns = '';
@@ -233,9 +232,9 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                             <p class="mb-0">${lancamento.status.nome}</p>
                         </div>
                         <div class="col">
-                            <div class="form-text mt-0">Conta</div>
-                            <p class="mb-0 text-truncate" title="${title_conta}">
-                                ${nome_conta}
+                            <div class="form-text mt-0">Forma de pagamento</div>
+                            <p class="mb-0 text-truncate" title="${title_forma_pagamento}">
+                                ${nome_forma_pagamento}
                             </p>
                         </div>
                     </div>
@@ -336,18 +335,6 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
         }
     }
 
-    // async #buscarContas(selected_id = null) {
-    //     try {
-    //         const self = this;
-    //         let options = selected_id ? { selectedIdOption: selected_id } : {};
-    //         const select = $(self.getIdModal).find('select[name="conta_id"]');
-    //         await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
-    //         return true;
-    //     } catch (error) {
-    //         return false;
-    //     }
-    // }
-
     async #buscarStatusPagamento(selected_id = null) {
         try {
             const self = this;
@@ -380,7 +367,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
                 await self.#buscarDadosPagamentoTipo(true);
 
                 const form = $(self.getIdModal).find('.formRegistration');
-                form.find('select[name="conta_id"]').val(responseData.conta_id);
+                form.find('select[name="forma_pagamento_id"]').val(responseData.forma_pagamento_id);
                 form.find('select[name="status_id"]').val(responseData.status_id);
 
                 const tipoCampos = [pagamentoTipo.campos_obrigatorios, pagamentoTipo.campos_opcionais ?? []];
@@ -561,7 +548,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
         if (self._action == enumAction.POST || self._action == enumAction.PUT && tipo == 'save') {
 
-            blnSave = commonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'A <b>Conta padrão</b> deve ser informada.', setFocus: true });
+            blnSave = commonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
 
             if (self._action == enumAction.POST) {
                 for (const campo of pagamentoTipo.campos_obrigatorios) {

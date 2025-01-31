@@ -8,7 +8,7 @@ class PagamentoTipoFormRequestRenderBase extends BaseFormRequest
 {
     public function rules(): array
     {
-        return ['conta_id' => 'required|uuid'];
+        return ['forma_pagamento_id' => 'required|uuid'];
     }
 
     protected function customMessages(): array

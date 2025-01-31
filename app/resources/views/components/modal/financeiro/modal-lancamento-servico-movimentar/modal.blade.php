@@ -76,7 +76,7 @@
     <x-modal.comum.modal-nome.modal />
     <x-modal.comum.modal-participacao-participante.modal />
     <x-modal.comum.modal-participacao-preset.modal />
-    <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.tenant.modal-forma-pagamento-tenant.modal />
 @endpush
 
 @component('components.api.api-routes', [
@@ -86,7 +86,7 @@
         'baseLancamentoStatusTipo' => route('api.referencias.lancamento-status-tipo'),
         'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
         'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
-        'baseContas' => route('api.tenant.conta'),
+        'baseFormaPagamento' => route('api.tenant.forma-pagamento'),
     ],
 ])
 @endcomponent

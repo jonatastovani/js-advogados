@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Illuminate\Support\Fluent;
 
@@ -20,7 +20,7 @@ class PagamentoTipoEntradaComParcelamentoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $conta = ContaTenant::find($dados->conta_id);
+        $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         // Calcula o valor das parcelas após descontar a entrada
         $valorRestante = bcsub($valorTotal, $valorEntrada, 2);
@@ -39,8 +39,8 @@ class PagamentoTipoEntradaComParcelamentoHelper
             'data_vencimento' => $dataEntrada->format('Y-m-d'),
             'valor_esperado' => $valorEntrada,
             'status' => ['nome' => 'Simulado'],
-            'conta_id' => $conta->id,
-            'conta' => $conta,
+            'forma_pagamento_id' => $formaPagamento->id,
+            'forma_pagamento' => $formaPagamento,
         ];
 
         $dataVencimento = new \DateTime($dataInicio);
@@ -57,8 +57,8 @@ class PagamentoTipoEntradaComParcelamentoHelper
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => $valorParcelaAjustada,
                 'status' => ['nome' => 'Simulado'],
-                'conta_id' => $conta->id,
-                'conta' => $conta,
+                'forma_pagamento' => $formaPagamento->id,
+                'forma_pagamento_id' => $formaPagamento,
             ];
 
             $dataVencimento = self::ajustarDataVencimentoSeguinte($dataVencimento, $diaVencimento);

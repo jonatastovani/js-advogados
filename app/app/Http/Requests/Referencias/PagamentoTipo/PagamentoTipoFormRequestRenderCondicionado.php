@@ -21,7 +21,7 @@ class PagamentoTipoFormRequestRenderCondicionado extends PagamentoTipoFormReques
     {
         $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::CONDICIONADO->value);
         $rules = parent::rules();
-        foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+        foreach ($pagamentoTipo->campos_obrigatorios as $value) {
             $rules[$value['nome']] = $value['form_request_rule'];
         }
         return $rules;

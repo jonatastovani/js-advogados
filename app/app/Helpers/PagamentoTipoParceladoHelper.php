@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Illuminate\Support\Fluent;
 
@@ -18,7 +18,7 @@ class PagamentoTipoParceladoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $conta = ContaTenant::find($dados->conta_id);
+        $formapagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         $valorParcela = bcdiv($valorTotal, $quantidadeParcelas, 2); // Divisão precisa com 2 casas decimais
         $valorTotalParcelas = bcmul($valorParcela, $quantidadeParcelas, 2);
@@ -39,8 +39,8 @@ class PagamentoTipoParceladoHelper
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => $valorParcelaAjustada,
                 'status' => ['nome' => 'Simulado'],
-                'conta_id' => $conta->id,
-                'conta' => $conta,
+                'forma_pagamento_id' => $formapagamento->id,
+                'forma_pagamento' => $formapagamento,
             ];
 
             // Ajusta a data para o próximo mês

@@ -22,7 +22,7 @@ class PagamentoTipoFormRequestRenderEntradaComParcelamento extends PagamentoTipo
     {
         $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value);
         $rules = parent::rules();
-        foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+        foreach ($pagamentoTipo->campos_obrigatorios as $value) {
             if ($value['nome'] == 'valor_total') {
                 $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
             }

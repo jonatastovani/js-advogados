@@ -27,6 +27,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
@@ -248,7 +249,7 @@ class MovimentacaoContaService extends Service
 
         $modelParent = $this->modelPagamentoLancamento;
         $idParent = $requestData->referencia_id;
-        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent);
+        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent, ['referencia_movimentacao_conta' => 'forma_pagamento']);
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
@@ -274,7 +275,8 @@ class MovimentacaoContaService extends Service
                             $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $idParent, $modelParent);
                         }
 
-                        $lancamento->conta_id = $requestData->conta_id;
+
+                        $lancamento->forma_pagamento_id = $requestData->forma_pagamento_id;
                         $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO->value;
                         $lancamento->valor_recebido = $lancamento->valor_esperado;
                         $lancamento->data_recebimento = $requestData->data_recebimento;
@@ -297,7 +299,7 @@ class MovimentacaoContaService extends Service
                         }
 
                         // Atualiza alguns campos do lancamento original que serão usados tambem na nova parcela
-                        $lancamento->conta_id = $requestData->conta_id;
+                        $lancamento->forma_pagamento_id = $requestData->forma_pagamento_id;
                         $lancamento->observacao = $requestData->observacao;
 
                         // Cria as novas parcelas de diluicao
@@ -337,7 +339,8 @@ class MovimentacaoContaService extends Service
                 $resource->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value;
                 $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoLancamentoServico();
 
-                $ultimoSaldo = $this->buscarSaldoConta($requestData->conta_id);
+                $conta = $this->getContaAtravesFormaPagamento($requestData->forma_pagamento_id);
+                $ultimoSaldo = $this->buscarSaldoConta($conta->id);
 
                 // Realiza o cálculo do novo saldo
                 $novoSaldo = $this->calcularNovoSaldo(
@@ -356,6 +359,11 @@ class MovimentacaoContaService extends Service
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
+    }
+
+    public function getContaAtravesFormaPagamento($contaId)
+    {
+        return FormaPagamentoTenant::with('conta')->find($contaId);
     }
 
     protected function renderizarDiluicao($lancamento, $requestData)
@@ -617,14 +625,31 @@ class MovimentacaoContaService extends Service
         };
     }
 
-    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData, Model $modelParent): Model
+    protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData, Model $modelParent, array $options = []): Model
     {
         $arrayErrors = new Fluent();
 
         $resource = new $this->model;
 
-        $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
-        $arrayErrors = $validacaoContaTenant->arrayErrors;
+        if (isset($options['referencia_movimentacao_conta'])) {
+            switch ($options['referencia_movimentacao_conta']) {
+                case 'conta':
+                    $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
+                    $arrayErrors = $validacaoContaTenant->arrayErrors;
+                    break;
+
+                case 'forma_pagamento':
+                    $validacaoContaTenant = $this->validacaoFormaPagamentoTenant($requestData, $arrayErrors);
+                    $arrayErrors = $validacaoContaTenant->arrayErrors;
+                    break;
+
+                default:
+                    RestResponse::createErrorResponse(400, 'Referência para movimentação de Conta não configurada.')->throwResponse();
+                    break;
+            }
+        } else {
+            RestResponse::createErrorResponse(400, 'Referência para movimentação de Conta não definida.')->throwResponse();
+        }
 
         $validacaoLancamentoStatusTipo = $this->validacaoLancamentoStatusTipo($requestData, $arrayErrors);
         $arrayErrors = $validacaoLancamentoStatusTipo->arrayErrors;
@@ -652,9 +677,33 @@ class MovimentacaoContaService extends Service
         return $resource;
     }
 
+    private function validacaoFormaPagamentoTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $nomePropriedade = $options['nome_propriedade_forma_pagamento'] ?? 'forma_pagamento_id';
+
+        $validacaoFormaPagamento = ValidationRecordsHelper::validateRecord(FormaPagamentoTenant::class, ['id' => $requestData->$nomePropriedade]);
+
+        if (!$validacaoFormaPagamento->count()) {
+            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento informada não existe ou foi excluída.', $requestData)->error;
+        } else {
+            if ($validacaoFormaPagamento->first()->ativo_bln != true) {
+                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento encontra-se inativa. Verifique o motivo!.', $requestData)->error;
+            } else {
+                // Verificar se a conta está com status que permite movimentação
+                $requestData->conta_id = $validacaoFormaPagamento->first()->conta_id;
+                $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
+                $arrayErrors = $validacaoContaTenant->arrayErrors;
+            }
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoFormaPagamento,
+        ]);
+    }
+
     private function validacaoContaTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
     {
-        $nomePropriedade = $options['nome_propriedade'] ?? 'conta_id';
+        $nomePropriedade = $options['referencia_movimentacao_conta'] ?? 'conta_id';
 
         $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->$nomePropriedade]);
         if (!$validacaoConta->count()) {
@@ -708,7 +757,7 @@ class MovimentacaoContaService extends Service
 
         $modelParent = $this->modelLancamentoGeral;
         $idParent = $requestData->referencia_id;
-        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent, );
+        $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent, ['referencia_movimentacao_conta' => 'conta']);
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
@@ -1176,10 +1225,10 @@ class MovimentacaoContaService extends Service
     // {
     //     $arrayErrors = new Fluent();
 
-    //     $validacaoContaOrigemTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['nome_propriedade' => 'conta_origem_id']);
+    //     $validacaoContaOrigemTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['referencia_movimentacao_conta' => 'conta_origem_id']);
     //     $arrayErrors = $validacaoContaOrigemTenant->arrayErrors;
 
-    //     $validacaoContaDestinoTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['nome_propriedade' => 'conta_destino_id']);
+    //     $validacaoContaDestinoTenant = $this->validacaoContaTenant($requestData, $arrayErrors, ['referencia_movimentacao_conta' => 'conta_destino_id']);
     //     $arrayErrors = $validacaoContaDestinoTenant->arrayErrors;
 
     //     // Erros que impedem o processamento

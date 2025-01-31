@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Carbon\Carbon;
 use Cron\CronExpression;
@@ -14,7 +14,7 @@ class PagamentoTipoRecorrenteHelper
 
     static public function renderizar(Fluent $dados, array $options = [])
     {
-        $conta = ContaTenant::find($dados->conta_id);
+        $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         $dataInicio = Carbon::parse($dados->cron_data_inicio);
         $dataFim = $dados->cron_data_fim ? Carbon::parse($dados->cron_data_fim) : null;
@@ -74,8 +74,8 @@ class PagamentoTipoRecorrenteHelper
                 'data_vencimento' => Carbon::parse($proximaExecucao)->format('Y-m-d'),
                 'valor_esperado' => $dados->parcela_valor,
                 'status' => ['nome' => 'Simulado'],
-                'conta_id' => $conta->id,
-                'conta' => $conta,
+                'forma_pagamento_id' => $formaPagamento->id,
+                'forma_pagamento' => $formaPagamento,
             ];
         }
 

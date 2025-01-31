@@ -5,7 +5,7 @@ import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrati
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
-import { modalContaTenant } from "../tenant/modalContaTenant";
+import { modalFormaPagamentoTenant } from "../tenant/modalFormaPagamentoTenant";
 
 export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
 
@@ -19,7 +19,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             baseLancamentoStatusTipo: window.apiRoutes.baseLancamentoStatusTipo,
             baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
-            baseContas: window.apiRoutes.baseContas,
+            baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
         },
         sufixo: 'ModalLancamentoServicoMovimentar',
         data: {
@@ -70,7 +70,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
         if (self._dataEnvModal.idRegister) {
-            await this.#buscarContas();
+            await this.#buscarFormaPagamento();
             await self.#buscarDadosLancamentoStatusTipo();
             open = await self.#buscarDados();
         } else {
@@ -89,11 +89,11 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalConta').on('click', async function () {
+        modal.find('.openModalFormaPagamento').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new modalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -106,9 +106,9 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     if (response.selected) {
-                        self.#buscarContas(response.selected.id);
+                        self.#buscarFormaPagamento(response.selected.id);
                     } else {
-                        self.#buscarContas();
+                        self.#buscarFormaPagamento();
                     }
                 }
             } catch (error) {
@@ -236,12 +236,12 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         }
     }
 
-    async #buscarContas(selected_id = null) {
+    async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -271,7 +271,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
                 const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
                 const pValor = commonFunctions.formatNumberToCurrency(responseData.valor_esperado);
-                const conta_id = responseData.conta_id ?? responseData.pagamento.conta_id;
+                const forma_pagamento_id = responseData.forma_pagamento_id ?? responseData.pagamento.forma_pagamento_id;
 
                 let participantes = [];
                 if (responseData.participantes.length) {
@@ -300,7 +300,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
                 form.find('.pDataVencimento').html(data_vencimento);
                 form.find('.pValor').html(pValor);
                 form.find('input[name="observacao"]').val(responseData.observacao);
-                form.find('select[name="conta_id"]').val(conta_id);
+                form.find('select[name="forma_pagamento_id"]').val(forma_pagamento_id);
                 const diferenca = DateTimeHelper.retornaDiferencaDeDataEHora(responseData.data_vencimento, new Date(), 1);
                 form.find('input[name="data_recebimento"]').val(diferenca > 0 ? responseData.data_vencimento : DateTimeHelper.retornaDadosDataHora(new Date(), 1));
 
@@ -326,15 +326,15 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
 
     saveButtonAction() {
         const self = this;
-        const configuracao = self._objConfigs.data.lancamento_status_tipos.configuracao;
+        const lancamentoStatusTipo = self._objConfigs.data.lancamento_status_tipos;
         const rowContaData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowConta')[0]);
         const rowObservacaoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowObservacao')[0]);
         const rowRecebimentoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowRecebimento')[0]);
 
         let data = Object.assign(rowContaData, rowObservacaoData, rowRecebimentoData);
-        if (configuracao.campos_opcionais) {
+        if (lancamentoStatusTipo.campos_opcionais) {
 
-            for (const opcionais of Object.values(configuracao.campos_opcionais)) {
+            for (const opcionais of Object.values(lancamentoStatusTipo.campos_opcionais)) {
 
                 const nomeClassRow = opcionais.row_class_name;
                 switch (opcionais.parent_type) {
@@ -376,9 +376,9 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
         let blnSave = false;
 
         blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
-        blnSave = commonFunctions.verificationData(data.conta_id, {
-            field: formRegistration.find('select[name="conta_id"]'),
-            messageInvalid: 'A <b>Conta</b> deve ser informada.',
+        blnSave = commonFunctions.verificationData(data.forma_pagamento_id, {
+            field: formRegistration.find('select[name="forma_pagamento_id"]'),
+            messageInvalid: 'A <b>Forma de Pagamento</b> deve ser informada.',
             setFocus: blnSave === true,
             returnForcedFalse: blnSave === false
         });
