@@ -47,8 +47,8 @@ class PagamentoTipoEntradaComParcelamentoHelper
 
         // Gerar as parcelas restantes
         for ($i = 1; $i <= $quantidadeParcelas; $i++) {
-            $valorParcelaAjustada = ($i === 1) 
-                ? bcadd($valorParcela, $diferenca, 2) 
+            $valorParcelaAjustada = ($i === 1)
+                ? bcadd($valorParcela, $diferenca, 2)
                 : $valorParcela;
 
             $lancamentos[] = [
@@ -57,8 +57,8 @@ class PagamentoTipoEntradaComParcelamentoHelper
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => $valorParcelaAjustada,
                 'status' => ['nome' => 'Simulado'],
-                'forma_pagamento' => $formaPagamento->id,
-                'forma_pagamento_id' => $formaPagamento,
+                'forma_pagamento_id' => $formaPagamento->id,
+                'forma_pagamento' => $formaPagamento,
             ];
 
             $dataVencimento = self::ajustarDataVencimentoSeguinte($dataVencimento, $diaVencimento);
