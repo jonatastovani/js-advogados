@@ -21,7 +21,7 @@ services:
         #     timeout: 10s
         #     retries: 5
         volumes:
-            - app-data:/var/www/app # Volume nomeado para a aplicação
+            - app_data:/var/www/app # Volume nomeado para a aplicação
         depends_on:
             - laravel
         networks:
@@ -46,7 +46,7 @@ services:
             - ./docker/nginx/sites.conf:/etc/nginx/conf.d/default.conf
             - ./docker/nginx/error.html:/var/www/html/error.html
             - ./docker/certbot/conf:/etc/letsencrypt
-            - app-data:/var/www/app # Compartilha os dados da aplicação
+            - app_data:/var/www/app # Compartilha os dados da aplicação
         depends_on:
             - web
         networks:
@@ -90,7 +90,7 @@ services:
         volumes:
             - ./docker/certbot/conf:/etc/letsencrypt
             - ./docker/certbot/logs:/var/log/letsencrypt
-            - app-data:/var/www/app
+            - app_data:/var/www/app
             - ./renew_certificates.sh:/renew_certificates.sh # Monta o script no container
         networks:
             - laravel
@@ -102,6 +102,6 @@ networks:
         attachable: true
 
 volumes:
-    app-data:
+    app_data:
     postgres_data:
     phpredis_data:
