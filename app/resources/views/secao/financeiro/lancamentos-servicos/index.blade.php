@@ -137,4 +137,10 @@
         ],
     ])
     @endcomponent
+    @component('components.pagina.front-routes', [
+        'routes' => [
+            'baseFrontServicoForm' => route('servico.form'),
+        ],
+    ])
+    @endcomponent
 @endpush
