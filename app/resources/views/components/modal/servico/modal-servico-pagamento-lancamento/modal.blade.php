@@ -26,12 +26,14 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <label for="conta_id{{ $sufixo }}" class="form-label">Conta</label>
+                                <label for="forma_pagamento_id{{ $sufixo }}" class="form-label">Forma de
+                                    pagamento</label>
                                 <div class="input-group">
-                                    <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
+                                    <select name="forma_pagamento_id" id="forma_pagamento_id{{ $sufixo }}"
+                                        class="form-select">
                                         <option value="0">Selecione</option>
                                     </select>
-                                    <button type="button" class="btn btn-outline-primary openModalConta"><i
+                                    <button type="button" class="btn btn-outline-primary openModalFormaPagamento"><i
                                             class="bi bi-search"></i></button>
                                 </div>
                             </div>
@@ -59,5 +61,14 @@
 </div>
 
 @push('modals')
-    <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.tenant.modal-forma-pagamento-tenant.modal />
+@endpush
+
+@push('scripts')
+    @component('components.api.api-routes', [
+        'routes' => [
+            'baseFormaPagamento' => route('api.tenant.forma-pagamento'),
+        ],
+    ])
+    @endcomponent
 @endpush

@@ -6,7 +6,7 @@ import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
 import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
+import { modalFormaPagamentoTenant } from "../../../components/tenant/modalFormaPagamentoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
@@ -25,7 +25,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         url: {
             baseLancamento: window.apiRoutes.baseLancamento,
             baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
-            baseContas: window.apiRoutes.baseContas,
+            baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
             baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
         },
         data: {
@@ -183,7 +183,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         const self = this;
         self.#addEventosBotoes();
         self.#executarBusca();
-        self.#buscarContas();
+        self.#buscarFormaPagamento();
         self.#buscarLancamentoStatusTipo();
         self.#buscarAreasJuridicas();
     }
@@ -197,11 +197,11 @@ class PageLancamentoServicoIndex extends templateSearch {
             self.#executarBusca();
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+        $(`#openModalFormaPagamento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new modalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -214,9 +214,9 @@ class PageLancamentoServicoIndex extends templateSearch {
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     if (response.selected) {
-                        self.#buscarContas(response.selected.id);
+                        self.#buscarFormaPagamento(response.selected.id);
                     } else {
-                        self.#buscarContas();
+                        self.#buscarFormaPagamento();
                     }
                 }
             } catch (error) {
@@ -264,8 +264,8 @@ class PageLancamentoServicoIndex extends templateSearch {
             let appendData = {};
             let data = commonFunctions.getInputsValues(formData[0]);
 
-            if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
-                appendData.conta_id = data.conta_id;
+            if (data.forma_pagamento_id && UUIDHelper.isValidUUID(data.forma_pagamento_id)) {
+                appendData.forma_pagamento_id = data.forma_pagamento_id;
             }
 
             if (data.lancamento_status_tipo_id && Number(data.lancamento_status_tipo_id) > 0) {
@@ -299,6 +299,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
         const valorRecebido = item.data_recebimento ? commonFunctions.formatNumberToCurrency(item.valor_recebido) : '***';
         const dataRecebimento = item.data_recebimento ? DateTimeHelper.retornaDadosDataHora(item.data_recebimento, 2) : '***';
+        const formaPagamento = item.forma_pagamento ? item.forma_pagamento.nome : item.pagamento.forma_pagamento.nome;
         const descricaoAutomatica = item.descricao_automatica;
         const observacaoLancamento = item.observacao ?? '***';
         const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatNumberToCurrency(item.pagamento.valor_total) : '***';
@@ -341,6 +342,7 @@ class PageLancamentoServicoIndex extends templateSearch {
                 <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-nowrap ${classCor}" title="${formaPagamento}">${formaPagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
@@ -621,16 +623,16 @@ class PageLancamentoServicoIndex extends templateSearch {
         }
     }
 
-    async #buscarContas(selected_id = null) {
+    async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
             let options = {
                 insertFirstOption: true,
-                firstOptionName: 'Todas as contas',
+                firstOptionName: 'Todas as formas de pagamento',
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            const select = $(`#forma_pagamento_id${self.getSufixo}`);
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;

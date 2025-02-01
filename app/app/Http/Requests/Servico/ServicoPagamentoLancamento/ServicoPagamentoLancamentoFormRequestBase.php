@@ -16,7 +16,7 @@ class ServicoPagamentoLancamentoFormRequestBase extends BaseFormRequest
         // Define as regras básicas
         $rules = [
             // 'status_id' => 'required|integer',
-            'conta_id' => 'nullable|uuid',
+            'forma_pagamento_id' => 'nullable|uuid',
             'observacao' => 'nullable|string',
         ];
 

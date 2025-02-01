@@ -3,9 +3,9 @@
 namespace App\Models\Servico;
 
 use App\Models\Comum\ParticipacaoParticipante;
-use App\Models\Tenant\ContaTenant;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\LancamentoStatusTipo;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -68,9 +68,9 @@ class ServicoPagamentoLancamento extends Model
         return $this->belongsTo(ServicoPagamento::class);
     }
 
-    public function conta()
+    public function forma_pagamento()
     {
-        return $this->belongsTo(ContaTenant::class);
+        return $this->belongsTo(FormaPagamentoTenant::class);
     }
 
     public function status()

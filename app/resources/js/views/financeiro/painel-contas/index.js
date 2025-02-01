@@ -100,7 +100,7 @@ class PagePainelContaIndex {
         item.idCol = UUIDHelper.generateUUID();
         const htmlConta = `
             <div div id = "${item.idCol}" class="col" >
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title d-flex align-items-center justify-content-between">
                             <span class="text-truncate">

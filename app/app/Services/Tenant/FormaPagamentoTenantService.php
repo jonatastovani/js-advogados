@@ -89,6 +89,33 @@ class FormaPagamentoTenantService extends Service
         ]);
     }
 
+    public function validacaoRecurso(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $nomePropriedade = $options['nome_propriedade_forma_pagamento'] ?? 'forma_pagamento_id';
+        $validacaoConta = $options['validacao_conta'] ?? true;
+
+        $validacaoFormaPagamento = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $requestData->$nomePropriedade]);
+
+        if (!$validacaoFormaPagamento->count()) {
+            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento informada não existe ou foi excluída.', $requestData)->error;
+        } else {
+            if ($validacaoFormaPagamento->first()->ativo_bln != true) {
+                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento encontra-se inativa. Verifique o motivo!.', $requestData)->error;
+            } else {
+                if ($validacaoConta) {
+                    // Verificar se a conta está com status que permite movimentação
+                    $requestData->conta_id = $validacaoFormaPagamento->first()->conta_id;
+                    $validacaoContaTenant = app(ContaTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
+                    $arrayErrors = $validacaoContaTenant->arrayErrors;
+                }
+            }
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoFormaPagamento,
+        ]);
+    }
+
     public function loadFull($options = []): array
     {
         return [

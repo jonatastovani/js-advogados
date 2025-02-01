@@ -1,1 +1,0 @@
-[2025-01-31T17:09:57.489604-03:00] local.ERROR: Call to a member function toArray() on null {"userId":"e335807e-60b4-4a56-b590-9b83c433416b","exception":"[object] (Error(code: 0): Call to a member function toArray() on null at E:\\Desenvolvimento\\js-advogados\\app\\app\\Services\\Financeiro\\MovimentacaoContaService.php:695)"} []

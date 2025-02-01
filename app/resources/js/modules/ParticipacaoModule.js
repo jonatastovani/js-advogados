@@ -131,7 +131,9 @@ export class ParticipacaoModule {
                 if (response.refresh) {
                     if (response.selected) {
 
-                        await self._parentInstance._modalHideShow();
+                        if (self._extraConfigs?.typeParent == 'modal') {
+                            await self._parentInstance._modalHideShow()
+                        };
 
                         await self._buscarPresetParticipacaoTenant(response.selected.id);
                         $(`#preset_id${self._objConfigs.sufixo}`).trigger('change');

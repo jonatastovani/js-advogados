@@ -27,7 +27,7 @@ class PostConsultaFiltroFormRequestServicoPagamentoLancamento extends PostConsul
 
         $rules = array_merge($rules, [
             'mes_ano' => 'required|date:Y-m',
-            'conta_id' => 'nullable|uuid',
+            'forma_pagamento_id' => 'nullable|uuid',
             'lancamento_status_tipo_id' => 'nullable|integer',
             'area_juridica_id' => 'nullable|uuid',
         ]);

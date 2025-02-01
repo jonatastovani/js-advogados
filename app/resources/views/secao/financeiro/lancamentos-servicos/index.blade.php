@@ -62,14 +62,14 @@
                     ],
                     [
                         'tipo' => 'select',
-                        'nome' => 'conta_id',
-                        'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
+                        'nome' => 'forma_pagamento_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todas as formas de pagamento']],
                         'input_group' => [
                             'before' => [
-                                "<span class='input-group-text'  title='Conta de onde o valor será compensado ou debitado'><label for='conta_id{$sufixo}'>Conta</label></span>",
+                                "<span class='input-group-text' title='Forma de pagamento'><label for='forma_pagamento_id{$sufixo}'>Forma Pag.</label></span>",
                             ],
                             'after' => [
-                                "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                                "<button id='openModalFormaPagamento{$sufixo}' type='button' class='btn btn-outline-secondary'>
                             <i class='bi bi-search'></i></button>",
                             ],
                         ],
@@ -92,6 +92,7 @@
                     <th class="text-nowrap">Área Jurídica</th>
                     <th class="text-nowrap">Valor Esperado</th>
                     <th class="text-nowrap">Data Vencimento</th>
+                    <th class="text-nowrap">Forma Pagamento</th>
                     <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebimento</th>
@@ -120,7 +121,7 @@
 @push('modals')
     <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
     <x-modal.servico.modal-lancamento-reagendar.modal />
-    <x-modal.tenant.modal-conta-tenant.modal />
+    <x-modal.tenant.modal-forma-pagamento-tenant.modal />
     <x-modal.tenant.modal-area-juridica-tenant.modal />
 @endpush
 
@@ -128,11 +129,11 @@
     @vite('resources/js/views/financeiro/lancamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseContas' => route('api.tenant.conta'),
             'baseLancamento' => route('api.financeiro.lancamentos'),
             'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
-        ],
+            'baseFormaPagamento' => route('api.tenant.forma-pagamento'),
+            ],
     ])
     @endcomponent
 @endpush

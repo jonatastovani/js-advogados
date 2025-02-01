@@ -16,7 +16,9 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
+use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
+use App\Services\Tenant\FormaPagamentoTenantService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -333,12 +335,13 @@ class ServicoPagamentoLancamentoService extends Service
             }
         }
 
-        if ($requestData->conta_id) {
+        if ($requestData->forma_pagamento_id) {
             $query->where(function ($query) use ($requestData) {
-                $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
-                $query->orWhere("{$this->modelPagamento->getTableAsName()}.conta_id", $requestData->conta_id);
+                $query->where("{$this->model->getTableAsName()}.forma_pagamento_id", $requestData->forma_pagamento_id);
+                $query->orWhere("{$this->modelPagamento->getTableAsName()}.forma_pagamento_id", $requestData->forma_pagamento_id);
             });
         }
+
         if ($requestData->lancamento_status_tipo_id) {
             $query->where("{$this->model->getTableAsName()}.status_id", $requestData->lancamento_status_tipo_id);
         }
@@ -386,15 +389,14 @@ class ServicoPagamentoLancamentoService extends Service
             $resource = new $this->model;
         }
 
-        if ($requestData->conta_id) {
-            //Verifica se a conta informada existe
-            $validacaoContaId = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
-            if (!$validacaoContaId->count()) {
-                $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
-            }
-            $resource->conta_id = $requestData->conta_id;
+        if ($requestData->forma_pagamento_id) {
+            //Verifica se a forma de pagamento informada existe e a conta desta forma está com status que permite movimentação
+            $validacaoFormaPagamentoTenant = app(FormaPagamentoTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
+            $arrayErrors = $validacaoFormaPagamentoTenant->arrayErrors;
+
+            $resource->forma_pagamento_id = $requestData->forma_pagamento_id;
         } else {
-            $resource->conta_id = null;
+            $resource->forma_pagamento_id = null;
         }
 
         // Erros que impedem o processamento
@@ -427,7 +429,7 @@ class ServicoPagamentoLancamentoService extends Service
         $relationships = [
             'pagamento',
             'status',
-            'conta',
+            'forma_pagamento.conta',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',

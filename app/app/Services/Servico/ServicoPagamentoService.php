@@ -20,6 +20,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
+use App\Services\Tenant\FormaPagamentoTenantService;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -213,11 +214,9 @@ class ServicoPagamentoService extends Service
             }
         }
 
-        //Verifica se a forma de pagamento informada existe
-        $validacaoFormaPagamentoId = ValidationRecordsHelper::validateRecord(FormaPagamentoTenant::class, ['id' => $requestData->forma_pagamento_id]);
-        if (!$validacaoFormaPagamentoId->count()) {
-            $arrayErrors->forma_pagamento_id = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento informada não existe ou foi excluída.', $requestData)->error;
-        }
+        //Verifica se a forma de pagamento informada existe e a conta desta forma está com status que permite movimentação
+        $validacaoFormaPagamentoTenant = app(FormaPagamentoTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
+        $arrayErrors = $validacaoFormaPagamentoTenant->arrayErrors;
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());

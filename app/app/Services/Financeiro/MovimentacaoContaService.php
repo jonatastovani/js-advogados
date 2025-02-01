@@ -4,14 +4,10 @@ namespace App\Services\Financeiro;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
-use App\Enums\ContaStatusTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
-use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
-use App\Enums\ParticipacaoRegistroTipoEnum;
-use App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Documento\DocumentoGerado;
@@ -28,10 +24,10 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Models\Tenant\FormaPagamentoTenant;
-use App\Models\Tenant\ParticipacaoTipoTenant;
-use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
+use App\Services\Tenant\ContaTenantService;
+use App\Services\Tenant\FormaPagamentoTenantService;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use App\Traits\ParticipacaoTrait;
 use App\Utils\CurrencyFormatterUtils;
@@ -61,11 +57,6 @@ class MovimentacaoContaService extends Service
         public ServicoPagamento $modelServicoPagamento,
 
         public LancamentoGeral $modelLancamentoGeral,
-        public LancamentoGeralService $lancamentoGeralService,
-
-        public PessoaPerfilService $pessoaPerfilService,
-
-        // public ParticipacaoTipoTenantService $participacaoTipoTenantService,
     ) {
         parent::__construct($model);
     }
@@ -634,13 +625,13 @@ class MovimentacaoContaService extends Service
         if (isset($options['referencia_movimentacao_conta'])) {
             switch ($options['referencia_movimentacao_conta']) {
                 case 'conta':
-                    $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
+                    $validacaoContaTenant = app(ContaTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
                     $arrayErrors = $validacaoContaTenant->arrayErrors;
                     break;
 
                 case 'forma_pagamento':
-                    $validacaoContaTenant = $this->validacaoFormaPagamentoTenant($requestData, $arrayErrors);
-                    $arrayErrors = $validacaoContaTenant->arrayErrors;
+                    $validacaoFormaPagamentoTenant = app(FormaPagamentoTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
+                    $arrayErrors = $validacaoFormaPagamentoTenant->arrayErrors;
                     break;
 
                 default:
@@ -675,48 +666,6 @@ class MovimentacaoContaService extends Service
         $resource->fill($requestData->toArray());
 
         return $resource;
-    }
-
-    private function validacaoFormaPagamentoTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
-    {
-        $nomePropriedade = $options['nome_propriedade_forma_pagamento'] ?? 'forma_pagamento_id';
-
-        $validacaoFormaPagamento = ValidationRecordsHelper::validateRecord(FormaPagamentoTenant::class, ['id' => $requestData->$nomePropriedade]);
-
-        if (!$validacaoFormaPagamento->count()) {
-            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento informada não existe ou foi excluída.', $requestData)->error;
-        } else {
-            if ($validacaoFormaPagamento->first()->ativo_bln != true) {
-                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Forma de Pagamento encontra-se inativa. Verifique o motivo!.', $requestData)->error;
-            } else {
-                // Verificar se a conta está com status que permite movimentação
-                $requestData->conta_id = $validacaoFormaPagamento->first()->conta_id;
-                $validacaoContaTenant = $this->validacaoContaTenant($requestData, $arrayErrors);
-                $arrayErrors = $validacaoContaTenant->arrayErrors;
-            }
-        }
-        return new Fluent([
-            'arrayErrors' => $arrayErrors,
-            'resource' => $validacaoFormaPagamento,
-        ]);
-    }
-
-    private function validacaoContaTenant(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
-    {
-        $nomePropriedade = $options['referencia_movimentacao_conta'] ?? 'conta_id';
-
-        $validacaoConta = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->$nomePropriedade]);
-        if (!$validacaoConta->count()) {
-            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
-        } else {
-            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
-                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
-            }
-        }
-        return new Fluent([
-            'arrayErrors' => $arrayErrors,
-            'resource' => $validacaoConta,
-        ]);
     }
 
     private function validacaoLancamentoStatusTipo(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
@@ -852,7 +801,7 @@ class MovimentacaoContaService extends Service
     {
         LogHelper::habilitaQueryLog();
         $arrayErrors = new Fluent();
-        $resourceLancamento = $this->lancamentoGeralService->buscarRecurso($requestData, ['conditions' => [
+        $resourceLancamento = app(LancamentoGeralService::class)->buscarRecurso($requestData, ['conditions' => [
             'id' => $requestData->lancamento_id,
         ]]);
 

@@ -4,6 +4,7 @@ namespace App\Services\Tenant;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\ContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ContaTenant;
@@ -123,6 +124,24 @@ class ContaTenantService extends Service
     {
         return parent::buscarRecurso($requestData, [
             'message' => 'A Conta não foi encontrada.',
+        ]);
+    }
+
+    public function validacaoRecurso(Fluent $requestData, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $nomePropriedade = $options['referencia_movimentacao_conta'] ?? 'conta_id';
+
+        $validacaoConta = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $requestData->$nomePropriedade]);
+        if (!$validacaoConta->count()) {
+            $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+        } else {
+            if ($validacaoConta->first()->conta_status_id != ContaStatusTipoEnum::ATIVA->value) {
+                $arrayErrors->$nomePropriedade = LogHelper::gerarLogDinamico(404, 'A Conta informada possui status que não permite movimentação.', $requestData)->error;
+            }
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoConta,
         ]);
     }
 
