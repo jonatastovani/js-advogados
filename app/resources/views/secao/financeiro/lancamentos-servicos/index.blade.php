@@ -133,7 +133,8 @@
             'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
             'baseFormaPagamento' => route('api.tenant.forma-pagamento'),
-            ],
+            'baseServico' => route('api.servico'),
+        ],
     ])
     @endcomponent
 @endpush

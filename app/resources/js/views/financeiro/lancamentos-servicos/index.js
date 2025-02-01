@@ -27,6 +27,7 @@ class PageLancamentoServicoIndex extends templateSearch {
             baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
             baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
             baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
+            baseServico: window.apiRoutes.baseServico,
         },
         data: {
             configAcoes: {
@@ -469,6 +470,11 @@ class PageLancamentoServicoIndex extends templateSearch {
                 <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu">
+                <li>
+                    <a href="${self._objConfigs.url.baseServico}/form/${item.pagamento.servico.id}" target="_blank" class="dropdown-item fs-6 text-primary" title="Ir para o Serviço ${item.pagamento.servico.numero_servico} - ${item.pagamento.servico.titulo}.">
+                        <i class="bi bi-box-arrow-up-right"></i> Ver Serviço
+                    </a>
+                </li>
                 ${strBtns}
             </ul>`;
 
