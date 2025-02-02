@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class UserTenantDomain extends Model
 {
@@ -17,7 +18,8 @@ class UserTenantDomain extends Model
         CommonsModelsMethodsTrait,
         BelongsToTenant,
         BelongsToDomain,
-        ModelsLogsTrait;
+        ModelsLogsTrait,
+        HasDataColumn;
 
     protected $table = 'auth.user_tenant_domains';
     protected $tableAsName = 'user_ten_dom';
@@ -48,6 +50,16 @@ class UserTenantDomain extends Model
         'deleted_at',
     ];
 
+    public static function getCustomColumns(): array
+    {
+        return array_merge(
+            self::getCustomColumnsDefault(),
+            [
+                'user_id',
+            ]
+        );
+    }
+    
     public function user()
     {
         return $this->belongsTo(User::class);

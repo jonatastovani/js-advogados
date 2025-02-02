@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\Auth\User;
+use App\Models\Auth\UserTenantDomain;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -51,18 +53,19 @@ class UUIDsHelpers
 
     public static function getAdmin()
     {
-        return (new self())->execute('app/admin_uuid.txt');
+        $user = User::where('data->user_admin_master', true)->where('tenant_id', 'admin')->first();
+        return $user->id ?? (new self())->execute('app/admin_uuid.txt');
     }
 
 
     public static function getAdminTenantUser()
     {
-        return (new self())->execute('app/admin_tenant_user_uuid.txt');
+        $userTenant = UserTenantDomain::where('data->user_tenant_admin_master', true)->where('tenant_id', 'admin')->first();
+        return $userTenant->id ?? (new self())->execute('app/admin_tenant_user_uuid.txt');
     }
 
     public static function getGpuOnlineApi()
     {
         return (new self())->execute('app/gpu_online_api_uuid.txt');
     }
-
 }

@@ -61,7 +61,7 @@ trait CommonsSeederMethodsTrait
                 $data['tenant_id'] = $this->tenantId;
 
                 // Verifica se a trait BelongsToDomain esta sendo utilizada no modelo
-                if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model))) {
+                if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model)) && !isset($data['domain_id'])) {
                     $data['domain_id'] = $this->domainId;
                 }
 

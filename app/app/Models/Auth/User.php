@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 use Laravel\Sanctum\NewAccessToken;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class User extends Authenticatable
 {
@@ -23,7 +25,8 @@ class User extends Authenticatable
         Notifiable,
         // BelongsToTenant,
         ModelsLogsTrait,
-        CommonsModelsMethodsTrait;
+        CommonsModelsMethodsTrait,
+        HasDataColumn;
 
     protected $table = 'auth.users';
     protected $tableAsName = 'user';
@@ -73,6 +76,26 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function getCustomColumns(): array
+    {
+        return array_merge(
+            // Remover somente o domain_id
+            Arr::except(
+                self::getCustomColumnsDefault(),
+                [
+                    'domain_id'
+                ]
+            ),
+            [
+                'name',
+                'password',
+                'email',
+                'remember_token',
+                'email_verified_at',
+            ]
+        );
     }
 
     // public function createTokenFront(string $name, array $sessionUserData)

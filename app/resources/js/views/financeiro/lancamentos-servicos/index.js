@@ -465,16 +465,19 @@ class PageLancamentoServicoIndex extends templateSearch {
 
         }
 
+        strVerServico = `
+            <li>
+                <a href="${self._objConfigs.url.baseFrontServicoForm}/${item.pagamento.servico.id}" target="_blank" class="dropdown-item fs-6" title="Ir para o Serviço ${item.pagamento.servico.numero_servico} - ${item.pagamento.servico.titulo}.">
+                    <i class="bi bi-box-arrow-up-right"></i> Ver Serviço
+                </a>
+            </li>`;
+
         strBtns = `
-            <button class="btn dropdown-toggle btn-sm ${!strBtns ? 'disabled border-0' : ''}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu">
-                <li>
-                    <a href="${self._objConfigs.url.baseFrontServicoForm}/${item.pagamento.servico.id}" target="_blank" class="dropdown-item fs-6 text-primary" title="Ir para o Serviço ${item.pagamento.servico.numero_servico} - ${item.pagamento.servico.titulo}.">
-                        <i class="bi bi-box-arrow-up-right"></i> Ver Serviço
-                    </a>
-                </li>
+                ${strVerServico}
                 ${strBtns}
             </ul>`;
 

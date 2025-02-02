@@ -3,6 +3,9 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
+use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\PagamentoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaFisica;
@@ -14,6 +17,7 @@ use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class ServicoService extends Service
@@ -133,6 +137,31 @@ class ServicoService extends Service
         return $resource->toArray();
     }
 
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $resource->load($this->loadFull());
+
+        if (
+            $resource->pagamento->some(fn($pagamento) => $pagamento->lancamentos->some(fn($lancamento) => in_array($lancamento->status_id, LancamentoStatusTipoEnum::statusImpossibilitaExclusao())))
+            ||
+            $resource->pagamento->some(fn($pagamento) => $pagamento->pagamento_tipo_tenant && $pagamento->pagamento_tipo_tenant->pagamento_tipo_id == PagamentoTipoEnum::CONDICIONADO->value)
+        ) {
+            return RestResponse::createErrorResponse(422, "Este serviço possui um ou mais lançamentos com status que impossibilitam a exclusão ou algum pagamento condicionado.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
@@ -237,7 +266,6 @@ class ServicoService extends Service
         $data->valor_servico = $resource->valor_servico;
         return $data->toArray();
     }
-
 
     // private function executarEventoWebsocket()
     // {

@@ -37,15 +37,15 @@ class MovimentacaoContaFormRequestStoreLancamentoServico extends MovimentacaoCon
                 case LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value:
 
                     // Define as regras de acordo com os campos obrigatórios do liquidado parcialmente
-                    foreach ($consulta->configuracao['campos_obrigatorios'] as $value) {
+                    foreach ($consulta->campos_obrigatorios as $value) {
                         if (in_array($value['nome'], ['valor_recebido', 'diluicao_valor'])) {
                             $value['form_request_rule'] = str_replace('min:0.01', "min:" . (count($participantes) * 1), $value['form_request_rule']);
                         }
                         $rules[$value['nome']] = $value['form_request_rule'];
                     }
 
-                    if (isset($consulta->configuracao['campos_opcionais'])) {
-                        foreach ($consulta->configuracao['campos_opcionais'] as $value) {
+                    if (isset($consulta->campos_opcionais)) {
+                        foreach ($consulta->campos_opcionais as $value) {
                             $rules[$value['parent_name']] = $value['parent_form_request_rule'];
 
                             foreach ($value['fields'] as $campo) {

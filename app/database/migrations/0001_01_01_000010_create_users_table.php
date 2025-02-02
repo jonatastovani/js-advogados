@@ -39,6 +39,8 @@ return new class extends Migration
             $table->rememberToken();
             // $table->timestamps();
 
+            $table->jsonb('data')->nullable();
+
             // Índice único para garantir unicidade entre email e tenant_id
             $table->unique(['email', 'tenant_id'], 'unique_email_tenant');
             $this->addCommonFieldsCreatedUpdatedDeleted($table, ['allNotReferenced' => true, 'createdIdNullable' => true]);
