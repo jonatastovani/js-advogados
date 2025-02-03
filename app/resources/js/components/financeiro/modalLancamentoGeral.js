@@ -522,8 +522,9 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         });
 
         if (self._objConfigs.modoOperacao == 'agendamento' && (data.recorrente_bln && data.recorrente_bln == true)) {
-            if (!self._objConfigs.data.cronExpressao) {
-                blnSave = commonFunctions.verificationData(self._objConfigs.data.cronExpressao, {
+            data.cron_expressao = self._objConfigs.data.cronExpressao;
+            if (!data.cron_expressao) {
+                blnSave = commonFunctions.verificationData(data.cron_expressao, {
                     field: formRegistration.find('select[name="cronDay"]'),
                     messageInvalid: 'Uma recorrência deve ser configurada.',
                     setFocus: blnSave == true,

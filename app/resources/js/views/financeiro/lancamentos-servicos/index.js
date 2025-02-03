@@ -465,7 +465,7 @@ class PageLancamentoServicoIndex extends templateSearch {
 
         }
 
-        strVerServico = `
+        let strVerServico = `
             <li>
                 <a href="${self._objConfigs.url.baseFrontServicoForm}/${item.pagamento.servico.id}" target="_blank" class="dropdown-item fs-6" title="Ir para o Serviço ${item.pagamento.servico.numero_servico} - ${item.pagamento.servico.titulo}.">
                     <i class="bi bi-box-arrow-up-right"></i> Ver Serviço

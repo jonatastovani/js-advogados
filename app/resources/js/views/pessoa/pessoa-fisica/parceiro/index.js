@@ -133,16 +133,23 @@ class PageParceiroPFIndex extends templateSearch {
     #htmlBtns(pessoaDados) {
         const self = this;
 
+        // let strBtns = `
+        //     <li>
+        //         <a href="${self._objConfigs.url.baseFrontPessoaFisicaParceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+        //             Editar
+        //         </a>
+        //     </li>
+        //     <li>
+        //         <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
+        //             Excluir
+        //         </button>
+        //     </li>`;
+
         let strBtns = `
             <li>
                 <a href="${self._objConfigs.url.baseFrontPessoaFisicaParceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
                     Editar
                 </a>
-            </li>
-            <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
-                    Excluir
-                </button>
             </li>`;
 
         strBtns = `

@@ -48,6 +48,9 @@ return new class extends Migration
             $table->boolean('ativo_bln')->default(true);
             $table->string('observacao')->nullable();
 
+            $table->smallInteger('status_id');
+            $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo())->getTableName());
+
             $table->jsonb('data')->nullable();
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);

@@ -104,16 +104,17 @@
 
 <div class="row row-cols-1 row-cols-md-2 dadosCron">
     <div class="col mt-2">
-        <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início</label>
+        <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início*</label>
         <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
             class="form-control text-center inputCron">
     </div>
     <div class="col mt-2">
-        <label for="cron_data_fim{{ $sufixo }}" class="form-label">Data Final</label>
+        <label for="cron_data_fim{{ $sufixo }}" class="form-label">Data Final (opcional)</label>
         <input type="date" id="cron_data_fim{{ $sufixo }}" name="cron_data_fim"
             class="form-control text-center inputCron">
     </div>
 </div>
 <div class="form-text">
-    Este intervalo de datas é o período que o agendamento será vigente e executado. Por padrão, o agendamento será inserido na listagem dos <i>Lançamentos Gerais</i> 30 dias antes.
+    Este intervalo de datas é o período que o agendamento será vigente e executado. Por padrão, o agendamento será
+    inserido na listagem dos <i>Lançamentos Gerais</i> 30 dias antes.
 </div>

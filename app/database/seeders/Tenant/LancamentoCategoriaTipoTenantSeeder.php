@@ -37,7 +37,7 @@ class LancamentoCategoriaTipoTenantSeeder extends Seeder
             [
                 "id" => "9da379a6-6943-40cc-96c0-493f854eb116",
                 "tenant_id" => "jsadvogados",
-                "nome" => "Internet - VIVO",
+                "nome" => "Internet",
             ],  
         ];
 
