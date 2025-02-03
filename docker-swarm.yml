@@ -22,7 +22,7 @@ services:
         #     retries: 5
         volumes:
             - app_data:/var/www/app # Volume nomeado para a aplicação
-            - ./app/database/migrations:/var/www/app/database/migrations
+            # - ./app/database/migrations:/var/www/app/database/migrations # Volume para as migrations
         depends_on:
             - laravel
         networks:
