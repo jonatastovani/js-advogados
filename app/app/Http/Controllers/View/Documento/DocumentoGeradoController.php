@@ -96,9 +96,9 @@ class DocumentoGeradoController extends Controller
                         case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
                             $referenciaPagamento = $parent['referencia']['pagamento'];
 
-                            $dadosEspecificos .= " - Serviço {$referenciaPagamento['servico']['numero_servico']}";
-                            $dadosEspecificos .= " - Pagamento - {$referenciaPagamento['numero_pagamento']}";
-                            $dadosEspecificos .= " - {$referenciaPagamento['servico']['area_juridica']['nome']}";
+                            // $dadosEspecificos .= " - Serviço {$referenciaPagamento['servico']['numero_servico']}";
+                            $dadosEspecificos .= " - NP#{$referenciaPagamento['numero_pagamento']}";
+                            $dadosEspecificos .= " - ({$referenciaPagamento['servico']['area_juridica']['nome']})";
                             $dadosEspecificos .= " - {$referenciaPagamento['servico']['titulo']}";
                             break;
 

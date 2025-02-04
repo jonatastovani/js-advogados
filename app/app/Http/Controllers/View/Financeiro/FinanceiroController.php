@@ -78,7 +78,7 @@ class FinanceiroController extends Controller
             $dadosRetorno = new Fluent();
 
             $parent = $participacao['parent'];
-            $dadosRetorno->status = $parent['status']['nome'];
+            $dadosRetorno->status = $participacao['status']['nome'];
             $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($participacao['valor_participante']);
             $dadosRetorno->descricao_automatica = $participacao['descricao_automatica'];
 
@@ -100,10 +100,11 @@ class FinanceiroController extends Controller
                             $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
                             break;
 
-                        case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+                            // case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
 
-                            $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
-                            $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
+                            //     $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
+                            //     $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
+                            // break;
 
                         default:
                             throw new Exception('Tipo de referência de movimentação de conta não configurado.', 500);
@@ -204,11 +205,23 @@ class FinanceiroController extends Controller
             $dadosEspecificos = '';
 
             switch ($value['referencia_type']) {
+
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    $dadosEspecificos = "Serviço {$value['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= " - Pagamento - {$value['referencia']['pagamento']['numero_pagamento']}";
-                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['area_juridica']['nome']}";
+                    // $dadosEspecificos = "NS#{$value['referencia']['pagamento']['servico']['numero_servico']}";
+                    $dadosEspecificos .= " - NP#{$value['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= " - ({$value['referencia']['pagamento']['servico']['area_juridica']['nome']})";
                     $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
+                    break;
+
+                case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+                    $dadosEspecificos = "NL#{$value['referencia']['numero_lancamento']}";
+                    $dadosEspecificos .= " - ({$value['referencia']['categoria']['nome']})";
+                    $dadosEspecificos .= " - {$value['descricao_automatica']}";
+                    break;
+
+                case MovimentacaoContaReferenciaEnum::DOCUMENTO_GERADO->value:
+                    $dadosEspecificos = "ND#{$value['referencia']['numero_documento']}";
+                    $dadosEspecificos .= " - {$value['descricao_automatica']}";
                     break;
 
                 default:

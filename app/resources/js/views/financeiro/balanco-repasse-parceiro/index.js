@@ -320,6 +320,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         const conta = parent.conta.nome;
 
         let dadosEspecificos = '';
+        let dadosEspecificosTitle = '';
 
         switch (item.parent_type) {
             case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
@@ -328,13 +329,22 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 movimentacaoTipo = parent.movimentacao_tipo.nome;
 
                 dadosEspecificos = parent.descricao_automatica;
+                dadosEspecificosTitle = `Descrição ${parent.descricao_automatica}`;
 
                 switch (parent.referencia_type) {
+
                     case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                        // dadosEspecificos += ` - Serviço ${movimentacao.referencia.pagamento.servico.numero_servico}`;
+                        // dadosEspecificos = `NS#${parent.referencia.pagamento.servico.numero_servico}`;
+                        dadosEspecificosTitle = `Número de Serviço ${parent.referencia.pagamento.servico.numero_servico}`;
+
                         dadosEspecificos += ` - NP#${parent.referencia.pagamento.numero_pagamento}`;
+                        dadosEspecificosTitle += ` - Número do Pagamento ${parent.referencia.pagamento.numero_pagamento}`;
+
                         dadosEspecificos += ` - (${parent.referencia.pagamento.servico.area_juridica.nome})`;
+                        dadosEspecificosTitle += ` - (Área Jurídica ${parent.referencia.pagamento.servico.area_juridica.nome})`;
+
                         dadosEspecificos += ` - ${parent.referencia.pagamento.servico.titulo}`;
+                        dadosEspecificosTitle += ` - Título ${parent.referencia.pagamento.servico.titulo}`;
                         break;
 
                     // case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
@@ -355,9 +365,16 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 movimentacaoTipo = parent.parceiro_movimentacao_tipo.nome;
 
                 dadosEspecificos = item.descricao_automatica;
+                dadosEspecificosTitle = `Descrição Automática ${item.descricao_automatica}`;
+
                 dadosEspecificos += ` - NR#${parent.numero_ressarcimento}`;
+                dadosEspecificosTitle += ` - Número do Ressarcimento ${parent.numero_ressarcimento}`;
+
                 dadosEspecificos += ` - (${parent.categoria.nome})`;
+                dadosEspecificosTitle += ` - (Categoria ${parent.categoria.nome})`;
+
                 dadosEspecificos += ` - ${parent.descricao}`;
+                dadosEspecificosTitle += ` - Descrição ${parent.descricao}`;
 
                 break;
 
@@ -383,7 +400,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 <td class="text-nowrap text-center" title="${valorParticipante}">${valorParticipante}</td>
                 <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${dadosEspecificosTitle}">${dadosEspecificos}</td>
                 <td class="text-nowrap text-truncate" title="${conta}">${conta}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>

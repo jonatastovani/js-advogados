@@ -133,7 +133,7 @@ export class modalSelecionarDocumento extends modalRegistrationAndEditing {
         const strButton = `
             <div id="${documento.idButton}" class="col">
                 <button type="button" class="btn btn-dark w-100 border-1" style="border-color: inherit;>
-                    <h5 class="card-title">${documento.documento_gerado_tipo.nome}</h5>
+                    <h5 class="card-title">ND#${documento.numero_documento} - ${documento.documento_gerado_tipo.nome}</h5>
                     <p class="card-text">${dadosEspecifico}</p>
                 </button>
             </div>`;

@@ -171,13 +171,38 @@ class PageMovimentacaoContaIndex extends templateSearch {
         const observacaoLancamento = item.observacao ?? '***';
 
         let dadosEspecificos = ``;
+        let dadosEspecificosTitle = ``;
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                dadosEspecificos = `Serviço ${item.referencia.pagamento.servico.numero_servico}`;
-                dadosEspecificos += ` - Pagamento - ${item.referencia.pagamento.numero_pagamento}`;
-                dadosEspecificos += ` - ${item.referencia.pagamento.servico.area_juridica.nome}`;
+                // dadosEspecificos = `NS#${item.referencia.pagamento.servico.numero_servico}`;
+                dadosEspecificosTitle = `Número de Serviço ${item.referencia.pagamento.servico.numero_servico}`;
+
+                dadosEspecificos += ` - NP#${item.referencia.pagamento.numero_pagamento}`;
+                dadosEspecificosTitle += ` - Número de Pagamento ${item.referencia.pagamento.numero_pagamento}`;
+
+                dadosEspecificos += ` - (${item.referencia.pagamento.servico.area_juridica.nome})`;
+                dadosEspecificosTitle += ` - (Área Jurídica ${item.referencia.pagamento.servico.area_juridica.nome})`;
                 dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`;
+                dadosEspecificosTitle += ` - Título ${item.referencia.pagamento.servico.titulo}`;
+                break;
+
+            case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
+                dadosEspecificos = `NL#${item.referencia.numero_lancamento}`;
+                dadosEspecificosTitle = `Número de Lançamento ${item.referencia.numero_lancamento}`;
+
+                dadosEspecificos += ` - (${item.referencia.categoria.nome})`;
+                dadosEspecificosTitle += ` - (Categoria ${item.referencia.categoria.nome})`;
+
+                dadosEspecificos += ` - ${item.descricao_automatica}`;
+                dadosEspecificosTitle += ` - Descrição ${item.descricao_automatica}`;
+                break;
+
+            case window.Enums.MovimentacaoContaReferenciaEnum.DOCUMENTO_GERADO:
+                dadosEspecificos = `ND#${item.referencia.numero_documento}`;
+                dadosEspecificosTitle = `Número do Documento ${item.referencia.numero_documento}`;
+                dadosEspecificos += ` - ${item.descricao_automatica}`;
+                dadosEspecificosTitle += ` - Descrição ${item.descricao_automatica}`;
                 break;
 
             default:
@@ -221,7 +246,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
                 <td class="text-nowrap text-center" title="${conta}">${conta}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${observacaoLancamento}">${observacaoLancamento}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificos}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificosTitle}">${dadosEspecificos}</td>
                 ${htmlThParticipantesIntegrantes}
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
