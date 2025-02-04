@@ -191,17 +191,21 @@ class LancamentoAgendamentoService extends Service
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
 
-                // Se for resetar a execução, deleta-se todos os agendamentos futuros que não estiverem quitados
+                // Se for resetar a execução, deleta-se todos os agendamentos futuros que não estiverem liquidados
                 if ($requestData->resetar_execucao_bln) {
+
                     $resource->cron_ultima_execucao = null;
                     $resource->save();
 
                     // Exclui os agendamentos com status diferente de quitado
-                    $agendamentosNaoQuitados = LancamentoGeral::where('agendamento_id', $resource->id)->whereNotIn('status_id', [LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado()])->get();
-                    foreach ($agendamentosNaoQuitados as $agendamentoNaoQuitado) {
-                        $agendamentoNaoQuitado->delete();
+                    $agendamentosNaoLiquidados = LancamentoGeral::where('agendamento_id', $resource->id)->whereNotIn('status_id', LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado())->get();
+
+                    foreach ($agendamentosNaoLiquidados as $agendamentoNaoLiquidado) {
+
+                        $agendamentoNaoLiquidado->delete();
                     }
                 } else {
+
                     $resource->save();
                 }
 
@@ -219,12 +223,7 @@ class LancamentoAgendamentoService extends Service
     {
         $arrayErrors = new Fluent();
 
-        $resource = null;
-        if ($id) {
-            $resource = $this->buscarRecurso($requestData);
-        } else {
-            $resource = new $this->model;
-        }
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
 
         //Verifica se o tipo de movimentação informado existe
         $validacaoMovimentacaoContaTipoId = ValidationRecordsHelper::validateRecord(MovimentacaoContaTipo::class, ['id' => $requestData->movimentacao_tipo_id]);

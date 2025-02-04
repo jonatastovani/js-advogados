@@ -390,10 +390,13 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             const form = $(self.getIdModal).find('.formRegistration');
 
             switch (self._objConfigs.modoOperacao) {
+
                 case 'agendamento':
+
                     self._updateModalTitle(`Editar agendamento`);
                     form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
                     form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
+
                     if (responseData.recorrente_bln) {
                         const arrCron = responseData.cron_expressao.split(' ');
                         if (arrCron.length !== 5 || (arrCron[2] === '*' && arrCron[3] === '*' && arrCron[4] === '*')) {
@@ -409,18 +412,21 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
                         self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
                     }
+                    responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
                     break;
 
                 case 'ressarcimento':
                     self._updateModalTitle(`Editar ressarcimento ${responseData.numero_ressarcimento ?? null}`);
+                    self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
                     break;
 
                 default:
                     self._updateModalTitle(`Editar lancamento ${responseData.numero_lancamento ?? null}`);
+                    responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
                     break;
             }
-            self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+
 
             form.find('select[name="conta_id"]').val(responseData.conta_id);
             form.find('select[name="categoria_id"]').val(responseData.categoria_id);

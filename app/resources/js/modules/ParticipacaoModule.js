@@ -791,8 +791,9 @@ export class ParticipacaoModule {
 
     async _inserirParticipantesEIntegrantes(participantes) {
         const self = this;
-        $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
-        self._objConfigs.data.participantesNaTela = [];
+        self._limparDivParticipantes();
+        // $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
+        // self._objConfigs.data.participantesNaTela = [];
         await self._atualizaPorcentagemLivre();
 
         // Somente páginas tem esse botão, nos modais não há

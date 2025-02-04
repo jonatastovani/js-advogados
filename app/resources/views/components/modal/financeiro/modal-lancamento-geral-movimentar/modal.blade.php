@@ -22,13 +22,13 @@
                                     aria-controls="dados-lancamento{{ $sufixo }}-tab-pane"
                                     aria-selected="true">Dados lançamentos</button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            {{-- <li class="nav-item" role="presentation">
                                 <button class="nav-link px-2" id="participantes{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#participantes{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
                                     aria-controls="participantes{{ $sufixo }}-tab-pane"
                                     aria-selected="false">Participantes</button>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                                 ]
                             )
                         </div>
-                        <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
+                        {{-- <div class="tab-pane fade h-100" id="participantes{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="participantes{{ $sufixo }}-tab" tabindex="0">
                             @include(
                                 'components.modal.financeiro.modal-lancamento-geral-movimentar.painel-participantes',
@@ -51,7 +51,7 @@
                                     'sufixo' => $sufixo,
                                 ]
                             )
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
                 <div class="row">

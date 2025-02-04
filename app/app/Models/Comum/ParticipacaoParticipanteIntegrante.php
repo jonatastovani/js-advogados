@@ -25,7 +25,7 @@ class ParticipacaoParticipanteIntegrante extends Model
 
     protected $fillable = [
         'id',
-        'participante_id',
+        // 'participante_id',
         'participacao_registro_tipo_id',
         'referencia_id',
         'referencia_type',

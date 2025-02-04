@@ -2,14 +2,15 @@
 
 namespace App\Helpers;
 
-use App\Common\CommonsFunctions;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Models\Auth\Tenant;
+use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use Carbon\Carbon;
 use Cron\CronExpression;
 use App\Models\Financeiro\LancamentoAgendamento;
 use App\Models\Financeiro\LancamentoGeral;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class LancamentoAgendamentoHelper
@@ -93,10 +94,10 @@ class LancamentoAgendamentoHelper
 
             $dataInicio = Carbon::parse($agendamento->cron_data_inicio);
             // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio: ' . $dataInicio);
-            
+
             $dataFim = $agendamento->cron_data_fim ? Carbon::parse($agendamento->cron_data_fim) : null;
             // Log::debug('Linha ' . __LINE__ . ' ' . 'Data fim: ' . $dataFim);
-            
+
             $ultimaExecucao = $agendamento->cron_ultima_execucao
                 ? Carbon::parse($agendamento->cron_ultima_execucao)
                 : null;
@@ -106,7 +107,7 @@ class LancamentoAgendamentoHelper
             // Log::debug('Linha ' . __LINE__ . " Cron {$agendamento->cron_expressao}");
             $dataLimite = $hoje->copy()->addDays(30);
             // Log::debug('Linha ' . __LINE__ . ' ' . 'Data limite: ' . $dataLimite);
-            
+
             $proximasExecucoes = [];
 
             try {
@@ -200,7 +201,7 @@ class LancamentoAgendamentoHelper
     private static function executarLancamento(LancamentoAgendamento $agendamento, string $dataExecucao): bool
     {
         try {
-            LancamentoGeral::create([
+            $novoLancamento = LancamentoGeral::create([
                 'movimentacao_tipo_id' => $agendamento->movimentacao_tipo_id,
                 'descricao' => $agendamento->descricao,
                 'valor_esperado' => $agendamento->valor_esperado,
@@ -214,6 +215,27 @@ class LancamentoAgendamentoHelper
                 'domain_id' => $agendamento->domain_id,
                 'created_user_id' => $agendamento->created_user_id,
             ]);
+
+            foreach ($agendamento->participantes as $participante) {
+         
+                $novoParticipante = (new ParticipacaoParticipante())->fill(
+                    // Remover o ID e colocar o ID do novo lançamento
+                    Arr::except($participante->toArray(), ['id'])
+                );
+                $novoParticipante->parent_id = $novoLancamento->id;
+                $novoParticipante->parent_type = $novoLancamento->getMorphClass();
+                $novoParticipante->save();
+
+                foreach ($participante->integrantes as $integrante) {
+                  
+                    $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
+                        // Remover o ID e colocar o ID do novo participante
+                        Arr::except($integrante->toArray(), ['id'])
+                    );
+                    $novoIntegrante->participante_id = $novoParticipante->id;
+                    $novoIntegrante->save();
+                }
+            }
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar

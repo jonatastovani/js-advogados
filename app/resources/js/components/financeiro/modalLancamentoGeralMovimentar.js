@@ -174,7 +174,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
                 form.find('input[name="valor_quitado"]').val(valor_esperado);
                 form.find('input[name="data_quitado"]').val(data_quitado);
 
-                self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+                responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
 
                 return true;
             }

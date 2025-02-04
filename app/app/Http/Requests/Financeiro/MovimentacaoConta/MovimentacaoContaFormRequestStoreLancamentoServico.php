@@ -19,6 +19,7 @@ class MovimentacaoContaFormRequestStoreLancamentoServico extends MovimentacaoCon
     {
         // Define as regras básicas
         $rules = array_merge(parent::rules(), [
+            'forma_pagamento_id' => 'required|uuid',
             'data_recebimento' => 'required|date',
             'participantes.*.integrantes.*.id' => 'nullable|uuid',
             'participantes.*.integrantes' => 'nullable|required_if:participantes.*.participacao_registro_tipo_id,2|array|min:1',

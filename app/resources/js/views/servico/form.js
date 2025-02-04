@@ -288,8 +288,6 @@ class PageServicoForm extends TemplateForm {
                     if (indexPart > -1) {
                         clientes.splice(indexPart, 1);
                     }
-
-                    commonFunctions.generateNotification('Cliente removido.', 'success');
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

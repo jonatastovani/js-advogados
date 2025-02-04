@@ -4,10 +4,10 @@
                 class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
                 data-bs-title="Forma de pagamento que virá preenchida automaticamente antes de confirmar o recebimento do pagamento."></i></label>
         <div class="input-group">
-            <select name="forma_pagamento_id" id="forma_pagamento_id{{ $sufixo }}" class="form-select">
+            <select name="forma_pagamento_id" id="forma_pagamento_id{{ $sufixo }}" class="form-select" tabindex="-1">
                 <option value="0">Selecione</option>
             </select>
-            <button type="button" class="btn btn-outline-primary openModalFormaPagamento"><i
+            <button type="button" class="btn btn-outline-primary openModalFormaPagamento" tabindex="-1"><i
                     class="bi bi-search"></i></button>
         </div>
     </div>

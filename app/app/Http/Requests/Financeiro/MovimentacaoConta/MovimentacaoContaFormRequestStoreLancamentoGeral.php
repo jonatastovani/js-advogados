@@ -16,6 +16,7 @@ class MovimentacaoContaFormRequestStoreLancamentoGeral extends MovimentacaoConta
     {
         // Define as regras básicas
         $rules = array_merge(parent::rules(), [
+            'conta_id' => 'required|uuid',
             'data_quitado' => 'required|date',
             'valor_quitado' => 'required|numeric|min:0.01',
         ]);
