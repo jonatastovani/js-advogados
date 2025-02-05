@@ -151,7 +151,7 @@ class DocumentoGeradoController extends Controller
         $dataEnv->title = $dataEnv->dados['documento_gerado_tipo']['nome'];
         $dataEnv->nome_participante = $nomeParticipante;
         $dataEnv->mes_ano = Carbon::parse($mes_ano_movimentacao)->translatedFormat('F/Y');
-        $dataEnv->data_documento = Carbon::parse($dataEnv->dados['created_at'])->translatedFormat('d/F/Y');
+        $dataEnv->data_documento = Carbon::parse($dataEnv->dados['created_at'])->translatedFormat('d/F/Y H:i:s');
 
         $dataEnv->somatorias = CurrencyFormatterUtils::convertArrayToBRL($dataEnv->somatorias->toArray());
 

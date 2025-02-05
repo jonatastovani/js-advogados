@@ -1,5 +1,5 @@
-<div class="modal fade" id="modalLancamentoCategoriaTipoTenant" data-bs-backdrop="static" data-bs-keyboard="false"
-    tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalLancamentoSubCategoriaTipoTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body pt-1">
                 @php
-                    $sufixo = 'ModalLancamentoCategoriaTipoTenant';
+                    $sufixo = 'ModalLancamentoSubCategoriaTipoTenant';
                     $dados = new Illuminate\Support\Fluent([
                         'camposFiltrados' => [
                             'nome' => ['nome' => 'Nome'],
@@ -28,6 +28,7 @@
                             <tr>
                                 <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                                 <th>Nome</th>
+                                <th>Categoria</th>
                                 <th>Descrição</th>
                             </tr>
                         </thead>
@@ -44,12 +45,9 @@
                     </div>
                 </div>
                 <div class="divRegistrationFields mt-2" style="display: none;">
-                    @include(
-                        'components.modal.tenant.modal-lancamento-categoria-tipo-tenant.campos-cadastro',
-                        [
-                            'sufixo' => $sufixo,
-                        ]
-                    )
+                    @include('components.modal.tenant.modal-lancamento-sub-categoria-tipo-tenant.campos-cadastro', [
+                        'sufixo' => $sufixo,
+                    ])
                 </div>
             </div>
         </div>
@@ -58,7 +56,7 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
+        'baseLancamentoSubCategoriaTipoTenant' => route('api.tenant.lancamento-sub-categoria-tipo-tenant'),
     ],
 ])
 @endcomponent

@@ -12,6 +12,8 @@
             'created_at' => ['nome' => 'Data cadastro'],
         ],
         'arrayCamposChecked' => ['nome', 'nome_social'],
+        'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
+        'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
     ]);
     $dados = new Fluent(array_merge($mergeDados->toArray(), $dados->toArray()));
 @endphp

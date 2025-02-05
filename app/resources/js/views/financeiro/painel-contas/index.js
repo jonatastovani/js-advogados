@@ -150,7 +150,7 @@ class PagePainelContaIndex {
     async #addEventosPagamento(item) {
         const self = this;
 
-        $(`#${item.idCol} .btn - ajustar`).on('click', async function () {
+        $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {

@@ -727,7 +727,7 @@ export class commonFunctions {
             title = null,
             elementFocus = null,
         } = options;
-        
+
         const loading = instanceManager.setInstance('modalLoading', new modalLoading());
         const isModalVisible = $(loading.getIdModal).hasClass('show');
 
@@ -1232,4 +1232,46 @@ export class commonFunctions {
         }
         return target;
     }
+
+    /**
+     * Função genérica para lidar com modais e buscar dados
+     * @param {string} selector O seletor do botão que abre o modal
+     * @param {Object} modalInstance A instância do modal (por exemplo, new modalContaTenant())
+     * @param {Function} buscarFunc A função de busca (por exemplo, self.#buscarContas)
+     */
+    static handleModal(selector, modalInstance, buscarFunc) {
+
+        $(selector).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+
+            try {
+                modalInstance.setDataEnvModal = {
+                    attributes: {
+                        select: {
+                            quantity: 1,
+                            autoReturn: true,
+                        }
+                    }
+                };
+
+                await self._modalHideShow(false);
+                const response = await modalInstance.modalOpen();
+
+                if (response.refresh) {
+                    if (response.selected) {
+                        buscarFunc(response.selected.id);
+                    } else {
+                        buscarFunc();
+                    }
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+                await self._modalHideShow();
+            }
+        });
+    }
+
 }

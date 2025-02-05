@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
 
-export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegistration {
+export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -11,11 +11,11 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
-                urlSearch: `${window.apiRoutes.baseLancamentoCategoriaTipoTenant}/consulta-filtros`,
+                url: window.apiRoutes.baseLancamentoSubCategoriaTipoTenant,
+                urlSearch: `${window.apiRoutes.baseLancamentoSubCategoriaTipoTenant}/consulta-filtros`,
             }
         },
-        sufixo: 'ModalLancamentoCategoriaTipoTenant',
+        sufixo: 'ModalLancamentoSubCategoriaTipoTenant',
     };
 
     /** 
@@ -27,7 +27,7 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
 
     constructor() {
         super({
-            idModal: "#modalLancamentoCategoriaTipoTenant",
+            idModal: "#modalLancamentoSubCategoriaTipoTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -56,8 +56,6 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
                 await self._executarBusca();
             })
             .trigger('click');
-
-        commonFunctions.handleModal(modal.find('.openModalCategoria'), new (), self.#buscarContas.bind(self));
 
     }
 
@@ -103,6 +101,7 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
+                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.categoria.nome}">${item.categoria.nome}</td>
                 <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao}">${item.descricao}</td>
             </tr>
         `);
