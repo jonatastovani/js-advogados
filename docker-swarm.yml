@@ -15,11 +15,6 @@ services:
                     memory: 20M
             restart_policy:
                 condition: on-failure
-        # healthcheck:
-        #     test: ["CMD", "curl", "-f", "http://localhost:9000"]
-        #     interval: 30s
-        #     timeout: 10s
-        #     retries: 5
         volumes:
             - app_data:/var/www/app # Volume nomeado para a aplicação
             # - ./app/database/migrations:/var/www/app/database/migrations # Volume para as migrations
@@ -27,8 +22,6 @@ services:
             - laravel
         networks:
             - laravel
-        environment:
-            - PHP_VERSION=8.3.9-fpm-bullseye
 
     # Serviço Nginx
     nginx:
@@ -73,9 +66,9 @@ services:
             restart_policy:
                 condition: on-failure
         environment:
-            POSTGRES_DB: app-js-dev
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: secret
+            POSTGRES_DB: "${POSTGRES_DB}"
+            POSTGRES_USER: "${POSTGRES_USER}"
+            POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
         networks:
             - laravel
         volumes:

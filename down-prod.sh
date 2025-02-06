@@ -1,0 +1,1 @@
+docker stack rm prod_stack

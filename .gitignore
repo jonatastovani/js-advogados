@@ -1,3 +1,6 @@
+.env.dev
+.env.prod
+
 .docker
 data
 app/data

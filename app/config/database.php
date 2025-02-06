@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'pgsql_dev'),
+    'default' => env('APP_ENV') == 'production' ? env('DB_CONNECTION') : env('DB_CONNECTION_LOCAL', 'pgsql_dev'),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,11 +82,27 @@ return [
         'pgsql_dev' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
+            'host' => env('DB_HOST_LOCAL', '127.0.0.1'),
+            'port' => env('DB_PORT_LOCAL', '5432'),
+            'database' => env('DB_DATABASE_LOCAL'),
+            'username' => env('DB_USERNAME_LOCAL'),
+            'password' => env('DB_PASSWORD_LOCAL'),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
+        // Para produção
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'app-js-dev'),
-            'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', 'secret'),
+            'database' => env('DB_DATABASE'),
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
@@ -165,7 +181,7 @@ return [
         'default' => [
             'prefix' => '',
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' =>  env('APP_ENV') == 'production' ? env('REDIS_HOST') : '127.0.0.1',
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
@@ -174,7 +190,7 @@ return [
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' =>  env('APP_ENV') == 'production' ? env('REDIS_HOST') : '127.0.0.1',
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
