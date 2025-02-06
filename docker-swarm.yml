@@ -22,6 +22,9 @@ services:
             - laravel
         networks:
             - laravel
+        environment:
+            # APP_ENV é definido aqui, isso vai influenciar as configurações do Laravel
+            - APP_ENV=${APP_ENV}
 
     # Serviço Nginx
     nginx:
