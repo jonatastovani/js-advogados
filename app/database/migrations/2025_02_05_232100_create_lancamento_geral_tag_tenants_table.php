@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->model = new App\Models\Tenant\LancamentoGeralTagTenant();
+        $this->model = new App\Models\Tenant\TagTenant();
     }
 
     /**
@@ -26,6 +26,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->string('nome');
+            $table->string('tipo', 50);
             $table->string('descricao')->nullable();
             $table->jsonb('data')->nullable();
 

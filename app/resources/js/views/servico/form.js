@@ -8,7 +8,7 @@ import { modalPessoa } from "../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
-import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
+import { modalTagTenant } from "../../components/tenant/modalTagTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
@@ -34,6 +34,7 @@ class PageServicoForm extends TemplateForm {
                 baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
                 baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
                 baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
+                baseTagTenant: window.apiRoutes.baseTagTenant,
             },
             sufixo: 'PageServicoForm',
             data: {
@@ -90,33 +91,39 @@ class PageServicoForm extends TemplateForm {
     #addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalAreaJuridicaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarAreasJuridicas(response.selected.id);
-                    } else {
-                        self.#buscarAreasJuridicas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
+        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), new modalTagTenant(), self.#buscarAreasJuridicas.bind(self), {
+            dataEnvAppend: {
+                tag_tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
+            },
         });
+
+        // $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`).on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalAreaJuridicaTenant();
+        //         objModal.setDataEnvModal = {
+        //             attributes: {
+        //                 select: {
+        //                     quantity: 1,
+        //                     autoReturn: true,
+        //                 }
+        //             }
+        //         }
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh) {
+        //             if (response.selected) {
+        //                 self.#buscarAreasJuridicas(response.selected.id);
+        //             } else {
+        //                 self.#buscarAreasJuridicas();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo}`).on('click', async function (e) {
             e.preventDefault();
@@ -938,14 +945,32 @@ class PageServicoForm extends TemplateForm {
     async #buscarAreasJuridicas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = {
+                typeRequest: enumAction.POST,
+                envData: {
+                    tipo: 'lancamento_geral'
+                }
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            await commonFunctions.fillSelect(selArea, `${self._objConfigs.url.baseTagTenant}/index-tipo`, options); 0
             return true
         } catch (error) {
             return false;
         }
     }
+
+    // async #buscarAreasJuridicas(selected_id = null) {
+    //     try {
+    //         const self = this;
+    //         let options = selected_id ? { selectedIdOption: selected_id } : {};
+    //         const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
+    //         await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+    //         return true
+    //     } catch (error) {
+    //         return false;
+    //     }
+    // }
 
     async #buscarPagamentos() {
         const self = this;

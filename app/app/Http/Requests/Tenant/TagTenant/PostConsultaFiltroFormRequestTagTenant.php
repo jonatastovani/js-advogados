@@ -3,25 +3,23 @@
 namespace App\Http\Requests\Tenant\TagTenant;
 
 use App\Enums\TagTipoTenantEnum;
-use App\Http\Requests\BaseFormRequest;
+use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 
-class TagTenantFormRequestIndex extends BaseFormRequest
+class PostConsultaFiltroFormRequestTagTenant extends PostConsultaFiltroFormRequestBase
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
+    public function rules()
     {
         $tiposPermitidos = collect(TagTipoTenantEnum::toArray())->values()->implode(',');
         return array_merge(
-            $this->rulesShowWithTrashed(),
+            parent::rules(),
             [
                 'tipo' => "required|string|in:{$tiposPermitidos}",
             ]

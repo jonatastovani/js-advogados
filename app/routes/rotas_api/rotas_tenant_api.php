@@ -165,12 +165,12 @@ Route::group([
     
     Route::prefix('tag-tenant')->group(function () {
 
-        Route::controller(App\Http\Controllers\Tenant\LancamentoCategoriaTipoTenantController::class)->group(function () {
+        Route::controller(App\Http\Controllers\Tenant\TagTenantController::class)->group(function () {
 
             Route::post('consulta-filtros', 'postConsultaFiltros');
 
-            Route::get('', 'index');
-            Route::post('', 'store')->name('api.tenant.lancamento-sub-categoria-tipo-tenant');
+            Route::post('index-tipo', 'index');
+            Route::post('', 'store')->name('api.tenant.tag-tenant');
             Route::get('{uuid}', 'show');
             Route::put('{uuid}', 'update');
             Route::delete('{uuid}', 'destroy');

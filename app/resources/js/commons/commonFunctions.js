@@ -1238,15 +1238,16 @@ export class commonFunctions {
      * @param {string} selector O seletor do botão que abre o modal
      * @param {Object} modalInstance A instância do modal (por exemplo, new modalContaTenant())
      * @param {Function} buscarFunc A função de busca (por exemplo, self.#buscarContas)
+     * @param {Object} options Opções adicionais
      */
-    static handleModal(selector, modalInstance, buscarFunc) {
+    static handleModal(self, selector, modalInstance, buscarFunc, options = {}) {
 
         $(selector).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
 
             try {
-                modalInstance.setDataEnvModal = {
+                let dataEnvModal = {
                     attributes: {
                         select: {
                             quantity: 1,
@@ -1255,7 +1256,16 @@ export class commonFunctions {
                     }
                 };
 
-                await self._modalHideShow(false);
+                if (options.dataEnvAppend) {
+                    commonFunctions.deepMergeObject(dataEnvModal, options.dataEnvAppend)
+                }
+
+                modalInstance.setDataEnvModal = dataEnvModal;
+
+                if (typeof self._modalHideShow === 'function') {
+                    await self._modalHideShow(false);
+                }
+
                 const response = await modalInstance.modalOpen();
 
                 if (response.refresh) {
@@ -1269,7 +1279,9 @@ export class commonFunctions {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
+                if (typeof self._modalHideShow === 'function') {
+                    await self._modalHideShow();
+                }
             }
         });
     }

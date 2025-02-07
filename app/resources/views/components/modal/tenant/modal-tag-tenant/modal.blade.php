@@ -1,14 +1,14 @@
-<div class="modal fade" id="modalLancamentoSubCategoriaTipoTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalTagTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title">Categorias de Lançamentos</h4>
+                <h4 class="modal-title">Tags de Identificação</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-1">
                 @php
-                    $sufixo = 'ModalLancamentoSubCategoriaTipoTenant';
+                    $sufixo = 'ModalTagTenant';
                     $dados = new Illuminate\Support\Fluent([
                         'camposFiltrados' => [
                             'nome' => ['nome' => 'Nome'],
@@ -28,7 +28,6 @@
                             <tr>
                                 <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                                 <th>Nome</th>
-                                <th>Categoria</th>
                                 <th>Descrição</th>
                             </tr>
                         </thead>
@@ -45,7 +44,7 @@
                     </div>
                 </div>
                 <div class="divRegistrationFields mt-2" style="display: none;">
-                    @include('components.modal.tenant.modal-lancamento-sub-categoria-tipo-tenant.campos-cadastro', [
+                    @include('components.modal.tenant.modal-tag-tenant.campos-cadastro', [
                         'sufixo' => $sufixo,
                     ])
                 </div>
@@ -56,8 +55,7 @@
 
 @component('components.api.api-routes', [
     'routes' => [
-        'baseLancamentoSubCategoriaTipoTenant' => route('api.tenant.lancamento-sub-categoria-tipo-tenant'),
-        'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
+        'baseTagTenant' => route('api.tenant.tag-tenant'),
     ],
 ])
 @endcomponent

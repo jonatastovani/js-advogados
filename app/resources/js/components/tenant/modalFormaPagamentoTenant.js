@@ -63,7 +63,7 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
 
-        commonFunctions.handleModal(modal.find('.openModalConta'), new modalContaTenant(), self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, modal.find('.openModalConta'), new modalContaTenant(), self.#buscarContas.bind(self));
 
         // modal.find('.openModalConta').on('click', async function () {
         //     const btn = $(this);

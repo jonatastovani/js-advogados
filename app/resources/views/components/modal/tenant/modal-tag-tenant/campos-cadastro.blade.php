@@ -1,24 +1,12 @@
 <form class="row formRegistration">
     <div class="col-12">
         <div class="row">
-            <h5 class="registration-title text-truncate">Nova Categoria</h5>
+            <h5 class="registration-title text-truncate">Nova Tag</h5>
         </div>
         <div class="row">
             <div class="col">
                 <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
                 <input type="text" class="form-control focusRegister" name="nome" id="nome{{ $sufixo }}">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mt-2">
-                <label for="categoria_id{{ $sufixo }}" class="form-label">Categoria*</label>
-                <div class="input-group">
-                    <select name="categoria_id" id="categoria_id{{ $sufixo }}" class="form-select">
-                        <option value="0">Selecione</option>
-                    </select>
-                    <button type="button" class="btn btn-outline-primary openModalCategoria"><i
-                            class="bi bi-search"></i></button>
-                </div>
             </div>
         </div>
         <div class="row">

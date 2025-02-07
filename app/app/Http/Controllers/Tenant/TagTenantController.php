@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\TagTenant\PostConsultaFiltroFormRequestTagTenant;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestIndex;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestShow;
@@ -17,6 +18,12 @@ class TagTenantController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public TagTenantService $service) {}
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestTagTenant $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function index(TagTenantFormRequestIndex $formRequest)
     {

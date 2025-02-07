@@ -1,9 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
-import { modalLancamentoCategoriaTipoTenant } from "./modalLancamentoCategoriaTipoTenant";
 
-export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormRegistration {
+export class modalTagTenant extends modalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -12,14 +11,14 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.baseLancamentoSubCategoriaTipoTenant,
-                urlSearch: `${window.apiRoutes.baseLancamentoSubCategoriaTipoTenant}/consulta-filtros`,
+                url: window.apiRoutes.baseTagTenant,
+                urlSearch: `${window.apiRoutes.baseTagTenant}/consulta-filtros`,
             }
         },
         url: {
-            baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
+            baseTagTenant: window.apiRoutes.baseTagTenant,
         },
-        sufixo: 'ModalLancamentoSubCategoriaTipoTenant',
+        sufixo: 'ModalTagTenant',
     };
 
     /** 
@@ -31,7 +30,7 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
 
     constructor() {
         super({
-            idModal: "#modalLancamentoSubCategoriaTipoTenant",
+            idModal: "#modalTagTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -51,7 +50,7 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
         const modal = $(self.getIdModal);
 
         modal.find('.btn-new-register').on('click', async () => {
-            self._updateTitleRegistration('Nova Categoria de Lancamento');
+            self._updateTitleRegistration('Nova Tag');
         });
 
         $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
@@ -60,15 +59,21 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
                 await self._executarBusca();
             })
             .trigger('click');
-
-        commonFunctions.handleModal(modal.find('.openModalConta'), new modalLancamentoCategoriaTipoTenant(), self.#buscarLancamentoCategorias.bind(self));
-
     }
 
     async _executarBusca() {
         const self = this;
+
+        const getAppendDataQuery = () => {
+            let appendData = {
+                tipo: self._dataEnvModal.tag_tipo
+            };
+
+            return { appendData: appendData };
+        }
+
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        await self._generateQueryFilters();
+        await self._generateQueryFilters(getAppendDataQuery());
     }
 
     async insertTableData(item, options = {}) {
@@ -107,7 +112,6 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
-                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.categoria.nome}">${item.categoria.nome}</td>
                 <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao}">${item.descricao}</td>
             </tr>
         `);
@@ -169,25 +173,13 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
 
         $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
             const response = await self._delButtonAction(item.id, item.nome, {
-                title: `Exclusão de Categoria de Lançamento`,
-                message: `Confirma a exclusão da categoria <b>${item.nome}</b>?`,
-                success: `Categoria de Lançamento excluída com sucesso!`,
+                title: `Exclusão de Tag`,
+                message: `Confirma a exclusão da Tag <b>${item.nome}</b>?`,
+                success: `Tag excluída com sucesso!`,
                 button: this,
                 urlApi: self._objConfigs.querys.consultaFiltros.url,
             });
         });
-    }
-
-    async #buscarLancamentoCategorias(selected_id = null) {
-        try {
-            const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
-            return true;
-        } catch (error) {
-            return false;
-        }
     }
 
     saveButtonAction() {
@@ -201,7 +193,7 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da Categoria deve ser informada.', setFocus: true });
+        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da Tag deve ser informada.', setFocus: true });
         return blnSave;
     }
 }

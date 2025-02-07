@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Modal\Tenant\ModalLancamentoSubCategoriaTipoTenant;
+namespace App\View\Components\Modal\Tenant\ModalTagTenant;
 
 use App\Helpers\ModalSessionHelper;
 use Closure;
@@ -22,8 +22,8 @@ class Modal extends Component
      */
     public function render(): View|Closure|string
     {
-        if (ModalSessionHelper::registerModal('modalLancamentoSubCategoriaTipoTenant', request('request_uuid'))) {
-            return view('components.modal.tenant.modal-lancamento-sub-categoria-tipo-tenant.modal');
+        if (ModalSessionHelper::registerModal('modalTagTenant', request('request_uuid'))) {
+            return view('components.modal.tenant.modal-tag-tenant.modal');
         }
         return '';
     }
