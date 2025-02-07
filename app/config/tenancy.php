@@ -42,7 +42,8 @@ return [
      */
     'database' => [
         // 'central_connection' => env('DB_CONNECTION', 'central'),
-        'central_connection' => config('database.default') ?? env('DB_CONNECTION', 'central'),
+        'central_connection' => env('APP_ENV') == 'production' ?
+            env('DB_CONNECTION') : env('DB_CONNECTION_LOCAL', 'pgsql_dev'),
 
         /**
          * Connection used as a "template" for the dynamically created tenant database connection.

@@ -56,9 +56,6 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
                 await self._executarBusca();
             })
             .trigger('click');
-
-        commonFunctions.handleModal(modal.find('.openModalCategoria'), new (), self.#buscarContas.bind(self));
-
     }
 
     async _executarBusca() {

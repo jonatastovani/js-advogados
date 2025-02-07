@@ -51,6 +51,7 @@ return [
     // 'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION', env('DB_CONNECTION')),
     'database_connection' => env(
         'ACTIVITY_LOGGER_DB_CONNECTION',
-        config('database.default') ?? env('DB_CONNECTION')
+        (env('APP_ENV') == 'production' ?
+            env('DB_CONNECTION') : env('DB_CONNECTION_LOCAL', 'pgsql_dev'))
     ),
 ];

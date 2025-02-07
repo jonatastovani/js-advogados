@@ -20,6 +20,7 @@ trait CommonsModelsMethodsTrait
         $this->hidden = [
             'tenant_id',
             'domain_id',
+            'data',
             'created_user_id',
             'created_ip',
             'created_at',

@@ -1,6 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { modalLancamentoCategoriaTipoTenant } from "./modalLancamentoCategoriaTipoTenant";
 
 export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormRegistration {
 
@@ -14,6 +15,9 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
                 url: window.apiRoutes.baseLancamentoSubCategoriaTipoTenant,
                 urlSearch: `${window.apiRoutes.baseLancamentoSubCategoriaTipoTenant}/consulta-filtros`,
             }
+        },
+        url: {
+            baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
         },
         sufixo: 'ModalLancamentoSubCategoriaTipoTenant',
     };
@@ -56,6 +60,8 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
                 await self._executarBusca();
             })
             .trigger('click');
+
+        commonFunctions.handleModal(modal.find('.openModalConta'), new modalLancamentoCategoriaTipoTenant(), self.#buscarLancamentoCategorias.bind(self));
 
     }
 
@@ -170,6 +176,18 @@ export class modalLancamentoSubCategoriaTipoTenant extends modalSearchAndFormReg
                 urlApi: self._objConfigs.querys.consultaFiltros.url,
             });
         });
+    }
+
+    async #buscarLancamentoCategorias(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     saveButtonAction() {

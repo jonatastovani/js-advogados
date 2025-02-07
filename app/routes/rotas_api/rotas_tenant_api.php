@@ -162,4 +162,19 @@ Route::group([
             Route::put('{uuid}', 'update');
         });
     });
+    
+    Route::prefix('tag-tenant')->group(function () {
+
+        Route::controller(App\Http\Controllers\Tenant\LancamentoCategoriaTipoTenantController::class)->group(function () {
+
+            Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::get('', 'index');
+            Route::post('', 'store')->name('api.tenant.lancamento-sub-categoria-tipo-tenant');
+            Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
+            Route::delete('{uuid}', 'destroy');
+        });
+    });
+
 });

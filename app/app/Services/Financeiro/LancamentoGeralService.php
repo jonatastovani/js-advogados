@@ -189,6 +189,11 @@ class LancamentoGeralService extends Service
         $resource = null;
         if ($id) {
             $resource = $this->buscarRecurso($requestData);
+
+            if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoRessarcimento())) {
+                return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de informações.")->throwResponse();
+            }
+
         } else {
             $resource = new $this->model;
         }

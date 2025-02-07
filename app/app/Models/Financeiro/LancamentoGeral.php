@@ -15,10 +15,17 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class LancamentoGeral extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain;
+    use HasFactory,
+        HasUuids,
+        CommonsModelsMethodsTrait,
+        ModelsLogsTrait,
+        BelongsToTenant,
+        BelongsToDomain,
+        HasDataColumn;
 
     protected $table = 'financeiro.lancamento_gerais';
     protected $tableAsName = 'lanc_gerais';
@@ -30,7 +37,7 @@ class LancamentoGeral extends Model
         'valor_quitado' => 'float',
     ];
 
-    protected $fillable =[
+    protected $fillable = [
         'movimentacao_tipo_id',
         'descricao',
         'valor_esperado',
@@ -44,11 +51,12 @@ class LancamentoGeral extends Model
         'domain_id',
         'created_user_id',
     ];
-    
+
     // Define as colunas padrão a serem ocultadas
     protected $hidden = [
         'tenant_id',
         'domain_id',
+        'data',
         'created_user_id',
         'created_ip',
         // 'created_at',
@@ -59,6 +67,24 @@ class LancamentoGeral extends Model
         'deleted_ip',
         'deleted_at',
     ];
+
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'numero_lancamento',
+            'movimentacao_tipo_id',
+            'descricao',
+            'valor_esperado',
+            'data_vencimento',
+            'valor_quitado',
+            'data_quitado',
+            'categoria_id',
+            'conta_id',
+            'agendamento_id',
+            'status_id',
+            'observacao',
+        ]);
+    }
 
     public function movimentacao_tipo()
     {

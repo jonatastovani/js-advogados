@@ -57,6 +57,7 @@
 @component('components.api.api-routes', [
     'routes' => [
         'baseLancamentoSubCategoriaTipoTenant' => route('api.tenant.lancamento-sub-categoria-tipo-tenant'),
+        'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
     ],
 ])
 @endcomponent
