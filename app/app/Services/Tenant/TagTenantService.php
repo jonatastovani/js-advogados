@@ -27,6 +27,27 @@ class TagTenantService extends Service
         return $resource->toArray();
     }
 
+    public function select2(Fluent $requestData)
+    {
+        $dados = new Fluent([
+            'camposFiltros' => ['nome', 'descricao'],
+            'retornarQuery' => true,
+        ]);
+
+        $query =  $this->executaConsultaSelect2($requestData, $dados);
+        $query->where('tipo', $requestData->tipo);
+
+        // Definindo o campo de texto dinamicamente ou usando um padrão
+        $campoTexto = $dados->campoTexto ?? 'nome'; // O padrão é 'nome'
+
+        // Definir o limite de resultados (25 como padrão)
+        $limite = $dados->limite ?? 25;
+
+        // Executa a consulta com o limite e formata os resultados
+        return $this->formatSelect2Results($query->limit($limite)->get(), $campoTexto)
+            ->toArray();
+    }
+
     /**
      * Traduz os campos com base no array de dados fornecido.
      *

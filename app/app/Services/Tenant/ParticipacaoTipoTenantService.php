@@ -8,7 +8,6 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Service;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -16,7 +15,6 @@ use Illuminate\Support\Fluent;
 
 class ParticipacaoTipoTenantService extends Service
 {
-    use ConsultaSelect2ServiceTrait;
 
     public function __construct(ParticipacaoTipoTenant $model)
     {

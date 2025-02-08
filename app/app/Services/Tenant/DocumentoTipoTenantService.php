@@ -11,14 +11,12 @@ use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\DocumentoTipoTenant;
 use App\Models\Referencias\DocumentoTipo;
 use App\Services\Service;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
 class DocumentoTipoTenantService extends Service
 {
-    use ConsultaSelect2ServiceTrait;
 
     public function __construct(
         DocumentoTipoTenant $model,

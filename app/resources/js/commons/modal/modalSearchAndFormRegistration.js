@@ -218,7 +218,7 @@ export class modalSearchAndFormRegistration extends modalDefault {
         }
 
         if (options.appendData) {
-            Object.assign(data, options.appendData);
+            commonFunctions.deepMergeObject(data, options.appendData);
         }
 
         await self._getData(data);

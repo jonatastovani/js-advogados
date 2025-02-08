@@ -12,6 +12,7 @@ use Illuminate\Support\Fluent;
 
 class AnotacaoLembreteTenantService extends Service
 {
+
     public function __construct(
         AnotacaoLembreteTenant $model,
         public Servico $modelServico,

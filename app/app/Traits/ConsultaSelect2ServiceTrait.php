@@ -12,17 +12,17 @@ trait ConsultaSelect2ServiceTrait
     /**
      * Executa a consulta para retorno de dados no formato Select2.
      *
-     * @param Request $request A requisição HTTP
+     * @param Fluent $requestData A requisição HTTP
      * @param Fluent|null $dados Os dados fornecidos, incluindo campos de filtros e o campo de texto
      * @return Fluent|array|Builder[] O array de resultados formatado ou a query se solicitado
      */
-    public function executaConsultaSelect2(Request $request, Fluent $dados = null)
+    public function executaConsultaSelect2(Fluent $requestData, Fluent $dados = null)
     {
         // Constrói a query base
         $query = $this->buildBaseQuery();
 
         // Aplica os filtros
-        $query = $this->applyFilters($query, $request, $dados);
+        $query = $this->applyFilters($query, $requestData, $dados);
 
         // Verifica se o usuário quer retornar apenas a query
         if (isset($dados->retornarQuery) && $dados->retornarQuery === true) {
@@ -53,17 +53,17 @@ trait ConsultaSelect2ServiceTrait
      * Aplica os filtros baseados no texto e campos de busca fornecidos.
      *
      * @param Builder $query A query na qual os filtros serão aplicados
-     * @param Request $request A requisição HTTP
+     * @param Fluent $requestData A requisição HTTP
      * @param Fluent|null $dados Os dados fornecidos com os campos de filtros
      * @return Builder A query com os filtros aplicados
      */
-    protected function applyFilters(Builder $query, Request $request, Fluent $dados = null): Builder
+    protected function applyFilters(Builder $query, Fluent $requestData, Fluent $dados = null): Builder
     {
         if (isset($dados->camposFiltros) && is_array($dados->camposFiltros)) {
             $arrFields = $dados->camposFiltros;
 
-            if ($request->has('text') && !empty($request->input('text'))) {
-                $textoBusca = $request->input('text');
+            if ($requestData->text && !empty($requestData->text)) {
+                $textoBusca = $requestData->text;
                 // $textoBusca = StringHelper::removeAccents($textoBusca);
 
                 // Adiciona os filtros de texto na query usando ILIKE

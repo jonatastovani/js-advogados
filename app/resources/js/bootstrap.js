@@ -29,6 +29,6 @@ window.uuidVersion = uuidVersion;
 import moment from 'moment';
 window.moment = moment;
 
-import 'select2';
+// import 'select2';
 
 import 'jquery-mask-plugin';

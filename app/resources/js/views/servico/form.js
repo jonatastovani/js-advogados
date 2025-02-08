@@ -8,7 +8,7 @@ import { modalPessoa } from "../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
-import { modalTagTenant } from "../../components/tenant/modalTagTenant";
+import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
@@ -91,46 +91,40 @@ class PageServicoForm extends TemplateForm {
     #addEventosBotoes() {
         const self = this;
 
-        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), new modalTagTenant(), self.#buscarAreasJuridicas.bind(self), {
-            dataEnvAppend: {
-                tag_tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
-            },
-        });
+        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
-        // $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalAreaJuridicaTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 self.#buscarAreasJuridicas(response.selected.id);
-        //             } else {
-        //                 self.#buscarAreasJuridicas();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
+        // commonFunctions.addEventsSelect2Api($(`#tags${self._objConfigs.sufixo}`), `${self._objConfigs.url.baseTagTenant}/select2`, {
+        //     dataAppend: {
+        //         tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
         //     }
         // });
 
-        $(`#btnSaveParticipantes${self._objConfigs.sufixo}`).on('click', async function (e) {
+        commonFunctions.addEventsSelect2ApiMulti($(`#tags${self._objConfigs.sufixo}`), `${self._objConfigs.url.baseTagTenant}/select2`, {
+            dataAppend: {
+                tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
+            },
+            onSelectionChange: function (selectedValues) {
+                console.log('Seleções atuais:');
+                console.log(selectedValues);
+            }
+        });
+
+        const selecoes = [{
+            id: "9e28a512-a597-4a27-a984-0f119dc8aa03",
+            text: "Água"
+        }, {
+            id: "9e28b3ea-ca5d-4960-8518-8f99047cf6bc",
+            text: "Energia"
+        }];
+
+        commonFunctions.updateSelect2MultipleValues($(`#tags${self._objConfigs.sufixo}`), selecoes);
+
+        $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionParticipacao();
         });
 
-        $(`#btnAdicionarCliente${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
 
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
@@ -155,16 +149,16 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#atualizarClientes${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#atualizarClientes${self._objConfigs.sufixo} `).on('click', async function () {
             await self.#buscarClientes();
         });
 
-        $(`#btnSaveClientes${self._objConfigs.sufixo}`).on('click', async function (e) {
+        $(`#btnSaveClientes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionCliente();
         });
 
-        $(`#btnAdicionarAnotacao${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -181,7 +175,7 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#btnInserirPagamento${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
@@ -945,32 +939,14 @@ class PageServicoForm extends TemplateForm {
     async #buscarAreasJuridicas(selected_id = null) {
         try {
             const self = this;
-            let options = {
-                typeRequest: enumAction.POST,
-                envData: {
-                    tipo: 'lancamento_geral'
-                }
-            };
-            selected_id ? options.selectedIdOption = selected_id : null;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
             const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selArea, `${self._objConfigs.url.baseTagTenant}/index-tipo`, options); 0
+            await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true
         } catch (error) {
             return false;
         }
     }
-
-    // async #buscarAreasJuridicas(selected_id = null) {
-    //     try {
-    //         const self = this;
-    //         let options = selected_id ? { selectedIdOption: selected_id } : {};
-    //         const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-    //         await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
-    //         return true
-    //     } catch (error) {
-    //         return false;
-    //     }
-    // }
 
     async #buscarPagamentos() {
         const self = this;

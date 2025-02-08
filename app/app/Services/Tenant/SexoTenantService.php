@@ -7,14 +7,12 @@ use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
 class SexoTenantService extends Service
 {
-    use ConsultaSelect2ServiceTrait;
 
     public function __construct(SexoTenant $model)
     {

@@ -3,11 +3,11 @@
         <div class="row h-100">
             <div class="col d-flex flex-column">
                 <div class="row">
-                    <div class="col mt-2">
+                    <div class="col-sm-12 col-md-7 col-xl-8 mt-2">
                         <label for="titulo{{ $sufixo }}" class="form-label">Título</label>
                         <input type="text" id="titulo${{ $sufixo }}" name="titulo" class="form-control">
                     </div>
-                    <div class="col-md-5 col-xl-4 mt-2">
+                    <div class="col-sm-6 col-md-5 col-xl-4 mt-2">
                         <label for="area_juridica_id{{ $sufixo }}" class="form-label">Área Jurídica</label>
                         <div class="input-group">
                             {{-- <div class="input-group-select2">
@@ -22,6 +22,18 @@
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-search"></i>
                             </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col mt-2">
+                        <label for="tags{{ $sufixo }}" class="form-label">Tags</label>
+                        <div class="input-group">
+                            <div class="input-group-select2">
+                                <select name="tags" id="tags{{ $sufixo }}" class="select2-clear-form"
+                                    style="width: 100%">
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -45,7 +57,8 @@
                 </div>
                 <div class="row text-end">
                     <div class="col mt-2">
-                        <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save">
+                        <button type="submit" id="btnSave{{ $sufixo }}"
+                            class="btn btn-outline-success btn-save">
                             Salvar dados do Serviço
                         </button>
                     </div>

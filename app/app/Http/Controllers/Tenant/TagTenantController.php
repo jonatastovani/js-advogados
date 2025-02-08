@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\TagTenant\PostConsultaFiltroFormRequestTagTenant;
+use App\Http\Requests\Tenant\TagTenant\PostSelect2FormRequestBaseTagTenant;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestIndex;
 use App\Http\Requests\Tenant\TagTenant\TagTenantFormRequestShow;
@@ -23,6 +24,12 @@ class TagTenantController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated());
         return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
+
+    public function select2(PostSelect2FormRequestBaseTagTenant $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->select2($fluentData));
     }
 
     public function index(TagTenantFormRequestIndex $formRequest)

@@ -168,6 +168,7 @@ Route::group([
         Route::controller(App\Http\Controllers\Tenant\TagTenantController::class)->group(function () {
 
             Route::post('consulta-filtros', 'postConsultaFiltros');
+            Route::post('select2', 'select2');
 
             Route::post('index-tipo', 'index');
             Route::post('', 'store')->name('api.tenant.tag-tenant');

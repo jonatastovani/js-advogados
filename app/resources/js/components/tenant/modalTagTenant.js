@@ -35,12 +35,19 @@ export class modalTagTenant extends modalSearchAndFormRegistration {
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-
-        this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
+
+        if (!self._dataEnvModal.tag_tipo) {
+            const message = 'Tipo da tag não informado.';
+            console.error(message, self._dataEnvModal);
+            commonFunctions.generateNotification(message, 'error');
+            return await self._returnPromisseResolve();
+        }
+
+        this.#addEventosPadrao();
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -65,6 +72,7 @@ export class modalTagTenant extends modalSearchAndFormRegistration {
         const self = this;
 
         const getAppendDataQuery = () => {
+            console.log('getAppendDataQuery', self._dataEnvModal.tag_tipo)
             let appendData = {
                 tipo: self._dataEnvModal.tag_tipo
             };
@@ -112,7 +120,7 @@ export class modalTagTenant extends modalSearchAndFormRegistration {
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
-                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao}">${item.descricao}</td>
+                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
             </tr>
         `);
 
@@ -186,6 +194,7 @@ export class modalTagTenant extends modalSearchAndFormRegistration {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
+        data.tipo = self._dataEnvModal.tag_tipo;
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.querys.consultaFiltros.url);

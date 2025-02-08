@@ -15,8 +15,6 @@
                             'descricao' => ['nome' => 'Descrição'],
                         ],
                         'arrayCamposChecked' => ['nome', 'descricao'],
-                        'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
-                        'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                         'preset_tamanho' => 'md',
                     ]);
                 @endphp

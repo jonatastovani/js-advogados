@@ -1,10 +1,10 @@
 // import 'select2';
-// import '../commons/select2-4.0.2';
 import { modalLoading } from "../components/comum/modalLoading";
 import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
 import { connectAjax } from "./connectAjax";
 import { enumAction } from "./enumAction";
 import instanceManager from "./instanceManager";
+import './select2-4.0.2';
 
 export class commonFunctions {
 
@@ -790,11 +790,11 @@ export class commonFunctions {
                 dataType: 'json',
                 delay: 250,
                 transport: function (params, success) {
-                    var text = params.data.term; // Captura o valor do texto
+                    let text = params.data.term; // Captura o valor do texto
                     let csrfToken = commonFunctions.getCsrfToken();
 
                     // Adiciona o valor do texto ao corpo da solicitação
-                    var ajaxOptions = {
+                    let ajaxOptions = {
                         url: urlApi,
                         type: 'POST',
                         data: { 'text': text },
@@ -811,6 +811,9 @@ export class commonFunctions {
                             // commonFunctions.generateNotification(error.message, 'error');
                         }
                     };
+
+                    commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+
                     return $.ajax(ajaxOptions);
                 },
                 processResults: function (data) {
@@ -825,6 +828,92 @@ export class commonFunctions {
             minimumInputLength: minimum,
             dropdownParent: dropdownParent,
         });
+    }
+
+    /**
+     * Adiciona eventos para um elemento select2 com suporte a múltiplas seleções.
+     * @param {jQuery} selectElem - O elemento jQuery ao qual o select2 será aplicado.
+     * @param {string} urlApi - A URL da API para recuperar os dados do servidor.
+     * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento do select2.
+     * @param {number} [options.minimum=3] - O número mínimo de caracteres necessários para acionar a pesquisa.
+     * @param {string} [options.placeholder='Selecione uma ou mais opções'] - O texto de espaço reservado para o select2.
+     * @param {jQuery} [options.dropdownParent=$(document.body)] - O elemento ao qual o dropdown do select2 será anexado.
+     * @param {Function} [options.onSelectionChange] - Callback chamado quando a seleção mudar.
+     */
+    static addEventsSelect2ApiMulti(selectElem, urlApi, options = {}) {
+        const {
+            minimum = 3,
+            placeholder = 'Selecione uma ou mais opções',
+            dropdownParent = $(document.body),
+            dataAppend = {},
+            onSelectionChange = null,
+        } = options;
+
+        selectElem = $(selectElem);
+        selectElem.select2({
+            theme: "bootstrap",
+            multiple: true,
+            language: {
+                inputTooShort: function (args) {
+                    var caracteres = args.minimum - args.input.length;
+                    return `Digite ${caracteres} ou mais caracteres`;
+                },
+                noResults: function () {
+                    return 'Nenhum resultado encontrado';
+                },
+                searching: function () {
+                    return 'Pesquisando...';
+                }
+            },
+            ajax: {
+                dataType: 'json',
+                delay: 250,
+                transport: function (params, success) {
+                    let text = params.data.term;
+                    let csrfToken = commonFunctions.getCsrfToken();
+
+                    let ajaxOptions = {
+                        url: urlApi,
+                        type: 'POST',
+                        data: { 'text': text },
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        success: function (data) {
+                            success(data.data);
+                        },
+                        error: function (xhr) {
+                            const error = commonFunctions.errorHandling(xhr);
+                            console.error(error.message);
+                        }
+                    };
+
+                    commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+
+                    return $.ajax(ajaxOptions);
+                },
+                processResults: function (data) {
+                    return {
+                        results: data ? data : []
+                    };
+                },
+                cache: true
+            },
+            placeholder: placeholder,
+            allowClear: true,
+            minimumInputLength: minimum,
+            dropdownParent: dropdownParent,
+        });
+
+        // Se o callback for fornecido, captura as mudanças na seleção
+        if (onSelectionChange) {
+            selectElem.on('select2:select select2:unselect', function () {
+                const selectedData = selectElem.select2('data'); // Obtém o array de seleções
+                const selectedValues = selectedData.map(item => item); // Apenas os IDs (ou outros campos de interesse)
+                onSelectionChange(selectedValues);
+            });
+        }
     }
 
     static getCsrfToken() {
@@ -894,19 +983,70 @@ export class commonFunctions {
      * @param {string|number} value - O valor correspondente ao texto.
      * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento.
      * @param {boolean} [options.selected=true] - Define se o valor será selecionado.
+     * @param {boolean} [options.clearExisting=false] - Define se as opções existentes serão limpas antes de adicionar a nova.
      * @param {boolean} [options.triggerChange=true] - Define se o evento 'change' será disparado.
      */
     static updateSelect2Value(selectElem, displayText, value, options = {}) {
         const {
             selected = true,
+            clearExisting = false,
             triggerChange = true
         } = options;
 
-        // Cria uma nova opção para o select2
-        const newOption = new Option(displayText, value, selected, selected);
+        // Converte para jQuery, se necessário
+        selectElem = $(selectElem);
 
-        // Limpa o select2 atual (se necessário) e adiciona a nova opção
-        $(selectElem).html(newOption);
+        // Limpa as opções existentes, se configurado
+        if (clearExisting) {
+            selectElem.empty();
+        }
+
+        // Verifica se o valor já existe no select2
+        let existingOption = selectElem.find(`option[value="${value}"]`);
+        if (existingOption.length === 0) {
+            // Cria e adiciona uma nova opção se ela não existir
+            const newOption = new Option(displayText, value, selected, selected);
+            selectElem.append(newOption);
+        } else if (selected) {
+            // Se já existir e a opção 'selected' for verdadeira, seleciona-a
+            existingOption.prop('selected', true);
+        }
+
+        // Dispara o evento 'change' se configurado
+        if (triggerChange) {
+            selectElem.trigger('change');
+        }
+    }
+
+    /**
+     * Atualiza manualmente um select2 com múltiplos valores e textos.
+     * 
+     * @param {jQuery} selectElem - O campo select2 que será atualizado (jQuery object).
+     * @param {Array<Object>} items - Array de objetos com os valores e textos para preencher o select2.
+     *      Exemplo: [{ id: '1', text: 'Opção 1' }, { id: '2', text: 'Opção 2' }]
+     * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento.
+     * @param {boolean} [options.clearExisting=true] - Define se as seleções existentes serão limpas antes de adicionar novas.
+     * @param {boolean} [options.triggerChange=true] - Define se o evento 'change' será disparado.
+     */
+    static updateSelect2MultipleValues(selectElem, items, options = {}) {
+        const {
+            clearExisting = true,
+            triggerChange = true
+        } = options;
+
+        // Converte para jQuery, se necessário
+        selectElem = $(selectElem);
+
+        // Limpa as opções existentes, se necessário
+        if (clearExisting) {
+            selectElem.empty();
+        }
+
+        // Itera sobre os itens e adiciona cada um como uma nova opção selecionada
+        items.forEach(item => {
+            const newOption = new Option(item.text, item.id, true, true);
+            selectElem.append(newOption);
+        });
 
         // Se triggerChange for verdadeiro, dispara o evento 'change' no select2
         if (triggerChange) {
@@ -1236,7 +1376,7 @@ export class commonFunctions {
     /**
      * Função genérica para lidar com modais e buscar dados
      * @param {string} selector O seletor do botão que abre o modal
-     * @param {Object} modalInstance A instância do modal (por exemplo, new modalContaTenant())
+     * @param {class} modalInstance A instância do modal (por exemplo, new modalContaTenant())
      * @param {Function} buscarFunc A função de busca (por exemplo, self.#buscarContas)
      * @param {Object} options Opções adicionais
      */
@@ -1247,6 +1387,8 @@ export class commonFunctions {
             commonFunctions.simulateLoading(btn);
 
             try {
+                modalInstance = new modalInstance();
+
                 let dataEnvModal = {
                     attributes: {
                         select: {

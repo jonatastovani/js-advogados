@@ -9,7 +9,6 @@ use App\Helpers\ValidationRecordsHelper;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
@@ -17,7 +16,6 @@ use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class FormaPagamentoTenantService extends Service
 {
-    use ConsultaSelect2ServiceTrait;
 
     public function __construct(FormaPagamentoTenant $model)
     {
