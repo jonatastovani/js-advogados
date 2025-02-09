@@ -1044,11 +1044,9 @@ export class commonFunctions {
             selectElem.empty();
         }
 
-        let selecionado = false;
         // Itera sobre os itens e adiciona cada um como uma nova opção selecionada
         items.forEach(item => {
-            const newOption = new Option(item.text, item.id, !selecionado, !selecionado);
-            selecionado = true;
+            const newOption = new Option(item.text, item.id, true, true);
             selectElem.append(newOption);
         });
 
