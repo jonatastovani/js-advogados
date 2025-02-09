@@ -227,7 +227,7 @@ export class modalDefault {
     _executeFocusElementOnModal(elem, timeOut = 500) {
         if (elem !== null && $(elem).length) {
             setTimeout(function () {
-                $(elem).focus();
+                $(elem).trigger('focus');
             }, timeOut);
         }
     }

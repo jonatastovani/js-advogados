@@ -166,64 +166,9 @@ class PageLancamentoGeralIndex extends templateSearch {
             self.#executarBusca();
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-
-            try {
-                const objModal = new modalLancamentoCategoriaTipoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarLancamentoCategoriaTipoTenant(response.selected.id);
-                    } else {
-                        self.#buscarLancamentoCategoriaTipoTenant();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
+        
+        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
             commonFunctions.generateNotification('Em desenvolvimento', 'warning');

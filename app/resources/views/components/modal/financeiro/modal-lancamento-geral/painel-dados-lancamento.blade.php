@@ -5,8 +5,8 @@
             <select name="categoria_id" id="categoria_id{{ $sufixo }}" class="form-select">
                 <option value="0">Selecione</option>
             </select>
-            <button type="button" class="btn btn-outline-primary openModalLancamentoCategoriaTipoTenant" tabindex="-1"><i
-                    class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-primary openModalLancamentoCategoriaTipoTenant"
+                tabindex="-1"><i class="bi bi-search"></i></button>
         </div>
     </div>
 </div>
@@ -25,7 +25,8 @@
             <select name="conta_id" id="conta_id{{ $sufixo }}" class="form-select">
                 <option value="0">Selecione</option>
             </select>
-            <button type="button" class="btn btn-outline-primary openModalConta" tabindex="-1"><i class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-primary openModalConta" tabindex="-1"><i
+                    class="bi bi-search"></i></button>
         </div>
     </div>
 </div>
@@ -51,6 +52,22 @@
         <label for="data_vencimento{{ $sufixo }}" class="form-label">Data Vencimento*</label>
         <input type="date" id="data_vencimento{{ $sufixo }}" name="data_vencimento"
             class="form-control text-center">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col mt-2">
+        <label for="tags{{ $sufixo }}" class="form-label">
+            Tags
+            <button type="button" class="ms-2 btn btn-outline-primary btn-sm border-0 openModalTag" tabindex="-1"><i
+                    class="bi bi-plus-circle"></i></button>
+        </label>
+        <div class="input-group">
+            <div class="input-group-select2">
+                <select name="tags" id="tags{{ $sufixo }}" class="select2-clear-form" style="width: 100%">
+                </select>
+            </div>
+        </div>
     </div>
 </div>
 

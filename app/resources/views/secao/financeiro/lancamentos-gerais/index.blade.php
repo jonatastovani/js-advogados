@@ -32,8 +32,6 @@
                 ],
                 'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
-                'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
-                'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
                     'data_vencimento' => ['nome' => 'Data vencimento'],
                     'data_quitado' => ['nome' => 'Data quitado'],

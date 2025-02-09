@@ -34,7 +34,6 @@ class PageServicoForm extends TemplateForm {
                 baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
                 baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
                 baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
-                baseTagTenant: window.apiRoutes.baseTagTenant,
             },
             sufixo: 'PageServicoForm',
             data: {
@@ -92,32 +91,6 @@ class PageServicoForm extends TemplateForm {
         const self = this;
 
         commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
-
-        // commonFunctions.addEventsSelect2Api($(`#tags${self._objConfigs.sufixo}`), `${self._objConfigs.url.baseTagTenant}/select2`, {
-        //     dataAppend: {
-        //         tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
-        //     }
-        // });
-
-        commonFunctions.addEventsSelect2ApiMulti($(`#tags${self._objConfigs.sufixo}`), `${self._objConfigs.url.baseTagTenant}/select2`, {
-            dataAppend: {
-                tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
-            },
-            onSelectionChange: function (selectedValues) {
-                console.log('Seleções atuais:');
-                console.log(selectedValues);
-            }
-        });
-
-        const selecoes = [{
-            id: "9e28a512-a597-4a27-a984-0f119dc8aa03",
-            text: "Água"
-        }, {
-            id: "9e28b3ea-ca5d-4960-8518-8f99047cf6bc",
-            text: "Energia"
-        }];
-
-        commonFunctions.updateSelect2MultipleValues($(`#tags${self._objConfigs.sufixo}`), selecoes);
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
@@ -940,8 +913,8 @@ class PageServicoForm extends TemplateForm {
         try {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selArea = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            const selector = $(`#area_juridica_id${self._objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true
         } catch (error) {
             return false;

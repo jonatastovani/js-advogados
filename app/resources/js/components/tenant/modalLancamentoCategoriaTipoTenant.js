@@ -100,7 +100,7 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
-                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao}">${item.descricao}</td>
+                <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
             </tr>
         `);
 

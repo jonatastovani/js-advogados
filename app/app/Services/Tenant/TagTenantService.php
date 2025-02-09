@@ -93,6 +93,18 @@ class TagTenantService extends Service
         return $resource;
     }
 
+    public function validacaoRecurso(string $id, Fluent $arrayErrors, array $options = []): Fluent
+    {
+        $validacaoTag = ValidationRecordsHelper::validateRecord($this->model::class, ['id' => $id]);
+        if (!$validacaoTag->count()) {
+            $arrayErrors["tag_{$id}"] = LogHelper::gerarLogDinamico(404, 'A Tag informada não existe ou foi excluída.', new Fluent(request()->all()))->error;
+        }
+        return new Fluent([
+            'arrayErrors' => $arrayErrors,
+            'resource' => $validacaoTag,
+        ]);
+    }
+
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [

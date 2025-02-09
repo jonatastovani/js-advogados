@@ -108,6 +108,7 @@
     <x-modal.tenant.modal-conta-tenant.modal />
     <x-modal.tenant.modal-lancamento-categoria-tipo-tenant.modal />
     <x-modal.comum.modal-participacao-participante.modal />
+    <x-modal.tenant.modal-tag-tenant.modal />
 @endpush
 
 @component('components.api.api-routes', [
@@ -118,6 +119,7 @@
         'baseContas' => route('api.tenant.conta'),
         'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
         'basePessoaPerfil' => route('api.pessoa.perfil'),
+        'baseTagTenant' => route('api.tenant.tag-tenant'),
     ],
 ])
 @endcomponent

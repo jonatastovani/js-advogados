@@ -15,6 +15,7 @@ use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use App\Traits\ParticipacaoTrait;
+use App\Traits\TagMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ use Illuminate\Support\Fluent;
 
 class LancamentoGeralService extends Service
 {
-    use ParticipacaoTrait;
+    use ParticipacaoTrait, TagMethodsTrait;
 
     public function __construct(
         LancamentoGeral $model,
@@ -70,8 +71,13 @@ class LancamentoGeralService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
                 $resource->save();
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
                 // $this->executarEventoWebsocket();
@@ -91,9 +97,15 @@ class LancamentoGeralService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
+
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
             });
@@ -193,7 +205,6 @@ class LancamentoGeralService extends Service
             if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoRessarcimento())) {
                 return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de informações.")->throwResponse();
             }
-
         } else {
             $resource = new $this->model;
         }
@@ -216,6 +227,10 @@ class LancamentoGeralService extends Service
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }
 
+        $validacaoTags = $this->verificacaoTags($requestData->tags, $arrayErrors);
+        $arrayErrors = $validacaoTags->arrayErrors;
+        $resource->tags = $validacaoTags->tags;
+
         $resource->fill($requestData->toArray());
 
         $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, ['conferencia_valor_consumido' => true]);
@@ -224,10 +239,6 @@ class LancamentoGeralService extends Service
         $porcentagemOcupada = round($porcentagemOcupada, 2);
         $arrayErrors = $participantesData->arrayErrors;
         $resource->participantes = $participantesData->participantes;
-
-        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        // }
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
@@ -280,6 +291,7 @@ class LancamentoGeralService extends Service
             'conta',
             'status',
             'agendamento',
+            'tags.tag',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',

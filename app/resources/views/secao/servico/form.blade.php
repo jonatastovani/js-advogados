@@ -115,7 +115,6 @@
     <x-modal.comum.modal-participacao-preset.modal />
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
-    <x-modal.tenant.modal-tag-tenant.modal />
 @endpush
 
 @push('scripts')
@@ -126,7 +125,6 @@
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
             'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
             'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
-            'baseTagTenant' => route('api.tenant.tag-tenant'),
         ],
     ])
     @endcomponent

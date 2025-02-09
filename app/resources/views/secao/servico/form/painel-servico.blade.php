@@ -25,18 +25,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col mt-2">
-                        <label for="tags{{ $sufixo }}" class="form-label">Tags</label>
-                        <div class="input-group">
-                            <div class="input-group-select2">
-                                <select name="tags" id="tags{{ $sufixo }}" class="select2-clear-form"
-                                    style="width: 100%">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row flex-fill">
                     <div class="col d-flex flex-column mt-2">
                         <div class="row">

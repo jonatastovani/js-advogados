@@ -3,6 +3,7 @@
 namespace App\Models\Financeiro;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\IdentificacaoTags;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\MovimentacaoContaTipo;
@@ -114,6 +115,11 @@ class LancamentoGeral extends Model
     public function participantes()
     {
         return $this->morphMany(ParticipacaoParticipante::class, 'parent');
+    }
+
+    public function tags()
+    {
+        return $this->morphMany(IdentificacaoTags::class, 'parent');
     }
 
     public function movimentacao_conta()

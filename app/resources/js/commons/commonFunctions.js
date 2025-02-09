@@ -910,7 +910,9 @@ export class commonFunctions {
         if (onSelectionChange) {
             selectElem.on('select2:select select2:unselect', function () {
                 const selectedData = selectElem.select2('data'); // Obtém o array de seleções
-                const selectedValues = selectedData.map(item => item); // Apenas os IDs (ou outros campos de interesse)
+                const selectedValues = selectedData.map(item => {
+                    return { id: item.id, text: item.text };
+                }); // Apenas os IDs (ou outros campos de interesse)
                 onSelectionChange(selectedValues);
             });
         }
@@ -1042,9 +1044,11 @@ export class commonFunctions {
             selectElem.empty();
         }
 
+        let selecionado = false;
         // Itera sobre os itens e adiciona cada um como uma nova opção selecionada
         items.forEach(item => {
-            const newOption = new Option(item.text, item.id, true, true);
+            const newOption = new Option(item.text, item.id, !selecionado, !selecionado);
+            selecionado = true;
             selectElem.append(newOption);
         });
 
@@ -1376,18 +1380,19 @@ export class commonFunctions {
     /**
      * Função genérica para lidar com modais e buscar dados
      * @param {string} selector O seletor do botão que abre o modal
-     * @param {class} modalInstance A instância do modal (por exemplo, new modalContaTenant())
+     * @param {class} modalClass A classe do modal (por exemplo, modalContaTenant)
      * @param {Function} buscarFunc A função de busca (por exemplo, self.#buscarContas)
      * @param {Object} options Opções adicionais
+     * @param {Object} options.dataEnvAppend Dados adicionais que serão passados ao modal
      */
-    static handleModal(self, selector, modalInstance, buscarFunc, options = {}) {
+    static handleModal(self, selector, modalClass, buscarFunc, options = {}) {
 
         $(selector).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
 
             try {
-                modalInstance = new modalInstance();
+                modalClass = new modalClass();
 
                 let dataEnvModal = {
                     attributes: {
@@ -1402,13 +1407,13 @@ export class commonFunctions {
                     commonFunctions.deepMergeObject(dataEnvModal, options.dataEnvAppend)
                 }
 
-                modalInstance.setDataEnvModal = dataEnvModal;
+                modalClass.setDataEnvModal = dataEnvModal;
 
                 if (typeof self._modalHideShow === 'function') {
                     await self._modalHideShow(false);
                 }
 
-                const response = await modalInstance.modalOpen();
+                const response = await modalClass.modalOpen();
 
                 if (response.refresh) {
                     if (response.selected) {

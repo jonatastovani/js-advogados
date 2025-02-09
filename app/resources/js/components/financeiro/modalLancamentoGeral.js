@@ -6,6 +6,7 @@ import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { modalContaTenant } from "../tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
+import { modalTagTenant } from "../tenant/modalTagTenant";
 
 export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
@@ -26,6 +27,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
             basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
+            baseTagTenant: window.apiRoutes.baseTagTenant,
         },
         sufixo: 'ModalLancamentoGeral',
         data: {
@@ -113,6 +115,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             }
             await commonFunctions.loadingModalDisplay(false);
             await self._modalHideShow();
+            self.#addEventoSelect2();
             return await self._modalOpen();
 
         } catch (error) {
@@ -128,58 +131,22 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const modal = $(self._idModal);
 
         self._modalReset();
-        modal.find('.openModalConta').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
-            }
-        });
 
-        modal.find('.openModalLancamentoCategoriaTipoTenant').on('click', async function () {
+        commonFunctions.handleModal(self, modal.find('.openModalConta'), modalContaTenant, self.#buscarContas.bind(self));
+
+        commonFunctions.handleModal(self, modal.find('.openModalLancamentoCategoriaTipoTenant'), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+
+        modal.find('.openModalTag').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoCategoriaTipoTenant();
+                const objModal = new modalTagTenant();
                 objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
+                    tag_tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
                 }
                 await self._modalHideShow(false);
                 const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarLancamentoCategoriaTipoTenant(response.selected.id);
-                    } else {
-                        self.#buscarLancamentoCategoriaTipoTenant();
-                    }
-                }
+                self._executeFocusElementOnModal(this);
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
@@ -221,6 +188,23 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         }
 
         self.#visualizacaoGuiaParticipantes();
+    }
+
+    /** Aplicar após a visibilidade do modal ser show */
+    #addEventoSelect2() {
+        const self = this;
+        const modal = $(self._idModal);
+
+        commonFunctions.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
+            dataAppend: {
+                tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
+            },
+            dropdownParent: modal,
+            onSelectionChange: function (selectedValues) {
+                console.log('Seleções atuais:');
+                console.log(selectedValues);
+            }
+        });
     }
 
     #visualizacaoModoOperacaoAgendamento(status) {
@@ -365,8 +349,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     _modalReset() {
         super._modalReset();
         const self = this;
-        $(self.getIdModal).find(`#dados-lancamento${self._objConfigs.sufixo}-tab`).trigger('click');
-        $(self.getIdModal).find(`#particip${self._objConfigs.sufixo}-tab`).trigger('click');
+        $(self.getIdModal).find(`#dados-lancamento${self.getSufixo}-tab`).trigger('click');
         self.#agendamentoRecorrenteResetar(false);
         self.#toggleCronInputs(false);
     }
@@ -436,9 +419,50 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
             form.find('input[name="observacao"]').val(responseData.observacao);
 
+            // commonFunctions.updateSelect2MultipleValues($(`#tags${self.getSufixo}`), responseData.tags.map(item => {
+            //     return {
+            //         id: item.tag.id,
+            //         text: item.tag.nome,
+            //     }
+            // }));
+
+            self.#atualizarSelect2AposModalShow(
+                `#tags${self.getSufixo}`,
+                responseData.tags.map(item => {
+                    return {
+                        id: item.tag.id,
+                        text: item.tag.nome,
+                    };
+                }),
+                self.getIdModal
+            );
+
             return true;
         }
         throw new Error("Erro ao preencher formulário: Dados não encontrados.");
+    }
+
+    /**
+     * Aguarda até que o modal fique visível para atualizar o select2.
+     * 
+     * @param {string|jQuery} selectElem - O seletor do campo select2.
+     * @param {Array<Object>} items - Array de objetos com os valores e textos para preencher o select2.
+     *      Exemplo: [{ id: '1', text: 'Opção 1' }, { id: '2', text: 'Opção 2' }]
+     * @param {string|jQuery} modalSelector - O seletor do modal a ser observado.
+     */
+    #atualizarSelect2AposModalShow(selectElem, items, modalSelector) {
+        const modal = $(modalSelector);
+
+        // Verifica se o modal já está visível
+        if (modal.hasClass('show')) {
+            commonFunctions.updateSelect2MultipleValues($(selectElem), items);
+        } else {
+            // Adiciona um listener para quando o modal for exibido
+            modal.on('shown.bs.modal', function () {
+                commonFunctions.updateSelect2MultipleValues($(selectElem), items);
+                modal.off('shown.bs.modal'); // Remove o listener após a execução
+            });
+        }
     }
 
     async #buscarContas(selected_id = null) {
@@ -478,12 +502,24 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         }
     }
 
+    #getTags(options = {}) {
+        const self = this;
+        const {
+            selector = `#tags${self.getSufixo}`,
+        } = options;
+
+        return $(selector).select2('data').map(item => {
+            return item.id;
+        });
+    }
+
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.valor_esperado = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
         data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
+        data.tags = self.#getTags();
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

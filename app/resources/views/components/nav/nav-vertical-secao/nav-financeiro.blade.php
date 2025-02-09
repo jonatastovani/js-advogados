@@ -35,11 +35,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('financeiro.lancamentos-ressarcimentos.index') }}">
-                        <span class="nav-link-text">Lançamentos de Ressarcimentos</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.lancamentos-servicos.index') }}">
                         <span class="nav-link-text">Lançamentos de Serviços</span>
                     </a>
@@ -52,6 +47,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('financeiro.painel-contas.index') }}">
                         <span class="nav-link-text">Painel de Contas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('financeiro.lancamentos-ressarcimentos.index') }}">
+                        <span class="nav-link-text">Ressarcimentos/Compensações</span>
                     </a>
                 </li>
             </ul>
