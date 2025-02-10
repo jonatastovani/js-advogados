@@ -190,21 +190,29 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         self.#visualizacaoGuiaParticipantes();
     }
 
-    /** Aplicar após a visibilidade do modal ser show */
+    /** Atribui o evento do select2 ao exibir o modal */
     #addEventoSelect2() {
         const self = this;
         const modal = $(self._idModal);
 
-        commonFunctions.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
-            dataAppend: {
-                tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
-            },
-            dropdownParent: modal,
-            onSelectionChange: function (selectedValues) {
-                console.log('Seleções atuais:');
-                console.log(selectedValues);
-            }
+        modal.on('shown.bs.modal.addEventSelect2', function () {
+            commonFunctions.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
+                dataAppend: {
+                    tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
+                },
+                dropdownParent: modal,
+                onSelectionChange: function (selectedValues) {
+                    console.log('Seleções atuais:', selectedValues);
+                }
+            });
+            console.log('Evento select2 configurado.');
+            modal.off('shown.bs.modal.addEventSelect2'); // Remove o listener após a execução
         });
+
+        // Se o modal já estiver visível, executa imediatamente
+        if (modal.hasClass('show')) {
+            modal.trigger('shown.bs.modal.addEventSelect2');
+        }
     }
 
     #visualizacaoModoOperacaoAgendamento(status) {
@@ -426,7 +434,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             //     }
             // }));
 
-            self.#atualizarSelect2AposModalShow(
+            self.#atualizarSelect2QuandoPronto(
                 `#tags${self.getSufixo}`,
                 responseData.tags.map(item => {
                     return {
@@ -459,8 +467,34 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         } else {
             // Adiciona um listener para quando o modal for exibido
             modal.on('shown.bs.modal', function () {
+                console.log('Modal exibido, atualizando select2');
                 commonFunctions.updateSelect2MultipleValues($(selectElem), items);
                 modal.off('shown.bs.modal'); // Remove o listener após a execução
+            });
+        }
+    }
+    /**
+     * Atualiza o select2 com múltiplas seleções após o modal ser exibido e o select2 estar configurado.
+     * 
+     * @param {string|jQuery} modalSelector - O seletor do modal.
+     * @param {string|jQuery} selectElem - O seletor do campo select2.
+     * @param {Array<Object>} items - Array de objetos com os valores e textos para preencher o select2.
+     */
+    #atualizarSelect2QuandoPronto(modalSelector, selectElem, items) {
+        const modal = $(modalSelector);
+
+        modal.on('shown.bs.modal.updateSelect2', function () {
+            console.log('Atualizando valores do select2...');
+            commonFunctions.updateSelect2MultipleValues($(selectElem), items);
+            modal.off('shown.bs.modal.updateSelect2'); // Remove o listener após a execução
+        });
+
+        // Se o modal já estiver visível, executa imediatamente
+        if (modal.hasClass('show')) {
+            modal.trigger('shown.bs.modal.updateSelect2');
+        } else {
+            modal.on('shown.bs.modal', function () {
+                modal.trigger('shown.bs.modal.updateSelect2');
             });
         }
     }
