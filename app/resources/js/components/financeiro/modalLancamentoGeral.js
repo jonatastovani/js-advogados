@@ -96,7 +96,6 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
     async modalOpen() {
         const self = this;
-        let open = true;
 
         try {
             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
@@ -191,28 +190,31 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     }
 
     /** Atribui o evento do select2 ao exibir o modal */
-    #addEventoSelect2() {
+    async #addEventoSelect2() {
         const self = this;
         const modal = $(self._idModal);
 
-        modal.on('shown.bs.modal.addEventSelect2', function () {
-            commonFunctions.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
-                dataAppend: {
-                    tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
-                },
-                dropdownParent: modal,
-                onSelectionChange: function (selectedValues) {
-                    console.log('Seleções atuais:', selectedValues);
-                }
+        return new Promise((resolve) => {
+            modal.on('shown.bs.modal.addEventSelect2', function () {
+                commonFunctions.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
+                    dataAppend: {
+                        tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
+                    },
+                    dropdownParent: modal,
+                    onSelectionChange: function (selectedValues) {
+                        console.log('Seleções atuais:', selectedValues);
+                    }
+                });
+                console.log('Evento select2 configurado.');
+                modal.off('shown.bs.modal.addEventSelect2'); // Remove o listener após a execução
+                resolve();  // Resolve quando o evento for configurado
             });
-            console.log('Evento select2 configurado.');
-            modal.off('shown.bs.modal.addEventSelect2'); // Remove o listener após a execução
-        });
 
-        // Se o modal já estiver visível, executa imediatamente
-        if (modal.hasClass('show')) {
-            modal.trigger('shown.bs.modal.addEventSelect2');
-        }
+            // Se o modal já estiver visível, executa imediatamente
+            if (modal.hasClass('show')) {
+                modal.trigger('shown.bs.modal.addEventSelect2');
+            }
+        });
     }
 
     #visualizacaoModoOperacaoAgendamento(status) {
@@ -427,13 +429,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             form.find('input[name="data_vencimento"]').val(responseData.data_vencimento);
             form.find('input[name="observacao"]').val(responseData.observacao);
 
-            // commonFunctions.updateSelect2MultipleValues($(`#tags${self.getSufixo}`), responseData.tags.map(item => {
-            //     return {
-            //         id: item.tag.id,
-            //         text: item.tag.nome,
-            //     }
-            // }));
-
+            // Aguarda o select2 ser configurado antes de preencher as seleções múltiplas
             self.#atualizarSelect2QuandoPronto(
                 `#tags${self.getSufixo}`,
                 responseData.tags.map(item => {
@@ -473,6 +469,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             });
         }
     }
+
     /**
      * Atualiza o select2 com múltiplas seleções após o modal ser exibido e o select2 estar configurado.
      * 
@@ -480,8 +477,11 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
      * @param {string|jQuery} selectElem - O seletor do campo select2.
      * @param {Array<Object>} items - Array de objetos com os valores e textos para preencher o select2.
      */
-    #atualizarSelect2QuandoPronto(modalSelector, selectElem, items) {
+    async #atualizarSelect2QuandoPronto(modalSelector, selectElem, items) {
+        const self = this
         const modal = $(modalSelector);
+
+        await self.#addEventoSelect2();
 
         modal.on('shown.bs.modal.updateSelect2', function () {
             console.log('Atualizando valores do select2...');
