@@ -60,6 +60,8 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
             'participantes.*.valor_tipo' => 'required|string|in:porcentagem,valor_fixo',
             'participantes.*.valor' => 'required|numeric|min:0.01',
             'participantes.*.observacao' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'nullable|uuid',
         ];
 
         return $rules;

@@ -118,7 +118,7 @@ class FinanceiroController extends Controller
                     $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
 
                     $dadosEspecificos = $participacao['descricao_automatica'];
-                    $dadosEspecificos .= " - NR#{$parent['numero_ressarcimento']}";
+                    $dadosEspecificos .= " - NR#{$parent['numero_lancamento']}";
                     $dadosEspecificos .= " - ({$parent['categoria']['nome']})";
                     $dadosEspecificos .= " - {$parent['descricao']}";
                     break;

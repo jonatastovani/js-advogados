@@ -192,7 +192,7 @@ class LancamentoAgendamentoHelper
     }
 
     /**
-     * Executa o lançamento de um agendamento na tabela LancamentoGeral.
+     * Executa o lançamento de um agendamento conforme o tipo de agendamento.
      *
      * @param LancamentoAgendamento $agendamento Agendamento a ser lançado.
      * @param string $dataExecucao Data de execução do lançamento.
@@ -201,23 +201,61 @@ class LancamentoAgendamentoHelper
     private static function executarLancamento(LancamentoAgendamento $agendamento, string $dataExecucao): bool
     {
         try {
-            $novoLancamento = LancamentoGeral::create([
-                'movimentacao_tipo_id' => $agendamento->movimentacao_tipo_id,
-                'descricao' => $agendamento->descricao,
-                'valor_esperado' => $agendamento->valor_esperado,
-                'data_vencimento' => $dataExecucao,
-                'categoria_id' => $agendamento->categoria_id,
-                'conta_id' => $agendamento->conta_id,
-                'observacao' => $agendamento->observacao,
-                'agendamento_id' => $agendamento->id,
-                'status_id' => LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral(),
-                'tenant_id' => $agendamento->tenant_id,
-                'domain_id' => $agendamento->domain_id,
-                'created_user_id' => $agendamento->created_user_id,
-            ]);
+            $novoLancamento = (new LancamentoGeral())->fill($agendamento->toArray());
+            $novoLancamento->data_vencimento = $dataExecucao;
+            $novoLancamento->agendamento_id = $agendamento->id;
+            $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
+
+
+            return true;
+        } catch (\Exception $e) {
+            // Log do erro na tentativa de salvar
+            Log::error("Erro ao criar lançamento geral para agendamento ID {$agendamento->id}: {$e->getMessage()}");
+            return false;
+        }
+    }
+
+    private static function executarReplicacaoParticipante($agendamento, $novoLancamento)
+    {
+        foreach ($agendamento->participantes as $participante) {
+
+            $novoParticipante = (new ParticipacaoParticipante())->fill(
+                // Remover o ID e colocar o ID do novo lançamento
+                Arr::except($participante->toArray(), ['id'])
+            );
+            $novoParticipante->parent_id = $novoLancamento->id;
+            $novoParticipante->parent_type = $novoLancamento->getMorphClass();
+            $novoParticipante->save();
+
+            foreach ($participante->integrantes as $integrante) {
+
+                $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
+                    // Remover o ID e colocar o ID do novo participante
+                    Arr::except($integrante->toArray(), ['id'])
+                );
+                $novoIntegrante->participante_id = $novoParticipante->id;
+                $novoIntegrante->save();
+            }
+        }
+    }
+
+    /**
+     * Executa o lançamento de um agendamento na tabela LancamentoGeral.
+     *
+     * @param LancamentoAgendamento $agendamento Agendamento a ser lançado.
+     * @param string $dataExecucao Data de execução do lançamento.
+     * 
+     */
+    private static function executarLancamentoGeral(LancamentoAgendamento $agendamento, string $dataExecucao): bool
+    {
+        try {
+            $novoLancamento = (new LancamentoGeral())->fill($agendamento->toArray());
+            $novoLancamento->data_vencimento = $dataExecucao;
+            $novoLancamento->agendamento_id = $agendamento->id;
+            $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
 
             foreach ($agendamento->participantes as $participante) {
-         
+
                 $novoParticipante = (new ParticipacaoParticipante())->fill(
                     // Remover o ID e colocar o ID do novo lançamento
                     Arr::except($participante->toArray(), ['id'])
@@ -227,7 +265,7 @@ class LancamentoAgendamentoHelper
                 $novoParticipante->save();
 
                 foreach ($participante->integrantes as $integrante) {
-                  
+
                     $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
                         // Remover o ID e colocar o ID do novo participante
                         Arr::except($integrante->toArray(), ['id'])

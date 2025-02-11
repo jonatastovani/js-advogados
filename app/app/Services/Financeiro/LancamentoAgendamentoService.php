@@ -16,6 +16,7 @@ use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use App\Traits\CronValidationTrait;
 use App\Traits\ParticipacaoTrait;
+use App\Traits\TagMethodsTrait;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ use Illuminate\Support\Fluent;
 
 class LancamentoAgendamentoService extends Service
 {
-    use ParticipacaoTrait, CronValidationTrait;
+    use ParticipacaoTrait, CronValidationTrait, TagMethodsTrait;
 
     public function __construct(
         LancamentoAgendamento $model,
@@ -165,10 +166,15 @@ class LancamentoAgendamentoService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 
                 LancamentoAgendamentoHelper::processarAgendamento($resource->id);
 
@@ -189,6 +195,9 @@ class LancamentoAgendamentoService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
 
                 // Se for resetar a execução, deleta-se todos os agendamentos futuros que não estiverem liquidados
@@ -208,6 +217,8 @@ class LancamentoAgendamentoService extends Service
 
                     $resource->save();
                 }
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 
                 LancamentoAgendamentoHelper::processarAgendamento($resource->id);
 
@@ -242,6 +253,10 @@ class LancamentoAgendamentoService extends Service
         if (!$validacaoContaId->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }
+
+        $validacaoTags = $this->verificacaoTags($requestData->tags, $arrayErrors);
+        $arrayErrors = $validacaoTags->arrayErrors;
+        $resource->tags = $validacaoTags->tags;
 
         $resource->fill($requestData->toArray());
 

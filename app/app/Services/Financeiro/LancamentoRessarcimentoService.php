@@ -15,6 +15,7 @@ use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use App\Traits\ParticipacaoTrait;
+use App\Traits\TagMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ use Illuminate\Support\Fluent;
 
 class LancamentoRessarcimentoService extends Service
 {
-    use ParticipacaoTrait;
+    use ParticipacaoTrait, TagMethodsTrait;
 
     public function __construct(
         LancamentoRessarcimento $model,
@@ -72,6 +73,9 @@ class LancamentoRessarcimentoService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoRessarcimento();
                 $resource->save();
 
@@ -80,6 +84,8 @@ class LancamentoRessarcimentoService extends Service
                 $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
 
                 $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -98,6 +104,9 @@ class LancamentoRessarcimentoService extends Service
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
+                $tags = $resource->tags;
+                unset($resource->tags);
+
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
@@ -110,6 +119,8 @@ class LancamentoRessarcimentoService extends Service
 
                 $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
                 $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+
+                $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -230,6 +241,10 @@ class LancamentoRessarcimentoService extends Service
         if (!$validacaoContaId->count()) {
             $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
         }
+
+        $validacaoTags = $this->verificacaoTags($requestData->tags, $arrayErrors);
+        $arrayErrors = $validacaoTags->arrayErrors;
+        $resource->tags = $validacaoTags->tags;
 
         $resource->fill($requestData->toArray());
 

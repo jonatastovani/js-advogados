@@ -367,8 +367,8 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 dadosEspecificos = item.descricao_automatica;
                 dadosEspecificosTitle = `Descrição Automática ${item.descricao_automatica}`;
 
-                dadosEspecificos += ` - NR#${parent.numero_ressarcimento}`;
-                dadosEspecificosTitle += ` - Número do Ressarcimento ${parent.numero_ressarcimento}`;
+                dadosEspecificos += ` - NR#${parent.numero_lancamento}`;
+                dadosEspecificosTitle += ` - Número do Ressarcimento ${parent.numero_lancamento}`;
 
                 dadosEspecificos += ` - (${parent.categoria.nome})`;
                 dadosEspecificosTitle += ` - (Categoria ${parent.categoria.nome})`;

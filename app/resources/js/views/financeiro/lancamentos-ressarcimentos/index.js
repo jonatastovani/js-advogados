@@ -192,7 +192,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
 
         let strBtns = self.#htmlBtns(item);
 
-        const numero_ressarcimento = item.numero_ressarcimento;
+        const numero_lancamento = item.numero_lancamento;
         const status = item.status.nome;
         const tipoMovimentacao = item.movimentacao_tipo.nome;
         const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
@@ -214,7 +214,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
                 </td>
                 <td class="text-nowrap text-truncate" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
                 <td class="text-nowrap text-truncate" title="${status}">${status}</td>
-                <td class="text-nowrap" title="${numero_ressarcimento}">${numero_ressarcimento}</td>
+                <td class="text-nowrap" title="${numero_lancamento}">${numero_lancamento}</td>
                 <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-truncate" title="${categoriaTipo}">${categoriaTipo}</td>
                 <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>

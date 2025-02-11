@@ -27,6 +27,8 @@ class LancamentoRessarcimentoFormRequestBase extends BaseFormRequest
             'participantes.*.valor_tipo' => 'required|string|in:porcentagem,valor_fixo',
             'participantes.*.valor' => 'required|numeric|min:0.01',
             'participantes.*.observacao' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'nullable|uuid',
             // 'participantes.*.integrantes' => 'nullable|required_if:participantes.*.participacao_registro_tipo_id,2|array|min:1',
             // 'participantes.*.integrantes.*.participacao_registro_tipo_id' => 'required|integer|in:1',
             // 'participantes.*.integrantes.*.referencia_id' => 'required|uuid',

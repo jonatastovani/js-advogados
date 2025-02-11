@@ -101,11 +101,11 @@ class LancamentoRessarcimento extends Model
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano
-            if (!$model->numero_ressarcimento) {
+            if (!$model->numero_lancamento) {
                 $tenantId = $model->tenant_id ?? tenant('id');
                 $sequencia = NumeracaoSequencialHelper::obterProximoNumero('lancamento_ressarcimento', $tenantId);
-                // Preenche o campo numero_ressarcimento com o número obtido
-                $model->numero_ressarcimento = $sequencia['numero'];
+                // Preenche o campo numero_lancamento com o número obtido
+                $model->numero_lancamento = $sequencia['numero'];
 
                 // Armazena a sequência temporariamente para ser usada após a criação
                 self::$sequenciaTemporaria = $sequencia;

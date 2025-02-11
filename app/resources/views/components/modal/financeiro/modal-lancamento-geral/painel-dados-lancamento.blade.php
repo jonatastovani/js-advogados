@@ -59,7 +59,7 @@
     <div class="col mt-2">
         <label for="tags{{ $sufixo }}" class="form-label">
             Tags
-            <button type="button" class="ms-2 btn btn-outline-primary btn-sm border-0 openModalTag" tabindex="-1"><i
+            <button type="button" class="btn btn-outline-primary btn-sm border-0 openModalTag" tabindex="-1"><i
                     class="bi bi-plus-circle"></i></button>
         </label>
         <div class="input-group">

@@ -46,7 +46,6 @@ class LancamentoGeral extends Model
         'categoria_id',
         'conta_id',
         'observacao',
-        'agendamento_id',
         'status_id',
         'tenant_id',
         'domain_id',

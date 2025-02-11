@@ -26,6 +26,8 @@ return new class extends Migration
             $this->addTenantIDField($table);
             $this->addDomainIDField($table);
 
+            $table->string('tipo_agendamento');
+
             $table->smallInteger('movimentacao_tipo_id');
             $table->foreign('movimentacao_tipo_id')->references('id')->on((new App\Models\Referencias\MovimentacaoContaTipo)->getTableName());
 
