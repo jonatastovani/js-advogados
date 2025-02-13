@@ -365,7 +365,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 movimentacaoTipo = parent.parceiro_movimentacao_tipo.nome;
 
                 dadosEspecificos = item.descricao_automatica;
-                dadosEspecificosTitle = `Descrição Automática ${item.descricao_automatica}`;
+                dadosEspecificosTitle = `Descrição Automática: ${item.descricao_automatica}`;
 
                 dadosEspecificos += ` - NR#${parent.numero_lancamento}`;
                 dadosEspecificosTitle += ` - Número do Ressarcimento ${parent.numero_lancamento}`;
@@ -374,7 +374,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                 dadosEspecificosTitle += ` - (Categoria ${parent.categoria.nome})`;
 
                 dadosEspecificos += ` - ${parent.descricao}`;
-                dadosEspecificosTitle += ` - Descrição ${parent.descricao}`;
+                dadosEspecificosTitle += ` - Descrição: ${parent.descricao}`;
 
                 break;
 

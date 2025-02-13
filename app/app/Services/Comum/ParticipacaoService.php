@@ -203,18 +203,36 @@ class ParticipacaoService extends Service
         return $this->storePadrao($requestData, $requestData->lancamento_uuid, $this->modelLancamentoGeral, ['conferencia_valor_consumido' => true]);
     }
 
+    // public function destroyPadrao(Fluent $requestData, string $idParent, Model $modelParent)
+    // {
+    //     // Inicia a transação
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $this->modelParticipante::where('parent_id', $idParent)
+    //             ->where('parent_type', $modelParent->getMorphClass())->delete();
+
+    //         DB::commit();
+    //         // $this->executarEventoWebsocket();
+    //         return [];
+    //     } catch (\Exception $e) {
+    //         return $this->gerarLogExceptionErroSalvar($e);
+    //     }
+    // }
+
     public function destroyPadrao(Fluent $requestData, string $idParent, Model $modelParent)
     {
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            $this->modelParticipante::where('parent_id', $idParent)
-                ->where('parent_type', $modelParent->getMorphClass())->delete();
+            return DB::transaction(function () use ($idParent, $modelParent) {
 
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return [];
+                $resource = $modelParent::find($idParent);
+                if ($resource) {
+                    $this->destroyCascade($resource, ['participantes.integrantes']);
+                }
+
+                // $this->executarEventoWebsocket();
+                return [];
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }

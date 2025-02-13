@@ -156,6 +156,7 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
+                    <th class="text-nowrap" title="Tipo de agendamento">Tipo Agendamento</th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Categoria</th>

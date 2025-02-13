@@ -221,11 +221,12 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         const modal = $(self._idModal);
 
         modal.on('shown.bs.modal.addEventSelect2', function () {
-            Select2Helpers.addEventsSelect2ApiMulti(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
+            Select2Helpers.addEventsSelect2Api(modal.find('select[name="tags"]'), `${self._objConfigs.url.baseTagTenant}/select2`, {
                 dataAppend: {
                     tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
                 },
                 dropdownParent: modal,
+                multiple: true,
                 onSelectionChange: function (selectedValues) {
                     // console.log('Seleções atuais:', selectedValues);
                 }

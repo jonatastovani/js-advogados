@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 class LancamentoAgendamentoHelper
 {
+    use ParticipacaoTrait;
 
     /**
      * Executa todos os agendamentos de todos os tenants.
@@ -231,13 +232,13 @@ class LancamentoAgendamentoHelper
             self::replicarTags($agendamento, $novoLancamento);
 
             if ($agendamento->agendamento_tipo == LancamentoTipoEnum::LANCAMENTO_RESSARCIMENTO->value) {
-                app(ParticipacaoTrait::class)->lancarParticipantesValorRecebidoDividido($novoLancamento, $novoLancamento->participantes()->with('integrantes')->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+                (new self())->lancarParticipantesValorRecebidoDividido($novoLancamento, $novoLancamento->participantes()->with('integrantes')->get()->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
             }
 
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar
-            Log::error("Erro ao criar lançamento geral para agendamento ID ({$agendamento->id}): {$e->getMessage()}");
+            Log::error("Erro ao criar lancamento para agendamento ID ({$agendamento->id}): {$e->getMessage()}");
             return false;
         }
     }

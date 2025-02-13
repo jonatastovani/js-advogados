@@ -3,107 +3,39 @@ import { commonFunctions } from "../commons/commonFunctions";
 export class Select2Helpers {
 
     /**
-     * Adiciona eventos para um elemento select2.
-     * @param {jQuery} elem - O elemento jQuery ao qual o select2 será aplicado.
-     * @param {string} urlApi - A URL da API para recuperar os dados do servidor.
-     * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento do select2.
-     * @param {number} [options.minimum=3] - O número mínimo de caracteres necessários para acionar a pesquisa.
-     * @param {string} [options.placeholder='Selecione uma opção'] - O texto de espaço reservado para o select2.
-     * @param {jQuery} [options.dropdownParent=$(document.body)] - O elemento ao qual o dropdown do select2 será anexado.
-     */
-    static addEventsSelect2Api(elem, urlApi, options = {}) {
-        const {
-            minimum = 3,
-            placeholder = 'Selecione uma opção',
-            dropdownParent = $(document.body),
-            dataAppend = {},
-        } = options;
-
-        elem = $(elem);
-        // elem.select2({
-        //     theme: 'bootstrap-5'
-        // });
-        elem.select2({
-            theme: "bootstrap",
-            language: {
-                inputTooShort: function (args) {
-                    var caracteres = args.minimum - args.input.length;
-                    return `Digite ${caracteres} ou mais caracteres`;
-                },
-                noResults: function () {
-                    return 'Nenhum resultado encontrado';
-                },
-                searching: function () {
-                    return 'Pesquisando...';
-                }
-            },
-            ajax: {
-                dataType: 'json',
-                delay: 250,
-                transport: function (params, success) {
-                    let text = params.data.term; // Captura o valor do texto
-                    let csrfToken = Select2Helpers.getCsrfToken();
-
-                    // Adiciona o valor do texto ao corpo da solicitação
-                    let ajaxOptions = {
-                        url: urlApi,
-                        type: 'POST',
-                        data: { 'text': text },
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,  // Inclui o CSRF token no cabeçalho
-                            'Accept': 'application/json',
-                        },
-                        success: function (data) {
-                            success(data.data);
-                        },
-                        error: function (xhr, textStatus, errorThrown) {
-                            const error = Select2Helpers.errorHandling(xhr);
-                            console.error(error.message);
-                            // commonFunctions.generateNotification(error.message, 'error');
-                        }
-                    };
-
-                    commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
-
-                    return $.ajax(ajaxOptions);
-                },
-                processResults: function (data) {
-                    return {
-                        results: data ? data : []
-                    };
-                },
-                cache: true
-            },
-            placeholder: placeholder,
-            allowClear: true,
-            minimumInputLength: minimum,
-            dropdownParent: dropdownParent,
-        });
-    }
-
-    /**
-     * Adiciona eventos para um elemento select2 com suporte a múltiplas seleções.
+     * Adiciona eventos para um elemento select2, suportando seleção única ou múltipla.
+     * 
      * @param {jQuery} selectElem - O elemento jQuery ao qual o select2 será aplicado.
      * @param {string} urlApi - A URL da API para recuperar os dados do servidor.
      * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento do select2.
+     * @param {boolean} [options.multiple=false] - Define se a seleção será múltipla.
      * @param {number} [options.minimum=3] - O número mínimo de caracteres necessários para acionar a pesquisa.
-     * @param {string} [options.placeholder='Selecione uma ou mais opções'] - O texto de espaço reservado para o select2.
+     * @param {string} [options.placeholder='Selecione uma opção'] - O texto de espaço reservado para o select2.
      * @param {jQuery} [options.dropdownParent=$(document.body)] - O elemento ao qual o dropdown do select2 será anexado.
      * @param {Function} [options.onSelectionChange] - Callback chamado quando a seleção mudar.
      */
-    static addEventsSelect2ApiMulti(selectElem, urlApi, options = {}) {
+    static addEventsSelect2Api(selectElem, urlApi, options = {}) {
         const {
+            multiple = false,
             minimum = 3,
-            placeholder = 'Selecione uma ou mais opções',
+            placeholder = multiple ? 'Selecione uma ou mais opções' : 'Selecione uma opção',
             dropdownParent = $(document.body),
             dataAppend = {},
             onSelectionChange = null,
         } = options;
 
         selectElem = $(selectElem);
+
+        // 🔥 Verifica se o select2 já foi iniciado antes de destruí-lo
+        if (selectElem.hasClass('select2-hidden-accessible')) {
+            selectElem.val(null).trigger('change'); // Remove seleções ativas
+            selectElem.select2('destroy'); // Destrói a instância anterior do select2
+        }
+
+        // 🔥 Reatribui o select2 com os novos eventos
         selectElem.select2({
             theme: "bootstrap",
-            multiple: true,
+            multiple: multiple, // Define se será múltipla ou não
             language: {
                 inputTooShort: function (args) {
                     var caracteres = args.minimum - args.input.length;
@@ -157,17 +89,204 @@ export class Select2Helpers {
             dropdownParent: dropdownParent,
         });
 
-        // Se o callback for fornecido, captura as mudanças na seleção
+        // 🔥 Agora que o select2 foi inicializado, podemos limpar a lista de opções
+        selectElem.empty();
+
+        // 🔥 Se o callback for fornecido, captura as mudanças na seleção
         if (onSelectionChange) {
             selectElem.on('select2:select select2:unselect', function () {
                 const selectedData = selectElem.select2('data'); // Obtém o array de seleções
-                const selectedValues = selectedData.map(item => {
-                    return { id: item.id, text: item.text };
-                }); // Apenas os IDs (ou outros campos de interesse)
+                const selectedValues = selectedData.map(item => ({
+                    id: item.id,
+                    text: item.text
+                })); // Apenas os IDs e textos das opções selecionadas
                 onSelectionChange(selectedValues);
             });
         }
     }
+
+    // /**
+    //  * Adiciona eventos para um elemento select2.
+    //  * @param {jQuery} selectElem - O elemento jQuery ao qual o select2 será aplicado.
+    //  * @param {string} urlApi - A URL da API para recuperar os dados do servidor.
+    //  * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento do select2.
+    //  * @param {number} [options.minimum=3] - O número mínimo de caracteres necessários para acionar a pesquisa.
+    //  * @param {string} [options.placeholder='Selecione uma opção'] - O texto de espaço reservado para o select2.
+    //  * @param {jQuery} [options.dropdownParent=$(document.body)] - O elemento ao qual o dropdown do select2 será anexado.
+    //  */
+    // static addEventsSelect2Api(selectElem, urlApi, options = {}) {
+    //     const {
+    //         minimum = 3,
+    //         placeholder = 'Selecione uma opção',
+    //         dropdownParent = $(document.body),
+    //         dataAppend = {},
+    //     } = options;
+
+    //     selectElem = $(selectElem);
+
+    //     // Verifica se o select2 já foi iniciado antes de destruí-lo
+    //     if (selectElem.hasClass('select2-hidden-accessible')) {
+    //         selectElem.val(null).trigger('change'); // Remove seleções ativas
+    //         selectElem.select2('destroy'); // Destrói a instância anterior do select2
+    //     }
+
+    //     // Reatribui o select2 com os novos eventos
+    //     selectElem.select2({
+    //         theme: "bootstrap",
+    //         language: {
+    //             inputTooShort: function (args) {
+    //                 var caracteres = args.minimum - args.input.length;
+    //                 return `Digite ${caracteres} ou mais caracteres`;
+    //             },
+    //             noResults: function () {
+    //                 return 'Nenhum resultado encontrado';
+    //             },
+    //             searching: function () {
+    //                 return 'Pesquisando...';
+    //             }
+    //         },
+    //         ajax: {
+    //             dataType: 'json',
+    //             delay: 250,
+    //             transport: function (params, success) {
+    //                 let text = params.data.term; // Captura o valor do texto
+    //                 let csrfToken = Select2Helpers.getCsrfToken();
+
+    //                 // Adiciona o valor do texto ao corpo da solicitação
+    //                 let ajaxOptions = {
+    //                     url: urlApi,
+    //                     type: 'POST',
+    //                     data: { 'text': text },
+    //                     headers: {
+    //                         'X-CSRF-TOKEN': csrfToken,  // Inclui o CSRF token no cabeçalho
+    //                         'Accept': 'application/json',
+    //                     },
+    //                     success: function (data) {
+    //                         success(data.data);
+    //                     },
+    //                     error: function (xhr, textStatus, errorThrown) {
+    //                         const error = Select2Helpers.errorHandling(xhr);
+    //                         console.error(error.message);
+    //                         // commonFunctions.generateNotification(error.message, 'error');
+    //                     }
+    //                 };
+
+    //                 commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+
+    //                 return $.ajax(ajaxOptions);
+    //             },
+    //             processResults: function (data) {
+    //                 return {
+    //                     results: data ? data : []
+    //                 };
+    //             },
+    //             cache: true
+    //         },
+    //         placeholder: placeholder,
+    //         allowClear: true,
+    //         minimumInputLength: minimum,
+    //         dropdownParent: dropdownParent,
+    //     });
+    // }
+
+    // /**
+    //  * Adiciona eventos para um elemento select2 com suporte a múltiplas seleções.
+    //  * @param {jQuery} selectElem - O elemento jQuery ao qual o select2 será aplicado.
+    //  * @param {string} urlApi - A URL da API para recuperar os dados do servidor.
+    //  * @param {Object} [options={}] - Opções adicionais para personalizar o comportamento do select2.
+    //  * @param {number} [options.minimum=3] - O número mínimo de caracteres necessários para acionar a pesquisa.
+    //  * @param {string} [options.placeholder='Selecione uma ou mais opções'] - O texto de espaço reservado para o select2.
+    //  * @param {jQuery} [options.dropdownParent=$(document.body)] - O elemento ao qual o dropdown do select2 será anexado.
+    //  * @param {Function} [options.onSelectionChange] - Callback chamado quando a seleção mudar.
+    //  */
+    // static addEventsSelect2ApiMulti(selectElem, urlApi, options = {}) {
+    //     const {
+    //         minimum = 3,
+    //         placeholder = 'Selecione uma ou mais opções',
+    //         dropdownParent = $(document.body),
+    //         dataAppend = {},
+    //         onSelectionChange = null,
+    //     } = options;
+
+    //     selectElem = $(selectElem);
+
+    //     // Verifica se o select2 já foi iniciado antes de destruí-lo
+    //     if (selectElem.hasClass('select2-hidden-accessible')) {
+    //         selectElem.val(null).trigger('change'); // Remove seleções ativas
+    //         selectElem.select2('destroy'); // Destrói a instância anterior do select2
+    //     }
+
+    //     // Reatribui o select2 com os novos eventos
+    //     selectElem.select2({
+    //         theme: "bootstrap",
+    //         multiple: true,
+    //         language: {
+    //             inputTooShort: function (args) {
+    //                 var caracteres = args.minimum - args.input.length;
+    //                 return `Digite ${caracteres} ou mais caracteres`;
+    //             },
+    //             noResults: function () {
+    //                 return 'Nenhum resultado encontrado';
+    //             },
+    //             searching: function () {
+    //                 return 'Pesquisando...';
+    //             }
+    //         },
+    //         ajax: {
+    //             dataType: 'json',
+    //             delay: 250,
+    //             transport: function (params, success) {
+    //                 let text = params.data.term;
+    //                 let csrfToken = Select2Helpers.getCsrfToken();
+
+    //                 let ajaxOptions = {
+    //                     url: urlApi,
+    //                     type: 'POST',
+    //                     data: { 'text': text },
+    //                     headers: {
+    //                         'X-CSRF-TOKEN': csrfToken,
+    //                         'Accept': 'application/json',
+    //                     },
+    //                     success: function (data) {
+    //                         success(data.data);
+    //                     },
+    //                     error: function (xhr) {
+    //                         const error = Select2Helpers.errorHandling(xhr);
+    //                         console.error(error.message);
+    //                     }
+    //                 };
+
+    //                 commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+
+    //                 return $.ajax(ajaxOptions);
+    //             },
+    //             processResults: function (data) {
+    //                 return {
+    //                     results: data ? data : []
+    //                 };
+    //             },
+    //             cache: true
+    //         },
+    //         placeholder: placeholder,
+    //         allowClear: true,
+    //         minimumInputLength: minimum,
+    //         dropdownParent: dropdownParent,
+    //     });
+
+    //     // Limpar a lista de opções
+    //     selectElem.empty();
+
+    //     // Se o callback for fornecido, captura as mudanças na seleção
+    //     if (onSelectionChange) {
+    //         selectElem.on('select2:select select2:unselect', function () {
+    //             const selectedData = selectElem.select2('data'); // Obtém o array de seleções
+    //             const selectedValues = selectedData.map(item => {
+    //                 return { id: item.id, text: item.text };
+    //             }); // Apenas os IDs (ou outros campos de interesse)
+    //             onSelectionChange(selectedValues);
+    //         });
+    //     }
+    // }
 
     static getCsrfToken() {
         let csrfToken = $('meta[name="csrf-token"]').attr('content');

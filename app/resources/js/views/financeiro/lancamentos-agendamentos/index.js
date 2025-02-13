@@ -142,6 +142,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
 
         let strBtns = self.#htmlBtns(item);
 
+        const tipoAgendamento = self.#retornaTipoAgendamento(item.agendamento_tipo);
         const tipoMovimentacao = item.movimentacao_tipo.nome;
         const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
@@ -162,6 +163,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${tipoAgendamento}">${tipoAgendamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
@@ -178,6 +180,20 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
         self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
+    }
+
+    #retornaTipoAgendamento(agendamento_tipo) {
+        switch (agendamento_tipo) {
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
+                return 'Lancamento Geral';
+                break;
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                return 'Ressarc./Compensação';
+                break;
+            default:
+                return 'Não configurado';
+                break;
+        }
     }
 
     #addEventosRegistrosConsulta(item) {

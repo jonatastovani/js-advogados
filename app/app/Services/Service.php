@@ -128,15 +128,81 @@ abstract class Service
     {
         $resource = $this->buscarRecurso($requestData);
 
+        if (!$resource) {
+            return RestResponse::createErrorResponse(404, "Recurso não encontrado.")->throwResponse();
+        }
+
         try {
             return DB::transaction(function () use ($resource) {
+                // Verifica se há relacionamentos para exclusão em cascata
+                $relations = method_exists($this, 'loadDestroyResourceCascade') ? $this->loadDestroyResourceCascade() : [];
+
+                if (!empty($relations)) {
+                    $this->destroyCascade($resource, $relations);
+                }
+
+                // Exclui o próprio recurso
                 $resource->delete();
 
-                // $this->executarEventoWebsocket();
                 return $resource->toArray();
             });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    /**
+     * Define os relacionamentos que devem ser excluídos antes do recurso principal.
+     * 
+     * Cada classe que herda pode sobrescrever esse método conforme necessário.
+     * 
+     * ATENÇÃO: Enviar relacionamentos incorretos pode excluir registros indesejados.
+     *
+     * @return array
+     */
+    public function loadDestroyResourceCascade(): array
+    {
+        return [];
+    }
+
+    /**
+     * Exclui os relacionamentos de um recurso antes de excluí-lo (Soft Delete em Cascata).
+     *
+     * @param Model $resource - O recurso principal a ser excluído.
+     * @param array $relationships - Os relacionamentos a serem excluídos, seguindo a ordem correta.
+     * @return bool
+     */
+    protected function destroyCascade(Model $resource, array $relationships)
+    {
+        // Carrega os relacionamentos descritos
+        $resource->load($relationships);
+
+        // Percorre os relacionamentos de forma reversa (exclui filhos antes dos pais)
+        foreach (array_reverse($relationships) as $relation) {
+            $this->deleteRecursive($resource, explode('.', $relation));
+        }
+    }
+
+    /**
+     * Exclui os relacionamentos recursivamente, suportando múltiplos níveis de aninhamento.
+     *
+     * @param Model $resource - O recurso atual em que a exclusão será aplicada.
+     * @param array $relations - Array contendo os relacionamentos encadeados.
+     */
+    private function deleteRecursive(Model $resource, array $relations)
+    {
+        $relationName = array_shift($relations); // Pega o primeiro nível do relacionamento
+
+        if ($resource->$relationName()->exists()) {
+            foreach ($resource->$relationName as $relatedItem) {
+                if (!empty($relations)) {
+                    // Continua recursivamente caso existam mais níveis
+                    $this->deleteRecursive($relatedItem, $relations);
+                }
+
+                // Exclui individualmente para capturar corretamente os dados do Soft Delete
+                $relatedItem->delete();
+            }
         }
     }
 

@@ -4,7 +4,7 @@
             <div class="col d-flex flex-column">
                 <div class="row">
                     <div class="col-12 col-md-6 col-lg-12 col-xl-6 mt-2">
-                        <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
+                        <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
                         <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
                     </div>
                 </div>

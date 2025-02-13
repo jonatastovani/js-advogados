@@ -13,6 +13,7 @@ use App\Models\Tenant\ParticipacaoTipoTenant;
 use App\Services\Comum\ParticipacaoService;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 trait ParticipacaoTrait
@@ -329,6 +330,7 @@ trait ParticipacaoTrait
 
         // Subtrair os valores fixos
         foreach ($participantes as $index => $participante) {
+          
             if ($participante['valor_tipo'] === 'valor_fixo') {
                 $possuiParticipanteComValorFixo = true;
 
