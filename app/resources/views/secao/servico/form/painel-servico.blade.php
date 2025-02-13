@@ -33,20 +33,20 @@
                         </div>
                         <div class="row flex-fill">
                             <div class="col d-flex flex-column">
-                                <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control flex-fill"></textarea>
+                                <div name="descricao" id="descricao{{ $sufixo }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col legenda-campos-obrigatorios text-end mt-2">
+                    <div class="col legenda-campos-obrigatorios text-end mt-2 border-light-subtle">
                         * Campos obrigatórios
                     </div>
                 </div>
                 <div class="row text-end">
                     <div class="col mt-2">
-                        <button type="submit" id="btnSave{{ $sufixo }}"
-                            class="btn btn-outline-success btn-save">
+                        <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save">
                             Salvar dados do Serviço
                         </button>
                     </div>

@@ -32,3 +32,5 @@ window.moment = moment;
 // import 'select2';
 
 import 'jquery-mask-plugin';
+
+import 'quill/dist/quill.snow.css';

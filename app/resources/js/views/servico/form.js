@@ -12,6 +12,7 @@ import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridi
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
+import { QuillEditorHelper } from "../../helpers/QuillEditorHelper";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -185,6 +186,8 @@ class PageServicoForm extends TemplateForm {
         });
 
         self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+
+        QuillEditorHelper.init(`#descricao${self.getSufixo}`); // Usando string seletora
     }
 
     async #inserirCliente(item) {
@@ -956,6 +959,9 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
+        const conteudoHTML = quill.root.innerHTML;
+        console.log(conteudoHTML);
+        data.descricao = conteudoHTML;
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base, {
