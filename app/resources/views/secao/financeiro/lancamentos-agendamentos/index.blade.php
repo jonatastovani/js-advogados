@@ -27,8 +27,6 @@
                 ],
                 'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['descricao'],
-                'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
-                'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
                     'data_vencimento' => ['nome' => 'Data vencimento'],
                     'created_at' => ['nome' => 'Data cadastro'],
@@ -130,8 +128,27 @@
     </div>
 
     <div class="d-grid gap-2 d-sm-block mt-2">
-        <button id="btnInserirAgendamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
-            agendamento</button>
+
+        <div class="btn-group">
+            <button class="btn dropdown-toggle btn-outline-primary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Inserir agendamento
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <button id="btnInserirAgendamentoGeral{{ $sufixo }}" type="button"
+                        class="dropdown-item" title="Editar agendamento ${descricao}.">
+                        Lançamento geral
+                    </button>
+                </li>
+                <li>
+                    <button id="btnInserirAgendamentoRessarcimento{{ $sufixo }}" type="button"
+                        class="dropdown-item" title="Excluir agendamento ${descricao}.">
+                        Ressarcimento/Compensação
+                    </button>
+                </li>
+            </ul>
+        </div>
+
     </div>
 
     <div class="table-responsive mt-2 flex-fill">

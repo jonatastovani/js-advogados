@@ -15,6 +15,7 @@
         BalancoRepasseParceiroTipoParentEnum: @json(\App\Enums\BalancoRepasseParceiroTipoParentEnum::toArray()),
         MovimentacaoContaParticipanteStatusTipoEnum: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::toArray()),
         TagTipoTenantEnum: @json(\App\Enums\TagTipoTenantEnum::toArray()),
+        LancamentoTipoEnum: @json(\App\Enums\LancamentoTipoEnum::toArray()),
     };
 
     window.Statics = {

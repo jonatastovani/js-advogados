@@ -11,7 +11,6 @@ class TagTenantFormRequestBase extends BaseFormRequest
     public function rules()
     {
         $tiposPermitidos = collect(TagTipoTenantEnum::toArray())->values()->implode(',');
-        Log::debug("tiposPermitidos " . $tiposPermitidos);
         return [
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',

@@ -6,6 +6,7 @@ use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\ParticipacaoRegistroTipo;
 use App\Models\Tenant\ParticipacaoTipoTenant;
@@ -302,6 +303,23 @@ trait ParticipacaoTrait
      */
     function lancarParticipantesValorRecebidoDividido(Model $parent, array $participantes, array $options = []): void
     {
+        if (isset($this->modelParticipanteConta)) {
+            $modelParticipanteConta = $this->modelParticipanteConta;
+        } else {
+            if (isset($options['modelParticipanteConta'])) {
+                $modelParticipanteConta = $options['modelParticipanteConta'];
+            } else {
+                $modelParticipanteConta = MovimentacaoContaParticipante::class;
+            }
+        }
+
+        // Excluir registros anteriores
+        $participantesMovimentacaoContaExcluir = $modelParticipanteConta::where('parent_id', $parent->id)
+            ->where('parent_type', $parent->getMorphClass())->get();
+        foreach ($participantesMovimentacaoContaExcluir as $participante) {
+            $participante->delete();
+        }
+
         $campoValorTotal = $options['campo_valor_movimentado'] ?? 'valor_movimentado';
 
         $valorRecebido = $parent->{$campoValorTotal};
@@ -383,8 +401,8 @@ trait ParticipacaoTrait
             throw new Exception("Inconsistência detectada no cálculo. Verifique os valores.");
         }
 
-        $adicionarNovoParticipante = function ($dados) {
-            $newParticipante = new $this->modelParticipanteConta;
+        $adicionarNovoParticipante = function ($dados) use ($modelParticipanteConta) {
+            $newParticipante = new $modelParticipanteConta;
             $newParticipante->parent_id = $dados['parent_id'];
             $newParticipante->parent_type = $dados['parent_type'];
             $newParticipante->referencia_id = $dados['referencia_id'];

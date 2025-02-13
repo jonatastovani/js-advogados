@@ -2,6 +2,7 @@
 
 namespace App\Models\Financeiro;
 
+use App\Models\Comum\IdentificacaoTags;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\ContaTenant;
@@ -23,6 +24,7 @@ class LancamentoAgendamento extends Model
 
     protected $fillable = [
         'movimentacao_tipo_id',
+        'agendamento_tipo',
         'descricao',
         'valor_esperado',
         'data_vencimento',
@@ -71,13 +73,13 @@ class LancamentoAgendamento extends Model
         return $this->belongsTo(ContaTenant::class);
     }
 
-    public function agendamento()
-    {
-        return $this->belongsTo(LancamentoAgendamento::class);
-    }
-
     public function participantes()
     {
         return $this->morphMany(ParticipacaoParticipante::class, 'parent');
+    }
+
+    public function tags()
+    {
+        return $this->morphMany(IdentificacaoTags::class, 'parent');
     }
 }

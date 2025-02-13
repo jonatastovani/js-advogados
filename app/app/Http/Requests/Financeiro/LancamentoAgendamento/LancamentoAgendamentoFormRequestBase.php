@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Financeiro\LancamentoAgendamento;
 
+use App\Enums\LancamentoTipoEnum;
 use App\Http\Requests\BaseFormRequest;
 use Cron\CronExpression;
 
@@ -9,9 +10,12 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
 {
     public function rules()
     {
+        $agendamentoTipos = collect(LancamentoTipoEnum::toArray())->values()->except(LancamentoTipoEnum::LANCAMENTO_AGENDAMENTO->value)->implode(',');
+
         // Regras comuns
         $rules = [
             'movimentacao_tipo_id' => 'required|integer',
+            'agendamento_tipo' => "required|string|in:{$agendamentoTipos}",
             'descricao' => 'required|string',
             'valor_esperado' => 'required|numeric|min:0.01',
             'categoria_id' => 'required|uuid',

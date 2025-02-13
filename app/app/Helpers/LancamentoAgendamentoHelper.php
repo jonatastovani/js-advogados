@@ -3,13 +3,18 @@
 namespace App\Helpers;
 
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\LancamentoTipoEnum;
 use App\Models\Auth\Tenant;
+use App\Models\Comum\IdentificacaoTags;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use Carbon\Carbon;
 use Cron\CronExpression;
 use App\Models\Financeiro\LancamentoAgendamento;
 use App\Models\Financeiro\LancamentoGeral;
+use App\Models\Financeiro\LancamentoRessarcimento;
+use App\Traits\ParticipacaoTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -201,84 +206,78 @@ class LancamentoAgendamentoHelper
     private static function executarLancamento(LancamentoAgendamento $agendamento, string $dataExecucao): bool
     {
         try {
-            $novoLancamento = (new LancamentoGeral())->fill($agendamento->toArray());
+
+            switch ($agendamento->agendamento_tipo) {
+                case LancamentoTipoEnum::LANCAMENTO_GERAL->value:
+                    $novoLancamento = (new LancamentoGeral())->fill($agendamento->toArray());
+                    break;
+
+                case LancamentoTipoEnum::LANCAMENTO_RESSARCIMENTO->value:
+                    $novoLancamento = (new LancamentoRessarcimento())->fill($agendamento->toArray());
+                    break;
+
+                default:
+                    throw new \Exception("Tipo de agendamento não configurado: ({$agendamento->agendamento_tipo})", 404);
+                    break;
+            }
+
             $novoLancamento->data_vencimento = $dataExecucao;
             $novoLancamento->agendamento_id = $agendamento->id;
             $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
 
+            $novoLancamento->save();
+
+            self::replicarParticipantes($agendamento, $novoLancamento);
+            self::replicarTags($agendamento, $novoLancamento);
+
+            if ($agendamento->agendamento_tipo == LancamentoTipoEnum::LANCAMENTO_RESSARCIMENTO->value) {
+                app(ParticipacaoTrait::class)->lancarParticipantesValorRecebidoDividido($novoLancamento, $novoLancamento->participantes()->with('integrantes')->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
+            }
 
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar
-            Log::error("Erro ao criar lançamento geral para agendamento ID {$agendamento->id}: {$e->getMessage()}");
+            Log::error("Erro ao criar lançamento geral para agendamento ID ({$agendamento->id}): {$e->getMessage()}");
             return false;
         }
     }
 
-    private static function executarReplicacaoParticipante($agendamento, $novoLancamento)
+    private static function replicarParticipantes(LancamentoAgendamento $agendamento, Model $novoLancamento)
     {
         foreach ($agendamento->participantes as $participante) {
 
+            // Remover o ID e colocar o ID do novo lançamento
             $novoParticipante = (new ParticipacaoParticipante())->fill(
-                // Remover o ID e colocar o ID do novo lançamento
                 Arr::except($participante->toArray(), ['id'])
             );
+
             $novoParticipante->parent_id = $novoLancamento->id;
             $novoParticipante->parent_type = $novoLancamento->getMorphClass();
+            $novoParticipante->created_at = $participante->created_at;
             $novoParticipante->save();
 
             foreach ($participante->integrantes as $integrante) {
 
+                // Remover o ID e colocar o ID do novo participante
                 $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
-                    // Remover o ID e colocar o ID do novo participante
                     Arr::except($integrante->toArray(), ['id'])
                 );
                 $novoIntegrante->participante_id = $novoParticipante->id;
+                $novoIntegrante->created_at = $integrante->created_at;
                 $novoIntegrante->save();
             }
         }
     }
 
-    /**
-     * Executa o lançamento de um agendamento na tabela LancamentoGeral.
-     *
-     * @param LancamentoAgendamento $agendamento Agendamento a ser lançado.
-     * @param string $dataExecucao Data de execução do lançamento.
-     * 
-     */
-    private static function executarLancamentoGeral(LancamentoAgendamento $agendamento, string $dataExecucao): bool
+    private static function replicarTags(LancamentoAgendamento $agendamento, Model $novoLancamento)
     {
-        try {
-            $novoLancamento = (new LancamentoGeral())->fill($agendamento->toArray());
-            $novoLancamento->data_vencimento = $dataExecucao;
-            $novoLancamento->agendamento_id = $agendamento->id;
-            $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
-
-            foreach ($agendamento->participantes as $participante) {
-
-                $novoParticipante = (new ParticipacaoParticipante())->fill(
-                    // Remover o ID e colocar o ID do novo lançamento
-                    Arr::except($participante->toArray(), ['id'])
-                );
-                $novoParticipante->parent_id = $novoLancamento->id;
-                $novoParticipante->parent_type = $novoLancamento->getMorphClass();
-                $novoParticipante->save();
-
-                foreach ($participante->integrantes as $integrante) {
-
-                    $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
-                        // Remover o ID e colocar o ID do novo participante
-                        Arr::except($integrante->toArray(), ['id'])
-                    );
-                    $novoIntegrante->participante_id = $novoParticipante->id;
-                    $novoIntegrante->save();
-                }
-            }
-            return true;
-        } catch (\Exception $e) {
-            // Log do erro na tentativa de salvar
-            Log::error("Erro ao criar lançamento geral para agendamento ID {$agendamento->id}: {$e->getMessage()}");
-            return false;
+        foreach ($agendamento->tags as $tag) {
+            $novaTag = new IdentificacaoTags();
+            $novaTag->parent_id = $novoLancamento->id;
+            $novaTag->parent_type = $novoLancamento->getMorphClass();
+            $novaTag->tag_id = $tag->tag_id;
+            $novaTag->created_at = $tag->created_at;
+            $novaTag->save();
         }
     }
 }

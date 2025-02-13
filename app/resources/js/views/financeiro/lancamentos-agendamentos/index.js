@@ -51,27 +51,23 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
             self.#executarBusca();
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
+
+        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+
+        $(`#btnInserirAgendamentoGeral${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
+                });
                 objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
+                    agendamento_tipo: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
                 }
-
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
+                    await self.#executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -80,41 +76,16 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
             }
         });
 
-        $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`).on('click', async function () {
+        $(`#btnInserirAgendamentoRessarcimento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
-
             try {
-                const objModal = new modalLancamentoCategoriaTipoTenant();
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
+                });
                 objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
+                    agendamento_tipo: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
                 }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarLancamentoCategoriaTipoTenant(response.selected.id);
-                    } else {
-                        self.#buscarLancamentoCategoriaTipoTenant();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#btnInserirAgendamento${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalLancamentoGeral({ modoOperacao: 'agendamento' });
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#executarBusca();
@@ -216,9 +187,12 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({ modoOperacao: 'agendamento' });
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
+                });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
+                    agendamento_tipo: item.agendamento_tipo
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {

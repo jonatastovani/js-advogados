@@ -4,6 +4,7 @@ namespace App\Services\Financeiro;
 
 use App\Common\CommonsFunctions;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\LancamentoTipoEnum;
 use App\Helpers\LancamentoAgendamentoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -206,11 +207,12 @@ class LancamentoAgendamentoService extends Service
                     $resource->cron_ultima_execucao = null;
                     $resource->save();
 
+                    $modelLancamento  =  app($resource->agendamento_tipo);
+
                     // Exclui os agendamentos com status diferente de quitado
-                    $agendamentosNaoLiquidados = LancamentoGeral::where('agendamento_id', $resource->id)->whereNotIn('status_id', LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado())->get();
+                    $agendamentosNaoLiquidados = $modelLancamento::where('data->agendamento_id', $resource->id)->whereNotIn('status_id', LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado())->get();
 
                     foreach ($agendamentosNaoLiquidados as $agendamentoNaoLiquidado) {
-
                         $agendamentoNaoLiquidado->delete();
                     }
                 } else {
@@ -278,10 +280,6 @@ class LancamentoAgendamentoService extends Service
         $arrayErrors = $participantesData->arrayErrors;
         $resource->participantes = $participantesData->participantes;
 
-        // if (($porcentagemOcupada > 0 && $porcentagemOcupada < 100) || $porcentagemOcupada > 100) {
-        //     $arrayErrors["porcentagem_ocupada"] = LogHelper::gerarLogDinamico(422, 'A somatória das porcentagens devem ser igual a 100%. O valor informado foi de ' . str_replace('.', '', $porcentagemOcupada) . '%', $requestData)->error;
-        // }
-
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
@@ -309,6 +307,7 @@ class LancamentoAgendamentoService extends Service
             'movimentacao_tipo',
             'categoria',
             'conta',
+            'tags.tag',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',

@@ -111,13 +111,8 @@ class LancamentoRessarcimentoService extends Service
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
 
-                $participantesMovimentacaoContaExcluir = $this->modelParticipanteConta::where('parent_id', $resource->id)
-                    ->where('parent_type', $resource->getMorphClass())->get();
-                foreach ($participantesMovimentacaoContaExcluir as $participante) {
-                    $participante->delete();
-                }
-
                 $participantesComIntegrantes = $resource->participantes()->with('integrantes')->get();
+
                 $this->lancarParticipantesValorRecebidoDividido($resource, $participantesComIntegrantes->toArray(), ['campo_valor_movimentado' => 'valor_esperado']);
 
                 $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
@@ -133,7 +128,7 @@ class LancamentoRessarcimentoService extends Service
     public function destroy(Fluent $requestData)
     {
         $resource = $this->buscarRecurso($requestData);
-        
+
         if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaExclusao())) {
             return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a exclusão.")->throwResponse();
         }
@@ -264,7 +259,6 @@ class LancamentoRessarcimentoService extends Service
         $resource->data_vencimento = $requestData->data_vencimento;
         $resource->categoria_id = $requestData->categoria_id;
         $resource->conta_id = $requestData->conta_id;
-        $resource->agendamento_id = $requestData->agendamento_id;
         $resource->observacao = $requestData->observacao;
 
         return $resource;
@@ -284,7 +278,7 @@ class LancamentoRessarcimentoService extends Service
             'categoria',
             'conta',
             'status',
-            'agendamento',
+            'tags.tag',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',
             'participantes.integrantes.referencia.pessoa.pessoa_dados',

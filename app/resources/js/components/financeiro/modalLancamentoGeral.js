@@ -74,28 +74,33 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         }
 
         switch (options.modoOperacao) {
-            case 'agendamento':
-                this._objConfigs.modoOperacao = 'agendamento';
-                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
-
-                break;
-
-            case 'ressarcimento':
-                this._objConfigs.modoOperacao = 'ressarcimento';
-                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoRessarcimento;
-                this._objConfigs.participacao.perfis_busca = window.Statics.PerfisPermitidoParticipacaoRessarcimento;
-                this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO;
-                // this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
-                break;
-
-            default:
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
                 this._objConfigs.url.base = this._objConfigs.url.baseLancamentoGeral;
                 // this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL;
                 break;
+
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
+                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoAgendamento;
+                break;
+
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                this._objConfigs.url.base = this._objConfigs.url.baseLancamentoRessarcimento;
+                break;
+
+            default:
+                throw new Error(`Modo de operação (${options.modoOperacao ?? 'indefinido'}) inválido.`);
         }
+
+        this._objConfigs.modoOperacao = options.modoOperacao;
 
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
         this.#select2QueueManager = new QueueManager();  // Cria a fila
+    }
+
+    #configuracaoParticipacaoRessarcimento() {
+        this._objConfigs.participacao.perfis_busca = window.Statics.PerfisPermitidoParticipacaoRessarcimento;
+        this._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo = window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_RESSARCIMENTO;
+        // this._objConfigs.participacao.valor_tipo_permitido = ['valor_fixo'];
     }
 
     async modalOpen() {
@@ -112,7 +117,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             if (self._dataEnvModal.idRegister) {
                 await self.#buscarDados();
             } else {
-                if (self._objConfigs.modoOperacao != 'ressarcimento') {
+                if (!self.#functionsParticipacao.getExibirPainelParticipantesPersonalizaveisBln) {
                     self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
                 }
             }
@@ -162,8 +167,23 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
         switch (self._objConfigs.modoOperacao) {
-            case 'agendamento':
-                self._updateModalTitle('Agendamento');
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
+
+                switch (self._dataEnvModal.agendamento_tipo) {
+
+                    case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
+                        self._updateModalTitle('Agendamento Geral');
+                        break;
+
+                    case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                        self._updateModalTitle('Agend. Ressar./Compensação');
+                        self.#configuracaoParticipacaoRessarcimento();
+                        break;
+
+                    default:
+                        throw new Error(`Tipo de agendamento (${self._dataEnvModal.agendamento_tipo ?? 'indefinido'}) inválido.`);
+                }
+
                 self.#visualizacaoModoOperacaoAgendamento(true);
 
                 // Evento para monitorar mudanças no checkbox `ckbRecorrente`
@@ -179,8 +199,9 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
                 break;
 
-            case 'ressarcimento':
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
                 self._updateModalTitle('Ressarcimento/Compensação');
+                self.#configuracaoParticipacaoRessarcimento();
                 self.#visualizacaoModoOperacaoAgendamento(false);
 
                 break;
@@ -387,9 +408,24 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
             switch (self._objConfigs.modoOperacao) {
 
-                case 'agendamento':
+                case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
 
-                    self._updateModalTitle(`Editar agendamento`);
+                    switch (self._dataEnvModal.agendamento_tipo) {
+
+                        case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
+                            self._updateModalTitle('Editar Agendamento Geral');
+                            responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
+                            break;
+
+                        case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                            self._updateModalTitle('Editar Agend. Ressar./Compensação');
+                            self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+                            break;
+
+                        default:
+                            throw new Error(`Tipo de agendamento (${self._dataEnvModal.agendamento_tipo ?? 'indefinido'}) inválido.`);
+                    }
+
                     form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
                     form.find('input[name="recorrente_bln"]').prop('checked', responseData.recorrente_bln).trigger('change');
 
@@ -408,10 +444,9 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
                         self.#agendamentoRecorrenteResetar(true, responseData.cron_ultima_execucao);
                     }
-                    responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
                     break;
 
-                case 'ressarcimento':
+                case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
                     self._updateModalTitle(`Editar ressarcimento ${responseData.numero_lancamento ?? null}`);
                     self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
@@ -547,16 +582,22 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             returnForcedFalse: blnSave == false
         });
 
-        if (self._objConfigs.modoOperacao == 'agendamento' && (data.recorrente_bln && data.recorrente_bln == true)) {
-            data.cron_expressao = self._objConfigs.data.cronExpressao;
-            if (!data.cron_expressao) {
-                blnSave = commonFunctions.verificationData(data.cron_expressao, {
-                    field: formRegistration.find('select[name="cronDay"]'),
-                    messageInvalid: 'Uma recorrência deve ser configurada.',
-                    setFocus: blnSave == true,
-                    returnForcedFalse: blnSave == false
-                });
+        if (self._objConfigs.modoOperacao == window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO) {
+
+            data.agendamento_tipo = self._dataEnvModal.agendamento_tipo;
+
+            if (data.recorrente_bln && data.recorrente_bln == true) {
+                data.cron_expressao = self._objConfigs.data.cronExpressao;
+                if (!data.cron_expressao) {
+                    blnSave = commonFunctions.verificationData(data.cron_expressao, {
+                        field: formRegistration.find('select[name="cronDay"]'),
+                        messageInvalid: 'Uma recorrência deve ser configurada.',
+                        setFocus: blnSave == true,
+                        returnForcedFalse: blnSave == false
+                    });
+                }
             }
+
         } else {
             blnSave = commonFunctions.verificationData(data.data_vencimento, {
                 field: formRegistration.find('input[name="data_vencimento"]'),

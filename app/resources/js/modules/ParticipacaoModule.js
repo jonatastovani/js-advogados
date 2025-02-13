@@ -12,7 +12,8 @@ export class ParticipacaoModule {
 
     #objConfigs = {
         operacaoComParticipantesPersonalizaveis: [
-            'ressarcimento',
+            window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO,
+            window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO,
         ],
         participacao: {
             perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
@@ -33,10 +34,24 @@ export class ParticipacaoModule {
     }
 
     get getExibirPainelParticipantesPersonalizaveisBln() {
-        if (this._objConfigs.operacaoComParticipantesPersonalizaveis.includes(this._objConfigs.modoOperacao)) {
-            return true;
+
+        switch (this._objConfigs.modoOperacao) {
+            
+            // Se o modo de operação for "ressarcimento", já retorna true diretamente
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
+                return true;
+
+            case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
+
+                if (this._parentInstance._dataEnvModal.agendamento_tipo == window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO) {
+                    return true;
+                }
+                return false;
+
+            default:
+                return false;
+                break;
         }
-        return false;
     }
 
     #addEventosBotoes() {
@@ -844,7 +859,6 @@ export class ParticipacaoModule {
         const self = this;
 
         let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
-        console.log(porcentagemOcupada);
         if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
             commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
             blnSave = false;

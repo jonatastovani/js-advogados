@@ -139,7 +139,9 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({ modoOperacao: 'ressarcimento' });
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
+                });
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#executarBusca();
@@ -239,7 +241,9 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({ modoOperacao: 'ressarcimento' });
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
+                });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }

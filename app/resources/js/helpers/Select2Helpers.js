@@ -1,3 +1,5 @@
+import { commonFunctions } from "../commons/commonFunctions";
+
 export class Select2Helpers {
 
     /**
@@ -40,7 +42,7 @@ export class Select2Helpers {
                 delay: 250,
                 transport: function (params, success) {
                     let text = params.data.term; // Captura o valor do texto
-                    let csrfToken = commonFunctions.getCsrfToken();
+                    let csrfToken = Select2Helpers.getCsrfToken();
 
                     // Adiciona o valor do texto ao corpo da solicitação
                     let ajaxOptions = {
@@ -55,7 +57,7 @@ export class Select2Helpers {
                             success(data.data);
                         },
                         error: function (xhr, textStatus, errorThrown) {
-                            const error = commonFunctions.errorHandling(xhr);
+                            const error = Select2Helpers.errorHandling(xhr);
                             console.error(error.message);
                             // commonFunctions.generateNotification(error.message, 'error');
                         }
@@ -119,7 +121,7 @@ export class Select2Helpers {
                 delay: 250,
                 transport: function (params, success) {
                     let text = params.data.term;
-                    let csrfToken = commonFunctions.getCsrfToken();
+                    let csrfToken = Select2Helpers.getCsrfToken();
 
                     let ajaxOptions = {
                         url: urlApi,
@@ -133,7 +135,7 @@ export class Select2Helpers {
                             success(data.data);
                         },
                         error: function (xhr) {
-                            const error = commonFunctions.errorHandling(xhr);
+                            const error = Select2Helpers.errorHandling(xhr);
                             console.error(error.message);
                         }
                     };

@@ -76,8 +76,8 @@
                             <input class="form-check-input" type="checkbox" role="switch"
                                 id="resetar_execucao_bln{{ $sufixo }}" name="resetar_execucao_bln">
                             <label class="form-check-label" for="resetar_execucao_bln{{ $sufixo }}"
-                                title="Exclui os agendamentos que ainda não foram liquidados e gera os novos agendamentos desde a data início cadastrada.">Resetar
-                                execução</label>
+                                title="Exclui os lançamentos que ainda não foram liquidados e gera os novos lançamentos conforme os dados agendamentos desde a data início cadastrada.">Resetar
+                                execução do agendamento</label>
                         </div>
                     </div>
                     <div class="form-text mt-2">

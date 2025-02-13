@@ -249,7 +249,6 @@ class LancamentoGeralService extends Service
         $resource->data_vencimento = $requestData->data_vencimento;
         $resource->categoria_id = $requestData->categoria_id;
         $resource->conta_id = $requestData->conta_id;
-        $resource->agendamento_id = $requestData->agendamento_id;
         $resource->observacao = $requestData->observacao;
 
         return $resource;
@@ -290,7 +289,6 @@ class LancamentoGeralService extends Service
             'categoria',
             'conta',
             'status',
-            'agendamento',
             'tags.tag',
             'participantes.participacao_tipo',
             'participantes.integrantes.referencia.perfil_tipo',

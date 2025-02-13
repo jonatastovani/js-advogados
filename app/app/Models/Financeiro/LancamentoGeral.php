@@ -80,7 +80,6 @@ class LancamentoGeral extends Model
             'data_quitado',
             'categoria_id',
             'conta_id',
-            'agendamento_id',
             'status_id',
             'observacao',
         ]);
@@ -104,11 +103,6 @@ class LancamentoGeral extends Model
     public function status()
     {
         return $this->belongsTo(LancamentoStatusTipo::class);
-    }
-
-    public function agendamento()
-    {
-        return $this->belongsTo(LancamentoAgendamento::class);
     }
 
     public function participantes()

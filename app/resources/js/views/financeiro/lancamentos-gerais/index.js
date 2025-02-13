@@ -167,7 +167,7 @@ class PageLancamentoGeralIndex extends templateSearch {
         });
 
         commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
-        
+
         commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
@@ -199,7 +199,9 @@ class PageLancamentoGeralIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral();
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
+                });
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#executarBusca();
@@ -434,7 +436,9 @@ class PageLancamentoGeralIndex extends templateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral();
+                const objModal = new modalLancamentoGeral({
+                    modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
+                });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }

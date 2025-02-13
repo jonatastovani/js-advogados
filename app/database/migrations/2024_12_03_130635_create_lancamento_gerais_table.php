@@ -44,9 +44,6 @@ return new class extends Migration
             $table->uuid('conta_id');
             $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
 
-            $table->uuid('agendamento_id')->nullable();
-            $table->foreign('agendamento_id')->references('id')->on((new App\Models\Financeiro\LancamentoAgendamento())->getTableName());
-
             $table->smallInteger('status_id');
             $table->foreign('status_id')->references('id')->on((new App\Models\Referencias\LancamentoStatusTipo())->getTableName());
 
