@@ -4,8 +4,10 @@ export class QuillEditorHelper {
     /**
      * Inicializa o Quill.js para um determinado campo de texto.
      * @param {string|jQuery} selector - Seletor do elemento onde o editor será aplicado.
+     * @param {Object} options - Opções para personalizar a toolbar.
+     * @param {Array} options.exclude - Lista de botões a serem removidos.
      */
-    static init(selector) {
+    static init(selector, options = {}) {
         const $targetElement = (selector instanceof jQuery) ? selector : $(selector);
 
         if (!$targetElement.length) {
@@ -17,34 +19,17 @@ export class QuillEditorHelper {
         const toolbarId = `toolbar-${$targetElement.attr('id')}`;
         const editorId = `editor-${$targetElement.attr('id')}`;
 
-        // Criar elementos dinamicamente com jQuery
-        const $wrapper = $('<div>').addClass('quill-editor-wrapper');
-        const $toolbar = $('<div>').attr('id', toolbarId).html(`
-            <select class="ql-font"></select>
-            <select class="ql-size"></select>
-            <button class="ql-bold"></button>
-            <button class="ql-italic"></button>
-            <button class="ql-underline"></button>
-            <button class="ql-strike"></button>
-            <select class="ql-color"></select>
-            <select class="ql-background"></select>
-            <button class="ql-script" value="sub"></button>
-            <button class="ql-script" value="super"></button>
-            <button class="ql-blockquote"></button>
-            <button class="ql-code-block"></button>
-            <button class="ql-list" value="ordered"></button>
-            <button class="ql-list" value="bullet"></button>
-            <button class="ql-align"></button>
-            <button class="ql-link"></button>
-            <button class="ql-image"></button>
-        `).addClass('rounded-top-2 text-bg-light');
+        // Criar toolbar personalizada com base nas opções
+        const $toolbar = this.createToolbar(toolbarId, options.exclude);
 
-        const $editor = $('<div>').attr('id', editorId)
-        .addClass('rounded-bottom-2')
-            .css('height', '200px');
+        // Criar o editor
+        const $editor = $('<div>').attr('id', editorId).addClass('rounded-bottom-2');
 
         // Esconde o campo original e insere o editor no DOM
-        $targetElement.hide().after($wrapper.append($toolbar, $editor));
+        $targetElement.hide().after(
+            $('<div>').addClass('quill-editor-wrapper d-flex flex-column flex-fill')
+                .append($toolbar, $editor)
+        );
 
         // Inicializar o Quill.js
         const quill = new Quill(`#${editorId}`, {
@@ -60,6 +45,53 @@ export class QuillEditorHelper {
         }, 500);
 
         return quill;
+    }
+
+    /**
+     * Cria a toolbar personalizada do Quill.js.
+     * @param {string} toolbarId - ID único da toolbar.
+     * @param {Array} exclude - Lista de botões a serem removidos.
+     * @returns {jQuery} - Elemento jQuery da toolbar.
+     */
+    static createToolbar(toolbarId, exclude = []) {
+        const defaultButtons = {
+            font: '<select class="ql-font"></select>',
+            size: '<select class="ql-size"></select>',
+            bold: '<button class="ql-bold"></button>',
+            italic: '<button class="ql-italic"></button>',
+            underline: '<button class="ql-underline"></button>',
+            strike: '<button class="ql-strike"></button>',
+            color: '<select class="ql-color"></select>',
+            background: '<select class="ql-background"></select>',
+            scriptSub: '<button class="ql-script" value="sub"></button>',
+            scriptSuper: '<button class="ql-script" value="super"></button>',
+            blockquote: '<button class="ql-blockquote"></button>',
+            code: '<button class="ql-code-block"></button>',
+            listOrdered: '<button class="ql-list" value="ordered"></button>',
+            listBullet: '<button class="ql-list" value="bullet"></button>',
+            align: `
+                <select class="ql-align">
+                    <option selected></option>
+                    <option value="center"></option>
+                    <option value="right"></option>
+                    <option value="justify"></option>
+                </select>
+            `,
+            link: '<button class="ql-link"></button>',
+            image: '<button class="ql-image"></button>',
+        };
+
+        // Remover botões excluídos da configuração
+        for (const btn of exclude) {
+            delete defaultButtons[btn];
+        }
+
+        // Criar toolbar com os botões restantes
+        const toolbarHtml = Object.values(defaultButtons).join('');
+        return $('<div>')
+            .attr('id', toolbarId)
+            .html(toolbarHtml)
+            .addClass('rounded-top-2 text-bg-light');
     }
 
     /**
@@ -91,7 +123,5 @@ export class QuillEditorHelper {
         $.each(translations, function (selector, title) {
             $toolbar.find(selector).attr('title', title);
         });
-
-        console.log("Toolbar traduzida para PT-BR!");
     }
 }

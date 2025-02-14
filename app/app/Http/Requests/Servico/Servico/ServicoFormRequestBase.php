@@ -11,7 +11,7 @@ class ServicoFormRequestBase extends BaseFormRequest
         return [
             'titulo' => 'required|string|min:3',
             'area_juridica_id' => 'required|uuid',
-            'descricao' => 'nullable|string|min:3',
+            'descricao' => 'nullable|array',
         ];
     }
 

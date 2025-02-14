@@ -17,10 +17,12 @@ import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
+import { QueueManager } from "../../utils/QueueManager";
 
 class PageServicoForm extends TemplateForm {
 
     #functionsParticipacao;
+    #quillQueueManager;
 
     constructor() {
 
@@ -63,6 +65,8 @@ class PageServicoForm extends TemplateForm {
             }
         }
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
+        this.#quillQueueManager = new QueueManager();  // Cria a fila
+
         this.initEvents();
     }
 
@@ -187,7 +191,8 @@ class PageServicoForm extends TemplateForm {
 
         self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
-        QuillEditorHelper.init(`#descricao${self.getSufixo}`); // Usando string seletora
+        self._objConfigs.data.elemEuillEditor = QuillEditorHelper.init(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
+        self.#quillQueueManager.setReady();  // Informa que o quill está pronto
     }
 
     async #inserirCliente(item) {
@@ -856,7 +861,9 @@ class PageServicoForm extends TemplateForm {
         const responseData = response.data;
         form.find('input[name="titulo"]').val(responseData.titulo);
         self.#buscarAreasJuridicas(responseData.area_juridica_id);
-        form.find('textarea[name="descricao"]').val(responseData.descricao);
+        self.#quillQueueManager.enqueue(() => {
+            self._objConfigs.data.elemEuillEditor.setContents(responseData.descricao);
+        })
 
         $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
         responseData.anotacao.forEach(item => {
@@ -959,14 +966,14 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const conteudoHTML = quill.root.innerHTML;
-        console.log(conteudoHTML);
-        data.descricao = conteudoHTML;
+        const descricaoDelta = self._objConfigs.data.elemEuillEditor.getContents();
+        data.descricao = descricaoDelta;
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base, {
                 success: 'Serviço cadastrado com sucesso!',
                 redirectWithIdBln: true,
+                returnObjectSuccess: true
             });
         }
         return false;

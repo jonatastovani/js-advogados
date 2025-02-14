@@ -33,8 +33,8 @@
                         </div>
                         <div class="row flex-fill">
                             <div class="col d-flex flex-column">
-                                <div name="descricao" id="descricao{{ $sufixo }}">
-                                </div>
+                                <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control flex-fill">
+                                </textarea>
                             </div>
                         </div>
                     </div>

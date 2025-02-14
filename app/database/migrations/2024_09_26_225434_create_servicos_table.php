@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->string('numero_servico');
             $table->string('titulo');
-            $table->text('descricao')->nullable();
+            $table->jsonb('descricao')->nullable();
 
             $table->uuid('area_juridica_id');
             $table->foreign('area_juridica_id')->references('id')->on((new App\Models\Tenant\AreaJuridicaTenant)->getTableName());

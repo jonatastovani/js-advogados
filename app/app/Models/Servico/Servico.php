@@ -39,6 +39,7 @@ class Servico extends Model
         'total_inadimplente' => 'float',
         'total_liquidado' => 'float',
         'total_em_analise' => 'float',
+        'descricao' => 'array',
     ];
 
     protected $hidden = [
