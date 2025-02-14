@@ -973,7 +973,6 @@ class PageServicoForm extends TemplateForm {
             self._save(data, self._objConfigs.url.base, {
                 success: 'Serviço cadastrado com sucesso!',
                 redirectWithIdBln: true,
-                returnObjectSuccess: true
             });
         }
         return false;
