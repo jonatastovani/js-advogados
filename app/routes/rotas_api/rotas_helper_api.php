@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Comum\CEP\CepController;
 use App\Http\Controllers\Referencias\PagamentoTipoController;
 use App\Http\Controllers\Validacao\ValidacaoController;
 use Illuminate\Support\Facades\Route;
@@ -34,5 +35,13 @@ Route::group([
             Route::post('cpf', 'CPFValidacao')->name('api.helper.validacao.documento.cpf');
             Route::post('cnpj', 'CNPJValidacao')->name('api.helper.validacao.documento.cnpj');
         });
+    });
+
+    Route::group([
+        'prefix' => 'cep',
+        'controller' => CepController::class,
+    ], function () {
+        Route::get('', function () {})->name('api.helper.cep');
+        Route::get('{cep}', 'show');
     });
 });

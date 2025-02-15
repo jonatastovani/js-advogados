@@ -1,6 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
+import { modalEndereco } from "../../../components/comum/modalEndereco";
 import { modalEscolaridadeTenant } from "../../../components/tenant/modalEscolaridadeTenant";
 import { modalEstadoCivilTenant } from "../../../components/tenant/modalEstadoCivilTenant";
 import { modalSexoTenant } from "../../../components/tenant/modalSexoTenant";
@@ -77,89 +78,29 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     _addEventosBotoes() {
         const self = this;
 
-        $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalEstadoCivilTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarEstadoCivil(response.selected.id);
-                    } else {
-                        self.#buscarEstadoCivil();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        commonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), modalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
 
-        $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalEscolaridadeTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarEscolaridade(response.selected.id);
-                    } else {
-                        self.#buscarEscolaridade();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        commonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), modalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
 
-        $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`).on('click', async function () {
+        commonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), modalSexoTenant, self.#buscarSexo.bind(self));
+
+
+        $(`#btnAdicionarEndereco${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSexoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
+                const objModal = new modalEndereco();
+
                 const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarSexo(response.selected.id);
-                    } else {
-                        self.#buscarSexo();
-                    }
-                }
+                console.log(response)
+                // if (response.refresh) {
+                // }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        });
+        }).trigger('click');
     }
 
     async preenchimentoDados(response, options = {}) {

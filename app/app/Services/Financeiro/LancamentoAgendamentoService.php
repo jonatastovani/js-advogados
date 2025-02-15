@@ -207,7 +207,7 @@ class LancamentoAgendamentoService extends Service
                     $resource->cron_ultima_execucao = null;
                     $resource->save();
 
-                    $modelLancamento  =  app($resource->agendamento_tipo);
+                    $modelLancamento = app($resource->agendamento_tipo);
 
                     // Exclui os agendamentos com status diferente de quitado
                     $agendamentosNaoLiquidados = $modelLancamento::where('data->agendamento_id', $resource->id)->whereNotIn('status_id', LancamentoStatusTipoEnum::statusNaoExcluirLancamentoGeralQuandoAgendamentoResetado())->get();

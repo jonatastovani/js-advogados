@@ -9,6 +9,13 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link px-2" id="painelEnderecos{{ $sufixo }}-tab" data-bs-toggle="tab"
+                    data-bs-target="#painelEnderecos{{ $sufixo }}-tab-pane" type="button" role="tab"
+                    aria-controls="painelEnderecos{{ $sufixo }}-tab-pane" aria-selected="false">
+                    Endereços
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link px-2" id="painelDocumentos{{ $sufixo }}-tab" data-bs-toggle="tab"
                     data-bs-target="#painelDocumentos{{ $sufixo }}-tab-pane" type="button" role="tab"
                     aria-controls="painelDocumentos{{ $sufixo }}-tab-pane" aria-selected="false">
@@ -39,6 +46,10 @@
         <div class="tab-pane fade h-100 show active" id="painelDados{{ $sufixo }}-tab-pane" role="tabpanel"
             aria-labelledby="painelDados{{ $sufixo }}-tab" tabindex="0">
             @include('secao.pessoa.pessoa-fisica.form.painel.painel-dados')
+        </div>
+        <div class="tab-pane fade h-100" id="painelEnderecos{{ $sufixo }}-tab-pane" role="tabpanel"
+            aria-labelledby="painelEnderecos{{ $sufixo }}-tab" tabindex="0">
+            @include('secao.pessoa.pessoa-fisica.form.painel.painel-enderecos')
         </div>
         <div class="tab-pane fade h-100" id="painelDocumentos{{ $sufixo }}-tab-pane" role="tabpanel"
             aria-labelledby="painelDocumentos{{ $sufixo }}-tab" tabindex="0">

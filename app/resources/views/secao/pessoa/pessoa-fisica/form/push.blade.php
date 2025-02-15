@@ -5,6 +5,7 @@
     <x-modal.pessoa.modal-selecionar-documento-tipo.modal />
     <x-modal.pessoa.modal-pessoa-documento.modal />
     <x-modal.pessoa.modal-selecionar-pessoa-perfil-tipo.modal />
+    <x-modal.comum.modal-endereco.modal />
 @endpush
 
 @push('scripts')
