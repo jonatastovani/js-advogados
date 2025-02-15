@@ -3,6 +3,7 @@
 namespace App\Models\Pessoa;
 
 use App\Enums\PessoaPerfilTipoEnum;
+use App\Models\Comum\Endereco;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,6 +44,10 @@ class Pessoa extends Model
         return $this->hasMany(PessoaDocumento::class);
     }
 
+    public function enderecos()
+    {
+        return $this->morphMany(Endereco::class, 'parent');
+    }
 
     /**
      * Insere uma cláusula de junção com a PessoaDocumento.

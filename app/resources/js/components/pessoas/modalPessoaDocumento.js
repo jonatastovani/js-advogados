@@ -51,7 +51,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         let blnOpen = false;
 
         if (self._dataEnvModal.register) {
-            blnOpen = await self.#buscarDados()
+            blnOpen = await self.#preencherDados()
         } else {
             if (!self._dataEnvModal.documento_tipo_tenant_id) {
                 commonFunctions.generateNotification('Tipo de documento não informado', 'error');
@@ -126,7 +126,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         MasksAndValidateHelpers.addEventCheckCNPJ({ selector: modal.find('.campo-cnpj'), event: 'focusout' });
     }
 
-    async #buscarDados() {
+    async #preencherDados() {
         const self = this;
 
         try {
@@ -187,7 +187,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
         data.documento_tipo_tenant = self._objConfigs.data.documento_tipo_tenant;
 
         if (self._dataEnvModal.register) {
-            data = Object.assign(self._dataEnvModal.register, data);
+            data = commonFunctions.deepMergeObject(self._dataEnvModal.register, data);
         }
         return data;
     }

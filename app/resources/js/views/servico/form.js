@@ -590,7 +590,7 @@ class PageServicoForm extends TemplateForm {
         if (item.observacao) {
             htmlAppend += `
             <p class="mb-0 text-truncate" title="${item.observacao}">
-               <b>Obs:</b> ${item.observacao}
+               <b>Observação:</b> ${item.observacao}
             </p>`;
         }
 

@@ -67,6 +67,15 @@ export class modalRegistrationAndEditing extends modalDefault {
 
     //#region Campos de busca padrão
 
+    /**
+     * Recupera um registro da API.
+     * 
+     * @param {Object} options - Op es adicionais.
+     * @param {number} options.idRegister - ID do registro a ser recuperado.
+     * @param {string} options.urlApi - URL da API.
+     * 
+     * @returns {Promise<Object|boolean>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicita o seja bem-sucedida ou false caso contr rio.
+     */
     async _getRecurse(options = {}) {
         const self = this;
         const { idRegister = self._dataEnvModal.idRegister,

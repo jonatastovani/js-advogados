@@ -43,12 +43,6 @@ class PessoaDocumentoService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_numero'], $dados);
     }
 
-    public function index(Fluent $requestData)
-    {
-        $resource = $this->model->all();
-        return $resource->toArray();
-    }
-
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [

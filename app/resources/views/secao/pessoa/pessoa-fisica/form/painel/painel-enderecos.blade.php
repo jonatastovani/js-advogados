@@ -6,4 +6,4 @@
     </div>
 </div>
 
-<div id="divEndereco{{ $sufixo }}" class="row row-cols-1 row-cols-xxl-2 g-2 flex-fill mt-2"></div>
+<div id="divEndereco{{ $sufixo }}" class="row row-cols-1 g-2 flex-fill mt-2"></div>

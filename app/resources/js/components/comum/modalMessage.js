@@ -31,21 +31,26 @@ export class modalMessage extends modalDefault {
     async modalOpen() {
         const self = this;
         const modal = $(self.getIdModal);
-        if (await self.fillInfo()) {
-            await self._modalHideShow();
+
+        try {
+            await self.fillInfo()
+
             if (([1, 2].findIndex((item) => item == self._dataEnvModal.idDefaultButton)) != -1) {
                 if (self._dataEnvModal.idDefaultButton == 1) {
-                    self._executeFocusElementOnModal(modal.find('.confirmYes'));
+                    self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmYes')[0], 1000);
                 } else {
-                    self._executeFocusElementOnModal(modal.find('.confirmNo'));
+                    self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000);
                 }
             } else {
-                self._executeFocusElementOnModal(modal.find('.confirmNo'));
+                self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000);
             }
+
+            await self._modalHideShow();
+            self.setReadyQueueOpen;
             return await self._modalOpen();
-        } else {
-            await self._modalClose();
-            return new Promise(function (reject) { reject(self._promisseReturnValue) });
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return await self._returnPromisseResolve();
         }
     }
 
@@ -61,12 +66,10 @@ export class modalMessage extends modalDefault {
 
         if (self._dataEnvModal.message !== null) {
             modal.find('.message').html(self._dataEnvModal.message);
-            return true;
         } else {
             const message = 'Nenhuma mensagem foi definida';
-            commonFunctions.generateNotification(`Não foi possível abrir a confirmação.`, 'error', { itemsArray: [message] });
             console.error(message, self._dataEnvModal);
-            return false;
+            throw new Error(message);
         }
     }
 

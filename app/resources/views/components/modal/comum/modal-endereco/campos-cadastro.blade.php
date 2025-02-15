@@ -1,103 +1,64 @@
 <div class="row">
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2 mt-2">
+    <div class="col-7 col-sm-6 col-lg-3 mt-2">
         <label for="cep{{ $sufixo }}" class="form-label">CEP</label>
         <div class="input-group">
             <input type="text" id="cep{{ $sufixo }}" name="cep" class="form-control">
-            <button id="btnBuscaCep{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                <i class="bi bi-geo-alt-fill"></i>
+            <button id="btnBuscaCep{{ $sufixo }}" type="button" class="btn btn-outline-primary"
+                title="Buscar CEP">
+                <i class="fas fa-search-location"></i>
             </button>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-12 mt-2">
-        <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
-        <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
+    <div class="col-12 col-lg-10 mt-2">
+        <label for="logradouro{{ $sufixo }}" class="form-label">Logradouro*</label>
+        <input type="text" id="logradouro{{ $sufixo }}" name="logradouro" class="form-control">
+    </div>
+    <div class="col-4 col-lg-2 mt-2">
+        <label for="numero{{ $sufixo }}" class="form-label">Número*</label>
+        <input type="text" id="numero{{ $sufixo }}" name="numero" class="form-control">
+    </div>
+    <div class="col-8 col-lg-6 mt-2">
+        <label for="complemento{{ $sufixo }}" class="form-label">Complemento</label>
+        <input type="text" id="complemento{{ $sufixo }}" name="complemento" class="form-control">
+    </div>
+    <div class="col-12 col-lg-6 mt-2">
+        <label for="bairro{{ $sufixo }}" class="form-label">Bairro*</label>
+        <input type="text" id="bairro{{ $sufixo }}" name="bairro" class="form-control">
+    </div>
+    <div class="col-12 col-lg-6 mt-2">
+        <label for="referencia{{ $sufixo }}" class="form-label">Referência</label>
+        <input type="text" id="referencia{{ $sufixo }}" name="referencia" class="form-control">
+    </div>
+    <div class="col-12 col-lg-6 mt-2">
+        <label for="cidade{{ $sufixo }}" class="form-label">Cidade*</label>
+        <input type="text" id="cidade{{ $sufixo }}" name="cidade" class="form-control">
+    </div>
+    <div class="col-6 col-md-4 col-lg-2 mt-2">
+        <label for="estado{{ $sufixo }}" class="form-label">Estado*</label>
+        <input type="text" id="estado{{ $sufixo }}" name="estado" class="form-control">
+    </div>
+    <div class="col-6 col-md-8 col-lg-10 mt-2">
+        <label for="pais{{ $sufixo }}" class="form-label">País</label>
+        <input type="text" id="pais{{ $sufixo }}" name="pais" class="form-control">
     </div>
 </div>
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2">
-    <div class="col mt-2">
-        <label for="mae{{ $sufixo }}" class="form-label">Mãe</label>
-        <input type="text" id="mae{{ $sufixo }}" name="mae" class="form-control">
-    </div>
-    <div class="col mt-2">
-        <label for="pai{{ $sufixo }}" class="form-label">Pai</label>
-        <input type="text" id="pai{{ $sufixo }}" name="pai" class="form-control">
-    </div>
-</div>
-<div class="row align-items-end">
-    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-        <label for="nacionalidade{{ $sufixo }}" class="form-label">Nacionalidade</label>
-        <input type="text" id="nacionalidade{{ $sufixo }}" name="nacionalidade" class="form-control">
-    </div>
-    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-        <label for="nascimento_cidade{{ $sufixo }}" class="form-label">Cidade de
-            Nascimento</label>
-        <input type="text" id="nascimento_cidade{{ $sufixo }}" name="nascimento_cidade" class="form-control">
-    </div>
-    <div class="col-6 col-sm-6 col-md-3 col-xl-2 mt-2">
-        <label for="nascimento_estado{{ $sufixo }}" class="form-label">Estado de
-            Nascimento</label>
-        <input type="text" id="nascimento_estado{{ $sufixo }}" name="nascimento_estado"
-            class="form-control text-center">
-    </div>
-    <div class="col-6 col-sm-6 col-md-3 col-xl-2 mt-2">
-        <label for="nascimento_data{{ $sufixo }}" class="form-label">Data de Nascimento</label>
-        <input type="date" id="nascimento_data{{ $sufixo }}" name="nascimento_data"
-            class="form-control text-center">
-    </div>
 
-    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-        <label for="estado_civil_id{{ $sufixo }}" class="form-label">Estado Civil</label>
-        <div class="input-group">
-            <select name="estado_civil_id" id="estado_civil_id{{ $sufixo }}" class="form-select">
-            </select>
-            <button id="btnOpenEstadoCivilTenant{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-        <label for="escolaridade_id{{ $sufixo }}" class="form-label">Escolaridade</label>
-        <div class="input-group">
-            <select name="escolaridade_id" id="escolaridade_id{{ $sufixo }}" class="form-select">
-            </select>
-            <button id="btnOpenEscolaridadeTenant{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-4 mt-2">
-        <label for="sexo_id{{ $sufixo }}" class="form-label">Sexo</label>
-        <div class="input-group">
-            <select name="sexo_id" id="sexo_id{{ $sufixo }}" class="form-select">
-            </select>
-            <button id="btnOpenSexoTenant{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row flex-fill">
-    <div class="col d-flex flex-column mt-2">
-        <div class="row">
-            <div class="col"><label for="observacao{{ $sufixo }}" class="form-label">Observações</label>
-            </div>
-        </div>
-        <div class="row flex-fill">
-            <div class="col d-flex flex-column">
-                <textarea name="observacao" id="observacao{{ $sufixo }}" class="form-control flex-fill"></textarea>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row">
+    <div class="col mt-2">
+        <label for="observacao{{ $sufixo }}" class="form-label">Observações</label>
+        <input type="text" id="observacao{{ $sufixo }}" name="observacao" class="form-control">
+    </div>
+</div>
+
+{{-- <div class="row">
     <div class="col mt-2">
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" name="ativo_bln"
                 id="ativo_bln{{ $sufixo }}" checked>
-            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Cadastro Ativo</label>
+            <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Endereço Atual</label>
         </div>
     </div>
-</div>
+</div> --}}

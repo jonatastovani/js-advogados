@@ -1,3 +1,4 @@
+import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 
 export class modalDefault {
@@ -37,7 +38,10 @@ export class modalDefault {
         modalInitialized: false,
         sufixo: undefined,
         data: undefined,
-        modalConfig: undefined
+        modalConfig: undefined,
+        queues: {
+            queueOpen: new QueueManager(),
+        }
     };
 
     /**
@@ -127,6 +131,25 @@ export class modalDefault {
 
     get modalInitialized() {
         return this._objConfigs.modalInitialized;
+    }
+
+    /**
+         * Adiciona uma ação à fila.
+         * 
+         * @param {Function} action - Função a ser executada quando estiver pronto.
+         */
+    set setActionQueueOpen(enqueue) {
+        this._objConfigs.queues.queueOpen.enqueue = enqueue;
+    }
+
+    /**
+     * Define que está pronto e processa a fila.
+     * @param {Boolean} isReady - Indica se está pronto para processar a fila. Padrão é true.
+     */
+    set setReadyQueueOpen(isReady = true) {
+        if (isReady === true) {
+            this._objConfigs.queues.queueOpen.isReady();
+        }
     }
 
     //#endregion
@@ -362,6 +385,19 @@ export class modalDefault {
     async _returnPromisseResolve() {
         const self = this;
         return new Promise(function (resolve) { resolve(self._promisseReturnValue) });
+    }
+
+    /**
+     * Retorna uma promise que é rejeitada com o valor de `_promisseReturnValue`.
+     * 
+     * Essa função é utilizada para retornar o valor de `_promisseReturnValue` em uma promise rejeitada,
+     * permitindo que o chamador trate a rejeição da promise antes de continuar a execução.
+     * 
+     * @return {Promise<never>} - Uma promise que é rejeitada com o valor de `_promisseReturnValue`.
+     */
+    async _returnPromisseReject() {
+        const self = this;
+        return new Promise(function (resolve, reject) { reject(self._promisseReturnValue) });
     }
 
     //#endregion

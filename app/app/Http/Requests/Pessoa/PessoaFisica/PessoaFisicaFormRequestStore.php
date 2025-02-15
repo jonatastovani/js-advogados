@@ -17,7 +17,7 @@ class PessoaFisicaFormRequestStore extends PessoaFisicaFormRequestBase
     public function rules()
     {
         $rules =  parent::rules();
-        $rules['perfis'] = 'required|array|min:1';
+        // $rules['perfis'] = 'required|array|min:1';
 
         switch (request()->input('pessoa_perfil_tipo_id')) {
             case PessoaPerfilTipoEnum::USUARIO->value:

@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Comum\Endereco;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
 use App\Models\Pessoa\PessoaJuridica;
@@ -15,6 +16,7 @@ use App\Models\Tenant\EscolaridadeTenant;
 use App\Models\Tenant\EstadoCivilTenant;
 use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
+use App\Traits\EnderecosMethodsTrait;
 use App\Traits\PessoaDocumentosMethodsTrait;
 use App\Traits\PessoaPerfilMethodsTrait;
 use Exception;
@@ -25,7 +27,9 @@ use Illuminate\Support\Fluent;
 
 class PessoaJuridicaService extends Service
 {
-    use PessoaDocumentosMethodsTrait, PessoaPerfilMethodsTrait;
+    use PessoaDocumentosMethodsTrait,
+        PessoaPerfilMethodsTrait,
+        EnderecosMethodsTrait;
 
     public function __construct(
         PessoaJuridica $model,
@@ -33,6 +37,7 @@ class PessoaJuridicaService extends Service
         public PessoaPerfil $modelPessoaPerfil,
         public PessoaDocumento $modelPessoaDocumento,
         public DocumentoTipoTenant $modelDocumentoTipoTenant,
+        public Endereco $modelEndereco,
     ) {
         parent::__construct($model);
     }
@@ -138,6 +143,9 @@ class PessoaJuridicaService extends Service
                 $perfis = $resource->perfis;
                 unset($resource->perfis);
 
+                $enderecos = $resource->enderecos;
+                unset($resource->enderecos);
+
                 //Salva os dados da Pessoa Jurídica
                 $resource->save();
 
@@ -160,6 +168,9 @@ class PessoaJuridicaService extends Service
                     $perfil->pessoa_id = $pessoa->id;
                     $perfil->save();
                 }
+
+                // Fazer salvamento dos enderecos
+                $this->atualizarEnderecosEnviados($resource, $resource->pessoa->enderecos, $enderecos);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -188,6 +199,10 @@ class PessoaJuridicaService extends Service
                 // Busca os perfis existentes
                 $perfisExistentes = $resource->pessoa->pessoa_perfil;
 
+                // Obter e remover do resource os enderecos
+                $enderecos = $resource->enderecos;
+                unset($resource->enderecos);
+
                 $resource->save();
 
                 // Fazer salvamento dos documentos
@@ -195,6 +210,9 @@ class PessoaJuridicaService extends Service
 
                 // Fazer salvamento dos perfis
                 $this->atualizarPerfisEnviados($resource, $perfisExistentes, $perfis);
+
+                // Fazer salvamento dos enderecos
+                $this->atualizarEnderecosEnviados($resource, $resource->pessoa->enderecos, $enderecos);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -220,6 +238,11 @@ class PessoaJuridicaService extends Service
         $perfisProcessados = $this->verificacaoPerfis($requestData, $resource, $arrayErrors);
         $resource->perfis = $perfisProcessados->perfis;
         $arrayErrors = $perfisProcessados->arrayErrors;
+
+        // Verifica e processa enderecos
+        $enderecosProcessados = $this->verificacaoEnderecos($requestData, $resource, $arrayErrors);
+        $resource->enderecos = $enderecosProcessados->enderecos;
+        $arrayErrors = $enderecosProcessados->arrayErrors;
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());

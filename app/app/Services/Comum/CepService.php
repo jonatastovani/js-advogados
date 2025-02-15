@@ -5,11 +5,22 @@ namespace App\Services\Comum;
 use App\Common\RestResponse;
 use App\Services\Service;
 use App\Helpers\CurlRequest;
+use App\Models\Comum\IdentificacaoTags;
 use Illuminate\Support\Fluent;
 
 class CepService extends Service
 {
+
     private string $baseUrl = 'https://brasilapi.com.br/api/cep/v1/';
+
+    public function __construct(
+        /* Colocado esta model para evitar o erro
+        "Target [Illuminate\Database\Eloquent\Model] is not instantiable while building [App\Http\Controllers\Comum\CepController, App\Services\Comum\CepService]."
+        */
+        IdentificacaoTags $model,
+    ) {
+        parent::__construct($model);
+    }
 
     protected function traducaoCampos(array $dados)
     {

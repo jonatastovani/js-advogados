@@ -117,7 +117,7 @@ class PessoaService extends Service
             return $relationships;
         };
 
-        $relationships = [];
+        $relationships = ['enderecos'];
 
         // Verifica se PessoaPerfilService está na lista de exclusão
         $classImport = PessoaPerfilService::class;

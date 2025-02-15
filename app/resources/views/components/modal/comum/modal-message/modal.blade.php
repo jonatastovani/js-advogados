@@ -6,7 +6,7 @@
                 <h4 class="modal-title">Confirmação de ação</h4>
             </div>
             <div class="modal-body">
-                <p class="message text-start">Mensagem para o usuário</p>
+                <div class="message text-start mb-2">Mensagem para o usuário</div>
                 <div class="row">
                     <div class="col">
                         <div class="d-flex justify-content-end">

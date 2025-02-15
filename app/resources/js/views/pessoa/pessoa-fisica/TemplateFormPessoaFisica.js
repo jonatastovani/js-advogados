@@ -1,19 +1,16 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
-import { modalEndereco } from "../../../components/comum/modalEndereco";
 import { modalEscolaridadeTenant } from "../../../components/tenant/modalEscolaridadeTenant";
 import { modalEstadoCivilTenant } from "../../../components/tenant/modalEstadoCivilTenant";
 import { modalSexoTenant } from "../../../components/tenant/modalSexoTenant";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
+import { EnderecoModule } from "../../../modules/EnderecoModule";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
 
 export class TemplateFormPessoaFisica extends TemplateForm {
-
-    _pessoaDocumentoModule;
-    _pessoaPerfilModule;
 
     constructor(objSuper) {
         const objConfigs = {
@@ -29,6 +26,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
                 pessoa_tipo_aplicavel: [],
                 documentosNaTela: [],
                 perfisNaTela: [],
+                enderecosNaTela: [],
             },
         };
 
@@ -73,6 +71,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
         }
         self._pessoaDocumentoModule = new PessoaDocumentoModule(self, objData);
         self._pessoaPerfilModule = new PessoaPerfilModule(self, objData);
+        self._enderecoModule = new EnderecoModule(self, objData);
     }
 
     _addEventosBotoes() {
@@ -83,24 +82,6 @@ export class TemplateFormPessoaFisica extends TemplateForm {
         commonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), modalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
 
         commonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), modalSexoTenant, self.#buscarSexo.bind(self));
-
-
-        $(`#btnAdicionarEndereco${self._objConfigs.sufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalEndereco();
-
-                const response = await objModal.modalOpen();
-                console.log(response)
-                // if (response.refresh) {
-                // }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        }).trigger('click');
     }
 
     async preenchimentoDados(response, options = {}) {
@@ -189,6 +170,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
         data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
         data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
+        data.enderecos = self._enderecoModule._retornaEnderecosNaTelaSaveButonAction();
 
         if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
             data = self.saveButtonActionEspecificoPerfilTipo(data);

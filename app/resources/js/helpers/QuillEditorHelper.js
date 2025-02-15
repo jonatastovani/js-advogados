@@ -23,7 +23,7 @@ export class QuillEditorHelper {
         const $toolbar = this.createToolbar(toolbarId, options.exclude);
 
         // Criar o editor
-        const $editor = $('<div>').attr('id', editorId).addClass('rounded-bottom-2');
+        const $editor = $('<div>').attr('id', editorId).addClass('rounded-bottom-2 border-0');
 
         // Esconde o campo original e insere o editor no DOM
         $targetElement.hide().after(
@@ -38,6 +38,9 @@ export class QuillEditorHelper {
                 toolbar: `#${toolbarId}`
             }
         });
+
+        // Adicionar classes personalizadas para aparência com Bootstrap
+        $(`#${editorId} .ql-editor`).addClass('form-control rounded-top-0');
 
         // Traduzir os botões
         setTimeout(() => {

@@ -22,14 +22,29 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'observacao' => 'nullable|string',
             'ativo_bln' => 'nullable|boolean',
             'pessoa_perfil_tipo_id' => 'required|integer',
+
             'documentos' => 'nullable|array',
             'documentos.*.id' => 'nullable|uuid',
             'documentos.*.documento_tipo_tenant_id' => 'required|uuid',
             'documentos.*.numero' => 'required|string',
             // 'documentos.*.campos_adicionais' => 'nullable|string',
-            'perfis' => 'nullable|array',
+
+            'perfis' => 'required|array|min:1',
             'perfis.*.id' => 'nullable|uuid',
             'perfis.*.perfil_tipo_id' => 'required|integer',
+            
+            'enderecos' => 'nullable|array',
+            'enderecos.*.id' => 'nullable|uuid',
+            'enderecos.*.cep' => 'nullable|string',
+            'enderecos.*.logradouro' => 'required|string',
+            'enderecos.*.numero' => 'required|string',
+            'enderecos.*.complemento' => 'nullable|string',
+            'enderecos.*.bairro' => 'required|string',
+            'enderecos.*.referencia' => 'nullable|string',
+            'enderecos.*.cidade' => 'required|string',
+            'enderecos.*.estado' => 'required|string',
+            'enderecos.*.pais' => 'nullable|string',
+            'enderecos.*.observacao' => 'nullable|string',
         ];
     }
 

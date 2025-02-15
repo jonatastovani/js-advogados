@@ -523,7 +523,6 @@ export class ParticipacaoModule {
                     }
 
                     self._atualizaPorcentagemLivre();
-                    commonFunctions.generateNotification('Participante removido.', 'success');
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -570,10 +569,6 @@ export class ParticipacaoModule {
                 const btn = $(this);
                 commonFunctions.simulateLoading(btn);
                 try {
-                    // const dataEnvModalAppend = {
-                    //     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
-                    // };
-                    // const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
                     const objModal = new modalPessoa();
                     objModal.setDataEnvModal = {
                         perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,

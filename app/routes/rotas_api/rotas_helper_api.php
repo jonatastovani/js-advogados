@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Comum\CEP\CepController;
+use App\Http\Controllers\Comum\CepController;
 use App\Http\Controllers\Referencias\PagamentoTipoController;
 use App\Http\Controllers\Validacao\ValidacaoController;
 use Illuminate\Support\Facades\Route;

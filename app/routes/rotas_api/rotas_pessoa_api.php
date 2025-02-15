@@ -20,17 +20,6 @@ Route::group([
         });
     });
 
-    // Route::controller(App\Http\Controllers\Pessoa\PessoaController::class)->group(function () {
-    //     Route::prefix('pessoa-juridica')->group(function () {
-    //         Route::post('consulta-filtros/pessoa-juridica', 'postConsultaFiltrosJuridica');
-
-    //         Route::post('', 'store')->name('api.pessoa.pessoa-juridica');
-    //         Route::get('{uuid}', 'show');
-    //         Route::put('{uuid}', 'update');
-    //         Route::delete('{uuid}', 'destroy');
-    //     });
-    // });
-
     Route::controller(App\Http\Controllers\Pessoa\PessoaFisicaController::class)->group(function () {
 
         Route::prefix('pessoa-fisica')->group(function () {

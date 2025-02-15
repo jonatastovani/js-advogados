@@ -165,4 +165,17 @@ export class MasksAndValidateHelpers {
     static cepMask(selector) {
         $(selector).mask('00.000-000');
     }
+
+    /**
+     * Formata um CEP para o padrão 00.000-000, se tiver exatamente 8 dígitos.
+     * Caso contrário, retorna o valor original sem alterações.
+     *
+     * @param {string} cep - O CEP a ser formatado.
+     * @returns {string} - O CEP formatado ou o original se não tiver 8 dígitos.
+     */
+    static formatCep(cep) {
+        const numeros = cep.replace(/\D/g, ''); // Remove tudo que não for número
+        return numeros.length === 8 ? numeros.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2-$3') : cep;
+    }
+
 }

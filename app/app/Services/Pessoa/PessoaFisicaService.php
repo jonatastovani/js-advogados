@@ -7,6 +7,7 @@ use App\Enums\PessoaPerfilTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Auth\UserTenantDomain;
+use App\Models\Comum\Endereco;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
 use App\Models\Pessoa\PessoaFisica;
@@ -16,6 +17,7 @@ use App\Models\Tenant\EscolaridadeTenant;
 use App\Models\Tenant\EstadoCivilTenant;
 use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
+use App\Traits\EnderecosMethodsTrait;
 use App\Traits\PessoaDocumentosMethodsTrait;
 use App\Traits\PessoaFisicaUsuarioMethodsTrait;
 use App\Traits\PessoaPerfilMethodsTrait;
@@ -27,7 +29,11 @@ use Illuminate\Support\Fluent;
 
 class PessoaFisicaService extends Service
 {
-    use PessoaDocumentosMethodsTrait, PessoaPerfilMethodsTrait, UserDomainMethodsTrait, PessoaFisicaUsuarioMethodsTrait;
+    use PessoaDocumentosMethodsTrait,
+        PessoaPerfilMethodsTrait,
+        UserDomainMethodsTrait,
+        PessoaFisicaUsuarioMethodsTrait,
+        EnderecosMethodsTrait;
 
     public function __construct(
         PessoaFisica $model,
@@ -36,6 +42,7 @@ class PessoaFisicaService extends Service
         public PessoaDocumento $modelPessoaDocumento,
         public DocumentoTipoTenant $modelDocumentoTipoTenant,
         public UserTenantDomain $modelUserTenantDomain,
+        public Endereco $modelEndereco,
     ) {
         parent::__construct($model);
     }
@@ -180,6 +187,9 @@ class PessoaFisicaService extends Service
                     unset($resource->userDomains);
                 }
 
+                $enderecos = $resource->enderecos;
+                unset($resource->enderecos);
+
                 //Salva os dados da Pessoa Jurídica
                 $resource->save();
 
@@ -197,15 +207,23 @@ class PessoaFisicaService extends Service
                     }
                 }
 
-                $perfilUsuario = null;
+                // Fazer salvamento dos documentos
+                $this->atualizarDocumentosEnviados($resource, $resource->pessoa->documentos, $documentos);
+
                 // Fazer salvamento dos perfis
-                foreach ($perfis as $perfil) {
-                    $perfil->pessoa_id = $pessoa->id;
-                    $perfil->save();
-                    if ($perfil->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
-                        $perfilUsuario = $perfil;
-                    }
-                }
+                $this->atualizarPerfisEnviados($resource, $resource->pessoa->pessoa_perfil, $perfis);
+
+                // $perfilUsuario = null;
+                // // Fazer salvamento dos perfis
+                // foreach ($perfis as $perfil) {
+                //     $perfil->pessoa_id = $pessoa->id;
+                //     $perfil->save();
+                //     if ($perfil->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
+                //         $perfilUsuario = $perfil;
+                //     }
+                // }
+
+                $perfilUsuario = $resource->pessoa->perfil_usuario;
 
                 // Se foi enviado user, então é um salvamento de dados de usuário, logo, se cria o usuário e depois se faz a verificação de salvamento de domínios 
                 if ($user && $perfilUsuario) {
@@ -221,6 +239,9 @@ class PessoaFisicaService extends Service
                         }
                     }
                 }
+
+                // Fazer salvamento dos enderecos
+                $this->atualizarEnderecosEnviados($resource, $resource->pessoa->enderecos, $enderecos);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -262,18 +283,17 @@ class PessoaFisicaService extends Service
                     unset($resource->userDomains);
                 }
 
-                // Busca os documentos existentes
-                $documentosExistentes = $resource->pessoa->documentos;
-                // Busca os perfis existentes
-                $perfisExistentes = $resource->pessoa->pessoa_perfil;
+                // Obter e remover do resource os enderecos
+                $enderecos = $resource->enderecos;
+                unset($resource->enderecos);
 
                 $resource->save();
 
                 // Fazer salvamento dos documentos
-                $this->atualizarDocumentosEnviados($resource, $documentosExistentes, $documentos);
+                $this->atualizarDocumentosEnviados($resource, $resource->pessoa->documentos, $documentos);
 
                 // Fazer salvamento dos perfis
-                $this->atualizarPerfisEnviados($resource, $perfisExistentes, $perfis);
+                $this->atualizarPerfisEnviados($resource, $resource->pessoa->pessoa_perfil, $perfis);
 
                 // Se for enviado dados de usuário
                 if ($user) {
@@ -284,6 +304,9 @@ class PessoaFisicaService extends Service
                         $this->atualizarUserDomainsEnviados($resource, $userDomainsExistentes, $userDomains, $user);
                     }
                 }
+
+                // Fazer salvamento dos enderecos
+                $this->atualizarEnderecosEnviados($resource, $resource->pessoa->enderecos, $enderecos);
 
                 // $this->executarEventoWebsocket();
                 return $resource->toArray();
@@ -326,6 +349,11 @@ class PessoaFisicaService extends Service
             $resource->user = $userProcessado->user;
             $arrayErrors = $userProcessado->arrayErrors;
         }
+
+        // Verifica e processa enderecos
+        $enderecosProcessados = $this->verificacaoEnderecos($requestData, $resource, $arrayErrors);
+        $resource->enderecos = $enderecosProcessados->enderecos;
+        $arrayErrors = $enderecosProcessados->arrayErrors;
 
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
