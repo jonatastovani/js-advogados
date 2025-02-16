@@ -3,23 +3,16 @@
 namespace App\Services\Pessoa;
 
 use App\Common\CommonsFunctions;
-use App\Enums\PessoaPerfilTipoEnum;
-use App\Helpers\LogHelper;
-use App\Helpers\ValidationRecordsHelper;
 use App\Models\Comum\Endereco;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaDocumento;
 use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Tenant\DocumentoTipoTenant;
-use App\Models\Tenant\EscolaridadeTenant;
-use App\Models\Tenant\EstadoCivilTenant;
-use App\Models\Tenant\SexoTenant;
 use App\Services\Service;
 use App\Traits\EnderecosMethodsTrait;
 use App\Traits\PessoaDocumentosMethodsTrait;
 use App\Traits\PessoaPerfilMethodsTrait;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
