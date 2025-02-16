@@ -118,6 +118,12 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             });
         }
 
+        if (responseData.pessoa?.enderecos.length) {
+            responseData.pessoa.enderecos.map(endereco => {
+                self._enderecoModule._inserirEndereco(endereco, false);
+            });
+        }
+
         if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
             await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
         }

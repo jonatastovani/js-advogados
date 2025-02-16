@@ -4,13 +4,11 @@ import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { MasksAndValidateHelpers } from "../../../helpers/MasksAndValidateHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
+import { EnderecoModule } from "../../../modules/EnderecoModule";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
 
 export class TemplateFormPessoaJuridica extends TemplateForm {
-
-    _pessoaDocumentoModule;
-    _pessoaPerfilModule;
 
     constructor(objSuper) {
         const objConfigs = {
@@ -23,6 +21,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
                 pessoa_tipo_aplicavel: [],
                 documentosNaTela: [],
                 perfisNaTela: [],
+                enderecosNaTela: [],
             },
         };
 
@@ -63,6 +62,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         }
         self._pessoaDocumentoModule = new PessoaDocumentoModule(self, objData);
         self._pessoaPerfilModule = new PessoaPerfilModule(self, objData);
+          self._enderecoModule = new EnderecoModule(self, objData);
     }
 
     _addEventosBotoes() {
@@ -112,6 +112,12 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
             });
         }
 
+        if (responseData.pessoa?.enderecos.length) {
+            responseData.pessoa.enderecos.map(endereco => {
+                self._enderecoModule._inserirEndereco(endereco, false);
+            });
+        }
+
         if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
             await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
         }
@@ -126,6 +132,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
         data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
         data.capital_social = data.capital_social ? commonFunctions.removeCommasFromCurrencyOrFraction(data.capital_social) : null;
+        data.enderecos = self._enderecoModule._retornaEnderecosNaTelaSaveButonAction();
 
         if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
             data = self.saveButtonActionEspecificoPerfilTipo(data);

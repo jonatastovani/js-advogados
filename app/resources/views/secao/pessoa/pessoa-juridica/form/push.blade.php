@@ -5,6 +5,7 @@
     <x-modal.pessoa.modal-selecionar-documento-tipo.modal />
     <x-modal.pessoa.modal-pessoa-documento.modal />
     <x-modal.pessoa.modal-selecionar-pessoa-perfil-tipo.modal />
+    <x-modal.comum.modal-endereco.modal />
 @endpush
 
 @push('scripts')
@@ -12,9 +13,6 @@
         'routes' => [
             'basePessoaPerfil' => route('api.pessoa.perfil'),
             'basePessoaJuridica' => route('api.pessoa.pessoa-juridica'),
-            'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
-            'baseEstadoCivilTenant' => route('api.tenant.estado-civil'),
-            'baseSexoTenant' => route('api.tenant.sexo'),
         ],
     ])
     @endcomponent
