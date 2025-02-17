@@ -1,13 +1,17 @@
 import Quill from 'quill';
 
 export class QuillEditorHelper {
+
+    _selector;
+    _quill;
+
     /**
      * Inicializa o Quill.js para um determinado campo de texto.
      * @param {string|jQuery} selector - Seletor do elemento onde o editor será aplicado.
      * @param {Object} options - Opções para personalizar a toolbar.
      * @param {Array} options.exclude - Lista de botões a serem removidos.
      */
-    static init(selector, options = {}) {
+    constructor(selector, options = {}) {
         const $targetElement = (selector instanceof jQuery) ? selector : $(selector);
 
         if (!$targetElement.length) {
@@ -15,12 +19,14 @@ export class QuillEditorHelper {
             return;
         }
 
+        this._selector = selector;
+
         // Criar estrutura do editor dinamicamente
         const toolbarId = `toolbar-${$targetElement.attr('id')}`;
         const editorId = `editor-${$targetElement.attr('id')}`;
 
         // Criar toolbar personalizada com base nas opções
-        const $toolbar = this.createToolbar(toolbarId, options.exclude);
+        const $toolbar = this._createToolbar(toolbarId, options.exclude);
 
         // Criar o editor
         const $editor = $('<div>').attr('id', editorId).addClass('rounded-bottom-2 border-0');
@@ -32,7 +38,7 @@ export class QuillEditorHelper {
         );
 
         // Inicializar o Quill.js
-        const quill = new Quill(`#${editorId}`, {
+        this._quill = new Quill(`#${editorId}`, {
             theme: 'snow',
             modules: {
                 toolbar: `#${toolbarId}`
@@ -44,10 +50,19 @@ export class QuillEditorHelper {
 
         // Traduzir os botões
         setTimeout(() => {
-            this.translateToolbar(toolbarId);
+            this._translateToolbar(toolbarId);
         }, 500);
+    }
 
-        return quill;
+    get getSelector() {
+        return this._selector;
+    }
+
+    /**
+     * Retorna a instância do Quill.js associada ao editor.
+     */
+    get getQuill() {
+        return this._quill;
     }
 
     /**
@@ -56,7 +71,7 @@ export class QuillEditorHelper {
      * @param {Array} exclude - Lista de botões a serem removidos.
      * @returns {jQuery} - Elemento jQuery da toolbar.
      */
-    static createToolbar(toolbarId, exclude = []) {
+    _createToolbar(toolbarId, exclude = []) {
         const defaultButtons = {
             font: '<select class="ql-font"></select>',
             size: '<select class="ql-size"></select>',
@@ -94,14 +109,14 @@ export class QuillEditorHelper {
         return $('<div>')
             .attr('id', toolbarId)
             .html(toolbarHtml)
-            .addClass('rounded-top-2 text-bg-light');
+            .addClass('rounded-top-2 bg-light');
     }
 
     /**
      * Traduz os botões da toolbar para português.
      * @param {string} toolbarId - O ID da toolbar associada ao editor.
      */
-    static translateToolbar(toolbarId) {
+    _translateToolbar(toolbarId) {
         const $toolbar = $(`#${toolbarId}`);
         if (!$toolbar.length) return;
 
@@ -126,5 +141,42 @@ export class QuillEditorHelper {
         $.each(translations, function (selector, title) {
             $toolbar.find(selector).attr('title', title);
         });
+    }
+
+    /**
+     * Cria um botão personalizado para inserir marcações de clientes.
+     * @param {Object} config - Configuração do botão.
+     * @returns {jQuery} Elemento do botão.
+     */
+    _criarBotao(config) {
+        let ico = config?.icone ?? '<i class="fas fa-bomb"></i>';
+
+        return $('<button>')
+            .attr('type', 'button')
+            .attr('title', config.title)
+            .addClass('ql-button') // Adiciona a classe do Quill
+            .html(ico)
+            .on("click", () => {
+                this.getQuill.focus(); // Garante que o Quill recebe o foco
+                this._inserirMarcacaoNoEditor(config);
+            });
+    }
+    /**
+     * Insere uma marcação personalizada no local do cursor.
+     * Se não houver espaços antes da marcação, adiciona um espaço.
+     * @param {Object} config - Configuração do botão.
+     */
+    _inserirMarcacaoNoEditor(config) {
+        const quill = this.getQuill;
+        const range = quill.getSelection();
+        if (range) {
+            const index = range.index;
+            const textoAntes = quill.getText(index - 1, 1); // Captura o caractere antes do cursor
+
+            // Se o caractere anterior não for um espaço, adicionamos um espaço antes da marcação
+            const textoInserir = (textoAntes && textoAntes !== ' ') ? ' ' + config.marcacao : config.marcacao;
+            quill.insertText(index, textoInserir, 'bold', true);
+            quill.setSelection(index + textoInserir.length); // Move o cursor para depois da marcação
+        }
     }
 }

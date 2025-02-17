@@ -8,11 +8,10 @@ import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalSelecionarPagamentoTipo } from "../../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../../components/servico/modalServicoPagamento";
 import { modalAnotacaoLembreteTenant } from "../../../components/tenant/modalAnotacaoLembreteTenant";
-import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { DocumentoModeloQuillEditorHelper } from "../../../helpers/DocumentoModeloQuillEditorHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
-import { QuillEditorHelper } from "../../../helpers/QuillEditorHelper";
 import SimpleBarHelper from "../../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -72,7 +71,7 @@ class PageDocumentoModeloForm extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        await this.#buscarAreasJuridicas();
+        // await this.#buscarAreasJuridicas();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
@@ -95,7 +94,7 @@ class PageDocumentoModeloForm extends TemplateForm {
     #addEventosBotoes() {
         const self = this;
 
-        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
+        // commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
@@ -189,10 +188,11 @@ class PageDocumentoModeloForm extends TemplateForm {
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
-        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+        // self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
-        self._objConfigs.data.elemEuillEditor = QuillEditorHelper.init(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
+        self._objConfigs.data.elemQuillEditor = (new DocumentoModeloQuillEditorHelper(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] })).getQuill;
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
+        BootstrapFunctionsHelper.addEventPopover();
     }
 
     async #inserirCliente(item) {
@@ -862,7 +862,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         form.find('input[name="titulo"]').val(responseData.titulo);
         self.#buscarAreasJuridicas(responseData.area_juridica_id);
         self.#quillQueueManager.enqueue(() => {
-            self._objConfigs.data.elemEuillEditor.setContents(responseData.descricao);
+            self._objConfigs.data.elemQuillEditor.setContents(responseData.descricao);
         })
 
         $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
@@ -966,7 +966,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const descricaoDelta = self._objConfigs.data.elemEuillEditor.getContents();
+        const descricaoDelta = self._objConfigs.data.elemQuillEditor.getContents();
         data.descricao = descricaoDelta;
 
         if (self.#saveVerifications(data, formRegistration)) {

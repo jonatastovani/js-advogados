@@ -26,16 +26,23 @@
     @endcomponent
 
     <div class="row">
+        <div class="col-sm-12 col-md-7 col-xl-8">
+            <label for="nome{{ $sufixo }}" class="form-label">Nome do modelo</label>
+            <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col mt-2 px-0">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 active" id="painelServico{{ $sufixo }}-tab" data-bs-toggle="tab"
                         data-bs-target="#painelServico{{ $sufixo }}-tab-pane" type="button" role="tab"
                         aria-controls="painelServico{{ $sufixo }}-tab-pane" aria-selected="true">
-                        Serviço
+                        Modelo
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
+                {{-- <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelClientes{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#painelClientes{{ $sufixo }}-tab-pane" type="button"
@@ -67,7 +74,7 @@
                         aria-selected="false">
                         Participantes
                     </button>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>
@@ -75,9 +82,9 @@
         <div class="col tab-content overflow-auto" id="myTabContent">
             <div class="tab-pane fade h-100 show active" id="painelServico{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelServico{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.documento.modelo.form.painel-servico')
+                @include('secao.documento.modelo.form.painel-modelo')
             </div>
-            <div class="tab-pane fade h-100" id="painelClientes{{ $sufixo }}-tab-pane" role="tabpanel"
+            {{-- <div class="tab-pane fade h-100" id="painelClientes{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelClientes{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
                     @include('secao.documento.modelo.form.painel-clientes')
@@ -100,7 +107,19 @@
                 @if (!$disabledNovoRegistro)
                     @include('secao.documento.modelo.form.painel-participantes')
                 @endif
-            </div>
+            </div> --}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col legenda-campos-obrigatorios text-end mt-2 border-light-subtle">
+            * Campos obrigatórios
+        </div>
+    </div>
+    <div class="row text-end">
+        <div class="col mt-2">
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
+                Salvar
+            </button>
         </div>
     </div>
 

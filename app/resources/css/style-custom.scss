@@ -34,9 +34,14 @@ $opacities: (
 }
 
 @for $i from 10 through 45 {
-    @if ($i % 5 == 0) {
+    @if ($i % 5==0) {
         .campo-tabela-truncate-#{$i} {
             max-width: #{$i}rem;
         }
     }
+}
+
+/* Define a cor padrão para os ícones, apenas quando não estiver com hover */
+.ql-toolbar button.ql-button:not(:hover) i {
+    color: #444 !important;
 }

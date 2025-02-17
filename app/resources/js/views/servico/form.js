@@ -191,7 +191,7 @@ class PageServicoForm extends TemplateForm {
 
         self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
-        self._objConfigs.data.elemEuillEditor = QuillEditorHelper.init(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
+        self._objConfigs.data.elemQuillEditor = (new QuillEditorHelper(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] })).getQuill;
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
     }
 
@@ -862,7 +862,7 @@ class PageServicoForm extends TemplateForm {
         form.find('input[name="titulo"]').val(responseData.titulo);
         self.#buscarAreasJuridicas(responseData.area_juridica_id);
         self.#quillQueueManager.enqueue(() => {
-            self._objConfigs.data.elemEuillEditor.setContents(responseData.descricao);
+            self._objConfigs.data.elemQuillEditor.setContents(responseData.descricao);
         })
 
         $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
@@ -966,7 +966,7 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const descricaoDelta = self._objConfigs.data.elemEuillEditor.getContents();
+        const descricaoDelta = self._objConfigs.data.elemQuillEditor.getContents();
         data.descricao = descricaoDelta;
 
         if (self.#saveVerifications(data, formRegistration)) {
