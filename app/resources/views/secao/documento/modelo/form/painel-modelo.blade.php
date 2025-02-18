@@ -3,7 +3,7 @@
         <div class="row h-100">
             <div class="col d-flex flex-column flex-md-row flex-lg-column flex-xl-row">
 
-                <div class="row flex-fill">
+                <div class="row flex-grow-1">
                     <div class="col d-flex flex-column mt-2">
                         <div class="row">
                             <div class="col"><label for="descricao{{ $sufixo }}"
@@ -19,9 +19,9 @@
                     </div>
                 </div>
 
-                <div class="row flex-fill">
-                    <div class="col d-flex flex-column ms-md-2 ms-lg-0 ms-xl-2">
+                <div class="row flex-shrink-1">
 
+                    <div class="col d-flex flex-column ms-md-2 ms-lg-0 ms-xl-2">
                         <div class="d-grid d-sm-block">
                             <div class="dropdown">
                                 <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
