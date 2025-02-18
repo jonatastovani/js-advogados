@@ -12,11 +12,11 @@ import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridi
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
-import { QuillEditorHelper } from "../../helpers/QuillEditorHelper";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
+import { QuillEditorModule } from "../../modules/QuillEditorModule";
 import { QueueManager } from "../../utils/QueueManager";
 
 class PageServicoForm extends TemplateForm {
@@ -94,6 +94,11 @@ class PageServicoForm extends TemplateForm {
 
     #addEventosBotoes() {
         const self = this;
+
+        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+
+        self._classQuillEditor = new QuillEditorModule(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
+        self.#quillQueueManager.setReady();  // Informa que o quill está pronto
 
         commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
@@ -188,11 +193,6 @@ class PageServicoForm extends TemplateForm {
             await self.#buscarPagamentos();
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
-
-        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
-
-        self._objConfigs.data.elemQuillEditor = (new QuillEditorHelper(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] })).getQuill;
-        self.#quillQueueManager.setReady();  // Informa que o quill está pronto
     }
 
     async #inserirCliente(item) {
@@ -862,7 +862,7 @@ class PageServicoForm extends TemplateForm {
         form.find('input[name="titulo"]').val(responseData.titulo);
         self.#buscarAreasJuridicas(responseData.area_juridica_id);
         self.#quillQueueManager.enqueue(() => {
-            self._objConfigs.data.elemQuillEditor.setContents(responseData.descricao);
+            self._classQuillEditor.getQuill.setContents(responseData.descricao);
         })
 
         $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
@@ -966,7 +966,7 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const descricaoDelta = self._objConfigs.data.elemQuillEditor.getContents();
+        const descricaoDelta = self._classQuillEditor.getQuill.getContents();
         data.descricao = descricaoDelta;
 
         if (self.#saveVerifications(data, formRegistration)) {

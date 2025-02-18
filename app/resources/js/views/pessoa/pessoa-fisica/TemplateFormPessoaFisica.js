@@ -99,6 +99,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
         form.find('input[name="nascimento_cidade"]').val(pessoaDados.nascimento_cidade);
         form.find('input[name="nascimento_estado"]').val(pessoaDados.nascimento_estado);
         form.find('input[name="nascimento_data"]').val(pessoaDados.nascimento_data);
+        form.find('input[name="profissao"]').val(pessoaDados.profissao);
         self.#buscarEscolaridade(pessoaDados.escolaridade_id);
         self.#buscarEstadoCivil(pessoaDados.estado_civil_id);
         self.#buscarSexo(pessoaDados.sexo_id);

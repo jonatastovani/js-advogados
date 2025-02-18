@@ -79,6 +79,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-xl-4 mt-2">
+                        <label for="profissao{{ $sufixo }}" class="form-label">Profissão</label>
+                        <input type="text" id="profissao{{ $sufixo }}" name="profissao" class="form-control">
+                    </div>
+                </div>
                 <div class="row flex-fill">
                     <div class="col d-flex flex-column mt-2">
                         <div class="row">

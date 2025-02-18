@@ -1,6 +1,6 @@
 import Quill from 'quill';
 
-export class QuillEditorHelper {
+export class QuillEditorModule {
 
     _selector;
     _quill;

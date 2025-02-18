@@ -32,15 +32,6 @@ return new class extends Migration
             // $table->string('celular')->nullable()->after('telefone');
             // $table->string('site')->nullable()->after('celular');
 
-            // // Endereço
-            // $table->string('logradouro')->nullable()->after('site');
-            // $table->string('numero')->nullable()->after('logradouro');
-            // $table->string('complemento')->nullable()->after('numero');
-            // $table->string('bairro')->nullable()->after('complemento');
-            // $table->string('cidade')->nullable()->after('bairro');
-            // $table->string('estado', 2)->nullable()->after('cidade');
-            // $table->string('cep')->nullable()->after('estado');
-            
             // Informações financeiras
             $table->decimal('capital_social', 15, 2)->nullable()->after('data_fundacao');
             $table->string('regime_tributario')->nullable()->after('capital_social');

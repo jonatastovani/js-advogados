@@ -4,17 +4,15 @@ import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalParticipacao } from "../../../components/comum/modalParticipacao";
-import { modalPessoa } from "../../../components/pessoas/modalPessoa";
-import { modalSelecionarPagamentoTipo } from "../../../components/servico/modalSelecionarPagamentoTipo";
 import { modalServicoPagamento } from "../../../components/servico/modalServicoPagamento";
 import { modalAnotacaoLembreteTenant } from "../../../components/tenant/modalAnotacaoLembreteTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { DocumentoModeloQuillEditorHelper } from "../../../helpers/DocumentoModeloQuillEditorHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import SimpleBarHelper from "../../../helpers/SimpleBarHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
+import { DocumentoModeloQuillEditorModule } from "../../../modules/DocumentoModeloQuillEditorModule";
 import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 import { QueueManager } from "../../../utils/QueueManager";
 
@@ -94,6 +92,16 @@ class PageDocumentoModeloForm extends TemplateForm {
     #addEventosBotoes() {
         const self = this;
 
+        self._classQuillEditor = new DocumentoModeloQuillEditorModule(self, {
+            quillEditor: {
+                selector: `#descricao${self.getSufixo}`,
+                options: { exclude: ['image', 'scriptSub', 'scriptSuper'] }
+            }
+        });
+        self.#quillQueueManager.setReady();  // Informa que o quill está pronto
+
+        self._classQuillEditor.addEventClientes();
+
         // commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
@@ -101,98 +109,96 @@ class PageDocumentoModeloForm extends TemplateForm {
             self.#saveButtonActionParticipacao();
         });
 
-        $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
+        // $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
 
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalPessoa();
-                objModal.setDataEnvModal = {
-                    perfis_busca: window.Statics.PerfisPermitidoClienteServico,
-                };
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.selecteds) {
-                    response.selecteds.map(item => {
-                        self.#inserirCliente({
-                            perfil_id: item.id,
-                            perfil: item
-                        });
-                    })
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalPessoa();
+        //         objModal.setDataEnvModal = {
+        //             perfis_busca: window.Statics.PerfisPermitidoClienteServico,
+        //         };
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh && response.selecteds) {
+        //             response.selecteds.map(item => {
+        //                 self.#inserirCliente({
+        //                     perfil_id: item.id,
+        //                     perfil: item
+        //                 });
+        //             })
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
-        $(`#atualizarClientes${self._objConfigs.sufixo} `).on('click', async function () {
-            await self.#buscarClientes();
-        });
+        // $(`#atualizarClientes${self._objConfigs.sufixo} `).on('click', async function () {
+        //     await self.#buscarClientes();
+        // });
 
-        $(`#btnSaveClientes${self._objConfigs.sufixo} `).on('click', async function (e) {
-            e.preventDefault();
-            self.#saveButtonActionCliente();
-        });
+        // $(`#btnSaveClientes${self._objConfigs.sufixo} `).on('click', async function (e) {
+        //     e.preventDefault();
+        //     self.#saveButtonActionCliente();
+        // });
 
-        $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
-                objModal.setFocusElementWhenClosingModal = btn;
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    self.#inserirAnotacao(response.register);
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        // $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
+        //         objModal.setFocusElementWhenClosingModal = btn;
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh && response.register) {
+        //             self.#inserirAnotacao(response.register);
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
-        $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
-                objModal.setFocusElementWhenClosingModal = btn;
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    await self.#buscarPagamentos();
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        // $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
+        //         objModal.setFocusElementWhenClosingModal = btn;
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh && response.register) {
+        //             await self.#buscarPagamentos();
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
-        $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).on('click', async function () {
-            const response = await self._delButtonAction(`${self._idRegister}/participacao`, null, {
-                title: `Exclusão de Participantes`,
-                message: `Confirma a exclusão do(s) participante(s) deste serviço?`,
-                success: `Participantes excluídos com sucesso!`,
-                button: this,
-                url: `${self._objConfigs.url.base}`,
-            });
+        // $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).on('click', async function () {
+        //     const response = await self._delButtonAction(`${self._idRegister}/participacao`, null, {
+        //         title: `Exclusão de Participantes`,
+        //         message: `Confirma a exclusão do(s) participante(s) deste serviço?`,
+        //         success: `Participantes excluídos com sucesso!`,
+        //         button: this,
+        //         url: `${self._objConfigs.url.base}`,
+        //     });
 
-            if (response) {
-                self.#functionsParticipacao._buscarParticipantes();
-            }
-        });
+        //     if (response) {
+        //         self.#functionsParticipacao._buscarParticipantes();
+        //     }
+        // });
 
-        $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
-            await self.#buscarPagamentos();
-            // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
-        });
+        // $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
+        //     await self.#buscarPagamentos();
+        //     // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
+        // });
 
         // self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
-        self._objConfigs.data.elemQuillEditor = (new DocumentoModeloQuillEditorHelper(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] })).getQuill;
-        self.#quillQueueManager.setReady();  // Informa que o quill está pronto
-        BootstrapFunctionsHelper.addEventPopover();
+
     }
 
     async #inserirCliente(item) {
@@ -862,7 +868,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         form.find('input[name="titulo"]').val(responseData.titulo);
         self.#buscarAreasJuridicas(responseData.area_juridica_id);
         self.#quillQueueManager.enqueue(() => {
-            self._objConfigs.data.elemQuillEditor.setContents(responseData.descricao);
+            self._classQuillEditor.getQuill.setContents(responseData.descricao);
         })
 
         $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
@@ -966,7 +972,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const descricaoDelta = self._objConfigs.data.elemQuillEditor.getContents();
+        const descricaoDelta = self._classQuillEditor.getQuill.getContents();
         data.descricao = descricaoDelta;
 
         if (self.#saveVerifications(data, formRegistration)) {
