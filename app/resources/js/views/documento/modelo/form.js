@@ -974,13 +974,14 @@ class PageDocumentoModeloForm extends TemplateForm {
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         const descricaoDelta = self._classQuillEditor.getQuill.getContents();
         data.descricao = descricaoDelta;
+        console.log(data);
 
-        if (self.#saveVerifications(data, formRegistration)) {
-            self._save(data, self._objConfigs.url.base, {
-                success: 'Serviço cadastrado com sucesso!',
-                redirectWithIdBln: true,
-            });
-        }
+        // if (self.#saveVerifications(data, formRegistration)) {
+        //     self._save(data, self._objConfigs.url.base, {
+        //         success: 'Serviço cadastrado com sucesso!',
+        //         redirectWithIdBln: true,
+        //     });
+        // }
         return false;
     }
 

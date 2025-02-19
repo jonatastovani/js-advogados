@@ -176,7 +176,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                         class="accordion-collapse collapse"
                         data-bs-parent="#${item.idAccordion}" data-tipo="cliente">
                         <div class="accordion-body">
-                            <div class="d-grid">
+                            <div class="d-flex gap-2 d-md-grid d-lg-flex g-2 gap-xl-0 flex-wrap row-cols-xl-2 flex-shrink-1">
                                 ${btns}
                             </div>
                         </div>
