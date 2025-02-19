@@ -157,10 +157,10 @@ export class QuillEditorModule {
             .addClass('ql-button') // Adiciona a classe do Quill
             .html(ico)
             .on("click", () => {
-                this.getQuill.focus(); // Garante que o Quill recebe o foco
                 this._inserirMarcacaoNoEditor(config);
             });
     }
+
     /**
      * Insere uma marcação personalizada no local do cursor.
      * Se não houver espaços antes da marcação, adiciona um espaço.
@@ -168,14 +168,17 @@ export class QuillEditorModule {
      */
     _inserirMarcacaoNoEditor(config) {
         const quill = this.getQuill;
+
+        quill.focus(); // Garante que o Quill recebe o foco
         const range = quill.getSelection();
+        
         if (range) {
             const index = range.index;
             const textoAntes = quill.getText(index - 1, 1); // Captura o caractere antes do cursor
 
             // Se o caractere anterior não for um espaço, adicionamos um espaço antes da marcação
             const textoInserir = (textoAntes && textoAntes !== ' ') ? ' ' + config.marcacao : config.marcacao;
-            quill.insertText(index, textoInserir, 'bold', true);
+            quill.insertText(index, textoInserir);
             quill.setSelection(index + textoInserir.length); // Move o cursor para depois da marcação
         }
     }

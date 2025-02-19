@@ -125,15 +125,15 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         });
     }
 
-
     #inserirAccordionCliente(item) {
         const self = this;
 
         item.marcadores ??= {};
         item.marcadores.pessoa ??= {};
 
-        item.marcadores.pessoa = self.#marcadoresEsperadosClientePessoa(item);
+        item.marcadores.pessoa = self.#marcadoresEsperadosCliente(item);
         $(`#accordionsCliente${self._parentInstance.getSufixo}`).append(self.#getHTMLAccordionCliente(item));
+        self.#addEventMarcadores(item.marcadores.pessoa, { id: item.idAccordion });
         self.#pushContadorClienteNaTela(item);
     }
 
@@ -145,7 +145,21 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
         const pfPj = item.pessoa_tipo;
 
-        const dropdownPessoa = self.#renderBtnMarcadores(item.marcadores.pessoa)
+        // const dropdownPessoa = self.#renderBtnMarcadores(item.marcadores.pessoa, { id: item.idAccordion });
+        // const body = `
+        //     <div class="dropdown">
+        //         <button
+        //             class="btn btn-secondary dropdown-toggle"
+        //             type="button" data-bs-toggle="dropdown"
+        //             aria-expanded="false">
+        //             Pessoa
+        //         </button>
+        //         <ul class="dropdown-menu">
+        //             ${dropdownPessoa}
+        //         </ul>
+        //     </div>`;
+        const btns = self.#renderBtnMarcadores(item.marcadores.pessoa, { id: item.idAccordion });
+
         return `
             <div class="accordion mt-2 px-0" id="${item.idAccordion}" data-tipo="cliente" data-contador="${contador}">
                 <div class="accordion-item">
@@ -162,28 +176,26 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                         class="accordion-collapse collapse"
                         data-bs-parent="#${item.idAccordion}" data-tipo="cliente">
                         <div class="accordion-body">
-                            <div class="row flex-column">
-                                <div class="d-grid d-sm-block">
-                                   
-                                    <div class="dropdown">
-                                        <button
-                                            class="btn btn-secondary dropdown-toggle"
-                                            type="button" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            Pessoa
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            ${dropdownPessoa}
-                                        </ul>
-                                    </div>
-                                    
-                                </div>
+                            <div class="d-grid">
+                                ${btns}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    #addEventMarcadores(marcadores, options) {
+        const self = this;
+        const id = options.id;
+
+        marcadores.map(item => {
+            // console.log(item)
+            $(`#${id}-${item.sufixo}`).on('click', async function () {
+                self._inserirMarcacaoNoEditor(item);
+            })
+        })
     }
 
     #getContadorClienteNaTela(addProximo = false) {
@@ -205,24 +217,40 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         self._parentInstance._objConfigs.quillEditor.clientesNaTela = self._parentInstance._objConfigs.quillEditor.clientesNaTela.filter(i => i.cliente_contador !== contador);
     }
 
-    #renderBtnMarcadores(marcadores) {
+    // #renderBtnMarcadores(marcadores, options = {}) {
+    //     const self = this;
+    //     const id = options.id;
+
+    //     const html = marcadores.map(item => {
+    //         return `
+    //         <li>
+    //             <a id="${id}-${item.sufixo}" class="dropdown-item" data-marcacao="${item.marcacao}" href="#">
+    //                 ${item.display}
+    //             </a>
+    //         </li>`;
+    //     });
+    //     return html;
+    // }
+
+    #renderBtnMarcadores(marcadores, options = {}) {
         const self = this;
-        const html = marcadores.map(item => {
-            return `
-            <li>
-                <a class="dropdown-item" data-marcacao="${item.marcacao}"href="#">
+        const id = options.id;
+        let strBtns = '';
+
+        marcadores.map(item => {
+            strBtns += `
+                <button id="${id}-${item.sufixo}" type="button" class="btn btn-outline-primary" data-marcacao="${item.marcacao}">
                     ${item.display}
-                </a>
-            </li>`;
+                </button>`;
         });
-        return html;
+        return strBtns;
     }
 
-    #marcadoresEsperadosClientePessoa(item) {
+    #marcadoresEsperadosCliente(cliente) {
         const prefixo = 'cliente';
         const arrayOpcoes = [];
 
-        switch (item.pessoa_tipo) {
+        switch (cliente.pessoa_tipo) {
             case 'PF':
                 arrayOpcoes.push(...this.#camposPessoaPF());
                 break;
@@ -231,8 +259,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 break;
         }
         arrayOpcoes.push(...this.#camposEndereco());
+
         return arrayOpcoes.map(item => {
-            item.marcacao = `${prefixo}${item.pessoa_tipo}.${item.cliente_contador}.${item.marcacao}`;
+            item.sufixo = item.marcacao;
+            item.marcacao = `{{${prefixo}${cliente.pessoa_tipo}.${cliente.cliente_contador}.${item.marcacao}}}`;
             return item;
         });
     }

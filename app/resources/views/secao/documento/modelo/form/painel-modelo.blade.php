@@ -21,9 +21,9 @@
 
                 <div class="row flex-shrink-1">
 
-                    <div class="col d-flex flex-column ms-md-2 ms-lg-0 ms-xl-2">
-                        <div class="d-grid d-sm-block">
-                            <div class="dropdown">
+                    <div class="col d-flex flex-column ms-md-3 ms-lg-0 ms-xl-3 mt-md-2 mt-lg-0 mt-xl-2">
+                        <div class="d-grid d-sm-block d-md-grid d-lg-block gap-2">
+                            <div class="btn-group mt-2 mt-md-0 mt-lg-2 mt-xl-0">
                                 <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     Adicionar Cliente
