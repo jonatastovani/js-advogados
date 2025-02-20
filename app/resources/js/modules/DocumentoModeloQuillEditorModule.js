@@ -23,6 +23,9 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         this._objConfigs = objData.objConfigs;
         this._parentInstance = parentInstance;
 
+        this._objConfigs.quillEditor ??= {};
+        this._objConfigs.quillEditor.clientesNaTela ??= [];
+
         // this.adicionarBotoesClientes();
     }
 
@@ -88,7 +91,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
         $(selector).on('click', async function () {
             const dataPessoaTipo = $(this).data('pessoa-tipo');
-            self.#inserirAccordionCliente({ cliente_contador: self.#getContadorClienteNaTela(true), pessoa_tipo: dataPessoaTipo });
+            self._inserirClienteNaTela({ cliente_contador: self.#getContadorClienteNaTela(true), pessoa_tipo: dataPessoaTipo });
         });
     }
 
@@ -108,7 +111,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             }
 
             // Encontrar o último cliente na lista
-            const ultimoCliente = self._parentInstance._objConfigs.quillEditor.clientesNaTela.find(
+            const ultimoCliente = self._objConfigs.quillEditor.clientesNaTela.find(
                 (item) => item.cliente_contador === ultimoContador
             );
 
@@ -125,7 +128,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         });
     }
 
-    #inserirAccordionCliente(item) {
+    _inserirClienteNaTela(item) {
         const self = this;
 
         item.marcadores ??= {};
@@ -144,20 +147,6 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         const sufixo = `cliente${item.idAccordion}-${contador}`;
 
         const pfPj = item.pessoa_tipo;
-
-        // const dropdownPessoa = self.#renderBtnMarcadores(item.marcadores.pessoa, { id: item.idAccordion });
-        // const body = `
-        //     <div class="dropdown">
-        //         <button
-        //             class="btn btn-secondary dropdown-toggle"
-        //             type="button" data-bs-toggle="dropdown"
-        //             aria-expanded="false">
-        //             Pessoa
-        //         </button>
-        //         <ul class="dropdown-menu">
-        //             ${dropdownPessoa}
-        //         </ul>
-        //     </div>`;
         const btns = self.#renderBtnMarcadores(item.marcadores.pessoa, { id: item.idAccordion });
 
         return `
@@ -176,7 +165,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                         class="accordion-collapse collapse"
                         data-bs-parent="#${item.idAccordion}" data-tipo="cliente">
                         <div class="accordion-body">
-                            <div class="d-flex gap-2 d-md-grid d-lg-flex g-2 gap-xl-0 flex-wrap row-cols-xl-2 flex-shrink-1">
+                            <div class="d-flex gap-2 d-md-grid d-lg-flex g-2 gap-xl-0 flex-wrap">
                                 ${btns}
                             </div>
                         </div>
@@ -200,21 +189,17 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
     #getContadorClienteNaTela(addProximo = false) {
         const self = this;
-
-        self._parentInstance._objConfigs.quillEditor ??= {};
-        self._parentInstance._objConfigs.quillEditor.clientesNaTela ??= [];
-
-        return self._parentInstance._objConfigs.quillEditor.clientesNaTela.length + (addProximo ? 1 : 0);
+        return self._objConfigs.quillEditor.clientesNaTela.length + (addProximo ? 1 : 0);
     }
 
     #pushContadorClienteNaTela(item) {
         const self = this;
-        self._parentInstance._objConfigs.quillEditor.clientesNaTela.push(item);
+        self._objConfigs.quillEditor.clientesNaTela.push(item);
     }
 
     #deleteContadorClienteNaTela(contador) {
         const self = this;
-        self._parentInstance._objConfigs.quillEditor.clientesNaTela = self._parentInstance._objConfigs.quillEditor.clientesNaTela.filter(i => i.cliente_contador !== contador);
+        self._objConfigs.quillEditor.clientesNaTela = self._objConfigs.quillEditor.clientesNaTela.filter(i => i.cliente_contador !== contador);
     }
 
     // #renderBtnMarcadores(marcadores, options = {}) {
@@ -303,5 +288,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             { display: 'CEP', marcacao: 'cep', },
             { display: 'País', marcacao: 'pais', },
         ];
+    }
+
+    _getClientesNaTela() {
+        const self = this;
+        return self._objConfigs.quillEditor.clientesNaTela;
     }
 }
