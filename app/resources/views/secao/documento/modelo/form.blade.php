@@ -42,15 +42,21 @@
                         Modelo
                     </button>
                 </li>
-                {{-- <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
-                        aria-disabled="{{ $disabledNovoRegistro }}" id="painelClientes{{ $sufixo }}-tab"
-                        data-bs-toggle="tab" data-bs-target="#painelClientes{{ $sufixo }}-tab-pane" type="button"
-                        role="tab" aria-controls="painelClientes{{ $sufixo }}-tab-pane" aria-selected="false">
-                        Clientes
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-2" id="painelRevisao{{ $sufixo }}-tab" data-bs-toggle="tab"
+                        data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane" type="button" role="tab"
+                        aria-controls="painelRevisao{{ $sufixo }}-tab-pane" aria-selected="false">
+                        Revisão
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link px-2" id="painelRequisitos{{ $sufixo }}-tab" data-bs-toggle="tab"
+                        data-bs-target="#painelRequisitos{{ $sufixo }}-tab-pane" type="button" role="tab"
+                        aria-controls="painelRequisitos{{ $sufixo }}-tab-pane" aria-selected="false">
+                        Requisitos
+                    </button>
+                </li>
+                {{-- <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelAnotacao{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#painelAnotacao{{ $sufixo }}-tab-pane" type="button"
@@ -84,13 +90,15 @@
                 aria-labelledby="painelServico{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.documento.modelo.form.painel-modelo')
             </div>
-            {{-- <div class="tab-pane fade h-100" id="painelClientes{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelClientes{{ $sufixo }}-tab" tabindex="0">
-                @if (!$disabledNovoRegistro)
-                    @include('secao.documento.modelo.form.painel-clientes')
-                @endif
+            <div class="tab-pane fade h-100" id="painelRevisao{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
+                @include('secao.documento.modelo.form.painel-revisao')
             </div>
-            <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
+            <div class="tab-pane fade h-100" id="painelRequisitos{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="painelRequisitos{{ $sufixo }}-tab" tabindex="0">
+                @include('secao.documento.modelo.form.painel-requisitos')
+            </div>
+            {{-- <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelAnotacao{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
                     @include('secao.documento.modelo.form.painel-anotacao')
@@ -117,7 +125,8 @@
     </div>
     <div class="row text-end">
         <div class="col mt-2">
-            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save"
+                style="min-width: 7rem;">
                 Salvar
             </button>
         </div>

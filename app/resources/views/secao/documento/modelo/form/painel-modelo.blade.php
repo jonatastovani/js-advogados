@@ -3,21 +3,21 @@
         <div class="row flex-row h-100 flex-grow-1">
             {{-- <div class="col d-flex flex-column flex-md-row flex-lg-column flex-xl-row"> --}}
 
-                {{-- <div class="row"> --}}
-                    <div class="col d-flex flex-column mt-2">
-                        <div class="row">
-                            <div class="col"><label for="descricao{{ $sufixo }}"
-                                    class="form-label">Descrição</label></div>
-                        </div>
-                        <div class="row flex-fill">
-                            <div class="d-flex">
-                                <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control flex-fill">
-                                </textarea>
-                            </div>
-
-                        </div>
+            {{-- <div class="row"> --}}
+            <div class="col d-flex flex-column mt-2">
+                <div class="row">
+                    <div class="col"><label for="descricao{{ $sufixo }}" class="form-label">Descrição</label>
                     </div>
-                {{-- </div> --}}
+                </div>
+                <div class="row flex-fill">
+                    <div class="d-flex">
+                        <textarea name="descricao" id="descricao{{ $sufixo }}" class="form-control flex-fill">
+                                </textarea>
+                    </div>
+
+                </div>
+            </div>
+            {{-- </div> --}}
             {{-- </div> --}}
         </div>
 
@@ -52,9 +52,10 @@
                     </button>
                 </div>
 
-                <div id="accordionsCliente{{ $sufixo }}"></div>
-            </div>
+                <div id="accordionsCliente{{ $sufixo }}"class="accordion mt-2">
+                </div>
 
+            </div>
         </div>
     </form>
 </div>

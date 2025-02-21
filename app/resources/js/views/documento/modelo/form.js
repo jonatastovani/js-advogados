@@ -95,6 +95,37 @@ class PageDocumentoModeloForm extends TemplateForm {
         self._classQuillEditor.addEventClientes();
 
         self.#inserirTexto();
+
+
+        // Captura qualquer alteração no texto do editor
+        self._classQuillEditor.getQuill.on('text-change', function (delta, oldDelta, source) {
+            // console.log("Texto alterado!", delta);
+
+            const resultado = self._classQuillEditor._verificarInconsistencias();
+            console.log(resultado);
+
+            // // Se foi uma entrada manual do usuário (não via API)
+            // if (source === 'user') {
+            //     console.log("Usuário digitou algo!");
+
+            //     const resultado = self._classQuillEditor._verificarInconsistencias();
+
+            //     console.log(resultado);
+            // }
+        });
+
+        // Captura mudanças na seleção do cursor
+        self._classQuillEditor.getQuill.on('selection-change', function (range, oldRange, source) {
+
+            const resultado = self._classQuillEditor._verificarInconsistencias();
+            console.log(resultado);
+            // if (range) {
+            //     console.log("Cursor movido", range);
+            // } else {
+            //     console.log("Usuário perdeu o foco do editor.");
+            // }
+        });
+        const resultado = self._classQuillEditor._verificarInconsistencias();
     }
 
     #inserirTexto() {
@@ -143,7 +174,7 @@ class PageDocumentoModeloForm extends TemplateForm {
                         "insert": "{{clientePF.1.nome}}"
                     },
                     {
-                        "insert": ", {{clientePF.1.nacionalidade}}, {{clientePF.1.estado_civil}}, {{clientePF.1.profissao}}, RG/SP nº {{clientePF.1.rg}} e CPF nº {{clientePF.1.cpf}}, com endereço a {{clientePF.1.logradouro}}, nº {{clientePF.1.numero}}, {{clientePF.1.bairro}}, CEP {{clientePF.1.cep}}, {{clientePF.1.cidade}}-{{clientePF.1.estado}}."
+                        "insert": ", {{clientePF.1.nacionalidade}}, {{clientePF.1.estado_civil}}, {{clientePF.1.profissao}}, RG/SP nº {{clientePF.1.rg}} e CPF nº {{clientePF.1.cpf}}, com endereço a {{clientePF.1.logradouro}}, nº {{clientePF.1.numero}}, {{clientePF.1.bairro}}, CEP {{clientePF.1.cep}}, {{clientePF.1.cidade}}-{{clientePF.1.estado}}.{{Teste}}"
                     },
                     {
                         "attributes": {
@@ -242,7 +273,8 @@ class PageDocumentoModeloForm extends TemplateForm {
                             }
                         ]
                     },
-                    "idAccordion": "2e980fff-29d0-4089-86c7-1f111fcbbf91"
+                    "idAccordion": "da2e8d77-bf31-4061-9f39-b9fff92cde39",
+                    "nome": "ClientePF.1"
                 }
             ]
         };
