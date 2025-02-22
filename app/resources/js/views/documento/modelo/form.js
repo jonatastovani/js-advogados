@@ -85,8 +85,8 @@ class PageDocumentoModeloForm extends TemplateForm {
 
         self._classQuillEditor = new DocumentoModeloQuillEditorModule(self, {
             quillEditor: {
-                selector: `#descricao${self.getSufixo}`,
-                options: { exclude: ['image', 'scriptSub', 'scriptSuper'] }
+                selector: `#conteudo${self.getSufixo}`,
+                options: { exclude: ['image', 'scriptSub', 'scriptSuper', 'code', 'link'] }
             },
             objConfigs: self._objConfigs
         });
@@ -118,7 +118,6 @@ class PageDocumentoModeloForm extends TemplateForm {
         self._classQuillEditor.getQuill.on('selection-change', function (range, oldRange, source) {
 
             const resultado = self._classQuillEditor._verificarInconsistencias();
-            console.log(resultado);
             // if (range) {
             //     console.log("Cursor movido", range);
             // } else {
@@ -132,7 +131,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         const self = this;
 
         const data = {
-            "descricao": {
+            "conteudo": {
                 "ops": [
                     {
                         "attributes": {
@@ -174,13 +173,195 @@ class PageDocumentoModeloForm extends TemplateForm {
                         "insert": "{{clientePF.1.nome}}"
                     },
                     {
-                        "insert": ", {{clientePF.1.nacionalidade}}, {{clientePF.1.estado_civil}}, {{clientePF.1.profissao}}, RG/SP nº {{clientePF.1.rg}} e CPF nº {{clientePF.1.cpf}}, com endereço a {{clientePF.1.logradouro}}, nº {{clientePF.1.numero}}, {{clientePF.1.bairro}}, CEP {{clientePF.1.cep}}, {{clientePF.1.cidade}}-{{clientePF.1.estado}}.{{Teste}}"
+                        "insert": ", {{clientePF.1.nacionalidade}}, {{clientePF.1.estado_civil}}, {{clientePF.1.profissao}}, RG/SP nº {{clientePF.1.rg}} e CPF nº {{clientePF.1.cpf}}, com endereço a {{clientePF.1.logradouro}}, nº {{clientePF.1.numero}}, {{clientePF.1.bairro}}, CEP {{clientePF.1.cep}}, {{clientePF.1.cidade}}-{{clientePF.1.estado}}."
+                    },
+                    {
+                        "attributes": {
+                            "align": "justify"
+                        },
+                        "insert": "\n\n"
+                    },
+                    {
+                        "insert": "OUTORGADOS: "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "JORGE SILVA SOCIEDADE INDIVIDUAL DE ADVOCACIA"
+                    },
+                    {
+                        "insert": ", registrada na OAB/SP sob nº 367.41, representada pelos advogados "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "JORGE DA SILVA"
+                    },
+                    {
+                        "insert": ", OAB/SP 217.759, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "JÉTER LAILTON FERREIRA TOVANI"
+                    },
+                    {
+                        "insert": ", OAB/SP 440.804, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "JOÃO RUBEN BOTELHO"
+                    },
+                    {
+                        "insert": " OAB/SP 117.963, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "THIAGO MAIA GARRIDO TEBET,"
+                    },
+                    {
+                        "insert": " OAB/SP 307.994, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "SANDRA MARIA TOALIARI"
+                    },
+                    {
+                        "insert": ", OAB/SP 179.883, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "ISABEL CRISTINA TOALIARI"
+                    },
+                    {
+                        "insert": ",OAB/SP 113.278, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "DANIELA PINHEIRO YABIKU"
+                    },
+                    {
+                        "insert": ", OAB/SP 229.046, "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "PAULA RIBEIRO PIRES"
+                    },
+                    {
+                        "insert": ", OAB/SP 451.550 e "
+                    },
+                    {
+                        "attributes": {
+                            "bold": true
+                        },
+                        "insert": "THAIZA VALÉRIA DA SILVA"
+                    },
+                    {
+                        "insert": ", OAB/SP 351.336, tendo como escritório profissional a "
+                    },
+                    {
+                        "attributes": {
+                            "underline": true,
+                            "bold": true
+                        },
+                        "insert": "Unidade 1 (Matriz)"
+                    },
+                    {
+                        "insert": ", situada na Avenida Monte Castelo, 759, Centro, CEP 13450-031, Santa Bárbara d’Oeste, Estado de São Paulo, e a "
+                    },
+                    {
+                        "attributes": {
+                            "underline": true,
+                            "bold": true
+                        },
+                        "insert": "Unidade 2"
+                    },
+                    {
+                        "insert": ", situada na Rua Tupinambás, 678, Jardim São Francisco, CEP 13457-027, Santa Bárbara d’Oeste, Estado de São Paulo."
+                    },
+                    {
+                        "attributes": {
+                            "align": "justify"
+                        },
+                        "insert": "\n\n"
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext"
+                        },
+                        "insert": "PODERES: por este instrumento particular de procuração, constituo meus bastante procuradores os advogados outorgados, concedendo-lhes os poderes da cláusula “"
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext",
+                            "italic": true
+                        },
+                        "insert": "ad judicia” “et extra”"
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext"
+                        },
+                        "insert": ", para o foro em geral, e especialmente para "
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext",
+                            "bold": true
+                        },
+                        "insert": "*"
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext"
+                        },
+                        "insert": ","
+                    },
+                    {
+                        "attributes": {
+                            "color": "#212529",
+                            "background": "#f2f2f2"
+                        },
+                        "insert": " "
+                    },
+                    {
+                        "attributes": {
+                            "color": "windowtext"
+                        },
+                        "insert": "podendo, portanto, promover quaisquer medidas judiciais ou administrativas, em qualquer instância, assinar termo, substabelecer com ou sem reserva de poderes, e praticar ainda, todos e quaisquer atos necessários e convenientes ao bom e fiel desempenho deste mandato."
                     },
                     {
                         "attributes": {
                             "align": "justify"
                         },
                         "insert": "\n"
+                    },
+                    {
+                        "insert": "\nPODERES ESPECÍFICOS: A presente procuração outorga aos advogados acima descritos, os poderes para receber citação, confessar, reconhecer a procedência do pedido, transigir, desistir, renunciar ao direito sobre o qual se funda a ação, receber, dar quitação, firmar compromisso, pedir a justiça gratuita e assinar declaração de hipossuficiência econômica. Os poderes específicos acima outorgados poderão ser substabelecidos.\n"
+                    },
+                    {
+                        "attributes": {
+                            "align": "right"
+                        },
+                        "insert": "\n"
+                    },
+                    {
+                        "insert": "Santa Bárbara d´Oeste/SP, 21 de fevereiro de 2025\n\n\n______________________________________"
                     },
                     {
                         "attributes": {
@@ -194,87 +375,179 @@ class PageDocumentoModeloForm extends TemplateForm {
                 {
                     "cliente_contador": 1,
                     "pessoa_tipo": "PF",
-                    "marcadores": {
-                        "pessoa": [
-                            {
-                                "display": "Nome",
-                                "marcacao": "{{clientePF.1.nome}}",
-                                "sufixo": "nome"
-                            },
-                            {
-                                "display": "Nacionalidade",
-                                "marcacao": "{{clientePF.1.nacionalidade}}",
-                                "sufixo": "nacionalidade"
-                            },
-                            {
-                                "display": "Estado Civil",
-                                "marcacao": "{{clientePF.1.estado_civil}}",
-                                "sufixo": "estado_civil"
-                            },
-                            {
-                                "display": "Profissão",
-                                "marcacao": "{{clientePF.1.profissao}}",
-                                "sufixo": "profissao"
-                            },
-                            {
-                                "display": "RG",
-                                "marcacao": "{{clientePF.1.rg}}",
-                                "sufixo": "rg"
-                            },
-                            {
-                                "display": "CPF",
-                                "marcacao": "{{clientePF.1.cpf}}",
-                                "sufixo": "cpf"
-                            },
-                            {
-                                "display": "Logradouro",
-                                "marcacao": "{{clientePF.1.logradouro}}",
-                                "sufixo": "logradouro"
-                            },
-                            {
-                                "display": "Número",
-                                "marcacao": "{{clientePF.1.numero}}",
-                                "sufixo": "numero"
-                            },
-                            {
-                                "display": "Complemento",
-                                "marcacao": "{{clientePF.1.complemento}}",
-                                "sufixo": "complemento"
-                            },
-                            {
-                                "display": "Bairro",
-                                "marcacao": "{{clientePF.1.bairro}}",
-                                "sufixo": "bairro"
-                            },
-                            {
-                                "display": "Referência",
-                                "marcacao": "{{clientePF.1.referencia}}",
-                                "sufixo": "referencia"
-                            },
-                            {
-                                "display": "Cidade",
-                                "marcacao": "{{clientePF.1.cidade}}",
-                                "sufixo": "cidade"
-                            },
-                            {
-                                "display": "Estado",
-                                "marcacao": "{{clientePF.1.estado}}",
-                                "sufixo": "estado"
-                            },
-                            {
-                                "display": "CEP",
-                                "marcacao": "{{clientePF.1.cep}}",
-                                "sufixo": "cep"
-                            },
-                            {
-                                "display": "País",
-                                "marcacao": "{{clientePF.1.pais}}",
-                                "sufixo": "pais"
-                            }
-                        ]
-                    },
-                    "idAccordion": "da2e8d77-bf31-4061-9f39-b9fff92cde39",
+                    "marcadores": [
+                        {
+                            "display": "Nome",
+                            "marcacao": "{{clientePF.1.nome}}",
+                            "sufixo": "nome"
+                        },
+                        {
+                            "display": "Nacionalidade",
+                            "marcacao": "{{clientePF.1.nacionalidade}}",
+                            "sufixo": "nacionalidade"
+                        },
+                        {
+                            "display": "Estado Civil",
+                            "marcacao": "{{clientePF.1.estado_civil}}",
+                            "sufixo": "estado_civil"
+                        },
+                        {
+                            "display": "Profissão",
+                            "marcacao": "{{clientePF.1.profissao}}",
+                            "sufixo": "profissao"
+                        },
+                        {
+                            "display": "RG",
+                            "marcacao": "{{clientePF.1.rg}}",
+                            "sufixo": "rg"
+                        },
+                        {
+                            "display": "CPF",
+                            "marcacao": "{{clientePF.1.cpf}}",
+                            "sufixo": "cpf"
+                        },
+                        {
+                            "display": "Logradouro",
+                            "marcacao": "{{clientePF.1.logradouro}}",
+                            "sufixo": "logradouro"
+                        },
+                        {
+                            "display": "Número",
+                            "marcacao": "{{clientePF.1.numero}}",
+                            "sufixo": "numero"
+                        },
+                        {
+                            "display": "Complemento",
+                            "marcacao": "{{clientePF.1.complemento}}",
+                            "sufixo": "complemento"
+                        },
+                        {
+                            "display": "Bairro",
+                            "marcacao": "{{clientePF.1.bairro}}",
+                            "sufixo": "bairro"
+                        },
+                        {
+                            "display": "Referência",
+                            "marcacao": "{{clientePF.1.referencia}}",
+                            "sufixo": "referencia"
+                        },
+                        {
+                            "display": "Cidade",
+                            "marcacao": "{{clientePF.1.cidade}}",
+                            "sufixo": "cidade"
+                        },
+                        {
+                            "display": "Estado",
+                            "marcacao": "{{clientePF.1.estado}}",
+                            "sufixo": "estado"
+                        },
+                        {
+                            "display": "CEP",
+                            "marcacao": "{{clientePF.1.cep}}",
+                            "sufixo": "cep"
+                        },
+                        {
+                            "display": "País",
+                            "marcacao": "{{clientePF.1.pais}}",
+                            "sufixo": "pais"
+                        }
+                    ],
+                    "idAccordion": "af3f9610-8e5a-4569-a427-31abd2e47955",
                     "nome": "ClientePF.1"
+                },
+                {
+                    "cliente_contador": 1,
+                    "pessoa_tipo": "PJ",
+                    "marcadores": [
+                        {
+                            "display": "Razão Social",
+                            "marcacao": "{{clientePJ.1.razao_social}}",
+                            "sufixo": "razao_social"
+                        },
+                        {
+                            "display": "Nome Fantasia",
+                            "marcacao": "{{clientePJ.1.nome_fantasia}}",
+                            "sufixo": "nome_fantasia"
+                        },
+                        {
+                            "display": "Natureza Jurídica",
+                            "marcacao": "{{clientePJ.1.natureza_juridica}}",
+                            "sufixo": "natureza_juridica"
+                        },
+                        {
+                            "display": "Data de Fundação",
+                            "marcacao": "{{clientePJ.1.data_fundacao}}",
+                            "sufixo": "data_fundacao"
+                        },
+                        {
+                            "display": "Capital Social",
+                            "marcacao": "{{clientePJ.1.capital_social}}",
+                            "sufixo": "capital_social"
+                        },
+                        {
+                            "display": "Regime Tributário",
+                            "marcacao": "{{clientePJ.1.regime_tributario}}",
+                            "sufixo": "regime_tributario"
+                        },
+                        {
+                            "display": "Responsável Legal",
+                            "marcacao": "{{clientePJ.1.responsavel_legal}}",
+                            "sufixo": "responsavel_legal"
+                        },
+                        {
+                            "display": "CPF Responsável",
+                            "marcacao": "{{clientePJ.1.cpf_responsavel}}",
+                            "sufixo": "cpf_responsavel"
+                        },
+                        {
+                            "display": "Logradouro",
+                            "marcacao": "{{clientePJ.1.logradouro}}",
+                            "sufixo": "logradouro"
+                        },
+                        {
+                            "display": "Número",
+                            "marcacao": "{{clientePJ.1.numero}}",
+                            "sufixo": "numero"
+                        },
+                        {
+                            "display": "Complemento",
+                            "marcacao": "{{clientePJ.1.complemento}}",
+                            "sufixo": "complemento"
+                        },
+                        {
+                            "display": "Bairro",
+                            "marcacao": "{{clientePJ.1.bairro}}",
+                            "sufixo": "bairro"
+                        },
+                        {
+                            "display": "Referência",
+                            "marcacao": "{{clientePJ.1.referencia}}",
+                            "sufixo": "referencia"
+                        },
+                        {
+                            "display": "Cidade",
+                            "marcacao": "{{clientePJ.1.cidade}}",
+                            "sufixo": "cidade"
+                        },
+                        {
+                            "display": "Estado",
+                            "marcacao": "{{clientePJ.1.estado}}",
+                            "sufixo": "estado"
+                        },
+                        {
+                            "display": "CEP",
+                            "marcacao": "{{clientePJ.1.cep}}",
+                            "sufixo": "cep"
+                        },
+                        {
+                            "display": "País",
+                            "marcacao": "{{clientePJ.1.pais}}",
+                            "sufixo": "pais"
+                        }
+                    ],
+                    "idAccordion": "e21c32bc-885c-414d-9048-665a3f02d054",
+                    "nome": "ClientePJ.1",
+                    "uuid": "c58c49a2-6cef-41b5-976c-c93d0d1acfd7"
                 }
             ]
         };
@@ -282,7 +555,8 @@ class PageDocumentoModeloForm extends TemplateForm {
         data.clientes.map(item =>
             self._classQuillEditor._inserirClienteNaTela(item)
         )
-        self._classQuillEditor.getQuill.setContents(data.descricao);
+
+        self._classQuillEditor.getQuill.setContents(data.conteudo);
     }
 
     // async preenchimentoDados(response, options) {
@@ -293,7 +567,7 @@ class PageDocumentoModeloForm extends TemplateForm {
     //     form.find('input[name="titulo"]').val(responseData.titulo);
     //     self.#buscarAreasJuridicas(responseData.area_juridica_id);
     //     self.#quillQueueManager.enqueue(() => {
-    //         self._classQuillEditor.getQuill.setContents(responseData.descricao);
+    //         self._classQuillEditor.getQuill.setContents(responseData.conteudo);
     //     })
 
     //     $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
@@ -318,11 +592,11 @@ class PageDocumentoModeloForm extends TemplateForm {
 
     saveButtonAction() {
         const self = this;
-        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
-        const descricaoDelta = self._classQuillEditor.getQuill.getContents();
-        data.descricao = descricaoDelta;
-        data.clientes = self._classQuillEditor._getClientesNaTela();
+        let data = {
+            nome: $(`#nome${self.getSufixo}`).val(),
+            conteudo: self._classQuillEditor.getQuill.getContents(),
+            clientes: self._classQuillEditor._getClientesNaTela(),
+        }
 
         console.log(data);
 
@@ -338,9 +612,9 @@ class PageDocumentoModeloForm extends TemplateForm {
     #saveVerifications(data, formRegistration) {
         const self = this;
         if (self._action == enumAction.POST) {
-            let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
+            let blnSave = commonFunctions.verificationData(data.nome, { field: $(`#nome${self.getSufixo}`), messageInvalid: 'O nome do modelo deve ser informado.', setFocus: true });
             blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            // blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+            // blnSave = commonFunctions.verificationData(data.conteudo, { field: formRegistration.find('textarea[name="conteudo"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
             return blnSave;
         }
         return true;

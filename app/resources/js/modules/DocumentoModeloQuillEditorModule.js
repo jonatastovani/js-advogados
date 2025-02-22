@@ -90,8 +90,8 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         } = options;
 
         $(selector).on('click', async function () {
-            const dataPessoaTipo = $(this).data('pessoa-tipo');
-            self._inserirClienteNaTela({ cliente_contador: self.#getContadorClienteNaTela(true), pessoa_tipo: dataPessoaTipo });
+            const pessoa_tipo = $(this).data('pessoa-tipo');
+            self._inserirClienteNaTela({ cliente_contador: self.#getContadorClienteNaTela(pessoa_tipo, true), pessoa_tipo });
             const resultado = self._verificarInconsistencias();
         });
     }
@@ -99,12 +99,13 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
     addEventRemoverCliente(options = {}) {
         const self = this;
         const {
-            selector = `#btnRemoverCliente${self._parentInstance.getSufixo}`,
+            selector = `#btnRemoverClientePF${self._parentInstance.getSufixo}, #btnRemoverClientePJ${self._parentInstance.getSufixo}`,
         } = options;
 
         $(selector).on('click', async function () {
             // Obtém o maior número de cliente na tela
-            const ultimoContador = self.#getContadorClienteNaTela();
+            const pessoa_tipo = $(this).data('pessoa-tipo');
+            const ultimoContador = self.#getContadorClienteNaTela(pessoa_tipo);
 
             if (ultimoContador === 0) {
                 commonFunctions.generateNotification("Nenhum cliente para remover.", 'info');
@@ -113,7 +114,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
             // Encontrar o último cliente na lista
             const ultimoCliente = self._objConfigs.quillEditor.clientesNaTela.find(
-                (item) => item.cliente_contador === ultimoContador
+                (item) => item.cliente_contador === ultimoContador && item.pessoa_tipo === pessoa_tipo
             );
 
             if (!ultimoCliente) {
@@ -122,10 +123,8 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             }
 
             // Remover do array clientesNaTela
-            self.#deleteContadorClienteNaTela(ultimoContador);
+            self.#deleteContadorClienteNaTela(ultimoCliente);
 
-            // Remover o elemento do DOM
-            $(`#${ultimoCliente.idAccordion}`).remove();
             const resultado = self._verificarInconsistencias();
         });
     }
@@ -136,12 +135,27 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         item.marcadores ??= {};
 
         item.marcadores = self.#marcadoresEsperadosCliente(item);
-        $(`#accordionsCliente${self._parentInstance.getSufixo}`).append(self.#getHTMLAccordionCliente(item));
+        let accordion = null;
+
+        switch (item.pessoa_tipo) {
+            case 'PF':
+                accordion = `accordionsClientePF`;
+                break;
+            case 'PJ':
+                accordion = `accordionsClientePJ`;
+                break;
+
+            default:
+                commonFunctions.generateNotification("Tipo de cliente desconhecido.", 'error');
+                return;
+        }
+
+        $(`#${accordion}${self._parentInstance.getSufixo}`).append(self.#getHTMLAccordionCliente(item, { accordion }));
         self.#addEventMarcadores(item.marcadores, { id: item.idAccordion });
         self.#pushContadorClienteNaTela(item);
     }
 
-    #getHTMLAccordionCliente(item) {
+    #getHTMLAccordionCliente(item, options) {
         const self = this;
         const contador = item.cliente_contador;
         item.idAccordion = UUIDHelper.generateUUID();
@@ -152,7 +166,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         item.nome = `Cliente${pfPj}.${contador}`;
 
         return `
-            <div class="accordion-item">
+            <div class="accordion-item" id="${item.idAccordion}">
                 <div class="accordion-header">
                     <button class="accordion-button py-1 collapsed" type="button"
                         data-bs-toggle="collapse"
@@ -164,9 +178,9 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 </div>
                 <div id="collapse${sufixo}"
                     class="accordion-collapse collapse"
-                    data-bs-parent="#accordionsCliente${self._parentInstance.getSufixo}" data-tipo="cliente">
+                    data-bs-parent="#${options.accordion}${self._parentInstance.getSufixo}">
                     <div class="accordion-body">
-                        <div class="d-flex gap-2 d-md-grid d-lg-flex g-2 gap-xl-0 flex-wrap">
+                        <div class="d-flex gap-2 g-2 d-md-grid d-lg-flex row-cols-lg-3 row-cols-xl-2 row-cols-xxl-3 gap-lg-0 flex-wrap">
                             ${btns}
                         </div>
                     </div>
@@ -180,16 +194,15 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         const id = options.id;
 
         marcadores.map(item => {
-            // console.log(item)
             $(`#${id}-${item.sufixo}`).on('click', async function () {
                 self._inserirMarcacaoNoEditor(item);
             })
         })
     }
 
-    #getContadorClienteNaTela(addProximo = false) {
+    #getContadorClienteNaTela(pessoa_tipo, addProximo = false) {
         const self = this;
-        return self._objConfigs.quillEditor.clientesNaTela.length + (addProximo ? 1 : 0);
+        return self._objConfigs.quillEditor.clientesNaTela.filter(i => i.pessoa_tipo === pessoa_tipo).length + (addProximo ? 1 : 0);
     }
 
     #pushContadorClienteNaTela(item) {
@@ -197,9 +210,11 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         self._objConfigs.quillEditor.clientesNaTela.push(item);
     }
 
-    #deleteContadorClienteNaTela(contador) {
+    #deleteContadorClienteNaTela(ultimoCliente) {
         const self = this;
-        self._objConfigs.quillEditor.clientesNaTela = self._objConfigs.quillEditor.clientesNaTela.filter(i => i.cliente_contador !== contador);
+        // Remover o elemento do DOM
+        $(`#${ultimoCliente.idAccordion}`).remove();
+        self._objConfigs.quillEditor.clientesNaTela = self._objConfigs.quillEditor.clientesNaTela.filter(i => i.idAccordion !== ultimoCliente.idAccordion);
     }
 
     #renderBtnMarcadores(marcadores, options = {}) {
@@ -292,62 +307,56 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
         const deltaAtual = self.getQuill.getContents();
         const resultado = self.#executaVerificacaoInconsistencias({
-            descricao: deltaAtual,
+            conteudo: deltaAtual,
             clientes: self._getClientesNaTela()
         });
 
-        console.log(resultado);
         divRevisao.html('');
         divRequisitos.html('');
-        if (resultado.objetosNaoUtilizados) {
-            resultado.objetosNaoUtilizados.forEach(item => {
-                item.uuid = UUIDHelper.generateUUID();
-                divRevisao.append(`
+
+        resultado.objetosNaoUtilizados.forEach(item => {
+            item.uuid = UUIDHelper.generateUUID();
+            divRevisao.append(`
                     <div class="alert alert-warning py-1" role="alert">
                         <p class="m-0">Um objeto que foi adicionado e não está sendo referenciado: <span class="fw-bolder">${item.nome}</span></p>
                         <hr class="my-1">
-                        <button type="button" id="btnVerMarcacao${item.uuid}" class="btn btn-outline-primary border-0 btn-sm">
-                            Ver marcação
+                        <button type="button" id="btnRemoverReferencia${item.uuid}" class="btn btn-outline-primary border-0 btn-sm">
+                            Remover referencia
                         </button>
                     </div>
                 `);
-            });
-        }
 
-        if (resultado.marcacoesSemReferencia) {
-            resultado.marcacoesSemReferencia.forEach(item => {
-                item.uuid = UUIDHelper.generateUUID();
-                divRevisao.append(`
+            $(`#btnRemoverReferencia${item.uuid}`).on('click', function () {
+                self.#deleteContadorClienteNaTela(self.getQuill, item.marcacao, item.indice);
+            });
+        });
+
+        resultado.marcacoesSemReferencia.forEach(item => {
+            item.uuid = UUIDHelper.generateUUID();
+            divRevisao.append(`
                     <div class="alert alert-warning py-1" role="alert">
-                        <p class="m-0">Uma marcação foi adicionada e não possui referência: <span class="fw-bolder">${item.marcacao}</span></p>
-                        <hr class="my-1">
-                        <button type="button" id="btnVerMarcacao${item.uuid}" class="btn btn-outline-primary border-0 btn-sm">
-                            Ver marcação
-                        </button>
+                        <p class="m-0">Uma marcação foi adicionada e não possui referência: <a href="#" id="btnVerMarcacao${item.uuid}" class="link-offset-2 link-underline link-underline-opacity-0">${item.marcacao}</a></p>
                     </div>
                 `);
 
-                $(`#btnVerMarcacao${item.uuid}`).on('click', function () {
-                    self.#selecionarMarcacaoNoQuill(self.getQuill, item.marcacao, item.indice);
-                });
+            $(`#btnVerMarcacao${item.uuid}`).on('click', function () {
+                self.#selecionarMarcacaoNoQuill(self.getQuill, item.marcacao, item.indice);
             });
-        }
+        });
 
-        if (resultado.objetosUtilizados) {
-            resultado.objetosUtilizados.forEach(item => {
-                item.uuid = UUIDHelper.generateUUID();
-                let strMarcacaoUsada = item.marcadores_usados.map(m => m.display).join(', ');
-                divRequisitos.append(`
+        resultado.objetosUtilizados.forEach(item => {
+            item.uuid = UUIDHelper.generateUUID();
+            let strMarcacaoUsada = item.marcadores_usados.map(m => m.display).join(', ');
+            divRequisitos.append(`
                     <div class="alert alert-success py-1" role="alert">
-                        <p class="m-0">Objeto adicionado: <span class="fw-bolder">${item.nome}</span></p>
+                        <p class="m-0">Objeto <span class="fw-bolder">${item.nome}</span></p>
                         <hr class="my-1">
-                        <p class="m-0">Marcações usadas: <span class="fw-bolder">${strMarcacaoUsada}</span>.</p>
+                        <p class="m-0">Campo(s) usado(s): <span class="fw-bolder">${strMarcacaoUsada}</span>.</p>
                     </div>
                 `);
-            });
+        });
 
-        }
-
+        // console.log(resultado);
         return resultado;
     }
 
@@ -358,10 +367,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
      */
     #executaVerificacaoInconsistencias(data) {
         const self = this;
-        const { descricao, clientes } = data;
+        const { conteudo, clientes } = data;
 
         // Coletar todas as marcações presentes no texto do Quill
-        const marcacoesNoTexto = self.#extrairMarcacoes(descricao.ops);
+        const marcacoesNoTexto = self.#extrairMarcacoes(conteudo.ops);
 
         // Coletar todas as marcações válidas da lista de clientes
         const marcacoesValidas = self.#extrairMarcacoesValidasClientes(clientes);
@@ -391,92 +400,6 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         // Verificar objetos não utilizados
         const objetosNaoUtilizados = self.#verificarObjetosNaoUtilizados(marcacoesNoTexto, clientes);
         const objetosUtilizados = self.#verificarObjetosUtilizados(marcacoesNoTexto, clientes);
-
-        return {
-            marcacoesSemReferencia,
-            objetosNaoUtilizados,
-            objetosUtilizados
-        };
-    }
-
-    /**
-     * Verifica inconsistências nas marcações do texto.
-     * @param {Object} data - O objeto contendo o conteúdo do Quill e a lista de clientes.
-     * @returns {Object} - Um objeto contendo as marcações sem referência, os objetos não utilizados e os objetos utilizados com suas marcações.
-     */
-    #executaVerificacaoVariaveis(data) {
-        const self = this;
-        const { descricao, clientes } = data;
-
-        // Coletar todas as marcações presentes no texto do Quill
-        const marcacoesNoTexto = self.#extrairMarcacoes(descricao.ops);
-
-        // Coletar todas as marcações válidas da lista de clientes
-        const marcacoesValidas = self.#extrairMarcacoesValidasClientes(clientes);
-
-        // Criar estrutura para contagem e organização
-        const contadorMarcacoes = {};
-        const marcacoesSemReferencia = [];
-        const objetosUtilizados = {};
-        const objetosNaoUtilizados = [];
-
-        // Criar um mapa para facilitar a busca de objetos a partir do cliente_contador
-        const mapaClientes = clientes.reduce((map, cliente) => {
-            // map[`clientePF.${cliente.cliente_contador}`] = cliente;
-            map[cliente.nome] = cliente;
-            return map;
-        }, {});
-
-        // Verificar marcações no texto e registrar informações
-        marcacoesNoTexto.forEach(marcacao => {
-            if (!marcacoesValidas.includes(marcacao)) {
-                // Marcações sem referência
-                contadorMarcacoes[marcacao] = (contadorMarcacoes[marcacao] || 0) + 1;
-
-                marcacoesSemReferencia.push({
-                    marcacao: marcacao,
-                    indice: contadorMarcacoes[marcacao] // Índice baseado na repetição da marcação
-                });
-            } else {
-                // Extraímos o objeto e seu marcador (Exemplo: "{{clientePF.1.nome}}" → "clientePF.1" e "nome")
-                const match = marcacao.match(/{{(.*?)\.(.*?)}}/);
-                if (match) {
-                    const objetoNome = match[1]; // Exemplo: "clientePF.1"
-                    const marcador = match[2]; // Exemplo: "nome"
-
-                    // Verifica se o objeto existe na lista de clientes
-                    if (mapaClientes[objetoNome]) {
-                        if (!objetosUtilizados[objetoNome]) {
-                            objetosUtilizados[objetoNome] = {
-                                ...mapaClientes[objetoNome], // Mantém todas as informações do objeto
-                                marcacoes_utilizadas: [] // Inicializa a lista de marcações utilizadas
-                            };
-                        }
-
-                        // Adicionar marcador dentro do objeto se ainda não foi registrado
-                        if (!objetosUtilizados[objetoNome].marcacoes_utilizadas.includes(marcador)) {
-                            objetosUtilizados[objetoNome].marcacoes_utilizadas.push(marcador);
-                        }
-                    }
-                }
-            }
-        });
-
-        // Verificar objetos adicionados, mas não utilizados no texto
-        clientes.forEach(cliente => {
-            const objetoNome = `clientePF.${cliente.cliente_contador}`;
-            if (!objetosUtilizados[objetoNome]) {
-                objetosNaoUtilizados.push(cliente);
-            }
-        });
-
-        // Verificar objetos adicionados, mas não utilizados no texto
-        clientes.forEach(cliente => {
-            const objetoNome = `clientePF.${cliente.cliente_contador}`;
-            if (!objetosUtilizados[objetoNome]) {
-                objetosNaoUtilizados.push(cliente);
-            }
-        });
 
         return {
             marcacoesSemReferencia,
