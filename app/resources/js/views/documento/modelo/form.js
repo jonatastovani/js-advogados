@@ -4,42 +4,21 @@ import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { DocumentoModeloQuillEditorModule } from "../../../modules/DocumentoModeloQuillEditorModule";
-import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 import { QueueManager } from "../../../utils/QueueManager";
 
 class PageDocumentoModeloForm extends TemplateForm {
 
-    #functionsParticipacao;
     #quillQueueManager;
 
     constructor() {
 
         const objConfigs = {
             url: {
-                base: window.apiRoutes.baseServico,
-                baseAnotacao: undefined,
-                basePagamentos: undefined,
-                baseParticipacao: undefined,
-                baseValores: undefined,
-                baseCliente: undefined,
-                baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
-                baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
-                baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
+                base: window.apiRoutes.baseDocumentoModeloTenant,
+                baseDocumentoModeloTipo: window.apiRoutes.baseDocumentoModeloTipo,
             },
             sufixo: 'PageDocumentoModeloForm',
-            data: {
-                porcentagemOcupada: 0,
-                participantesNaTela: [],
-                clientesNaTela: [],
-                participacao_tipo_tenant: {
-                },
-            },
-            participacao: {
-                // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
-                participacao_tipo_tenant: {
-                    configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
-                },
-            },
+            data: {},
         };
 
         super({
@@ -52,7 +31,6 @@ class PageDocumentoModeloForm extends TemplateForm {
                 modeParent: 'searchAndUse',
             }
         }
-        this.#functionsParticipacao = new ParticipacaoModule(this, objData);
         this.#quillQueueManager = new QueueManager();  // Cria a fila
 
         this.initEvents();
@@ -60,17 +38,17 @@ class PageDocumentoModeloForm extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        // await this.#buscarAreasJuridicas();
+        await this.#buscarDocumentoModeloTipo();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            const url = `${self._objConfigs.url.base}/${self._idRegister}`;
-            self._objConfigs.url.baseAnotacao = `${url}/anotacao`;
-            self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
-            self._objConfigs.url.baseParticipacao = `${url}/participacao`;
-            self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
-            self._objConfigs.url.baseCliente = `${url}/cliente`;
+            // const url = `${self._objConfigs.url.base}/${self._idRegister}`;
+            // self._objConfigs.url.baseAnotacao = `${url}/anotacao`;
+            // self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
+            // self._objConfigs.url.baseParticipacao = `${url}/participacao`;
+            // self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
+            // self._objConfigs.url.baseCliente = `${url}/cliente`;
             this._action = enumAction.PUT;
             await self._buscarDados();
         } else {
@@ -565,7 +543,7 @@ class PageDocumentoModeloForm extends TemplateForm {
 
     //     const responseData = response.data;
     //     form.find('input[name="titulo"]').val(responseData.titulo);
-    //     self.#buscarAreasJuridicas(responseData.area_juridica_id);
+    //     self.#buscarDocumentoModeloTipo(responseData.area_juridica_id);
     //     self.#quillQueueManager.enqueue(() => {
     //         self._classQuillEditor.getQuill.setContents(responseData.conteudo);
     //     })
@@ -590,6 +568,18 @@ class PageDocumentoModeloForm extends TemplateForm {
     //     self.#atualizaTodosValores(response.data);
     // }
 
+    async #buscarDocumentoModeloTipo(selected_id = null) {
+        try {
+            const self = this;
+            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            const selector = $(`#documento_modelo_tipo_id${self._objConfigs.sufixo}`);
+            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseDocumentoModeloTipo, options); 
+            return true
+        } catch (error) {
+            return false;
+        }
+    }
+
     saveButtonAction() {
         const self = this;
         let data = {
@@ -600,12 +590,13 @@ class PageDocumentoModeloForm extends TemplateForm {
 
         console.log(data);
 
-        // if (self.#saveVerifications(data, formRegistration)) {
-        //     self._save(data, self._objConfigs.url.base, {
-        //         success: 'Serviço cadastrado com sucesso!',
-        //         redirectWithIdBln: true,
-        //     });
-        // }
+        if (self.#saveVerifications(data, formRegistration)) {
+            self._save(data, self._objConfigs.url.base, {
+                success: 'Modelo cadastrado com sucesso!',
+                returnObjectSuccess: true,
+                redirectBln: true,
+            });
+        }
         return false;
     }
 

@@ -21,6 +21,7 @@ use Database\Seeders\Referencias\ContaStatusTipoSeeder;
 use Database\Seeders\Referencias\ContaSubtipoSeeder;
 use Database\Seeders\Referencias\ContaTipoSeeder;
 use Database\Seeders\Referencias\DocumentoGeradoTipoSeeder;
+use Database\Seeders\Referencias\DocumentoModeloTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoSeeder;
 use Database\Seeders\Referencias\DocumentoTipoUpdateSeeder;
 use Database\Seeders\Referencias\PagamentoTipoSeeder;
@@ -55,7 +56,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantDomainSeeder::class,
@@ -95,6 +96,7 @@ class DatabaseSeeder extends Seeder
                 ParticipacaoTipoTenantObrigatorioSeeder::class,
                 SexoTenantSeeder::class,
                 FormaPagamentoTenantSeeder::class,
+                DocumentoModeloTipoSeeder::class,
             ]);
 
             if (env('APP_ENV') == 'local') {
@@ -112,7 +114,7 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                // FormaPagamentoTenantSeeder::class,
+                DocumentoModeloTipoSeeder::class,
                 // ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }

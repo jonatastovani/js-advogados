@@ -24,17 +24,17 @@ class DocumentoModeloTenant extends Model
 
     protected $fillable = [
         'nome',
-        'descricao',
-        'documento_tipo_id',
+        'conteudo',
         'ativo_bln',
+        'documento_modelo_tipo_id',
     ];
 
     public static function getCustomColumns(): array
     {
         return array_merge(self::getCustomColumnsDefault(), [
             'nome',
-            'descricao',
-            'documento_tipo_id',
+            'conteudo',
+            'documento_modelo_tipo_id',
             'ativo_bln',
         ]);
     }

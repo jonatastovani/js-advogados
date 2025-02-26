@@ -46,6 +46,22 @@ Route::group([
         });
     });
 
+    // Documentos que herdam configurações da Referencia\DocumentoTipo 
+    Route::prefix('documento-modelo-tenant')->group(function () {
+
+        Route::controller(App\Http\Controllers\Tenant\DocumentoModeloTenantController::class)->group(function () {
+
+            // Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::post('documento-modelo-tipo', 'indexPorDocumentoModeloTipo');
+            Route::post('', 'store')->name('api.tenant.documento-modelo-tenant');
+            Route::get('{uuid}', 'show');
+            Route::put('{uuid}', 'update');
+            Route::delete('{uuid}', 'destroy');
+        });
+    });
+
+    // Documentos que herdam configurações da Referencia\DocumentoTipo 
     Route::prefix('documento-tipo-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Tenant\DocumentoTipoTenantController::class)->group(function () {
@@ -162,7 +178,7 @@ Route::group([
             Route::put('{uuid}', 'update');
         });
     });
-    
+
     Route::prefix('tag-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Tenant\TagTenantController::class)->group(function () {
@@ -177,5 +193,4 @@ Route::group([
             Route::delete('{uuid}', 'destroy');
         });
     });
-
 });

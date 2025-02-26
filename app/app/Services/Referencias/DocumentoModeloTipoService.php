@@ -2,17 +2,16 @@
 
 namespace App\Services\Referencias;
 
-use App\Models\Referencias\ContaStatusTipo;
+use App\Models\Referencias\DocumentoModeloTipo;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
-class ContaStatusTipoService extends Service
+class DocumentoModeloTipoService extends Service
 {
-    use ConsultaSelect2ServiceTrait;
 
-    public function __construct(ContaStatusTipo $model)
+    public function __construct(DocumentoModeloTipo $model)
     {
         parent::__construct($model);
     }
@@ -22,15 +21,6 @@ class ContaStatusTipoService extends Service
         $resource = $this->model->orderBy('nome', 'asc')->get();
         return $resource->toArray();
     }
-
-    // public function select2(Request $request)
-    // {
-    //     $dados = new Fluent([
-    //         'camposFiltros' => ['nome', 'descricao'],
-    //     ]);
-
-    //     return $this->executaConsultaSelect2($request, $dados);
-    // }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -60,7 +50,7 @@ class ContaStatusTipoService extends Service
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         return parent::buscarRecurso($requestData, [
-            'message' => 'O status de conta não foi encontrado.',
+            'message' => 'O tipo de modelo de documento não foi encontrado.',
         ]);
     }
 

@@ -924,7 +924,7 @@ class PageServicoForm extends TemplateForm {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const selector = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options);
             return true
         } catch (error) {
             return false;

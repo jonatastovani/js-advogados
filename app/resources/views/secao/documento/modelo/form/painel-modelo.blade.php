@@ -14,7 +14,7 @@
                     <div class="btn-group mt-2 mt-md-0 mt-lg-2 mt-xl-0">
                         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Adicionar Cliente
+                            Adicionar Objetos
                         </button>
                         <ul class="dropdown-menu">
                             <li>
@@ -35,7 +35,7 @@
                     <div class="btn-group mt-2 mt-md-0 mt-lg-2 mt-xl-0">
                         <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Remover Cliente
+                            Remover Objetos
                         </button>
                         <ul class="dropdown-menu">
                             <li>

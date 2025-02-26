@@ -58,7 +58,11 @@ trait CommonsSeederMethodsTrait
 
                 // Adiciona campos de criação
                 $data['created_user_id'] = $adminTenantUserId;
-                $data['tenant_id'] = $this->tenantId;
+
+                // Verifica se a trait BelongsToTenant esta sendo utilizada no modelo
+                if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($this->model)) && !isset($data['tenant_id']) && $this->tenantId) {
+                    $data['tenant_id'] = $this->tenantId;
+                }
 
                 // Verifica se a trait BelongsToDomain esta sendo utilizada no modelo
                 if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model)) && !isset($data['domain_id'])) {
