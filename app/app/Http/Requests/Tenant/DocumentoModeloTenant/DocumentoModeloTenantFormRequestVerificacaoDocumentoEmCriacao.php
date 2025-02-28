@@ -8,16 +8,20 @@ use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Referencias\DocumentoModeloTipo;
 
-class DocumentoModeloTenantFormRequestBase extends BaseFormRequest
+class DocumentoModeloTenantFormRequestVerificacaoDocumentoEmCriacao extends BaseFormRequest
 {
-    public function rules()
+    public function authorize(): bool
     {
-        // Define as regras básicas
+        return true;
+    }
+
+    public function rules(): array
+    {
+
         $rules = [
-            'nome' => 'required|string|min:3',
             'conteudo' => 'required|array',
-            'ativo_bln' => 'nullable|boolean',
             'documento_modelo_tipo_id' => 'required|integer',
+            'objetos' => 'nullable|array',
         ];
 
         // // Busca o modelo para verificar os campos que cada modelo terá

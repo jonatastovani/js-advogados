@@ -1,5 +1,5 @@
-import { templateSearch } from "../../commons/templates/templateSearch";
-import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { templateSearch } from "../../../commons/templates/templateSearch";
+import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 
 class PageServico extends templateSearch {
 

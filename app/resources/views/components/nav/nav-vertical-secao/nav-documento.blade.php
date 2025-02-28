@@ -14,11 +14,11 @@
         </a>
         <div class="parent-wrapper">
             <ul class="nav parent collapse" id="nv-preset-copart">
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link" href="{{ route('documento.modelo.form') }}">
                         <span class="nav-link-text">Cadastrar modelo</span>
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('documento.modelo.index') }}">
                         <span class="nav-link-text">Listagem de modelos</span>

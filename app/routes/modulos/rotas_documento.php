@@ -18,8 +18,8 @@ Route::prefix('documento')->group(function () {
         Route::prefix('modelo')->group(function () {
 
             Route::get('', 'documentoModeloIndex')->name('documento.modelo.index');
-            Route::get('form', 'documentoModeloForm')->name('documento.modelo.form');
-            Route::get('form/{uuid}', 'documentoModeloFormEditar');
+            Route::get('{id}/form', 'documentoModeloForm');
+            Route::get('{id}/form/{uuid}', 'documentoModeloFormEditar');
         });
     });
 });

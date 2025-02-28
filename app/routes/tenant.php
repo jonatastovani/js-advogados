@@ -42,6 +42,7 @@ Route::middleware([
         'pagamento_uuid' => '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
         'lancamento_uuid' => '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
         'perfil_uuid' => '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}',
+        'documento_modelo_tipo_id' => '[0-9]+',
     ]);
 
     Auth::routes(

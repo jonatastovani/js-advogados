@@ -40,7 +40,19 @@
 
     <div class="row">
         <div class="col mt-2">
-            <a href="{{ route('servico.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+            <div class="btn-group mt-2 mt-md-0 mt-lg-2 mt-xl-0">
+                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Cadastrar
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ route('documento.modelo.index') . '/1/form' }}" class="dropdown-item">
+                            Modelo para Serviços
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 

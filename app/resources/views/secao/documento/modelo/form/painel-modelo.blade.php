@@ -16,8 +16,8 @@
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Adicionar Objetos
                         </button>
-                        <ul class="dropdown-menu">
-                            <li>
+                        <ul id="dropdownMenuAddObjetos{{ $sufixo }}" class="dropdown-menu">
+                            {{-- <li>
                                 <button type="button" id="btnAdicionarClientePF{{ $sufixo }}"
                                     class="dropdown-item" data-pessoa-tipo="PF">
                                     Pessoa Física
@@ -28,7 +28,7 @@
                                     class="dropdown-item" data-pessoa-tipo="PJ">
                                     Pessoa Jurídica
                                 </button>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
 
@@ -37,8 +37,8 @@
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Remover Objetos
                         </button>
-                        <ul class="dropdown-menu">
-                            <li>
+                        <ul id="dropdownMenuDropObjetos{{ $sufixo }}" class="dropdown-menu">
+                            {{-- <li>
                                 <button type="button" id="btnRemoverClientePF{{ $sufixo }}" class="dropdown-item"
                                     data-pessoa-tipo="PF">
                                     Pessoa Física
@@ -49,16 +49,12 @@
                                     data-pessoa-tipo="PJ">
                                     Pessoa Jurídica
                                 </button>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </div>
 
-                <div id="accordionsClientePF{{ $sufixo }}"class="accordion mt-2">
-                </div>
-
-                <div id="accordionsClientePJ{{ $sufixo }}"class="accordion mt-2">
-                </div>
+                <div id="accordionsObjetos{{ $sufixo }}"></div>
 
             </div>
         </div>

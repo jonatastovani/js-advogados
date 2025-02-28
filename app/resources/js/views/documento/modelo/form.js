@@ -16,6 +16,7 @@ class PageDocumentoModeloForm extends TemplateForm {
             url: {
                 base: window.apiRoutes.baseDocumentoModeloTenant,
                 baseDocumentoModeloTipo: window.apiRoutes.baseDocumentoModeloTipo,
+                baseDocumentoModeloTenantHelper: window.apiRoutes.baseDocumentoModeloTenantHelper,
             },
             sufixo: 'PageDocumentoModeloForm',
             data: {},
@@ -25,12 +26,6 @@ class PageDocumentoModeloForm extends TemplateForm {
             objConfigs: objConfigs
         });
 
-        const objData = {
-            objConfigs: this._objConfigs,
-            extraConfigs: {
-                modeParent: 'searchAndUse',
-            }
-        }
         this.#quillQueueManager = new QueueManager();  // Cria a fila
 
         this.initEvents();
@@ -38,7 +33,6 @@ class PageDocumentoModeloForm extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        await this.#buscarDocumentoModeloTipo();
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
@@ -58,7 +52,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         self.#addEventosBotoes();
     }
 
-    #addEventosBotoes() {
+    async #addEventosBotoes() {
         const self = this;
 
         self._classQuillEditor = new DocumentoModeloQuillEditorModule(self, {
@@ -70,16 +64,17 @@ class PageDocumentoModeloForm extends TemplateForm {
         });
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
 
-        self._classQuillEditor.addEventClientes();
+        const modeloId = URLHelper.getURLSegment({ afterSegment: 'modelo' });
+        await self._classQuillEditor.addObjetosModelo(modeloId);
 
-        self.#inserirTexto();
+        // self.#inserirTexto();
 
 
         // Captura qualquer alteração no texto do editor
-        self._classQuillEditor.getQuill.on('text-change', function (delta, oldDelta, source) {
+        self._classQuillEditor.getQuill.on('text-change', async function (delta, oldDelta, source) {
             // console.log("Texto alterado!", delta);
 
-            const resultado = self._classQuillEditor._verificarInconsistencias();
+            const resultado = await self._classQuillEditor._verificarInconsistenciasObjetos();
             console.log(resultado);
 
             // // Se foi uma entrada manual do usuário (não via API)
@@ -93,16 +88,16 @@ class PageDocumentoModeloForm extends TemplateForm {
         });
 
         // Captura mudanças na seleção do cursor
-        self._classQuillEditor.getQuill.on('selection-change', function (range, oldRange, source) {
+        self._classQuillEditor.getQuill.on('selection-change', async function (range, oldRange, source) {
 
-            const resultado = self._classQuillEditor._verificarInconsistencias();
+            const resultado = await self._classQuillEditor._verificarInconsistenciasObjetos();
             // if (range) {
             //     console.log("Cursor movido", range);
             // } else {
             //     console.log("Usuário perdeu o foco do editor.");
             // }
         });
-        const resultado = self._classQuillEditor._verificarInconsistencias();
+        const resultado = await self._classQuillEditor._verificarInconsistenciasObjetos();
     }
 
     #inserirTexto() {
@@ -568,17 +563,17 @@ class PageDocumentoModeloForm extends TemplateForm {
     //     self.#atualizaTodosValores(response.data);
     // }
 
-    async #buscarDocumentoModeloTipo(selected_id = null) {
-        try {
-            const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const selector = $(`#documento_modelo_tipo_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseDocumentoModeloTipo, options); 
-            return true
-        } catch (error) {
-            return false;
-        }
-    }
+    // async #buscarDocumentoModeloTipo(selected_id = null) {
+    //     try {
+    //         const self = this;
+    //         let options = selected_id ? { selectedIdOption: selected_id } : {};
+    //         const selector = $(`#documento_modelo_tipo_id${self._objConfigs.sufixo}`);
+    //         await commonFunctions.fillSelect(selector, self._objConfigs.url.baseDocumentoModeloTipo, options);
+    //         return true
+    //     } catch (error) {
+    //         return false;
+    //     }
+    // }
 
     saveButtonAction() {
         const self = this;

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Comum\CepController;
 use App\Http\Controllers\Referencias\PagamentoTipoController;
+use App\Http\Controllers\Tenant\DocumentoModeloTenantController;
 use App\Http\Controllers\Validacao\ValidacaoController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,23 @@ Route::group([
         'usuario.tenant',
     ],
 ], function () {
+
+    Route::group([
+        'prefix' => 'cep',
+        'controller' => CepController::class,
+    ], function () {
+        Route::get('', function () {})->name('api.helper.cep');
+        Route::get('{cep}', 'show');
+    });
+
+    Route::group([
+        'prefix' => 'documento-modelo-tenant',
+        'controller' => DocumentoModeloTenantController::class,
+    ], function () {
+        Route::get('', function () {})->name('api.helper.documento-modelo-tenant');
+
+        Route::post('{documento_modelo_tipo_id}', 'verificacaoDocumentoEmCriacao');
+    });
 
     Route::group([
         'prefix' => 'pagamento-tipo',
@@ -35,13 +53,5 @@ Route::group([
             Route::post('cpf', 'CPFValidacao')->name('api.helper.validacao.documento.cpf');
             Route::post('cnpj', 'CNPJValidacao')->name('api.helper.validacao.documento.cnpj');
         });
-    });
-
-    Route::group([
-        'prefix' => 'cep',
-        'controller' => CepController::class,
-    ], function () {
-        Route::get('', function () {})->name('api.helper.cep');
-        Route::get('{cep}', 'show');
     });
 });

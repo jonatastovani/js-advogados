@@ -3,6 +3,7 @@
 namespace App\Services\Tenant;
 
 use App\Common\RestResponse;
+use App\Helpers\DocumentoModeloQuillEditorHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Referencias\DocumentoModeloTipo;
@@ -73,6 +74,11 @@ class DocumentoModeloTenantService extends Service
         return parent::buscarRecurso($requestData, [
             'message' => 'O Modelo de Documento não foi encontrado.',
         ]);
+    }
+    
+    public function verificacaoDocumentoEmCriacao(Fluent $requestData, array $options = [])
+    {
+        return DocumentoModeloQuillEditorHelper::verificarInconsistencias($requestData, $options);
     }
 
     // private function executarEventoWebsocket()

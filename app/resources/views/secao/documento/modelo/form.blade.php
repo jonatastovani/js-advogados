@@ -30,17 +30,6 @@
             <label for="nome{{ $sufixo }}" class="form-label">Nome do modelo</label>
             <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
         </div>
-        <div class="col-sm-6 col-md-5 col-xl-4 mt-2">
-            <label for="documento_modelo_tipo_id{{ $sufixo }}" class="form-label">Tipo modelo</label>
-            <div class="input-group">
-                <select name="documento_modelo_tipo_id" id="documento_modelo_tipo_id{{ $sufixo }}"
-                    class="form-select">
-                </select>
-                {{-- <button id="btnOpenDocumentoModeloTipo{{ $sufixo }}" type="button" class="btn btn-outline-primary">
-                    <i class="bi bi-search"></i>
-                </button> --}}
-            </div>
-        </div>
     </div>
 
     <div class="row">
@@ -162,13 +151,13 @@
         'routes' => [
             'baseDocumentoModeloTenant' => route('api.tenant.documento-modelo-tenant'),
             'baseDocumentoModeloTipo' => route('api.referencias.documento-modelo-tipo'),
+            'baseDocumentoModeloTenantHelper' => route('api.helper.documento-modelo-tenant'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
             'frontRedirect' => route('documento.modelo.index'),
-            'frontRedirectForm' => route('documento.modelo.form'),
         ],
     ])
     @endcomponent

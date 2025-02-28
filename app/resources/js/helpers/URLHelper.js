@@ -31,22 +31,36 @@ export class URLHelper {
     }
 
     /**
-     * Função para capturar um parâmetro específico da URL ou o último por padrão.
+     * Função para capturar um segmento específico da URL, com suporte para indexação ou localização baseada em outro segmento.
      * 
-     * @param {number|null} index - O índice do segmento da URL que você deseja capturar. Por padrão, captura o último segmento.
-     * @returns {string|null} - O valor do segmento da URL ou null se o segmento não for encontrado.
+     * @param {Object} options - Objeto de opções para controle da busca do segmento.
+     * @param {number} [options.index=null] - O índice do segmento da URL que você deseja capturar. Se não definido, retorna o último.
+     * @param {string} [options.afterSegment=null] - Nome de um segmento da URL. Se definido, retorna o próximo segmento após este nome.
+     * @returns {string|null} - O valor do segmento da URL ou null se não for encontrado.
      */
-    static getURLSegment(index = null) {
-        const url = window.location.pathname;
+    static getURLSegment(options = {}) {
+        const {
+            index = null,
+            afterSegment = null,
+            url = window.location.pathname
+        } = options;
         const segments = url.split('/').filter(segment => segment); // Remove segmentos vazios
 
-        if (index === null) {
-            // Retorna o último segmento por padrão
-            return segments.length > 0 ? segments[segments.length - 1] : null;
+        // Prioridade: afterSegment tem precedência sobre index
+        if (afterSegment !== null) {
+            const foundIndex = segments.indexOf(afterSegment);
+            if (foundIndex !== -1 && foundIndex + 1 < segments.length) {
+                return segments[foundIndex + 1]; // Retorna o segmento após o encontrado
+            }
+            return null; // afterSegment informado, mas não encontrado ou sem próximo segmento
         }
 
-        // Retorna o segmento no índice fornecido, ou null se não existir
-        return segments[index] || null;
+        if (index !== null) {
+            return segments[index] || null; // Retorna o segmento no índice especificado
+        }
+
+        // Se nenhum critério for especificado, retorna o último segmento
+        return segments.length > 0 ? segments[segments.length - 1] : null;
     }
 
     /**
