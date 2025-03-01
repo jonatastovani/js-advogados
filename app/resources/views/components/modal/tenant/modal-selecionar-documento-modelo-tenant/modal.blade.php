@@ -1,29 +1,25 @@
 @php
-    $sufixo = 'ModalSelecionarDocumentoTipo';
+    $sufixo = 'ModalSelecionarDocumentoModeloTenant';
 @endphp
 
-<div class="modal fade" id="modalSelecionarDocumentoTipo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modalSelecionarDocumentoModeloTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title text-truncate">Selecione o Tipo de Documento</h4>
+                <h4 class="modal-title text-truncate">Selecione o Modelo</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <form class="formRegistration">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
-                            <label for="documento_tipo_tenant_id{{ $sufixo }}" class="form-label">Tipo de
-                                Documento*</label>
+                            <label for="documento_modelo_tenant_id{{ $sufixo }}" class="form-label">Modelo*</label>
                             <div class="input-group">
-                                <select name="documento_tipo_tenant_id" id="documento_tipo_tenant_id{{ $sufixo }}"
+                                <select name="documento_modelo_tenant_id" id="documento_modelo_tenant_id{{ $sufixo }}"
                                     class="form-select">
                                     <option value="0">Selecione</option>
                                 </select>
-                                {{-- <button type="button" class="btn btn-outline-primary openModalDocumentoTipoTenant">
-                                    <i class="bi bi-search"></i>
-                                </button> --}}
                             </div>
                         </div>
                     </div>
@@ -35,7 +31,7 @@
                     <div class="row">
                         <div class="col text-end mt-2">
                             <button type="submit" class="btn btn-outline-primary btn-save">
-                                Selecionar tipo
+                                Selecionar modelo
                             </button>
                         </div>
                     </div>
@@ -45,9 +41,13 @@
     </div>
 </div>
 
+@push('modals')
+    <x-modal.tenant.modal-documento-modelo-tenant.modal />
+@endpush
+
 @component('components.api.api-routes', [
     'routes' => [
-        'baseDocumentoTipoTenants' => route('api.tenant.documento-tipo-tenant'),
+        'baseDocumentoModeloTenant' => route('api.tenant.documento-modelo-tenant'),
     ],
 ])
 @endcomponent

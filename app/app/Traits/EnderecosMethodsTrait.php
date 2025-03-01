@@ -55,7 +55,9 @@ trait EnderecosMethodsTrait
             $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->modelEndereco::class, [
                 'numero' => $endereco->numero,
                 'logradouro' => $endereco->logradouro,
-                'cidade' => $endereco->cidade
+                'cidade' => $endereco->cidade,
+                'parent_id' => $resource->pessoa->id,
+                'parent_type' => $this->modelPessoa->getMorphClass(),
             ], $endereco->id ?? null);
 
             $logradouroSemEspaco = str_replace(' ', '_', $endereco->logradouro);

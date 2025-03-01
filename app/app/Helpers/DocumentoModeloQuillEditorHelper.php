@@ -46,7 +46,15 @@ class DocumentoModeloQuillEditorHelper
         return [
             'marcacoes_sem_referencia' => $marcacoesSemReferencia,
             'objetos_nao_utilizados' => $objetosNaoUtilizados,
-            'objetos_utilizados' => $objetosUtilizados,
+            'objetos_utilizados' => collect($objetosUtilizados)->map(function ($objeto) {
+                return [
+                    'identificador' => $objeto['identificador'],
+                    'contador' => $objeto['contador'],
+                    'nome' => $objeto['nome'],
+                    'marcadores_usados' => $objeto['marcadores_usados'],
+                    'idAccordionNovoObjeto' => $objeto['idAccordionNovoObjeto'] ?? null
+                ];
+            })->toArray()
         ];
     }
 
@@ -81,7 +89,8 @@ class DocumentoModeloQuillEditorHelper
                 'identificador' => $identificador,
                 'contador' => $contador,
                 'nome' => "{$identificador}.{$contador}",
-                'marcadores' => $marcadoresRenderizados
+                'marcadores' => $marcadoresRenderizados,
+                'idAccordionNovoObjeto' => $objeto['idAccordionNovoObjeto'] ?? null
             ];
         }
 

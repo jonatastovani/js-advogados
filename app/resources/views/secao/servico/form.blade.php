@@ -129,6 +129,8 @@
     <x-modal.comum.modal-participacao-preset.modal />
     <x-modal.pessoa.modal-pessoa.modal />
     <x-modal.comum.modal-nome.modal />
+    <x-modal.tenant.modal-selecionar-documento-modelo-tenant.modal />
+    <x-modal.tenant.modal-documento-modelo-tenant.modal />
 @endpush
 
 @push('scripts')

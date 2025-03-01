@@ -26,7 +26,7 @@ class DocumentoModeloTenantService extends Service
 
     public function indexPorDocumentoModeloTipo(Fluent $requestData)
     {
-        $resource = $this->model->where("documento_modelo_tipo_id", $requestData->documento_modelo_tipo_id)
+        $resource = $this->model->select('id', 'nome')->where("documento_modelo_tipo_id", $requestData->documento_modelo_tipo_id)
             ->orderBy("nome", 'asc')->get();
         return $resource->toArray();
     }

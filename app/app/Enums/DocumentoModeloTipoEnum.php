@@ -83,15 +83,15 @@ enum DocumentoModeloTipoEnum: int
     public function camposEndereco()
     {
         return [
-            ['display' => 'Logradouro', 'sufixo' => 'logradouro',],
-            ['display' => 'Número', 'sufixo' => 'numero',],
-            ['display' => 'Complemento', 'sufixo' => 'complemento',],
-            ['display' => 'Bairro', 'sufixo' => 'bairro',],
-            ['display' => 'Referência', 'sufixo' => 'referencia',],
-            ['display' => 'Cidade', 'sufixo' => 'cidade',],
-            ['display' => 'Estado', 'sufixo' => 'estado',],
-            ['display' => 'CEP', 'sufixo' => 'cep',],
-            ['display' => 'País', 'sufixo' => 'pais',],
+            ['display' => 'Logradouro', 'sufixo' => 'endereco.logradouro',],
+            ['display' => 'Número', 'sufixo' => 'endereco.numero',],
+            ['display' => 'Complemento', 'sufixo' => 'endereco.complemento',],
+            ['display' => 'Bairro', 'sufixo' => 'endereco.bairro',],
+            ['display' => 'Referência', 'sufixo' => 'endereco.referencia',],
+            ['display' => 'Cidade', 'sufixo' => 'endereco.cidade',],
+            ['display' => 'Estado', 'sufixo' => 'endereco.estado',],
+            ['display' => 'CEP', 'sufixo' => 'endereco.cep',],
+            ['display' => 'País', 'sufixo' => 'endereco.pais',],
         ];
     }
 }

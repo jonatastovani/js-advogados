@@ -186,6 +186,7 @@ class ServicoClienteService extends Service
         $relationships = [
             'perfil.perfil_tipo',
             'perfil.pessoa.pessoa_dados',
+            'perfil.pessoa.enderecos',
         ];
 
         // Verifica se ServicoService está na lista de exclusão

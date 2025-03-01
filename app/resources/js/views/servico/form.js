@@ -9,6 +9,8 @@ import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSele
 import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
 import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
 import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
+import { modalDocumentoModeloTenant } from "../../components/tenant/modalDocumentoModeloTenant";
+import { modalSelecionarDocumentoModeloTenant } from "../../components/tenant/modalSelecionarDocumentoModeloTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
@@ -104,7 +106,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
-            self.#saveButtonActionParticipacao();
+            await self.#saveButtonActionParticipacao();
         });
 
         $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
@@ -139,6 +141,26 @@ class PageServicoForm extends TemplateForm {
         $(`#btnSaveClientes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionCliente();
+        });
+
+        $(`#btnAdicionarDocumento${self._objConfigs.sufixo} `).on('click', async function () {
+            const btn = $(this);
+            commonFunctions.simulateLoading(btn);
+            try {
+                const objModal = new modalSelecionarDocumentoModeloTenant();
+                objModal.setDataEnvModal = {
+                    documento_modelo_tipo_id: window.Enums.DocumentoModeloTipoEnum.SERVICO,
+                };
+                const response = await objModal.modalOpen();
+                console.log(response);
+                if (response.refresh && response.register) {
+                    // self.#inserirAnotacao(response.register);
+                }
+            } catch (error) {
+                commonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                commonFunctions.simulateLoading(btn, false);
+            }
         });
 
         $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
@@ -193,6 +215,57 @@ class PageServicoForm extends TemplateForm {
             await self.#buscarPagamentos();
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
+
+        self.#openModal();
+    }
+
+    async #openModal() {
+        const self = this;
+        try {
+            const objModal = new modalDocumentoModeloTenant();
+            objModal._dataEnvModal = {
+                documento_modelo_tenant_id: "9e53fb7f-d70b-47cc-b9b1-2bcff9e81c39",
+                ...self.#getObjetosDocumentoModeloTenantRender(),
+            }
+            console.log(await objModal.modalOpen());
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+    #getObjetosDocumentoModeloTenantRender() {
+        const self = this;
+        return {
+            objetos: self._objConfigs.data.clientesNaTela.map(cliente => {
+                let obj = {};
+
+                // Encontrar o tipo de pessoa no array de Details
+                const pessoaTipo = window.Details.PessoaTipoEnum.find(
+                    pessoa => pessoa.pessoa_dados_type === cliente.perfil.pessoa.pessoa_dados_type
+                );
+
+                if (pessoaTipo) {
+                    // Encontrar o identificador correto baseado no DocumentoModeloTipoEnum
+                    const vinculoDocumentoModelo = pessoaTipo.documento_modelo_tenant.find(
+                        doc => doc.documento_modelo_tipo_id === window.Enums.DocumentoModeloTipoEnum.SERVICO
+                    );
+
+                    if (vinculoDocumentoModelo) {
+                        commonFunctions.deepMergeObject(obj, {
+                            identificador: vinculoDocumentoModelo.identificador,
+                            perfil_id: cliente.perfil_id,
+                        });
+                    } else {
+                        commonFunctions.generateNotification(`O vínculo do tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi configurado.`, 'error');
+                    }
+                } else {
+                    commonFunctions.generateNotification(`Tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi encontrado.`, 'error');
+                }
+
+                console.log('obj', obj);
+                return obj;
+            }),
+        };
     }
 
     async #inserirCliente(item) {

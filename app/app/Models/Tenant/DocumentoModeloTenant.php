@@ -44,6 +44,7 @@ class DocumentoModeloTenant extends Model
         'created_ip',
         // 'created_at', // Usado no front para mostrar quando foi criado
         'updated_user_id',
+        'data',
         'updated_ip',
         'updated_at',
         'deleted_user_id',

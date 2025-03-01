@@ -209,7 +209,6 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         return objeto ? JSON.parse(JSON.stringify(objeto)) : null;
     }
 
-
     #getContadorObjetoNaTela(objeto, addProximo = false) {
         const self = this;
         return self._objConfigs.quillEditor.objetosNaTela.filter(i => i.identificador === objeto.identificador).length + (addProximo ? 1 : 0);
@@ -249,15 +248,15 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         `;
     }
 
-    #renderBtnMarcadoresObjeto(item, options = {}) {
-        const self = this;
+    #renderBtnMarcadoresObjeto(item, options) {
         const btnPrefixo = options.btnPrefixo;
         let strBtns = '';
 
         item.marcadores.map(marcador => {
+            marcador.idBtn = `${btnPrefixo}-${marcador.sufixo.replace('.', '-')}`;
             marcador.marcacao = `{{${item.marcador_prefixo.replace('{{contador}}', item.contador)}.${marcador.sufixo}}}`;
             strBtns += `
-                <button id="${btnPrefixo}-${marcador.sufixo}" type="button" class="btn btn-outline-primary" data-marcacao="${marcador.marcacao}">
+                <button id="${marcador.idBtn}" type="button" class="btn btn-outline-primary" data-marcacao="${marcador.marcacao}">
                     ${marcador.display}
                 </button>`;
         });
@@ -268,9 +267,9 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         const self = this;
         const btnPrefixo = options.btnPrefixo;
 
-        marcadores.map(item => {
-            $(`#${btnPrefixo}-${item.sufixo}`).on('click', async function () {
-                self._inserirMarcacaoNoEditor(item);
+        marcadores.map(marcador => {
+            $(`#${marcador.idBtn}`).on('click', async function () {
+                self._inserirMarcacaoNoEditor(marcador);
             })
         })
     }
@@ -280,11 +279,11 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         self._objConfigs.quillEditor.objetosNaTela.push(item);
     }
 
-    #deleteObjetoNaTela(ultimoObjeto) {
+    #deleteObjetoNaTela(objeto) {
         const self = this;
         // Remover o elemento do DOM
-        $(`#${ultimoObjeto.idAccordionNovoObjeto}`).remove();
-        self._objConfigs.quillEditor.objetosNaTela = self._objConfigs.quillEditor.objetosNaTela.filter(i => i.idAccordionNovoObjeto !== ultimoObjeto.idAccordionNovoObjeto);
+        $(`#${objeto.idAccordionNovoObjeto}`).remove();
+        self._objConfigs.quillEditor.objetosNaTela = self._objConfigs.quillEditor.objetosNaTela.filter(i => i.idAccordionNovoObjeto !== objeto.idAccordionNovoObjeto);
     }
 
     /**
@@ -334,9 +333,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                      </div>
                  `);
 
-                // $(`#btnRemoverReferencia${item.uuid}`).on('click', function () {
-                //     self.#deleteContadorClienteNaTela(self.getQuill, item.marcacao, item.indice);
-                // });
+                $(`#btnRemoverReferencia${item.uuid}`).on('click', async function () {
+                    self.#deleteObjetoNaTela(item);
+                    await self._verificarInconsistenciasObjetos();
+                });
             });
 
             resultado.marcacoes_sem_referencia.forEach(item => {
