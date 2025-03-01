@@ -16,6 +16,7 @@
         MovimentacaoContaParticipanteStatusTipoEnum: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::toArray()),
         TagTipoTenantEnum: @json(\App\Enums\TagTipoTenantEnum::toArray()),
         LancamentoTipoEnum: @json(\App\Enums\LancamentoTipoEnum::toArray()),
+        DocumentoModeloTipoEnum: @json(\App\Enums\DocumentoModeloTipoEnum::toArray()),
     };
 
     window.Statics = {

@@ -7,6 +7,7 @@ use App\Enums\DocumentoModeloTipoEnum;
 use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Referencias\DocumentoModeloTipo;
+use Illuminate\Support\Facades\Log;
 
 class DocumentoModeloTenantFormRequestBase extends BaseFormRequest
 {
@@ -15,40 +16,28 @@ class DocumentoModeloTenantFormRequestBase extends BaseFormRequest
         // Define as regras básicas
         $rules = [
             'nome' => 'required|string|min:3',
+            'descricao' => 'nullable|string',
             'conteudo' => 'required|array',
             'ativo_bln' => 'nullable|boolean',
             'documento_modelo_tipo_id' => 'required|integer',
+            'objetos' => 'nullable|array',
+            'objetos.*.contador' => 'required|integer',
+            'objetos.*.identificador' => 'required|string',
         ];
 
-        // // Busca o modelo para verificar os campos que cada modelo terá
-        // $verificaDocumentoModeloTipo = function ($documentoModeloTipoId) {
-
-        //     if (!$documentoModeloTipoId) {
-        //         $log = LogHelper::gerarLogDinamico('404', 'Tipo de Modelo de Decumento não informado. Consulte o desenvolvedor.', $this);
-        //         return RestResponse::createErrorResponse(404, $log->error, $log->trace_id)->throwResponse();
-        //     }
-
-        //     $consulta =  DocumentoModeloTipo::find($documentoModeloTipoId);
-
-        //     if (!$consulta) {
-        //         return RestResponse::createErrorResponse(404, 'Tipo de Pagamento do Tenant não encontrado.')->throwResponse();
-        //     }
-        //     return $consulta;
-        // };
-
-        // if ($this->has('documento_modelo_tipo_id')) {
-        //     // Obtém o valor de 'documento_modelo_tipo_id' da requisição
-        //     $documentoModeloTipo = $verificaDocumentoModeloTipo($this->input('documento_modelo_tipo_id'));
-
-        //     if ($documentoModeloTipo->id == DocumentoModeloTipoEnum::SERVICO->value) {
-
-        //         // Define as regras de acordo com o tipo de pagamento
-        //         foreach ($documentoModeloTipo->campos_obrigatorios as $value) {
-        //             $rules[$value['nome']] = $value['form_request_rule'];
-        //         }
-        //     }
-        // }
+        $this->converterConteudoParaArray();
 
         return $rules;
+    }
+
+    /**
+     * Converte o conteudo para um array para que possa ser validado pelas
+     * regras de validação do Laravel. É enviado como uma string json para manter os atributos de formatação do quill.
+     *
+     * @return void
+     */
+    private function converterConteudoParaArray()
+    {
+        $this->merge(['conteudo' => json_decode($this->input('conteudo'), true)]);
     }
 }

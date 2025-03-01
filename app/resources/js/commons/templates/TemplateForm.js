@@ -54,9 +54,9 @@ export class TemplateForm {
     #addEventBtnSave() {
         const btnSave = `#btnSave${this._objConfigs.sufixo}`;
         const self = this;
-        $(btnSave).on("click", function (e) {
+        $(btnSave).on("click", async function (e) {
             e.preventDefault();
-            self.saveButtonAction();
+            await self.saveButtonAction();
         });
     }
 

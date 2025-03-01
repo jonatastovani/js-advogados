@@ -1,1 +1,0 @@
-[2025-02-28T20:00:09.253223-03:00] local.ERROR: CSRF token inválido ou sessão expirada. {"session_token":"vjFvy0NtuNrxFqTMtZuS2siNHZQFWU8T2OXrO7TD","request_token":null,"url":"http://jsadvogadosmc.byteforge.com.br/api/helper/documento-modelo-tenant/1","method":"POST"} []

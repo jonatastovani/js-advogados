@@ -26,6 +26,7 @@ return new class extends Migration
             $this->addTenantIDField($table);
 
             $table->string('nome');
+            $table->string('descricao')->nullable();
             $table->jsonb('conteudo');
             $table->boolean('ativo_bln')->default(true);
 

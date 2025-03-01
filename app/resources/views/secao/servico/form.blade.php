@@ -45,6 +45,14 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
+                        aria-disabled="{{ $disabledNovoRegistro }}" id="painelDocumentos{{ $sufixo }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#painelDocumentos{{ $sufixo }}-tab-pane" type="button"
+                        role="tab" aria-controls="painelDocumentos{{ $sufixo }}-tab-pane" aria-selected="false">
+                        Documentos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelAnotacao{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#painelAnotacao{{ $sufixo }}-tab-pane" type="button"
                         role="tab" aria-controls="painelAnotacao{{ $sufixo }}-tab-pane" aria-selected="false">
@@ -81,6 +89,12 @@
                 aria-labelledby="painelClientes{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
                     @include('secao.servico.form.painel-clientes')
+                @endif
+            </div>
+            <div class="tab-pane fade h-100" id="painelDocumentos{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="painelDocumentos{{ $sufixo }}-tab" tabindex="0">
+                @if (!$disabledNovoRegistro)
+                    @include('secao.servico.form.painel-documentos')
                 @endif
             </div>
             <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"

@@ -8,7 +8,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
     _objConfigs;
     _parentInstance;
-    _modeloId;
+    _documentoModeloTipoId;
 
     /**
      * Inicializa o editor Quill.js com suporte a marcações de clientes.
@@ -27,9 +27,18 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         this._parentInstance = parentInstance;
 
         this._objConfigs.quillEditor ??= {};
+        this._objConfigs.quillEditor.objetosBase ??= [];
         this._objConfigs.quillEditor.objetosNaTela ??= [];
 
         // this.adicionarBotoesClientes();
+    }
+
+    set setDocumentoModeloTipoId(id) {
+        this._documentoModeloTipoId = id;
+    }
+
+    get getDocumentoModeloTipoId() {
+        return this._documentoModeloTipoId;
     }
 
     // /**
@@ -84,8 +93,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         const self = this;
         try {
             const modelo = await self.#getDocumentoModeloTipo(modeloId);
-            self._modeloId = modeloId;
-            console.log(modelo);
+            self.setDocumentoModeloTipoId = modeloId;
 
             modelo.objetos.map(objeto => {
                 self.#addBotoesDropdowns(objeto);
@@ -132,11 +140,13 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 </button>
             </li>`);
 
+        self._objConfigs.quillEditor.objetosBase.push(objeto);
+
         $(`#${idBtn}`).on('click', async function () {
-            const newObjeto = JSON.parse(JSON.stringify(objeto));
+            const newObjeto = self._getObjetoBase(objeto.identificador);
             newObjeto.contador = self.#getContadorObjetoNaTela(objeto, true);
 
-            self.#inserirObjetoNaTela(newObjeto);
+            self._inserirObjetoNaTela(newObjeto);
             const resultado = self._verificarInconsistenciasObjetos();
         });
     }
@@ -171,7 +181,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             );
 
             if (!ultimoObjeto) {
-                console.error(`Erro ao localizar o objeto ${objeto.display} para remover.`);
+                commonFunctions.generateNotification(`Erro ao localizar o objeto ${objeto.display} para remover.`, 'warning');
+                console.error('objetosNaTela', self._objConfigs.quillEditor.objetosNaTela);
+                console.error('ultimoContador', ultimoContador);
+                console.error('ultimoObjeto', ultimoObjeto);
                 return;
             }
 
@@ -182,13 +195,20 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         });
     }
 
-    #inserirObjetoNaTela(item) {
+    _inserirObjetoNaTela(item) {
         const self = this;
 
         $(`#${item.idAccordion}`).append(self.#getHTMLAccordionObjeto(item));
         self.#addEventMarcadoresObjeto(item.marcadores, { btnPrefixo: item.idAccordionNovoObjeto });
         self.#pushContadorObjetosNaTela(item);
     }
+
+    _getObjetoBase(identificador) {
+        const self = this;
+        const objeto = self._objConfigs.quillEditor.objetosBase.find(item => item.identificador === identificador);
+        return objeto ? JSON.parse(JSON.stringify(objeto)) : null;
+    }
+
 
     #getContadorObjetoNaTela(objeto, addProximo = false) {
         const self = this;
@@ -267,9 +287,18 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         self._objConfigs.quillEditor.objetosNaTela = self._objConfigs.quillEditor.objetosNaTela.filter(i => i.idAccordionNovoObjeto !== ultimoObjeto.idAccordionNovoObjeto);
     }
 
+    /**
+     * Retorna uma lista reduzida dos objetos na tela, contendo apenas as informações essenciais para a requisição.
+     * @returns {Array} - Lista de objetos na tela com os campos essenciais.
+     */
     _getObjetosNaTela() {
         const self = this;
-        return self._objConfigs.quillEditor.objetosNaTela;
+        return self._objConfigs.quillEditor.objetosNaTela.map(item => ({
+            uuid: item.uuid,
+            idAccordionNovoObjeto: item.idAccordionNovoObjeto,
+            contador: item.contador,
+            identificador: item.identificador
+        }));
     }
 
     async _verificarInconsistenciasObjetos(options = {}) {
@@ -287,13 +316,13 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             const resultado = await self.#executaVerificacaoInconsistenciasObjetos({
                 conteudo: deltaAtual,
                 objetos: self._getObjetosNaTela(),
-                documento_modelo_tipo_id: self._modeloId
+                documento_modelo_tipo_id: self.getDocumentoModeloTipoId,
             });
 
             divRevisao.html('');
             divRequisitos.html('');
 
-            resultado.objetosNaoUtilizados.forEach(item => {
+            resultado.objetos_nao_utilizados.forEach(item => {
                 item.uuid = UUIDHelper.generateUUID();
                 divRevisao.append(`
                      <div class="alert alert-warning py-1" role="alert">
@@ -310,7 +339,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 // });
             });
 
-            resultado.marcacoesSemReferencia.forEach(item => {
+            resultado.marcacoes_sem_referencia.forEach(item => {
                 item.uuid = UUIDHelper.generateUUID();
                 divRevisao.append(`
                      <div class="alert alert-warning py-1" role="alert">
@@ -323,7 +352,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 });
             });
 
-            resultado.objetosUtilizados.forEach(item => {
+            resultado.objetos_utilizados.forEach(item => {
                 item.uuid = UUIDHelper.generateUUID();
                 let strMarcacaoUsada = item.marcadores_usados.map(m => m.display).join(', ');
                 divRequisitos.append(`
@@ -335,7 +364,6 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                  `);
             });
 
-            console.log(resultado);
             return resultado;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
@@ -351,7 +379,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
     async #executaVerificacaoInconsistenciasObjetos(data) {
         const self = this;
         const objConn = new connectAjax(self._objConfigs.url.baseDocumentoModeloTenantHelper);
-        objConn.setParam(self._modeloId);
+        objConn.setParam(self.getDocumentoModeloTipoId);
         objConn.setAction(enumAction.POST);
         objConn.setData(data);
         const response = await objConn.envRequest();

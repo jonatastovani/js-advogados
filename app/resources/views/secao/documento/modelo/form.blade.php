@@ -27,8 +27,12 @@
 
     <div class="row">
         <div class="col-sm-12 col-md-7 col-xl-8 mt-2">
-            <label for="nome{{ $sufixo }}" class="form-label">Nome do modelo</label>
+            <label for="nome{{ $sufixo }}" class="form-label">Nome do modelo*</label>
             <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
+        </div>
+        <div class="col-12 mt-2">
+            <label for="descricao{{ $sufixo }}" class="form-label">Descrição</label>
+            <input type="text" id="descricao{{ $sufixo }}" name="descricao" class="form-control">
         </div>
     </div>
 
@@ -157,7 +161,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirect' => route('documento.modelo.index'),
+            'frontRedirectForm' => route('documento.modelo.index'),
         ],
     ])
     @endcomponent

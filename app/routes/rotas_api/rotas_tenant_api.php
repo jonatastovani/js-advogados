@@ -46,12 +46,12 @@ Route::group([
         });
     });
 
-    // Documentos que herdam configurações da Referencia\DocumentoTipo 
+    // Modelos de Documentos 
     Route::prefix('documento-modelo-tenant')->group(function () {
 
         Route::controller(App\Http\Controllers\Tenant\DocumentoModeloTenantController::class)->group(function () {
 
-            // Route::post('consulta-filtros', 'postConsultaFiltros');
+            Route::post('consulta-filtros', 'postConsultaFiltros');
 
             Route::post('documento-modelo-tipo', 'indexPorDocumentoModeloTipo');
             Route::post('', 'store')->name('api.tenant.documento-modelo-tenant');

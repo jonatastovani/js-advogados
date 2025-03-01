@@ -865,6 +865,20 @@ export class commonFunctions {
             traceId = undefined,
         } = options;
 
+        switch (type) {
+            case 'warning':
+                console.warn(message);
+                break;
+
+            case 'error':
+                console.error(message);
+                break;
+
+            default:
+                console.log(message);
+                break;
+        }
+
         if (applyTag) {
             const cls = messageClass ? `class="${messageClass}"` : '';
             message = `<${messageTag} ${cls}>${message}</${messageTag}>`

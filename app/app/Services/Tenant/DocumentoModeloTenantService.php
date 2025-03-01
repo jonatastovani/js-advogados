@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenant;
 
+use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\DocumentoModeloQuillEditorHelper;
 use App\Helpers\LogHelper;
@@ -57,11 +58,23 @@ class DocumentoModeloTenantService extends Service
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
+        $arrayErrors = new Fluent();
+
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
-            $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para esta escolaridade já existe.', $requestData->toArray());
+            $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este modelo de documento já existe.', $requestData->toArray());
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
+
+        $validacaoConteudoEObjetos = $this->verificacaoDocumentoEmCriacao($requestData);
+        if ((isset($validacaoConteudoEObjetos['marcacoes_sem_referencia']) && count($validacaoConteudoEObjetos['marcacoes_sem_referencia']) > 0)
+            || (isset($validacaoConteudoEObjetos['objetos_nao_utilizados']) && count($validacaoConteudoEObjetos['objetos_nao_utilizados']) > 0)
+        ) {
+            $arrayErrors->conteudo =  LogHelper::gerarLogDinamico(409, 'Há marcações sem referência ou objetos não utilizados no modelo.', $requestData)->error;
+        }
+
+        // Erros que impedem o processamento
+        CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
         $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
         $resource->fill($requestData->toArray());
@@ -75,10 +88,15 @@ class DocumentoModeloTenantService extends Service
             'message' => 'O Modelo de Documento não foi encontrado.',
         ]);
     }
-    
+
     public function verificacaoDocumentoEmCriacao(Fluent $requestData, array $options = [])
     {
         return DocumentoModeloQuillEditorHelper::verificarInconsistencias($requestData, $options);
+    }
+
+    public function loadFull($options = []): array
+    {
+        return ['documento_modelo_tipo'];
     }
 
     // private function executarEventoWebsocket()

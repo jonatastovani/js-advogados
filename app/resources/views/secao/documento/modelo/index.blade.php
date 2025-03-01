@@ -1,7 +1,12 @@
 @php
-    $sufixo = 'PageServicoIndex';
+    $sufixo = 'PageDocumentoModeloTenantIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Serviços',
+        'nome' => 'Modelos de Documentos',
+        'descricao' => [
+            [
+                'texto' => 'Cadastro e personalização de modelos de documentos.',
+            ],
+        ],
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -33,6 +38,18 @@
                     'titulo' => ['nome' => 'Título'],
                 ],
                 'consultaMesAnoBln' => true,
+                'camposExtras' => [
+                    [
+                        'tipo' => 'select',
+                        'nome' => 'documento_modelo_tipo_id',
+                        'opcoes' => [['id' => 0, 'nome' => 'Todos os tipos']],
+                        'input_group' => [
+                            'before' => [
+                                "<span class='input-group-text'><label for='documento_modelo_tipo_id{$sufixo}' title='Tipos de modelos'>Tipo Mod.</label></span>",
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         @endphp
         <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
@@ -61,10 +78,10 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-center" title="Número de Serviço">N.S.</th>
-                    <th>Titulo</th>
-                    <th>Área</th>
+                    <th>Nome</th>
                     <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Ativo</th>
                     <th>Cadastro</th>
                 </tr>
             </thead>
@@ -85,14 +102,14 @@
     @vite('resources/js/views/documento/modelo/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'baseServico' => route('api.servico'),
-            'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
+            'baseDocumentoModeloTenant' => route('api.tenant.documento-modelo-tenant'),
+            'baseDocumentoModeloTipo' => route('api.referencias.documento-modelo-tipo'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFront' => route('servico.index'),
+            'baseFront' => route('documento.modelo.index'),
         ],
     ])
     @endcomponent
