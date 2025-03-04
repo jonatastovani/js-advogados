@@ -1,4 +1,6 @@
 import { commonFunctions } from "../commons/commonFunctions";
+import { connectAjax } from "../commons/connectAjax";
+import { enumAction } from "../commons/enumAction";
 import instanceManager from "../commons/instanceManager";
 import { modalEndereco } from "../components/comum/modalEndereco";
 import { modalMessage } from "../components/comum/modalMessage";
@@ -41,67 +43,92 @@ export class DocumentoModeloTenantRenderModule {
 
     async _inserirTodosObjetos(objetos) {
         const self = this;
-        objetos.map((objeto, index) => {
-            console.log(`Objeto ${index + 1}:`, objeto);
-        });
+        try {
+            // console.log('objetos enviados', objetos);
+            const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
+            objConn.setData({ objetos });
+            objConn.setAction(enumAction.POST);
+            const response = await objConn.envRequest();
+            response.data.map(async (objeto) => {
+                console.log(`Objeto:`, objeto);
+                await self._inserirObjeto(objeto);
+            });
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        }
     }
 
-    async _inserirEndereco(item, blnValidarEndereco = true) {
+    async _inserirObjeto(item) {
         const self = this;
-        const divEndereco = $(`#divEndereco${self._objConfigs.sufixo}`);
+        const divObjetos = $(`#divObjetos${self._objConfigs.sufixo}`);
 
-        if (blnValidarEndereco) {
-            if (!await self.#verificaEnderecoRepetido(item)) {
-                return false;
-            }
+        let title = '';
+        let htmlColsEspecifico = '';
+        let htmlAppend = '';
+
+        switch (item.identificador) {
+
+            case 'ClientePF':
+                title = item.dados.nome;
+                htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
+                htmlAppend = `<p class="mb-0 text-truncate">
+                    <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
+                </p>`;
+
+                break;
+
+            case 'ClientePJ':
+                title = item.dados.nome_fantasia;
+                htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
+                htmlAppend = `<p class="mb-0 text-truncate">
+                    <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
+                </p>`;
+
+                break;
+
+            default:
+                break;
         }
 
-        let htmlColsEspecifico = self.#htmlColsEspecificosEndereco(item);
-        let htmlAppend = self.#htmlAppendEndereco(item);
-
-        const logradouro = item.logradouro;
-        const numero = item.numero;
 
         if (!item?.idCol) {
 
             item.idCol = UUIDHelper.generateUUID();
             let strCard = `
-            <div id="${item.idCol}" class="card p-0">
-                <div class="card-body">
-                    <div class="row">
-                        <h5 class="card-title d-flex align-items-center justify-content-between">
-                            <span class="spanTitle">
-                                ${logradouro}, ${numero}
-                            </span>
-                            <div>
-                                <div class="dropdown">
-                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar endereço">Editar</button></li>
-                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir endereço">Excluir</button></li>
-                                    </ul>
+                    <div div id = "${item.idCol}" class="card p-0" >
+                        <div class="card-body">
+                            <div class="row">
+                                <h5 class="card-title d-flex align-items-center justify-content-between">
+                                    <span class="spanTitle">${title}</span>
+                                    <div>
+                                        <div class="dropdown">
+                                            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar endereço">Editar</button></li>
+                                                <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir endereço">Excluir</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </h5>
+                                <div class="rowColsEspecifico row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 align-items-end">
+                                    ${htmlColsEspecifico}
+                                </div>
+                                <div class="divAppend">
+                                    ${htmlAppend}
                                 </div>
                             </div>
-                        </h5>
-                        <div class="rowColsEspecifico row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 align-items-end">
-                            ${htmlColsEspecifico}
                         </div>
-                        <div class="divAppend">
-                            ${htmlAppend}
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+            </div > `;
 
-            divEndereco.append(strCard);
+            divObjetos.append(strCard);
             self.#addEventosEndereco(item);
             self._objConfigs.data.enderecosNaTela.push(item);
         } else {
-            $(`#${item.idCol}`).find('.spanTitle').html(`${logradouro}, ${numero}`);
-            $(`#${item.idCol}`).find('.rowColsEspecifico').html(htmlColsEspecifico);
-            $(`#${item.idCol}`).find('.divAppend').html(htmlAppend);
+            $(`#${item.idCol} `).find('.spanTitle').html(title);
+            $(`#${item.idCol} `).find('.rowColsEspecifico').html(htmlColsEspecifico);
+            $(`#${item.idCol} `).find('.divAppend').html(htmlAppend);
 
             const indexDoc = self.#pesquisaIndexEnderecoNaTela(item);
             if (indexDoc != -1) {
@@ -141,14 +168,14 @@ export class DocumentoModeloTenantRenderModule {
         const self = this;
 
         const renderEndereco = (item) => {
-            let strEndereco = `${item.logradouro}, ${item.numero}`
-            item.complemento ? strEndereco += `, ${item.complemento}` : '';
-            item.bairro ? strEndereco += `, ${item.bairro}` : '';
-            item.referencia ? strEndereco += `, ${item.referencia}` : '';
-            item.cidade ? strEndereco += ` - ${item.cidade}` : '';
-            item.estado ? strEndereco += `-${item.estado}` : '';
-            item.pais ? strEndereco += `, ${item.pais}` : '';
-            item.cep ? strEndereco += `, CEP ${item.cep}` : '';
+            let strEndereco = `${item.logradouro}, ${item.numero} `
+            item.complemento ? strEndereco += `, ${item.complemento} ` : '';
+            item.bairro ? strEndereco += `, ${item.bairro} ` : '';
+            item.referencia ? strEndereco += `, ${item.referencia} ` : '';
+            item.cidade ? strEndereco += ` - ${item.cidade} ` : '';
+            item.estado ? strEndereco += `- ${item.estado} ` : '';
+            item.pais ? strEndereco += `, ${item.pais} ` : '';
+            item.cep ? strEndereco += `, CEP ${item.cep} ` : '';
             return strEndereco;
         }
 
@@ -167,82 +194,84 @@ export class DocumentoModeloTenantRenderModule {
         return result.confirmResult ?? false;
     }
 
-    #htmlColsEspecificosEndereco(item) {
+    #htmlColsEspecificosClientePF(item) {
         const self = this;
         let htmlColsEspecifico = '';
 
+        return '';
+
         if (item?.complemento) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Complemento</div>
                     <p class="text-truncate" title="${item.complemento}">${item.complemento}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item?.bairro) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Bairro</div>
                     <p class="text-truncate" title="${item.bairro}">${item.bairro}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.referencia) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Referência</div>
                     <p class="text-truncate" title="${item.referencia}">${item.referencia}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.cidade) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Cidade</div>
                     <p class="text-truncate" title="${item.cidade}">${item.cidade}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.entrada_valor) {
             const valorEntrada = commonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Valor Entrada</div>
                     <p class="">${valorEntrada}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.estado) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Estado</div>
                     <p class="text-truncate" title="${item.estado}">${item.estado}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.parcela_data_inicio) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">Primeira Parcela</div>
                     <p class="">${DateTimeHelper.retornaDadosDataHora(item.parcela_data_inicio, 2)}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.pais) {
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">País</div>
                     <p class="text-truncate" title="${item.pais}">${item.pais}</p>
-                </div>`;
+                </div > `;
         }
 
         if (item.cep) {
             const cep = MasksAndValidateHelpers.formatCep(item.cep);
             htmlColsEspecifico += `
-                <div class="col">
+                    <div div class="col" >
                     <div class="form-text mt-0">CEP</div>
                     <p class="text-truncate" title="${cep}">${cep}</p>
-                </div>`;
+                </div > `;
         }
         return htmlColsEspecifico;
     }
@@ -252,9 +281,9 @@ export class DocumentoModeloTenantRenderModule {
 
         if (item.observacao) {
             htmlAppend += `
-            <p class="mb-0 text-truncate" title="${item.observacao}">
-               <b>Observação:</b> ${item.observacao}
-            </p>`;
+                    <p p class="mb-0 text-truncate" title = "${item.observacao}" >
+                        <b>Observação:</b> ${item.observacao}
+            </p > `;
         }
 
         return htmlAppend;
@@ -268,7 +297,7 @@ export class DocumentoModeloTenantRenderModule {
     async #addEventosEndereco(item) {
         const self = this;
 
-        $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
+        $(`#${item.idCol} `).find('.btn-edit').on('click', async function () {
             const docNaTela = self._objConfigs.data.enderecosNaTela;
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
@@ -299,7 +328,7 @@ export class DocumentoModeloTenantRenderModule {
             }
         });
 
-        $(`#${item.idCol}`).find(`.btn-delete`).on('click', async function () {
+        $(`#${item.idCol} `).find(`.btn - delete `).on('click', async function () {
             try {
                 const docNaTela = self._objConfigs.data.enderecosNaTela;
                 const indexDoc = self.#pesquisaIndexEnderecoNaTela(item);
@@ -309,13 +338,13 @@ export class DocumentoModeloTenantRenderModule {
                     const objMessage = new modalMessage();
                     objMessage.setDataEnvModal = {
                         title: `Exclusão de Endereço`,
-                        message: `Confirma a exclusão do endereço <b>${doc.logradouro}, ${doc.numero}</b>?`,
+                        message: `Confirma a exclusão do endereço <b b > ${doc.logradouro}, ${doc.numero}</b >? `,
                     };
                     objMessage.setFocusElementWhenClosingModal = $(this);
                     const result = await objMessage.modalOpen();
                     if (result.confirmResult) {
                         docNaTela.splice(indexDoc, 1);
-                        $(`#${doc.idCol}`).remove();
+                        $(`#${doc.idCol} `).remove();
                     }
                 }
             } catch (error) {

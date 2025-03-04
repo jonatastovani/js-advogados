@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestIndexPorDocumentoModeloTipo;
+use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestRenderObjetos;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestShow;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestStore;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestUpdate;
@@ -54,4 +55,12 @@ class DocumentoModeloTenantController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->verificacaoDocumentoEmCriacao($fluentData));
     }
+
+    public function renderObjetos(DocumentoModeloTenantFormRequestRenderObjetos $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->renderObjetos($fluentData));
+    }
+
+
 }

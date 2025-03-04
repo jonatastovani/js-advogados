@@ -29,6 +29,7 @@ Route::group([
         Route::get('', function () {})->name('api.helper.documento-modelo-tenant');
 
         Route::post('{documento_modelo_tipo_id}', 'verificacaoDocumentoEmCriacao');
+        Route::post('render-objetos', 'renderObjetos');
     });
 
     Route::group([

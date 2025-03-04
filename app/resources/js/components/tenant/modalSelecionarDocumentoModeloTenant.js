@@ -1,7 +1,6 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalDefault } from "../../commons/modal/modalDefault";
-import { modalDocumentoModeloTenant } from "./modalDocumentoModeloTenant";
 
 export class modalSelecionarDocumentoModeloTenant extends modalDefault {
 
@@ -11,6 +10,9 @@ export class modalSelecionarDocumentoModeloTenant extends modalDefault {
     #objConfigs = {
         url: {
             base: `${window.apiRoutes.baseDocumentoModeloTenant}/documento-modelo-tipo`,
+        },
+        data: {
+            itensNaTela: [],
         },
         sufixo: 'ModalSelecionarDocumentoModeloTenant',
     };
@@ -74,7 +76,9 @@ export class modalSelecionarDocumentoModeloTenant extends modalDefault {
 
         selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
         const select = $(self.getIdModal).find('select[name="documento_modelo_tenant_id"]');
-        return await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        const response = await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        self._objConfigs.data.itensNaTela = response.response.data;
+        return response;
     }
 
     async saveButtonAction() {
@@ -82,18 +86,21 @@ export class modalSelecionarDocumentoModeloTenant extends modalDefault {
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         if (self.#saveVerifications(data, formRegistration)) {
-            try {
-                await self._modalHideShow(false);
-                const objModal = new modalDocumentoModeloTenant();
-                objModal._dataEnvModal = {
-                    documento_modelo_tenant_id: data.documento_modelo_tenant_id,
-                }
-                self._promisseReturnValue = await objModal.modalOpen();
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                self._setEndTimer = true;
-            }
+            self._promisseReturnValue.refresh = true;
+            self._promisseReturnValue.register = self._objConfigs.data.itensNaTela.find(item => item.id == data.documento_modelo_tenant_id);
+            self._setEndTimer = true;
+            // try {
+            //     await self._modalHideShow(false);
+            //     const objModal = new modalDocumentoModeloTenant();
+            //     objModal._dataEnvModal = {
+            //         documento_modelo_tenant_id: data.documento_modelo_tenant_id,
+            //     }
+            //     self._promisseReturnValue = await objModal.modalOpen();
+            // } catch (error) {
+            //     commonFunctions.generateNotificationErrorCatch(error);
+            // } finally {
+            //     self._setEndTimer = true;
+            // }
         }
     }
 

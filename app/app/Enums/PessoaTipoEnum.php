@@ -22,7 +22,12 @@ enum PessoaTipoEnum: string
                 'documento_modelo_tenant' => [
                     [
                         'documento_modelo_tipo_id' => DocumentoModeloTipoEnum::SERVICO->value,
-                        'identificador' => 'ClientePF',
+                        'objetos' => [
+                            [
+                                'perfil_tipo_id' => PessoaPerfilTipoEnum::CLIENTE->value,
+                                'identificador' => 'ClientePF',
+                            ]
+                        ]
                     ]
                 ],
             ],
@@ -32,7 +37,12 @@ enum PessoaTipoEnum: string
                 'documento_modelo_tenant' => [
                     [
                         'documento_modelo_tipo_id' => DocumentoModeloTipoEnum::SERVICO->value,
-                        'identificador' => 'ClientePJ',
+                        'objetos' => [
+                            [
+                                'perfil_tipo_id' => PessoaPerfilTipoEnum::CLIENTE->value,
+                                'identificador' => 'ClientePJ',
+                            ]
+                        ]
                     ]
                 ],
             ],

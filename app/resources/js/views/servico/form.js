@@ -154,7 +154,16 @@ class PageServicoForm extends TemplateForm {
                 const response = await objModal.modalOpen();
                 console.log(response);
                 if (response.refresh && response.register) {
-                    // self.#inserirAnotacao(response.register);
+                    try {
+                        const objModal = new modalDocumentoModeloTenant();
+                        objModal._dataEnvModal = {
+                            documento_modelo_tenant: response.register,
+                            objetos: await self.#getObjetosDocumentoModeloTenantRender(),
+                        }
+                        console.log(await objModal.modalOpen());
+                    } catch (error) {
+                        commonFunctions.generateNotificationErrorCatch(error);
+                    }
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -224,8 +233,11 @@ class PageServicoForm extends TemplateForm {
         try {
             const objModal = new modalDocumentoModeloTenant();
             objModal._dataEnvModal = {
-                documento_modelo_tenant_id: "9e53fb7f-d70b-47cc-b9b1-2bcff9e81c39",
-                ...self.#getObjetosDocumentoModeloTenantRender(),
+                documento_modelo_tenant: {
+                    "id": "9e58f171-b6ce-4e9d-9e4a-9e71ed0bcf7a",
+                    "nome": "PROCURAÇÃO AD JUDICIA ET EXTRA - 1 Cliente"
+                },
+                objetos: await self.#getObjetosDocumentoModeloTenantRender(),
             }
             console.log(await objModal.modalOpen());
         } catch (error) {
@@ -233,39 +245,45 @@ class PageServicoForm extends TemplateForm {
         }
     }
 
-    #getObjetosDocumentoModeloTenantRender() {
+    async #getObjetosDocumentoModeloTenantRender() {
         const self = this;
-        return {
-            objetos: self._objConfigs.data.clientesNaTela.map(cliente => {
-                let obj = {};
 
-                // Encontrar o tipo de pessoa no array de Details
-                const pessoaTipo = window.Details.PessoaTipoEnum.find(
-                    pessoa => pessoa.pessoa_dados_type === cliente.perfil.pessoa.pessoa_dados_type
+        await self.#buscarClientes();
+        if (self._objConfigs.data.clientesNaTela.length === 0) {
+            return [];
+        }
+        return self._objConfigs.data.clientesNaTela.map(cliente => {
+            let obj = {};
+
+            // Encontrar o tipo de pessoa no array de Details
+            const pessoaTipo = window.Details.PessoaTipoEnum.find(
+                pessoa => pessoa.pessoa_dados_type === cliente.perfil.pessoa.pessoa_dados_type
+            );
+
+            if (pessoaTipo) {
+                // Encontrar o tipo de vinculo baseado no DocumentoModeloTipoEnum
+                const vinculoDocumentoModelo = pessoaTipo.documento_modelo_tenant.find(
+                    doc => doc.documento_modelo_tipo_id === window.Enums.DocumentoModeloTipoEnum.SERVICO
+                );
+                // Encontrar o identificador correto baseado no tipo de perfil
+                const identificadorPorPerfil = vinculoDocumentoModelo.objetos.find(
+                    doc => doc.perfil_tipo_id === cliente.perfil.perfil_tipo_id
                 );
 
-                if (pessoaTipo) {
-                    // Encontrar o identificador correto baseado no DocumentoModeloTipoEnum
-                    const vinculoDocumentoModelo = pessoaTipo.documento_modelo_tenant.find(
-                        doc => doc.documento_modelo_tipo_id === window.Enums.DocumentoModeloTipoEnum.SERVICO
-                    );
-
-                    if (vinculoDocumentoModelo) {
-                        commonFunctions.deepMergeObject(obj, {
-                            identificador: vinculoDocumentoModelo.identificador,
-                            perfil_id: cliente.perfil_id,
-                        });
-                    } else {
-                        commonFunctions.generateNotification(`O vínculo do tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi configurado.`, 'error');
-                    }
+                if (identificadorPorPerfil) {
+                    commonFunctions.deepMergeObject(obj, {
+                        identificador: identificadorPorPerfil.identificador,
+                        id: cliente.perfil_id,
+                    });
                 } else {
-                    commonFunctions.generateNotification(`Tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi encontrado.`, 'error');
+                    commonFunctions.generateNotification(`O vínculo do tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi configurado.`, 'error');
                 }
+            } else {
+                commonFunctions.generateNotification(`Tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi encontrado.`, 'error');
+            }
 
-                console.log('obj', obj);
-                return obj;
-            }),
-        };
+            return obj;
+        });
     }
 
     async #inserirCliente(item) {

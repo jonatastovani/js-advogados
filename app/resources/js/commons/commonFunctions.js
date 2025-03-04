@@ -259,7 +259,7 @@ export class commonFunctions {
             });
 
             elem.html(strOptions);
-            return Promise.resolve('A lista foi carregada com sucesso!');
+            return Promise.resolve({ response });
         } catch (error) {
             elem.html(`<option>'Erro ao preencher'</option>`);
             commonFunctions.generateNotificationErrorCatch(error)
@@ -875,7 +875,7 @@ export class commonFunctions {
                 break;
 
             default:
-                console.log(message);
+                console.info(message);
                 break;
         }
 

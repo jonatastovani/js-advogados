@@ -4,14 +4,18 @@ namespace App\Services\Tenant;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\PessoaTipoEnum;
 use App\Helpers\DocumentoModeloQuillEditorHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\DocumentoModeloTipo;
 use App\Models\Tenant\DocumentoModeloTenant;
+use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class DocumentoModeloTenantService extends Service
@@ -92,6 +96,54 @@ class DocumentoModeloTenantService extends Service
     public function verificacaoDocumentoEmCriacao(Fluent $requestData, array $options = [])
     {
         return DocumentoModeloQuillEditorHelper::verificarInconsistencias($requestData, $options);
+    }
+
+    public function renderObjetos(Fluent $requestData, array $options = [])
+    {
+        // Objetos a serem retornados
+        $objetosRetorno = [];
+
+        // Agrupa os objetos por identificador para fazer os carregamentos
+        $agrupadoPorIdentificador = collect($requestData->objetos)->groupBy('identificador');
+
+        $agrupadoPorIdentificador->each(function ($objetosIdentificador, $identificador) use (&$objetosRetorno) {
+
+            switch ($identificador) {
+
+                case 'ClientePF':
+                    // ClientePF busca pelo PessoaPerfil
+                    $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_FISICA->value]))
+                        ->whereIn('id', $objetosIdentificador->pluck('id')->toArray())->get();
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $identificador));
+                    break;
+
+                case 'ClientePJ':
+                    // ClientePF busca pelo PessoaPerfil
+                    $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_JURIDICA->value]))
+                        ->whereIn('id', $objetosIdentificador->pluck('id')->toArray())->get();
+                    break;
+            }
+        });
+
+        return $objetosRetorno;
+    }
+
+    private function preparaObjetosClientesPFPJ(array $perfis, string $identificador): array
+    {
+        $objetosRetorno = [];
+
+        collect($perfis)->each(function ($perfil) use (&$objetosRetorno, $identificador) {
+            $pessoaDados = $perfil['pessoa']['pessoa_dados'];
+            $pessoaDados['documento'] = $perfil['pessoa']['documentos'] ?? [];
+            $pessoaDados['endereco'] = $perfil['pessoa']['enderecos'] ?? [];
+            $objetosRetorno[] = [
+                'identificador' => $identificador,
+                'id' => $perfil['id'],
+                'dados' => $pessoaDados
+            ];
+        });
+
+        return $objetosRetorno;
     }
 
     public function loadFull($options = []): array
