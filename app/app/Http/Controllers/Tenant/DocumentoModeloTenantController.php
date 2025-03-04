@@ -10,6 +10,7 @@ use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequ
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestStore;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestUpdate;
 use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestVerificacaoDocumentoEmCriacao;
+use App\Http\Requests\Tenant\DocumentoModeloTenant\DocumentoModeloTenantFormRequestVerificacaoDocumentoRenderizar;
 use App\Services\Tenant\DocumentoModeloTenantService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -62,5 +63,9 @@ class DocumentoModeloTenantController extends Controller
         return $this->retornoPadrao($this->service->renderObjetos($fluentData));
     }
 
-
+    public function verificacaoDocumentoRenderizar(DocumentoModeloTenantFormRequestVerificacaoDocumentoRenderizar $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->verificacaoDocumentoRenderizar($fluentData));
+    }
 }

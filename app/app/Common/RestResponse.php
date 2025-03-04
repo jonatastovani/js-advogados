@@ -109,11 +109,13 @@ class RestResponse
         // return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
     }
 
-    public function autoResponse(){
+    public function autoResponse()
+    {
         return response()->json($this->toArray(), $this->getStatusCode());
     }
 
-    public function throwResponse(){
+    public function throwResponse()
+    {
         return response()->json($this->toArray(), $this->getStatusCode())->throwResponse();
     }
 }

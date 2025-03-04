@@ -15,29 +15,27 @@
                     <div class="col mt-2 px-0">
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link px-2 active" id="painelConteudo{{ $sufixo }}-tab"
-                                    data-bs-toggle="tab" data-bs-target="#painelConteudo{{ $sufixo }}-tab-pane"
+                                <button class="nav-link px-2 active" id="painelObjetos{{ $sufixo }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#painelObjetos{{ $sufixo }}-tab-pane"
                                     type="button" role="tab"
-                                    aria-controls="painelConteudo{{ $sufixo }}-tab-pane" aria-selected="true">
-                                    Conteúdo
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link px-2"
-                                    id="painelObjetos{{ $sufixo }}-tab" data-bs-toggle="tab"
-                                    data-bs-target="#painelObjetos{{ $sufixo }}-tab-pane" type="button"
-                                    role="tab" aria-controls="painelObjetos{{ $sufixo }}-tab-pane"
-                                    aria-selected="false">
+                                    aria-controls="painelObjetos{{ $sufixo }}-tab-pane" aria-selected="false">
                                     Objetos
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link px-2"
-                                    id="painelRevisao{{ $sufixo }}-tab" data-bs-toggle="tab"
-                                    data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane" type="button"
-                                    role="tab" aria-controls="painelRevisao{{ $sufixo }}-tab-pane"
-                                    aria-selected="false">
+                                <button class="nav-link px-2" id="painelRevisao{{ $sufixo }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane"
+                                    type="button" role="tab"
+                                    aria-controls="painelRevisao{{ $sufixo }}-tab-pane" aria-selected="false">
                                     Revisão
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link px-2" id="painelConteudo{{ $sufixo }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#painelConteudo{{ $sufixo }}-tab-pane"
+                                    type="button" role="tab"
+                                    aria-controls="painelConteudo{{ $sufixo }}-tab-pane" aria-selected="true">
+                                    Conteúdo
                                 </button>
                             </li>
                         </ul>
@@ -45,17 +43,17 @@
                 </div>
                 <div class="row rounded rounded-top-0 border-top-0 flex-fill">
                     <div class="col tab-content overflow-auto" id="myTabContent{{ $sufixo }}">
-                        <div class="tab-pane fade h-100 show active" id="painelConteudo{{ $sufixo }}-tab-pane"
-                            role="tabpanel" aria-labelledby="painelConteudo{{ $sufixo }}-tab" tabindex="0">
-                            @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-conteudo')
-                        </div>
-                        <div class="tab-pane fade h-100" id="painelObjetos{{ $sufixo }}-tab-pane"
+                        <div class="tab-pane fade h-100 show active" id="painelObjetos{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="painelObjetos{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-objetos')
                         </div>
-                        <div class="tab-pane fade h-100" id="painelRevisao{{ $sufixo }}-tab-pane"
-                            role="tabpanel" aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
+                        <div class="tab-pane fade h-100" id="painelRevisao{{ $sufixo }}-tab-pane" role="tabpanel"
+                            aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-revisao')
+                        </div>
+                        <div class="tab-pane fade h-100" id="painelConteudo{{ $sufixo }}-tab-pane"
+                            role="tabpanel" aria-labelledby="painelConteudo{{ $sufixo }}-tab" tabindex="0">
+                            @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-conteudo')
                         </div>
                     </div>
                 </div>

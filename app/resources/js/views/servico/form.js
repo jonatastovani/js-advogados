@@ -245,10 +245,14 @@ class PageServicoForm extends TemplateForm {
         }
     }
 
-    async #getObjetosDocumentoModeloTenantRender() {
+    async #getObjetosDocumentoModeloTenantRender(options = {}) {
         const self = this;
+        const { blnBuscarClientes = false } = options;
 
-        await self.#buscarClientes();
+        if (blnBuscarClientes) {
+            await self.#buscarClientes();
+        }
+        
         if (self._objConfigs.data.clientesNaTela.length === 0) {
             return [];
         }

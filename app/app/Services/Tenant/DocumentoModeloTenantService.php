@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\PessoaTipoEnum;
 use App\Helpers\DocumentoModeloQuillEditorHelper;
+use App\Helpers\DocumentoModeloTenantRenderizarHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaPerfil;
@@ -13,8 +14,11 @@ use App\Models\Referencias\DocumentoModeloTipo;
 use App\Models\Tenant\DocumentoModeloTenant;
 use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
@@ -67,7 +71,8 @@ class DocumentoModeloTenantService extends Service
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este modelo de documento já existe.', $requestData->toArray());
-            return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+
+            RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $validacaoConteudoEObjetos = $this->verificacaoDocumentoEmCriacao($requestData);
@@ -80,7 +85,8 @@ class DocumentoModeloTenantService extends Service
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
+        /** @var DocumentoModeloTenant  */
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
         $resource->fill($requestData->toArray());
 
         return $resource;
@@ -106,21 +112,24 @@ class DocumentoModeloTenantService extends Service
         // Agrupa os objetos por identificador para fazer os carregamentos
         $agrupadoPorIdentificador = collect($requestData->objetos)->groupBy('identificador');
 
-        $agrupadoPorIdentificador->each(function ($objetosIdentificador, $identificador) use (&$objetosRetorno) {
+        $agrupadoPorIdentificador->each(function ($objetosPorIdentificador, $identificador) use (&$objetosRetorno) {
 
             switch ($identificador) {
 
                 case 'ClientePF':
                     // ClientePF busca pelo PessoaPerfil
                     $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_FISICA->value]))
-                        ->whereIn('id', $objetosIdentificador->pluck('id')->toArray())->get();
-                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $identificador));
+                        ->whereIn('id', $objetosPorIdentificador->pluck('id')->toArray())->get();
+
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $objetosPorIdentificador));
                     break;
 
                 case 'ClientePJ':
                     // ClientePF busca pelo PessoaPerfil
                     $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_JURIDICA->value]))
-                        ->whereIn('id', $objetosIdentificador->pluck('id')->toArray())->get();
+                        ->whereIn('id', $objetosPorIdentificador->pluck('id')->toArray())->get();
+
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $objetosPorIdentificador));
                     break;
             }
         });
@@ -128,22 +137,33 @@ class DocumentoModeloTenantService extends Service
         return $objetosRetorno;
     }
 
-    private function preparaObjetosClientesPFPJ(array $perfis, string $identificador): array
+    private function preparaObjetosClientesPFPJ(array $perfis, Collection $objetosPorIdentificador): array
     {
         $objetosRetorno = [];
 
-        collect($perfis)->each(function ($perfil) use (&$objetosRetorno, $identificador) {
+        collect($perfis)->each(function ($perfil) use (&$objetosRetorno, $objetosPorIdentificador) {
+
+            $objetoEnviado = $objetosPorIdentificador->where('id', $perfil['id'])->first();
+
+
             $pessoaDados = $perfil['pessoa']['pessoa_dados'];
             $pessoaDados['documento'] = $perfil['pessoa']['documentos'] ?? [];
             $pessoaDados['endereco'] = $perfil['pessoa']['enderecos'] ?? [];
-            $objetosRetorno[] = [
-                'identificador' => $identificador,
-                'id' => $perfil['id'],
+            $objetosRetorno[] = array_merge($objetoEnviado, [
                 'dados' => $pessoaDados
-            ];
+            ]);
         });
 
         return $objetosRetorno;
+    }
+
+    public function verificacaoDocumentoRenderizar(Fluent $requestData, array $options = [])
+    {
+        $requestData->objetos_vinculados = $this->renderObjetos(new Fluent([
+            'objetos' => $requestData->objetos_vinculados,
+        ]));
+
+        return DocumentoModeloTenantRenderizarHelper::verificarInconsistencias($requestData);
     }
 
     public function loadFull($options = []): array

@@ -20,9 +20,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         },
         data: {
             objetosNaTela: [],
-        },
-        quillEditor: {
-            objetosRequisitados: [],
+            documento_modelo_tenant: undefined
         },
         sufixo: 'ModalDocumentoModeloTenant',
     };
@@ -125,7 +123,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             const objConn = new connectAjax(self._objConfigs.url.baseDocumentoModeloTenant);
             objConn.setParam(self._dataEnvModal.documento_modelo_tenant.id);
             const response = await objConn.getRequest();
-            self._objConfigs.quillEditor.objetosRequisitados = response.data;
+            self._objConfigs.data.documento_modelo_tenant = response.data;
             $(`${self.getIdModal} input[name="nome"]`).val(response.data.nome);
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
@@ -147,7 +145,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         }
     }
 
-    async #inserirObjeto(item) {
+    async #inserirObjeto(objeto) {
         const self = this;
         const divObjetos = $(`#divObjetos${self._objConfigs.sufixo}`);
 
@@ -155,23 +153,23 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         let htmlColsEspecifico = '';
         let htmlAppend = '';
 
-        switch (item.identificador) {
+        switch (objeto.identificador) {
 
             case 'ClientePF':
-                title = item.dados.nome;
-                htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
-                htmlAppend = `<p class="mb-0 text-truncate">
-                        <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
-                    </p>`;
+                title = objeto.dados.nome;
+                // htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
+                // htmlAppend = `<p class="mb-0 text-truncate">
+                //         <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
+                //     </p>`;
 
                 break;
 
             case 'ClientePJ':
-                title = item.dados.nome_fantasia;
-                htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
-                htmlAppend = `<p class="mb-0 text-truncate">
-                        <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
-                    </p>`;
+                title = objeto.dados.nome_fantasia;
+                // htmlColsEspecifico = self.#htmlColsEspecificosClientePF(item);
+                // htmlAppend = `<p class="mb-0 text-truncate">
+                //         <b>Endereços disponíveis:</b> ${item.dados.endereco.length}
+                //     </p>`;
 
                 break;
 
@@ -180,34 +178,19 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         }
 
 
-        if (!item?.idCol) {
+        if (!objeto?.idCol) {
 
-            item.idCol = UUIDHelper.generateUUID();
+            objeto.idCol = UUIDHelper.generateUUID();
             let strCard = `
-                <div id="${item.idCol}" class="card p-0" >
+                <div id="${objeto.idCol}" class="card p-0" >
                     <div class="card-body">
                         <div class="row">
                             <h5 class="card-title d-flex align-items-center justify-content-between">
                                 <span class="spanTitle">${title}</span>
-                                <div>
-                                    <div class="dropdown">
-                                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar endereço">Editar</button></li>
-                                            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir endereço">Excluir</button></li>
-                                        </ul>
-                                    </div>
-                                </div>
                             </h5>
                             <div class="row">
                                 <div class="col">
-                                    <p class="mb-0 text-truncate">
-                                        Nenhum objeto vinculado
-                                    </p>
-                                </div>
-                                <div class="col">
+                                    ${self.#htmlDropDownObjetosRequisitados(objeto)}
                                 </div>
                             </div>
                             <div class="rowColsEspecifico row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 align-items-end">
@@ -221,120 +204,193 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
                 </div > `;
 
             divObjetos.append(strCard);
-            // self.#addEventosEndereco(item);
-            self._objConfigs.data.objetosNaTela.push(item);
+            self.#addEventosObjetos(objeto);
+            self._objConfigs.data.objetosNaTela.push(objeto);
 
         } else {
-            $(`#${item.idCol} `).find('.spanTitle').html(title);
-            $(`#${item.idCol} `).find('.rowColsEspecifico').html(htmlColsEspecifico);
-            $(`#${item.idCol} `).find('.divAppend').html(htmlAppend);
+            $(`#${objeto.idCol} `).find('.spanTitle').html(title);
+            $(`#${objeto.idCol} `).find('.rowColsEspecifico').html(htmlColsEspecifico);
+            $(`#${objeto.idCol} `).find('.divAppend').html(htmlAppend);
 
-            const indexDoc = self.#pesquisaIndexObjetosNaTela(item);
+            const indexDoc = self.#pesquisaIndexObjetosNaTela(objeto);
             if (indexDoc != -1) {
-                self._objConfigs.data.objetosNaTela[indexDoc] = item;
+                self._objConfigs.data.objetosNaTela[indexDoc] = objeto;
             }
         }
 
         return true;
     }
 
-    #htmlDropDownObjetosRequisitados() {
+    #htmlDropDownObjetosRequisitados(objeto) {
         const self = this;
         let html = '';
 
-        self._objConfigs.quillEditor.objetosRequisitados.map(item => {
-            html += `li><button class="dropdown-item" type="button">Action</button></li>`;
-        });
+        // Adicionar no objeto a propriedade objetos_compativeis
+        objeto.objetos_compativeis ??= [];
+        objeto.objeto_vinculado = null;
+
+        const objetosMesmoIdentificador = self._objConfigs.data.documento_modelo_tenant.objetos.filter(obj => obj.identificador === objeto.identificador);
+
+        if (objetosMesmoIdentificador.length) {
+
+            objetosMesmoIdentificador.map(obj => {
+
+                obj.idBtn = UUIDHelper.generateUUID();
+                html += `<li><button class="dropdown-item fs-6" type="button" id="${obj.idBtn}">${obj.identificador}.${obj.contador}</button></li>`;
+                objeto.objetos_compativeis.push(obj);
+            });
+        } else {
+
+            html = `<li><button class="dropdown-item fs-6" type="button">Nenhum objeto compatível</button></li>`;
+        }
 
         return `
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Objetos Requisitados
+            <div class="btn-group">
+                 <button type="button" class="btn btn-outline-primary dropdown-toggle btnDropdownObjeto" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="htmlDropdown" data-default-value="Nenhum objeto vinculado">
+                        Nenhum objeto vinculado
+                    </span>
                 </button>
                 <ul class="dropdown-menu">${html}</ul>
             </div>`;
     }
 
-    #htmlColsEspecificosClientePF(item) {
+    #addEventosObjetos(objeto) {
         const self = this;
-        let htmlColsEspecifico = '';
 
-        return '';
+        objeto.objetos_compativeis.map(compativel => {
 
-        if (item?.complemento) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Complemento</div>
-                    <p class="text-truncate" title="${item.complemento}">${item.complemento}</p>
-                </div > `;
+            $(`#${compativel.idBtn}`).on('click', async () => {
+                const btns = $(`${self.getIdModal} .btnDropdownObjeto`);
+
+                try {
+                    commonFunctions.simulateLoading(btns);
+
+                    const objetosNaTela = self._objConfigs.data.objetosNaTela;
+                    const indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto);
+
+                    if (indexObjetoNaTela == -1) {
+                        commonFunctions.generateNotification('Erro ao vincular o objeto. Caso o erro persista, contate o suporte.', 'error');
+                        return;
+                    }
+
+                    // Vincula o objeto
+                    objetosNaTela[indexObjetoNaTela].objeto_vinculado = compativel;
+                    // Atualiza o dropdown
+                    $(`#${objeto.idCol} .htmlDropdown`).html(`${compativel.identificador}.${compativel.contador}`);
+
+                    // Remove o vínculo caso outro esteja com o mesmo identificador e contador
+                    objetosNaTela.map(obj => {
+                        if (obj.objeto_vinculado && obj.objeto_vinculado.identificador === compativel.identificador && obj.objeto_vinculado.contador === compativel.contador && obj.idCol != objeto.idCol) {
+                            obj.objeto_vinculado = null;
+
+                            // Atualiza o dropdown
+                            $(`#${obj.idCol} .htmlDropdown`).html($(`#${obj.idCol} .htmlDropdown`).data('default-value'));
+                        }
+                    });
+
+                    self.#verificaInconsistenciasObjetosVinculados();
+
+                } catch (error) {
+                    commonFunctions.generateNotification(error.message);
+                } finally {
+                    commonFunctions.simulateLoading(btns, false);
+                }
+            });
+        });
+    }
+
+    async #verificaInconsistenciasObjetosVinculados(options = {}) {
+        try {
+            const self = this;
+            let {
+                divRevisao = `#divRevisao${self.getSufixo}`,
+            } = options;
+
+            divRevisao = $(divRevisao);
+
+            const resultado = await self.#executaVerificacaoInconsistenciasObjetosVinculado({
+                objetos_vinculados: self._getObjetosNaTelaVinculados(),
+                documento_modelo_tenant_id: self._dataEnvModal.documento_modelo_tenant.id,
+            });
+
+            divRevisao.html('');
+
+            // resultado.objetos_nao_utilizados.forEach(item => {
+            //     item.uuid = UUIDHelper.generateUUID();
+            //     divRevisao.append(`
+            //              <div class="alert alert-warning py-1" role="alert">
+            //                  <p class="m-0">Um objeto que foi adicionado e não está sendo referenciado: <span class="fw-bolder">${item.nome}</span></p>
+            //                  <hr class="my-1">
+            //                  <button type="button" id="btnRemoverReferencia${item.uuid}" class="btn btn-outline-primary border-0 btn-sm">
+            //                      Remover referencia
+            //                  </button>
+            //              </div>
+            //          `);
+
+            //     $(`#btnRemoverReferencia${item.uuid}`).on('click', async function () {
+            //         self.#deleteObjetoNaTela(item);
+            //         await self._verificarInconsistenciasObjetos();
+            //     });
+            // });
+
+            // resultado.marcacoes_sem_referencia.forEach(item => {
+            //     item.uuid = UUIDHelper.generateUUID();
+            //     divRevisao.append(`
+            //              <div class="alert alert-warning py-1" role="alert">
+            //                  <p class="m-0">Uma marcação foi adicionada e não possui referência: <a href="#" id="btnVerMarcacao${item.uuid}" class="link-offset-2 link-underline link-underline-opacity-0">${item.marcacao}</a></p>
+            //              </div>
+            //          `);
+
+            //     $(`#btnVerMarcacao${item.uuid}`).on('click', function () {
+            //         self.#selecionarMarcacaoQuill(self.getQuill, item.marcacao, item.indice);
+            //     });
+            // });
+
+            // resultado.objetos_utilizados.forEach(item => {
+            //     item.uuid = UUIDHelper.generateUUID();
+            //     let strMarcacaoUsada = item.marcadores_usados.map(m => m.display).join(', ');
+            //     divRequisitos.append(`
+            //              <div class="alert alert-success py-1" role="alert">
+            //                  <p class="m-0">Objeto <span class="fw-bolder">${item.nome}</span></p>
+            //                  <hr class="my-1">
+            //                  <p class="m-0">Campo(s) usado(s): <span class="fw-bolder">${strMarcacaoUsada}</span>.</p>
+            //              </div>
+            //          `);
+            // });
+
+            return resultado;
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
         }
+    }
 
-        if (item?.bairro) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Bairro</div>
-                    <p class="text-truncate" title="${item.bairro}">${item.bairro}</p>
-                </div > `;
-        }
+    _getObjetosNaTelaVinculados() {
+        const self = this;
 
-        if (item.referencia) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Referência</div>
-                    <p class="text-truncate" title="${item.referencia}">${item.referencia}</p>
-                </div > `;
-        }
+        // Filtrar apenas os que possuem objeto_vinculado
+        return self._objConfigs.data.objetosNaTela
+            .filter(obj => obj.objeto_vinculado !== null)
+            .map(obj => ({
+                identificador: obj.identificador,
+                id: obj.id,
+                objeto_vinculado: obj.objeto_vinculado,
+            }));
+    }
 
-        if (item.cidade) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Cidade</div>
-                    <p class="text-truncate" title="${item.cidade}">${item.cidade}</p>
-                </div > `;
-        }
-
-        if (item.entrada_valor) {
-            const valorEntrada = commonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Valor Entrada</div>
-                    <p class="">${valorEntrada}</p>
-                </div > `;
-        }
-
-        if (item.estado) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Estado</div>
-                    <p class="text-truncate" title="${item.estado}">${item.estado}</p>
-                </div > `;
-        }
-
-        if (item.parcela_data_inicio) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">Primeira Parcela</div>
-                    <p class="">${DateTimeHelper.retornaDadosDataHora(item.parcela_data_inicio, 2)}</p>
-                </div > `;
-        }
-
-        if (item.pais) {
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">País</div>
-                    <p class="text-truncate" title="${item.pais}">${item.pais}</p>
-                </div > `;
-        }
-
-        if (item.cep) {
-            const cep = MasksAndValidateHelpers.formatCep(item.cep);
-            htmlColsEspecifico += `
-                    <div div class="col" >
-                    <div class="form-text mt-0">CEP</div>
-                    <p class="text-truncate" title="${cep}">${cep}</p>
-                </div > `;
-        }
-        return htmlColsEspecifico;
+    /**
+     * Verifica inconsistências nas marcações do texto.
+     * @param {Object} data - O objeto contendo o conteúdo do Quill e a lista de clientes.
+     * @returns {Object} - Um objeto contendo as marcações sem referência e os objetos não utilizados.
+     */
+    async #executaVerificacaoInconsistenciasObjetosVinculado(data) {
+        const self = this;
+        const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-documento`);
+        objConn.setAction(enumAction.POST);
+        objConn.setData(data);
+        const response = await objConn.envRequest();
+        return response.data;
     }
 
     #pesquisaIndexObjetosNaTela(item, prop = 'idCol') {
