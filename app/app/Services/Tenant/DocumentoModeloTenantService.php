@@ -121,7 +121,7 @@ class DocumentoModeloTenantService extends Service
                     $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_FISICA->value]))
                         ->whereIn('id', $objetosPorIdentificador->pluck('id')->toArray())->get();
 
-                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $objetosPorIdentificador));
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPF($perfis->toArray(), $objetosPorIdentificador));
                     break;
 
                 case 'ClientePJ':
@@ -129,7 +129,7 @@ class DocumentoModeloTenantService extends Service
                     $perfis = PessoaPerfil::with(app(PessoaPerfilService::class)->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_JURIDICA->value]))
                         ->whereIn('id', $objetosPorIdentificador->pluck('id')->toArray())->get();
 
-                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPFPJ($perfis->toArray(), $objetosPorIdentificador));
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPJ($perfis->toArray(), $objetosPorIdentificador));
                     break;
             }
         });
@@ -137,7 +137,7 @@ class DocumentoModeloTenantService extends Service
         return $objetosRetorno;
     }
 
-    private function preparaObjetosClientesPFPJ(array $perfis, Collection $objetosPorIdentificador): array
+    private function preparaObjetosClientesPF(array $perfis, Collection $objetosPorIdentificador): array
     {
         $objetosRetorno = [];
 
@@ -145,6 +145,37 @@ class DocumentoModeloTenantService extends Service
 
             $objetoEnviado = $objetosPorIdentificador->where('id', $perfil['id'])->first();
 
+            $pessoaDados = $perfil['pessoa']['pessoa_dados'];
+            
+            if (isset($pessoaDados['escolaridade']['nome'])) {
+                $pessoaDados['escolaridade'] = $pessoaDados['escolaridade']['nome'];
+            }
+
+            if (isset($pessoaDados['estado_civil']['nome'])) {
+                $pessoaDados['estado_civil'] = $pessoaDados['estado_civil']['nome'];
+            }
+
+            if (isset($pessoaDados['sexo']['nome'])) {
+                $pessoaDados['sexo'] = $pessoaDados['sexo']['nome'];
+            }
+
+            $pessoaDados['documento'] = $perfil['pessoa']['documentos'] ?? [];
+            $pessoaDados['endereco'] = $perfil['pessoa']['enderecos'] ?? [];
+            $objetosRetorno[] = array_merge($objetoEnviado, [
+                'dados' => $pessoaDados
+            ]);
+        });
+
+        return $objetosRetorno;
+    }
+
+    private function preparaObjetosClientesPJ(array $perfis, Collection $objetosPorIdentificador): array
+    {
+        $objetosRetorno = [];
+
+        collect($perfis)->each(function ($perfil) use (&$objetosRetorno, $objetosPorIdentificador) {
+
+            $objetoEnviado = $objetosPorIdentificador->where('id', $perfil['id'])->first();
 
             $pessoaDados = $perfil['pessoa']['pessoa_dados'];
             $pessoaDados['documento'] = $perfil['pessoa']['documentos'] ?? [];

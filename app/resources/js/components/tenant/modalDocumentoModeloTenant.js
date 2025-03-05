@@ -133,6 +133,8 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
     async #inserirTodosObjetos(objetos) {
         const self = this;
         try {
+            $(`#divObjetos${self._objConfigs.sufixo}`).html('');
+
             const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
             objConn.setData({ objetos });
             objConn.setAction(enumAction.POST);
@@ -347,17 +349,16 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             //     });
             // });
 
-            // resultado.objetos_utilizados.forEach(item => {
-            //     item.uuid = UUIDHelper.generateUUID();
-            //     let strMarcacaoUsada = item.marcadores_usados.map(m => m.display).join(', ');
-            //     divRequisitos.append(`
-            //              <div class="alert alert-success py-1" role="alert">
-            //                  <p class="m-0">Objeto <span class="fw-bolder">${item.nome}</span></p>
-            //                  <hr class="my-1">
-            //                  <p class="m-0">Campo(s) usado(s): <span class="fw-bolder">${strMarcacaoUsada}</span>.</p>
-            //              </div>
-            //          `);
-            // });
+            resultado.objetos_campos_ausentes.forEach(item => {
+                let strMarcacaoFaltante = item.campos_faltantes.map(m => m.display).join(', ');
+                divRevisao.append(`
+                    <div class="alert alert-warning py-1" role="alert">
+                        <p class="m-0">Objeto <span class="fw-bolder">${item.nome}</span></p>
+                        <hr class="my-1">
+                        <p class="m-0">Campo(s) faltante(s): <span class="fw-bolder">${strMarcacaoFaltante}</span>.</p>
+                    </div>
+                `);
+            });
 
             return resultado;
         } catch (error) {

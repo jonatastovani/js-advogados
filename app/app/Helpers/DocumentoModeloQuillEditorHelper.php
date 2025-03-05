@@ -58,7 +58,7 @@ class DocumentoModeloQuillEditorHelper
         ];
     }
 
-    private static function renderizarObjetos(array $objetos, array $objetosBase): array
+    public static function renderizarObjetos(array $objetos, array $objetosBase): array
     {
         // Inicializa o array para armazenar os objetos prontos para verificação
         $objetosEnviados = [];

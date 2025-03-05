@@ -3,284 +3,122 @@
 namespace App\Helpers;
 
 use App\Common\RestResponse;
-use App\Models\Referencias\DocumentoModeloTipo;
-use App\Services\Tenant\DocumentoModeloTenantService;
+use App\Models\Tenant\DocumentoModeloTenant;
+use Illuminate\Database\Eloquent\JsonEncodingException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class DocumentoModeloTenantRenderizarHelper
 {
+
     /**
-     * Executa todas as verificações nas marcações do Quill.
+     * Verifica inconsistências nos objetos vinculados e se possuem todos os campos necessários.
      *
-     * @param Fluent $data - Contém o conteúdo do Quill e a lista de objetos.
-     * @return array - Retorna marcações sem referência, objetos não utilizados e objetos utilizados.
+     * @param Fluent $data
+     * @return array
      */
     public static function verificarInconsistencias(Fluent $data): array
     {
-
         // Busca o tipo do modelo de documento
-        $documentoModeloTipo = DocumentoModeloTipo::find($data['documento_modelo_tipo_id']);
+        $documentoModeloTenant = DocumentoModeloTenant::find($data['documento_modelo_tenant_id']);
 
-        // Obtém os objetos enviados pela requisição, onde tem os objetos e o campo objeto_vinculado onde verificaremos se os campos necessários existem.
+        // Obtém os objetos enviados pela requisição, onde tem os objetos e os dados vinculados
         $objetos = $data['objetos_vinculados'] ?? [];
 
-        RestResponse::createTestResponse($objetos, "Testando linha: " . __LINE__);
+        // Faz a mesclagem dos campos objeto_vinculado e identificador
+        foreach ($objetos as $key => $objeto) {
+            $objetos[$key]['identificador'] = $objeto['objeto_vinculado']['identificador'];
+            $objetos[$key]['contador'] = $objeto['objeto_vinculado']['contador'];
+        }
 
+        $objetosNaoVinculados = [];
+        $objetosCamposAusentes = [];
 
+        $objetosBase = DocumentoModeloQuillEditorHelper::renderizarObjetos($objetos, $documentoModeloTenant->documento_modelo_tipo->objetos);
 
+        Log::debug("objetos: " . json_encode($objetos));
+        Log::debug("objetosBase: " . json_encode($objetosBase));
 
-        $conteudo = $data['conteudo'] ?? [];
+        foreach ($objetos as $objeto) {
 
-        // Extrai todas as marcações presentes no conteúdo do Quill
-        $marcacoesNoTexto = self::extrairMarcacoes($conteudo['ops'] ?? []);
+            // Obtém a estrutura do objeto vinculado
+            $dados = $objeto['dados'] ?? [];
 
-        // Obtém os objetos válidos que esse modelo permite
-        $objetosBase = $documentoModeloTipo->objetos;
+            // Encontra os campos obrigatórios para este tipo de objeto
+            $objetoModelo = collect($objetosBase)->where('identificador', $objeto['identificador'])->where('contador', $objeto['contador'])->first();
+            Log::debug("objetoModelo " . json_encode($objetoModelo));
 
-        // Renderiza os objetos prontos para verificação
-        $objetosEnviados = self::renderizarObjetos($objetos, $objetosBase);
+            if (!$objetoModelo) {
+                continue; // Se o objeto não está na lista de permitidos, ignora
+            }
 
-        // Extrai todas as marcações válidas da lista de objetos do tipo de modelo
-        $marcacoesValidas = self::extrairMarcacoesValidasObjetos($objetosEnviados);
+            $marcadoresEsperados = $objetoModelo['marcadores'];
 
-        // Verificar marcações sem referência
-        $marcacoesSemReferencia = self::verificarMarcacoesSemReferencia($marcacoesNoTexto, $marcacoesValidas);
+            // Verificar se os campos esperados existem nos dados do objeto
+            $camposAusentes = self::verificarCamposFaltantes($dados, $marcadoresEsperados);
 
-        // Verificar objetos não utilizados
-        $objetosNaoUtilizados = self::verificarObjetosNaoUtilizados($marcacoesNoTexto, $objetosEnviados);
+            if (!empty($camposAusentes)) {
+                $objetosCamposAusentes[] = array_merge($objeto, [
+                    'nome' => $objetoModelo['nome'],
+                    'campos_faltantes' => $camposAusentes
+                ]);
+            }
+        }
 
-        // Verificar objetos utilizados e seus marcadores
-        $objetosUtilizados = self::verificarObjetosUtilizados($marcacoesNoTexto, $objetosEnviados);
-
+        // Retorna os resultados da verificação
         return [
-            'marcacoes_sem_referencia' => $marcacoesSemReferencia,
-            'objetos_nao_utilizados' => $objetosNaoUtilizados,
-            'objetos_utilizados' => collect($objetosUtilizados)->map(function ($objeto) {
-                return [
-                    'identificador' => $objeto['identificador'],
-                    'contador' => $objeto['contador'],
-                    'nome' => $objeto['nome'],
-                    'marcadores_usados' => $objeto['marcadores_usados'],
-                    'idAccordionNovoObjeto' => $objeto['idAccordionNovoObjeto'] ?? null
-                ];
-            })->toArray()
+            'objetos_nao_vinculados' => $objetosNaoVinculados,
+            'objetos_campos_ausentes' => $objetosCamposAusentes
         ];
     }
 
-    private static function renderizarObjetos(array $objetos, array $objetosBase): array
+    /**
+     * Verifica quais campos obrigatórios estão faltando nos dados do objeto.
+     *
+     * @param array $dados - Os dados do objeto vinculado.
+     * @param array $marcadoresEsperados - Lista de campos esperados.
+     * @return array - Retorna os campos ausentes.
+     */
+    private static function verificarCamposFaltantes(array $dados, array $marcadoresEsperados): array
     {
-        // Inicializa o array para armazenar os objetos prontos para verificação
-        $objetosEnviados = [];
+        $camposFaltantes = [];
 
-        foreach ($objetos as $objeto) {
-            $identificador = $objeto['identificador'];
-            $contador = $objeto['contador'];
+        foreach ($marcadoresEsperados as $marcador) {
+            $sufixo = $marcador['sufixo'];
 
-            // Encontra o objeto válido correspondente
-            $objetoBase = collect($objetosBase)->firstWhere('identificador', $identificador);
+            // Para endereços e arrays aninhados
+            if (strpos($sufixo, 'endereco.') === 0) {
+                $campoEndereco = str_replace('endereco.', '', $sufixo);
 
-            if (!$objetoBase) {
-                // Se o objeto não for permitido no modelo, pula para o próximo
+                if (empty($dados['endereco']) || !self::verificarCampoEmArray($dados['endereco'], $campoEndereco)) {
+                    $camposFaltantes[] = $marcador;
+                }
                 continue;
             }
 
-            // Gera as marcações renderizadas com base no prefixo e contador
-            $marcadoresRenderizados = array_map(function ($marcador) use ($objetoBase, $contador) {
-                return [
-                    'display' => $marcador['display'],
-                    'sufixo' => $marcador['sufixo'],
-                    'marcacao' => str_replace('{{contador}}', $contador, "{{{$objetoBase['marcador_prefixo']}.{$marcador['sufixo']}}}")
-                ];
-            }, $objetoBase['marcadores']);
-
-            // Monta o objeto pronto para verificação
-            $objetosEnviados[] = [
-                'identificador' => $identificador,
-                'contador' => $contador,
-                'nome' => "{$identificador}.{$contador}",
-                'marcadores' => $marcadoresRenderizados,
-                'idAccordionNovoObjeto' => $objeto['idAccordionNovoObjeto'] ?? null
-            ];
-        }
-
-        return $objetosEnviados;
-    }
-
-    /**
-     * Extrai todas as marcações encontradas no texto do Quill.
-     *
-     * @param array $ops - Array de operações do Delta do Quill.
-     * @return array - Lista de marcações encontradas.
-     */
-    private static function extrairMarcacoes(array $ops): array
-    {
-        $marcacoes = [];
-        $regex = '/\{\{(.*?)\}\}/';
-
-        foreach ($ops as $op) {
-            if (isset($op['insert']) && is_string($op['insert'])) {
-                preg_match_all($regex, $op['insert'], $matches);
-                if (!empty($matches[0])) {
-                    $marcacoes = array_merge($marcacoes, $matches[0]);
-                }
+            // Para campos diretos no objeto
+            if (!isset($dados[$sufixo]) || empty($dados[$sufixo])) {
+                $camposFaltantes[] = $marcador;
             }
         }
 
-        return array_unique($marcacoes); // Remover duplicatas
+        return $camposFaltantes;
     }
 
     /**
-     * Extrai todas as marcações válidas da lista de objetos.
+     * Verifica se pelo menos um item no array possui o campo necessário.
      *
-     * @param array $objetos - Lista de objetos e suas marcações.
-     * @return array - Lista de marcações válidas.
+     * @param array $array - Lista de objetos.
+     * @param string $campo - O campo esperado.
+     * @return bool - Retorna true se pelo menos um objeto tiver o campo preenchido.
      */
-    private static function extrairMarcacoesValidasObjetos(array $objetos): array
+    private static function verificarCampoEmArray(array $array, string $campo): bool
     {
-        $marcacoes = [];
-
-        foreach ($objetos as $objeto) {
-            if (isset($objeto['marcadores']) && is_array($objeto['marcadores'])) {
-                foreach ($objeto['marcadores'] as $marcador) {
-                    $marcacoes[] = $marcador['marcacao'] ?? '';
-                }
+        foreach ($array as $item) {
+            if (isset($item[$campo]) && !empty($item[$campo])) {
+                return true;
             }
         }
-
-        return array_unique(array_filter($marcacoes)); // Remover vazios e duplicatas
-    }
-
-    /**
-     * Verifica quais marcações estão no texto mas não possuem referência.
-     *
-     * @param array $marcacoesNoTexto - Lista de marcações presentes no texto.
-     * @param array $marcacoesValidas - Lista de marcações válidas da lista de clientes.
-     * @return array - Lista de marcações sem referência.
-     */
-    private static function verificarMarcacoesSemReferencia(array $marcacoesNoTexto, array $marcacoesValidas): array
-    {
-        $contadorMarcacoes = [];
-        $marcacoesSemReferencia = [];
-
-        foreach ($marcacoesNoTexto as $marcacao) {
-            if (!in_array($marcacao, $marcacoesValidas)) {
-                $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-
-                $marcacoesSemReferencia[] = [
-                    'marcacao' => $marcacao,
-                    'indice' => $contadorMarcacoes[$marcacao], // Index da repetição
-                ];
-            }
-        }
-
-        return $marcacoesSemReferencia;
-    }
-
-    // /**
-    //  * Verifica quais marcações estão no texto mas não possuem referência válida.
-    //  *
-    //  * @param array $marcacoesNoTexto - Lista de marcações presentes no texto.
-    //  * @param array $objetosValidos - Lista de objetos válidos para este tipo de modelo.
-    //  * @return array - Lista de marcações sem referência.
-    //  */
-    // private static function verificarMarcacoesSemReferencia(array $marcacoesNoTexto, array $objetosValidos): array
-    // {
-    //     $contadorMarcacoes = [];
-    //     $marcacoesSemReferencia = [];
-
-    //     foreach ($marcacoesNoTexto as $marcacao) {
-    //         // Extrair identificador e contador da marcação
-    //         preg_match('/\{\{([a-zA-Z]+)\.(\d+)\.(.*?)\}\}/', $marcacao, $matches);
-
-    //         if (count($matches) < 4) {
-    //             // Se a marcação não segue o padrão esperado, já adicionamos como sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //             continue;
-    //         }
-
-    //         // Captura os componentes da marcação
-    //         $inicioMarcadorPrefixo = $matches[1]; // Exemplo: clientePF
-    //         $contador = $matches[2] ?: '1'; // Se não houver número, assume 1
-    //         $sufixo = $matches[3]; // Exemplo: nome, cpf
-
-    //         // Verifica se o inicioMarcadorPrefixo é válido com base nos objetos permitidos
-    //         $objetoValido = array_filter($objetosValidos, function ($obj) use ($inicioMarcadorPrefixo) {
-    //             preg_match('/^([a-zA-Z]+)\.\{\{contador\}\}$/', $obj['marcador_prefixo'], $objMatches);
-
-    //             // Evita erro se `preg_match` falhar
-    //             if (!isset($objMatches[1])) {
-    //                 Log::info('Falha ao extrair identificador do marcador_prefixo: ' . json_encode(['marcador_prefixo' => $obj['marcador_prefixo'], 'objMatches' => $objMatches]));
-    //                 return false;
-    //             }
-
-    //             return $objMatches[1] === $inicioMarcadorPrefixo;
-    //         });
-
-    //         if (!$objetoValido) {
-    //             // Se o objeto não for permitido, adiciona à lista de marcações sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //             continue;
-    //         }
-
-    //         // Obtém os marcadores válidos desse objeto
-    //         $objetoValido = array_values($objetoValido)[0]; // Pega o primeiro resultado
-    //         $marcadoresPermitidos = array_column($objetoValido['marcadores'], 'sufixo');
-
-    //         // Verifica se o marcador está presente na lista de marcadores permitidos
-    //         $marcadorCompleto = "{$objetoValido['marcador_prefixo']}.{$sufixo}";
-    //         $marcadorCompleto = str_replace('{{contador}}', $contador, $marcadorCompleto);
-
-    //         if (!in_array($sufixo, $marcadoresPermitidos)) {
-    //             // Se o marcador não for permitido, adiciona à lista de marcações sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //         }
-    //     }
-
-    //     return $marcacoesSemReferencia;
-    // }
-
-    /**
-     * Verifica quais objetos (clientes) foram inseridos mas não possuem marcações utilizadas no texto.
-     *
-     * @param array $marcacoesNoTexto - Lista de marcações presentes no texto.
-     * @param array $objetos - Lista de objetos.
-     * @return array - Lista de objetos não utilizados.
-     */
-    private static function verificarObjetosNaoUtilizados(array $marcacoesNoTexto, array $objetos): array
-    {
-        return array_values(array_filter($objetos, function ($objeto) use ($marcacoesNoTexto) {
-            $marcacoesDoObjeto = array_column($objeto['marcadores'] ?? [], 'marcacao');
-            return empty(array_intersect($marcacoesNoTexto, $marcacoesDoObjeto));
-        }));
-    }
-
-    /**
-     * Verifica quais objetos (clientes) foram utilizados no texto e adiciona os marcadores usados.
-     *
-     * @param array $marcacoesNoTexto - Lista de marcações presentes no texto.
-     * @param array $objetos - Lista de objetos.
-     * @return array - Lista de objetos utilizados, incluindo `marcadores_usados`.
-     */
-    private static function verificarObjetosUtilizados(array $marcacoesNoTexto, array $objetos): array
-    {
-        return array_values(array_filter(array_map(function ($objeto) use ($marcacoesNoTexto) {
-            $marcadoresUsados = array_values(array_filter($objeto['marcadores'] ?? [], function ($marcador) use ($marcacoesNoTexto) {
-                return in_array($marcador['marcacao'], $marcacoesNoTexto);
-            }));
-
-            return !empty($marcadoresUsados) ? array_merge($objeto, ['marcadores_usados' => $marcadoresUsados]) : null;
-        }, $objetos)));
+        return false;
     }
 }
