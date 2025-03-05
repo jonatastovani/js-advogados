@@ -107,15 +107,19 @@ class PageDocumentoModeloForm extends TemplateForm {
             documento_modelo_tipo_id: self._classQuillEditor.getDocumentoModeloTipoId,
         }
 
-        // console.log(data);
+        try {
+            commonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`));
 
-        commonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`));
+            if (await self.#saveVerifications(data)) {
+                await self._save(data, self._objConfigs.url.base, {
+                    success: 'Modelo cadastrado com sucesso!',
+                });
+            }
 
-        if (await self.#saveVerifications(data)) {
-            await self._save(data, self._objConfigs.url.base, {
-                success: 'Modelo cadastrado com sucesso!',
-            });
+        } finally {
+            commonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`), false);
         }
+
         return false;
     }
 

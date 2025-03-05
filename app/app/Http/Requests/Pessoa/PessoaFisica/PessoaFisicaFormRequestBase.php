@@ -18,6 +18,7 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'nacionalidade' => 'nullable|string',
             'estado_civil_id' => 'nullable|uuid',
             'escolaridade_id' => 'nullable|uuid',
+            'profissao' => 'nullable|string',
             'sexo_id' => 'nullable|uuid',
             'observacao' => 'nullable|string',
             'ativo_bln' => 'nullable|boolean',

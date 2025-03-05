@@ -145,10 +145,23 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         $(`#${idBtn}`).on('click', async function () {
             const newObjeto = self._getObjetoBase(objeto.identificador);
             newObjeto.contador = self.#getContadorObjetoNaTela(objeto, true);
-
+            if (!self.#verificaLimiteObjetos(newObjeto)) {
+                return;
+            }
             self._inserirObjetoNaTela(newObjeto);
             const resultado = self._verificarInconsistenciasObjetos();
         });
+    }
+
+    #verificaLimiteObjetos(newObjeto) {
+        console.log(newObjeto);
+        console.log(newObjeto.permite_multiplos);
+        console.log(newObjeto.contador);
+        if (!newObjeto.permite_multiplos && newObjeto.contador > 1) {
+            commonFunctions.generateNotification(`Este objeto não permite multiplos.`, 'warning');
+            return false;
+        }
+        return true;
     }
 
     #addBotaoDrop(objeto, options = {}) {

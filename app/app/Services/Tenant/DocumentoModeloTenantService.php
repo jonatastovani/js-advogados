@@ -4,6 +4,7 @@ namespace App\Services\Tenant;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\DocumentoTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Helpers\DocumentoModeloQuillEditorHelper;
 use App\Helpers\DocumentoModeloTenantRenderizarHelper;
@@ -146,7 +147,7 @@ class DocumentoModeloTenantService extends Service
             $objetoEnviado = $objetosPorIdentificador->where('id', $perfil['id'])->first();
 
             $pessoaDados = $perfil['pessoa']['pessoa_dados'];
-            
+
             if (isset($pessoaDados['escolaridade']['nome'])) {
                 $pessoaDados['escolaridade'] = $pessoaDados['escolaridade']['nome'];
             }
@@ -159,8 +160,43 @@ class DocumentoModeloTenantService extends Service
                 $pessoaDados['sexo'] = $pessoaDados['sexo']['nome'];
             }
 
-            $pessoaDados['documento'] = $perfil['pessoa']['documentos'] ?? [];
-            $pessoaDados['endereco'] = $perfil['pessoa']['enderecos'] ?? [];
+            $pessoaDados['cpf'] = null;
+            $pessoaDados['documento']['rg'] = null;
+
+            $pessoaDados['documentos'] = $perfil['pessoa']['documentos'] ?? [];
+            // Extrai o CPF dos documentos caso houver
+            foreach ($pessoaDados['documentos'] as $documento) {
+                switch ($documento['documento_tipo_tenant']['documento_tipo_id']) {
+
+                    // Extrai o CPF
+                    case DocumentoTipoEnum::CPF->value:
+                        $pessoaDados['cpf'] = $documento['numero'];
+                        break;
+
+                    // Se foi enviado o documento_rg_id, então extrai o RG, colocando no campo documento.rg
+                    case DocumentoTipoEnum::RG->value:
+                        if (
+                            isset($objetoEnviado['selecoes']['documento_rg_id']) &&
+                            $objetoEnviado['selecoes']['documento_rg_id'] == $documento['id']
+                        ) {
+                            $pessoaDados['documento']['rg'] = $documento['numero'];
+                        }
+                        break;
+                }
+            }
+
+            $pessoaDados['enderecos'] = $perfil['pessoa']['enderecos'] ?? [];
+            // Extrai o Endereço dos endereços que houver
+            foreach ($pessoaDados['enderecos'] as $endereco) {
+                if (
+                    isset($objetoEnviado['selecoes']['endereco_id']) &&
+                    $objetoEnviado['selecoes']['endereco_id'] == $endereco['id']
+                ) {
+                    $pessoaDados['endereco'] = $endereco;
+                    break;
+                }
+            }
+
             $objetosRetorno[] = array_merge($objetoEnviado, [
                 'dados' => $pessoaDados
             ]);

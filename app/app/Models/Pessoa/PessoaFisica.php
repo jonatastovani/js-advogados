@@ -36,6 +36,7 @@ class PessoaFisica extends Model
         'estado_civil_id',
         'escolaridade_id',
         'sexo_id',
+        'profissao',
         'observacao',
         'ativo_bln',
     ];

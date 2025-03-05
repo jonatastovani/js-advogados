@@ -10,10 +10,10 @@
                 <h4 class="modal-title text-truncate">Documento</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <div class="modal-body d-flex flex-column pt-1">
+            <form class="modal-body d-flex flex-column pt-1 formRegistration">
                 <div class="row">
                     <div class="col mt-2 px-0">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <ul class="nav nav-tabs" id="myTab{{ $sufixo }}" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link px-2 active" id="painelObjetos{{ $sufixo }}-tab"
                                     data-bs-toggle="tab" data-bs-target="#painelObjetos{{ $sufixo }}-tab-pane"
@@ -42,22 +42,35 @@
                     </div>
                 </div>
                 <div class="row rounded rounded-top-0 border-top-0 flex-fill">
-                    <div class="col tab-content overflow-auto" id="myTabContent{{ $sufixo }}">
-                        <div class="tab-pane fade h-100 show active" id="painelObjetos{{ $sufixo }}-tab-pane"
+                    <div class="d-flex flex-column tab-content overflow-auto" id="myTabContent{{ $sufixo }}">
+                        <div class="tab-pane fade flex-fill active show" id="painelObjetos{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="painelObjetos{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-objetos')
                         </div>
-                        <div class="tab-pane fade h-100" id="painelRevisao{{ $sufixo }}-tab-pane" role="tabpanel"
+                        <div class="tab-pane fad flex-fille" id="painelRevisao{{ $sufixo }}-tab-pane" role="tabpanel"
                             aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-revisao')
                         </div>
-                        <div class="tab-pane fade h-100" id="painelConteudo{{ $sufixo }}-tab-pane"
+                        <div class="tab-pane fade flex-fill" id="painelConteudo{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="painelConteudo{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-conteudo')
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="row">
+                    <div class="col-12 text-end mt-2">
+                        <button type="submit" class="btn btn-outline-success btn-refresh">
+                            Recarregar Revisão
+                        </button>
+                        <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
+                            Salvar
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-cancel"
+                            style="min-width: 7rem;">Cancelar</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

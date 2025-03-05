@@ -103,7 +103,7 @@ class DocumentoModeloQuillEditorHelper
      * @param array $ops - Array de operações do Delta do Quill.
      * @return array - Lista de marcações encontradas.
      */
-    private static function extrairMarcacoes(array $ops): array
+    public static function extrairMarcacoes(array $ops): array
     {
         $marcacoes = [];
         $regex = '/\{\{(.*?)\}\}/';
@@ -264,7 +264,7 @@ class DocumentoModeloQuillEditorHelper
      * @param array $objetos - Lista de objetos.
      * @return array - Lista de objetos utilizados, incluindo `marcadores_usados`.
      */
-    private static function verificarObjetosUtilizados(array $marcacoesNoTexto, array $objetos): array
+    public static function verificarObjetosUtilizados(array $marcacoesNoTexto, array $objetos): array
     {
         return array_values(array_filter(array_map(function ($objeto) use ($marcacoesNoTexto) {
             $marcadoresUsados = array_values(array_filter($objeto['marcadores'] ?? [], function ($marcador) use ($marcacoesNoTexto) {

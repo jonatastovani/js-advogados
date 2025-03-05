@@ -30,7 +30,6 @@ return new class extends Migration
             $table->string('nascimento_estado')->nullable();
             $table->string('nacionalidade')->nullable();
             $table->string('profissao')->nullable();
-            $table->string('profissao')->nullable();
 
             $table->uuid('estado_civil_id')->nullable();
             $table->foreign('estado_civil_id')->references('id')->on((new App\Models\Tenant\EstadoCivilTenant())->getTableName());

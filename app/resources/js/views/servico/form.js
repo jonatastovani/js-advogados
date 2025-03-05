@@ -234,8 +234,8 @@ class PageServicoForm extends TemplateForm {
             const objModal = new modalDocumentoModeloTenant();
             objModal._dataEnvModal = {
                 documento_modelo_tenant: {
-                    "id": "9e58f171-b6ce-4e9d-9e4a-9e71ed0bcf7a",
-                    "nome": "PROCURAÇÃO AD JUDICIA ET EXTRA - 1 Cliente"
+                    "id": "9e5b9a18-e20c-450f-a1d9-c00a9b42786e",
+                    "nome": "PROCURAÇÃO AD JUDICIA ET EXTRA - 2 Clientes"
                 },
                 objetos: await self.#getObjetosDocumentoModeloTenantRender(),
             }
@@ -252,7 +252,7 @@ class PageServicoForm extends TemplateForm {
         if (blnBuscarClientes) {
             await self.#buscarClientes();
         }
-        
+
         if (self._objConfigs.data.clientesNaTela.length === 0) {
             return [];
         }

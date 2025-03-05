@@ -31,6 +31,18 @@ enum DocumentoModeloTipoEnum: int
                         'permite_multiplos' => true,
                         'marcador_prefixo' => 'clientePJ.{{contador}}',
                         'marcadores' => $this->marcadoresPessoa('PJ'),
+                    ],
+                    [
+                        'identificador' => 'DataDocumento',
+                        'display' => 'Data do Documento',
+                        'permite_multiplos' => false,
+                        'marcador_prefixo' => 'dataDocumento',
+                        'marcadores' => [
+                            ['display' => 'Dia', 'sufixo' => 'dia',],
+                            ['display' => 'Mês numérico', 'sufixo' => 'mes_numerico',],
+                            ['display' => 'Mês extenso', 'sufixo' => 'mes_extenso',],
+                            ['display' => 'Ano', 'sufixo' => 'ano',]
+                        ]
                     ]
                 ],
             ],
@@ -61,7 +73,7 @@ enum DocumentoModeloTipoEnum: int
             ['display' => 'Nacionalidade', 'sufixo' => 'nacionalidade',],
             ['display' => 'Estado Civil', 'sufixo' => 'estado_civil',],
             ['display' => 'Profissão', 'sufixo' => 'profissao',],
-            ['display' => 'RG', 'sufixo' => 'rg',],
+            ['display' => 'RG', 'sufixo' => 'documento.rg',],
             ['display' => 'CPF', 'sufixo' => 'cpf',],
         ];
     }
@@ -71,6 +83,7 @@ enum DocumentoModeloTipoEnum: int
         return [
             ['display' => 'Razão Social', 'sufixo' => 'razao_social',],
             ['display' => 'Nome Fantasia', 'sufixo' => 'nome_fantasia',],
+            ['display' => 'CNPJ', 'sufixo' => 'cnpj',],
             ['display' => 'Natureza Jurídica', 'sufixo' => 'natureza_juridica',],
             ['display' => 'Data de Fundação', 'sufixo' => 'data_fundacao',],
             ['display' => 'Capital Social', 'sufixo' => 'capital_social',],
