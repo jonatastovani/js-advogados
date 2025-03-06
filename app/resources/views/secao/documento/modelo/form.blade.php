@@ -2,7 +2,7 @@
     $sufixo = 'PageDocumentoModeloForm';
     $resource = isset($resource) ? $resource : null;
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => $resource ? 'Editar Modelo: ' . $resource->numero_servico : 'Cadastrar Modelo',
+        'nome' => $resource ? 'Editar Modelo: ' . $resource->nome : 'Cadastrar Modelo',
         'descricao' => [
             [
                 'texto' => 'Cadastro e personalização de modelos de documentos.',
@@ -47,44 +47,27 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="painelRevisao{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelRevisao{{ $sufixo }}-tab-pane" aria-selected="false">
+                    <button class="nav-link px-2 position-relative" id="painelRevisao{{ $sufixo }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane" type="button"
+                        role="tab" aria-controls="painelRevisao{{ $sufixo }}-tab-pane" aria-selected="false">
                         Revisão
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                            <span id="badgePendencias{{ $sufixo }}">0</span>
+                            <span class="visually-hidden">Pendências encontradas</span>
+                        </span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="painelRequisitos{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelRequisitos{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelRequisitos{{ $sufixo }}-tab-pane" aria-selected="false">
+                    <button class="nav-link px-2 position-relative" id="painelRequisitos{{ $sufixo }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#painelRequisitos{{ $sufixo }}-tab-pane" type="button"
+                        role="tab" aria-controls="painelRequisitos{{ $sufixo }}-tab-pane" aria-selected="false">
                         Requisitos
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                            <span id="badgeRequisitos{{ $sufixo }}">0</span>
+                            <span class="visually-hidden">Objetos requisitados para o modelo</span>
+                        </span>
                     </button>
                 </li>
-                {{-- <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
-                        aria-disabled="{{ $disabledNovoRegistro }}" id="painelAnotacao{{ $sufixo }}-tab"
-                        data-bs-toggle="tab" data-bs-target="#painelAnotacao{{ $sufixo }}-tab-pane" type="button"
-                        role="tab" aria-controls="painelAnotacao{{ $sufixo }}-tab-pane" aria-selected="false">
-                        Anotações
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
-                        aria-disabled="{{ $disabledNovoRegistro }}" id="painelPagamento{{ $sufixo }}-tab"
-                        data-bs-toggle="tab" data-bs-target="#painelPagamento{{ $sufixo }}-tab-pane" type="button"
-                        role="tab" aria-controls="painelPagamento{{ $sufixo }}-tab-pane" aria-selected="false">
-                        Pagamento
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
-                        aria-disabled="{{ $disabledNovoRegistro }}" id="painelParticipantes{{ $sufixo }}-tab"
-                        data-bs-toggle="tab" data-bs-target="#painelParticipantes{{ $sufixo }}-tab-pane"
-                        type="button" role="tab" aria-controls="painelParticipantes{{ $sufixo }}-tab-pane"
-                        aria-selected="false">
-                        Participantes
-                    </button>
-                </li> --}}
             </ul>
         </div>
     </div>
@@ -102,24 +85,6 @@
                 aria-labelledby="painelRequisitos{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.documento.modelo.form.painel-requisitos')
             </div>
-            {{-- <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelAnotacao{{ $sufixo }}-tab" tabindex="0">
-                @if (!$disabledNovoRegistro)
-                    @include('secao.documento.modelo.form.painel-anotacao')
-                @endif
-            </div>
-            <div class="tab-pane fade h-100" id="painelPagamento{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelPagamento{{ $sufixo }}-tab" tabindex="0">
-                @if (!$disabledNovoRegistro)
-                    @include('secao.documento.modelo.form.painel-pagamento')
-                @endif
-            </div>
-            <div class="tab-pane fade h-100" id="painelParticipantes{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelParticipantes{{ $sufixo }}-tab" tabindex="0">
-                @if (!$disabledNovoRegistro)
-                    @include('secao.documento.modelo.form.painel-participantes')
-                @endif
-            </div> --}}
         </div>
     </div>
     <div class="row">
@@ -129,7 +94,7 @@
     </div>
     <div class="row text-end">
         <div class="col mt-2">
-            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save"
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-sm btn-outline-success btn-save"
                 style="min-width: 7rem;">
                 Salvar
             </button>

@@ -16,10 +16,10 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link px-2" id="painelDocumentos{{ $sufixo }}-tab" data-bs-toggle="tab"
-                    data-bs-target="#painelDocumentos{{ $sufixo }}-tab-pane" type="button" role="tab"
-                    aria-controls="painelDocumentos{{ $sufixo }}-tab-pane" aria-selected="false">
-                    Documentos
+                <button class="nav-link px-2" id="painelDocumentoPessoal{{ $sufixo }}-tab" data-bs-toggle="tab"
+                    data-bs-target="#painelDocumentoPessoal{{ $sufixo }}-tab-pane" type="button" role="tab"
+                    aria-controls="painelDocumentoPessoal{{ $sufixo }}-tab-pane" aria-selected="false">
+                    Documentos Pessoa
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -29,15 +29,6 @@
                     Perfis
                 </button>
             </li>
-            {{-- @if ($paginaDados->perfil_tipo == 'empresa')
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-2" id="painelPreferencias{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelPreferencias{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelPreferencias{{ $sufixo }}-tab-pane" aria-selected="false">
-                        Preferências
-                    </button>
-                </li>
-            @endif --}}
         </ul>
     </div>
 </div>
@@ -51,20 +42,14 @@
             aria-labelledby="painelEnderecos{{ $sufixo }}-tab" tabindex="0">
             @include('secao.pessoa.pessoa-fisica.form.painel.painel-enderecos')
         </div>
-        <div class="tab-pane fade h-100" id="painelDocumentos{{ $sufixo }}-tab-pane" role="tabpanel"
-            aria-labelledby="painelDocumentos{{ $sufixo }}-tab" tabindex="0">
-            @include('secao.pessoa.pessoa-juridica.form.painel.painel-documentos')
+        <div class="tab-pane fade h-100" id="painelDocumentoPessoal{{ $sufixo }}-tab-pane" role="tabpanel"
+            aria-labelledby="painelDocumentoPessoal{{ $sufixo }}-tab" tabindex="0">
+            @include('secao.pessoa.pessoa-juridica.form.painel.painel-documento-pessoa')
         </div>
         <div class="tab-pane fade h-100" id="painelPerfil{{ $sufixo }}-tab-pane" role="tabpanel"
             aria-labelledby="painelPerfil{{ $sufixo }}-tab" tabindex="0">
             @include('secao.pessoa.pessoa-juridica.form.painel.painel-perfil')
         </div>
-        {{-- @if ($paginaDados->perfil_tipo == 'empresa')
-            <div class="tab-pane fade h-100" id="painelPreferencias{{ $sufixo }}-tab-pane" role="tabpanel"
-                aria-labelledby="painelPreferencias{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-juridica.form.painel.painel-preferencias')
-            </div>
-        @endif --}}
     </div>
 </div>
 <div class="row">

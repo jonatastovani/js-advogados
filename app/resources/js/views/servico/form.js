@@ -174,6 +174,10 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
+        $(`#atualizarDocumentos${self._objConfigs.sufixo} `).on('click', async function () {
+            await self.#buscarDocumentos();
+        });
+
         $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
@@ -292,6 +296,82 @@ class PageServicoForm extends TemplateForm {
         });
     }
 
+    async #inserirDocumento(item) {
+        const self = this;
+        const divDocumentos = $(`#divDocumentos${self._objConfigs.sufixo}`);
+        item.idCard = UUIDHelper.generateUUID();
+
+        const strCard = `
+            <div id="${item.idCard}" class="card card-documento">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center justify-content-between">
+                        <span class="spanNome">${item.nome}</span>
+                        <div>
+                            <div class="dropdown dropdown-acoes-documento">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button type="button" class="dropdown-item fs-6 btn-delete">Excluir</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </h5>
+                </div>
+            </div>`;
+
+        divDocumentos.append(strCard);
+
+        await self.#addEventoDocumento(item);
+        return item;
+    }
+
+    async #addEventoDocumento(item) {
+        const self = this;
+
+        $(`#${item.idCard} .btn-delete`).on('click', async function () {
+            const response = await self._delButtonAction(item.id, item.nome, {
+                title: `Exclusão de Documento`,
+                message: `Confirma a exclusão do documento <b>${item.nome}</b>?`,
+                success: `Documento excluído com sucesso!`,
+                button: this,
+                url: self._objConfigs.url.baseDocumento,
+            });
+
+            if (response) {
+                $(`#${item.idCard}`).remove();
+            }
+        });
+    }
+
+    #limparDocumentos() {
+        const self = this;
+        $(`#divDocumentos${self._objConfigs.sufixo}`).html('');
+    }
+
+    async #buscarDocumentos(options = {}) {
+        const self = this;
+        const { blnLoadingDisplay = true } = options;
+
+        try {
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando documentos...' }) : null;
+
+            const obj = new connectAjax(self._objConfigs.url.baseDocumento);
+            const response = await obj.getRequest();
+            if (response.data) {
+                self.#limparDocumentos();
+                response.data.map(item => {
+                    self.#inserirDocumento(item);
+                })
+                blnLoadingDisplay ? commonFunctions.generateNotification('Documentos atualizados com sucesso.', 'success') : null;
+            }
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
+        }
+    }
+
     async #inserirCliente(item) {
         const self = this;
         const divClientes = $(`#divClientes${self._objConfigs.sufixo}`);
@@ -398,10 +478,12 @@ class PageServicoForm extends TemplateForm {
         $(`#divClientes${self._objConfigs.sufixo}`).html('');
     }
 
-    async #buscarClientes() {
+    async #buscarClientes(options = {}) {
         const self = this;
+        const { blnLoadingDisplay = true } = options;
+
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' });
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' }) : null;
             const obj = new connectAjax(self._objConfigs.url.baseCliente);
             const response = await obj.getRequest();
             if (response.data) {
@@ -409,12 +491,12 @@ class PageServicoForm extends TemplateForm {
                 response.data.map(item => {
                     self.#inserirCliente(item);
                 })
-                commonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success');
+                blnLoadingDisplay ? commonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success') : null;
             }
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
         }
     }
 
@@ -977,6 +1059,11 @@ class PageServicoForm extends TemplateForm {
             self.#inserirCliente(item);
         });
 
+        self.#limparDocumentos();
+        responseData.documentos.forEach(item => {
+            self.#inserirDocumento(item);
+        });
+
         self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 
         self.#atualizaTodosValores(response.data);
@@ -1028,10 +1115,11 @@ class PageServicoForm extends TemplateForm {
         }
     }
 
-    async #buscarPagamentos() {
+    async #buscarPagamentos(options = {}) {
         const self = this;
+        const { blnLoadingDisplay = true } = options;
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' });
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
 
             const obj = new connectAjax(self._objConfigs.url.basePagamentos);
             const response = await obj.getRequest();
@@ -1043,7 +1131,7 @@ class PageServicoForm extends TemplateForm {
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
         }
 
     }

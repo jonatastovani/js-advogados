@@ -71,7 +71,7 @@ export class PessoaDocumentoModule {
 
     async _inserirDocumento(item, validarLimite = false) {
         const self = this;
-        const divDocumento = $(`#divDocumento${self._objConfigs.sufixo}`);
+        const divDocumentoPessoa = $(`#divDocumentoPessoa${self._objConfigs.sufixo}`);
 
         const nomeDoc = item.documento_tipo_tenant.documento_tipo.nome;
         const numero = item.numero;
@@ -110,7 +110,7 @@ export class PessoaDocumentoModule {
                 </div>
             </div>`;
 
-            divDocumento.append(strCard);
+            divDocumentoPessoa.append(strCard);
             self.#addEventosDocumento(item);
             self._objConfigs.data.documentosNaTela.push(item);
         } else {

@@ -319,10 +319,14 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             let {
                 divRevisao = `#divRevisao${self._parentInstance.getSufixo}`,
                 divRequisitos = `#divRequisitos${self._parentInstance.getSufixo}`,
+                badgePendencias = `#badgePendencias${self._parentInstance.getSufixo}`,
+                badgeRequisitos = `#badgeRequisitos${self._parentInstance.getSufixo}`,
             } = options;
 
             divRevisao = $(divRevisao);
             divRequisitos = $(divRequisitos);
+            badgePendencias = $(badgePendencias);
+            badgeRequisitos = $(badgeRequisitos);
 
             const deltaAtual = self.getQuill.getContents();
             const resultado = await self.#executaVerificacaoInconsistenciasObjetos({
@@ -333,7 +337,10 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
             divRevisao.html('');
             divRequisitos.html('');
+            badgePendencias.html('0');
+            badgeRequisitos.html('0');
 
+            let contadorPendencias = 0;
             resultado.objetos_nao_utilizados.forEach(item => {
                 item.uuid = UUIDHelper.generateUUID();
                 divRevisao.append(`
@@ -344,12 +351,14 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                              Remover referencia
                          </button>
                      </div>
-                 `);
+                `);
 
                 $(`#btnRemoverReferencia${item.uuid}`).on('click', async function () {
                     self.#deleteObjetoNaTela(item);
                     await self._verificarInconsistenciasObjetos();
                 });
+
+                contadorPendencias++;
             });
 
             resultado.marcacoes_sem_referencia.forEach(item => {
@@ -363,6 +372,8 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                 $(`#btnVerMarcacao${item.uuid}`).on('click', function () {
                     self.#selecionarMarcacaoQuill(self.getQuill, item.marcacao, item.indice);
                 });
+
+                contadorPendencias++;
             });
 
             resultado.objetos_utilizados.forEach(item => {
@@ -377,6 +388,8 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                  `);
             });
 
+            badgeRequisitos.html(resultado.objetos_utilizados.length);
+            badgePendencias.html(contadorPendencias);
             return resultado;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

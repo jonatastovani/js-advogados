@@ -116,7 +116,7 @@ class DocumentoTenantService extends Service
     public function loadFull($options = []): array
     {
         return [
-            'documento_modelo_tenant_id',
+            'documento_modelo_tenant',
         ];
     }
 

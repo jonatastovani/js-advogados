@@ -136,14 +136,14 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             const response = await objConn.getRequest();
             self._objConfigs.data.documento_modelo_tenant = response.data;
             $(`${self.getIdModal} input[name="nome"]`).val(response.data.nome);
-            self.#inserirObjetosSistema();
+            self.#inserirObjetosPredefinidos();
             self.#verificaInconsistenciasObjetosVinculados();
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
-    #inserirObjetosSistema() {
+    #inserirObjetosPredefinidos() {
         const self = this;
         const rowObjetosSistema = $(`#rowObjetosSistema${self._objConfigs.sufixo}`);
         const objetosSistema = self._objConfigs.data.documento_modelo_tenant.objetos;
@@ -159,7 +159,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
                     rowObjetosSistema.append(`
                         <div class="col-6 col-sm-4 col-md-3 col-xl-2 text-end mt-2">
                             <label for="${newObjeto.idObj}" class="form-label">Data do documento</label>
-                            <input type="date" class="form-control text-end" name="dataDocumento" id="${newObjeto.idObj}" value="${valor_objeto}">
+                            <input type="date" class="form-control text-center" name="dataDocumento" id="${newObjeto.idObj}" value="${valor_objeto}">
                         </div>
                     `);
 
@@ -552,9 +552,11 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             const self = this;
             let {
                 divRevisao = `#divRevisao${self.getSufixo}`,
+                badgePendencias = `#badgePendencias${self.getSufixo}`,
             } = options;
 
             divRevisao = $(divRevisao);
+            badgePendencias = $(badgePendencias);
 
             const resultado = await self.#executaVerificacaoInconsistenciasObjetosVinculado({
                 objetos_vinculados: self._getObjetosNaTelaVinculados(),
@@ -562,16 +564,22 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             });
 
             divRevisao.html('');
+            badgePendencias.html('0');
 
+            let contadorPendencias = 0;
             resultado.objetos_nao_vinculados.forEach(item => {
+
                 divRevisao.append(`
                     <div class="alert alert-warning py-1" role="alert">
                         <p class="m-0">Objeto requisitado não vinculado: <span class="fw-bolder">${item.nome}</span></p>
                     </div>
                 `);
+
+                contadorPendencias++;
             });
 
             resultado.objetos_campos_ausentes.forEach(objeto => {
+
                 let indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto, 'id');
                 const objetosNaTela = self._objConfigs.data.objetosNaTela;
                 let nomeVinculado = self._getNomeObjetoPorIdentificador(objetosNaTela[indexObjetoNaTela]);
@@ -584,12 +592,15 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
                         <p class="m-0">Campo(s) faltante(s): <span class="fw-bolder">${strMarcacaoFaltante}</span>.</p>
                     </div>
                 `);
+
+                contadorPendencias++;
             });
 
             if (resultado.conteudo) {
                 self._classQuillEditor.getQuill.setContents(resultado.conteudo);
             }
 
+            badgePendencias.html(contadorPendencias);
             return resultado;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);

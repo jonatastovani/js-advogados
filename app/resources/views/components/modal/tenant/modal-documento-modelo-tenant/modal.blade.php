@@ -23,11 +23,17 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link px-2" id="painelRevisao{{ $sufixo }}-tab"
-                                    data-bs-toggle="tab" data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane"
-                                    type="button" role="tab"
-                                    aria-controls="painelRevisao{{ $sufixo }}-tab-pane" aria-selected="false">
+                                <button class="nav-link px-2 position-relative"
+                                    id="painelRevisao{{ $sufixo }}-tab" data-bs-toggle="tab"
+                                    data-bs-target="#painelRevisao{{ $sufixo }}-tab-pane" type="button"
+                                    role="tab" aria-controls="painelRevisao{{ $sufixo }}-tab-pane"
+                                    aria-selected="false">
                                     Revisão
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                                        <span id="badgePendencias{{ $sufixo }}">0</span>
+                                        <span class="visually-hidden">Pendências encontradas</span>
+                                    </span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
