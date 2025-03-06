@@ -1,0 +1,86 @@
+@charset "UTF-8";
+.blink-100 {
+  animation: blinker-100 1s linear infinite;
+}
+
+@keyframes blinker-100 {
+  50% {
+    opacity: 0;
+  }
+}
+.blink-75 {
+  animation: blinker-75 1s linear infinite;
+}
+
+@keyframes blinker-75 {
+  50% {
+    opacity: 0.25;
+  }
+}
+.blink-50 {
+  animation: blinker-50 1s linear infinite;
+}
+
+@keyframes blinker-50 {
+  50% {
+    opacity: 0.5;
+  }
+}
+.blink-25 {
+  animation: blinker-25 1s linear infinite;
+}
+
+@keyframes blinker-25 {
+  50% {
+    opacity: 0.75;
+  }
+}
+.blink {
+  animation: blinker-50 1s linear infinite;
+}
+
+.legenda-campos-obrigatorios {
+  font-size: 0.875rem;
+  /* Tamanho menor */
+  color: #6c757d;
+  /* Cinza padrão do Bootstrap */
+  margin-top: 0.5rem;
+  /* Espaço acima */
+}
+
+.campo-tabela-truncate-10 {
+  max-width: 10rem;
+}
+
+.campo-tabela-truncate-15 {
+  max-width: 15rem;
+}
+
+.campo-tabela-truncate-20 {
+  max-width: 20rem;
+}
+
+.campo-tabela-truncate-25 {
+  max-width: 25rem;
+}
+
+.campo-tabela-truncate-30 {
+  max-width: 30rem;
+}
+
+.campo-tabela-truncate-35 {
+  max-width: 35rem;
+}
+
+.campo-tabela-truncate-40 {
+  max-width: 40rem;
+}
+
+.campo-tabela-truncate-45 {
+  max-width: 45rem;
+}
+
+/* Define a cor padrão para os ícones, apenas quando não estiver com hover */
+.ql-toolbar button.ql-button:not(:hover) i {
+  color: #444 !important;
+}/*# sourceMappingURL=style-custom.css.map */

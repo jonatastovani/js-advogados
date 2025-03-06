@@ -3,6 +3,7 @@
 namespace App\Models\Servico;
 
 use App\Helpers\NumeracaoSequencialHelper;
+use App\Models\Comum\DocumentoTenant;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
@@ -82,6 +83,11 @@ class Servico extends Model
     public function cliente()
     {
         return $this->hasMany(ServicoCliente::class);
+    }
+
+    public function documentos()
+    {
+        return $this->morphMany(DocumentoTenant::class, 'parent');
     }
 
     /**

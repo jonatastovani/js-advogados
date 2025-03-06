@@ -43,6 +43,17 @@ Route::group([
                 });
             });
 
+            Route::prefix('documento')->group(function () {
+
+                Route::controller(App\Http\Controllers\Comum\DocumentoTenantController::class)->group(function () {
+
+                    Route::get('', 'indexServico');
+                    // Route::get('{uuid}', 'show');
+                    Route::post('', 'storeServico');
+                    Route::delete('{uuid}', 'destroy');
+                });
+            });
+
             Route::prefix('pagamentos')->group(function () {
 
                 Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {

@@ -37,6 +37,7 @@ enum DocumentoModeloTipoEnum: int
                         'display' => 'Data do Documento',
                         'permite_multiplos' => false,
                         'marcador_prefixo' => 'dataDocumento',
+                        'objeto_sistema' => true,
                         'marcadores' => [
                             ['display' => 'Dia', 'sufixo' => 'dia',],
                             ['display' => 'Mês numérico', 'sufixo' => 'mes_numerico',],

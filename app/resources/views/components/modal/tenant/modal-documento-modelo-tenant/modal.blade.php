@@ -47,8 +47,8 @@
                             role="tabpanel" aria-labelledby="painelObjetos{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-objetos')
                         </div>
-                        <div class="tab-pane fad flex-fille" id="painelRevisao{{ $sufixo }}-tab-pane" role="tabpanel"
-                            aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
+                        <div class="tab-pane fad flex-fille" id="painelRevisao{{ $sufixo }}-tab-pane"
+                            role="tabpanel" aria-labelledby="painelRevisao{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.tenant.modal-documento-modelo-tenant.modal.painel-revisao')
                         </div>
                         <div class="tab-pane fade flex-fill" id="painelConteudo{{ $sufixo }}-tab-pane"
@@ -60,13 +60,13 @@
 
                 <div class="row">
                     <div class="col-12 text-end mt-2">
-                        <button type="submit" class="btn btn-outline-success btn-refresh">
+                        <button type="submit" class="btn btn-outline-primary btn-sm btn-refresh">
                             Recarregar Revisão
                         </button>
-                        <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
+                        <button type="submit" class="btn btn-outline-success btn-sm btn-save" style="min-width: 7rem;">
                             Salvar
                         </button>
-                        <button type="button" class="btn btn-outline-danger btn-cancel"
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-cancel"
                             style="min-width: 7rem;">Cancelar</button>
                     </div>
                 </div>

@@ -187,6 +187,7 @@ class ServicoService extends Service
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
+        /** @var Servico */
         $resource->titulo = $requestData->titulo;
         $resource->descricao = $requestData->descricao;
         $resource->area_juridica_id = $requestData->area_juridica_id;
@@ -210,6 +211,7 @@ class ServicoService extends Service
         $relationships = [
             'area_juridica',
             'anotacao',
+            'documentos',
             'participantes.participacao_tipo',
             'participantes.referencia.pessoa.pessoa_dados',
             'participantes.referencia.perfil_tipo',

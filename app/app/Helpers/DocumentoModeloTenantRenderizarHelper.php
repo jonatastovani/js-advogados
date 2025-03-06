@@ -9,6 +9,7 @@ use Illuminate\Support\Fluent;
 
 class DocumentoModeloTenantRenderizarHelper
 {
+
     /**
      * Verifica inconsistências nos objetos vinculados e se possuem todos os campos necessários.
      *
@@ -286,6 +287,4 @@ class DocumentoModeloTenantRenderizarHelper
 
         return $conteudo;
     }
-
-    
 }

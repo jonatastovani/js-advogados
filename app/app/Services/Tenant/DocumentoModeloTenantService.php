@@ -15,6 +15,7 @@ use App\Models\Referencias\DocumentoModeloTipo;
 use App\Models\Tenant\DocumentoModeloTenant;
 use App\Services\Pessoa\PessoaPerfilService;
 use App\Services\Service;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -132,6 +133,10 @@ class DocumentoModeloTenantService extends Service
 
                     $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosClientesPJ($perfis->toArray(), $objetosPorIdentificador));
                     break;
+
+                case 'DataDocumento':
+                    $objetosRetorno = array_merge($objetosRetorno, $this->preparaObjetosDataDocumento($objetosPorIdentificador->toArray()));
+                    break;
             }
         });
 
@@ -218,6 +223,26 @@ class DocumentoModeloTenantService extends Service
             $pessoaDados['endereco'] = $perfil['pessoa']['enderecos'] ?? [];
             $objetosRetorno[] = array_merge($objetoEnviado, [
                 'dados' => $pessoaDados
+            ]);
+        });
+
+        return $objetosRetorno;
+    }
+
+    private function preparaObjetosDataDocumento(array $objetos): array
+    {
+        $objetosRetorno = [];
+
+        collect($objetos)->each(function ($objeto) use (&$objetosRetorno) {
+            $dados = [
+                'dia' => Carbon::parse($objeto['metadata']['valor_objeto'])->format('d'),
+                'mes_numerico' => Carbon::parse($objeto['metadata']['valor_objeto'])->format('m'),
+                'mes_extenso' => Carbon::parse($objeto['metadata']['valor_objeto'])->translatedFormat('F'),
+                'ano' => Carbon::parse($objeto['metadata']['valor_objeto'])->format('Y'),
+            ];
+
+            $objetosRetorno[] = array_merge($objeto, [
+                'dados' => $dados
             ]);
         });
 

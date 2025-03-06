@@ -64,11 +64,9 @@ class DocumentoModeloQuillEditorHelper
         $objetosEnviados = [];
 
         foreach ($objetos as $objeto) {
-            $identificador = $objeto['identificador'];
-            $contador = $objeto['contador'];
 
             // Encontra o objeto válido correspondente
-            $objetoBase = collect($objetosBase)->firstWhere('identificador', $identificador);
+            $objetoBase = collect($objetosBase)->firstWhere('identificador', $objeto['identificador']);
 
             if (!$objetoBase) {
                 // Se o objeto não for permitido no modelo, pula para o próximo
@@ -76,22 +74,20 @@ class DocumentoModeloQuillEditorHelper
             }
 
             // Gera as marcações renderizadas com base no prefixo e contador
-            $marcadoresRenderizados = array_map(function ($marcador) use ($objetoBase, $contador) {
+            $marcadoresRenderizados = array_map(function ($marcador) use ($objetoBase, $objeto) {
                 return [
                     'display' => $marcador['display'],
                     'sufixo' => $marcador['sufixo'],
-                    'marcacao' => str_replace('{{contador}}', $contador, "{{{$objetoBase['marcador_prefixo']}.{$marcador['sufixo']}}}")
+                    'marcacao' => str_replace('{{contador}}', $objeto['contador'], "{{{$objetoBase['marcador_prefixo']}.{$marcador['sufixo']}}}")
                 ];
             }, $objetoBase['marcadores']);
 
             // Monta o objeto pronto para verificação
-            $objetosEnviados[] = [
-                'identificador' => $identificador,
-                'contador' => $contador,
-                'nome' => "{$identificador}.{$contador}",
+            $objetosEnviados[] = array_merge($objeto, [
+                'identificador' => $objeto['identificador'],
+                'nome' => "{$objeto['identificador']}.{$objeto['contador']}",
                 'marcadores' => $marcadoresRenderizados,
-                'idAccordionNovoObjeto' => $objeto['idAccordionNovoObjeto'] ?? null
-            ];
+            ]);
         }
 
         return $objetosEnviados;
@@ -166,81 +162,6 @@ class DocumentoModeloQuillEditorHelper
 
         return $marcacoesSemReferencia;
     }
-
-    // /**
-    //  * Verifica quais marcações estão no texto mas não possuem referência válida.
-    //  *
-    //  * @param array $marcacoesNoTexto - Lista de marcações presentes no texto.
-    //  * @param array $objetosValidos - Lista de objetos válidos para este tipo de modelo.
-    //  * @return array - Lista de marcações sem referência.
-    //  */
-    // private static function verificarMarcacoesSemReferencia(array $marcacoesNoTexto, array $objetosValidos): array
-    // {
-    //     $contadorMarcacoes = [];
-    //     $marcacoesSemReferencia = [];
-
-    //     foreach ($marcacoesNoTexto as $marcacao) {
-    //         // Extrair identificador e contador da marcação
-    //         preg_match('/\{\{([a-zA-Z]+)\.(\d+)\.(.*?)\}\}/', $marcacao, $matches);
-
-    //         if (count($matches) < 4) {
-    //             // Se a marcação não segue o padrão esperado, já adicionamos como sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //             continue;
-    //         }
-
-    //         // Captura os componentes da marcação
-    //         $inicioMarcadorPrefixo = $matches[1]; // Exemplo: clientePF
-    //         $contador = $matches[2] ?: '1'; // Se não houver número, assume 1
-    //         $sufixo = $matches[3]; // Exemplo: nome, cpf
-
-    //         // Verifica se o inicioMarcadorPrefixo é válido com base nos objetos permitidos
-    //         $objetoValido = array_filter($objetosValidos, function ($obj) use ($inicioMarcadorPrefixo) {
-    //             preg_match('/^([a-zA-Z]+)\.\{\{contador\}\}$/', $obj['marcador_prefixo'], $objMatches);
-
-    //             // Evita erro se `preg_match` falhar
-    //             if (!isset($objMatches[1])) {
-    //                 Log::info('Falha ao extrair identificador do marcador_prefixo: ' . json_encode(['marcador_prefixo' => $obj['marcador_prefixo'], 'objMatches' => $objMatches]));
-    //                 return false;
-    //             }
-
-    //             return $objMatches[1] === $inicioMarcadorPrefixo;
-    //         });
-
-    //         if (!$objetoValido) {
-    //             // Se o objeto não for permitido, adiciona à lista de marcações sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //             continue;
-    //         }
-
-    //         // Obtém os marcadores válidos desse objeto
-    //         $objetoValido = array_values($objetoValido)[0]; // Pega o primeiro resultado
-    //         $marcadoresPermitidos = array_column($objetoValido['marcadores'], 'sufixo');
-
-    //         // Verifica se o marcador está presente na lista de marcadores permitidos
-    //         $marcadorCompleto = "{$objetoValido['marcador_prefixo']}.{$sufixo}";
-    //         $marcadorCompleto = str_replace('{{contador}}', $contador, $marcadorCompleto);
-
-    //         if (!in_array($sufixo, $marcadoresPermitidos)) {
-    //             // Se o marcador não for permitido, adiciona à lista de marcações sem referência
-    //             $contadorMarcacoes[$marcacao] = ($contadorMarcacoes[$marcacao] ?? 0) + 1;
-    //             $marcacoesSemReferencia[] = [
-    //                 'marcacao' => $marcacao,
-    //                 'indice' => $contadorMarcacoes[$marcacao]
-    //             ];
-    //         }
-    //     }
-
-    //     return $marcacoesSemReferencia;
-    // }
 
     /**
      * Verifica quais objetos (clientes) foram inseridos mas não possuem marcações utilizadas no texto.

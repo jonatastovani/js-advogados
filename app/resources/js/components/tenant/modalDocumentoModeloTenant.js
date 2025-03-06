@@ -41,8 +41,8 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
             idModal: "#modalDocumentoModeloTenant",
         });
 
-        this._objConfigs.url.base = urlApi;
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._objConfigs.url.base = urlApi;
         this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._action = enumAction.POST;
 
@@ -87,8 +87,6 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
 
         self._classQuillEditor.getQuill.setContents([]);
         self._quillQueueManager.setReady();  // Informa que o quill está pronto
-
-        // $(`#dataDocumento${self.getSufixo}`).val(DateTimeHelper.retornaDadosDataHora(new Date(), 1));
 
         const btnRefresh = $(self.getIdModal).find('.btn-refresh');
         btnRefresh.on('click', async () => {
@@ -151,14 +149,30 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         const objetosSistema = self._objConfigs.data.documento_modelo_tenant.objetos;
 
         objetosSistema.map((objeto) => {
+
             switch (objeto.identificador) {
+
                 case 'DataDocumento':
+                    const newObjeto = JSON.parse(JSON.stringify(objeto));
+                    newObjeto.idObj = UUIDHelper.generateUUID();
+                    const valor_objeto = DateTimeHelper.retornaDadosDataHora(new Date(), 1);
                     rowObjetosSistema.append(`
                         <div class="col-6 col-sm-4 col-md-3 col-xl-2 text-end mt-2">
-                            <label for="dataDocumento${self.getSufixo}" class="form-label">Data do documento</label>
-                            <input type="date" class="form-control text-end" name="dataDocumento" id="dataDocumento${self.getSufixo}" value="${DateTimeHelper.retornaDadosDataHora(new Date(), 1)}">
+                            <label for="${newObjeto.idObj}" class="form-label">Data do documento</label>
+                            <input type="date" class="form-control text-end" name="dataDocumento" id="${newObjeto.idObj}" value="${valor_objeto}">
                         </div>
                     `);
+
+                    newObjeto.metadata = { valor_objeto };
+                    newObjeto.objeto_vinculado = objeto;
+
+                    self._objConfigs.data.objetosNaTela.push(newObjeto);
+
+                    $(`#${newObjeto.idObj}`).on('change', async () => {
+
+                        newObjeto.metadata.valor_objeto = $(`#${newObjeto.idObj}`).val();
+                        await self.#verificaInconsistenciasObjetosVinculados();
+                    })
 
                     break;
             }
@@ -241,7 +255,6 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
         let htmlEndereco = '';
         let htmlDocumento = '';
 
-        console.log(objeto)
         // Garante que `selecoes` exista no objeto
         objeto.selecoes ??= {};
         objeto.selecoes.endereco_id = null;
@@ -543,9 +556,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
 
             divRevisao = $(divRevisao);
 
-            const objetosSistema = commonFunctions.getInputsValues($(`#rowObjetosSistema${self.getSufixo}`)[0]);
             const resultado = await self.#executaVerificacaoInconsistenciasObjetosVinculado({
-                objetos_sistema: objetosSistema,
                 objetos_vinculados: self._getObjetosNaTelaVinculados(),
                 documento_modelo_tenant_id: self._dataEnvModal.documento_modelo_tenant.id,
             });
@@ -611,6 +622,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
                 id: obj.id,
                 objeto_vinculado: obj.objeto_vinculado,
                 selecoes: obj.selecoes,
+                metadata: obj.metadata,
             }));
     }
 
@@ -630,23 +642,35 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
 
     #pesquisaIndexObjetosNaTela(item, prop = 'idCol') {
         const self = this;
-        // console.log(self._objConfigs.data.objetosNaTela);
         return self._objConfigs.data.objetosNaTela.findIndex(doc => doc[prop] === item[prop]);
     }
 
     saveButtonAction() {
         const self = this;
-        const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = {
+            nome: $(`#nome${self.getSufixo}`).val(),
+            conteudo: JSON.stringify(self._classQuillEditor.getQuill.getContents()),
+            documento_modelo_tenant_id: self._dataEnvModal.documento_modelo_tenant.id,
+        };
 
-        if (self.#saveVerifications(data, formRegistration)) {
+        if (self.#saveVerifications(data)) {
+
             self._save(data, self._objConfigs.url.base);
         }
     }
 
-    #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+    #saveVerifications(data) {
+        const self = this;
+        let blnSave = commonFunctions.verificationData(data.nome, {
+            field: $(`#nome${self.getSufixo}`),
+            messageInvalid: 'O nome do documento deve ser informado.',
+            setFocus: true
+        });
+
+        if (self._classQuillEditor.getQuill.getText().replace(/\n/g, '').trim().length === 0) {
+            commonFunctions.generateNotification('Nenhum conteúdo foi adicionado ao documento.', 'warning');
+            blnSave = false;
+        }
         return blnSave;
     }
 

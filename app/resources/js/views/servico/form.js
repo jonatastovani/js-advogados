@@ -32,10 +32,11 @@ class PageServicoForm extends TemplateForm {
             url: {
                 base: window.apiRoutes.baseServico,
                 baseAnotacao: undefined,
+                baseCliente: undefined,
+                baseDocumento: undefined,
                 basePagamentos: undefined,
                 baseParticipacao: undefined,
                 baseValores: undefined,
-                baseCliente: undefined,
                 baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
                 baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
                 baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
@@ -81,10 +82,11 @@ class PageServicoForm extends TemplateForm {
             self._idRegister = uuid;
             const url = `${self._objConfigs.url.base}/${self._idRegister}`;
             self._objConfigs.url.baseAnotacao = `${url}/anotacao`;
+            self._objConfigs.url.baseCliente = `${url}/cliente`;
+            self._objConfigs.url.baseDocumento = `${url}/documento`;
             self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
             self._objConfigs.url.baseParticipacao = `${url}/participacao`;
             self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
-            self._objConfigs.url.baseCliente = `${url}/cliente`;
             this._action = enumAction.PUT;
             await self._buscarDados();
         } else {
@@ -155,7 +157,7 @@ class PageServicoForm extends TemplateForm {
                 console.log(response);
                 if (response.refresh && response.register) {
                     try {
-                        const objModal = new modalDocumentoModeloTenant();
+                        const objModal = new modalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
                         objModal._dataEnvModal = {
                             documento_modelo_tenant: response.register,
                             objetos: await self.#getObjetosDocumentoModeloTenantRender(),
@@ -225,16 +227,16 @@ class PageServicoForm extends TemplateForm {
             // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
-        self.#openModal();
+        // self.#openModal();
     }
 
     async #openModal() {
         const self = this;
         try {
-            const objModal = new modalDocumentoModeloTenant();
+            const objModal = new modalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
             objModal._dataEnvModal = {
                 documento_modelo_tenant: {
-                    "id": "9e5b9a18-e20c-450f-a1d9-c00a9b42786e",
+                    "id": "9e58f171-b6ce-4e9d-9e4a-9e71ed0bcf7a",
                     "nome": "PROCURAÇÃO AD JUDICIA ET EXTRA - 2 Clientes"
                 },
                 objetos: await self.#getObjetosDocumentoModeloTenantRender(),
