@@ -43,8 +43,14 @@ class DefaultScriptLayoutBefore {
             let name = '';
             if (!Number.isNaN(config.getSelectedValue) && config.getSelectedValue > 0) {
                 const current = config.getDataCurrentDomain;
-                name = ` - ${current.name}`;
+                name = ` • ${current.name}`;
             }
+            const pageTitle = $(`#page-title`);
+            let yieldTitle = pageTitle.data('yield-title');
+
+            yieldTitle = yieldTitle ? ` - ${yieldTitle}` : ``;
+
+            pageTitle.html(`${pageTitle.data('base-title')}${name}${yieldTitle}`);
             $(`.current-domain-name`).html(name);
         }
     }

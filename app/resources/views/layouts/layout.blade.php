@@ -9,8 +9,10 @@
     <script src="{{ asset('js/site/color-modes.js') }}"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8">
+    <title id="page-title" data-base-title="{{ tenant('sigla') }}" data-yield-title="@yield('title')">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ tenant('sigla') }} • {{ DomainTenantResolver::$currentDomain->name }} - @yield('title')</title>
+        {{ tenant('sigla') }} •
+        {{ DomainTenantResolver::$currentDomain->name }} - @yield('title')</title>
     <link rel="icon" href="{{ asset(config('sistema.logo')) }}">
     @vite(['resources/sass/app.scss', 'resources/css/app.css', 'resources/js/app.js'])
 </head>

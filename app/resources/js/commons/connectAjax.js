@@ -244,7 +244,7 @@ export class connectAjax {
         const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
         if (custom.getStatusBlnCustom) {
-            console.warn(`Valor do domain: ${custom.getSelectedValue}`);
+            // console.warn(`Valor do domain: ${custom.getSelectedValue}`);
             $.ajaxSetup({
                 headers: {
                     [custom.getHeaderAttributeKey]: custom.getSelectedValue,

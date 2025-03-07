@@ -1,7 +1,5 @@
 @php
-    use Stancl\Tenancy\Resolvers\DomainTenantResolver;
     use App\Helpers\TenantTypeDomainCustomHelper;
-
     $domainName = TenantTypeDomainCustomHelper::getDomainNameSelected();
 @endphp
 
@@ -21,7 +19,7 @@
                             {{ tenant('name') }}
                             <span class="current-domain-name">
                                 @if ($domainName != '')
-                                    - {{ $domainName }}
+                                    • {{ $domainName }}
                                 @endif
                             </span>
                     </div>

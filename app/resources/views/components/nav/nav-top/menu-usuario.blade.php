@@ -6,15 +6,15 @@
 
 <ul class="navbar-nav navbar-nav-icons flex-row">
     <li class="nav-item dropdown">
-        <a class="nav-link lh-1 pe-0 show" id="navbarDropdownUser" href="#!" role="button"
+        <a class="nav-link lh-1 pe-0 {{-- show --}}" id="navbarDropdownUser" href="#!" role="button"
             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
             <div class="avatar avatar-l ">
                 <img class="rounded-circle border" src="{{ asset(config('sistema.logo')) }}" alt=""
                     width="40">
             </div>
         </a>
-        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border mt-2 show"
-            aria-labelledby="navbarDropdownUser" data-bs-popper="static">
+        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border mt-2 {{-- show --}}"
+            aria-labelledby="navbarDropdownUser" {{-- data-bs-popper="static" --}}>
             <div class="card position-relative border-0">
                 <div class="card-body p-0">
                     <div class="text-center p-2">
