@@ -1,9 +1,9 @@
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 
-class PageParticipacaoIndex extends templateSearch {
+class PageParticipacaoIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -25,8 +25,7 @@ class PageParticipacaoIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        self._executarBusca();
     }
 
     #addEventosBotoes() {
@@ -34,12 +33,14 @@ class PageParticipacaoIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            BootstrapFunctionsHelper.removeEventPopover();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            await self._executarBusca();
         });
     }
 
+    async _executarBusca() {
+        BootstrapFunctionsHelper.removeEventPopover();
+        super._executarBusca();
+    }
     async insertTableData(item, options = {}) {
         const self = this;
         const {

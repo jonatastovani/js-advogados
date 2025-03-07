@@ -1,5 +1,8 @@
 @php
     use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+    use App\Helpers\TenantTypeDomainCustomHelper;
+
+    $domainName = TenantTypeDomainCustomHelper::getDomainNameSelected();
 @endphp
 
 <nav class="navbar navbar-top fixed-top bg-body-tertiary border-bottom border-opacity-50">
@@ -15,7 +18,12 @@
                         <img src="{{ asset(config('sistema.logo')) }}"
                             alt="Logo {{ Session::get('tenantDados')->name }}" width="27">
                         <h5 class="logo-text ms-2 d-none d-sm-block">
-                            {{ tenant('name') }} - {{ DomainTenantResolver::$currentDomain->name }}
+                            {{ tenant('name') }}
+                            <span class="current-domain-name">
+                                @if ($domainName != '')
+                                    - {{ $domainName }}
+                                @endif
+                            </span>
                     </div>
                 </div>
             </a>

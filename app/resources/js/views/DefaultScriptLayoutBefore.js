@@ -1,5 +1,6 @@
 import instanceManager from "../commons/instanceManager";
-import { TenantTypeConfig } from "../commons/TenantTypeConfig";
+import { TenantTypeDomainCustom } from "../commons/TenantTypeDomainCustom";
+import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 
 class DefaultScriptLayoutBefore {
 
@@ -12,17 +13,39 @@ class DefaultScriptLayoutBefore {
     }
 
     #addEventsSelectedCustomDomain() {
+        const self = this;
 
         if (window.domainCustom) {
-            /** @type {TenantTypeConfig} */
-            const config = instanceManager.setInstance('TenantTypeConfig', new TenantTypeConfig());
-            config.setDomainCustom = window.domainCustom;
+            /** @type {TenantTypeDomainCustom} */
+            const custom = instanceManager.setInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, new TenantTypeDomainCustom());
+            custom.setDomainCustom = window.domainCustom;
 
-            const select = $(`#${config.getNameAttributeKey}`);
+            const select = $(`#${custom.getNameAttributeKey}`);
             select.on('change', function () {
                 const selectedValue = select.val();
-                config.setSelectedValue = selectedValue;
+                custom.setSelectedValue = selectedValue;
+                self.#updateDisplayCustomDomain();
+                custom.setEnqueueReady();
             });
+
+            const selected = custom.getSelectedValue;
+            if (!Number.isNaN(selected) && Number.isInteger(selected)) {
+                select.val(selected);
+            }
+
+            self.#updateDisplayCustomDomain();
+        }
+    }
+
+    #updateDisplayCustomDomain() {
+        const config = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (config) {
+            let name = '';
+            if (!Number.isNaN(config.getSelectedValue) && config.getSelectedValue > 0) {
+                const current = config.getDataCurrentDomain;
+                name = ` - ${current.name}`;
+            }
+            $(`.current-domain-name`).html(name);
         }
     }
 }

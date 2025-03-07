@@ -2,11 +2,14 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Auth\DomainAdminSeeder;
+use Database\Seeders\Auth\DomainEscritorioSeeder;
 use Database\Seeders\Auth\PermissionConfigSeeder;
 use Database\Seeders\Auth\PermissionGroupSeeder;
 use Database\Seeders\Auth\PermissionModuleSeeder;
 use Database\Seeders\Auth\PermissionSeeder;
-use Database\Seeders\Auth\TenantDomainSeeder;
+use Database\Seeders\Auth\TenantAdminSeeder;
+use Database\Seeders\Auth\TenantEscritorioSeeder;
 use Database\Seeders\Auth\TenantTypeSeeder;
 use Database\Seeders\Auth\UserEscritorioSeeder;
 use Database\Seeders\Auth\UserSeeder;
@@ -59,7 +62,17 @@ class DatabaseSeeder extends Seeder
         if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
-                TenantDomainSeeder::class,
+                TenantAdminSeeder::class,
+                DomainAdminSeeder::class,
+            ]);
+
+            // Criação do Tenant e Domínio do Escritório
+            $this->call([
+                TenantEscritorioSeeder::class,
+                DomainEscritorioSeeder::class,
+            ]);
+
+            $this->call([
                 UserSeeder::class,
                 UserTenantDomainSeeder::class,
 
@@ -114,7 +127,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                TenantTypeSeeder::class,
+                TenantEscritorioSeeder::class,
+                DomainEscritorioSeeder::class,
                 // DocumentoModeloTipoSeeder::class,
                 // ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);

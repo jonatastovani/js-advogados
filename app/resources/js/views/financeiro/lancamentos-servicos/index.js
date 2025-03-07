@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
 import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
@@ -12,7 +12,7 @@ import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageLancamentoServicoIndex extends templateSearch {
+class PageLancamentoServicoIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -183,7 +183,7 @@ class PageLancamentoServicoIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self.#executarBusca();
+        self._executarBusca();
         self.#buscarFormaPagamento();
         self.#buscarLancamentoStatusTipo();
         self.#buscarAreasJuridicas();
@@ -195,7 +195,7 @@ class PageLancamentoServicoIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         $(`#openModalFormaPagamento${self.getSufixo}`).on('click', async function () {
@@ -257,7 +257,7 @@ class PageLancamentoServicoIndex extends templateSearch {
 
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {

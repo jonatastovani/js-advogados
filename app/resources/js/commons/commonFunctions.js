@@ -386,10 +386,22 @@ export class commonFunctions {
         return returnElement;
     }
 
+    /**
+     * Armazena um valor no LocalStorage.
+     *
+     * @param {string} name - A chave (nome) sob a qual o valor será armazenado.
+     * @param {string} value - O valor a ser armazenado no LocalStorage.
+     */
     static setItemLocalStorage(name, value) {
         localStorage.setItem(name, value);
     }
 
+    /**
+     * Recupera um valor do LocalStorage.
+     *
+     * @param {string} name - A chave (nome) do item a ser recuperado do LocalStorage.
+     * @returns {string|null} - O valor armazenado ou `null` caso a chave não exista.
+     */
     static getItemLocalStorage(name) {
         return localStorage.getItem(name);
     }

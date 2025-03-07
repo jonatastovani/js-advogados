@@ -1,7 +1,7 @@
-import { templateSearch } from "../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../commons/templates/TemplateSearch";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 
-class PageServico extends templateSearch {
+class PageServico extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -23,8 +23,7 @@ class PageServico extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        self._executarBusca();
     }
 
     #addEventosBotoes() {
@@ -32,8 +31,7 @@ class PageServico extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            await self._executarBusca();
         });
     }
 

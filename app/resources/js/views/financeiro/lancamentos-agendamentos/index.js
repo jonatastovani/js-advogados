@@ -1,5 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
@@ -7,7 +7,7 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageLancamentoAgendamentoIndex extends templateSearch {
+class PageLancamentoAgendamentoIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -36,7 +36,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self.#executarBusca();
+        self._executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
         self.#buscarLancamentoCategoriaTipoTenant();
@@ -48,7 +48,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
@@ -67,7 +67,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -88,7 +88,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -98,7 +98,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
         });
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {
@@ -212,7 +212,7 @@ class PageLancamentoAgendamentoIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

@@ -56,7 +56,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
 
         this._quillQueueManager = new QueueManager();  // Cria a fila
         this._verificacoesInconsistenciasQueueManager = new QueueManager();  // Cria a fila
-        this._verificacoesInconsistenciasQueueManager.setDeduplicationMode('last');
+        this._verificacoesInconsistenciasQueueManager.setDeduplicationMode = 'last';
 
         this.#addEventosBotoes();
     }

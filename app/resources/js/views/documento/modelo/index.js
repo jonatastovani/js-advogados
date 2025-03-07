@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 
-class PageDocumentoModeloTenantIndex extends templateSearch {
+class PageDocumentoModeloTenantIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -24,8 +24,7 @@ class PageDocumentoModeloTenantIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        self._generateQueryFilters()
+        self._executarBusca();
     }
 
     #addEventosBotoes() {
@@ -35,8 +34,7 @@ class PageDocumentoModeloTenantIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-            self._generateQueryFilters()
+            await self._executarBusca();
         });
     }
 

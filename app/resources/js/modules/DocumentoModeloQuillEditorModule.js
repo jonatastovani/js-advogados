@@ -348,7 +348,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
                          <p class="m-0">Um objeto que foi adicionado e não está sendo referenciado: <span class="fw-bolder">${item.nome}</span></p>
                          <hr class="my-1">
                          <button type="button" id="btnRemoverReferencia${item.uuid}" class="btn btn-outline-primary border-0 btn-sm">
-                             Remover referencia
+                             Remover referência
                          </button>
                      </div>
                 `);

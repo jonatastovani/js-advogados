@@ -1,5 +1,8 @@
 @php
     use Stancl\Tenancy\Resolvers\DomainTenantResolver;
+    use App\Helpers\TenantTypeDomainCustomHelper;
+
+    $domainName = TenantTypeDomainCustomHelper::getDomainNameSelected();
 @endphp
 
 <nav class="navbar navbar-vertical navbar-expand-lg border-end">
@@ -9,8 +12,12 @@
                 aria-labelledby="navbarNavDropdownLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="navbarNavDropdownLabel">{{ tenant('name') }}
-                        - {{ DomainTenantResolver::$currentDomain->name }}
-                    </h5>
+                        <span class="current-domain-name">
+                            @if ($domainName != '')
+                                - {{ $domainName }}
+                            @endif
+                        </span>
+                </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">

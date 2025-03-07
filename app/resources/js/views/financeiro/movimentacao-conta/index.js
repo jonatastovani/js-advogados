@@ -1,5 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalSelecionarDocumento } from "../../../components/documento/modalSelecionarDocumento";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
@@ -9,7 +9,7 @@ import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageMovimentacaoContaIndex extends templateSearch {
+class PageMovimentacaoContaIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -44,7 +44,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         await self.#buscarContas(self._objConfigs.data?.preload?.conta_id || null);
         await self.#buscarMovimentacoesTipo();
         await self.#buscarMovimentacoesStatusTipo();
-        await self.#executarBusca();
+        await self._executarBusca();
     }
 
     #preLoadUrlParams() {
@@ -61,7 +61,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         $(`#openModalConta${self.getSufixo}`).on('click', async function () {
@@ -125,7 +125,7 @@ class PageMovimentacaoContaIndex extends templateSearch {
         });
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {

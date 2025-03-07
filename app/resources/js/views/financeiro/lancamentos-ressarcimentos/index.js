@@ -1,5 +1,5 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
 import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
@@ -7,7 +7,7 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageLancamentoRessarcimentoIndex extends templateSearch {
+class PageLancamentoRessarcimentoIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -35,7 +35,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self.#executarBusca();
+        self._executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
         self.#buscarLancamentoStatusTipo();
@@ -48,7 +48,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         $(`#openModalConta${self.getSufixo}`).on('click', async function () {
@@ -144,7 +144,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
                 });
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -154,7 +154,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
         });
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {
@@ -249,7 +249,7 @@ class PageLancamentoRessarcimentoIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

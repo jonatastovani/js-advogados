@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalMessage } from "../../../components/comum/modalMessage";
 import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
 import { modalLancamentoGeralMovimentar } from "../../../components/financeiro/modalLancamentoGeralMovimentar";
@@ -12,7 +12,7 @@ import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHel
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageLancamentoGeralIndex extends templateSearch {
+class PageLancamentoGeralIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -150,7 +150,7 @@ class PageLancamentoGeralIndex extends templateSearch {
     initEvents() {
         const self = this;
         self.#addEventosBotoes();
-        self.#executarBusca();
+        self._executarBusca();
         self.#buscarContas();
         self.#buscarMovimentacoesTipo();
         self.#buscarLancamentoStatusTipo();
@@ -163,7 +163,7 @@ class PageLancamentoGeralIndex extends templateSearch {
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
             BootstrapFunctionsHelper.removeEventPopover();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
@@ -204,7 +204,7 @@ class PageLancamentoGeralIndex extends templateSearch {
                 });
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -214,7 +214,7 @@ class PageLancamentoGeralIndex extends templateSearch {
         });
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {
@@ -317,7 +317,7 @@ class PageLancamentoGeralIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);
@@ -353,7 +353,7 @@ class PageLancamentoGeralIndex extends templateSearch {
                     });
                     const response = await objConn.envRequest();
                     if (response.data) {
-                        await self.#executarBusca();
+                        await self._executarBusca();
                     }
                 }
             } catch (error) {
@@ -410,7 +410,7 @@ class PageLancamentoGeralIndex extends templateSearch {
                     }
                     const response = await objModal.modalOpen();
                     if (response.refresh) {
-                        await self.#executarBusca();
+                        await self._executarBusca();
                     }
                 } catch (error) {
                     commonFunctions.generateNotificationErrorCatch(error);
@@ -444,7 +444,7 @@ class PageLancamentoGeralIndex extends templateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#executarBusca();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 commonFunctions.generateNotificationErrorCatch(error);

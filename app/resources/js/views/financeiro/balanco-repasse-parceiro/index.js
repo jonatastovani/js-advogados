@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
-import { templateSearch } from "../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalSelecionarConta } from "../../../components/financeiro/modalSelecionarConta";
 import { modalPessoa } from "../../../components/pessoas/modalPessoa";
 import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
@@ -10,7 +10,7 @@ import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageBalancoRepasseParceiroIndex extends templateSearch {
+class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -57,7 +57,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self.#executarBusca();
+            self._executarBusca();
         });
 
         const preencherInfoParceiro = (perfil) => {
@@ -183,7 +183,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
                         const response = await objConn.envRequest();
                         if (response.data) {
                             commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
-                            await self.#executarBusca();
+                            await self._executarBusca();
                         }
                     }
                 } catch (error) {
@@ -243,7 +243,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
         self.#statusCampos(false);
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         // self._objConfigs.data.totais = {
@@ -294,7 +294,7 @@ class PageBalancoRepasseParceiroIndex extends templateSearch {
 
         if (status) {
             camposConsulta.removeAttr('disabled');
-            self.#executarBusca();
+            self._executarBusca();
         } else {
             camposConsulta.attr('disabled', 'disabled');
         }

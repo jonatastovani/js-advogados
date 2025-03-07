@@ -1,17 +1,19 @@
 import { modalMessage } from "../../components/comum/modalMessage";
+import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
+import { TenantTypeDomainCustom } from "../TenantTypeDomainCustom";
 
-export class templateSearch {
+export class TemplateSearch {
 
     /**
      * Sufixo da template
      */
     _sufixo;
-    
+
     /**
      * Objeto para reservar configurações do template
      */
@@ -24,6 +26,7 @@ export class templateSearch {
         this._sufixo = objSuper.sufixo;
         this._objConfigs = Object.assign(this._objConfigs, objSuper.objConfigs ?? {});
         this.#addEventsDefault();
+        this.#verificarTenantTypeDomainCustom();
     }
 
     #addEventsDefault() {
@@ -45,7 +48,34 @@ export class templateSearch {
 
     //#endregion
 
+    //#region Campos para verificação de TenantTypeDomainCustom
+
+    #verificarTenantTypeDomainCustom() {
+        if (TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom) {
+            this.#addQueueExecutaBusca();
+        }
+    }
+
+    #addQueueExecutaBusca() {
+        const self = this;
+
+        /** @type {TenantTypeDomainCustom} */
+        const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+        if (custom.getStatusBlnCustom) {
+            custom.setEnqueueAction(self._executarBusca.bind(self));
+        }
+    }
+
+    //#endregion
+
     //#region Campos de busca padrão
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
+    }
 
     /**
     * Gera os filtros de consulta para envio a uma API ou outra fonte de dados.

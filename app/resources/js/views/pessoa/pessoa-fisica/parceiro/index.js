@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../../../commons/commonFunctions";
-import { templateSearch } from "../../../../commons/templates/templateSearch";
+import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
 
-class PageParceiroPFIndex extends templateSearch {
+class PageParceiroPFIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -37,7 +37,7 @@ class PageParceiroPFIndex extends templateSearch {
         const self = this;
 
         self.#addEventosBotoes();
-        await self.#executarBusca();
+        await self._executarBusca();
     }
 
     #addEventosBotoes() {
@@ -45,11 +45,11 @@ class PageParceiroPFIndex extends templateSearch {
 
         $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            self.#executarBusca();
+            self._executarBusca();
         });
     }
 
-    async #executarBusca() {
+    async _executarBusca() {
         const self = this;
 
         const getAppendDataQuery = () => {

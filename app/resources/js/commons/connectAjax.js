@@ -1,7 +1,7 @@
-import { TenantTypeConfig } from "./TenantTypeConfig";
+import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
+import { TenantTypeDomainCustom } from "./TenantTypeDomainCustom";
 import { commonFunctions } from "./commonFunctions";
 import { enumAction } from "./enumAction";
-import instanceManager from "./instanceManager";
 
 export class connectAjax {
 
@@ -69,7 +69,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantType();
+            this.#verificarTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,
@@ -95,8 +95,8 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantType();
-            
+            this.#verificarTenantTypeDomainCustom();
+
             const response = await $.ajax({
                 url: this.#urlApi + param,
                 method: this.#action,
@@ -121,7 +121,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantType();
+            this.#verificarTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,
@@ -233,21 +233,21 @@ export class connectAjax {
         }
     }
 
-    #verificarTenantType() {
-        if (instanceManager.instanceVerification('TenantTypeConfig')) {
-            this.#addHeaderCustomDomain();
+    #verificarTenantTypeDomainCustom() {
+        if (TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom) {
+            this.#addHeaderDomainCustom();
         }
     }
 
-    #addHeaderCustomDomain() {
-        /** @type {TenantTypeConfig} */
-        const config = instanceManager.setInstance('TenantTypeConfig', new TenantTypeConfig());
+    #addHeaderDomainCustom() {
+        /** @type {TenantTypeDomainCustom} */
+        const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
-        if (config.getStatusBlnCustom) {
-            console.warn(`Valor do domain: ${config.getSelectedValue}`);
+        if (custom.getStatusBlnCustom) {
+            console.warn(`Valor do domain: ${custom.getSelectedValue}`);
             $.ajaxSetup({
                 headers: {
-                    [config.getHeaderAttributeKey]: config.getSelectedValue,
+                    [custom.getHeaderAttributeKey]: custom.getSelectedValue,
                 },
             });
         }
@@ -264,7 +264,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantType();
+            this.#verificarTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,

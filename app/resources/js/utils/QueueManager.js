@@ -2,8 +2,9 @@ export class QueueManager {
     constructor() {
         this.queue = [];
         this.isReady = false;
-        this.isProcessing = false; // Para evitar múltiplas execuções simultâneas
+        this.isProcessing = false; // Evita múltiplas execuções simultâneas
         this.deduplicationMode = null; // 'first' | 'last' | null (executa todas)
+        this.preserveQueueAfterExecution = false; // Define se os itens serão removidos após a execução
     }
 
     /**
@@ -15,7 +16,7 @@ export class QueueManager {
     }
 
     /**
-     * Coloca a fila em um estado de "não pronto", enfileirando as execuções novamente.
+     * Coloca a fila em um estado de "não pronto", impedindo execuções imediatas.
      */
     setNoReady() {
         this.isReady = false;
@@ -25,8 +26,16 @@ export class QueueManager {
      * Define o modo de deduplicação de funções idênticas na fila.
      * @param {'first' | 'last' | null} mode - 'first' mantém a primeira ocorrência, 'last' mantém a última, null executa todas.
      */
-    setDeduplicationMode(mode) {
+    set setDeduplicationMode(mode) {
         this.deduplicationMode = mode;
+    }
+
+    /**
+     * Define se os itens da fila devem ser preservados após a execução.
+     * @param {boolean} preserve - `true` para manter os itens na fila após execução.
+     */
+    set setPreserveQueue(preserve) {
+        this.preserveQueueAfterExecution = preserve;
     }
 
     /**
@@ -72,6 +81,8 @@ export class QueueManager {
 
         this.isProcessing = true;
 
+        const queueSnapshot = [...this.queue]; // Mantém uma cópia da fila se for preservada
+
         while (this.queue.length > 0) {
             const action = this.queue.shift(); // Remove e pega a primeira ação da fila
 
@@ -86,6 +97,11 @@ export class QueueManager {
                     console.error("Erro ao processar ação na fila:", error);
                 }
             }
+        }
+
+        // Se `preserveQueueAfterExecution` for verdadeiro, restaura os itens para a fila
+        if (this.preserveQueueAfterExecution) {
+            this.queue = queueSnapshot;
         }
 
         this.isProcessing = false;

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class CommonsFunctions
@@ -79,7 +80,7 @@ class CommonsFunctions
         // Capturar informações da requisição
         $url = request()->fullUrl();
         $metodoHttp = request()->method();
-        $userId = auth()->check() ? auth()->id() : 'Guest'; // Garantir que o usuário esteja autenticado
+        $userId = Auth::check() ? Auth::id() : 'Guest'; // Garantir que o usuário esteja autenticado
         $userIp = UserInfo::get_ip();
 
         // Montar a mensagem de log com estrutura clara
@@ -235,7 +236,7 @@ class CommonsFunctions
     {
 
         $user = null;
-        $userId = auth()->user()->id;
+        $userId = Auth::id();
         $user = UserTenantDomain::where('user_id', $userId)->where('tenant_id', tenant('id'))->first();
 
         if (!$user) {
@@ -265,7 +266,6 @@ class CommonsFunctions
         $resource->deleted_at = null;
         $resource->deleted_ip = null;
         $resource->deleted_user_id = null;
-
     }
 
     static function inserirInfoUpdated($resource)
