@@ -1,5 +1,7 @@
+import { TenantTypeConfig } from "./TenantTypeConfig";
 import { commonFunctions } from "./commonFunctions";
 import { enumAction } from "./enumAction";
+import instanceManager from "./instanceManager";
 
 export class connectAjax {
 
@@ -67,6 +69,8 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
+            this.#verificarTenantType();
+
             const response = await $.ajax({
                 url: this.#urlApi + param,
                 method: method,
@@ -91,6 +95,8 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
+            this.#verificarTenantType();
+            
             const response = await $.ajax({
                 url: this.#urlApi + param,
                 method: this.#action,
@@ -115,6 +121,8 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
+            this.#verificarTenantType();
+
             const response = await $.ajax({
                 url: this.#urlApi + param,
                 type: this.#action,
@@ -186,7 +194,7 @@ export class connectAjax {
     #debugError(xhr) {
         if (this.#debugMode) {
             console.error(xhr);
-            if(xhr.responseJSON) {
+            if (xhr.responseJSON) {
                 console.error(xhr.responseJSON);
             }
         }
@@ -225,18 +233,39 @@ export class connectAjax {
         }
     }
 
+    #verificarTenantType() {
+        if (instanceManager.instanceVerification('TenantTypeConfig')) {
+            this.#addHeaderCustomDomain();
+        }
+    }
+
+    #addHeaderCustomDomain() {
+        /** @type {TenantTypeConfig} */
+        const config = instanceManager.setInstance('TenantTypeConfig', new TenantTypeConfig());
+
+        if (config.getStatusBlnCustom) {
+            console.warn(`Valor do domain: ${config.getSelectedValue}`);
+            $.ajaxSetup({
+                headers: {
+                    [config.getHeaderAttributeKey]: config.getSelectedValue,
+                },
+            });
+        }
+    }
+
     async downloadPdf(fileName = 'document.pdf', openInNewWindow = false) {
         const param = this.#param ? `/${this.#param}` : '';
         const method = this.#action || "GET";
         const data = this.#data ? JSON.stringify(this.#data) : null;
-    
+
         this.#debug(`URL = ${this.#urlApi + param}`, `Param = ${param}`, `Method = ${method}`, `Data = ${data}`);
-    
+
         try {
             if (this.#addCsrfTokenBln) {
                 this.#addAuthorizationToken();
             }
-    
+            this.#verificarTenantType();
+
             const response = await $.ajax({
                 url: this.#urlApi + param,
                 method: method,
@@ -246,10 +275,10 @@ export class connectAjax {
                     responseType: 'blob', // Manipula a resposta como blob para PDF
                 },
             });
-    
+
             const blob = new Blob([response], { type: 'application/pdf' });
             const blobUrl = window.URL.createObjectURL(blob);
-    
+
             if (openInNewWindow) {
                 // Abre o PDF em uma nova janela ou aba
                 window.open(blobUrl, '_blank');
@@ -260,7 +289,7 @@ export class connectAjax {
                 link.download = fileName;
                 link.click();
             }
-    
+
             // Revoga a URL do Blob para liberar memória
             window.URL.revokeObjectURL(blobUrl);
         } catch (xhr) {
@@ -268,5 +297,5 @@ export class connectAjax {
             throw this.#handleError(xhr);
         }
     }
-    
+
 }

@@ -18,7 +18,7 @@
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
                     'titulo' => ['nome' => 'Título'],
-                    'descricao' => ['nome' => 'Descrição'],
+                    // 'descricao' => ['nome' => 'Descrição'],
                     'numero_servico' => ['nome' => 'Número de Serviço'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
                     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
@@ -52,7 +52,6 @@
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Titulo</th>
                     <th>Área</th>
-                    <th>Descrição</th>
                     <th>Cadastro</th>
                 </tr>
             </thead>

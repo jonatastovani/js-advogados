@@ -31,7 +31,7 @@ class TenantDomainSeeder extends Seeder
 
         $tenant = Tenant::create([
             'id' => 'jsadvogados',
-            'tenant_type_id' => 3,
+            'tenant_type_id' => 4,
             'name' => 'JS-Advogados',
             'created_user_id' => $idAdmin,
             'sigla' => 'JS-Adv'

@@ -114,7 +114,8 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                DocumentoModeloTipoSeeder::class,
+                TenantTypeSeeder::class,
+                // DocumentoModeloTipoSeeder::class,
                 // ParticipacaoTipoTenantObrigatorioSeeder::class,
             ]);
         }

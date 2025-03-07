@@ -17,10 +17,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected $table = 'auth.tenants';
     protected $tableAsName = 'ten';
 
-    // protected $casts = [
-    //     'data' => 'array',
-    // ];
-
     protected $fillable = [
         'id',
         'tenant_type_id',
@@ -31,19 +27,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     public static function getCustomColumns(): array
     {
-        return [
-            'id',
+        return array_merge(self::getCustomColumnsDefault(), [
             'name',
             'tenant_type_id',
-            'created_user_id',
-            'created_ip',
-            'created_at',
-            'updated_user_id',
-            'updated_ip',
-            'updated_at',
-            'deleted_user_id',
-            'deleted_ip',
-            'deleted_at',
-        ];
+        ]);
     }
 }

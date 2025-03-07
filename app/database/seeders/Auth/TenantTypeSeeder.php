@@ -2,45 +2,33 @@
 
 namespace Database\Seeders\Auth;
 
-use App\Models\Auth\TenantType;
+use App\Enums\TenantTypeEnum;
+use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class TenantTypeSeeder extends Seeder
 {
+    use CommonsSeederMethodsTrait;
+
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new \App\Models\Auth\TenantType();
+    }
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $insert = [
-            [
-                'id' => 1,
-                'nome' => 'Administrador',
-                'descricao' => 'Tenant Central de Administração do Sistema.',
-            ],
-            [
-                'id' => 2,
-                'nome' => 'Api',
-                'descricao' => 'Tenant somente para APIs.',
-            ],
-            [
-                'id' => 3,
-                'nome' => 'Advocacia',
-                'descricao' => 'Módulo Advocacia.',
-            ],
-        ];
-
-        foreach ($insert as $data) {
-            TenantType::create($data);
+        $dataList = [];
+        foreach (TenantTypeEnum::cases() as $enumValue) {
+            $dataList[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 
-        $maxId = TenantType::max('id');  // Obtém o maior ID atual na tabela
-
-        if ($maxId) {
-            // Substitua "tenant_types_id_seq" pelo nome correto da sequência para sua tabela e coluna
-            $sequenceName = (new TenantType)->getTableName() . '_id_seq';  // Nome da sequência associada à coluna ID da tabela
-            DB::statement('SELECT setval(\'' . $sequenceName . '\', ' . ($maxId + 1) . ', false)');
-        }
+        // Chama o método genérico para inserção/atualização
+        $this->setAtualizaIdIncrementalBln(true)->upsertData($dataList);
     }
 }

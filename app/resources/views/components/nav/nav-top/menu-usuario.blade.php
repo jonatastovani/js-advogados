@@ -1,18 +1,20 @@
 @php
+    use App\Enums\TenantTypeEnum;
+
     $user = Auth::user();
 @endphp
 
 <ul class="navbar-nav navbar-nav-icons flex-row">
     <li class="nav-item dropdown">
-        <a class="nav-link lh-1 pe-0 {{-- show --}}" id="navbarDropdownUser" href="#!" role="button"
+        <a class="nav-link lh-1 pe-0 show" id="navbarDropdownUser" href="#!" role="button"
             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
             <div class="avatar avatar-l ">
                 <img class="rounded-circle border" src="{{ asset(config('sistema.logo')) }}" alt=""
                     width="40">
             </div>
         </a>
-        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border mt-2 {{-- show --}}"
-            aria-labelledby="navbarDropdownUser" {{-- data-bs-popper="static" --}}>
+        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border mt-2 show"
+            aria-labelledby="navbarDropdownUser" data-bs-popper="static">
             <div class="card position-relative border-0">
                 <div class="card-body p-0">
                     <div class="text-center p-2">
@@ -26,11 +28,19 @@
                 <div class="overflow-auto scrollbar">
                     <ul class="nav flex-column mb-2 pb-1">
 
+                        {{-- Svgs usados no menu --}}
                         @component('components.nav.nav-top.menu-usuario.svgs')
                         @endcomponent
 
+                        {{-- Temas de visualização para o usuário --}}
                         @component('components.nav.nav-top.menu-usuario.alterar-tema')
                         @endcomponent
+
+                        @if (tenant('tenant_type_id') == TenantTypeEnum::ADVOCACIA_MANUAL->value)
+                            {{-- Selecionar o domínio manualmente pelo usuário (Tenant do Tipo 4 - Identificação de domínio manual) --}}
+                            @component('components.nav.nav-top.menu-usuario.alterar-domain')
+                            @endcomponent
+                        @endif
 
                         {{-- <li class="nav-item">
                             <a class="nav-link px-3 d-block" href="#!"> <svg xmlns="http://www.w3.org/2000/svg"

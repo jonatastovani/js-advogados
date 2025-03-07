@@ -6,6 +6,7 @@ use App\Http\Controllers\View\Admin\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\AddIdentifierRequestMiddleware;
 use App\Http\Middleware\ClearModalSessionMiddleware;
+use App\Http\Middleware\HandleTenantDomainForTenantType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 Route::middleware([
     'web',
+    HandleTenantDomainForTenantType::class,
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     AddIdentifierRequestMiddleware::class,

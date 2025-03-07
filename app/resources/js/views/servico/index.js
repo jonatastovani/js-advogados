@@ -53,10 +53,9 @@ class PageServico extends templateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
+                <td class="text-nowrap text-center" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.titulo ?? ''}">${item.titulo}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.area_juridica.nome ?? ''}">${item.area_juridica.nome ?? ''}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

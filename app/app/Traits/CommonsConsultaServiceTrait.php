@@ -4,11 +4,13 @@ namespace App\Traits;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\TenantTypeEnum;
 use App\Helpers\LogHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 use InvalidArgumentException;
 use Stancl\Tenancy\Resolvers\DomainTenantResolver;
@@ -16,18 +18,6 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 trait CommonsConsultaServiceTrait
 {
-
-    // public function postConsultaFiltros(Fluent $requestData, array $options = [])
-    // {
-    //     $query = $this->consultaSimplesComFiltros($requestData);
-
-    //     // Verifica se o método 'loadFull' existe antes de chamar
-    //     if (method_exists($this, 'loadFull')) {
-    //         $query->with($this->loadFull());
-    //     }
-
-    //     return $query->paginate($requestData->perPage ?? 25)->toArray();
-    // }
 
     /**
      * Realiza a consulta com base nos filtros fornecidos e retorna os resultados paginados.
@@ -55,7 +45,10 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($modelClass))) {
             $query->withoutTenancy();
-            $query->where($modelClass->getTableAsName() . '.' . BelongsToTenant::$tenantIdColumn, tenant('id'));
+            $query->where(
+                $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToTenant::$tenantIdColumn),
+                tenant('id')
+            );
         }
     }
 
@@ -64,7 +57,34 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($modelClass))) {
             $query->withoutDomain();
-            $query->where($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn, DomainTenantResolver::$currentDomain->id);
+
+            switch (tenant('tenant_type_id')) {
+
+                // Se for a identificação manual do domínio, então filtra pelo domínio selecionado
+                case TenantTypeEnum::ADVOCACIA_MANUAL->value:
+
+                    // Obtém o domínio da request (se existir)
+                    $selectedDomainId = request(config('tenancy_custom.tenant_type.name_attribute_key'));
+
+                    // Se for selecionado todos os domínios, então o valor é 0 (zero) e não precisa ser filtrado
+                    if ($selectedDomainId) {
+                        // Filtra pelo domínio selecionado via request
+
+                        $query->where(
+                            $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn),
+                            $selectedDomainId
+                        );
+                    }
+                    break;
+
+                default:
+
+                    $query->where(
+                        $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn),
+                        DomainTenantResolver::$currentDomain->id
+                    );
+                    break;
+            }
         }
     }
 

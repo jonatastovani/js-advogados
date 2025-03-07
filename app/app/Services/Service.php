@@ -15,7 +15,6 @@ use Illuminate\Support\Fluent;
 
 abstract class Service
 {
-
     use ServiceLogTrait, CommonServiceMethodsTrait, CommonsConsultaServiceTrait;
 
     /**

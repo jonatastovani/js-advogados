@@ -38,9 +38,11 @@
     <x-modal.comum.modal-loading.modal />
     <x-modal.comum.modal-message.modal />
 
+    @vite('resources/js/views/DefaultScriptLayoutBefore.js')
+
     @stack('scripts')
 
-    @vite('resources/js/views/DefaultScriptLayout.js')
+    @vite('resources/js/views/DefaultScriptLayoutAfter.js')
 </body>
 
 </html>

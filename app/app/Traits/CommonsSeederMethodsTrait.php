@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 trait CommonsSeederMethodsTrait
 {
@@ -45,8 +46,10 @@ trait CommonsSeederMethodsTrait
                     $data = $beforeUpdateCallback($data, $resource);
                 }
 
-                // Adiciona campos de atualização
-                $data['updated_user_id'] = $adminTenantUserId;
+                if ($this->verificaUsoDoLogsActivity()) {
+                    // Adiciona campos de atualização
+                    $data['updated_user_id'] = $adminTenantUserId;
+                }
 
                 // Atualiza o registro
                 $resource->update($data);
@@ -56,16 +59,18 @@ trait CommonsSeederMethodsTrait
                     $data = $beforeCreateCallback($data);
                 }
 
-                // Adiciona campos de criação
-                $data['created_user_id'] = $adminTenantUserId;
+                if ($this->verificaUsoDoLogsActivity()) {
+                    // Adiciona campos de criação
+                    $data['created_user_id'] = $adminTenantUserId;
+                }
 
                 // Verifica se a trait BelongsToTenant esta sendo utilizada no modelo
-                if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($this->model)) && !isset($data['tenant_id']) && $this->tenantId) {
+                if ($this->verificaUsoDoBelongsToTenant() && !isset($data['tenant_id']) && $this->tenantId) {
                     $data['tenant_id'] = $this->tenantId;
                 }
 
                 // Verifica se a trait BelongsToDomain esta sendo utilizada no modelo
-                if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model)) && !isset($data['domain_id'])) {
+                if ($this->verificaUsoDoBelongsToDomain() && !isset($data['domain_id'])) {
                     $data['domain_id'] = $this->domainId;
                 }
 
@@ -75,9 +80,36 @@ trait CommonsSeederMethodsTrait
         }
 
         if ($this->atualizarIdIncremental) {
-            // Atualiza o ID incremental se necessário
+            // Atualiza o ID incremental se requisitado
             $this->atualizaIdIncrementalNumerico();
         }
+    }
+
+    private function verificaUsoDoLogsActivity(): bool
+    {
+        // Verifica se a trait LogsActivity esta sendo utilizada no modelo
+        if (in_array(\Spatie\Activitylog\Traits\LogsActivity::class, class_uses_recursive($this->model))) {
+            return true;
+        }
+        return false;
+    }
+
+    private function verificaUsoDoBelongsToTenant(): bool
+    {
+        // Verifica se a trait BelongsToTenant esta sendo utilizada no modelo
+        if (in_array(\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class, class_uses_recursive($this->model))) {
+            return true;
+        }
+        return false;
+    }
+
+    private function verificaUsoDoBelongsToDomain(): bool
+    {
+        // Verifica se a trait BelongsToDomain esta sendo utilizada no modelo
+        if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($this->model))) {
+            return true;
+        }
+        return false;
     }
 
     public function setTenantId($tenantId)
@@ -100,7 +132,7 @@ trait CommonsSeederMethodsTrait
 
     public function setAtualizaIdIncrementalBln($atualizarIdIncremental)
     {
-        $this->tenantId = $atualizarIdIncremental;
+        $this->atualizarIdIncremental = $atualizarIdIncremental;
         return $this;
     }
 }
