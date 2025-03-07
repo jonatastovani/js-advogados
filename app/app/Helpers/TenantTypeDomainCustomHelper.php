@@ -42,4 +42,9 @@ class TenantTypeDomainCustomHelper
         }
         return '';
     }
+
+    public static function getDomainCustomBln(): bool
+    {
+        return tenant('tenant_type_id') == TenantTypeEnum::ADVOCACIA_MANUAL->value;
+    }
 }

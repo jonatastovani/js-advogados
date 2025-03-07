@@ -2,35 +2,89 @@
 
 namespace App\Traits;
 
+use App\Helpers\TenantTypeDomainCustomHelper;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Arr;
 
 trait CommonsModelsMethodsTrait
 {
+    /**
+     * Campos padrão que devem ser ocultados em todas as models.
+     *
+     * @var array
+     */
+    protected $hiddenPadrao = [
+        'tenant_id',
+        'domain_id',
+        'data',
+        'created_user_id',
+        'created_ip',
+        'created_at',
+        'updated_user_id',
+        'updated_ip',
+        'updated_at',
+        'deleted_user_id',
+        'deleted_ip',
+        'deleted_at',
+    ];
+    
+    /**
+     * Inicializa a configuração de ocultação na model.
+     */
     public function initializeCommonsModelsMethodsTrait()
     {
-        // Se o modelo já definiu o $hidden, não mexemos
+        // Se a model já definiu $hidden manualmente, não alteramos
         if (property_exists($this, 'hidden') && !empty($this->hidden)) {
             return;
         }
 
-        // Define as colunas padrão a serem ocultadas
-        $this->hidden = [
-            'tenant_id',
-            'domain_id',
-            'data',
-            'created_user_id',
-            'created_ip',
-            'created_at',
-            'updated_user_id',
-            'updated_ip',
-            'updated_at',
-            'deleted_user_id',
-            'deleted_ip',
-            'deleted_at',
-        ];
+        // Define os campos ocultos com base nas exceções e adições personalizadas
+        $this->hidden = $this->retornaListagemHiddenPadrao([
+            'except' => $this->getExceptHidden(),
+            'extra'  => $this->getExtraHidden(),
+        ]);
+    }
+
+    /**
+     * Retorna a lista final de campos ocultos, considerando `exceptHidden` e `extraHidden`.
+     *
+     * @param array $options
+     * @return array
+     */
+    public function retornaListagemHiddenPadrao($options = []): array
+    {
+        $except = (array) ($options['except'] ?? []);
+        $extra = (array) ($options['extra'] ?? []);
+
+        // Se o tenant permite a seleção manual do domínio, exibe o `domain_id`
+        if (TenantTypeDomainCustomHelper::getDomainCustomBln()) {
+            $except[] = 'domain_id';
+        }
+
+        return array_merge(array_diff($this->hiddenPadrao, $except), $extra);
+    }
+
+    /**
+     * Obtém os campos que devem ser **removidos** da ocultação padrão.
+     *
+     * @return array
+     */
+    public function getExceptHidden(): array
+    {
+        return property_exists($this, 'exceptHidden') ? $this->exceptHidden : [];
+    }
+
+    /**
+     * Obtém os campos que devem ser **adicionados** à ocultação.
+     *
+     * @return array
+     */
+    public function getExtraHidden(): array
+    {
+        return property_exists($this, 'extraHidden') ? $this->extraHidden : [];
     }
 
     /**

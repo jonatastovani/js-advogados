@@ -48,6 +48,7 @@
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
+                    <x-consulta.th-tabelas-identificacao-dominio.componente />
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Titulo</th>
