@@ -17,7 +17,7 @@
 <section id="footerPagination{{ $sufixo }}" class="footerPagination" style="display: {{ $display }}">
     <div class="row">
         <nav aria-label="Navegação por páginas" class="mt-2">
-            <ul class="pagination justify-content-center mb-0">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
                 <li class="page-item">
                     <button type="button" class="page-link disabled" aria-label="Anterior">
                         <span aria-hidden="true">&laquo; Anterior</span>

@@ -44,6 +44,7 @@ class PageServico extends TemplateSearch {
         let strBtns = self.#htmlBtns(item);
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
+
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">

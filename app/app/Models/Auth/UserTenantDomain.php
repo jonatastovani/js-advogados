@@ -36,18 +36,10 @@ class UserTenantDomain extends Model
         'domain_id',
     ];
 
-    protected $hidden = [
-        // 'tenant_id',
-        // 'domain_id',
-        'created_user_id',
-        'created_ip',
-        // 'created_at',
-        'updated_user_id',
-        'updated_ip',
-        'updated_at',
-        'deleted_user_id',
-        'deleted_ip',
-        'deleted_at',
+    protected $exceptHidden = [
+        'tenant_id',
+        'domain_id',
+        'created_at'
     ];
 
     public static function getCustomColumns(): array

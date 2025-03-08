@@ -254,9 +254,21 @@ export class TemplateSearch {
 
                 for (let item of responseData.data) {
                     const idTr = UUIDHelper.generateUUID();
-                    item = Object.assign(item, { idTr: idTr });
-                    const responseInsert = await self.insertTableData(item, { config: config, tbody: tbody });
-                    recordsOnScreen.push(item);
+                    item = commonFunctions.deepMergeObject(item, { idTr });
+
+                    // Verifica se a propriedade `insertTableData` está definida no `config`
+                    const functionName = config.insertTableData ? config.insertTableData : 'insertTableData';
+
+                    // Chama dinamicamente a função especificada em `config.insertTableData` ou a padrão `insertTableData`
+                    const responseInsert = await self[functionName](item, { config, tbody });
+
+                    // Verifica se insere ou não a coluna de identificação de domínio no registro
+                    TenantTypeDomainCustomHelper.checkInsertTdDomainInTable(item, { tbody });
+                    recordsOnScreen.push(typeof responseInsert === 'object' ? responseInsert : item);
+                }
+
+                if (!responseData.data.length) {
+                    TenantTypeDomainCustomHelper.checkThIfNoRecords({ tbody });
                 }
 
                 self._refreshQueryQuantity(responseData.total, { footerPagination: footerPagination });
@@ -264,11 +276,15 @@ export class TemplateSearch {
                 config.dataPost = data;
                 config.recordsOnScreen = recordsOnScreen;
             } else {
+
                 self._refreshQueryQuantity(0, { footerPagination: footerPagination });
                 self._paginationDefault({ footerPagination: footerPagination });
                 config.dataPost = data;
                 config.recordsOnScreen = [];
+
+                TenantTypeDomainCustomHelper.checkThIfNoRecords({ tbody });
             }
+
         } catch (error) {
             tbody.html('');
             commonFunctions.generateNotificationErrorCatch(error);

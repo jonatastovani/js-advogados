@@ -73,7 +73,7 @@ export class modalSexoTenant extends modalSearchAndFormRegistration {
         let btns = `
             <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar registro ${item.nome}">Editar</button></li>
             <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir registro ${item.nome}">Excluir</button></li>`;
-registro
+
         let btnSelect = '';
         if (self._dataEnvModal?.attributes?.select) {
             btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`

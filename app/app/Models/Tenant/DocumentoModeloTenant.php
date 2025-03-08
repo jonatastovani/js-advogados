@@ -39,19 +39,8 @@ class DocumentoModeloTenant extends Model
         'documento_modelo_tipo_id' => 'integer',
     ];
 
-    protected $hidden = [
-        'created_user_id',
-        'created_ip',
-        // 'created_at', // Usado no front para mostrar quando foi criado
-        'updated_user_id',
-        'data',
-        'updated_ip',
-        'updated_at',
-        'deleted_user_id',
-        'deleted_ip',
-        'deleted_at',
-        'tenant_id',
-        'domain_id',
+    protected $exceptHidden = [
+        'created_at'
     ];
 
     public static function getCustomColumns(): array

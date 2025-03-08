@@ -29,18 +29,8 @@ class AnotacaoLembreteTenant extends Model
         'descricao',
     ];
 
-    protected $hidden = [
-        'created_user_id',
-        'created_ip',
-        // 'created_at', // Usado no front para mostrar quando foi criado
-        'updated_user_id',
-        'updated_ip',
-        'updated_at',
-        'deleted_user_id',
-        'deleted_ip',
-        'deleted_at',
-        'tenant_id',
-        'domain_id',
+    protected $exceptHidden = [
+        'created_at'
     ];
 
     public static function getCustomColumns(): array
