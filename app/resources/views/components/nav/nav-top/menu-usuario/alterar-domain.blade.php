@@ -20,6 +20,6 @@
     window.domainCustom = {
         nameAttributeKey: '{{ $nameAttributeKey }}',
         headerAttributeKey: '{{ $headerAttributeKey }}',
-        arrayDomains: @json($domains),
+        arrayDomains: @json($domains),domainCustomIdentificationClassName
     };
 </script>

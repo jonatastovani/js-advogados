@@ -1,27 +1,21 @@
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
-import { TenantTypeDomainCustom } from "./TenantTypeDomainCustom";
 import { commonFunctions } from "./commonFunctions";
 import { enumAction } from "./enumAction";
 
 export class connectAjax {
 
     #urlApi;
-    #action;
-    #data;
-    #param;
-    #debugMode;
-    #debugStackMode;
-    #csrfToken;
-    #addCsrfTokenBln;
+    #action = null;;
+    #data = null;;
+    #param = null;;
+    #debugMode = true;;
+    #debugStackMode = false;
+    #csrfToken = undefined;
+    #addCsrfTokenBln = true;
+    #forcedDomainCustomId = undefined;
 
     constructor(urlApi) {
         this.#urlApi = urlApi;
-        this.#action = null;
-        this.#data = null;
-        this.#param = null;
-        this.#debugMode = true;
-        this.#debugStackMode = false;
-        this.#addCsrfTokenBln = true;
     }
 
     setAction(action) {
@@ -58,6 +52,10 @@ export class connectAjax {
         this.#addCsrfTokenBln = bool;
     }
 
+    set setForcedDomainCustomId(id) {
+        this.#forcedDomainCustomId = id;
+    }
+
     async getRequest() {
         const param = this.#param ? `/${this.#param}` : '';
         const method = this.#action || "GET";
@@ -69,7 +67,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantTypeDomainCustom();
+            this.#checkTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,
@@ -95,7 +93,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantTypeDomainCustom();
+            this.#checkTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,
@@ -121,7 +119,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln == true) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantTypeDomainCustom();
+            this.#checkTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,
@@ -233,21 +231,13 @@ export class connectAjax {
         }
     }
 
-    #verificarTenantTypeDomainCustom() {
-        if (TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom) {
-            this.#addHeaderDomainCustom();
-        }
-    }
-
-    #addHeaderDomainCustom() {
-        /** @type {TenantTypeDomainCustom} */
-        const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
-
-        if (custom.getStatusBlnCustom) {
+    #checkTenantTypeDomainCustom() {
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance && instance.getStatusBlnCustom) {
             // console.warn(`Valor do domain: ${custom.getSelectedValue}`);
             $.ajaxSetup({
                 headers: {
-                    [custom.getHeaderAttributeKey]: custom.getSelectedValue,
+                    [instance.getHeaderAttributeKey]: this.#forcedDomainCustomId ?? instance.getSelectedValue,
                 },
             });
         }
@@ -264,7 +254,7 @@ export class connectAjax {
             if (this.#addCsrfTokenBln) {
                 this.#addAuthorizationToken();
             }
-            this.#verificarTenantTypeDomainCustom();
+            this.#checkTenantTypeDomainCustom();
 
             const response = await $.ajax({
                 url: this.#urlApi + param,

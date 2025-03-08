@@ -74,7 +74,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             } finally {
                 commonFunctions.simulateLoading(btn, false);
             }
-        });
+        }).trigger('click');
 
         $(`#btnInserirAgendamentoRessarcimento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);

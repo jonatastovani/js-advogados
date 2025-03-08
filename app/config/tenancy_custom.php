@@ -8,5 +8,6 @@ return [
 
         // Nome do atributo no header onde armazenará o domínio manualmente selecionado
         'header_attribute_key' => 'X-Selected-Domain',
+        'domain_custom_identification_class_name' => 'element-domain-custom-identification'
     ]
 ];

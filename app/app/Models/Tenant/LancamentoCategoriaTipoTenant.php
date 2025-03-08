@@ -11,7 +11,11 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class LancamentoCategoriaTipoTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant;
+    use HasFactory,
+        HasUuids,
+        CommonsModelsMethodsTrait,
+        ModelsLogsTrait,
+        BelongsToTenant;
 
     protected $table = 'tenant.lancamento_categoria_tipo_tenants';
     protected $tableAsName = 'lan_cat_tipo_ten';

@@ -1,11 +1,11 @@
-{{-- <div class="row row-cols-2 flex-row-reverse">
+<div class="row {{ $domainCustomIdentificationClassName }} row-cols-1 row-cols-sm-2 flex-row-reverse">
     <div class="col mt-2">
         <label for="domain_id{{ $sufixo }}" class="form-label">Unidade*</label>
         <select name="domain_id" id="domain_id{{ $sufixo }}" class="form-select">
             <option value="0">Selecione</option>
         </select>
     </div>
-</div> --}}
+</div>
 
 <div class="row">
     <div class="col mt-2">
@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<div class="row row-cols-1 row-cols-md-2">
+<div class="row row-cols-1 row-cols-sm-2">
     <div class="col mt-2">
         <label for="movimentacao_tipo_id{{ $sufixo }}" class="form-label">Tipo de movimentação*</label>
         <select name="movimentacao_tipo_id" id="movimentacao_tipo_id{{ $sufixo }}" class="form-select">
@@ -47,7 +47,7 @@
     </div>
 </div>
 
-<div class="row row-cols-1 row-cols-md-2">
+<div class="row row-cols-1 row-cols-sm-2">
     <div class="col mt-2">
         <label for="valor_esperado{{ $sufixo }}" class="form-label">Valor*</label>
         <div class="input-group">
