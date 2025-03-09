@@ -87,11 +87,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col legenda-campos-obrigatorios text-end mt-2 border-light-subtle">
-            * Campos obrigatórios
-        </div>
-    </div>
+
+    <x-pagina.info-campos-obrigatorios />
+
     <div class="row text-end">
         <div class="col mt-2">
             <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-sm btn-outline-success btn-save"

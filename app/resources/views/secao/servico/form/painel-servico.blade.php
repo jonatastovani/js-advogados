@@ -2,13 +2,13 @@
     <form id="form{{ $sufixo }}">
         <div class="row h-100">
             <div class="col d-flex flex-column">
-                <div class="row">
-                    <div class="col-sm-12 col-md-7 col-xl-8 mt-2">
-                        <label for="titulo{{ $sufixo }}" class="form-label">Título</label>
+                <div class="row g-2 mt-2">
+                    <div class="col-sm-12 col-md-7 col-xl-8">
+                        <label for="titulo{{ $sufixo }}" class="form-label">Título*</label>
                         <input type="text" id="titulo${{ $sufixo }}" name="titulo" class="form-control">
                     </div>
-                    <div class="col-sm-6 col-md-5 col-xl-4 mt-2">
-                        <label for="area_juridica_id{{ $sufixo }}" class="form-label">Área Jurídica</label>
+                    <div class="col-sm-6 col-md-5 col-xl-4">
+                        <label for="area_juridica_id{{ $sufixo }}" class="form-label">Área Jurídica*</label>
                         <div class="input-group">
                             {{-- <div class="input-group-select2">
                         <select name="area_juridica_id" id="area_juridica_id{{ $sufixo }}" class="select2-clear-form"
@@ -25,8 +25,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="row flex-fill">
-                    <div class="col d-flex flex-column mt-2">
+                <div class="row flex-fill mt-2">
+                    <div class="col d-flex flex-column">
                         <div class="row">
                             <div class="col"><label for="descricao{{ $sufixo }}"
                                     class="form-label">Descrição</label></div>
@@ -39,15 +39,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col legenda-campos-obrigatorios text-end mt-2 border-light-subtle">
-                        * Campos obrigatórios
-                    </div>
-                </div>
-                <div class="row text-end">
-                    <div class="col mt-2">
-                        <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-sm btn-outline-success btn-save">
-                            Salvar dados do Serviço
+
+                <x-pagina.info-campos-obrigatorios />
+
+                <div class="d-flex gap-2 flex-column flex-sm-row justify-content-end mt-2">
+
+                    <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" />
+
+                    <div class="d-grid d-sm-inline-flex">
+                        <button type="submit" id="btnSave{{ $sufixo }}"
+                            class="btn btn-outline-success btn-save text-nowrap">
+                            Salvar Dados Serviço
                         </button>
                     </div>
                 </div>

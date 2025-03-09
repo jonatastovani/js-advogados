@@ -4,6 +4,8 @@
     $domains = \App\Helpers\TenantTypeDomainCustomHelper::getDomainsPorUsuario();
 @endphp
 
+{{-- A variável $domainCustomIdentificationClassName está iniciada no boot do providers --}}
+
 <div class="row mx-0">
     <div class="input-group input-group-sm">
         <div class="input-group-text border-0"><label for="{{ $nameAttributeKey }}">Unidade: </label></div>
@@ -20,6 +22,7 @@
     window.domainCustom = {
         nameAttributeKey: '{{ $nameAttributeKey }}',
         headerAttributeKey: '{{ $headerAttributeKey }}',
-        arrayDomains: @json($domains),domainCustomIdentificationClassName
+        arrayDomains: @json($domains),
+        domainCustomIdentificationClassName: '{{ $domainCustomIdentificationClassName }}',
     };
 </script>

@@ -29,7 +29,14 @@
     @component('components.nav.nav-top')
     @endcomponent
 
-    <div class="content d-flex flex-column">
+    @php
+        $sufixo =
+            Session::get('paginaDados') && Session::get('paginaDados')->sufixo
+                ? Session::get('paginaDados')->sufixo
+                : 'PageContent';
+    @endphp
+
+    <div id="{{ $sufixo }}" class="content d-flex flex-column">
         @yield('conteudo')
     </div>
 

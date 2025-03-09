@@ -8,6 +8,7 @@
                 'texto' => 'Cadastro de serviço e dados de pagamentos.',
             ],
         ],
+        'sufixo' => $sufixo,
     ]);
     Session::put('paginaDados', $paginaDados);
 

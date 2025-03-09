@@ -41,11 +41,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col legenda-campos-obrigatorios text-end mt-2">
-                            * Campos obrigatórios
-                        </div>
-                    </div>
+
+                    <x-pagina.info-campos-obrigatorios />
+
                     <div class="row">
                         <div class="col-12 text-end mt-2">
                             <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">

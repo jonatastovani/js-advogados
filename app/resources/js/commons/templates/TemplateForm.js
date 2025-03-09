@@ -1,5 +1,6 @@
 import { modalMessage } from "../../components/comum/modalMessage";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
+import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
@@ -15,7 +16,12 @@ export class TemplateForm {
     /**
      * Objeto para reservar configurações do template
      */
-    _objConfigs = {};
+    _objConfigs = {
+        domainCustom: {
+            applyBln: false,
+            domain_id: undefined,
+        },
+    };
 
     /**
      * Variável para reservar a ação a ser executada
@@ -28,7 +34,7 @@ export class TemplateForm {
     _idRegister;
 
     constructor(objSuper = {}) {
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
+        commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
         let sufixo = objSuper.sufixo ?? this._objConfigs.sufixo ?? undefined;
 
         if (sufixo) {
@@ -36,6 +42,11 @@ export class TemplateForm {
         }
 
         this.#addEventsDefault();
+
+        // Adiciona um pequeno delay para garantir que a classe derivada finalize o construtor
+        setTimeout(() => {
+            TenantTypeDomainCustomHelper.checkElementsDomainCustom(this);
+        }, 0);
     }
 
     /**
@@ -52,7 +63,7 @@ export class TemplateForm {
     }
 
     #addEventBtnSave() {
-        const btnSave = `#btnSave${this._objConfigs.sufixo}`;
+        const btnSave = `#btnSave${this.getSufixo}`;
         const self = this;
         $(btnSave).on("click", async function (e) {
             e.preventDefault();
@@ -155,7 +166,12 @@ export class TemplateForm {
 
         try {
             commonFunctions.simulateLoading(btnSave);
+
+            const forcedDomainId = self.#checkDomainCustomForcedDomainId();
             const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
             obj.setAction(action);
             obj.setData(data);
             if (action === enumAction.PUT) {
@@ -241,4 +257,16 @@ export class TemplateForm {
         }
     }
 
+    #checkDomainCustomForcedDomainId() {
+        const self = this;
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+        // Se não houver instância ou a seleção atual do usuário for diferente de `0`, retorna `false` para a inclusão forçada do domínio.
+        if (!instance || instance.getSelectedValue != 0) return false;
+        const domainId = self._objConfigs?.domainCustom?.domain_id;
+        if (!domainId) {
+            throw new Error(`Informação de unidade de domínio não encontrada. Caso erro persista, contate o suporte.`);
+        }
+        return domainId;
+    }
 }

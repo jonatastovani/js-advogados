@@ -23,43 +23,46 @@ import { QueueManager } from "../../utils/QueueManager";
 
 class PageServicoForm extends TemplateForm {
 
+    #objConfigs = {
+        url: {
+            base: window.apiRoutes.baseServico,
+            baseAnotacao: undefined,
+            baseCliente: undefined,
+            baseDocumento: undefined,
+            basePagamentos: undefined,
+            baseParticipacao: undefined,
+            baseValores: undefined,
+            baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
+            baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
+            baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
+        },
+        data: {
+            porcentagemOcupada: 0,
+            participantesNaTela: [],
+            clientesNaTela: [],
+            participacao_tipo_tenant: {
+            },
+        },
+        participacao: {
+            // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
+            participacao_tipo_tenant: {
+                configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
+            },
+        },
+        domainCustom: {
+            applyBln: true,
+        }
+    };
+
     #functionsParticipacao;
     #quillQueueManager;
 
     constructor() {
+        const sufixo = "PageServicoForm";
+        super({ sufixo });
 
-        const objConfigs = {
-            url: {
-                base: window.apiRoutes.baseServico,
-                baseAnotacao: undefined,
-                baseCliente: undefined,
-                baseDocumento: undefined,
-                basePagamentos: undefined,
-                baseParticipacao: undefined,
-                baseValores: undefined,
-                baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
-                baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
-                baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
-            },
-            sufixo: 'PageServicoForm',
-            data: {
-                porcentagemOcupada: 0,
-                participantesNaTela: [],
-                clientesNaTela: [],
-                participacao_tipo_tenant: {
-                },
-            },
-            participacao: {
-                // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
-                participacao_tipo_tenant: {
-                    configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
-                },
-            },
-        };
-
-        super({
-            objConfigs: objConfigs
-        });
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        commonFunctions.deepMergeObject(this._objConfigs, { sufixo });
 
         const objData = {
             objConfigs: this._objConfigs,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\View\Admin\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\AddIdentifierRequestMiddleware;
+use App\Http\Middleware\CheckManualInitializationTenantDomain;
 use App\Http\Middleware\ClearModalSessionMiddleware;
 use App\Http\Middleware\HandleTenantDomainForTenantType;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,7 @@ Route::middleware([
     'web',
     HandleTenantDomainForTenantType::class,
     InitializeTenancyByDomain::class,
+    CheckManualInitializationTenantDomain::class,
     PreventAccessFromCentralDomains::class,
     AddIdentifierRequestMiddleware::class,
     ClearModalSessionMiddleware::class,

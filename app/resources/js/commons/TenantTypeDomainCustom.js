@@ -19,6 +19,7 @@ export class TenantTypeDomainCustom {
             nameAttributeKey: undefined,
             headerAttributeKey: undefined,
             arrayDomains: [],
+            domainCustomIdentificationClassName: undefined,
         },
         selectedValueDefaultAllDomains: 0, // Valor padrão para seleção de "Todos os domínios"
     };
@@ -105,6 +106,10 @@ export class TenantTypeDomainCustom {
         return this._objConfigs.domainCustom.arrayDomains;
     }
 
+    get getDomainCustomIdentificationClassName() {
+        return this._objConfigs.domainCustom.domainCustomIdentificationClassName;
+    }
+    
     get getDataCurrentDomain() {
         const selectedValue = this.getSelectedValue;
         const arrayDomains = this.getArrayDomains;

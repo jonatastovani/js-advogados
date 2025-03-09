@@ -44,11 +44,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col legenda-campos-obrigatorios text-end mt-2">
-                        * Campos obrigatórios
-                    </div>
-                </div>
+
+                <x-pagina.info-campos-obrigatorios />
+
             </div>
             <div class="modal-footer">
                 <div class="col-12 text-end">
