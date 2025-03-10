@@ -5,7 +5,6 @@ namespace App\Models\Tenant;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
-use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -16,7 +15,12 @@ use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class ContaTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain, HasDataColumn;
+    use HasFactory,
+        HasUuids,
+        CommonsModelsMethodsTrait,
+        ModelsLogsTrait,
+        BelongsToTenant,
+        HasDataColumn;
 
     protected $table = 'tenant.conta_tenants';
     protected $tableAsName = 'conta_ten';

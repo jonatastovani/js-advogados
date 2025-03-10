@@ -1,20 +1,20 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { modalSelecionarPerfil } from "./modalSelecionarPerfil";
 
-export class modalPessoa extends modalSearchAndFormRegistration {
+export class modalPessoa extends ModalSearchAndFormRegistration {
 
-    #dataEnvModal = {
-        attributes: {
-            select: {
-                quantity: 1,
-                autoReturn: true,
-            }
-        },
-    };
+    // #dataEnvModal = {
+    //     attributes: {
+    //         select: {
+    //             quantity: 1,
+    //             autoReturn: true,
+    //         }
+    //     },
+    // };
 
     constructor(objData = {}) {
         const envSuper = {
@@ -23,6 +23,9 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
         envSuper.objConfigs = commonFunctions.deepMergeObject({
             formRegister: false,
+            modalSearch: {
+                disableSearchDefault: true,
+            },
             querys: {
                 consultaFiltrosFisica: {
                     name: 'consulta-filtros-fisica',
@@ -87,18 +90,18 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
     async #consultaInicial() {
         const self = this;
-        await self.#buscaFiltroPessoaFisica();
-        await self.#buscaFiltroPessoaJuridica();
+        await self.#executaBuscaFiltroPessoaFisica();
+        await self.#executaBuscaFiltroPessoaJuridica();
     }
 
-    async #buscaFiltroPessoaFisica() {
+    async #executaBuscaFiltroPessoaFisica() {
         const self = this;
         const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosFisica.name;
         await self._generateQueryFilters({ formDataSearch: self._objConfigs.querys.consultaFiltrosFisica.formDataSearch, appendData: { perfis_busca: perfis_busca } });
     }
 
-    async #buscaFiltroPessoaJuridica() {
+    async #executaBuscaFiltroPessoaJuridica() {
         const self = this;
         const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltrosJuridica.name;
@@ -128,12 +131,12 @@ export class modalPessoa extends modalSearchAndFormRegistration {
 
         formPessoaFisica.find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            await self.#buscaFiltroPessoaFisica();
+            await self.#executaBuscaFiltroPessoaFisica();
         });
 
         formPessoaJuridica.find('.btnBuscar').on('click', async function (e) {
             e.preventDefault();
-            await self.#buscaFiltroPessoaJuridica();
+            await self.#executaBuscaFiltroPessoaJuridica();
         });
 
         formFisicaCriterios.find('.btnBuscar').on('click', async function (e) {

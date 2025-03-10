@@ -1,6 +1,7 @@
 @php
     use App\Helpers\TenantTypeDomainCustomHelper;
     $domainName = TenantTypeDomainCustomHelper::getDomainNameSelected();
+    $domainCustomBln = TenantTypeDomainCustomHelper::getDomainCustomBln();
 @endphp
 
 <nav class="navbar navbar-vertical navbar-expand-lg border-end">
@@ -11,7 +12,7 @@
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="navbarNavDropdownLabel">{{ tenant('name') }}
                         <span class="current-domain-name">
-                            @if ($domainName != '')
+                            @if ($domainName != '' && !$domainCustomBln)
                                 • {{ $domainName }}
                             @endif
                         </span>

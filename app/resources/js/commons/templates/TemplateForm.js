@@ -1,6 +1,7 @@
 import { modalMessage } from "../../components/comum/modalMessage";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
+import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
@@ -20,6 +21,7 @@ export class TemplateForm {
         domainCustom: {
             applyBln: false,
             domain_id: undefined,
+            blocked_changes: false,
         },
     };
 
@@ -43,10 +45,8 @@ export class TemplateForm {
 
         this.#addEventsDefault();
 
-        // Adiciona um pequeno delay para garantir que a classe derivada finalize o construtor
-        setTimeout(() => {
-            TenantTypeDomainCustomHelper.checkElementsDomainCustom(this);
-        }, 0);
+        this._queueCheckDomainCustom = new QueueManager();
+        this._queueCheckDomainCustom.enqueue(() => TenantTypeDomainCustomHelper.checkElementsDomainCustom(this, { stop_variable: true }));
     }
 
     /**
@@ -81,7 +81,9 @@ export class TemplateForm {
         try {
             const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);
-            return await obj.getRequest();
+            const response = await obj.getRequest();
+            TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            return response;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
@@ -111,14 +113,34 @@ export class TemplateForm {
             if (response?.data) {
                 await self[functionPreenchimento](response, options);
             } else {
-                form.find('input, textarea, select, button').prop('disabled', true);
+                self.#disableAndRemoveEvents();
             }
+            return response;
 
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
+            return false;
         } finally {
             await commonFunctions.loadingModalDisplay(false);
         }
+    }
+
+    #disableAndRemoveEvents() {
+        const self = this;
+        const container = $(`#${self.getSufixo}`);
+
+        if (!container.length) return;
+
+        console.log(container.find('input, textarea, select, button, a, label, fieldset'));
+        // Remove eventos e desativa elementos interativos
+        container.find('input, textarea, select, button, a, label, fieldset')
+            .off("click keypress change focus blur")
+            .off()
+            .prop('disabled', true)
+            .addClass('disabled');
+
+        // Remove links e eventos `click`
+        container.find('a').off('click').on('click', (e) => e.preventDefault());
     }
 
     _tratarValoresNulos(data) {
@@ -167,7 +189,7 @@ export class TemplateForm {
         try {
             commonFunctions.simulateLoading(btnSave);
 
-            const forcedDomainId = self.#checkDomainCustomForcedDomainId();
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const obj = new connectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
@@ -177,6 +199,27 @@ export class TemplateForm {
             if (action === enumAction.PUT) {
                 obj.setParam(idRegister);
             }
+
+            if (forcedDomainId) {
+
+                const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+                if (instance && instance.getSelectedValue && forcedDomainId != instance.getSelectedValue) {
+                    const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
+                    const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
+
+                    const objMessage = new modalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Atenção',
+                        message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
+                    };
+                    const result = await objMessage.modalOpen();
+                    if (!result.confirmResult) {
+                        return false;
+                    }
+                }
+            }
+
             const response = await obj.envRequest();
 
             if (response) {
@@ -257,16 +300,4 @@ export class TemplateForm {
         }
     }
 
-    #checkDomainCustomForcedDomainId() {
-        const self = this;
-        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
-
-        // Se não houver instância ou a seleção atual do usuário for diferente de `0`, retorna `false` para a inclusão forçada do domínio.
-        if (!instance || instance.getSelectedValue != 0) return false;
-        const domainId = self._objConfigs?.domainCustom?.domain_id;
-        if (!domainId) {
-            throw new Error(`Informação de unidade de domínio não encontrada. Caso erro persista, contate o suporte.`);
-        }
-        return domainId;
-    }
 }

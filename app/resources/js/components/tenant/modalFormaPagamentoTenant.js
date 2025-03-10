@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { modalContaTenant } from "./modalContaTenant";
 
-export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
+export class modalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -54,48 +54,15 @@ export class modalFormaPagamentoTenant extends modalSearchAndFormRegistration {
             self._updateTitleRegistration('Nova Forma de Pagamento');
         });
 
-        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-            .find('.btnBuscar').on('click', async (e) => {
-                e.preventDefault();
-                await self._executarBusca();
-            })
-            .trigger('click');
-
         commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
 
-        commonFunctions.handleModal(self, modal.find('.openModalConta'), new modalContaTenant(), self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, modal.find('.openModalConta'), modalContaTenant, self.#buscarContas.bind(self));
 
-        // modal.find('.openModalConta').on('click', async function () {
-        //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new modalContaTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-        //         await self._modalHideShow(false);
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 self.#buscarContas(response.selected.id);
-        //             } else {
-        //                 self.#buscarContas();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
-        //         await self._modalHideShow();
-        //     }
-        // });
-
-
+        self._executarBusca();
+        const queueCheck = self._queueCheckDomainCustom;
+        if (this._objConfigs?.formRegister && queueCheck) {
+            queueCheck.setReady();
+        }
     }
 
     async _executarBusca() {

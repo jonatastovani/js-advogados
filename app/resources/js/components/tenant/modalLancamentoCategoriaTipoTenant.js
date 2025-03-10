@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 
-export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegistration {
+export class modalLancamentoCategoriaTipoTenant extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -50,12 +50,11 @@ export class modalLancamentoCategoriaTipoTenant extends modalSearchAndFormRegist
             self._updateTitleRegistration('Nova Categoria de Lancamento');
         });
 
-        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-            .find('.btnBuscar').on('click', async (e) => {
-                e.preventDefault();
-                await self._executarBusca();
-            })
-            .trigger('click');
+        self._executarBusca();
+        const queueCheck = self._queueCheckDomainCustom;
+        if (this._objConfigs?.formRegister && queueCheck) {
+            queueCheck.setReady();
+        }
     }
 
     async _executarBusca() {

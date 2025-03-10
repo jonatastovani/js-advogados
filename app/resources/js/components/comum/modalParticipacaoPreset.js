@@ -1,10 +1,10 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
 
-export class modalParticipacaoPreset extends modalSearchAndFormRegistration {
+export class modalParticipacaoPreset extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -47,20 +47,13 @@ export class modalParticipacaoPreset extends modalSearchAndFormRegistration {
 
     #addEventosPadrao() {
         const self = this;
-
-        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-            .find('.btnBuscar').on('click', async (e) => {
-                e.preventDefault();
-                await self._executarBusca();
-            })
-            .trigger('click');
+        self._executarBusca();
     }
 
     async _executarBusca() {
         const self = this;
         BootstrapFunctionsHelper.removeEventPopover();
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        await self._generateQueryFilters();
+        super._executarBusca();
     }
 
     async insertTableData(item, options = {}) {

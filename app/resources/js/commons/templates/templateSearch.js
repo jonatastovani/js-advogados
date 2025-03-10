@@ -5,7 +5,6 @@ import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
-import { TenantTypeDomainCustom } from "../TenantTypeDomainCustom";
 
 export class TemplateSearch {
 
@@ -58,8 +57,6 @@ export class TemplateSearch {
 
     #addQueueExecutaBusca() {
         const self = this;
-
-        /** @type {TenantTypeDomainCustom} */
         const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
         if (custom.getStatusBlnCustom) {

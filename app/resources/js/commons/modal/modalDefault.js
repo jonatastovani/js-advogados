@@ -41,7 +41,12 @@ export class modalDefault {
         modalConfig: undefined,
         queues: {
             queueOpen: new QueueManager(),
-        }
+        },
+        domainCustom: {
+            applyBln: false,
+            domain_id: undefined,
+            blocked_changes: false,
+        },
     };
 
     /**

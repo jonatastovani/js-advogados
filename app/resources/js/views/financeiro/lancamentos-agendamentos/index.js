@@ -23,8 +23,6 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             baseContas: window.apiRoutes.baseContas,
             baseLancamentoCategoriaTipoTenant: window.apiRoutes.baseLancamentoCategoriaTipoTenant,
         },
-        data: {
-        }
     };
 
     constructor() {

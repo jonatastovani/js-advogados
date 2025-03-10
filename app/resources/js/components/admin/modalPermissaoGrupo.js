@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { modalCode } from "./modalCode";
 
-export class modalPermissaoGrupo extends modalSearchAndFormRegistration {
+export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal

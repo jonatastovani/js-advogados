@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalSearchAndFormRegistration } from "../../commons/modal/modalSearchAndFormRegistration";
+import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 
-export class modalContaTenant extends modalSearchAndFormRegistration {
+export class modalContaTenant extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -50,17 +50,16 @@ export class modalContaTenant extends modalSearchAndFormRegistration {
             self._updateTitleRegistration('Nova Conta');
         });
 
-        $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-            .find('.btnBuscar').on('click', async (e) => {
-                e.preventDefault();
-                await self._executarBusca();
-            })
-            .trigger('click');
-
         commonFunctions.fillSelect(modal.find(`select[name="conta_subtipo_id"]`), window.apiRoutes.baseContasSubtipo);
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_status_id"]`), window.apiRoutes.baseContasStatus, { selectedIdOption: 1 });
-    }
+      
+        self._executarBusca();
+        const queueCheck = self._queueCheckDomainCustom;
+        if (this._objConfigs?.formRegister && queueCheck) {
+            queueCheck.setReady();
+        }
+  }
 
     async _executarBusca() {
         const self = this;

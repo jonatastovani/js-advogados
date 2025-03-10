@@ -2,6 +2,7 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { modalNome } from "../../../components/comum/modalNome";
+import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -54,31 +55,32 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
 
         domain.idCol = UUIDHelper.generateUUID();
         const dominioVigente = window.location.hostname == domain.domain;
+        const customDomain = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
         let strCard = `
-                <div id="${domain.idCol}" class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
-                                <span class="text-truncate spanTitle">${domain.name}</span>
-                                <div>
-                                    <div class="dropdown">
-                                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><button type="button" class="dropdown-item fs-6 btn-edit-name" title="Editar nome ${domain.name}">Editar nome</button></li>
-                                        </ul>
-                                    </div>
+            <div id="${domain.idCol}" class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
+                            <span class="text-truncate spanTitle">${domain.name}</span>
+                            <div>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><button type="button" class="dropdown-item fs-6 btn-edit-name" title="Editar nome ${domain.name}">Editar nome</button></li>
+                                    </ul>
                                 </div>
-                            </h5>
-                            <div class="card-text">
-                                <p class="mb-1">Domínio: <span class="fst-italic">${domain.domain}</span></p>
                             </div>
-                            ${!dominioVigente ? `<a href="${domain.id ? `${urlDomain}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!domain.id ? 'disabled' : ''}" ${domain.id ? `target="_blank"` : ''}>Ir para o domínio</a>` : ''}
+                        </h5>
+                        <div class="card-text">
+                            <p class="mb-1">Domínio: <span class="fst-italic">${domain.domain}</span></p>
                         </div>
+                        ${!dominioVigente && !customDomain ? `<a href="${domain.id ? `${urlDomain}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!domain.id ? 'disabled' : ''}" ${domain.id ? `target="_blank"` : ''}>Ir para o domínio</a>` : ''}
                     </div>
-                </div>`;
+                </div>
+            </div>`;
 
         divDominio.append(strCard);
         self.#addEventosDominio(domain);

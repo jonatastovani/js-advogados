@@ -24,7 +24,6 @@ return new class extends Migration
         Schema::create($this->model->getTableName(), function (Blueprint $table) {
             $this->addIDFieldAsUUID($table);
             $this->addTenantIDField($table);
-            $this->addDomainIDField($table);
 
             $table->string('nome');
             $table->string('descricao')->nullable();

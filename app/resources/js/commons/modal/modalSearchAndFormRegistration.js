@@ -2,12 +2,13 @@ import { modalMessage } from "../../components/comum/modalMessage";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
+import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
 import { modalDefault } from "./modalDefault";
 
-export class modalSearchAndFormRegistration extends modalDefault {
+export class ModalSearchAndFormRegistration extends modalDefault {
 
     /**
      * Variável para reservar a ação a ser executada
@@ -22,6 +23,9 @@ export class modalSearchAndFormRegistration extends modalDefault {
     constructor(objSuper) {
         objSuper.objConfigs = commonFunctions.deepMergeObject({
             formRegister: true,
+            modalSearch: {
+                disableSearchDefault: false,
+            },
             runningSearchBln: false,
             typeCurrentSearch: null,
         }, objSuper.objConfigs ?? {});
@@ -33,6 +37,11 @@ export class modalSearchAndFormRegistration extends modalDefault {
         super(objSuper);
 
         this.#addEventsDefault();
+
+        if (this._objConfigs?.formRegister) {
+            this._queueCheckDomainCustom = new QueueManager();
+            this._queueCheckDomainCustom.enqueue(() => TenantTypeDomainCustomHelper.checkElementsDomainCustom(this, { stop_variable: true }));
+        }
     }
 
     #addEventsDefault() {
@@ -66,17 +75,27 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
     #addDefaultSearchModalEvents() {
         const self = this;
-        if (self._objConfigs.modalSearch) {
-            const inputsSearchs = self._objConfigs.modalSearch.inputsSearchs ?? null;
-            if (inputsSearchs) {
-                const event = self._objConfigs.modalSearch.event ?? 'input';
-                inputsSearchs.on(event, function () {
-                    clearTimeout(self._timerSearch);
-                    self._timerSearch = setTimeout(function () {
-                        self.generateFilters();
-                    }, 1000);
+        // if (self._objConfigs.modalSearch) {
+        //     const inputsSearchs = self._objConfigs.modalSearch.inputsSearchs ?? null;
+        //     if (inputsSearchs) {
+        //         const event = self._objConfigs.modalSearch.event ?? 'input';
+        //         inputsSearchs.on(event, function () {
+        //             clearTimeout(self._timerSearch);
+        //             self._timerSearch = setTimeout(function () {
+        //                 self.generateFilters();
+        //             }, 1000);
+        //         });
+        //     }
+        // }
+
+        if (!self._objConfigs?.modalSearch?.disableSearchDefault) {
+
+            $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+                .find('.btnBuscar').on('click', async (e) => {
+                    e.preventDefault();
+                    await self._executarBusca();
                 });
-            }
+
         }
     }
 
@@ -121,6 +140,12 @@ export class modalSearchAndFormRegistration extends modalDefault {
     }
 
     //#region Campos de busca padrão
+
+    async _executarBusca() {
+        const self = this;
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
+    }
 
     /**
    * Gera os filtros de consulta para envio a uma API ou outra fonte de dados.
@@ -456,7 +481,9 @@ export class modalSearchAndFormRegistration extends modalDefault {
         try {
             const obj = new connectAjax(config.url);
             obj.setParam(idRegister);
-            return await obj.getRequest();
+            const response = await obj.getRequest();
+            TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            return response;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
@@ -477,12 +504,38 @@ export class modalSearchAndFormRegistration extends modalDefault {
 
         try {
             commonFunctions.simulateLoading(btnSave);
+
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
             obj.setAction(self._action)
             obj.setData(data);
             if (self._action === enumAction.PUT) {
                 obj.setParam(self._idRegister);
             }
+
+            if (forcedDomainId) {
+
+                const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+                if (instance && instance.getSelectedValue && forcedDomainId != instance.getSelectedValue) {
+                    const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
+                    const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
+
+                    const objMessage = new modalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Atenção',
+                        message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
+                    };
+                    const result = await objMessage.modalOpen();
+                    if (!result.confirmResult) {
+                        return false;
+                    }
+                }
+            }
+
             const response = await obj.envRequest();
             if (response) {
                 commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');

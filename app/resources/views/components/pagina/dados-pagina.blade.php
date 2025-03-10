@@ -1,17 +1,20 @@
 @php
     use App\Helpers\TenantTypeDomainCustomHelper;
     $domainName = TenantTypeDomainCustomHelper::getDomainNameSelected();
+    $domainCustomBln = TenantTypeDomainCustomHelper::getDomainCustomBln();
 @endphp
 
 <figure>
     <blockquote class="blockquote">
         <p class="name-domain-custom" data-base-value="{{ $paginaDados->nome }}">
             {{ $paginaDados->nome }}
-            {{-- <span class="current-domain-name">
-                @if ($domainName != '')
-                    • {{ $domainName }}
-                @endif
-            </span> --}}
+            @if ($domainCustomBln)
+                <span class="blocked-changes-domain">
+                    {{-- @if ($domainName != '')
+                        • {{ $domainName }}
+                    @endif --}}
+                </span>
+            @endif
         </p>
     </blockquote>
     @if (!empty($paginaDados->descricao))

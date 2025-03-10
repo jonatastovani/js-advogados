@@ -9,7 +9,8 @@ export class modalParticipacao extends modalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
-        pagamento_tipo_tenant_id: undefined
+        pagamento_tipo_tenant_id: undefined,
+        domain_id: undefined,
     }
 
     /**
@@ -32,6 +33,10 @@ export class modalParticipacao extends modalRegistrationAndEditing {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },
         },
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: false
+        }
     };
 
     /** 
@@ -75,6 +80,8 @@ export class modalParticipacao extends modalRegistrationAndEditing {
             await commonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve();
         };
+
+        self._queueCheckDomainCustom.setReady();
 
         await commonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();

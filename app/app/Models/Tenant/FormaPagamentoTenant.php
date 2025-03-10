@@ -2,10 +2,6 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Financeiro\MovimentacaoConta;
-use App\Models\Referencias\ContaStatusTipo;
-use App\Models\Referencias\ContaSubtipo;
-use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -16,7 +12,12 @@ use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class FormaPagamentoTenant extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain, HasDataColumn;
+    use HasFactory,
+        HasUuids,
+        CommonsModelsMethodsTrait,
+        ModelsLogsTrait,
+        BelongsToTenant,
+        HasDataColumn;
 
     protected $table = 'tenant.forma_pagamento_tenants';
     protected $tableAsName = 'form_pag_ten';

@@ -78,7 +78,7 @@ class PageServicoForm extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        await this.#buscarAreasJuridicas();
+        let buscaDadosBln = false;
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
@@ -91,15 +91,19 @@ class PageServicoForm extends TemplateForm {
             self._objConfigs.url.baseParticipacao = `${url}/participacao`;
             self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
             this._action = enumAction.PUT;
-            await self._buscarDados();
+            buscaDadosBln = await self._buscarDados();
         } else {
+            await this.#buscarAreasJuridicas();
             this._action = enumAction.POST;
         }
 
-        self.#addEventosBotoes();
+        if (buscaDadosBln) {
+            self._queueCheckDomainCustom.setReady();
+            await self.#addEventosBotoes();
+        }
     }
 
-    #addEventosBotoes() {
+    async #addEventosBotoes() {
         const self = this;
 
         self.#functionsParticipacao._buscarPresetParticipacaoTenant();
@@ -157,7 +161,7 @@ class PageServicoForm extends TemplateForm {
                     documento_modelo_tipo_id: window.Enums.DocumentoModeloTipoEnum.SERVICO,
                 };
                 const response = await objModal.modalOpen();
-                console.log(response);
+
                 if (response.refresh && response.register) {
                     try {
                         const objModal = new modalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
@@ -297,6 +301,42 @@ class PageServicoForm extends TemplateForm {
 
             return obj;
         });
+    }
+
+    async preenchimentoDados(response, options) {
+        const self = this;
+        const form = $(options.form);
+
+        const responseData = response.data;
+        form.find('input[name="titulo"]').val(responseData.titulo);
+        self.#buscarAreasJuridicas(responseData.area_juridica_id);
+        self.#quillQueueManager.enqueue(() => {
+            self._classQuillEditor.getQuill.setContents(responseData.descricao);
+        })
+
+        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
+        responseData.anotacao.forEach(item => {
+            self.#inserirAnotacao(item);
+        });
+
+        $(`#divPagamento${self._objConfigs.sufixo}`).html('');
+        responseData.pagamento.forEach(item => {
+            self.#inserirPagamento(item);
+        });
+
+        self.#limparClientes();
+        responseData.cliente.forEach(item => {
+            self.#inserirCliente(item);
+        });
+
+        self.#limparDocumentos();
+        responseData.documentos.forEach(item => {
+            self.#inserirDocumento(item);
+        });
+
+        self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
+
+        self.#atualizaTodosValores(response.data);
     }
 
     async #inserirDocumento(item) {
@@ -1036,42 +1076,6 @@ class PageServicoForm extends TemplateForm {
         }
     }
 
-    async preenchimentoDados(response, options) {
-        const self = this;
-        const form = $(options.form);
-
-        const responseData = response.data;
-        form.find('input[name="titulo"]').val(responseData.titulo);
-        self.#buscarAreasJuridicas(responseData.area_juridica_id);
-        self.#quillQueueManager.enqueue(() => {
-            self._classQuillEditor.getQuill.setContents(responseData.descricao);
-        })
-
-        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
-        responseData.anotacao.forEach(item => {
-            self.#inserirAnotacao(item);
-        });
-
-        $(`#divPagamento${self._objConfigs.sufixo}`).html('');
-        responseData.pagamento.forEach(item => {
-            self.#inserirPagamento(item);
-        });
-
-        self.#limparClientes();
-        responseData.cliente.forEach(item => {
-            self.#inserirCliente(item);
-        });
-
-        self.#limparDocumentos();
-        responseData.documentos.forEach(item => {
-            self.#inserirDocumento(item);
-        });
-
-        self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
-
-        self.#atualizaTodosValores(response.data);
-    }
-
     #atualizaTodosValores(data) {
         const self = this;
         self.#atualizarValorServico(data.valor_servico);
@@ -1159,7 +1163,6 @@ class PageServicoForm extends TemplateForm {
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base, {
-                success: 'Serviço cadastrado com sucesso!',
                 redirectWithIdBln: true,
             });
         }

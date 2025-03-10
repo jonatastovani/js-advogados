@@ -164,6 +164,67 @@ export default class TenantTypeDomainCustomHelper {
     //#region Verificações de visualização de campos de domínio customizado
 
     /**
+     * Verifica e aplica a configuração de bloqueio de alterações de domínio customizado.
+     * Atualiza o ID do domínio e o nome do domínio na interface, caso as condições sejam atendidas.
+     * Lança um erro se a instância ou informações necessárias não forem encontradas.
+     *
+     * @param {Object} instanceParent - Instância do componente pai.
+     * @param {Object} data - Dados contendo o `domain_id` necessário.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @throws {Error} Se a instância ou informações de domínio não forem encontradas.
+     */
+    static checkDomainCustomBlockedChangesDomainId(instanceParent, data, options = {}) {
+
+        if (instanceParent._objConfigs?.domainCustom?.applyBln) {
+
+            const instance = this.getInstanceTenantTypeDomainCustom;
+            if (!instance) {
+                throw new Error(`A instância de domínio customizado não foi encontrada. Caso erro persista, contate o suporte.`);
+            };
+
+            if (data.domain_id) {
+                instanceParent._objConfigs.domainCustom.domain_id = Number(data.domain_id);
+                const domainName = this.getDomainNameById(data.domain_id);
+                $(`#${instanceParent.getSufixo} .blocked-changes-domain`).html(` • ${domainName}`);
+            } else {
+                throw new Error(`Informação de unidade de domínio não encontrada. Caso erro persista, contate o suporte.`);
+            }
+            instanceParent._objConfigs.domainCustom.blocked_changes = true;
+        }
+    }
+
+
+    /**
+     * Verifica se o domínio customizado tem um ID forçado e o retorna.
+     * Se a configuração `applyBln` estiver ativa e o domínio selecionado for diferente de `0`,
+     * retorna o ID do domínio forçado. Caso contrário, retorna `false`.
+     *
+     * @param {Object} instanceParent - Instância do componente pai.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @returns {number|false} ID do domínio forçado ou `false` se não houver um domínio forçado.
+     * @throws {Error} Se a instância ou informações de domínio não forem encontradas.
+     */
+    static checkDomainCustomForcedDomainId(instanceParent, options = {}) {
+
+        if (instanceParent._objConfigs?.domainCustom?.applyBln) {
+
+            const instance = this.getInstanceTenantTypeDomainCustom;
+            if (!instance) {
+                throw new Error(`A instância de domínio customizado não foi encontrada. Caso erro persista, contate o suporte.`);
+            };
+
+            if (!instanceParent._objConfigs?.domainCustom?.blocked_changes && instance.getSelectedValue != 0) return false;
+
+            const domainId = instanceParent._objConfigs?.domainCustom?.domain_id;
+            if (!domainId) {
+                throw new Error(`Informação de unidade de domínio não encontrada. Caso erro persista, contate o suporte.`);
+            }
+            return domainId;
+        }
+        return false;
+    }
+
+    /**
      * Verifica e manipula os elementos de domínio customizado na interface.
      * Se a configuração `applyBln` estiver ativa, garante que os elementos sejam visíveis e interativos.
      * Caso contrário, oculta os elementos.
@@ -172,6 +233,7 @@ export default class TenantTypeDomainCustomHelper {
      * @param {Object} [options={}] - Opções adicionais.
      */
     static checkElementsDomainCustom(instanceParent, options = {}) {
+
         const instance = this.getInstanceTenantTypeDomainCustom;
         if (!instance) return;
 
@@ -179,16 +241,23 @@ export default class TenantTypeDomainCustomHelper {
         const elementsDomain = $(selector);
 
         if (instanceParent._objConfigs?.domainCustom?.applyBln) {
+
+            // Se for herdado, então não não aplica a verificação e atribuição e eventos na seleção
+            if (instanceParent._objConfigs?.domainCustom?.inheritedBln) return;
+
             if (!elementsDomain.length) {
                 commonFunctions.generateNotification('Campos de domínio customizado não encontrados. Contate o suporte.', 'error');
             } else {
-                // Executa a ação de exibição/ocultação e adiciona na fila para futuras execuções
-                this.toggleElementsDomainCustom(instanceParent, options);
-                instance.setEnqueueAction(() => this.toggleElementsDomainCustom(instanceParent, options));
+                // Se não estiver bloqueado a definição customizada de domínio, então se aplica os eventos;
+                if (!instanceParent._objConfigs.domainCustom?.blocked_changes) {
+                    // Executa a ação de exibição/ocultação e adiciona na fila para futuras execuções
+                    this.toggleElementsDomainCustom(instanceParent, options);
+                    instance.setEnqueueAction(() => this.toggleElementsDomainCustom(instanceParent, options));
+                } else {
+                    // Remove os elementos de seleção de domínio
+                    this.#hideElementsDomainCustom(instanceParent, elementsDomain, options);
+                }
             }
-        } else {
-            // Remove os elementos de seleção de domínio
-            this.#hideElementsDomainCustom(elementsDomain);
         }
     }
 
@@ -226,12 +295,12 @@ export default class TenantTypeDomainCustomHelper {
      * @param {JQuery} elementsDomain - Elementos a serem exibidos.
      * @private
      */
-    static #showElementsDomainCustom(instanceParent, elementsDomain) {
+    static #showElementsDomainCustom(instanceParent, elementsDomain, options = {}) {
         elementsDomain.addClass('d-inline-flex').css('display', 'inline-flex')
             .find('select').removeAttr('disabled');
 
         // Adiciona evento change ao select do domínio
-        this.#addEventsSelectDomainCustom(instanceParent, elementsDomain);
+        this.#addEventsSelectDomainCustom(instanceParent, elementsDomain, options);
     }
 
     /**
@@ -242,12 +311,12 @@ export default class TenantTypeDomainCustomHelper {
      * @param {JQuery} elementsDomain - Elementos a serem ocultados.
      * @private
      */
-    static #hideElementsDomainCustom(instanceParent, elementsDomain) {
+    static #hideElementsDomainCustom(instanceParent, elementsDomain, options = {}) {
         elementsDomain.removeClass('d-inline-flex').css('display', 'none')
             .find('select').attr('disabled', true);
 
         // Remove evento change ao ocultar os elementos
-        this.#removeEventsSelectDomainCustom(instanceParent, elementsDomain);
+        this.#removeEventsSelectDomainCustom(instanceParent, elementsDomain, options);
     }
 
     /**
@@ -258,8 +327,8 @@ export default class TenantTypeDomainCustomHelper {
      * @param {JQuery} elementsDomain - Elementos que contêm o `<select>`.
      * @private
      */
-    static #addEventsSelectDomainCustom(instanceParent, elementsDomain) {
-        this.#startResetDomainCustomDomainIDVariable(instanceParent);
+    static #addEventsSelectDomainCustom(instanceParent, elementsDomain, options = {}) {
+        this.#startResetDomainCustomDomainIDVariable(instanceParent, options);
 
         const select = elementsDomain.find(`#domain_id${instanceParent.getSufixo}`);
         if (!select.length) return;
@@ -290,11 +359,16 @@ export default class TenantTypeDomainCustomHelper {
      *
      * @param {Object} instanceParent - Instância do componente pai.
      * @param {JQuery} elementsDomain - Elementos que contêm o `<select>`.
+     * @param {Object} [options={}] - Opções adicionais..
+     * @param {boolean} [options.stop_variable] - Indica se a variável `domain_id` deve ser zerada.
      * @private
      */
-    static #removeEventsSelectDomainCustom(instanceParent, elementsDomain) {
+    static #removeEventsSelectDomainCustom(instanceParent, elementsDomain, options = {}) {
 
-        this.#startResetDomainCustomDomainIDVariable(instanceParent);
+        if (!options?.stop_variable) {
+            this.#startResetDomainCustomDomainIDVariable(instanceParent);
+        }
+
         const select = elementsDomain.find(`#domain_id${instanceParent.getSufixo}`);
         if (!select.length) return;
 
@@ -307,6 +381,11 @@ export default class TenantTypeDomainCustomHelper {
      * @param {Object} instanceParent - Instância do componente pai.
      */
     static #startResetDomainCustomDomainIDVariable(instanceParent) {
+
+        if (instanceParent._objConfigs.domainCustom.blocked_changes) {
+            throw new Error("A definição de domínio customizado foi bloqueada. Se o problema persistir, contate o suporte.");
+        }
+
         instanceParent._objConfigs.domainCustom.domain_id ??= undefined;
         instanceParent._objConfigs.domainCustom.domain_id = undefined;
     }

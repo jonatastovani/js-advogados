@@ -1,3 +1,6 @@
+import { modalMessage } from "../../components/comum/modalMessage";
+import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
+import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
@@ -43,6 +46,9 @@ export class modalRegistrationAndEditing extends modalDefault {
         super(objSuper);
 
         this.#addEventsDefault();
+
+        this._queueCheckDomainCustom = new QueueManager();
+        this._queueCheckDomainCustom.enqueue(() => TenantTypeDomainCustomHelper.checkElementsDomainCustom(this, { stop_variable: true }));
     }
 
     #addEventsDefault() {
@@ -84,7 +90,9 @@ export class modalRegistrationAndEditing extends modalDefault {
         try {
             const obj = new connectAjax(urlApi);
             obj.setParam(idRegister);
-            return await obj.getRequest();
+            const response = await obj.getRequest();
+            TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            return response;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
@@ -105,11 +113,36 @@ export class modalRegistrationAndEditing extends modalDefault {
 
         try {
             commonFunctions.simulateLoading(btnSave);
+
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
             obj.setAction(self._action)
             obj.setData(data);
             if (self._action === enumAction.PUT) {
                 obj.setParam(self._dataEnvModal.idRegister);
+            }
+
+            if (forcedDomainId) {
+
+                const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+                if (instance && instance.getSelectedValue && forcedDomainId != instance.getSelectedValue) {
+                    const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
+                    const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
+
+                    const objMessage = new modalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Atenção',
+                        message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
+                    };
+                    const result = await objMessage.modalOpen();
+                    if (!result.confirmResult) {
+                        return false;
+                    }
+                }
             }
 
             const response = await obj.envRequest();

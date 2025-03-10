@@ -1,6 +1,5 @@
 @php
     use App\Enums\TenantTypeEnum;
-
     $user = Auth::user();
 @endphp
 

@@ -23,8 +23,8 @@ export class modalMessage extends modalDefault {
             idModal: "#modalMessage",
         });
 
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
         this.#addEventsDefault();
     }
 
