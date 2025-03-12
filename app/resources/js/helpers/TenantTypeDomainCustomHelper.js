@@ -1,6 +1,7 @@
 import { commonFunctions } from "../commons/commonFunctions";
 import instanceManager from "../commons/instanceManager";
 import { TenantTypeDomainCustom } from "../commons/TenantTypeDomainCustom";
+import { QueueManager } from "../utils/QueueManager";
 
 export default class TenantTypeDomainCustomHelper {
 
@@ -175,24 +176,21 @@ export default class TenantTypeDomainCustomHelper {
      */
     static checkDomainCustomBlockedChangesDomainId(instanceParent, data, options = {}) {
 
+        const instance = this.getInstanceTenantTypeDomainCustom;
+        if (!instance) return;
+
         if (instanceParent._objConfigs?.domainCustom?.applyBln) {
 
-            const instance = this.getInstanceTenantTypeDomainCustom;
-            if (!instance) {
-                throw new Error(`A instância de domínio customizado não foi encontrada. Caso erro persista, contate o suporte.`);
-            };
-
-            if (data.domain_id) {
-                instanceParent._objConfigs.domainCustom.domain_id = Number(data.domain_id);
-                const domainName = this.getDomainNameById(data.domain_id);
-                $(`#${instanceParent.getSufixo} .blocked-changes-domain`).html(` • ${domainName}`);
-            } else {
+            if (!data.domain_id) {
                 throw new Error(`Informação de unidade de domínio não encontrada. Caso erro persista, contate o suporte.`);
             }
-            instanceParent._objConfigs.domainCustom.blocked_changes = true;
+
+            const domainName = this.getDomainNameById(data.domain_id);
+            $(`#${instanceParent.getSufixo} .blocked-changes-domain`).html(` • ${domainName}`);
+
+            instanceParent.setForcedDomainIdBlockedChanges = data.domain_id;
         }
     }
-
 
     /**
      * Verifica se o domínio customizado tem um ID forçado e o retorna.
@@ -206,14 +204,13 @@ export default class TenantTypeDomainCustomHelper {
      */
     static checkDomainCustomForcedDomainId(instanceParent, options = {}) {
 
+        const instance = this.getInstanceTenantTypeDomainCustom;
+        if (!instance) return false;
+
         if (instanceParent._objConfigs?.domainCustom?.applyBln) {
 
-            const instance = this.getInstanceTenantTypeDomainCustom;
-            if (!instance) {
-                throw new Error(`A instância de domínio customizado não foi encontrada. Caso erro persista, contate o suporte.`);
-            };
-
-            if (!instanceParent._objConfigs?.domainCustom?.blocked_changes && instance.getSelectedValue != 0) return false;
+            if (!instanceParent._objConfigs?.domainCustom?.blocked_changes
+                && instance.getSelectedValue != 0) return false;
 
             const domainId = instanceParent._objConfigs?.domainCustom?.domain_id;
             if (!domainId) {
@@ -269,6 +266,7 @@ export default class TenantTypeDomainCustomHelper {
      * @param {Object} [options={}] - Opções adicionais.
      */
     static toggleElementsDomainCustom(instanceParent, options = {}) {
+
         const instance = this.getInstanceTenantTypeDomainCustom;
         if (!instance) return;
 
@@ -333,6 +331,11 @@ export default class TenantTypeDomainCustomHelper {
         const select = elementsDomain.find(`#domain_id${instanceParent.getSufixo}`);
         if (!select.length) return;
 
+        /** @type {QueueManager} */
+        instanceParent._queueSelectDomainCustom = new QueueManager();
+        instanceParent._queueSelectDomainCustom.setDeduplicationMode = 'last';
+        instanceParent._queueSelectDomainCustom.setPreserveQueue = true;
+
         select.off('change').on('change', () => {
             try {
                 const instance = this.getInstanceTenantTypeDomainCustom;
@@ -348,10 +351,13 @@ export default class TenantTypeDomainCustomHelper {
                 }
 
                 instanceParent._objConfigs.domainCustom.domain_id = selected;
+                instanceParent._queueSelectDomainCustom.setReady();
             } catch (error) {
                 commonFunctions.generateNotification(error.message, 'error');
             }
         });
+        select.trigger('change');
+        // instanceParent._queueSelectDomainCustom.setReady();
     }
 
     /**

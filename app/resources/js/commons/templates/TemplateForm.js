@@ -35,6 +35,9 @@ export class TemplateForm {
      */
     _idRegister;
 
+    /** @type {QueueManager} */
+    _queueSelectDomainCustom;
+
     constructor(objSuper = {}) {
         commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
         let sufixo = objSuper.sufixo ?? this._objConfigs.sufixo ?? undefined;
@@ -54,6 +57,25 @@ export class TemplateForm {
      */
     get getSufixo() {
         return this._sufixo ?? this._objConfigs.sufixo ?? undefined;
+    }
+
+    /**
+     * Define o ID forçado de domínio e marca as alterações como bloqueadas.
+     * 
+     * @param {number|string} id - ID do domínio a ser definido.
+     */
+    set setForcedDomainIdBlockedChanges(id) {
+        this._objConfigs.domainCustom.blocked_changes = true;
+        this._objConfigs.domainCustom.domain_id = id;
+    }
+
+    /**
+     * Retorna o ID do domínio forçado que está bloqueado de alterações.
+     * 
+     * @returns {number|string|undefined} ID do domínio forçado e bloqueado, se definido. Caso contrário, retorna `undefined`.
+     */
+    get getForcedDomainIdBlockedChanges() {
+        return this._objConfigs.domainCustom.domain_id;
     }
 
     async #addEventsDefault() {
@@ -76,13 +98,20 @@ export class TemplateForm {
         const {
             idRegister = self._idRegister,
             urlApi = self._objConfigs.url.base,
+            outCheckForced = false,
         } = options;
 
         try {
+            // Se for realizar a checagem de domínio forçado, então não se faz a atribuição do domínio forçado no próximo passo
+            const forcedDomainId = !outCheckForced ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
+
             obj.setParam(idRegister);
             const response = await obj.getRequest();
-            TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            if (!outCheckForced) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             return response;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
@@ -298,6 +327,40 @@ export class TemplateForm {
             commonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
+    }
+
+    /**
+     * Verifica e herda o ID de domínio customizado para envio ao modal.
+     * 
+     * Esta função verifica se o tenant tem um domínio customizado configurado.
+     * Se sim, define o `inherit_domain_id` dentro do objeto `dataEnvModal` 
+     *
+     * @param {Object} dataEnvModal - Objeto contendo os dados a serem enviados ao modal.
+     *                                Caso `inherit_domain_id` ainda não exista, será inserido.
+     * @throws {Error} Se o domínio customizado exigir um ID, mas ele não for encontrado.
+     * @private
+     */
+    _checkDomainCustomInheritDataEnvModal(dataEnvModal = {}) {
+        const self = this;
+
+        // Verifica se há uma instância de domínio customizado ativa
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+
+            // Obtém o ID do domínio customizado que deve ser herdado
+            const inherit_domain_id = self.getForcedDomainIdBlockedChanges;
+
+            // Se o ID não existir, lança um erro
+            if (!inherit_domain_id) {
+                console.error(self._objConfigs.domainCustom);
+                throw new Error('O ID de Unidade de Domínio a ser herdado não foi informado. Contate o suporte.');
+            }
+
+            // Define o inherit_domain_id no objeto
+            dataEnvModal.inherit_domain_id ??= undefined;
+            dataEnvModal.inherit_domain_id = inherit_domain_id;
+        }
+        return dataEnvModal;
     }
 
 }

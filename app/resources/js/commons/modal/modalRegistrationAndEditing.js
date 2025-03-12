@@ -51,6 +51,39 @@ export class modalRegistrationAndEditing extends modalDefault {
         this._queueCheckDomainCustom.enqueue(() => TenantTypeDomainCustomHelper.checkElementsDomainCustom(this, { stop_variable: true }));
     }
 
+    //#region Getters e Setters
+
+    /**
+     * Define o ID forçado de domínio e marca as alterações como bloqueadas.
+     * 
+     * @param {number|string} id - ID do domínio a ser definido.
+     */
+    set setForcedDomainIdBlockedChanges(id) {
+        this._objConfigs.domainCustom.blocked_changes = true;
+        this._objConfigs.domainCustom.domain_id = id;
+    }
+
+    /**
+     * Retorna o ID do domínio forçado que está bloqueado de alterações.
+     * 
+     * @returns {number|string|undefined} ID do domínio forçado e bloqueado, se definido. Caso contrário, retorna `undefined`.
+     */
+    get getForcedDomainIdBlockedChanges() {
+        return this._objConfigs.domainCustom.domain_id;
+    }
+
+    /**
+     * Define o ID forçado de domínio e marca as alterações como bloqueadas.
+     * 
+     * @param {number|string} id - ID do domínio a ser definido.
+     */
+    set setForcedDomainIdBlockedChanges(id) {
+        this._objConfigs.domainCustom.blocked_changes = true;
+        this._objConfigs.domainCustom.domain_id = id;
+    }
+
+    //#endregion
+
     #addEventsDefault() {
         const self = this;
     }
@@ -74,9 +107,37 @@ export class modalRegistrationAndEditing extends modalDefault {
     //#region Campos de busca padrão
 
     /**
+     * Recupera registros da API conforme a url informada.
+     * 
+     * @param {Object} options - Opções adicionais.
+     * @param {string} options.urlApi - URL da API.
+     * 
+     * @returns {Promise<Object|boolean>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicita o seja bem-sucedida ou false caso contrário.
+     */
+    async _get(options = {}) {
+        const self = this;
+        const { urlApi = self._objConfigs.url.base } = options;
+        try {
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
+            const response = await obj.getRequest();
+            if (!forcedDomainId) {
+                TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            }
+            return response;
+        } catch (error) {
+            commonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    /**
      * Recupera um registro da API.
      * 
-     * @param {Object} options - Op es adicionais.
+     * @param {Object} options - Opções adicionais.
      * @param {number} options.idRegister - ID do registro a ser recuperado.
      * @param {string} options.urlApi - URL da API.
      * 
@@ -88,10 +149,16 @@ export class modalRegistrationAndEditing extends modalDefault {
             urlApi = self._objConfigs.url.base
         } = options;
         try {
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const obj = new connectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
             obj.setParam(idRegister);
             const response = await obj.getRequest();
-            TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            if (!forcedDomainId) {
+                TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            }
             return response;
         } catch (error) {
             commonFunctions.generateNotificationErrorCatch(error);
@@ -162,4 +229,85 @@ export class modalRegistrationAndEditing extends modalDefault {
 
     //#endregion
 
+
+    //#region Verificações de domínio customizado
+
+    /**
+     * Verifica e herda o ID de domínio customizado para envio ao modal.
+     * 
+     * Esta função verifica se o tenant tem um domínio customizado configurado.
+     * Se sim, define o `inherit_domain_id` dentro do objeto `dataEnvModal` 
+     *
+     * @param {Object} dataEnvModal - Objeto contendo os dados a serem enviados ao modal.
+     *                                Caso `inherit_domain_id` ainda não exista, será inserido.
+     * @throws {Error} Se o domínio customizado exigir um ID, mas ele não for encontrado.
+     * @private
+     */
+    _checkDomainCustomInheritDataEnvModal(dataEnvModal = {}) {
+        const self = this;
+
+        // Verifica se há uma instância de domínio customizado ativa
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+
+            // Obtém o ID do domínio customizado que deve ser herdado
+            const inherit_domain_id = self.getForcedDomainIdBlockedChanges;
+
+            // Se o ID não existir, lança um erro
+            if (!inherit_domain_id) {
+                console.error(self._objConfigs.domainCustom);
+                throw new Error('O ID de Unidade de Domínio a ser herdado não foi informado. Contate o suporte.');
+            }
+
+            // Define o inherit_domain_id no objeto
+            dataEnvModal.inherit_domain_id ??= undefined;
+            dataEnvModal.inherit_domain_id = inherit_domain_id;
+        }
+        return dataEnvModal;
+    }
+
+    /**
+     * Verifica se o domínio customizado deve ser herdado e aplica a configuração.
+     * 
+     * Esta função verifica se o domínio customizado deve ser herdado (`inheritedBln`).
+     * Se essa configuração estiver ativa, ela obtém o `inherit_domain_id` da variável
+     * `dataEnvModal` e o define como o domínio forçado (`setForcedDomainIdBlockedChanges`).
+     * 
+     * Caso o `inherit_domain_id` não esteja presente, gera uma notificação de erro
+     * e retorna `false`, impedindo a continuidade da lógica.
+     *
+     * @returns {boolean} Retorna `true` se o domínio for herdado corretamente, `false` caso contrário.
+     * @private
+     */
+    _checkDomainCustomInherited() {
+        const self = this;
+
+        // Obtém a instância do gerenciador de domínio customizado
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (!instance) return false; // Se não houver instância, encerra a função
+
+        // Verifica se a configuração de herança de domínio está ativada
+        if (self._objConfigs?.domainCustom?.inheritedBln) {
+
+            // Obtém o ID do domínio herdado da variável `dataEnvModal`
+            const domainId = self._dataEnvModal.inherit_domain_id;
+
+            // Se não houver ID de domínio herdado, exibe erro e retorna falso
+            if (!domainId) {
+                commonFunctions.generateNotification(
+                    'O ID da Unidade de domínio herdada não foi enviado. Caso o erro persista, contate o suporte.',
+                    'error'
+                );
+                console.error(self._dataEnvModal);
+                return false;
+            }
+
+            // Define o domínio herdado como o domínio forçado
+            self.setForcedDomainIdBlockedChanges = domainId;
+        }
+
+        return true; // Retorna `true` caso a herança de domínio tenha sido aplicada com sucesso
+    }
+
+    //#endregion
 }

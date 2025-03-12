@@ -36,9 +36,9 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             idModal: "#modalParticipacaoParticipante",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._action = enumAction.POST;
     }
 
@@ -271,6 +271,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             envData: {
                 configuracao_tipo: self._dataEnvModal.configuracao_tipo,
             },
+            outInstanceParentBln: true
         }
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="participacao_tipo_id"]');

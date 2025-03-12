@@ -19,6 +19,14 @@ export class modalParticipacaoPreset extends ModalSearchAndFormRegistration {
             }
         },
         sufixo: 'ModalParticipacaoPreset',
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: true,
+        }
+    };
+
+    #dataEnvModal = {
+        inherit_domain_id: undefined,
     };
 
     /** 
@@ -33,14 +41,23 @@ export class modalParticipacaoPreset extends ModalSearchAndFormRegistration {
             idModal: "#modalParticipacaoPreset",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-
-        this.#addEventosPadrao();
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
     }
 
     async modalOpen() {
         const self = this;
+
+        self._queueCheckDomainCustom.setReady();
+        
+        if (!self._checkDomainCustomInherited()) {
+            await commonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve()
+        };
+
+        this.#addEventosPadrao();
+
         await self._modalHideShow();
         return await self._modalOpen();
     }

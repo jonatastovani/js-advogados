@@ -1,7 +1,7 @@
 <form id="form{{ $sufixo }}">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2">
         <div class="col mt-2">
-            <label for="nome{{ $sufixo }}" class="form-label">Nome</label>
+            <label for="nome{{ $sufixo }}" class="form-label">Nome*</label>
             <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
         </div>
     </div>

@@ -6,6 +6,7 @@ import { modalParticipacaoParticipante } from "../components/comum/modalParticip
 import { modalParticipacaoPreset } from "../components/comum/modalParticipacaoPreset";
 import { modalPessoa } from "../components/pessoas/modalPessoa";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
+import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
 export class ParticipacaoModule {
@@ -36,7 +37,7 @@ export class ParticipacaoModule {
     get getExibirPainelParticipantesPersonalizaveisBln() {
 
         switch (this._objConfigs.modoOperacao) {
-            
+
             // Se o modo de operação for "ressarcimento", já retorna true diretamente
             case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
                 return true;
@@ -129,14 +130,14 @@ export class ParticipacaoModule {
             commonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalParticipacaoPreset();
-                objModal.setDataEnvModal = {
+                objModal.setDataEnvModal = self._parentInstance._checkDomainCustomInheritDataEnvModal({
                     attributes: {
                         select: {
                             quantity: 1,
                             autoReturn: true,
                         }
                     }
-                }
+                });
 
                 if (self._extraConfigs?.typeParent == 'modal') {
                     await self._parentInstance._modalHideShow(false)
@@ -150,10 +151,10 @@ export class ParticipacaoModule {
                             await self._parentInstance._modalHideShow()
                         };
 
-                        await self._buscarPresetParticipacaoTenant(response.selected.id);
+                        await self._buscarPresetParticipacaoTenant(response.selected.id, self._retornaOptionsPreset());
                         $(`#preset_id${self._objConfigs.sufixo}`).trigger('change');
                     } else {
-                        self._buscarPresetParticipacaoTenant();
+                        self._buscarPresetParticipacaoTenant(null, self._retornaOptionsPreset());
                     }
                 }
             } catch (error) {
@@ -184,9 +185,10 @@ export class ParticipacaoModule {
                             if (hideShowModal && self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do preset...' });
 
-                            const response = await RequestsHelpers.getRecurse({
+                            const response = await self._parentInstance._getRecurse({
                                 urlApi: self._objConfigs.url.baseParticipacaoPreset,
-                                idRegister: preset_id
+                                idRegister: preset_id,
+                                outCheckForced: true,
                             });
                             if (response.data) {
                                 self._objConfigs.data.participantesNaTela = [];
@@ -253,6 +255,18 @@ export class ParticipacaoModule {
         }
 
         self._limparDivParticipantes();
+    }
+
+    _retornaOptionsPreset(optionsPreset = {}) {
+        const self = this;
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+            if (self._objConfigs?.domainCustom?.domain_id) {
+                return optionsPreset;
+            }
+            optionsPreset = instance.getSelectedValue == 0 ? { outInstanceParentBln: true } : {};
+        }
+        return optionsPreset;
     }
 
     _limparDivParticipantes() {
@@ -792,9 +806,10 @@ export class ParticipacaoModule {
         qtdIntegrantes.html(str);
     }
 
-    async _buscarPresetParticipacaoTenant(selected_id = null) {
+    async _buscarPresetParticipacaoTenant(selected_id = null, options = {}) {
         const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
+        options.instanceParent = self;
+        selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(`#preset_id${self._objConfigs.sufixo}`);
         await commonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoPreset, options);
     }

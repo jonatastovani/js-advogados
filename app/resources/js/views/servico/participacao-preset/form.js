@@ -1,15 +1,13 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
-import { RedirectHelper } from "../../../helpers/RedirectHelper";
-import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
+import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
 
-class PageParticipacaoPresetForm {
+class PageParticipacaoPresetForm extends TemplateForm {
 
-    _objConfigs = {
+    #objConfigs = {
         url: {
             base: window.apiRoutes.baseParticipacaoPreset,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
@@ -25,54 +23,79 @@ class PageParticipacaoPresetForm {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },
         },
+        domainCustom: {
+            applyBln: true,
+        }
     };
-    #action;
-    #idRegister;
+
     #functionsParticipacao;
 
     constructor() {
-        this.initEvents();
+        const sufixo = "PageParticipacaoPresetForm";
+        super({ sufixo });
+
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        commonFunctions.deepMergeObject(this._objConfigs, { sufixo });
+
         const objData = {
             objConfigs: this._objConfigs,
         }
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
+        this.initEvents();
     }
 
-    initEvents() {
+    async initEvents() {
         const self = this;
+        let buscaDadosBln = true;
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
-            self.#idRegister = uuid;
-            this.#action = enumAction.PUT;
-            self.#buscarDados();
+            self._idRegister = uuid;
+            self._action = enumAction.PUT;
+            buscaDadosBln = await self._buscarDados();
         } else {
-            this.#action = enumAction.POST;
+            self._action = enumAction.POST;
             $(`#nome${self._objConfigs.sufixo}`).trigger('focus');
         }
 
-        self.#addEventosBotoes();
+        if (buscaDadosBln) {
+            self._queueCheckDomainCustom.setReady();
+        }
     }
 
-    #addEventosBotoes() {
-        const self = this;
-
-        $(`#btnSave${self._objConfigs.sufixo}`).on('click', async function (e) {
-            e.preventDefault();
-            self.#saveButtonAction();
-        });
-    }
-
-    #saveButtonAction() {
+    saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = commonFunctions.getInputsValues(formRegistration[0]);
         data.participantes = self._objConfigs.data.participantesNaTela;
 
         if (self.#saveVerifications(data, formRegistration)) {
-            self.#save(data, self._objConfigs.url.base);
+            self._save(data, self._objConfigs.url.base);
         }
         return false;
+    }
+
+    async preenchimentoDados(response, options) {
+        const self = this;
+        const form = $(options.form);
+
+        const responseData = response.data;
+        form.find('input[name="nome"]').val(responseData.nome).trigger('focus');
+        form.find('input[name="descricao"]').val(responseData.descricao);
+
+        await Promise.all(
+            responseData.participantes.map(async (participante) => {
+                const integrantes = participante.integrantes ?? [];
+                delete participante.integrantes;
+                const item = await self.#functionsParticipacao._inserirParticipanteNaTela(participante);
+                await Promise.all(
+                    integrantes.map(async (integrante) => {
+                        await self.#functionsParticipacao._inserirIntegrante(item, integrante);
+                    })
+                );
+            })
+        );
+
     }
 
     #saveVerifications(data, formRegistration) {
@@ -99,80 +122,6 @@ class PageParticipacaoPresetForm {
         }
 
         return blnSave;
-    }
-
-    async #save(data, urlApi, options = {}) {
-        const self = this;
-        const {
-            btnSave = $(`#btnSave${self._objConfigs.sufixo}`),
-        } = options;
-
-        try {
-            commonFunctions.simulateLoading(btnSave);
-            const obj = new connectAjax(urlApi);
-            obj.setAction(self.#action);
-            obj.setData(data);
-            if (self.#action === enumAction.PUT) {
-                obj.setParam(self.#idRegister);
-            }
-            const response = await obj.envRequest();
-            if (response) {
-                RedirectHelper.redirectWithUUIDMessage(window.frontRoutes.frontRedirect, 'Dados enviados com sucesso!', 'success');
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        }
-        finally {
-            commonFunctions.simulateLoading(btnSave, false);
-        };
-    }
-
-    async #buscarDados() {
-        const self = this;
-
-        try {
-            await commonFunctions.loadingModalDisplay();
-            const response = await self.#getRecurse();
-            const form = $(`#form${self._objConfigs.sufixo}`);
-            if (response?.data) {
-                const responseData = response.data;
-                form.find('input[name="nome"]').val(responseData.nome).trigger('focus');
-                form.find('input[name="descricao"]').val(responseData.descricao);
-
-                await Promise.all(
-                    responseData.participantes.map(async (participante) => {
-                        const integrantes = participante.integrantes ?? [];
-                        delete participante.integrantes;
-                        const item = await self.#functionsParticipacao._inserirParticipanteNaTela(participante);
-                        await Promise.all(
-                            integrantes.map(async (integrante) => {
-                                await self.#functionsParticipacao._inserirIntegrante(item, integrante);
-                            })
-                        );
-                    })
-                );
-
-            } else {
-                form.find('input, textarea, select, button').prop('disabled', true);
-            }
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-        } finally {
-            await commonFunctions.loadingModalDisplay(false);
-        }
-    }
-
-    async #getRecurse(options = {}) {
-        const self = this;
-        const { idRegister = self.#idRegister,
-            urlApi = self._objConfigs.url.base,
-        } = options;
-        try {
-            return RequestsHelpers.getRecurse({ urlApi: urlApi, idRegister: idRegister });
-        } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            return false;
-        }
     }
 }
 

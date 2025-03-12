@@ -1,16 +1,14 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { RequestsHelpers } from "../../helpers/RequestsHelpers";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
-import { modalParticipacaoTipoTenant } from "../tenant/modalParticipacaoTipoTenant";
 
 export class modalParticipacao extends modalRegistrationAndEditing {
 
     #dataEnvModal = {
-        idRegister: undefined,
-        pagamento_tipo_tenant_id: undefined,
-        domain_id: undefined,
+        // idRegister: undefined,
+        // pagamento_tipo_tenant_id: undefined,
+        inherit_domain_id: undefined,
     }
 
     /**
@@ -35,7 +33,7 @@ export class modalParticipacao extends modalRegistrationAndEditing {
         },
         domainCustom: {
             applyBln: true,
-            inheritedBln: false
+            inheritedBln: true,
         }
     };
 
@@ -53,9 +51,10 @@ export class modalParticipacao extends modalRegistrationAndEditing {
             idModal: "#modalParticipacao",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+
         this._action = enumAction.POST;
         this._objConfigs.url.base = options.urlApi;
         const objData = {
@@ -67,21 +66,27 @@ export class modalParticipacao extends modalRegistrationAndEditing {
         }
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
 
-        this.#addEventosPadrao();
+        // this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
+        self._queueCheckDomainCustom.setReady();
 
-        await self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
+   
+        if (!self._checkDomainCustomInherited()) {
+            await commonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve()
+        };
+
         if (! await self._buscarDados()) {
             await commonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve();
         };
 
-        self._queueCheckDomainCustom.setReady();
+        await self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
         await commonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
@@ -90,35 +95,39 @@ export class modalParticipacao extends modalRegistrationAndEditing {
 
     #addEventosPadrao() {
         const self = this;
-        const modal = $(self._idModal);
+        
+        // remover tudo isso
+        // const modal = $(self._idModal);
 
-        modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new modalParticipacaoTipoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        $(self.getIdModal).find('select[name="preset_id"]').val(response.selected.id);
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
-            }
-        });
+        // modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
+        //     const btn = $(this);
+        //     commonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new modalParticipacaoTipoTenant();
+
+        //         objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
+        //             attributes: {
+        //                 select: {
+        //                     quantity: 1,
+        //                     autoReturn: true,
+        //                 }
+        //             }
+        //         });
+
+        //         await self._modalHideShow(false);
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh) {
+        //             if (response.selected) {
+        //                 $(self.getIdModal).find('select[name="preset_id"]').val(response.selected.id);
+        //             }
+        //         }
+        //     } catch (error) {
+        //         commonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         commonFunctions.simulateLoading(btn, false);
+        //         await self._modalHideShow();
+        //     }
+        // });
     }
 
     _clearForm() {
@@ -132,7 +141,7 @@ export class modalParticipacao extends modalRegistrationAndEditing {
 
         try {
             self._clearForm();
-            const response = await RequestsHelpers.get({
+            const response = await self._get({
                 urlApi: self._objConfigs.url.base,
             });
             if (response?.data) {

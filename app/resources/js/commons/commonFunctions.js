@@ -1,6 +1,7 @@
 // import 'select2';
 import { modalLoading } from "../components/comum/modalLoading";
 import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
+import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { connectAjax } from "./connectAjax";
 import { enumAction } from "./enumAction";
 import instanceManager from "./instanceManager";
@@ -217,6 +218,8 @@ export class commonFunctions {
      * @param {string} options.displayColumnName - O nome da coluna a ser exibida nas opções (padrão: 'nome').
      * @param {string} options.typeRequest - O tipo de solicitação (por exemplo, "GET" ou "POST").
      * @param {Object} options.envData - Os dados da solicitação (por exemplo, os dados de envio).
+     * @param {boolean} [options.outInstanceParentBln=false] - Valor boleano que verifica se é isento o envio da instância da Classe que chama a função. Padrão: false, indicando que é necessário.
+     * @param {class} options.instanceParent - Instância da Classe que chama a função.
      * @returns {Promise} - Uma promessa que é resolvida quando o elemento selecionado é preenchido ou rejeitado por erro.
      */
     static async fillSelect(elem, urlApi, options = {}) {
@@ -228,12 +231,26 @@ export class commonFunctions {
             displayColumnName = 'nome',
             typeRequest = enumAction.GET,
             envData = {},
+            outInstanceParentBln = false,
+            instanceParent = undefined,
         } = options;
 
-        const objConn = new connectAjax(urlApi);
-
         try {
+
+            const objConn = new connectAjax(urlApi);
             let response;
+
+            // Verifica se o tenant é do tipo que permite domínios customizados
+            const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+            if (instance && !outInstanceParentBln) {
+                if (!instanceParent) {
+                    throw new Error('Instância da Classe que chama a função precisa ser informada.');
+                }
+                const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(instanceParent);
+                if (forcedDomainId) {
+                    objConn.setForcedDomainCustomId = forcedDomainId;
+                }
+            }
 
             if (typeRequest === enumAction.GET) {
                 response = await objConn.getRequest();

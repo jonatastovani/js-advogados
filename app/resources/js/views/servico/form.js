@@ -78,7 +78,7 @@ class PageServicoForm extends TemplateForm {
 
     async initEvents() {
         const self = this;
-        let buscaDadosBln = false;
+        let buscaDadosBln = true;
 
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
@@ -106,7 +106,13 @@ class PageServicoForm extends TemplateForm {
     async #addEventosBotoes() {
         const self = this;
 
-        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+        if (self._queueSelectDomainCustom) {
+            self._queueSelectDomainCustom.enqueue(() =>
+                self.#functionsParticipacao._buscarPresetParticipacaoTenant(null, self.#functionsParticipacao._retornaOptionsPreset())
+            )
+        } else {
+            self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+        }
 
         self._classQuillEditor = new QuillEditorModule(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
@@ -990,6 +996,7 @@ class PageServicoForm extends TemplateForm {
                 const objModal = new modalParticipacao({
                     urlApi: `${self._objConfigs.url.basePagamentos}/${item.id}/participacao`
                 });
+                objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal();
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.registers) {
                     self.#buscarPagamentos();
@@ -1047,6 +1054,7 @@ class PageServicoForm extends TemplateForm {
                         const objModal = new modalParticipacao({
                             urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
                         });
+                        objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal();
                         const response = await objModal.modalOpen();
                         if (response.refresh && response.registers) {
                             atualizaLancamentos();
@@ -1113,7 +1121,8 @@ class PageServicoForm extends TemplateForm {
     async #buscarAreasJuridicas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { outInstanceParentBln: true };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const selector = $(`#area_juridica_id${self._objConfigs.sufixo}`);
             await commonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options);
             return true

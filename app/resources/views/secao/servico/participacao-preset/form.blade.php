@@ -9,6 +9,7 @@
                     'Cadastro de presets de coparticipantes para agilizar o preenchimento de informações em pagamentos e lançamentos.',
             ],
         ],
+        'sufixo' => $sufixo,
     ]);
     Session::put('paginaDados', $paginaDados);
 
@@ -30,10 +31,15 @@
 
     @include('secao.servico.participacao-preset.form.painel-dados-participacao-relacao')
 
-    <div class="row text-end">
-        <div class="col mt-2">
-            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save w-50"
-                style="max-width: 7rem">
+    <x-pagina.info-campos-obrigatorios />
+
+    <div class="d-flex gap-2 flex-column flex-sm-row justify-content-end mt-2">
+
+        <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" />
+
+        <div class="d-grid d-sm-inline-flex">
+            <button type="submit" id="btnSave{{ $sufixo }}" class="btn btn-outline-success btn-save"
+                style="min-width: 7rem">
                 Salvar
             </button>
         </div>
@@ -58,7 +64,7 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirect' => route('servico.participacao.index'),
+            'frontRedirectForm' => route('servico.participacao.index'),
         ],
     ])
     @endcomponent
