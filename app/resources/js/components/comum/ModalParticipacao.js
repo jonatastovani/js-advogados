@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 
-export class modalParticipacao extends modalRegistrationAndEditing {
+export class ModalParticipacao extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         // idRegister: undefined,
@@ -48,7 +48,7 @@ export class modalParticipacao extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalParticipacao",
+            idModal: "#ModalParticipacao",
         });
 
         commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -103,7 +103,7 @@ export class modalParticipacao extends modalRegistrationAndEditing {
         //     const btn = $(this);
         //     commonFunctions.simulateLoading(btn);
         //     try {
-        //         const objModal = new modalParticipacaoTipoTenant();
+        //         const objModal = new ModalParticipacaoTipoTenant();
 
         //         objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
         //             attributes: {

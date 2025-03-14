@@ -1,14 +1,14 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { modalFormaPagamentoTenant } from "../tenant/modalFormaPagamentoTenant";
-import { modalServicoPagamentoLancamento } from "./modalServicoPagamentoLancamento";
+import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
+import { ModalServicoPagamentoLancamento } from "./ModalServicoPagamentoLancamento";
 
-export class modalServicoPagamento extends modalRegistrationAndEditing {
+export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
@@ -42,7 +42,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalServicoPagamento",
+            idModal: "#ModalServicoPagamento",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -85,7 +85,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalFormaPagamentoTenant();
+                const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -253,7 +253,7 @@ export class modalServicoPagamento extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
+                const objModal = new ModalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
                 objModal.setDataEnvModal = {
                     idRegister: lancamento.id,
                 }

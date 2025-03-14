@@ -1,12 +1,12 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 /**
  * ModalMessage class.
  * 
  * Initializes the modal properties and adds event listeners to its buttons.
  */
-export class modalMessage extends modalDefault {
+export class ModalMessage extends ModalDefault {
 
     #dataEnvModal = {
         title: null,
@@ -20,7 +20,7 @@ export class modalMessage extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalMessage",
+            idModal: "#ModalMessage",
         });
 
         this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);

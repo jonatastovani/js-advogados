@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalDefault } from "../../commons/modal/modalDefault";
-import { modalContaTenant } from "../tenant/modalContaTenant";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
+import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
-export class modalSelecionarConta extends modalDefault {
+export class ModalSelecionarConta extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -31,7 +31,7 @@ export class modalSelecionarConta extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarConta",
+            idModal: "#ModalSelecionarConta",
         });
 
         commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -88,7 +88,7 @@ export class modalSelecionarConta extends modalDefault {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

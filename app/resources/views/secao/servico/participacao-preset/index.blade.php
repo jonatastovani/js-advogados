@@ -68,7 +68,7 @@
 
 
 @push('modals')
-    {{-- <x-modal.referencias.modalAreaJuridicaTenant.modal /> --}}
+    {{-- <x-modal.referencias.modal-area-juridica-tenant.modal /> --}}
 @endpush
 
 @push('scripts')

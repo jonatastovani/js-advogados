@@ -1,10 +1,10 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
-import { modalFormaPagamentoTenant } from "../tenant/modalFormaPagamentoTenant";
+import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
 
-export class modalServicoPagamentoLancamento extends modalRegistrationAndEditing {
+export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing {
 
     #objConfigs = {
         url: {
@@ -17,7 +17,7 @@ export class modalServicoPagamentoLancamento extends modalRegistrationAndEditing
 
     constructor(options = {}) {
         super({
-            idModal: "#modalServicoPagamentoLancamento",
+            idModal: "#ModalServicoPagamentoLancamento",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -52,7 +52,7 @@ export class modalServicoPagamentoLancamento extends modalRegistrationAndEditing
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalFormaPagamentoTenant();
+                const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

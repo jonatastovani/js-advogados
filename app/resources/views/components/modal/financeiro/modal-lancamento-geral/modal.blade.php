@@ -2,7 +2,7 @@
     $sufixo = 'ModalLancamentoGeral';
 @endphp
 
-<div class="modal fade" id="modalLancamentoGeral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="{{ $sufixo }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form class="modal-content formRegistration">
@@ -86,15 +86,25 @@
                         </p>
                     </div>
                 </div>
-
-                <x-pagina.info-campos-obrigatorios />
-
             </div>
-            <div class="modal-footer text-end">
-                <div class="col-12 mt-2">
-                    <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
-                        Salvar
-                    </button>
+            <div class="modal-footer py-1">
+                <div class="col">
+
+                    <x-pagina.info-campos-obrigatorios />
+
+                    <div class="d-flex gap-2 flex-column flex-sm-row justify-content-end mt-2">
+
+                        <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" />
+
+                        <div class="d-grid d-sm-inline-flex">
+                            <button type="submit" id="btnSave{{ $sufixo }}" style="min-width: 7rem;"
+                                class="btn btn-outline-success btn-save">
+                                Salvar
+                            </button>
+                        </div>
+
+                    </div>
+                    
                 </div>
             </div>
         </form>

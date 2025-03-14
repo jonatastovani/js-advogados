@@ -2,15 +2,15 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import { TemplateForm } from "../../commons/templates/TemplateForm";
-import { modalMessage } from "../../components/comum/modalMessage";
-import { modalParticipacao } from "../../components/comum/modalParticipacao";
-import { modalPessoa } from "../../components/pessoas/modalPessoa";
-import { modalSelecionarPagamentoTipo } from "../../components/servico/modalSelecionarPagamentoTipo";
-import { modalServicoPagamento } from "../../components/servico/modalServicoPagamento";
-import { modalAnotacaoLembreteTenant } from "../../components/tenant/modalAnotacaoLembreteTenant";
-import { modalAreaJuridicaTenant } from "../../components/tenant/modalAreaJuridicaTenant";
-import { modalDocumentoModeloTenant } from "../../components/tenant/modalDocumentoModeloTenant";
-import { modalSelecionarDocumentoModeloTenant } from "../../components/tenant/modalSelecionarDocumentoModeloTenant";
+import { ModalMessage } from "../../components/comum/ModalMessage";
+import { ModalParticipacao } from "../../components/comum/ModalParticipacao";
+import { ModalPessoa } from "../../components/pessoas/ModalPessoa";
+import { ModalSelecionarPagamentoTipo } from "../../components/servico/ModalSelecionarPagamentoTipo";
+import { ModalServicoPagamento } from "../../components/servico/ModalServicoPagamento";
+import { ModalAnotacaoLembreteTenant } from "../../components/tenant/ModalAnotacaoLembreteTenant";
+import { ModalAreaJuridicaTenant } from "../../components/tenant/ModalAreaJuridicaTenant";
+import { ModalDocumentoModeloTenant } from "../../components/tenant/ModalDocumentoModeloTenant";
+import { ModalSelecionarDocumentoModeloTenant } from "../../components/tenant/ModalSelecionarDocumentoModeloTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
@@ -51,7 +51,7 @@ class PageServicoForm extends TemplateForm {
         },
         domainCustom: {
             applyBln: true,
-        }
+        },
     };
 
     #functionsParticipacao;
@@ -117,7 +117,7 @@ class PageServicoForm extends TemplateForm {
         self._classQuillEditor = new QuillEditorModule(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
 
-        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), modalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
+        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
@@ -129,7 +129,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalPessoa();
+                const objModal = new ModalPessoa();
                 objModal.setDataEnvModal = {
                     perfis_busca: window.Statics.PerfisPermitidoClienteServico,
                 };
@@ -162,7 +162,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarDocumentoModeloTenant();
+                const objModal = new ModalSelecionarDocumentoModeloTenant();
                 objModal.setDataEnvModal = {
                     documento_modelo_tipo_id: window.Enums.DocumentoModeloTipoEnum.SERVICO,
                 };
@@ -170,7 +170,7 @@ class PageServicoForm extends TemplateForm {
 
                 if (response.refresh && response.register) {
                     try {
-                        const objModal = new modalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
+                        const objModal = new ModalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
                         objModal._dataEnvModal = {
                             documento_modelo_tenant: response.register,
                             objetos: await self.#getObjetosDocumentoModeloTenantRender(),
@@ -195,7 +195,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
+                const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -212,7 +212,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
+                const objModal = new ModalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -250,7 +250,7 @@ class PageServicoForm extends TemplateForm {
     async #openModal() {
         const self = this;
         try {
-            const objModal = new modalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
+            const objModal = new ModalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
             objModal._dataEnvModal = {
                 documento_modelo_tenant: {
                     "id": "9e58f171-b6ce-4e9d-9e4a-9e71ed0bcf7a",
@@ -480,7 +480,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#${item.idCard} .btn-delete`).on('click', async function () {
             try {
-                const obj = new modalMessage();
+                const obj = new ModalMessage();
                 obj.setDataEnvModal = {
                     title: 'Remoção de Cliente',
                     message: 'Tem certeza que deseja remover este cliente?',
@@ -606,7 +606,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
+                const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 };
@@ -960,7 +960,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
+                const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }
@@ -993,7 +993,7 @@ class PageServicoForm extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalParticipacao({
+                const objModal = new ModalParticipacao({
                     urlApi: `${self._objConfigs.url.basePagamentos}/${item.id}/participacao`
                 });
                 objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal();
@@ -1051,7 +1051,7 @@ class PageServicoForm extends TemplateForm {
                     const btn = $(this);
                     commonFunctions.simulateLoading(btn);
                     try {
-                        const objModal = new modalParticipacao({
+                        const objModal = new ModalParticipacao({
                             urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
                         });
                         objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal();

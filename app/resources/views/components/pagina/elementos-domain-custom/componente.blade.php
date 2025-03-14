@@ -7,7 +7,7 @@
 @if ($domainCustomBln)
 
     {{-- Inicia sempre oculto e o script verifica se mostra ou não --}}
-    <div class="{{-- d-inline-flex --}} {{ $domainCustomIdentificationClassName }}" style="display: none;">
+    <div class="{{-- d-inline-flex --}}{{ $domainCustomIdentificationClassName }}" style="display: none;">
         <div class="input-group">
             <div class="input-group-text">
                 <label for="domain_id{{ $sufixo }}">Unidade*</label>

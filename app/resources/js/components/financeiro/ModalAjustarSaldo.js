@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 
-export class modalAjustarSaldo extends modalRegistrationAndEditing {
+export class ModalAjustarSaldo extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -25,7 +25,7 @@ export class modalAjustarSaldo extends modalRegistrationAndEditing {
 
     constructor() {
         super({
-            idModal: "#modalAjustarSaldo",
+            idModal: "#ModalAjustarSaldo",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

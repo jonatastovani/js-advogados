@@ -2,9 +2,9 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalSelecionarConta } from "../../../components/financeiro/modalSelecionarConta";
-import { modalPessoa } from "../../../components/pessoas/modalPessoa";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
+import { ModalSelecionarConta } from "../../../components/financeiro/ModalSelecionarConta";
+import { ModalPessoa } from "../../../components/pessoas/ModalPessoa";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -93,7 +93,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 const dataEnvModalAppend = {
                     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                 };
-                const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                const objModal = new ModalPessoa({ dataEnvModal: dataEnvModalAppend });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
                     preencherInfoParceiro(response.selected);
@@ -132,7 +132,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -166,7 +166,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                 try {
 
-                    const objModal = new modalSelecionarConta();
+                    const objModal = new ModalSelecionarConta();
                     objModal.setDataEnvModal = {
                         perfil: self._objConfigs.data.perfil,
                     };
@@ -205,7 +205,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         //         }
         //         let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
 
-        //         const objModal = new modalSelecionarConta();
+        //         const objModal = new ModalSelecionarConta();
         //         objModal.setDataEnvModal = {
         //             participacoes: participacoesIds,
         //             perfil: self._objConfigs.data.perfil,

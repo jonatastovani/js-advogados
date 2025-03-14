@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 
-export class modalEndereco extends modalRegistrationAndEditing {
+export class ModalEndereco extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -22,7 +22,7 @@ export class modalEndereco extends modalRegistrationAndEditing {
 
     constructor() {
         super({
-            idModal: "#modalEndereco",
+            idModal: "#ModalEndereco",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

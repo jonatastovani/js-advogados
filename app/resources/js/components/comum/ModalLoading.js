@@ -1,6 +1,6 @@
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 
-export class modalLoading extends modalDefault {
+export class ModalLoading extends ModalDefault {
 
     #openTimer;
     #endTimer;
@@ -11,7 +11,7 @@ export class modalLoading extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalLoading",
+            idModal: "#ModalLoading",
         });
 
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);

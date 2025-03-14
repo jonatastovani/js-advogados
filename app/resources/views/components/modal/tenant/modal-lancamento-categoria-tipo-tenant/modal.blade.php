@@ -1,4 +1,4 @@
-<div class="modal fade" id="modalLancamentoCategoriaTipoTenant" data-bs-backdrop="static" data-bs-keyboard="false"
+<div class="modal fade" id="ModalLancamentoCategoriaTipoTenant" data-bs-backdrop="static" data-bs-keyboard="false"
     tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">

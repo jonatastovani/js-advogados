@@ -1,12 +1,12 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
-export class modalAnotacaoLembreteTenant extends modalRegistrationAndEditing {
+export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
 
     constructor(urlApi) {
         super({
-            idModal: "#modalAnotacaoLembreteTenant",
+            idModal: "#ModalAnotacaoLembreteTenant",
         });
 
         this._action = enumAction.POST;

@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { modalParticipacaoTipoTenant } from "../tenant/modalParticipacaoTipoTenant";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
+import { ModalParticipacaoTipoTenant } from "../tenant/ModalParticipacaoTipoTenant";
 
-export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
+export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
@@ -33,7 +33,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
 
     constructor() {
         super({
-            idModal: "#modalParticipacaoParticipante",
+            idModal: "#ModalParticipacaoParticipante",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -87,7 +87,7 @@ export class modalParticipacaoParticipante extends modalRegistrationAndEditing {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalParticipacaoTipoTenant();
+                const objModal = new ModalParticipacaoTipoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

@@ -1,4 +1,4 @@
-import { modalMessage } from "../../components/comum/modalMessage";
+import { ModalMessage } from "../../components/comum/ModalMessage";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -6,9 +6,9 @@ import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 import { connectAjax } from "../connectAjax";
 import { enumAction } from "../enumAction";
-import { modalDefault } from "./modalDefault";
+import { ModalDefault } from "./ModalDefault";
 
-export class ModalSearchAndFormRegistration extends modalDefault {
+export class ModalSearchAndFormRegistration extends ModalDefault {
 
     /**
      * Variável para reservar a ação a ser executada
@@ -541,25 +541,26 @@ export class ModalSearchAndFormRegistration extends modalDefault {
                 obj.setParam(self._idRegister);
             }
 
-            if (forcedDomainId) {
+            // Remover, aqui não tem redirecionamento
+            // if (forcedDomainId) {
 
-                const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+            //     const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
-                if (instance && instance.getSelectedValue && forcedDomainId != instance.getSelectedValue) {
-                    const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
-                    const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
+            //     if (instance && instance.getSelectedValue && forcedDomainId != instance.getSelectedValue) {
+            //         const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
+            //         const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
 
-                    const objMessage = new modalMessage();
-                    objMessage.setDataEnvModal = {
-                        title: 'Atenção',
-                        message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
-                    };
-                    const result = await objMessage.modalOpen();
-                    if (!result.confirmResult) {
-                        return false;
-                    }
-                }
-            }
+            //         const objMessage = new ModalMessage();
+            //         objMessage.setDataEnvModal = {
+            //             title: 'Atenção',
+            //             message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
+            //         };
+            //         const result = await objMessage.modalOpen();
+            //         if (!result.confirmResult) {
+            //             return false;
+            //         }
+            //     }
+            // }
 
             const response = await obj.envRequest();
             if (response) {
@@ -597,7 +598,7 @@ export class ModalSearchAndFormRegistration extends modalDefault {
 
         let blnModalLoading = false;
         try {
-            const obj = new modalMessage();
+            const obj = new ModalMessage();
             obj.setDataEnvModal = {
                 title: title,
                 message: message,

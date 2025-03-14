@@ -209,7 +209,7 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
     // async #delButtonAction(idDel, nameDel, button = null) {
     //     const self = this;
     //     try {
-    //         const obj = new modalMessage();
+    //         const obj = new ModalMessage();
     //         obj.setTitle = 'Exclusão de Item';
     //         obj.setMessage = `Confirma a exclusão do Item <b>${nameDel}</b>?`;
     //         obj.setFocusElementWhenClosingModal = button;

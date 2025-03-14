@@ -1,4 +1,4 @@
-import { modalMessage } from "../../components/comum/modalMessage";
+import { ModalMessage } from "../../components/comum/ModalMessage";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -431,7 +431,7 @@ export class TemplateSearch {
         } = options;
 
         try {
-            const obj = new modalMessage();
+            const obj = new ModalMessage();
             obj.setDataEnvModal = {
                 title: title,
                 message: message,

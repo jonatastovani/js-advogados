@@ -1,12 +1,12 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
-import { modalContaTenant } from "../tenant/modalContaTenant";
+import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
-export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing {
+export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -18,7 +18,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             baseContas: window.apiRoutes.baseContas,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
-        sufixo: 'ModalLancamentoGeralMovimentar',
+        sufixo: 'ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar',
         data: {
             lancamento_status_tipos: undefined,
             idRegister: undefined,
@@ -42,7 +42,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
 
     constructor(options = {}) {
         super({
-            idModal: "#modalLancamentoGeralMovimentar",
+            idModal: "#ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -88,7 +88,7 @@ export class modalLancamentoGeralMovimentar extends modalRegistrationAndEditing 
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

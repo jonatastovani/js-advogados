@@ -2,11 +2,11 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalLancamentoServicoMovimentar } from "../../../components/financeiro/modalLancamentoServicoMovimentar";
-import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
-import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
-import { modalFormaPagamentoTenant } from "../../../components/tenant/modalFormaPagamentoTenant";
+import { ModalMessage } from "../../../components/comum/ModalMessage";
+import { ModalLancamentoServicoMovimentar } from "../../../components/financeiro/ModalLancamentoServicoMovimentar";
+import { ModalLancamentoReagendar } from "../../../components/servico/ModalLancamentoReagendar";
+import { ModalAreaJuridicaTenant } from "../../../components/tenant/ModalAreaJuridicaTenant";
+import { ModalFormaPagamentoTenant } from "../../../components/tenant/ModalFormaPagamentoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
@@ -202,7 +202,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalFormaPagamentoTenant();
+                const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -231,7 +231,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAreaJuridicaTenant();
+                const objModal = new ModalAreaJuridicaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -492,7 +492,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
         const openMovimentar = async function (status_id) {
             try {
-                const objModal = new modalLancamentoServicoMovimentar();
+                const objModal = new ModalLancamentoServicoMovimentar();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                     pagamento_id: item.pagamento_id,
@@ -520,7 +520,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             const status_id = dados.status_id;
 
             try {
-                const obj = new modalMessage();
+                const obj = new ModalMessage();
                 obj.setDataEnvModal = {
                     title: 'Alterar Status',
                     message: `Confirma a alteração de status do lancamento <b>${descricao_automatica}</b> para <b class="fst-italic">${status_html}</b>?`,
@@ -599,7 +599,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
             btnAcao.click(async function () {
                 try {
-                    const objModal = new modalLancamentoReagendar({
+                    const objModal = new ModalLancamentoReagendar({
                         urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
                     });
                     objModal.setDataEnvModal = {

@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
-import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
+import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
+import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -49,15 +49,15 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnInserirAgendamentoGeral${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
                 });
                 objModal.setDataEnvModal = {
@@ -78,7 +78,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
                 });
                 objModal.setDataEnvModal = {
@@ -201,7 +201,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
                 });
                 objModal.setDataEnvModal = {
@@ -258,10 +258,11 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
@@ -275,10 +276,11 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             const self = this;
             const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as movimentações',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
             await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
@@ -291,10 +293,11 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as categorias',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#categoria_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;

@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
-export class modalLancamentoReagendar extends modalRegistrationAndEditing {
+export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         title: undefined,
@@ -26,7 +26,7 @@ export class modalLancamentoReagendar extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalLancamentoReagendar",
+            idModal: "#ModalLancamentoReagendar",
         });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);

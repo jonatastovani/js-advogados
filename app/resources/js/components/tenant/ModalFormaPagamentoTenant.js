@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
-import { modalContaTenant } from "./modalContaTenant";
+import { ModalContaTenant } from "./ModalContaTenant";
 
-export class modalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
+export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -31,7 +31,7 @@ export class modalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
 
     constructor() {
         super({
-            idModal: "#modalFormaPagamentoTenant",
+            idModal: "#ModalFormaPagamentoTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -56,7 +56,7 @@ export class modalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
 
         commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
 
-        commonFunctions.handleModal(self, modal.find('.openModalConta'), modalContaTenant, self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
         self._executarBusca();
         const queueCheck = self._queueCheckDomainCustom;

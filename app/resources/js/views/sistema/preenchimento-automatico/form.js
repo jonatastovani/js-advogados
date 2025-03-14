@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
-import { modalAreaJuridicaTenant } from "../../../components/tenant/modalAreaJuridicaTenant";
+import { ModalAreaJuridicaTenant } from "../../../components/tenant/ModalAreaJuridicaTenant";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../../modules/ParticipacaoModule";
@@ -65,7 +65,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAreaJuridicaTenant();
+                const objModal = new ModalAreaJuridicaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -120,7 +120,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
         //     const btn = $(this);
         //     commonFunctions.simulateLoading(btn);
         //     try {
-        //         const objModal = new modalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
+        //         const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
         //         objModal.setDataEnvModal = {
         //             idRegister: item.id,
         //         }

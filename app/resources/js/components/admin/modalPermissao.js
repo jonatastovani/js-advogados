@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { modalPermissaoGrupo } from "./modalPermissaoGrupo";
 
-export class modalPermissao extends modalRegistrationAndEditing {
+export class modalPermissao extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined

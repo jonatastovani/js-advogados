@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
-import { modalEscolaridadeTenant } from "../../../components/tenant/modalEscolaridadeTenant";
-import { modalEstadoCivilTenant } from "../../../components/tenant/modalEstadoCivilTenant";
-import { modalSexoTenant } from "../../../components/tenant/modalSexoTenant";
+import { ModalEscolaridadeTenant } from "../../../components/tenant/ModalEscolaridadeTenant";
+import { ModalEstadoCivilTenant } from "../../../components/tenant/ModalEstadoCivilTenant";
+import { ModalSexoTenant } from "../../../components/tenant/ModalSexoTenant";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { EnderecoModule } from "../../../modules/EnderecoModule";
@@ -77,11 +77,11 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     _addEventosBotoes() {
         const self = this;
 
-        commonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), modalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
+        commonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), ModalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
 
-        commonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), modalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
+        commonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), ModalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
 
-        commonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), modalSexoTenant, self.#buscarSexo.bind(self));
+        commonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), ModalSexoTenant, self.#buscarSexo.bind(self));
     }
 
     async preenchimentoDados(response, options = {}) {

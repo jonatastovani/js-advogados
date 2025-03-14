@@ -1,6 +1,6 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalEndereco } from "../components/comum/modalEndereco";
-import { modalMessage } from "../components/comum/modalMessage";
+import { ModalEndereco } from "../components/comum/ModalEndereco";
+import { ModalMessage } from "../components/comum/ModalMessage";
 import { MasksAndValidateHelpers } from "../helpers/MasksAndValidateHelpers";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -24,7 +24,7 @@ export class EnderecoModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalEndereco();
+                const objModal = new ModalEndereco();
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -147,7 +147,7 @@ export class EnderecoModule {
         const endereco1 = renderEndereco(enderecoRepetido);
         const endereco2 = renderEndereco(enderecoAInserir);
 
-        const objModal = new modalMessage();
+        const objModal = new ModalMessage();
         objModal.setDataEnvModal = {
             title: 'Possibilidade de Endereço Repetido',
             message: `Verifique a possibilidade de um endereço repetido:
@@ -269,7 +269,7 @@ export class EnderecoModule {
                 if (indexDoc != -1) {
                     const doc = docNaTela[indexDoc];
 
-                    const objModal = new modalEndereco();
+                    const objModal = new ModalEndereco();
                     objModal.setDataEnvModal = {
                         register: doc,
                     };
@@ -298,7 +298,7 @@ export class EnderecoModule {
                 if (indexDoc != -1) {
                     const doc = docNaTela[indexDoc] = item;
 
-                    const objMessage = new modalMessage();
+                    const objMessage = new ModalMessage();
                     objMessage.setDataEnvModal = {
                         title: `Exclusão de Endereço`,
                         message: `Confirma a exclusão do endereço <b>${doc.logradouro}, ${doc.numero}</b>?`,

@@ -15,7 +15,7 @@
     <title id="page-title" data-base-title="{{ tenant('sigla') }}" data-yield-title="@yield('title')">
         {{ tenant('sigla') }}
         @if ($domainName && !$domainCustomBln)
-            • {{ DomainTenantResolver::$currentDomain->name }}
+            • {{ $domainName }}
         @endif
         - @yield('title')
     </title>

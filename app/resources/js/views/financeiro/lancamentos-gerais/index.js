@@ -2,12 +2,12 @@ import { commonFunctions } from "../../../commons/commonFunctions";
 import { connectAjax } from "../../../commons/connectAjax";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalMessage } from "../../../components/comum/modalMessage";
-import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
-import { modalLancamentoGeralMovimentar } from "../../../components/financeiro/modalLancamentoGeralMovimentar";
-import { modalLancamentoReagendar } from "../../../components/servico/modalLancamentoReagendar";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
-import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
+import { ModalMessage } from "../../../components/comum/ModalMessage";
+import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
+import { ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar } from "../../../components/financeiro/ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar";
+import { ModalLancamentoReagendar } from "../../../components/servico/ModalLancamentoReagendar";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
+import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -166,9 +166,9 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), modalContaTenant, self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
             commonFunctions.generateNotification('Em desenvolvimento', 'warning');
@@ -199,7 +199,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
                 });
                 const response = await objModal.modalOpen();
@@ -309,7 +309,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         const openMovimentar = async function (status_id) {
             try {
-                const objModal = new modalLancamentoGeralMovimentar();
+                const objModal = new ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                     pagamento_id: item.pagamento_id,
@@ -337,7 +337,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             const status_id = dados.status_id;
 
             try {
-                const obj = new modalMessage();
+                const obj = new ModalMessage();
                 obj.setDataEnvModal = {
                     title: 'Alterar Status',
                     message: `Confirma a alteração de status do lancamento <b>${descricao}</b> para <b class="fst-italic">${status_html}</b>?`,
@@ -400,7 +400,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
         if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
             btnAcao.click(async function () {
                 try {
-                    const objModal = new modalLancamentoReagendar({
+                    const objModal = new ModalLancamentoReagendar({
                         urlApi: `${self._objConfigs.url.baseLancamentoGeral}/reagendar`
                     });
                     objModal.setDataEnvModal = {
@@ -436,7 +436,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
                 });
                 objModal.setDataEnvModal = {

@@ -1,13 +1,13 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
-import { modalFormaPagamentoTenant } from "../tenant/modalFormaPagamentoTenant";
+import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
 
-export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditing {
+export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -46,7 +46,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
 
     constructor(options = {}) {
         super({
-            idModal: "#modalLancamentoServicoMovimentar",
+            idModal: "#ModalLancamentoServicoMovimentar",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -93,7 +93,7 @@ export class modalLancamentoServicoMovimentar extends modalRegistrationAndEditin
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalFormaPagamentoTenant();
+                const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

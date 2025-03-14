@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 
-export class modalSelecionarUsuarioDomains extends modalDefault {
+export class ModalSelecionarUsuarioDomains extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -20,7 +20,7 @@ export class modalSelecionarUsuarioDomains extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarUsuarioDomains",
+            idModal: "#ModalSelecionarUsuarioDomains",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

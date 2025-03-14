@@ -3,9 +3,9 @@ import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchA
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { modalSelecionarPerfil } from "./modalSelecionarPerfil";
+import { ModalSelecionarPerfil } from "./ModalSelecionarPerfil";
 
-export class modalPessoa extends ModalSearchAndFormRegistration {
+export class ModalPessoa extends ModalSearchAndFormRegistration {
 
     // #dataEnvModal = {
     //     attributes: {
@@ -18,7 +18,7 @@ export class modalPessoa extends ModalSearchAndFormRegistration {
 
     constructor(objData = {}) {
         const envSuper = {
-            idModal: "#modalPessoa",
+            idModal: "#ModalPessoa",
         };
 
         envSuper.objConfigs = commonFunctions.deepMergeObject({
@@ -368,7 +368,7 @@ export class modalPessoa extends ModalSearchAndFormRegistration {
                 const perfisExibir = item.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
                 if (perfisExibir.length > 1) {
                     try {
-                        const objModal = new modalSelecionarPerfil();
+                        const objModal = new ModalSelecionarPerfil();
                         objModal.setDataEnvModal = {
                             perfis_opcoes: perfisExibir,
                         };

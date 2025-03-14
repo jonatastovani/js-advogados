@@ -2,13 +2,13 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
 import instanceManager from "../../commons/instanceManager";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { QuillEditorModule } from "../../modules/QuillEditorModule";
 import { QueueManager } from "../../utils/QueueManager";
 
-export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
+export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -38,7 +38,7 @@ export class modalDocumentoModeloTenant extends modalRegistrationAndEditing {
 
     constructor(urlApi) {
         super({
-            idModal: "#modalDocumentoModeloTenant",
+            idModal: "#ModalDocumentoModeloTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

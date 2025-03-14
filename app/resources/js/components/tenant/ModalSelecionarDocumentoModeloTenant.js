@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 
-export class modalSelecionarDocumentoModeloTenant extends modalDefault {
+export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -23,7 +23,7 @@ export class modalSelecionarDocumentoModeloTenant extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarDocumentoModeloTenant",
+            idModal: "#ModalSelecionarDocumentoModeloTenant",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -91,7 +91,7 @@ export class modalSelecionarDocumentoModeloTenant extends modalDefault {
             self._setEndTimer = true;
             // try {
             //     await self._modalHideShow(false);
-            //     const objModal = new modalDocumentoModeloTenant();
+            //     const objModal = new ModalDocumentoModeloTenant();
             //     objModal._dataEnvModal = {
             //         documento_modelo_tenant_id: data.documento_modelo_tenant_id,
             //     }

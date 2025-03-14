@@ -1,11 +1,11 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 import { URLHelper } from "../../helpers/URLHelper";
 
-export class modalPessoaDocumento extends modalRegistrationAndEditing {
+export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         register: undefined,
@@ -34,7 +34,7 @@ export class modalPessoaDocumento extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalPessoaDocumento",
+            idModal: "#ModalPessoaDocumento",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalLancamentoGeral } from "../../../components/financeiro/modalLancamentoGeral";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
-import { modalLancamentoCategoriaTipoTenant } from "../../../components/tenant/modalLancamentoCategoriaTipoTenant";
+import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
+import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -55,7 +55,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -85,7 +85,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             commonFunctions.simulateLoading(btn);
 
             try {
-                const objModal = new modalLancamentoCategoriaTipoTenant();
+                const objModal = new ModalLancamentoCategoriaTipoTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -139,7 +139,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
                 });
                 const response = await objModal.modalOpen();
@@ -241,7 +241,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalLancamentoGeral({
+                const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
                 });
                 objModal.setDataEnvModal = {

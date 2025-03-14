@@ -4,7 +4,7 @@ import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
 
-export class modalParticipacaoPreset extends ModalSearchAndFormRegistration {
+export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -38,7 +38,7 @@ export class modalParticipacaoPreset extends ModalSearchAndFormRegistration {
 
     constructor() {
         super({
-            idModal: "#modalParticipacaoPreset",
+            idModal: "#ModalParticipacaoPreset",
         });
 
         commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

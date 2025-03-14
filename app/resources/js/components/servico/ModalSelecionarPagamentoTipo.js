@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalDefault } from "../../commons/modal/modalDefault";
-import { modalServicoPagamento } from "./modalServicoPagamento";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
+import { modalServicoPagamento } from "./ModalServicoPagamento";
 
-export class modalSelecionarPagamentoTipo extends modalDefault {
+export class ModalSelecionarPagamentoTipo extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -17,7 +17,7 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
 
     constructor(urlBaseServico) {
         super({
-            idModal: "#modalSelecionarPagamentoTipo",
+            idModal: "#ModalSelecionarPagamentoTipo",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -56,7 +56,7 @@ export class modalSelecionarPagamentoTipo extends modalDefault {
             commonFunctions.simulateLoading(btn);
             try {
                 commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de pagamento, em desenvolvimento.', 'warning');
-                // const objModal = new modalContaTenant();
+                // const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {

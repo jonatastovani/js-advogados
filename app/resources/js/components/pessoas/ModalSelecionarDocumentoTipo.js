@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalDefault } from "../../commons/modal/modalDefault";
-import { modalPessoaDocumento } from "./modalPessoaDocumento";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
+import { ModalPessoaDocumento } from "./ModalPessoaDocumento";
 
-export class modalSelecionarDocumentoTipo extends modalDefault {
+export class ModalSelecionarDocumentoTipo extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -21,7 +21,7 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarDocumentoTipo",
+            idModal: "#ModalSelecionarDocumentoTipo",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
@@ -77,7 +77,7 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
             commonFunctions.simulateLoading(btn);
             try {
                 commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de documento, em desenvolvimento.', 'warning');
-                // const objModal = new modalContaTenant();
+                // const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {
@@ -126,7 +126,7 @@ export class modalSelecionarDocumentoTipo extends modalDefault {
         if (self.#saveVerifications(data, formRegistration)) {
             try {
                 await self._modalHideShow(false);
-                const objModal = new modalPessoaDocumento();
+                const objModal = new ModalPessoaDocumento();
                 objModal._dataEnvModal = {
                     documento_tipo_tenant_id: data.documento_tipo_tenant_id,
                 }

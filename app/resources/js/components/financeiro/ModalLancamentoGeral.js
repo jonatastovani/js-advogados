@@ -1,16 +1,16 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { Select2Helpers } from "../../helpers/Select2Helpers";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { QueueManager } from "../../utils/QueueManager";
-import { modalContaTenant } from "../tenant/modalContaTenant";
-import { modalLancamentoCategoriaTipoTenant } from "../tenant/modalLancamentoCategoriaTipoTenant";
-import { modalTagTenant } from "../tenant/modalTagTenant";
+import { ModalContaTenant } from "../tenant/ModalContaTenant";
+import { ModalLancamentoCategoriaTipoTenant } from "../tenant/ModalLancamentoCategoriaTipoTenant";
+import { ModalTagTenant } from "../tenant/ModalTagTenant";
 
-export class modalLancamentoGeral extends modalRegistrationAndEditing {
+export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         idRegister: undefined,
@@ -43,7 +43,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
             participacao_tipo_tenant: {
                 configuracao_tipo: undefined,
             },
-        }
+        },
+        domainCustom: {
+            applyBln: true,
+        },
     };
 
     /** 
@@ -58,7 +61,7 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
     constructor(options = {}) {
         super({
-            idModal: "#modalLancamentoGeral",
+            idModal: "#ModalLancamentoGeral",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
@@ -109,6 +112,8 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
         try {
             await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
+            self._queueCheckDomainCustom.setReady();
+
             await self.#addEventosPadrao();
             await self.#buscarContas();
             await self.#buscarMovimentacoesTipo();
@@ -141,15 +146,15 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
 
         self._modalReset();
 
-        commonFunctions.handleModal(self, modal.find('.openModalConta'), modalContaTenant, self.#buscarContas.bind(self));
+        commonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, modal.find('.openModalLancamentoCategoriaTipoTenant'), modalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        commonFunctions.handleModal(self, modal.find('.openModalLancamentoCategoriaTipoTenant'), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         modal.find('.openModalTag').on('click', async function () {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalTagTenant();
+                const objModal = new ModalTagTenant();
                 objModal.setDataEnvModal = {
                     tag_tipo: window.Enums.TagTipoTenantEnum.LANCAMENTO_GERAL,
                 }
@@ -488,7 +493,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     async #buscarContas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
@@ -513,7 +521,10 @@ export class modalLancamentoGeral extends modalRegistrationAndEditing {
     async #buscarLancamentoCategoriaTipoTenant(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#categoria_id${self.getSufixo}`);
             await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;

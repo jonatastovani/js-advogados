@@ -5,7 +5,7 @@
     }
 @endphp
 
-<div class="modal fade" id="modalPessoa" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="{{ $sufixo }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-lg-down">
         <div class="modal-content">
             <div class="modal-header py-1">

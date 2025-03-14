@@ -1,12 +1,3 @@
-<div class="row {{ $domainCustomIdentificationClassName }} row-cols-1 row-cols-sm-2 flex-row-reverse">
-    <div class="col mt-2">
-        <label for="domain_id{{ $sufixo }}" class="form-label">Unidade*</label>
-        <select name="domain_id" id="domain_id{{ $sufixo }}" class="form-select">
-            <option value="0">Selecione</option>
-        </select>
-    </div>
-</div>
-
 <div class="row">
     <div class="col mt-2">
         <label for="categoria_id{{ $sufixo }}" class="form-label">Categoria*</label>

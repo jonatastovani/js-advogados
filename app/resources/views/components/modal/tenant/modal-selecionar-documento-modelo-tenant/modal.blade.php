@@ -2,7 +2,7 @@
     $sufixo = 'ModalSelecionarDocumentoModeloTenant';
 @endphp
 
-<div class="modal fade" id="modalSelecionarDocumentoModeloTenant" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal fade" id="{{ $sufixo }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -14,10 +14,11 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
-                            <label for="documento_modelo_tenant_id{{ $sufixo }}" class="form-label">Modelo*</label>
+                            <label for="documento_modelo_tenant_id{{ $sufixo }}"
+                                class="form-label">Modelo*</label>
                             <div class="input-group">
-                                <select name="documento_modelo_tenant_id" id="documento_modelo_tenant_id{{ $sufixo }}"
-                                    class="form-select">
+                                <select name="documento_modelo_tenant_id"
+                                    id="documento_modelo_tenant_id{{ $sufixo }}" class="form-select">
                                     <option value="0">Selecione</option>
                                 </select>
                             </div>

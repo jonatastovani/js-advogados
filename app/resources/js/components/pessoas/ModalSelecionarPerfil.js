@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 
-export class modalSelecionarPerfil extends modalDefault {
+export class ModalSelecionarPerfil extends ModalDefault {
 
     #dataEnvModal = {
         perfis_opcoes: [],
@@ -16,7 +16,7 @@ export class modalSelecionarPerfil extends modalDefault {
             },
         }
         super({
-            idModal: "#modalSelecionarPerfil",
+            idModal: "#ModalSelecionarPerfil",
             objConfigs: objConfigs
         });
 

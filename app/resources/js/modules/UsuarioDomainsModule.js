@@ -1,6 +1,6 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalMessage } from "../components/comum/modalMessage";
-import { modalSelecionarUsuarioDomains } from "../components/pessoas/modalSelecionarUsuarioDomains";
+import { ModalMessage } from "../components/comum/ModalMessage";
+import { ModalSelecionarUsuarioDomains } from "../components/pessoas/ModalSelecionarUsuarioDomains";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
 export class UsuarioDomainsModule {
@@ -23,7 +23,7 @@ export class UsuarioDomainsModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarUsuarioDomains();
+                const objModal = new ModalSelecionarUsuarioDomains();
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -108,7 +108,7 @@ export class UsuarioDomainsModule {
                 if (indexDominio != -1) {
                     const dominio = dominioNaTela[indexDominio] = item;
 
-                    const objMessage = new modalMessage();
+                    const objMessage = new ModalMessage();
                     objMessage.setDataEnvModal = {
                         title: `Remoção de Domínio`,
                         message: `Confirma a remoção do acesso ao domínio <b>${dominio.domain.domain}</b>?`,

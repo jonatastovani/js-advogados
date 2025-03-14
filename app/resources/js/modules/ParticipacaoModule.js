@@ -1,10 +1,10 @@
 import { commonFunctions } from "../commons/commonFunctions";
 import { connectAjax } from "../commons/connectAjax";
-import { modalMessage } from "../components/comum/modalMessage";
-import { modalNome } from "../components/comum/modalNome";
-import { modalParticipacaoParticipante } from "../components/comum/modalParticipacaoParticipante";
-import { modalParticipacaoPreset } from "../components/comum/modalParticipacaoPreset";
-import { modalPessoa } from "../components/pessoas/modalPessoa";
+import { ModalMessage } from "../components/comum/ModalMessage";
+import { ModalNome } from "../components/comum/ModalNome";
+import { ModalParticipacaoParticipante } from "../components/comum/ModalParticipacaoParticipante";
+import { ModalParticipacaoPreset } from "../components/comum/ModalParticipacaoPreset";
+import { ModalPessoa } from "../components/pessoas/ModalPessoa";
 import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../helpers/UUIDHelper";
@@ -59,16 +59,19 @@ export class ParticipacaoModule {
         const self = this;
 
         const openmodalParticipacao = async (dados_participacao) => {
+            // const inheritDomainId = self._domainInherit();
 
-            const objModal = new modalParticipacaoParticipante();
+            const objModal = new ModalParticipacaoParticipante();
             if (this._objConfigs?.participacao?.valor_tipo_permitido) {
                 objModal.setValorTipoPermitido = this._objConfigs.participacao.valor_tipo_permitido;
             }
-            objModal.setDataEnvModal = {
+            const dataEnvModal = {
                 dados_participacao: dados_participacao,
                 porcentagem_ocupada: self._objConfigs.data.porcentagem_ocupada,
                 configuracao_tipo: self._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo,
             };
+            // inheritDomainId ? dataEnvModal.inherit_domain_id = inheritDomainId : null;
+            objModal.setDataEnvModal = dataEnvModal;
             const response = await objModal.modalOpen();
             if (response.refresh) {
                 await self._inserirParticipanteNaTela(Object.assign(dados_participacao, response.register));
@@ -82,7 +85,7 @@ export class ParticipacaoModule {
                 const dataEnvModalAppend = {
                     perfis_busca: self._objConfigs.participacao.perfis_busca,
                 };
-                const objModal = new modalPessoa({ dataEnvModal: dataEnvModalAppend });
+                const objModal = new ModalPessoa({ dataEnvModal: dataEnvModalAppend });
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
@@ -104,7 +107,7 @@ export class ParticipacaoModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModalNome = new modalNome();
+                const objModalNome = new ModalNome();
                 objModalNome.setDataEnvModal = {
                     title: 'Novo grupo',
                     mensagem: 'Informe o nome do grupo',
@@ -129,7 +132,7 @@ export class ParticipacaoModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalParticipacaoPreset();
+                const objModal = new ModalParticipacaoPreset();
                 objModal.setDataEnvModal = self._parentInstance._checkDomainCustomInheritDataEnvModal({
                     attributes: {
                         select: {
@@ -221,7 +224,7 @@ export class ParticipacaoModule {
                     if (UUIDHelper.isValidUUID(preset_id)) {
                         if (divParticipantes.children().length > 0) {
                             try {
-                                const obj = new modalMessage();
+                                const obj = new ModalMessage();
                                 obj.setDataEnvModal = {
                                     title: 'Inserção de Preset',
                                     message: 'A inserção deste preset limpará todos os participantes atuais. Confirma esta ação?',
@@ -256,6 +259,31 @@ export class ParticipacaoModule {
 
         self._limparDivParticipantes();
     }
+
+    // _domainInherit() {
+    //     const self = this;
+
+    //     const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+    //     if (!instance) return false;
+
+    //     if (self._objConfigs?.domainCustom?.applyBln) {
+
+    //         const selectDomain = $(`#${self._parentInstance.getSufixo} .${instance.getDomainCustomIdentificationClassName}`);
+
+    //         if (selectDomain.length) {
+
+    //             const selected = Number(selectDomain.val());
+
+    //             if (!selected) throw new Error('A unidade selecionada  para o novo registro é inválida.');
+
+    //             const findDomain = instance.getArrayDomains.find(domain => domain.id == selected);
+    //             if (!findDomain) throw new Error('O valor da unidade selecionada para o novo registro é inválido.');
+
+    //             return selected;
+    //         }
+    //     }
+    //     return false;
+    // }
 
     _retornaOptionsPreset(optionsPreset = {}) {
         const self = this;
@@ -494,7 +522,7 @@ export class ParticipacaoModule {
                 if (item.valor_tipo == 'porcentagem') {
                     porcentagem_ocupada -= item.valor;
                 }
-                const objModal = new modalParticipacaoParticipante();
+                const objModal = new ModalParticipacaoParticipante();
                 if (this._objConfigs?.participacao?.valor_tipo_permitido) {
                     objModal.setValorTipoPermitido = this._objConfigs.participacao.valor_tipo_permitido;
                 }
@@ -518,7 +546,7 @@ export class ParticipacaoModule {
 
         $(`#${item.idCard} .btn-delete`).on('click', async function () {
             try {
-                const obj = new modalMessage();
+                const obj = new ModalMessage();
                 obj.setDataEnvModal = {
                     title: 'Remoção de Participante',
                     message: 'Tem certeza que deseja remover este participante?',
@@ -559,7 +587,7 @@ export class ParticipacaoModule {
                 const btn = $(this);
                 commonFunctions.simulateLoading(btn);
                 try {
-                    const objModalNome = new modalNome();
+                    const objModalNome = new ModalNome();
                     objModalNome.setDataEnvModal = {
                         title: 'Nome grupo',
                         mensagem: 'Informe o nome do grupo',
@@ -583,7 +611,7 @@ export class ParticipacaoModule {
                 const btn = $(this);
                 commonFunctions.simulateLoading(btn);
                 try {
-                    const objModal = new modalPessoa();
+                    const objModal = new ModalPessoa();
                     objModal.setDataEnvModal = {
                         perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                     }
@@ -737,7 +765,7 @@ export class ParticipacaoModule {
 
         $(`#${integrante.idCard} .btn-delete-integrante`).on('click', async function () {
             try {
-                const obj = new modalMessage();
+                const obj = new ModalMessage();
                 obj.setDataEnvModal = {
                     title: 'Remoção de Integrante',
                     message: 'Tem certeza que deseja remover este integrante?',

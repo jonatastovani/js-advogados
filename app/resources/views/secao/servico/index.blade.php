@@ -65,7 +65,7 @@
 
 
 @push('modals')
-    <x-modal.tenant.modalAreaJuridicaTenant.modal />
+    <x-modal.tenant.modal-area-juridica-tenant.modal />
 @endpush
 
 @push('scripts')

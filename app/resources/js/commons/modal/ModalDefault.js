@@ -1,7 +1,7 @@
 import { QueueManager } from "../../utils/QueueManager";
 import { commonFunctions } from "../commonFunctions";
 
-export class modalDefault {
+export class ModalDefault {
 
     /**
      * URL do endpoint da Api

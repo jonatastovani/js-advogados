@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalDefault } from "../../commons/modal/modalDefault";
+import { ModalDefault } from "../../commons/modal/ModalDefault";
 
-export class modalSelecionarPessoaPerfilTipo extends modalDefault {
+export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
 
     /**
      * Configuração local do modal
@@ -19,7 +19,7 @@ export class modalSelecionarPessoaPerfilTipo extends modalDefault {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarPessoaPerfilTipo",
+            idModal: "#ModalSelecionarPessoaPerfilTipo",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

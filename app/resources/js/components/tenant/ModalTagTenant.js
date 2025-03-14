@@ -2,7 +2,7 @@ import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 
-export class modalTagTenant extends ModalSearchAndFormRegistration {
+export class ModalTagTenant extends ModalSearchAndFormRegistration {
 
     /**
      * Configuração local do modal
@@ -30,7 +30,7 @@ export class modalTagTenant extends ModalSearchAndFormRegistration {
 
     constructor() {
         super({
-            idModal: "#modalTagTenant",
+            idModal: "#ModalTagTenant",
         });
 
         this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);

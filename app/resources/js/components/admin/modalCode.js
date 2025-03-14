@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../commons/commonFunctions";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
-export class modalCode extends modalRegistrationAndEditing {
+export class modalCode extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal

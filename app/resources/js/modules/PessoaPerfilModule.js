@@ -1,6 +1,6 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalMessage } from "../components/comum/modalMessage";
-import { modalSelecionarPessoaPerfilTipo } from "../components/pessoas/modalSelecionarPessoaPerfilTipo";
+import { ModalMessage } from "../components/comum/ModalMessage";
+import { ModalSelecionarPessoaPerfilTipo } from "../components/pessoas/ModalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
 export class PessoaPerfilModule {
@@ -23,7 +23,7 @@ export class PessoaPerfilModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarPessoaPerfilTipo();
+                const objModal = new ModalSelecionarPessoaPerfilTipo();
                 objModal.setDataEnvModal = {
                     pessoa_tipo_aplicavel: self._objConfigs.data.pessoa_tipo_aplicavel,
                 };
@@ -135,7 +135,7 @@ export class PessoaPerfilModule {
                 if (indexPerf != -1) {
                     const perf = perfNaTela[indexPerf] = item;
 
-                    const objMessage = new modalMessage();
+                    const objMessage = new ModalMessage();
                     objMessage.setDataEnvModal = {
                         title: `Remoção de Perfil`,
                         message: `Confirma a remoção do perfil <b>${perf.perfil_tipo.nome}</b>?`,

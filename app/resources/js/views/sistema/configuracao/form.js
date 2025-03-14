@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { enumAction } from "../../../commons/enumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
-import { modalNome } from "../../../components/comum/modalNome";
+import { ModalNome } from "../../../components/comum/ModalNome";
 import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -109,7 +109,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModalNome = new modalNome();
+                const objModalNome = new ModalNome();
                 objModalNome.setDataEnvModal = {
                     title: 'Nome domínio',
                     mensagem: 'Informe o nome do domínio',

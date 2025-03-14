@@ -1,9 +1,9 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
-import { modalContaTenant } from "../tenant/modalContaTenant";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
+import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
-export class modalContaTransferencia extends modalRegistrationAndEditing {
+export class ModalContaTransferencia extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -13,13 +13,13 @@ export class modalContaTransferencia extends modalRegistrationAndEditing {
             base: window.apiRoutes.baseTransferenciaConta,
             baseContas: window.apiRoutes.baseContas,
         },
-        sufixo: 'modalContaTransferencia',
+        sufixo: 'ModalContaTransferencia',
         data: {},
     };
 
     constructor() {
         super({
-            idModal: "#modalContaTransferencia",
+            idModal: "#ModalContaTransferencia",
         });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._action = enumAction.POST;
@@ -51,7 +51,7 @@ export class modalContaTransferencia extends modalRegistrationAndEditing {
 
         const openModalContaTenant = async function (btn, selector) {
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {

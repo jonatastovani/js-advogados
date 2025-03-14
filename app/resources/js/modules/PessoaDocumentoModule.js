@@ -1,7 +1,7 @@
 import { commonFunctions } from "../commons/commonFunctions";
-import { modalMessage } from "../components/comum/modalMessage";
-import { modalPessoaDocumento } from "../components/pessoas/modalPessoaDocumento";
-import { modalSelecionarDocumentoTipo } from "../components/pessoas/modalSelecionarDocumentoTipo";
+import { ModalMessage } from "../components/comum/ModalMessage";
+import { ModalPessoaDocumento } from "../components/pessoas/ModalPessoaDocumento";
+import { ModalSelecionarDocumentoTipo } from "../components/pessoas/ModalSelecionarDocumentoTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
 export class PessoaDocumentoModule {
@@ -24,7 +24,7 @@ export class PessoaDocumentoModule {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalSelecionarDocumentoTipo();
+                const objModal = new ModalSelecionarDocumentoTipo();
                 objModal.setDataEnvModal = {
                     pessoa_tipo_aplicavel: self._objConfigs.data.pessoa_tipo_aplicavel,
                 };
@@ -143,7 +143,7 @@ export class PessoaDocumentoModule {
                 if (indexDoc != -1) {
                     const doc = docNaTela[indexDoc];
 
-                    const objModal = new modalPessoaDocumento();
+                    const objModal = new ModalPessoaDocumento();
                     objModal.setDataEnvModal = {
                         register: doc,
                     };
@@ -172,7 +172,7 @@ export class PessoaDocumentoModule {
                 if (indexDoc != -1) {
                     const doc = docNaTela[indexDoc] = item;
 
-                    const objMessage = new modalMessage();
+                    const objMessage = new ModalMessage();
                     objMessage.setDataEnvModal = {
                         title: `Exclusão de Documento`,
                         message: `Confirma a exclusão do documento <b>${doc.documento_tipo_tenant.nome}</b>?`,

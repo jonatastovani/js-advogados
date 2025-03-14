@@ -1,6 +1,6 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
-import { modalAjustarSaldo } from "../../../components/financeiro/modalAjustarSaldo";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
+import { ModalAjustarSaldo } from "../../../components/financeiro/ModalAjustarSaldo";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -33,7 +33,7 @@ class PagePainelContaIndex {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
                 //         select: {
@@ -154,7 +154,7 @@ class PagePainelContaIndex {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalAjustarSaldo();
+                const objModal = new ModalAjustarSaldo();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                 }

@@ -1,8 +1,8 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { enumAction } from "../../commons/enumAction";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
-export class modalNome extends modalRegistrationAndEditing {
+export class ModalNome extends ModalRegistrationAndEditing {
 
     #dataEnvModal = {
         title: undefined,
@@ -26,7 +26,7 @@ export class modalNome extends modalRegistrationAndEditing {
 
     constructor(urlApi) {
         super({
-            idModal: "#modalNome",
+            idModal: "#ModalNome",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

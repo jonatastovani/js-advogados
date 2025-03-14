@@ -1,4 +1,4 @@
-import { modalMessage } from "../../components/comum/modalMessage";
+import { ModalMessage } from "../../components/comum/ModalMessage";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { QueueManager } from "../../utils/QueueManager";
@@ -118,7 +118,6 @@ export class TemplateForm {
             return false;
         }
     }
-
     async _buscarDados(options = {}) {
         const self = this;
         const {
@@ -229,7 +228,7 @@ export class TemplateForm {
                 obj.setParam(idRegister);
             }
 
-            if (forcedDomainId) {
+            if (forcedDomainId && redirectBln) {
 
                 const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
 
@@ -237,7 +236,7 @@ export class TemplateForm {
                     const nameSelected = TenantTypeDomainCustomHelper.getDomainNameById(instance.getDataCurrentDomain.id);
                     const nameCurrent = TenantTypeDomainCustomHelper.getDomainNameById(forcedDomainId);
 
-                    const objMessage = new modalMessage();
+                    const objMessage = new ModalMessage();
                     objMessage.setDataEnvModal = {
                         title: 'Atenção',
                         message: `<p>A unidade de visualização é <b>${nameSelected}</b> e este registro pertence a <b>${nameCurrent}</b>. Os dados serão salvos corretamente, mas o redirecionamento pode não encontrá-lo.</p><p>Deseja continuar?</p>`,
@@ -282,7 +281,7 @@ export class TemplateForm {
 
         let blnModalLoading = false;
         try {
-            const obj = new modalMessage();
+            const obj = new ModalMessage();
             obj.setDataEnvModal = {
                 title: title,
                 message: message,

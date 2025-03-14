@@ -42,7 +42,7 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
         //     const btn = $(this);
         //     commonFunctions.simulateLoading(btn);
         //     try {
-        //         const objModal = new modalContaTenant();
+        //         const objModal = new ModalContaTenant();
         //         objModal.setDataEnvModal = {
         //             attributes: {
         //                 select: {

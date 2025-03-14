@@ -1,10 +1,10 @@
 import { commonFunctions } from "../../commons/commonFunctions";
 import { connectAjax } from "../../commons/connectAjax";
-import { modalRegistrationAndEditing } from "../../commons/modal/modalRegistrationAndEditing";
+import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 
-export class modalSelecionarDocumento extends modalRegistrationAndEditing {
+export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -28,7 +28,7 @@ export class modalSelecionarDocumento extends modalRegistrationAndEditing {
 
     constructor() {
         super({
-            idModal: "#modalSelecionarDocumento",
+            idModal: "#ModalSelecionarDocumento",
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);

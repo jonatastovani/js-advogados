@@ -1,7 +1,7 @@
 import { commonFunctions } from "../../../commons/commonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
-import { modalSelecionarDocumento } from "../../../components/documento/modalSelecionarDocumento";
-import { modalContaTenant } from "../../../components/tenant/modalContaTenant";
+import { ModalSelecionarDocumento } from "../../../components/documento/ModalSelecionarDocumento";
+import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
@@ -68,7 +68,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             const btn = $(this);
             commonFunctions.simulateLoading(btn);
             try {
-                const objModal = new modalContaTenant();
+                const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
                     attributes: {
                         select: {
@@ -292,7 +292,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             if (item.metadata?.documento_gerado.length) {
                 try {
                     commonFunctions.simulateLoading(this);
-                    const objModal = new modalSelecionarDocumento();
+                    const objModal = new ModalSelecionarDocumento();
                     objModal.setDataEnvModal = {
                         idRegister: item.id,
                     };

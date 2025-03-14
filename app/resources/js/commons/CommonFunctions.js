@@ -1,5 +1,5 @@
 // import 'select2';
-import { modalLoading } from "../components/comum/modalLoading";
+import { ModalLoading } from "../components/comum/ModalLoading";
 import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { connectAjax } from "./connectAjax";
@@ -742,7 +742,7 @@ export class commonFunctions {
     }
 
     /**
-     * Abre um modal setando a classe no instanceManager o modalLoading aberto.
+     * Abre um modal setando a classe no instanceManager o ModalLoading aberto.
      *
      * @param {boolean} displayBln - Status de visibilidade do modal.
      * @param {Object} [options={}] - Opções para personalizar o modal.
@@ -757,7 +757,7 @@ export class commonFunctions {
             elementFocus = null,
         } = options;
 
-        const loading = instanceManager.setInstance('modalLoading', new modalLoading());
+        const loading = instanceManager.setInstance('ModalLoading', new ModalLoading());
         const isModalVisible = $(loading.getIdModal).hasClass('show');
 
         // Se o estado já é o desejado, retorna a Promise imediatamente
@@ -1116,7 +1116,7 @@ export class commonFunctions {
     /**
      * Função genérica para lidar com modais e buscar dados
      * @param {string} selector O seletor do botão que abre o modal
-     * @param {class} modalClass A classe do modal (por exemplo, modalContaTenant)
+     * @param {class} modalClass A classe do modal (por exemplo, ModalContaTenant)
      * @param {Function} buscarFunc A função de busca (por exemplo, self.#buscarContas)
      * @param {Object} options Opções adicionais
      * @param {Object} options.dataEnvAppend Dados adicionais que serão passados ao modal
