@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { ConnectAjax } from "../../../commons/ConnectAjax";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalMessage } from "../../../components/comum/ModalMessage";
 import { ModalLancamentoServicoMovimentar } from "../../../components/financeiro/ModalLancamentoServicoMovimentar";
@@ -200,7 +200,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
         $(`#openModalFormaPagamento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
@@ -221,15 +221,15 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
         $(`#openModalAreaJuridica${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAreaJuridicaTenant();
                 objModal.setDataEnvModal = {
@@ -249,9 +249,9 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -263,7 +263,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.forma_pagamento_id && UUIDHelper.isValidUUID(data.forma_pagamento_id)) {
                 appendData.forma_pagamento_id = data.forma_pagamento_id;
@@ -296,19 +296,19 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         const numero_servico = item.pagamento.servico.numero_servico;
         const numero_pagamento = item.pagamento.numero_pagamento;
         const status = item.status.nome;
-        const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
+        const valorEsperado = CommonFunctions.formatNumberToCurrency(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        const valorRecebido = item.data_recebimento ? commonFunctions.formatNumberToCurrency(item.valor_recebido) : '***';
+        const valorRecebido = item.data_recebimento ? CommonFunctions.formatNumberToCurrency(item.valor_recebido) : '***';
         const dataRecebimento = item.data_recebimento ? DateTimeHelper.retornaDadosDataHora(item.data_recebimento, 2) : '***';
         const formaPagamento = item.forma_pagamento ? item.forma_pagamento.nome : item.pagamento.forma_pagamento.nome;
         const descricaoAutomatica = item.descricao_automatica;
         const observacaoLancamento = item.observacao ?? '***';
-        const valorPagamento = item.pagamento.valor_total ? commonFunctions.formatNumberToCurrency(item.pagamento.valor_total) : '***';
+        const valorPagamento = item.pagamento.valor_total ? CommonFunctions.formatNumberToCurrency(item.pagamento.valor_total) : '***';
         const tituloServico = item.pagamento.servico.titulo;
         const areaJuridica = item.pagamento.servico.area_juridica.nome;
-        const valorLiquidado = item.pagamento.total_liquidado ? commonFunctions.formatNumberToCurrency(item.pagamento.total_liquidado) : '***';
-        const valorAguardando = item.pagamento.total_aguardando ? commonFunctions.formatNumberToCurrency(item.pagamento.total_aguardando) : '***';
-        const valorInadimplente = item.pagamento.total_inadimplente ? commonFunctions.formatNumberToCurrency(item.pagamento.total_inadimplente) : '***';
+        const valorLiquidado = item.pagamento.total_liquidado ? CommonFunctions.formatNumberToCurrency(item.pagamento.total_liquidado) : '***';
+        const valorAguardando = item.pagamento.total_aguardando ? CommonFunctions.formatNumberToCurrency(item.pagamento.total_aguardando) : '***';
+        const valorInadimplente = item.pagamento.total_inadimplente ? CommonFunctions.formatNumberToCurrency(item.pagamento.total_inadimplente) : '***';
         const pagamentoTipo = item.pagamento.pagamento_tipo_tenant.nome ?? item.pagamento.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.pagamento.observacao ?? '***';
         const statusPagamento = item.pagamento.status.nome;
@@ -503,7 +503,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     await self._generateQueryFilters();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
@@ -528,8 +528,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 obj.setFocusElementWhenClosingModal = this;
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
-                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoServico}/status-alterar`);
-                    objConn.setAction(enumAction.POST);
+                    const objConn = new ConnectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoServico}/status-alterar`);
+                    objConn.setAction(EnumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,
                         status_id: status_id,
@@ -540,7 +540,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
@@ -612,7 +612,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         await self._generateQueryFilters();
                     }
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 }
             });
         }
@@ -641,7 +641,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#forma_pagamento_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -658,7 +658,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -674,7 +674,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#area_juridica_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true;
         } catch (error) {
             return false;

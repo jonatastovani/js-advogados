@@ -1,8 +1,8 @@
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { QueueManager } from "../../utils/QueueManager";
-import { commonFunctions } from "../commonFunctions";
-import { connectAjax } from "../connectAjax";
-import { enumAction } from "../enumAction";
+import { CommonFunctions } from "../CommonFunctions";
+import { ConnectAjax } from "../ConnectAjax";
+import { EnumAction } from "../EnumAction";
 import { ModalDefault } from "./ModalDefault";
 
 export class ModalRegistrationAndEditing extends ModalDefault {
@@ -97,7 +97,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
         const self = this;
         const modal = $(self.getIdModal);
         const formRegistration = modal.find('.formRegistration');
-        self._action = enumAction.POST;
+        self._action = EnumAction.POST;
         formRegistration.find('select').val(0);
         formRegistration[0].reset();
         formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
@@ -118,7 +118,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
         const { urlApi = self._objConfigs.url.base } = options;
         try {
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
@@ -128,7 +128,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
             }
             return response;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -139,28 +139,30 @@ export class ModalRegistrationAndEditing extends ModalDefault {
      * @param {Object} options - Opções adicionais.
      * @param {number} options.idRegister - ID do registro a ser recuperado.
      * @param {string} options.urlApi - URL da API.
+     * @param {boolean} options.checkForcedBefore - Indica se o domínio forçado deve ser verificado antes da consulta.
      * 
      * @returns {Promise<Object|boolean>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicita o seja bem-sucedida ou false caso contr rio.
      */
     async _getRecurse(options = {}) {
         const self = this;
-        const { idRegister = self._dataEnvModal.idRegister,
-            urlApi = self._objConfigs.url.base
+        const {
+            idRegister = self._dataEnvModal.idRegister,
+            urlApi = self._objConfigs.url.base,
+            checkForcedBefore = false,
         } = options;
         try {
-            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            // Se for realizar a checagem de domínio antes, então não se faz a atribuição do domínio forçado no próximo passo, pois já foi setado em outro momento.
+            const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
             obj.setParam(idRegister);
             const response = await obj.getRequest();
-            if (!forcedDomainId) {
-                TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
-            }
+            if (!checkForcedBefore) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             return response;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -178,16 +180,16 @@ export class ModalRegistrationAndEditing extends ModalDefault {
         } = options;
 
         try {
-            commonFunctions.simulateLoading(btnSave);
+            CommonFunctions.simulateLoading(btnSave);
 
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
             obj.setAction(self._action)
             obj.setData(data);
-            if (self._action === enumAction.PUT) {
+            if (self._action === EnumAction.PUT) {
                 obj.setParam(self._dataEnvModal.idRegister);
             }
 
@@ -214,16 +216,16 @@ export class ModalRegistrationAndEditing extends ModalDefault {
 
             const response = await obj.envRequest();
             if (response) {
-                commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
+                CommonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
                 self._promisseReturnValue.refresh = true;
                 self._promisseReturnValue[fieldRegisterName] = response.data;
                 self._endTimer = true;
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
         finally {
-            commonFunctions.simulateLoading(btnSave, false);
+            CommonFunctions.simulateLoading(btnSave, false);
         };
     }
 
@@ -294,7 +296,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
 
             // Se não houver ID de domínio herdado, exibe erro e retorna falso
             if (!domainId) {
-                commonFunctions.generateNotification(
+                CommonFunctions.generateNotification(
                     'O ID da Unidade de domínio herdada não foi enviado. Caso o erro persista, contate o suporte.',
                     'error'
                 );

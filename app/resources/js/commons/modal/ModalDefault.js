@@ -1,5 +1,5 @@
 import { QueueManager } from "../../utils/QueueManager";
-import { commonFunctions } from "../commonFunctions";
+import { CommonFunctions } from "../CommonFunctions";
 
 export class ModalDefault {
 
@@ -64,13 +64,13 @@ export class ModalDefault {
         this._urlApi = objSuper.urlApi ?? undefined;
         this._idModal = objSuper.idModal;
 
-        this._promisseReturnValue = commonFunctions.deepMergeObject({
+        this._promisseReturnValue = CommonFunctions.deepMergeObject({
             refresh: false,
         }, objSuper.promisseReturnValue ?? {});
 
         this._focusElementWhenClosingModal = objSuper.focusElementWhenClosingModal ?? undefined;
         this._dataEnvModal = objSuper.dataEnvModal ?? {};
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
 
         this._endTimer = false;
         this.#addEventsDefault();

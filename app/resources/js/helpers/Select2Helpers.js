@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 
 export class Select2Helpers {
 
@@ -72,7 +72,7 @@ export class Select2Helpers {
                         }
                     };
 
-                    commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+                    CommonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
 
                     return $.ajax(ajaxOptions);
                 },
@@ -167,11 +167,11 @@ export class Select2Helpers {
     //                     error: function (xhr, textStatus, errorThrown) {
     //                         const error = Select2Helpers.errorHandling(xhr);
     //                         console.error(error.message);
-    //                         // commonFunctions.generateNotification(error.message, 'error');
+    //                         // CommonFunctions.generateNotification(error.message, 'error');
     //                     }
     //                 };
 
-    //                 commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+    //                 CommonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
 
     //                 return $.ajax(ajaxOptions);
     //             },
@@ -256,7 +256,7 @@ export class Select2Helpers {
     //                     }
     //                 };
 
-    //                 commonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
+    //                 CommonFunctions.deepMergeObject(ajaxOptions.data, dataAppend);
 
     //                 return $.ajax(ajaxOptions);
     //             },

@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { URLHelper } from "../../helpers/URLHelper";
@@ -49,14 +49,14 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = options.urlApi;
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
 
         this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do pagamento...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do pagamento...' });
         await this.#buscarFormaPagamento();
         await this.#buscarStatusPagamento();
 
@@ -65,14 +65,14 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             await self.#buscarDados()
         } else {
             if (!self._dataEnvModal.pagamento_tipo_tenant_id) {
-                commonFunctions.generateNotification('Tipo de pagamento não informado', 'error');
+                CommonFunctions.generateNotification('Tipo de pagamento não informado', 'error');
                 return await self._returnPromisseResolve();
             } else {
                 await self.#buscarDadosPagamentoTipo();
             }
         }
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -83,7 +83,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         modal.find('.openModalFormaPagamento').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
@@ -104,19 +104,19 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
 
         modal.find('.btn-simular').on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 await self.#simularPagamento();
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
     }
@@ -145,7 +145,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             for (const lancamento of response.data.lancamentos) {
                 const inserido = await self.#inserirLancamentos(lancamento, { status_id: 1 });
             }
-            commonFunctions.generateNotification('Simulação de pagamento concluída.', 'success');
+            CommonFunctions.generateNotification('Simulação de pagamento concluída.', 'success');
             $(self.getIdModal).find(`#lancamentos${self._objConfigs.sufixo}-tab`).trigger('click');
         }
     }
@@ -155,12 +155,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
         try {
-            const objConn = new connectAjax(URLHelper.formatEndpointUrl(`${pagamentoTipo.helper.endpoint_api}/render`));
-            objConn.setAction(enumAction.POST);
+            const objConn = new ConnectAjax(URLHelper.formatEndpointUrl(`${pagamentoTipo.helper.endpoint_api}/render`));
+            objConn.setAction(EnumAction.POST);
             objConn.setData(data);
             return await objConn.envRequest();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -169,7 +169,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
         const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
-        const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
+        const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
         const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
         const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
 
@@ -251,7 +251,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         $(`#${lancamento.idCard}`).find('.btn-edit').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
                 objModal.setDataEnvModal = {
@@ -263,10 +263,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                     self.#buscarLancamentos()
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 await self._modalHideShow();
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -274,10 +274,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarDadosPagamentoTipo(modo_editar_bln = false) {
         const self = this;
         try {
-            const objConn = new connectAjax(self._objConfigs.url.basePagamentoTipoTenants);
+            const objConn = new ConnectAjax(self._objConfigs.url.basePagamentoTipoTenants);
             objConn.setParam(self._dataEnvModal.pagamento_tipo_tenant_id);
             objConn.setData({ modo_editar_bln: modo_editar_bln })
-            objConn.setAction(enumAction.POST);
+            objConn.setAction(EnumAction.POST);
             const response = await objConn.envRequest();
 
             self._objConfigs.data.pagamento_tipo_tenant = response.data;
@@ -291,7 +291,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             }
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -299,7 +299,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const modal = $(self.getIdModal);
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-monetario'), { format: '#.##0,00', reverse: true });
 
         modal.find('.campos-personalizados .campo-dia-mes').mask('00', {
             onKeyPress: function (value, event, currentField) {
@@ -310,7 +310,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             }
         });
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
 
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
         if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
@@ -328,7 +328,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -341,7 +341,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             let options = { insertFirstOption: false };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(self.getIdModal).find('select[name="status_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseStatusPagamento, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseStatusPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -355,7 +355,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         try {
             self._clearForm();
             $(self.getIdModal).find('.btn-simular').hide();
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             const response = await self._getRecurse();
             if (response?.data) {
                 const responseData = response.data;
@@ -392,7 +392,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                             const rules = campo.form_request_rule.split('|');
                             let valor = responseData[campo.nome];
                             if (rules.find(rule => rule === 'numeric')) {
-                                valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
+                                valor = CommonFunctions.formatWithCurrencyCommasOrFraction(valor);
                             }
                             form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
                         }
@@ -405,7 +405,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 form.find('input[name="observacao"]').val(responseData.observacao);
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -422,7 +422,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 })
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -531,7 +531,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #obterDados() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
         if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
@@ -546,26 +546,26 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
         let blnSave = false;
 
-        if (self._action == enumAction.POST || self._action == enumAction.PUT && tipo == 'save') {
+        if (self._action == EnumAction.POST || self._action == EnumAction.PUT && tipo == 'save') {
 
-            blnSave = commonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
+            blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
 
-            if (self._action == enumAction.POST) {
+            if (self._action == EnumAction.POST) {
                 for (const campo of pagamentoTipo.campos_obrigatorios) {
                     const rules = campo.form_request_rule.split('|');
                     const nullable = rules.find(rule => rule === 'nullable');
 
                     if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-                        data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+                        data[campo.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
                     }
 
                     if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE && campo.nome == 'cron_expressao') {
                         if (data[campo.nome] == '* * * * *') {
-                            commonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
+                            CommonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
                             blnSave = false;
                         }
                     } else {
-                        blnSave = commonFunctions.verificationData(data[campo.nome], {
+                        blnSave = CommonFunctions.verificationData(data[campo.nome], {
                             field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
                             messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
                             setFocus: blnSave === true,

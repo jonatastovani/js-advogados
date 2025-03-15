@@ -1,6 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { Select2Helpers } from "../../helpers/Select2Helpers";
@@ -64,10 +63,10 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             idModal: "#ModalLancamentoGeral",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = EnumAction.POST;
         const objData = {
             objConfigs: this._objConfigs,
             extraConfigs: {
@@ -110,9 +109,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         const self = this;
 
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
-
-            self._queueCheckDomainCustom.setReady();
+            await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
             await self.#addEventosPadrao();
             await self.#buscarContas();
@@ -126,15 +123,17 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                     self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
                 }
             }
-            await commonFunctions.loadingModalDisplay(false);
+
+            self._queueCheckDomainCustom.setReady();
+            await CommonFunctions.loadingModalDisplay(false);
             await self._modalHideShow();
             self.#addEventoSelect2();
 
             return await self._modalOpen();
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
-            await commonFunctions.loadingModalDisplay(false);
+            CommonFunctions.generateNotificationErrorCatch(error);
+            await CommonFunctions.loadingModalDisplay(false);
         }
 
         return await self._returnPromisseResolve();
@@ -146,13 +145,13 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
 
         self._modalReset();
 
-        commonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
+        CommonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, modal.find('.openModalLancamentoCategoriaTipoTenant'), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        CommonFunctions.handleModal(self, modal.find('.openModalLancamentoCategoriaTipoTenant'), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         modal.find('.openModalTag').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalTagTenant();
                 objModal.setDataEnvModal = {
@@ -162,14 +161,14 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                 const response = await objModal.modalOpen();
                 self._executeFocusElementOnModal(this);
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
         switch (self._objConfigs.modoOperacao) {
             case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
@@ -398,18 +397,16 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         const self = this;
 
         self._clearForm();
-        const objConn = new connectAjax(self._objConfigs.url.base);
-        objConn.setParam(self._dataEnvModal.idRegister);
-        const response = await objConn.getRequest();
+        const response = await self._getRecurse();
 
         if (response?.data) {
             const responseData = response.data;
 
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             self._objConfigs.data.idRegister = self._dataEnvModal.idRegister;
 
             const descricao = responseData.descricao;
-            const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+            const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
             const form = $(self.getIdModal).find('.formRegistration');
 
             switch (self._objConfigs.modoOperacao) {
@@ -498,7 +495,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -511,7 +508,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -526,7 +523,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;
@@ -547,8 +544,8 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
-        data.valor_esperado = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
+        data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
         data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
         data.tags = self.#getTags();
 
@@ -561,33 +558,33 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
 
-        let blnSave = commonFunctions.verificationData(data.movimentacao_tipo_id, {
+        let blnSave = CommonFunctions.verificationData(data.movimentacao_tipo_id, {
             field: formRegistration.find('select[name="movimentacao_tipo_id"]'),
             messageInvalid: 'O tipo de movimentação deve ser selecionado.',
         });
 
-        blnSave = commonFunctions.verificationData(data.categoria_id, {
+        blnSave = CommonFunctions.verificationData(data.categoria_id, {
             field: formRegistration.find('select[name="categoria_id"]'),
             messageInvalid: 'A categoria deve ser selecionada.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.conta_id, {
+        blnSave = CommonFunctions.verificationData(data.conta_id, {
             field: formRegistration.find('select[name="conta_id"]'),
             messageInvalid: 'A conta deve ser selecionada.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.descricao, {
+        blnSave = CommonFunctions.verificationData(data.descricao, {
             field: formRegistration.find('input[name="descricao"]'),
             messageInvalid: 'A descrição do lançamento deve ser informada.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.valor_esperado, {
+        blnSave = CommonFunctions.verificationData(data.valor_esperado, {
             field: formRegistration.find('input[name="valor_esperado"]'),
             messageInvalid: 'O valor do lançamento deve ser informado.',
             setFocus: blnSave == true,
@@ -601,7 +598,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             if (data.recorrente_bln && data.recorrente_bln == true) {
                 data.cron_expressao = self._objConfigs.data.cronExpressao;
                 if (!data.cron_expressao) {
-                    blnSave = commonFunctions.verificationData(data.cron_expressao, {
+                    blnSave = CommonFunctions.verificationData(data.cron_expressao, {
                         field: formRegistration.find('select[name="cronDay"]'),
                         messageInvalid: 'Uma recorrência deve ser configurada.',
                         setFocus: blnSave == true,
@@ -611,7 +608,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             }
 
         } else {
-            blnSave = commonFunctions.verificationData(data.data_vencimento, {
+            blnSave = CommonFunctions.verificationData(data.data_vencimento, {
                 field: formRegistration.find('input[name="data_vencimento"]'),
                 messageInvalid: 'A data de vencimento deve ser informada.',
                 setFocus: blnSave == true,

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
@@ -49,13 +49,13 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
+        CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        CommonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnInserirAgendamentoGeral${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
@@ -68,15 +68,15 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
-        }).trigger('click');
+        });
 
         $(`#btnInserirAgendamentoRessarcimento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
@@ -89,9 +89,9 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -102,7 +102,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
@@ -142,7 +142,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
 
         const tipoAgendamento = self.#retornaTipoAgendamento(item.agendamento_tipo);
         const tipoMovimentacao = item.movimentacao_tipo.nome;
-        const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
+        const valorEsperado = CommonFunctions.formatNumberToCurrency(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
         const recorrente_bln = item.recorrente_bln ? 'Sim' : 'Não';
         const ativo_bln = item.ativo_bln ? 'Sim' : 'Não';
@@ -199,7 +199,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
 
         $(`#${item.idTr} .btn-edit`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO
@@ -213,9 +213,9 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -264,7 +264,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -282,7 +282,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -299,7 +299,7 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;

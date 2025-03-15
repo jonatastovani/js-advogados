@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 
 /**
  * Classe auxiliar para manipular máscaras e validações para campos de entrada comuns.
@@ -10,7 +10,7 @@ export class MasksAndValidateHelpers {
      * @returns {boolean} - Retorna true se o CPF for válido, caso contrário, false.
      */
     static validateCPF(numCPF) {
-        const num = commonFunctions.returnsOnlyNumber(numCPF);
+        const num = CommonFunctions.returnsOnlyNumber(numCPF);
 
         if (num.length !== 11 || /^(\d)\1*$/.test(num)) {
             return false;
@@ -37,7 +37,7 @@ export class MasksAndValidateHelpers {
      */
     static addEventCheckCPF({ event, selector }) {
         $(selector).on(event, function () {
-            const num = commonFunctions.returnsOnlyNumber(this.value);
+            const num = CommonFunctions.returnsOnlyNumber(this.value);
 
             if (num.length === 11) {
                 const bln = MasksAndValidateHelpers.validateCPF(this.value);
@@ -54,7 +54,7 @@ export class MasksAndValidateHelpers {
      * @returns {string} - Retorna o CPF formatado.
      */
     static formatCPF(numCPF) {
-        const num = commonFunctions.returnsOnlyNumber(numCPF);
+        const num = CommonFunctions.returnsOnlyNumber(numCPF);
         return num.length === 11 ? num.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : num;
     }
 
@@ -72,7 +72,7 @@ export class MasksAndValidateHelpers {
  * @returns {boolean} - Retorna true se o CNPJ for válido, caso contrário, false.
  */
     static validateCNPJ(numCNPJ) {
-        const num = commonFunctions.returnsOnlyNumber(numCNPJ);
+        const num = CommonFunctions.returnsOnlyNumber(numCNPJ);
 
         // Valida tamanho e repetição de números
         if (num.length !== 14 || /^(.)\1*$/.test(num)) {
@@ -102,7 +102,7 @@ export class MasksAndValidateHelpers {
      */
     static addEventCheckCNPJ({ event, selector }) {
         $(selector).on(event, function () {
-            const num = commonFunctions.returnsOnlyNumber(this.value);
+            const num = CommonFunctions.returnsOnlyNumber(this.value);
 
             if (num.length === 14) {
                 const isValid = MasksAndValidateHelpers.validateCNPJ(num);
@@ -119,7 +119,7 @@ export class MasksAndValidateHelpers {
      * @returns {string} - Retorna o CNPJ formatado.
      */
     static formatCNPJ(numCNPJ) {
-        const num = commonFunctions.returnsOnlyNumber(numCNPJ);
+        const num = CommonFunctions.returnsOnlyNumber(numCNPJ);
         return num.length === 14 ? num.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5') : num;
     }
 
@@ -137,11 +137,11 @@ export class MasksAndValidateHelpers {
      * @param {string} selector - O seletor do campo de entrada onde a máscara será aplicada.
      */
     static phoneMask(num, selector) {
-        const number = commonFunctions.returnsOnlyNumber(num);
+        const number = CommonFunctions.returnsOnlyNumber(num);
 
         $(selector).mask(number.length < 11 ? '(00) 0000-00009' : '(00) 0 0000-0009');
 
-        if (commonFunctions.returnsOnlyNumber($(selector).val()) !== number) {
+        if (CommonFunctions.returnsOnlyNumber($(selector).val()) !== number) {
             $(selector).val(this.formatPhone(number));
         }
     }
@@ -152,7 +152,7 @@ export class MasksAndValidateHelpers {
      * @returns {string} - Retorna o número de telefone formatado.
      */
     static formatPhone(num) {
-        const number = commonFunctions.returnsOnlyNumber(num);
+        const number = CommonFunctions.returnsOnlyNumber(num);
         return number.length < 11
             ? number.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
             : number.replace(/(\d{2})(\d)(\d{4})(\d{4})/, '($1) $2 $3-$4');

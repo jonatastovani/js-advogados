@@ -209,7 +209,7 @@ class MovimentacaoContaParticipanteService extends Service
                         }
                         break;
 
-                        // Se estiver como FINALIZADA, somar com o crédito ou débito liquidado
+                    // Se estiver como FINALIZADA, somar com o crédito ou débito liquidado
                     case MovimentacaoContaParticipanteStatusTipoEnum::FINALIZADA->value:
 
                         switch ($movimentacaoTipoId) {
@@ -282,9 +282,25 @@ class MovimentacaoContaParticipanteService extends Service
         if ($requestData->conta_id) {
             $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.conta_id", $requestData->conta_id);
         }
+
         if ($requestData->movimentacao_tipo_id) {
-            $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+            $query->where(function (Builder $query) use ($requestData) {
+
+                // Ser for uma movimentação de conta, filtra-se diretamente pelo tipo de movimentação informado.
+                $query->where(function (Builder $query) use ($requestData) {
+                    $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+                });
+
+                // Se for ressarcimento, tem que inverter o valor, pois se for debito para empresa é credito para o participante
+                $query->orWhere(function (Builder $query) use ($requestData) {
+                    $tipoContrario = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria(
+                        intval($requestData->movimentacao_tipo_id)
+                    );
+                    $query->where("{$this->modelLancamentoRessarcimento->getTableAsName()}.movimentacao_tipo_id", $tipoContrario['id']);
+                });
+            });
         }
+
         if ($requestData->movimentacao_status_tipo_id) {
             $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
         }
@@ -301,7 +317,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                 $query->where(function (Builder $query) {
 
-                    // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do perfil empresa se for lancamento de serviços
+                    // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do PERFIL EMPRESA se for lancamento de serviços
                     $query->where(function (Builder $query) {
 
                         $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
@@ -627,9 +643,9 @@ class MovimentacaoContaParticipanteService extends Service
 
             switch ($perfil['perfil_tipo_id']) {
 
-                    // Somente existirá um perfil de empresa para cada domínio
-                    // Se for o perfil empresa, somente trará os créditos
-                    // Deverá ser lançado o debito e crédito de liberação de valor para a mesma conta
+                // Somente existirá um perfil de empresa para cada domínio
+                // Se for o perfil empresa, somente trará os créditos
+                // Deverá ser lançado o debito e crédito de liberação de valor para a mesma conta
                 case PessoaPerfilTipoEnum::EMPRESA->value:
 
                     $dadosMovimentacao->valor_movimentado = $totalRepasse; // Mantém o valor

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { modalCode } from "../../../components/admin/modalCode";
 import { modalPermissao } from "../../../components/admin/modalPermissao";
@@ -37,7 +37,7 @@ class PagePermissoes extends TemplateSearch {
 
         $('#btnInserirPermissao').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new modalPermissao();
                 const response = await objModal.modalOpen();
@@ -45,9 +45,9 @@ class PagePermissoes extends TemplateSearch {
                     self._generateQueryFilters();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -96,7 +96,7 @@ class PagePermissoes extends TemplateSearch {
     #addEventosRegistrosConsulta(item) {
         const self = this;
         $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 const objModal = new modalPermissao();
                 objModal.setDataEnvModal = {
@@ -108,14 +108,14 @@ class PagePermissoes extends TemplateSearch {
                     self._generateQueryFilters();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
         $(`#${item.idTr}`).find(`.btn-php`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 const objModal = new modalCode();
                 objModal.setDataEnvModal = {
@@ -124,9 +124,9 @@ class PagePermissoes extends TemplateSearch {
                 };
                 const response = await objModal.modalOpen();
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
@@ -136,17 +136,17 @@ class PagePermissoes extends TemplateSearch {
 
         // modal.find('.btnBuscarPessoas').on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const obj = new modalConsultaPessoas();
         //         await self._modalHideShow(false);
         //         const response = await obj.modalOpen();
         //         console.log(response);
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
         //         await self._modalHideShow();
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //     }
         // });
 

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
@@ -55,7 +55,7 @@ class PageUsuarioPFIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.ativo_bln && [1, 0].includes(Number(data.ativo_bln))) {
                 appendData.ativo_bln = data.ativo_bln;
@@ -169,7 +169,7 @@ class PageUsuarioPFIndex extends TemplateSearch {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            commonFunctions.generateNotification('Funcionalidade para excluir pessoa fisica, em desenvolvimento.', 'warning');
+            CommonFunctions.generateNotification('Funcionalidade para excluir pessoa fisica, em desenvolvimento.', 'warning');
             // self._delButtonAction(item.id, item.pessoa_dados.nome, {
             //     title: `Exclusão de Pessoa Física`,
             //     message: `

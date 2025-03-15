@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
@@ -30,7 +30,7 @@ export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
         const self = this;
 
         if (!self._dataEnvModal.pessoa_tipo_aplicavel) {
-            commonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
+            CommonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
             return await self._returnPromisseResolve();
         }
 
@@ -70,13 +70,13 @@ export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
         let options = selected_id ? { selectedIdOption: selected_id } : {};
 
         const select = $(self.getIdModal).find('select[name="perfil_tipo_id"]');
-        return await commonFunctions.fillSelectArray(select, filtrados, options);
+        return await CommonFunctions.fillSelectArray(select, filtrados, options);
     }
 
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         if (self.#saveVerifications(data, formRegistration)) {
             self._promisseReturnValue.register = {
                 perfil_tipo_id: data.perfil_tipo_id,
@@ -89,7 +89,7 @@ export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        return commonFunctions.verificationData(data.perfil_tipo_id, { field: formRegistration.find('select[name="perfil_tipo_id"]'), messageInvalid: 'Selecione um tipo de perfil.', setFocus: true });
+        return CommonFunctions.verificationData(data.perfil_tipo_id, { field: formRegistration.find('select[name="perfil_tipo_id"]'), messageInvalid: 'Selecione um tipo de perfil.', setFocus: true });
     }
 
 }

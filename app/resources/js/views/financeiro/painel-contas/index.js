@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { ModalAjustarSaldo } from "../../../components/financeiro/ModalAjustarSaldo";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
@@ -31,7 +31,7 @@ class PagePainelContaIndex {
 
         $(`#openModalConta${self.#objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
@@ -48,15 +48,15 @@ class PagePainelContaIndex {
                     await self.#buscarDados();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
         $(`#atualizarDados${self.#objConfigs.sufixo}`).on('click', async function () {
             await self.#buscarDados();
-            // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
+            // CommonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
     }
@@ -65,7 +65,7 @@ class PagePainelContaIndex {
         const self = this;
 
         try {
-            await commonFunctions.loadingModalDisplay();
+            await CommonFunctions.loadingModalDisplay();
 
             const response = await RequestsHelpers.get({ urlApi: `${self.#objConfigs.url.base}/painel-conta` });
             const form = $(`#formServico${self.#objConfigs.sufixo}`);
@@ -78,9 +78,9 @@ class PagePainelContaIndex {
             }
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
     }
 
@@ -93,7 +93,7 @@ class PagePainelContaIndex {
         const status = item.conta_status.nome
         const subtipo = item.conta_subtipo.nome
         let saldo = item?.ultima_movimentacao?.saldo_atualizado ? item.ultima_movimentacao.saldo_atualizado : 0;
-        saldo = commonFunctions.formatNumberToCurrency(saldo);
+        saldo = CommonFunctions.formatNumberToCurrency(saldo);
         let dataHoraUltimaAtualizacao = item?.ultima_movimentacao?.created_at ? item.ultima_movimentacao.created_at : null;
         dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(item.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
 
@@ -152,7 +152,7 @@ class PagePainelContaIndex {
 
         $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAjustarSaldo();
                 objModal.setDataEnvModal = {
@@ -163,9 +163,9 @@ class PagePainelContaIndex {
                     self.#buscarDados();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }

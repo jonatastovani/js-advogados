@@ -1,6 +1,6 @@
-import { commonFunctions } from "../commons/commonFunctions";
-import { connectAjax } from "../commons/connectAjax";
-import { enumAction } from "../commons/enumAction";
+import { CommonFunctions } from "../commons/CommonFunctions";
+import { ConnectAjax } from "../commons/ConnectAjax";
+import { EnumAction } from "../commons/EnumAction";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 import { QuillEditorModule } from "./QuillEditorModule";
 
@@ -101,14 +101,14 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
 
             // self.addEventRemoverCliente();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return null;
         }
     }
 
     async #getDocumentoModeloTipo(id) {
         const self = this;
-        const objConn = new connectAjax(self._objConfigs.url.baseDocumentoModeloTipo);
+        const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoModeloTipo);
         objConn.setParam(id);
         const response = await objConn.getRequest();
         return response.data;
@@ -158,7 +158,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
         console.log(newObjeto.permite_multiplos);
         console.log(newObjeto.contador);
         if (!newObjeto.permite_multiplos && newObjeto.contador > 1) {
-            commonFunctions.generateNotification(`Este objeto não permite multiplos.`, 'warning');
+            CommonFunctions.generateNotification(`Este objeto não permite multiplos.`, 'warning');
             return false;
         }
         return true;
@@ -184,7 +184,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             const ultimoContador = self.#getContadorObjetoNaTela(objeto);
 
             if (ultimoContador === 0) {
-                commonFunctions.generateNotification(`Nenhum ${objeto.display} para remover.`, 'warning');
+                CommonFunctions.generateNotification(`Nenhum ${objeto.display} para remover.`, 'warning');
                 return;
             }
 
@@ -194,7 +194,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             );
 
             if (!ultimoObjeto) {
-                commonFunctions.generateNotification(`Erro ao localizar o objeto ${objeto.display} para remover.`, 'warning');
+                CommonFunctions.generateNotification(`Erro ao localizar o objeto ${objeto.display} para remover.`, 'warning');
                 console.error('objetosNaTela', self._objConfigs.quillEditor.objetosNaTela);
                 console.error('ultimoContador', ultimoContador);
                 console.error('ultimoObjeto', ultimoObjeto);
@@ -392,7 +392,7 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
             badgePendencias.html(contadorPendencias);
             return resultado;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -404,9 +404,9 @@ export class DocumentoModeloQuillEditorModule extends QuillEditorModule {
      */
     async #executaVerificacaoInconsistenciasObjetos(data) {
         const self = this;
-        const objConn = new connectAjax(self._objConfigs.url.baseDocumentoModeloTenantHelper);
+        const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoModeloTenantHelper);
         objConn.setParam(self.getDocumentoModeloTipoId);
-        objConn.setAction(enumAction.POST);
+        objConn.setAction(EnumAction.POST);
         objConn.setData(data);
         const response = await objConn.envRequest();
         return response.data;

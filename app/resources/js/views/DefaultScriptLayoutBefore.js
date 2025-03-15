@@ -1,4 +1,4 @@
-import instanceManager from "../commons/instanceManager";
+import InstanceManager from "../commons/InstanceManager";
 import { TenantTypeDomainCustom } from "../commons/TenantTypeDomainCustom";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 
@@ -17,7 +17,7 @@ class DefaultScriptLayoutBefore {
 
         if (window.domainCustom) {
             /** @type {TenantTypeDomainCustom} */
-            const custom = instanceManager.setInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, new TenantTypeDomainCustom());
+            const custom = InstanceManager.setInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, new TenantTypeDomainCustom());
             custom.setDomainCustom = window.domainCustom;
 
             const select = $(`#${custom.getNameAttributeKey}`);

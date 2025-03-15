@@ -86,25 +86,26 @@
                         </p>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer py-1">
-                <div class="col">
+                
+                <div class="row">
+                    <div class="col">
 
-                    <x-pagina.info-campos-obrigatorios />
+                        <x-pagina.info-campos-obrigatorios />
 
-                    <div class="d-flex gap-2 flex-column flex-sm-row justify-content-end mt-2">
+                        <div class="d-flex gap-2 flex-column flex-sm-row justify-content-end mt-2">
 
-                        <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" />
+                            <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" />
 
-                        <div class="d-grid d-sm-inline-flex">
-                            <button type="submit" id="btnSave{{ $sufixo }}" style="min-width: 7rem;"
-                                class="btn btn-outline-success btn-save">
-                                Salvar
-                            </button>
+                            <div class="d-grid d-sm-inline-flex">
+                                <button type="submit" id="btnSave{{ $sufixo }}" style="min-width: 7rem;"
+                                    class="btn btn-outline-success btn-save">
+                                    Salvar
+                                </button>
+                            </div>
+
                         </div>
 
                     </div>
-                    
                 </div>
             </div>
         </form>

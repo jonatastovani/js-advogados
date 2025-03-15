@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -39,10 +39,10 @@ class PageDocumentoModeloForm extends TemplateForm {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            this._action = enumAction.PUT;
+            this._action = EnumAction.PUT;
             await self._buscarDados();
         } else {
-            this._action = enumAction.POST;
+            this._action = EnumAction.POST;
         }
     }
 
@@ -86,10 +86,10 @@ class PageDocumentoModeloForm extends TemplateForm {
             responseData.objetos.map(item => {
                 let newObjeto = self._classQuillEditor._getObjetoBase(item.identificador);
                 if (!newObjeto) {
-                    commonFunctions.generateNotification(`Objeto ${item.identificador} não encontrado como objeto base.`, 'warning');
+                    CommonFunctions.generateNotification(`Objeto ${item.identificador} não encontrado como objeto base.`, 'warning');
                     return;
                 }
-                self._classQuillEditor._inserirObjetoNaTela(commonFunctions.deepMergeObject(newObjeto, item));
+                self._classQuillEditor._inserirObjetoNaTela(CommonFunctions.deepMergeObject(newObjeto, item));
             })
 
             self._classQuillEditor.getQuill.setContents(responseData.conteudo);
@@ -108,7 +108,7 @@ class PageDocumentoModeloForm extends TemplateForm {
         }
 
         try {
-            commonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`));
+            CommonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`));
 
             if (await self.#saveVerifications(data)) {
                 await self._save(data, self._objConfigs.url.base, {
@@ -117,7 +117,7 @@ class PageDocumentoModeloForm extends TemplateForm {
             }
 
         } finally {
-            commonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`), false);
+            CommonFunctions.simulateLoading($(`#btnSave${this._objConfigs.sufixo}`), false);
         }
 
         return false;
@@ -130,17 +130,17 @@ class PageDocumentoModeloForm extends TemplateForm {
         const resultado = await self._classQuillEditor._verificarInconsistenciasObjetos();
         if (!resultado) {
 
-            commonFunctions.generateNotification('A verificação de inconsistência falhou. Tente novamente e se o problema persistir, contate o suporte.', 'warning');
+            CommonFunctions.generateNotification('A verificação de inconsistência falhou. Tente novamente e se o problema persistir, contate o suporte.', 'warning');
             blnSave = false;
         } else {
 
             if (resultado.objetos_nao_utilizados.length > 0 || resultado.marcacoes_sem_referencia.length > 0) {
-                commonFunctions.generateNotification('Há marcações sem referência ou objetos não utilizados no modelo. Verifique na aba de revisão.', 'warning');
+                CommonFunctions.generateNotification('Há marcações sem referência ou objetos não utilizados no modelo. Verifique na aba de revisão.', 'warning');
                 blnSave = false;
             }
         }
 
-        blnSave = commonFunctions.verificationData(data.nome, { field: $(`#nome${self.getSufixo}`), messageInvalid: 'O nome do modelo deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = CommonFunctions.verificationData(data.nome, { field: $(`#nome${self.getSufixo}`), messageInvalid: 'O nome do modelo deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
 
         return blnSave;
 

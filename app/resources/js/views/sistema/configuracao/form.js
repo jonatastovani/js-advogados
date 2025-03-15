@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { ModalNome } from "../../../components/comum/ModalNome";
 import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
@@ -28,7 +28,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
     async initEvents() {
         const self = this;
         self._idRegister = 'current';
-        self._action = enumAction.PUT;
+        self._action = EnumAction.PUT;
 
         await self._buscarDados();
     }
@@ -107,7 +107,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
             }
 
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModalNome = new ModalNome();
                 objModalNome.setDataEnvModal = {
@@ -121,9 +121,9 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
                     $(`#${dominio.idCol} .spanTitle`).html(registro.name);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -131,7 +131,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
     saveButtonAction() {
         const self = this;
         const formData = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formData[0]);
+        let data = CommonFunctions.getInputsValues(formData[0]);
 
         data.domains = self._objConfigs.data.domainsNaTela;
 
@@ -144,9 +144,9 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
     _saveVerifications(data, formData) {
         const self = this;
 
-        let blnSave = commonFunctions.verificationData(data.name, { field: formData.find('input[name="name"]'), messageInvalid: 'O campo <b>Nome da Empresa</b> deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.name, { field: formData.find('input[name="name"]'), messageInvalid: 'O campo <b>Nome da Empresa</b> deve ser informado.', setFocus: true });
 
-        blnSave = commonFunctions.verificationData(data.sigla, { field: formData.find('input[name="sigla"]'), messageInvalid: 'O campo <b>Sigla</b> deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.sigla, { field: formData.find('input[name="sigla"]'), messageInvalid: 'O campo <b>Sigla</b> deve ser informado.', setFocus: true });
 
         return blnSave;
     }

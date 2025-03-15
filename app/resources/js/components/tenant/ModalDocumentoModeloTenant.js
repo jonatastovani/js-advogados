@@ -1,7 +1,7 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
-import instanceManager from "../../commons/instanceManager";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
+import InstanceManager from "../../commons/InstanceManager";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -41,10 +41,10 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             idModal: "#ModalDocumentoModeloTenant",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._objConfigs.url.base = urlApi;
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = EnumAction.POST;
 
         const objData = {
             objConfigs: this._objConfigs,
@@ -64,12 +64,12 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
     async modalOpen() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando dados do modelo...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando dados do modelo...' });
 
         await self.#buscarDadosDocumentoModeloTenant();
         self.#inserirTodosObjetos(self._dataEnvModal.objetos);
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
 
         return await self._modalOpen();
@@ -80,9 +80,9 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
         const instanceName = `QuillEditor${self.getSufixo}`;
         /** @type {QuillEditorModule} */
-        self._classQuillEditor = instanceManager.instanceVerification(instanceName);
+        self._classQuillEditor = InstanceManager.instanceVerification(instanceName);
         if (!self._classQuillEditor) {
-            self._classQuillEditor = instanceManager.setInstance(instanceName, new QuillEditorModule(`#conteudo${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper', 'code', 'link'] }));
+            self._classQuillEditor = InstanceManager.setInstance(instanceName, new QuillEditorModule(`#conteudo${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper', 'code', 'link'] }));
         }
 
         self._classQuillEditor.getQuill.setContents([]);
@@ -90,9 +90,9 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
         const btnRefresh = $(self.getIdModal).find('.btn-refresh');
         btnRefresh.on('click', async () => {
-            commonFunctions.simulateLoading(btnRefresh);
+            CommonFunctions.simulateLoading(btnRefresh);
             await self.#verificaInconsistenciasObjetosVinculados();
-            commonFunctions.simulateLoading(btnRefresh, false);
+            CommonFunctions.simulateLoading(btnRefresh, false);
         });
     }
 
@@ -106,10 +106,10 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
     async #buscarDados() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay();
+        await CommonFunctions.loadingModalDisplay();
         try {
             self._clearForm();
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             const response = await self._getRecurse();
             if (response?.data) {
                 const responseData = response.data;
@@ -121,17 +121,17 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
     }
 
     async #buscarDadosDocumentoModeloTenant() {
         const self = this;
         try {
-            const objConn = new connectAjax(self._objConfigs.url.baseDocumentoModeloTenant);
+            const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoModeloTenant);
             objConn.setParam(self._dataEnvModal.documento_modelo_tenant.id);
             const response = await objConn.getRequest();
             self._objConfigs.data.documento_modelo_tenant = response.data;
@@ -139,7 +139,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             self.#inserirObjetosPredefinidos();
             self.#verificaInconsistenciasObjetosVinculados();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -186,9 +186,9 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
             self._verificacoesInconsistenciasQueueManager.setNoReady();
 
-            const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
+            const objConn = new ConnectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
             objConn.setData({ objetos });
-            objConn.setAction(enumAction.POST);
+            objConn.setAction(EnumAction.POST);
             const response = await objConn.envRequest();
             response.data.map(async (objeto) => {
                 await self.#inserirObjeto(objeto);
@@ -197,7 +197,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             self._verificacoesInconsistenciasQueueManager.enqueue(self.#verificaInconsistenciasObjetosVinculados.bind(self));
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
             self._verificacoesInconsistenciasQueueManager.setReady();
         }
@@ -373,13 +373,13 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
                 const btns = $(`${self.getIdModal} .dropdown-toggle`);
                 try {
-                    commonFunctions.simulateLoading(btns);
+                    CommonFunctions.simulateLoading(btns);
 
                     const objetosNaTela = self._objConfigs.data.objetosNaTela;
                     const indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto);
 
                     if (indexObjetoNaTela == -1) {
-                        commonFunctions.generateNotification('Erro ao vincular o objeto. Caso o erro persista, contate o suporte.', 'error');
+                        CommonFunctions.generateNotification('Erro ao vincular o objeto. Caso o erro persista, contate o suporte.', 'error');
                         return;
                     }
 
@@ -407,9 +407,9 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                     await self.#verificaInconsistenciasObjetosVinculados();
 
                 } catch (error) {
-                    commonFunctions.generateNotification(error.message);
+                    CommonFunctions.generateNotification(error.message);
                 } finally {
-                    commonFunctions.simulateLoading(btns, false);
+                    CommonFunctions.simulateLoading(btns, false);
                 }
             });
         });
@@ -428,7 +428,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                 let indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto);
 
                 if (indexObjetoNaTela == -1) {
-                    commonFunctions.generateNotification('Erro ao vincular o endereço. Caso o erro persista, contate o suporte.', 'error');
+                    CommonFunctions.generateNotification('Erro ao vincular o endereço. Caso o erro persista, contate o suporte.', 'error');
                     return;
                 }
 
@@ -441,15 +441,15 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                 $(`#${endereco.idBtn}`).on('click', async () => {
                     const btns = $(`${self.getIdModal} .dropdown-toggle`);
                     try {
-                        commonFunctions.simulateLoading(btns);
+                        CommonFunctions.simulateLoading(btns);
 
                         acoesAlteracaoEndereco(objeto.idCol, endereco);
                         await self.#verificaInconsistenciasObjetosVinculados();
 
                     } catch (error) {
-                        commonFunctions.generateNotification(error.message);
+                        CommonFunctions.generateNotification(error.message);
                     } finally {
-                        commonFunctions.simulateLoading(btns, false);
+                        CommonFunctions.simulateLoading(btns, false);
                     }
                 });
 
@@ -482,7 +482,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                         let indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto);
 
                         if (indexObjetoNaTela == -1) {
-                            commonFunctions.generateNotification('Erro ao vincular o endereço. Caso o erro persista, contate o suporte.', 'error');
+                            CommonFunctions.generateNotification('Erro ao vincular o endereço. Caso o erro persista, contate o suporte.', 'error');
                             return;
                         }
 
@@ -493,15 +493,15 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                     $(`#${documento.idBtn}`).on('click', async () => {
                         const btns = $(`${self.getIdModal} .dropdown-toggle`);
                         try {
-                            commonFunctions.simulateLoading(btns);
+                            CommonFunctions.simulateLoading(btns);
 
                             acoesAlteracaoDocumentoRG(objeto.idCol, documento);
                             await self.#verificaInconsistenciasObjetosVinculados();
 
                         } catch (error) {
-                            commonFunctions.generateNotification(error.message);
+                            CommonFunctions.generateNotification(error.message);
                         } finally {
-                            commonFunctions.simulateLoading(btns, false);
+                            CommonFunctions.simulateLoading(btns, false);
                         }
                     });
 
@@ -528,20 +528,20 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             const indexObjetoNaTela = self.#pesquisaIndexObjetosNaTela(objeto);
             const objetoNaTela = self._objConfigs.data.objetosNaTela[indexObjetoNaTela];
 
-            const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
+            const objConn = new ConnectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-objetos`);
             objConn.setData({
                 objetos: [{
                     id: objeto.id,
                     identificador: objeto.identificador,
                 }]
             });
-            objConn.setAction(enumAction.POST);
+            objConn.setAction(EnumAction.POST);
             const response = await objConn.envRequest();
-            commonFunctions.deepMergeObject(objetoNaTela, response.data[0]);
+            CommonFunctions.deepMergeObject(objetoNaTela, response.data[0]);
             await self.#inserirObjeto(objetoNaTela);
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
             self._verificacoesInconsistenciasQueueManager.setReady();
         }
@@ -603,7 +603,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
             badgePendencias.html(contadorPendencias);
             return resultado;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -617,7 +617,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
                 return objeto.dados.nome_fantasia;
 
             default:
-                commonFunctions.generateNotification('Identificador não configurado', 'warning');
+                CommonFunctions.generateNotification('Identificador não configurado', 'warning');
                 return 'Identificador nao configurado.';
         }
     }
@@ -644,8 +644,8 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
      */
     async #executaVerificacaoInconsistenciasObjetosVinculado(data) {
         const self = this;
-        const objConn = new connectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-documento`);
-        objConn.setAction(enumAction.POST);
+        const objConn = new ConnectAjax(`${self._objConfigs.url.baseDocumentoModeloTenantHelper}/render-documento`);
+        objConn.setAction(EnumAction.POST);
         objConn.setData(data);
         const response = await objConn.envRequest();
         return response.data;
@@ -672,14 +672,14 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
     #saveVerifications(data) {
         const self = this;
-        let blnSave = commonFunctions.verificationData(data.nome, {
+        let blnSave = CommonFunctions.verificationData(data.nome, {
             field: $(`#nome${self.getSufixo}`),
             messageInvalid: 'O nome do documento deve ser informado.',
             setFocus: true
         });
 
         if (self._classQuillEditor.getQuill.getText().replace(/\n/g, '').trim().length === 0) {
-            commonFunctions.generateNotification('Nenhum conteúdo foi adicionado ao documento.', 'warning');
+            CommonFunctions.generateNotification('Nenhum conteúdo foi adicionado ao documento.', 'warning');
             blnSave = false;
         }
         return blnSave;

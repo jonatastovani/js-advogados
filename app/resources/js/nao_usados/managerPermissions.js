@@ -1,4 +1,4 @@
-import { connectAjax } from "../commons/connectAjax";
+import { ConnectAjax } from "../commons/ConnectAjax";
 
 export class managerPermissions {
 
@@ -31,7 +31,7 @@ export class managerPermissions {
 
     async #fetchPermissions() {
         try {
-            const obj = new connectAjax(`api/routes/user/getBuscarPermissoesDoUsuarioAutenticado.php`);
+            const obj = new ConnectAjax(`api/routes/user/getBuscarPermissoesDoUsuarioAutenticado.php`);
             const response = await obj.getRequest();
             if (response.data) {
                 if (response.data.length) {
@@ -43,7 +43,7 @@ export class managerPermissions {
             console.error(error);
             return [];
             const traceId = error.traceId ? error.traceId : undefined;
-            // commonFunctions.generateNotification(commonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
+            // CommonFunctions.generateNotification(CommonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
         }
     }
 

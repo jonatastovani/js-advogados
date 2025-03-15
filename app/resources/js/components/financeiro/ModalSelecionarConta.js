@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
@@ -34,9 +34,9 @@ export class ModalSelecionarConta extends ModalDefault {
             idModal: "#ModalSelecionarConta",
         });
 
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
     }
 
     async modalOpen() {
@@ -48,7 +48,7 @@ export class ModalSelecionarConta extends ModalDefault {
                 self.#eventosTipoEmpresa(true);
             } else {
 
-                await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
+                await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
 
                 if (await self.#buscarContas()) {
                     self.#addEventosPadrao();
@@ -56,12 +56,12 @@ export class ModalSelecionarConta extends ModalDefault {
             }
 
             self.#renderMensagem();
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
             await self._modalHideShow();
             return await self._modalOpen();
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return await self._returnPromisseResolve();
         }
     }
@@ -84,35 +84,7 @@ export class ModalSelecionarConta extends ModalDefault {
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalConta').on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        CommonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
         const rbContaDebito = modal.find(`#rbContaDebito${self.getSufixo}`);
         const select = modal.find('select[name="conta_debito_id"]');
@@ -122,8 +94,8 @@ export class ModalSelecionarConta extends ModalDefault {
             input: [select]
         }];
 
-        commonFunctions.eventRBCkBHidden(rbContaDebito, dataRbCkB);
-        commonFunctions.eventRBCkBHidden(modal.find(`#rbContaOrigem${self.getSufixo}`), dataRbCkB);
+        CommonFunctions.eventRBCkBHidden(rbContaDebito, dataRbCkB);
+        CommonFunctions.eventRBCkBHidden(modal.find(`#rbContaOrigem${self.getSufixo}`), dataRbCkB);
         rbContaDebito.trigger('change');
         self._executeFocusElementOnModal(select, 1000);
     }
@@ -154,9 +126,12 @@ export class ModalSelecionarConta extends ModalDefault {
         const self = this;
 
         try {
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_debito_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
             return true;
         } catch (error) {
             return false;
@@ -166,7 +141,7 @@ export class ModalSelecionarConta extends ModalDefault {
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.perfil_tipo_id = self._dataEnvModal.perfil.perfil_tipo_id;
 
         if (self.#saveVerifications(data, formRegistration)) {
@@ -174,7 +149,7 @@ export class ModalSelecionarConta extends ModalDefault {
                 self._promisseReturnValue.register = data;
                 self._promisseReturnValue.refresh = true;
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 self._setEndTimer = true;
             }
@@ -186,7 +161,7 @@ export class ModalSelecionarConta extends ModalDefault {
 
         if (data.perfil_tipo_id != window.Enums.PessoaPerfilTipoEnum.EMPRESA) {
             if (data.conta_movimentar == 'conta_debito') {
-                blnSave = commonFunctions.verificationData(data.conta_debito_id, {
+                blnSave = CommonFunctions.verificationData(data.conta_debito_id, {
                     field: formRegistration.find('select[name="conta_debito_id"]'),
                     messageInvalid: 'Selecione uma conta.', setFocus: true
                 });

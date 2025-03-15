@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
@@ -41,9 +41,9 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
             idModal: "#ModalParticipacaoPreset",
         });
 
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
     }
 
     async modalOpen() {
@@ -52,7 +52,7 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
         self._queueCheckDomainCustom.setReady();
         
         if (!self._checkDomainCustomInherited()) {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve()
         };
 

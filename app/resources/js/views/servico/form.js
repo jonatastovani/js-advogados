@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 import { TemplateForm } from "../../commons/templates/TemplateForm";
 import { ModalMessage } from "../../components/comum/ModalMessage";
 import { ModalParticipacao } from "../../components/comum/ModalParticipacao";
@@ -61,8 +61,8 @@ class PageServicoForm extends TemplateForm {
         const sufixo = "PageServicoForm";
         super({ sufixo });
 
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        commonFunctions.deepMergeObject(this._objConfigs, { sufixo });
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._objConfigs, { sufixo });
 
         const objData = {
             objConfigs: this._objConfigs,
@@ -90,11 +90,11 @@ class PageServicoForm extends TemplateForm {
             self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
             self._objConfigs.url.baseParticipacao = `${url}/participacao`;
             self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
-            this._action = enumAction.PUT;
+            this._action = EnumAction.PUT;
             buscaDadosBln = await self._buscarDados();
         } else {
             await this.#buscarAreasJuridicas();
-            this._action = enumAction.POST;
+            this._action = EnumAction.POST;
         }
 
         if (buscaDadosBln) {
@@ -117,7 +117,7 @@ class PageServicoForm extends TemplateForm {
         self._classQuillEditor = new QuillEditorModule(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
 
-        commonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
+        CommonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
         $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
             e.preventDefault();
@@ -127,7 +127,7 @@ class PageServicoForm extends TemplateForm {
         $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
 
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalPessoa();
                 objModal.setDataEnvModal = {
@@ -143,9 +143,9 @@ class PageServicoForm extends TemplateForm {
                     })
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -160,7 +160,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#btnAdicionarDocumento${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarDocumentoModeloTenant();
                 objModal.setDataEnvModal = {
@@ -177,13 +177,13 @@ class PageServicoForm extends TemplateForm {
                         }
                         console.log(await objModal.modalOpen());
                     } catch (error) {
-                        commonFunctions.generateNotificationErrorCatch(error);
+                        CommonFunctions.generateNotificationErrorCatch(error);
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -193,7 +193,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
@@ -202,15 +202,15 @@ class PageServicoForm extends TemplateForm {
                     self.#inserirAnotacao(response.register);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
         $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
                 objModal.setFocusElementWhenClosingModal = btn;
@@ -219,9 +219,9 @@ class PageServicoForm extends TemplateForm {
                     await self.#buscarPagamentos();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -241,7 +241,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
             await self.#buscarPagamentos();
-            // commonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
+            // CommonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
         // self.#openModal();
@@ -260,7 +260,7 @@ class PageServicoForm extends TemplateForm {
             }
             console.log(await objModal.modalOpen());
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -294,15 +294,15 @@ class PageServicoForm extends TemplateForm {
                 );
 
                 if (identificadorPorPerfil) {
-                    commonFunctions.deepMergeObject(obj, {
+                    CommonFunctions.deepMergeObject(obj, {
                         identificador: identificadorPorPerfil.identificador,
                         id: cliente.perfil_id,
                     });
                 } else {
-                    commonFunctions.generateNotification(`O vínculo do tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi configurado.`, 'error');
+                    CommonFunctions.generateNotification(`O vínculo do tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi configurado.`, 'error');
                 }
             } else {
-                commonFunctions.generateNotification(`Tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi encontrado.`, 'error');
+                CommonFunctions.generateNotification(`Tipo de pessoa <b>${cliente.perfil.pessoa.pessoa_dados_type}</b> não foi encontrado.`, 'error');
             }
 
             return obj;
@@ -403,21 +403,21 @@ class PageServicoForm extends TemplateForm {
         const { blnLoadingDisplay = true } = options;
 
         try {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando documentos...' }) : null;
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando documentos...' }) : null;
 
-            const obj = new connectAjax(self._objConfigs.url.baseDocumento);
+            const obj = new ConnectAjax(self._objConfigs.url.baseDocumento);
             const response = await obj.getRequest();
             if (response.data) {
                 self.#limparDocumentos();
                 response.data.map(item => {
                     self.#inserirDocumento(item);
                 })
-                blnLoadingDisplay ? commonFunctions.generateNotification('Documentos atualizados com sucesso.', 'success') : null;
+                blnLoadingDisplay ? CommonFunctions.generateNotification('Documentos atualizados com sucesso.', 'success') : null;
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(false) : null;
         }
     }
 
@@ -439,13 +439,13 @@ class PageServicoForm extends TemplateForm {
                 break;
 
             default:
-                commonFunctions.generateNotification(`O tipo de pessoa <b>${item.perfil.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'warning');
+                CommonFunctions.generateNotification(`O tipo de pessoa <b>${item.perfil.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'warning');
                 console.error('O tipo de pessoa ainda nao foi implementado.', item);
                 return false;
         }
 
         if (naTela) {
-            commonFunctions.generateNotification(`Cliente <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
+            CommonFunctions.generateNotification(`Cliente <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
             return false;
         }
 
@@ -498,7 +498,7 @@ class PageServicoForm extends TemplateForm {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }
@@ -532,20 +532,20 @@ class PageServicoForm extends TemplateForm {
         const { blnLoadingDisplay = true } = options;
 
         try {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' }) : null;
-            const obj = new connectAjax(self._objConfigs.url.baseCliente);
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' }) : null;
+            const obj = new ConnectAjax(self._objConfigs.url.baseCliente);
             const response = await obj.getRequest();
             if (response.data) {
                 self.#limparClientes();
                 response.data.map(item => {
                     self.#inserirCliente(item);
                 })
-                blnLoadingDisplay ? commonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success') : null;
+                blnLoadingDisplay ? CommonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success') : null;
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(false) : null;
         }
     }
 
@@ -562,7 +562,7 @@ class PageServicoForm extends TemplateForm {
             item.statusSalvo = false;
         }
 
-        const strToHtml = commonFunctions.formatStringToHTML(item.descricao);
+        const strToHtml = CommonFunctions.formatStringToHTML(item.descricao);
         let strCard = `
             <div id="${item.idCol}" class="col">
                 <div class="card">
@@ -604,7 +604,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setDataEnvModal = {
@@ -613,12 +613,12 @@ class PageServicoForm extends TemplateForm {
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
                     $(`#${item.idCol}`).find('.spanTitle').html(response.register.titulo);
-                    $(`#${item.idCol}`).find('.pText').html(commonFunctions.formatStringToHTML(response.register.descricao));
+                    $(`#${item.idCol}`).find('.pText').html(CommonFunctions.formatStringToHTML(response.register.descricao));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -727,7 +727,7 @@ class PageServicoForm extends TemplateForm {
         }
 
         if (item.valor_total) {
-            const valorTotal = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_total);
+            const valorTotal = CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor_total);
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Total</div>
@@ -736,7 +736,7 @@ class PageServicoForm extends TemplateForm {
         }
 
         if (item.entrada_valor) {
-            const valorEntrada = commonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
+            const valorEntrada = CommonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Entrada</div>
@@ -764,7 +764,7 @@ class PageServicoForm extends TemplateForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Parcela</div>
-                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.parcela_valor)}</p>
+                    <p class="">${CommonFunctions.formatWithCurrencyCommasOrFraction(item.parcela_valor)}</p>
                 </div>`;
         }
 
@@ -787,19 +787,19 @@ class PageServicoForm extends TemplateForm {
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Aguardando</div>
-                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_aguardando ?? 0)}</p>
+                    <p class="">${CommonFunctions.formatWithCurrencyCommasOrFraction(item.total_aguardando ?? 0)}</p>
                 </div>`;
 
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Liquidado</div>
-                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_liquidado ?? 0)}</p>
+                    <p class="">${CommonFunctions.formatWithCurrencyCommasOrFraction(item.total_liquidado ?? 0)}</p>
                 </div>`;
 
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Total Inadimplente</div>
-                    <p class="">${commonFunctions.formatWithCurrencyCommasOrFraction(item.total_inadimplente ?? 0)}</p>
+                    <p class="">${CommonFunctions.formatWithCurrencyCommasOrFraction(item.total_inadimplente ?? 0)}</p>
                 </div>`;
         }
         return htmlColsEspecifico;
@@ -832,7 +832,7 @@ class PageServicoForm extends TemplateForm {
         for (const lancamento of item.lancamentos) {
 
             const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
-            const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
+            const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
             const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
             const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
             const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
@@ -958,7 +958,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#${item.idCard}`).find('.btn-edit').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
                 objModal.setDataEnvModal = {
@@ -969,9 +969,9 @@ class PageServicoForm extends TemplateForm {
                     self.#buscarPagamentos();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -991,7 +991,7 @@ class PageServicoForm extends TemplateForm {
 
         $(`#${item.idCard}`).find('.btn-participacao-pagamento').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalParticipacao({
                     urlApi: `${self._objConfigs.url.basePagamentos}/${item.id}/participacao`
@@ -1002,9 +1002,9 @@ class PageServicoForm extends TemplateForm {
                     self.#buscarPagamentos();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -1039,7 +1039,7 @@ class PageServicoForm extends TemplateForm {
                 BootstrapFunctionsHelper.addEventPopover();
                 await self.#addEventosLancamento(response.data);
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
@@ -1049,7 +1049,7 @@ class PageServicoForm extends TemplateForm {
 
                 $(`#${lancamento.idCard}`).find('.btn-participacao-lancamento').on('click', async function () {
                     const btn = $(this);
-                    commonFunctions.simulateLoading(btn);
+                    CommonFunctions.simulateLoading(btn);
                     try {
                         const objModal = new ModalParticipacao({
                             urlApi: `${urlLancamentos}/${lancamento.id}/participacao`
@@ -1060,9 +1060,9 @@ class PageServicoForm extends TemplateForm {
                             atualizaLancamentos();
                         }
                     } catch (error) {
-                        commonFunctions.generateNotificationErrorCatch(error);
+                        CommonFunctions.generateNotificationErrorCatch(error);
                     } finally {
-                        commonFunctions.simulateLoading(btn, false);
+                        CommonFunctions.simulateLoading(btn, false);
                     }
                 });
 
@@ -1095,27 +1095,27 @@ class PageServicoForm extends TemplateForm {
 
     #atualizarValorServico(valor) {
         const self = this;
-        $(`#valorServico${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#valorServico${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalAguardando(valor) {
         const self = this;
-        $(`#totalAguardando${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalAguardando${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalEmAnalise(valor) {
         const self = this;
-        $(`#totalEmAnalise${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalEmAnalise${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalLiquidado(valor) {
         const self = this;
-        $(`#totalLiquidado${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalLiquidado${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalInadimplente(valor) {
         const self = this;
-        $(`#totalInadimplente${self._objConfigs.sufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalInadimplente${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     async #buscarAreasJuridicas(selected_id = null) {
@@ -1124,7 +1124,7 @@ class PageServicoForm extends TemplateForm {
             let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const selector = $(`#area_juridica_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options);
+            await CommonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options);
             return true
         } catch (error) {
             return false;
@@ -1135,9 +1135,9 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const { blnLoadingDisplay = true } = options;
         try {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
 
-            const obj = new connectAjax(self._objConfigs.url.basePagamentos);
+            const obj = new ConnectAjax(self._objConfigs.url.basePagamentos);
             const response = await obj.getRequest();
             $(`#divPagamento${self._objConfigs.sufixo}`).html('');
             for (const item of response.data) {
@@ -1145,9 +1145,9 @@ class PageServicoForm extends TemplateForm {
             }
             await self.#buscarValores();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            blnLoadingDisplay ? await commonFunctions.loadingModalDisplay(false) : null;
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(false) : null;
         }
 
     }
@@ -1155,18 +1155,18 @@ class PageServicoForm extends TemplateForm {
     async #buscarValores() {
         const self = this;
         try {
-            const obj = new connectAjax(self._objConfigs.url.baseValores);
+            const obj = new ConnectAjax(self._objConfigs.url.baseValores);
             const response = await obj.getRequest();
             self.#atualizaTodosValores(response.data);
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         const descricaoDelta = self._classQuillEditor.getQuill.getContents();
         data.descricao = descricaoDelta;
 
@@ -1180,10 +1180,10 @@ class PageServicoForm extends TemplateForm {
 
     #saveVerifications(data, formRegistration) {
         const self = this;
-        if (self._action == enumAction.POST) {
-            let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-            blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            // blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        if (self._action == EnumAction.POST) {
+            let blnSave = CommonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
+            blnSave = CommonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+            // blnSave = CommonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
             return blnSave;
         }
         return true;
@@ -1201,7 +1201,7 @@ class PageServicoForm extends TemplateForm {
 
         if (data.clientes.length) {
             const response = await self._save(data, self._objConfigs.url.baseCliente, {
-                action: enumAction.POST,
+                action: EnumAction.POST,
                 btnSave: $(`#btnSaveClientes${self._objConfigs.sufixo}`),
                 redirectBln: false,
                 returnObjectSuccess: true,
@@ -1221,7 +1221,7 @@ class PageServicoForm extends TemplateForm {
 
         if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {
             const response = await self._save(data, self._objConfigs.url.baseParticipacao, {
-                action: enumAction.POST,
+                action: EnumAction.POST,
                 btnSave: $(`#btnSaveParticipantes${self._objConfigs.sufixo}`),
                 redirectBln: false,
                 returnObjectSuccess: true,

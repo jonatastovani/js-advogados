@@ -1,5 +1,5 @@
-import { commonFunctions } from "../commons/commonFunctions";
-import { connectAjax } from "../commons/connectAjax";
+import { CommonFunctions } from "../commons/CommonFunctions";
+import { ConnectAjax } from "../commons/ConnectAjax";
 import { ModalMessage } from "../components/comum/ModalMessage";
 import { ModalNome } from "../components/comum/ModalNome";
 import { ModalParticipacaoParticipante } from "../components/comum/ModalParticipacaoParticipante";
@@ -27,8 +27,8 @@ export class ParticipacaoModule {
     constructor(parentInstance, objData) {
         this._objConfigs = objData.objConfigs;
         // Mescla na variável restrita para depois mesclar na compartilhada para manter as relações
-        commonFunctions.deepMergeObject(this.#objConfigs, this._objConfigs);
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this.#objConfigs, this._objConfigs);
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._parentInstance = parentInstance;
         this._extraConfigs = objData.extraConfigs;
         this.#addEventosBotoes();
@@ -80,7 +80,7 @@ export class ParticipacaoModule {
 
         $(`#btnInserirPessoa${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const dataEnvModalAppend = {
                     perfis_busca: self._objConfigs.participacao.perfis_busca,
@@ -96,16 +96,16 @@ export class ParticipacaoModule {
                     });
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
         $(`#btnInserirGrupo${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModalNome = new ModalNome();
                 objModalNome.setDataEnvModal = {
@@ -121,16 +121,16 @@ export class ParticipacaoModule {
                     });
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
 
         $(`#btnOpenModalPresetParticipacao${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalParticipacaoPreset();
                 objModal.setDataEnvModal = self._parentInstance._checkDomainCustomInheritDataEnvModal({
@@ -161,9 +161,9 @@ export class ParticipacaoModule {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') {
                     await self._parentInstance._modalHideShow()
                 };
@@ -186,12 +186,12 @@ export class ParticipacaoModule {
                     const inserirPreset = async (hideShowModal) => {
                         try {
                             if (hideShowModal && self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
-                            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do preset...' });
+                            await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do preset...' });
 
                             const response = await self._parentInstance._getRecurse({
                                 urlApi: self._objConfigs.url.baseParticipacaoPreset,
                                 idRegister: preset_id,
-                                outCheckForced: true,
+                                checkForcedBefore: true,
                             });
                             if (response.data) {
                                 self._objConfigs.data.participantesNaTela = [];
@@ -213,10 +213,10 @@ export class ParticipacaoModule {
                             }
 
                         } catch (error) {
-                            commonFunctions.generateNotificationErrorCatch(error);
+                            CommonFunctions.generateNotificationErrorCatch(error);
                         } finally {
                             $(this).val(0);
-                            await commonFunctions.loadingModalDisplay(false);
+                            await CommonFunctions.loadingModalDisplay(false);
                             if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                         }
                     }
@@ -239,7 +239,7 @@ export class ParticipacaoModule {
                                     resetPreset();
                                 }
                             } catch (error) {
-                                commonFunctions.generateNotificationErrorCatch(error);
+                                CommonFunctions.generateNotificationErrorCatch(error);
                             } finally {
                                 if (!blnInserir && self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                             }
@@ -247,7 +247,7 @@ export class ParticipacaoModule {
                             await inserirPreset(true);
                         }
                     } else {
-                        if (preset_id != '0') commonFunctions.generateNotification('O ID do preset é inválido.', 'error');
+                        if (preset_id != '0') CommonFunctions.generateNotification('O ID do preset é inválido.', 'error');
                         resetPreset();
                     }
                 });
@@ -333,20 +333,20 @@ export class ParticipacaoModule {
                         break;
 
                     default:
-                        commonFunctions.generateNotification(`O tipo de pessoa <b>${item.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                        CommonFunctions.generateNotification(`O tipo de pessoa <b>${item.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
                         console.error('O tipo de pessoa ainda nao foi implementado.', item);
                         return false;
                 }
 
                 if (naTela) {
-                    commonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
+                    CommonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
                     return false;
                 }
                 break;
             case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
                 nome = item.nome_grupo;
                 if (naTela) {
-                    commonFunctions.generateNotification(`O Grupo <b>${nome}</b> já foi inserido. O nome foi alterado para <b>${nome} (Alterar)</b>.<br>Altere o nome do grupo posteriormente.`, 'warning');
+                    CommonFunctions.generateNotification(`O Grupo <b>${nome}</b> já foi inserido. O nome foi alterado para <b>${nome} (Alterar)</b>.<br>Altere o nome do grupo posteriormente.`, 'warning');
                     item.nome_grupo = `${nome} (Alterar)`;
                     nome = item.nome_grupo;
                 }
@@ -355,7 +355,7 @@ export class ParticipacaoModule {
                 accordionIntegrantes = self.#accordionIntegrantesGrupo(item);
                 break;
             default:
-                commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
+                CommonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
                 console.error('Tipo de registro de participação não informado.', item);
                 return false;
         }
@@ -370,7 +370,7 @@ export class ParticipacaoModule {
                     participacao_tipo = { nome: 'Erro de busca' }
                 }
             } else {
-                commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
+                CommonFunctions.generateNotification('Tipo de participação não informado.', 'error');
                 console.error('Tipo de participação não informado.', item);
                 return false;
             }
@@ -381,7 +381,7 @@ export class ParticipacaoModule {
         }
 
         let valor_tipo = ''
-        let valor = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
+        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
         switch (item.valor_tipo) {
             case 'porcentagem':
                 valor_tipo = 'Porcentagem';
@@ -467,14 +467,14 @@ export class ParticipacaoModule {
                     participacao_tipo = { nome: 'Erro de busca' }
                 }
             } else {
-                commonFunctions.generateNotification('Tipo de participação não informado.', 'error');
+                CommonFunctions.generateNotification('Tipo de participação não informado.', 'error');
                 console.error('Tipo de participação não informado.', item);
                 return false;
             }
         }
 
         let valor_tipo = ''
-        let valor = commonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
+        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
         switch (item.valor_tipo) {
             case 'porcentagem':
                 valor_tipo = 'Porcentagem';
@@ -516,7 +516,7 @@ export class ParticipacaoModule {
 
         $(`#${item.idCard} .btn-edit`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 let porcentagem_ocupada = self._objConfigs.data.porcentagem_ocupada;
                 if (item.valor_tipo == 'porcentagem') {
@@ -537,9 +537,9 @@ export class ParticipacaoModule {
                     await self.#atualizaParticipanteNaTela(Object.assign(item, response.register));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
         });
@@ -567,7 +567,7 @@ export class ParticipacaoModule {
                     self._atualizaPorcentagemLivre();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
@@ -585,7 +585,7 @@ export class ParticipacaoModule {
                     }
                 }
                 const btn = $(this);
-                commonFunctions.simulateLoading(btn);
+                CommonFunctions.simulateLoading(btn);
                 try {
                     const objModalNome = new ModalNome();
                     objModalNome.setDataEnvModal = {
@@ -600,16 +600,16 @@ export class ParticipacaoModule {
                         $(`#${item.idCard} .spanNome`).html(registro.nome_grupo);
                     }
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 } finally {
-                    commonFunctions.simulateLoading(btn, false);
+                    CommonFunctions.simulateLoading(btn, false);
                     if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                 }
             });
 
             $(`#${item.idCard} .btn-add-pessoa`).on('click', async function () {
                 const btn = $(this);
-                commonFunctions.simulateLoading(btn);
+                CommonFunctions.simulateLoading(btn);
                 try {
                     const objModal = new ModalPessoa();
                     objModal.setDataEnvModal = {
@@ -629,9 +629,9 @@ export class ParticipacaoModule {
                         );
                     }
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 } finally {
-                    commonFunctions.simulateLoading(btn, false);
+                    CommonFunctions.simulateLoading(btn, false);
                     if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
                 }
             });
@@ -659,13 +659,13 @@ export class ParticipacaoModule {
     async _buscarParticipantes() {
         const self = this;
         try {
-            const obj = new connectAjax(self._objConfigs.url.baseParticipacao);
+            const obj = new ConnectAjax(self._objConfigs.url.baseParticipacao);
             const response = await obj.getRequest();
             if (response.data) {
                 self._inserirParticipantesEIntegrantes(response.data);
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -691,11 +691,11 @@ export class ParticipacaoModule {
             valorMinimo = valorFixo;
         }
 
-        $(`#valor_fixo${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
-        $(`#porcentagem${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
-        $(`#valor_minimo${self._objConfigs.sufixo}`).html(`${commonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
+        $(`#valor_fixo${self._objConfigs.sufixo}`).html(`${CommonFunctions.formatWithCurrencyCommasOrFraction(valorFixo)}`);
+        $(`#porcentagem${self._objConfigs.sufixo}`).html(`${CommonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}`);
+        $(`#valor_minimo${self._objConfigs.sufixo}`).html(`${CommonFunctions.formatWithCurrencyCommasOrFraction(valorMinimo)}`);
 
-        commonFunctions.atualizarProgressBar($(`#progressBar${self._objConfigs.sufixo}`), porcentagemOcupada);
+        CommonFunctions.atualizarProgressBar($(`#progressBar${self._objConfigs.sufixo}`), porcentagemOcupada);
     }
 
     async _inserirIntegrante(item, integrante) {
@@ -723,7 +723,7 @@ export class ParticipacaoModule {
 
                 break;
             default:
-                commonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
+                CommonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
                 console.error('Tipo de registro de participação não informado.', item);
                 return false;
         }
@@ -787,10 +787,10 @@ export class ParticipacaoModule {
                     }
 
                     await self.#atualizaQuantidadeIntegrantes(item.idCard);
-                    commonFunctions.generateNotification('Integrante removido.', 'success');
+                    CommonFunctions.generateNotification('Integrante removido.', 'success');
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow();
             }
@@ -839,7 +839,7 @@ export class ParticipacaoModule {
         options.instanceParent = self;
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(`#preset_id${self._objConfigs.sufixo}`);
-        await commonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoPreset, options);
+        await CommonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoPreset, options);
     }
 
     async _inserirParticipantesEIntegrantes(participantes) {
@@ -898,16 +898,16 @@ export class ParticipacaoModule {
 
         let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
         if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
-            commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
+            CommonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${CommonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
             blnSave = false;
         }
         if (!data.participantes || data.participantes.length == 0) {
-            commonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
+            CommonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
             blnSave = false;
         } else {
             for (const participante of data.participantes) {
                 if (participante.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO && (!participante.integrantes || participante.integrantes.length == 0)) {
-                    commonFunctions.generateNotification('E necessário informar pelo menos um integrante para participante do tipo Grupo.', 'warning');
+                    CommonFunctions.generateNotification('E necessário informar pelo menos um integrante para participante do tipo Grupo.', 'warning');
                     blnSave = false;
                     break;
                 }
@@ -926,7 +926,7 @@ export class ParticipacaoModule {
         try {
             return RequestsHelpers.getRecurse({ urlApi: urlApi, idRegister: idRegister });
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -961,7 +961,7 @@ export class ParticipacaoModule {
                 valor_tipo: 'porcentagem',
             })
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
 
     }

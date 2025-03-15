@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 
@@ -113,7 +113,7 @@ class PageDocumentoModeloTenantIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#documento_modelo_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseDocumentoModeloTipo, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseDocumentoModeloTipo, options);
             return true;
         } catch (error) {
             return false;

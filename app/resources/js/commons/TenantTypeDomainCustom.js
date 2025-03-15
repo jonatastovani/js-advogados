@@ -1,6 +1,6 @@
 import { QueueManager } from "../utils/QueueManager";
-import { commonFunctions } from "./commonFunctions";
-import instanceManager from "./instanceManager";
+import { CommonFunctions } from "./CommonFunctions";
+import InstanceManager from "./InstanceManager";
 
 /**
  * Classe responsável por gerenciar configurações personalizadas de domínio para tipos de tenants.
@@ -43,7 +43,7 @@ export class TenantTypeDomainCustom {
          * @private
          * @type {QueueManager} 
          */
-        this._queueToogleDomainCustom = instanceManager.setInstance('QueueToogleDomainCustom', new QueueManager());
+        this._queueToogleDomainCustom = InstanceManager.setInstance('QueueToogleDomainCustom', new QueueManager());
         this._queueToogleDomainCustom.setDeduplicationMode = "last"; // Garante que a última ação seja a mantida
         this._queueToogleDomainCustom.setPreserveQueue = true; // Mantém os itens na fila após execução
     }
@@ -70,7 +70,7 @@ export class TenantTypeDomainCustom {
      * @param {number|string} selectedValue - Valor do domínio selecionado.
      */
     set setSelectedValue(selectedValue) {
-        commonFunctions.setItemLocalStorage(this.getNameAttributeKey, selectedValue);
+        CommonFunctions.setItemLocalStorage(this.getNameAttributeKey, selectedValue);
     }
 
     /**
@@ -78,7 +78,7 @@ export class TenantTypeDomainCustom {
      * @returns {number} Valor numérico do domínio selecionado.
      */
     get getSelectedValue() {
-        let selectedValue = commonFunctions.getItemLocalStorage(this.getNameAttributeKey);
+        let selectedValue = CommonFunctions.getItemLocalStorage(this.getNameAttributeKey);
         if (selectedValue == null) {
             selectedValue = this._objConfigs.selectedValueDefaultAllDomains;
             this.setSelectedValue = selectedValue;

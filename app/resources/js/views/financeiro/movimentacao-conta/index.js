@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalSelecionarDocumento } from "../../../components/documento/ModalSelecionarDocumento";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
@@ -64,34 +64,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
         // $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
         //     if (self._objConfigs.querys.consultaFiltros.dataPost) {
@@ -101,9 +74,9 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         //             var2 += key + '=' + var1[key] + '&';
         //         });
 
-        //         // commonFunctions.simulateLoading(this, true);
-        //         // const objConn = new connectAjax(self._objConfigs.url.baseFrontImpressao);
-        //         // objConn.setAction(enumAction.POST);
+        //         // CommonFunctions.simulateLoading(this, true);
+        //         // const objConn = new ConnectAjax(self._objConfigs.url.baseFrontImpressao);
+        //         // objConn.setAction(EnumAction.POST);
         //         // objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
 
         //         // try {
@@ -111,9 +84,9 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         //         //     await objConn.downloadPdf('relatorio.pdf', true);
         //         // } catch (error) {
         //         //     console.error('Erro ao gerar o PDF:', error);
-        //         //     commonFunctions.generateNotificationErrorCatch(error);
+        //         //     CommonFunctions.generateNotificationErrorCatch(error);
         //         // } finally {
-        //         //     commonFunctions.simulateLoading(this, false);
+        //         //     CommonFunctions.simulateLoading(this, false);
         //         // }
         //     }
         // });
@@ -131,7 +104,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
@@ -163,7 +136,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         // let strBtns = '';
 
         const status = item.status.nome;
-        const valorMovimentado = commonFunctions.formatNumberToCurrency(item.valor_movimentado);
+        const valorMovimentado = CommonFunctions.formatNumberToCurrency(item.valor_movimentado);
         const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
         const conta = item.conta.nome;
         const descricaoAutomatica = item.descricao_automatica;
@@ -291,16 +264,16 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
 
             if (item.metadata?.documento_gerado.length) {
                 try {
-                    commonFunctions.simulateLoading(this);
+                    CommonFunctions.simulateLoading(this);
                     const objModal = new ModalSelecionarDocumento();
                     objModal.setDataEnvModal = {
                         idRegister: item.id,
                     };
                     const response = await objModal.modalOpen();
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 } finally {
-                    commonFunctions.simulateLoading(this, false);
+                    CommonFunctions.simulateLoading(this, false);
                 }
             }
         });
@@ -310,12 +283,13 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -332,7 +306,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -349,7 +323,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;

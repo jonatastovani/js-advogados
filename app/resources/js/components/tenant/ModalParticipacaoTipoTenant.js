@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 
 export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration {
@@ -30,8 +30,8 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
             idModal: "#ModalParticipacaoTipoTenant",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
     }
 
     async modalOpen() {
@@ -47,7 +47,7 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
     #verificarConfiguracaoTipo() {
         const self = this;
         if (!self._dataEnvModal.configuracao_tipo) {
-            commonFunctions.generateNotification('Configuração de tipo de participação não informada.', 'error');
+            CommonFunctions.generateNotification('Configuração de tipo de participação não informada.', 'error');
             console.error('Configuração de tipo de participação não informada.', self._dataEnvModal);
             return false;
         } else {
@@ -62,7 +62,7 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
                     self._updateModalTitle('Tipo de Participação em Ressarcimentos');
                     break;
                 default:
-                    commonFunctions.generateNotification(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao_tipo}</b> ainda nao foi implementado.`, 'error');
+                    CommonFunctions.generateNotification(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao_tipo}</b> ainda nao foi implementado.`, 'error');
                     console.error(`Configuração de tipo de participação <b>${self._dataEnvModal.configuracao.tipo}</b> ainda nao foi implementado.`, self._dataEnvModal);
                     return false;
             }
@@ -147,13 +147,13 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 self._clearForm();
                 self._idRegister = item.id
                 const response = await self._getRecurse();
                 if (response?.data) {
-                    self._action = enumAction.PUT;
+                    self._action = EnumAction.PUT;
                     const responseData = response.data;
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
@@ -163,9 +163,9 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
@@ -209,7 +209,7 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.configuracao = {
             tipo: self._dataEnvModal.configuracao_tipo
         }
@@ -220,7 +220,7 @@ export class ModalParticipacaoTipoTenant extends ModalSearchAndFormRegistration 
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do Tipo de Participação deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do Tipo de Participação deve ser informado.', setFocus: true });
         return blnSave;
     }
 }

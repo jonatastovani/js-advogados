@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -51,7 +51,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
         const objData = {
             objConfigs: this._objConfigs,
             extraConfigs: {
@@ -67,17 +67,17 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
     async modalOpen() {
         const self = this;
         let open = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
         if (self._dataEnvModal.idRegister) {
             await this.#buscarFormaPagamento();
             await self.#buscarDadosLancamentoStatusTipo();
             open = await self.#buscarDados();
         } else {
-            commonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
+            CommonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
         }
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         if (open) {
             await self._modalHideShow();
             return await self._modalOpen();
@@ -91,7 +91,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
 
         modal.find('.openModalFormaPagamento').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
@@ -112,9 +112,9 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
@@ -154,7 +154,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
     async #buscarDadosLancamentoStatusTipo() {
         const self = this;
         try {
-            const objConn = new connectAjax(self._objConfigs.url.baseLancamentoStatusTipo);
+            const objConn = new ConnectAjax(self._objConfigs.url.baseLancamentoStatusTipo);
             objConn.setParam(self._dataEnvModal.status_id);
             const response = await objConn.getRequest();
             self._updateModalTitle(response.data.nome);
@@ -162,7 +162,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             $(self.getIdModal).find('.campos-personalizados').html(response.data.campos_html);
             self.#addEventosCamposPersonalizados();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -170,7 +170,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         const self = this;
         const modal = $(self.getIdModal);
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-monetario'), { format: '#.##0,00', reverse: true });
 
         modal.find('.campos-personalizados .campo-dia-mes').mask('00', {
             onKeyPress: function (value, event, currentField) {
@@ -181,7 +181,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             }
         });
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campos-personalizados .campo-numero'), { format: '#.##0', reverse: true });
 
         const btnAddDiluicao = $(self.getIdModal).find('.btn-add-diluicao');
         if (btnAddDiluicao) {
@@ -227,7 +227,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
 
                 $(`#${newUuid} input[name="diluicao_data"]`).trigger('focus');
 
-                commonFunctions.applyCustomNumberMask($(`#${newUuid} input[name="diluicao_valor"]`), { format: '#.##0,00', reverse: true });
+                CommonFunctions.applyCustomNumberMask($(`#${newUuid} input[name="diluicao_valor"]`), { format: '#.##0,00', reverse: true });
 
                 $(`#${newUuid}`).find('.btn-remove-diluicao').on('click', function () {
                     $(`#${newUuid}`).remove();
@@ -241,7 +241,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -253,10 +253,10 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
 
         try {
             self._clearForm();
-            const objConn = new connectAjax(self._objConfigs.url.baseLancamento);
+            const objConn = new ConnectAjax(self._objConfigs.url.baseLancamento);
             objConn.setParam(self._dataEnvModal.idRegister);
             objConn.setData({ pagamento_uuid: self._dataEnvModal.pagamento_id });
-            objConn.setAction(enumAction.POST);
+            objConn.setAction(EnumAction.POST);
             const response = await objConn.envRequest();
 
             if (response?.data) {
@@ -269,8 +269,8 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                 const titulo_servico = responseData.pagamento.servico.titulo;
                 const descricao = responseData.descricao_automatica;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
-                const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
-                const pValor = commonFunctions.formatNumberToCurrency(responseData.valor_esperado);
+                const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+                const pValor = CommonFunctions.formatNumberToCurrency(responseData.valor_esperado);
                 const forma_pagamento_id = responseData.forma_pagamento_id ?? responseData.pagamento.forma_pagamento_id;
 
                 let participantes = [];
@@ -319,7 +319,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -327,9 +327,9 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
     saveButtonAction() {
         const self = this;
         const lancamentoStatusTipo = self._objConfigs.data.lancamento_status_tipos;
-        const rowContaData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowConta')[0]);
-        const rowObservacaoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowObservacao')[0]);
-        const rowRecebimentoData = commonFunctions.getInputsValues($(self.getIdModal).find('.rowRecebimento')[0]);
+        const rowContaData = CommonFunctions.getInputsValues($(self.getIdModal).find('.rowConta')[0]);
+        const rowObservacaoData = CommonFunctions.getInputsValues($(self.getIdModal).find('.rowObservacao')[0]);
+        const rowRecebimentoData = CommonFunctions.getInputsValues($(self.getIdModal).find('.rowRecebimento')[0]);
 
         let data = Object.assign(rowContaData, rowObservacaoData, rowRecebimentoData);
         if (lancamentoStatusTipo.campos_opcionais) {
@@ -345,7 +345,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                         const childrens = $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`);
                         let arrayData = [];
                         childrens.each((index, element) => {
-                            let opcionalData = commonFunctions.getInputsValues(element);
+                            let opcionalData = CommonFunctions.getInputsValues(element);
                             arrayData.push(opcionalData);
                         });
                         data[nameParent] = arrayData;
@@ -354,7 +354,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                     default:
                         const message = `Formato de opcional não reconhecido.`;
                         console.error(message);
-                        commonFunctions.generateNotification(message);
+                        CommonFunctions.generateNotification(message);
                         return false;
                 }
             }
@@ -376,7 +376,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         let blnSave = false;
 
         blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
-        blnSave = commonFunctions.verificationData(data.forma_pagamento_id, {
+        blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, {
             field: formRegistration.find('select[name="forma_pagamento_id"]'),
             messageInvalid: 'A <b>Forma de Pagamento</b> deve ser informada.',
             setFocus: blnSave === true,
@@ -386,10 +386,10 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         for (const campo of lancamentoStatusTipo.campos_obrigatorios) {
             const rules = campo.form_request_rule.split('|');
             if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-                data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+                data[campo.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
             }
 
-            blnSave = commonFunctions.verificationData(data[campo.nome], {
+            blnSave = CommonFunctions.verificationData(data[campo.nome], {
                 field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
                 messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
                 setFocus: blnSave === true,
@@ -417,10 +417,10 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
 
                                     const rules = fieldParams.form_request_rule.split('|');
                                     if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-                                        conjunto[fieldParams.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(conjunto[fieldParams.nome]);
+                                        conjunto[fieldParams.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(conjunto[fieldParams.nome]);
                                     }
 
-                                    const blnSaveConjunto = commonFunctions.verificationData(conjunto[fieldParams.nome], {
+                                    const blnSaveConjunto = CommonFunctions.verificationData(conjunto[fieldParams.nome], {
                                         field: formRegistration.find(`#${fieldParams.nome}${sufixoCustom}`),
                                         messageInvalid: `Os campo <b>${fieldParams.nome_exibir}</b> da <b>${nomeExibirCustom}</b> deve ser informado.`,
                                         setFocus: blnSave === true,
@@ -436,7 +436,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                         // const childrens = $(self.getIdModal).find(`.${nomeClassRow} .${nameChildClass}`);
                         // let arrayData = [];
                         // childrens.each((index, element) => {
-                        //     let opcionalData = commonFunctions.getInputsValues(element);
+                        //     let opcionalData = CommonFunctions.getInputsValues(element);
                         //     arrayData.push(opcionalData);
                         // });
                         // data[nameParent] = arrayData;

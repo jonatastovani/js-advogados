@@ -1,5 +1,5 @@
-import { commonFunctions } from "../commons/commonFunctions";
-import instanceManager from "../commons/instanceManager";
+import { CommonFunctions } from "../commons/CommonFunctions";
+import InstanceManager from "../commons/InstanceManager";
 import { TenantTypeDomainCustom } from "../commons/TenantTypeDomainCustom";
 import { QueueManager } from "../utils/QueueManager";
 
@@ -10,11 +10,11 @@ export default class TenantTypeDomainCustomHelper {
      * @returns {TenantTypeDomainCustom | false} Retorna a instância ou `false` se não estiver disponível.
      */
     static get getInstanceTenantTypeDomainCustom() {
-        return instanceManager.instanceVerification(this.getNameInstanceCustomDomain);
+        return InstanceManager.instanceVerification(this.getNameInstanceCustomDomain);
     }
 
     /**
-     * Nome da instância gerenciada no instanceManager.
+     * Nome da instância gerenciada no InstanceManager.
      * @returns {string}
      */
     static get getNameInstanceCustomDomain() {
@@ -243,7 +243,7 @@ export default class TenantTypeDomainCustomHelper {
             if (instanceParent._objConfigs?.domainCustom?.inheritedBln) return;
 
             if (!elementsDomain.length) {
-                commonFunctions.generateNotification('Campos de domínio customizado não encontrados. Contate o suporte.', 'error');
+                CommonFunctions.generateNotification('Campos de domínio customizado não encontrados. Contate o suporte.', 'error');
             } else {
                 // Se não estiver bloqueado a definição customizada de domínio, então se aplica os eventos;
                 if (!instanceParent._objConfigs.domainCustom?.blocked_changes) {
@@ -274,7 +274,7 @@ export default class TenantTypeDomainCustomHelper {
         const elementsDomain = $(selector);
 
         if (!elementsDomain.length) {
-            commonFunctions.generateNotification('Elementos de domínio customizado não encontrados. Contate o suporte.', 'error');
+            CommonFunctions.generateNotification('Elementos de domínio customizado não encontrados. Contate o suporte.', 'error');
             return;
         }
 
@@ -353,7 +353,7 @@ export default class TenantTypeDomainCustomHelper {
                 instanceParent._objConfigs.domainCustom.domain_id = selected;
                 instanceParent._queueSelectDomainCustom.setReady();
             } catch (error) {
-                commonFunctions.generateNotification(error.message, 'error');
+                CommonFunctions.generateNotification(error.message, 'error');
             }
         });
         select.trigger('change');

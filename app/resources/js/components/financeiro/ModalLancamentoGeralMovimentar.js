@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
@@ -45,9 +45,9 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
             idModal: "#ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = EnumAction.POST;
         const objData = {
             objConfigs: this._objConfigs,
             extraConfigs: {
@@ -63,16 +63,16 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
     async modalOpen() {
         const self = this;
         let open = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
         if (self._dataEnvModal.idRegister) {
             await this.#buscarContas();
             open = await self.#buscarDados();
         } else {
-            commonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
+            CommonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
         }
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         if (open) {
             await self._modalHideShow();
             return await self._modalOpen();
@@ -86,7 +86,7 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
 
         modal.find('.openModalConta').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalContaTenant();
                 objModal.setDataEnvModal = {
@@ -107,14 +107,14 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
     }
 
     _modalReset() {
@@ -129,7 +129,7 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -141,7 +141,7 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
 
         try {
             self._clearForm();
-            const objConn = new connectAjax(self._objConfigs.url.baseLancamentoGeral);
+            const objConn = new ConnectAjax(self._objConfigs.url.baseLancamentoGeral);
             objConn.setParam(self._dataEnvModal.idRegister);
             const response = await objConn.getRequest();
 
@@ -156,8 +156,8 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
                 const categoria = responseData.categoria.nome;
                 const descricao = responseData.descricao;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
-                const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
-                const pValor = `${responseData.movimentacao_tipo.nome} - ${commonFunctions.formatNumberToCurrency(responseData.valor_esperado)}`;
+                const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+                const pValor = `${responseData.movimentacao_tipo.nome} - ${CommonFunctions.formatNumberToCurrency(responseData.valor_esperado)}`;
                 const conta_id = responseData.conta_id;
                 const hoje = DateTimeHelper.retornaDadosDataHora(new Date(), 1);
                 const diferenca_data = DateTimeHelper.retornaDiferencaDeDataEHora(hoje, responseData.data_vencimento, 1);
@@ -180,17 +180,17 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
 
     saveButtonAction() {
         const self = this;
-        let data = commonFunctions.getInputsValues($(self.getIdModal).find('.divDadosLancamento')[0]);
+        let data = CommonFunctions.getInputsValues($(self.getIdModal).find('.divDadosLancamento')[0]);
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
-        data.valor_quitado = data.valor_quitado ? commonFunctions.removeCommasFromCurrencyOrFraction(data.valor_quitado) : null;
+        data.valor_quitado = data.valor_quitado ? CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_quitado) : null;
         data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
 
         if (self.#saveVerifications(data)) {
@@ -205,20 +205,20 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
 
         blnSave = self.#functionsParticipacao._saveVerificationsParticipantes(data);
 
-        blnSave = commonFunctions.verificationData(data.conta_id, {
+        blnSave = CommonFunctions.verificationData(data.conta_id, {
             field: formRegistration.find('select[name="conta_id"]'),
             messageInvalid: 'A <b>Conta</b> deve ser selecionada.',
             setFocus: true
         });
 
-        blnSave = commonFunctions.verificationData(data.data_quitado, {
+        blnSave = CommonFunctions.verificationData(data.data_quitado, {
             field: formRegistration.find('input[name="data_quitado"]'),
             messageInvalid: '<b>Data quitado</b> deve ser informada.',
             setFocus: blnSave === true,
             returnForcedFalse: blnSave === false
         });
 
-        blnSave = commonFunctions.verificationData(data.valor_quitado, {
+        blnSave = CommonFunctions.verificationData(data.valor_quitado, {
             field: formRegistration.find('input[name="valor_quitado"]'),
             messageInvalid: '<b>Valor quitado</b> deve ser informado.',
             setFocus: blnSave === true,

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
@@ -16,12 +16,19 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
     //     },
     // };
 
+    /**
+     * Constructor da classe ModalPessoa.
+     * 
+     * @param {Object} objData - Objeto com dados para inicializar o modal.
+     * @param {Object} [objData.objConfigs] - Configurações adicionais para o modal. Pode conter propriedades adicionais para o modal.
+     * @param {Object} [objData.dataEnvModal] - Dados para inicializar o modal.
+     */
     constructor(objData = {}) {
         const envSuper = {
             idModal: "#ModalPessoa",
         };
 
-        envSuper.objConfigs = commonFunctions.deepMergeObject({
+        envSuper.objConfigs = CommonFunctions.deepMergeObject({
             formRegister: false,
             modalSearch: {
                 disableSearchDefault: true,
@@ -65,7 +72,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
             sufixo: 'ModalPessoa',
         }, objData.objConfigs ?? {});
 
-        envSuper.dataEnvModal = commonFunctions.deepMergeObject({
+        envSuper.dataEnvModal = CommonFunctions.deepMergeObject({
             attributes: {
                 select: {
                     quantity: 1,
@@ -117,7 +124,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         const formJuridicaCriterios = modal.find(`#formDataSearch${self._objConfigs.sufixo}JuridicaCriterios`);
 
         if (!self._dataEnvModal.perfis_busca) {
-            commonFunctions.generateNotification('Perfis de busca não definidos.', 'warning');
+            CommonFunctions.generateNotification('Perfis de busca não definidos.', 'warning');
             return false;
         } else {
             let perfis_busca = '';
@@ -213,7 +220,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         }
         const pessoa_dados = pessoa.pessoa_dados;
 
-        const cpf = pessoa_dados.cpf ? commonFunctions.formatCPF(pessoa_dados.cpf) : '';
+        const cpf = pessoa_dados.cpf ? CommonFunctions.formatCPF(pessoa_dados.cpf) : '';
 
         const itemSelecionado = self.#verificaRegistroSelecionado(pessoa);
         let botoes = '';
@@ -307,8 +314,8 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         const naturezaJuridica = pessoa_dados.natureza_juridica ?? '***';
         const regimeTributario = pessoa_dados?.regime_tributario ?? '***';
         const responsavelLegal = pessoa_dados?.responsavel_legal ?? '***';
-        const cpfResponsavel = pessoa_dados?.cpf_responsavel ? commonFunctions.formatCPF(pessoa_dados.cpf_responsavel) : '***';
-        const capitalSocial = pessoa_dados.capital_social ? commonFunctions.formatNumberToCurrency(pessoa_dados.capital_social) : '***';
+        const cpfResponsavel = pessoa_dados?.cpf_responsavel ? CommonFunctions.formatCPF(pessoa_dados.cpf_responsavel) : '***';
+        const capitalSocial = pessoa_dados.capital_social ? CommonFunctions.formatNumberToCurrency(pessoa_dados.capital_social) : '***';
         const dataFundacao = pessoa_dados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoa_dados.data_fundacao, 2) : '***';
 
         const ativo = pessoa_dados.ativo_bln ? 'Ativo' : 'Inativo';
@@ -377,7 +384,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
                         objPerfil = response.register;
                         objPerfil.pessoa = item;
                     } catch (error) {
-                        commonFunctions.generateNotificationErrorCatch(error);
+                        CommonFunctions.generateNotificationErrorCatch(error);
                     } finally {
                         await self._modalHideShow();
                     }

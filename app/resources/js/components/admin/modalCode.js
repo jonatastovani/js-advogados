@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
 export class modalCode extends ModalRegistrationAndEditing {
@@ -43,7 +43,7 @@ export class modalCode extends ModalRegistrationAndEditing {
 
         $(self.getIdModal).find('.btn-refresh').on('click', function () {
             self.#buscarDados();
-            commonFunctions.generateNotification('Registro atualizado com sucesso', 'success');
+            CommonFunctions.generateNotification('Registro atualizado com sucesso', 'success');
         });
 
     }
@@ -62,7 +62,7 @@ export class modalCode extends ModalRegistrationAndEditing {
         }
 
         if (setMessage.size) {
-            commonFunctions.generateNotification('Não foi possível carregar o registro. Verifique os seguintes erros:', 'warning', { itemsArray: setMessage.values() });
+            CommonFunctions.generateNotification('Não foi possível carregar o registro. Verifique os seguintes erros:', 'warning', { itemsArray: setMessage.values() });
             return false;
         }
 
@@ -74,7 +74,7 @@ export class modalCode extends ModalRegistrationAndEditing {
                 $(self.getIdModal).find('.path').html(response.data.path);
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
         return true;
     }

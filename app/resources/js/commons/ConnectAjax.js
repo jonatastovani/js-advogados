@@ -1,8 +1,8 @@
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
-import { commonFunctions } from "./commonFunctions";
-import { enumAction } from "./enumAction";
+import { CommonFunctions } from "./CommonFunctions";
+import { EnumAction } from "./EnumAction";
 
-export class connectAjax {
+export class ConnectAjax {
 
     #urlApi;
     #action = null;;
@@ -19,7 +19,7 @@ export class connectAjax {
     }
 
     setAction(action) {
-        if (enumAction.isValid(action)) {
+        if (EnumAction.isValid(action)) {
             this.#action = action;
             return true;
         } else {
@@ -111,7 +111,7 @@ export class connectAjax {
 
     async deleteRequest() {
         const param = this.#param ? `/${this.#param}` : '';
-        this.#action = enumAction.DELETE;
+        this.#action = EnumAction.DELETE;
 
         this.#debug(`URL = ${this.#urlApi + param}`, `Param = ${param}`, `Method = ${this.#action}`, `Data = ${JSON.stringify(this.#data)}`);
 
@@ -168,7 +168,7 @@ export class connectAjax {
                 itemsArray: errors,
                 joinErrors: errors.join('\n'),
                 messageNotify: messageNotify,
-                htmlAlert: commonFunctions.returnHTMLAlert(responseText.message, 'error', { itemsArray: errors }),
+                htmlAlert: CommonFunctions.returnHTMLAlert(responseText.message, 'error', { itemsArray: errors }),
             };
         } catch (parseError) {
             console.error('Erro ao parsear resposta:', parseError);

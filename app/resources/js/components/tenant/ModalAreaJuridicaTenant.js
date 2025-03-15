@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 
 export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
@@ -30,8 +30,8 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
             idModal: "#ModalAreaJuridicaTenant",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -105,13 +105,13 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 self._clearForm();
                 self._idRegister = item.id
                 const response = await self._getRecurse();
                 if (response?.data) {
-                    self._action = enumAction.PUT;
+                    self._action = EnumAction.PUT;
                     const responseData = response.data;
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
@@ -121,9 +121,9 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
@@ -166,7 +166,7 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.querys.consultaFiltros.url);
@@ -174,7 +174,7 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da Área Jurídica deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da Área Jurídica deve ser informado.', setFocus: true });
         return blnSave;
     }
 }

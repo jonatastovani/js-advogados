@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
 export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
@@ -32,7 +32,7 @@ export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = options.urlApi;
-        this._action = enumAction.PUT;
+        this._action = EnumAction.PUT;
 
         this.#addEventosPadrao();
     }
@@ -60,7 +60,7 @@ export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);
@@ -71,7 +71,7 @@ export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
 
-        let blnSave = commonFunctions.verificationData(data.data_vencimento, { field: formRegistration.find('input[name="data_vencimento"]'), messageInvalid: "A data de vencimento deve ser informada.", setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.data_vencimento, { field: formRegistration.find('input[name="data_vencimento"]'), messageInvalid: "A data de vencimento deve ser informada.", setFocus: true });
         return blnSave;
     }
 

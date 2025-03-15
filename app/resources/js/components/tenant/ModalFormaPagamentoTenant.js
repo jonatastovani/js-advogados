@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { ModalContaTenant } from "./ModalContaTenant";
 
@@ -34,8 +34,8 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
             idModal: "#ModalFormaPagamentoTenant",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
     }
@@ -54,9 +54,9 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
             self._updateTitleRegistration('Nova Forma de Pagamento');
         });
 
-        commonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
+        CommonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
 
-        commonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
+        CommonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
         self._executarBusca();
         const queueCheck = self._queueCheckDomainCustom;
@@ -122,13 +122,13 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 self._clearForm();
                 self._idRegister = item.id
                 const response = await self._getRecurse();
                 if (response?.data) {
-                    self._action = enumAction.PUT;
+                    self._action = EnumAction.PUT;
                     const responseData = response.data;
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
@@ -140,9 +140,9 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
@@ -186,7 +186,7 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(self.getIdModal).find('select[name="conta_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -196,7 +196,7 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.querys.consultaFiltros.url);
@@ -204,8 +204,8 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da forma de pagamento deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'Uma conta deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da forma de pagamento deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.conta_id, { field: formRegistration.find('select[name="conta_id"]'), messageInvalid: 'Uma conta deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 }

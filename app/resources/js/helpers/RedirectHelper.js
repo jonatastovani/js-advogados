@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 import { URLHelper } from "./URLHelper";
 import { UUIDHelper } from "./UUIDHelper";
 
@@ -53,7 +53,7 @@ export class RedirectHelper {
      * @param {string} type - O tipo da notificação (success, error, info, etc.).
      */
     static showNotification(message, type = 'info') {
-        commonFunctions.generateNotification(message, type);
+        CommonFunctions.generateNotification(message, type);
     }
 
     /**

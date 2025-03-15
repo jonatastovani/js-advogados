@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { ModalEscolaridadeTenant } from "../../../components/tenant/ModalEscolaridadeTenant";
 import { ModalEstadoCivilTenant } from "../../../components/tenant/ModalEstadoCivilTenant";
@@ -30,7 +30,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             },
         };
 
-        objSuper.objConfigs = commonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
+        objSuper.objConfigs = CommonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
         super(objSuper);
     }
 
@@ -49,7 +49,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             await self._buscarDados({
                 urlApi: self._objConfigs.url.basePessoaPerfil,
             });
@@ -58,7 +58,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             self.#buscarEstadoCivil();
             self.#buscarSexo();
 
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
 
@@ -77,11 +77,11 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     _addEventosBotoes() {
         const self = this;
 
-        commonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), ModalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
+        CommonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), ModalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
 
-        commonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), ModalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
+        CommonFunctions.handleModal(self, $(`#btnOpenEscolaridadeTenant${self._objConfigs.sufixo}`), ModalEscolaridadeTenant, self.#buscarEscolaridade.bind(self));
 
-        commonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), ModalSexoTenant, self.#buscarSexo.bind(self));
+        CommonFunctions.handleModal(self, $(`#btnOpenSexoTenant${self._objConfigs.sufixo}`), ModalSexoTenant, self.#buscarSexo.bind(self));
     }
 
     async preenchimentoDados(response, options = {}) {
@@ -137,7 +137,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             let options = { firstOptionValue: null };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#escolaridade_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseEscolaridadeTenant, options); 0
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseEscolaridadeTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -150,7 +150,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             let options = { firstOptionValue: null };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#estado_civil_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseEstadoCivilTenant, options); 0
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseEstadoCivilTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -163,7 +163,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             let options = { firstOptionValue: null };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#sexo_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseSexoTenant, options); 0
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseSexoTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -173,7 +173,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
         data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
@@ -195,7 +195,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
 
     _saveVerifications(data, formRegistration) {
         const self = this;
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O campo <b>nome</b> deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O campo <b>nome</b> deve ser informado.', setFocus: true });
 
         if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
             blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);

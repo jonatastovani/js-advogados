@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 import { URLHelper } from "../../helpers/URLHelper";
@@ -47,21 +47,21 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
     async modalOpen() {
         const self = this;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do documento...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do documento...' });
         let blnOpen = false;
 
         if (self._dataEnvModal.register) {
             blnOpen = await self.#preencherDados()
         } else {
             if (!self._dataEnvModal.documento_tipo_tenant_id) {
-                commonFunctions.generateNotification('Tipo de documento não informado', 'error');
+                CommonFunctions.generateNotification('Tipo de documento não informado', 'error');
                 return await self._returnPromisseResolve();
             } else {
                 blnOpen = await self.#buscarDadosDocumentoTipo();
             }
         }
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
 
         if (!blnOpen) {
             return await self._returnPromisseResolve();
@@ -75,11 +75,11 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const modal = $(self._idModal);
 
         // modal.find('.btn-simular').on('click', async function () {
-        //     commonFunctions.simulateLoading($(this));
+        //     CommonFunctions.simulateLoading($(this));
         //     try {
         //         await self.#simularDocumento();
         //     } finally {
-        //         commonFunctions.simulateLoading($(this), false);
+        //         CommonFunctions.simulateLoading($(this), false);
         //     }
         // });
     }
@@ -94,7 +94,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
     async #buscarDadosDocumentoTipo() {
         const self = this;
         try {
-            const objConn = new connectAjax(self._objConfigs.url.baseDocumentoTipoTenants);
+            const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoTipoTenants);
             objConn.setParam(self._dataEnvModal.documento_tipo_tenant_id);
             const response = await objConn.getRequest();
 
@@ -106,11 +106,11 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                 self.#addEventosCamposPersonalizados();
                 return true;
             } else {
-                commonFunctions.generateNotification('HTML não encontrado.', 'error');
+                CommonFunctions.generateNotification('HTML não encontrado.', 'error');
                 return false;
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -151,7 +151,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                     //         const rules = campo.form_request_rule.split('|');
                     //         let valor = registerData[campo.nome];
                     //         if (rules.find(rule => rule === 'numeric')) {
-                    //             valor = commonFunctions.formatWithCurrencyCommasOrFraction(valor);
+                    //             valor = CommonFunctions.formatWithCurrencyCommasOrFraction(valor);
                     //         }
                     //         form.find(`#${campo.nome}${self._objConfigs.sufixo}`).val(valor).trigger('input');
                     //     }
@@ -163,7 +163,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -182,12 +182,12 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
     #obterDados() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.documento_tipo_tenant_id = self._objConfigs.data.documento_tipo_tenant.id;
         data.documento_tipo_tenant = self._objConfigs.data.documento_tipo_tenant;
 
         if (self._dataEnvModal.register) {
-            data = commonFunctions.deepMergeObject(self._dataEnvModal.register, data);
+            data = CommonFunctions.deepMergeObject(self._dataEnvModal.register, data);
         }
         return data;
     }
@@ -198,13 +198,13 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const documentoTipo = self._objConfigs.data.documento_tipo_tenant.documento_tipo;
 
         const inputNumero = formRegistration.find('input[name="numero"]');
-        let blnSave = commonFunctions.verificationData(data.numero, { field: inputNumero, messageInvalid: 'O campo <b>número</b> deve ser preenchido.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.numero, { field: inputNumero, messageInvalid: 'O campo <b>número</b> deve ser preenchido.', setFocus: true });
 
         if (data.numero && documentoTipo.helper?.endpoint_api) {
             const urlEndPoint = URLHelper.formatEndpointUrl(documentoTipo.helper.endpoint_api);
             try {
-                const objConn = new connectAjax(urlEndPoint);
-                objConn.setAction(enumAction.POST);
+                const objConn = new ConnectAjax(urlEndPoint);
+                objConn.setAction(EnumAction.POST);
                 objConn.setData({
                     texto: data.numero,
                 });
@@ -219,11 +219,11 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                         blnSave === true ? inputNumero.trigger('focus') : null;
                         inputNumero.removeClass('is-valid').addClass('is-invalid');
                         blnSave = false;
-                        commonFunctions.generateNotification(response.data.mensagem ?? "Documento inválido", 'warning');
+                        CommonFunctions.generateNotification(response.data.mensagem ?? "Documento inválido", 'warning');
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
                 return false
             }
         }
@@ -234,7 +234,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
         //     if (!regex.test(data.numero)) {
         //         blnSave = false;
-        //         commonFunctions.generateNotification('O número informado não está no formato válido.', 'warning');
+        //         CommonFunctions.generateNotification('O número informado não está no formato válido.', 'warning');
         //         inputNumero.focus();
         //     } else {
         //         // Se estiver vindo falso, continua falso
@@ -248,10 +248,10 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         //         const nullable = rules.find(rule => rule === 'nullable');
 
         //         if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-        //             data[campo.nome] = commonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+        //             data[campo.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
         //         }
 
-        //         blnSave = commonFunctions.verificationData(data[campo.nome], {
+        //         blnSave = CommonFunctions.verificationData(data[campo.nome], {
         //             field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
         //             messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
         //             setFocus: blnSave === true,

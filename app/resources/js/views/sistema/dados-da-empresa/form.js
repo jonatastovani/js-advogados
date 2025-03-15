@@ -1,5 +1,5 @@
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
+import { ConnectAjax } from "../../../commons/ConnectAjax";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateFormPessoaJuridica } from "../../pessoa/pessoa-juridica/TemplateFormPessoaJuridica";
 
 class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
@@ -40,7 +40,7 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
 
         // $(`#openModalConta${self._objConfigs.sufixo}`).on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const objModal = new ModalContaTenant();
         //         objModal.setDataEnvModal = {
@@ -62,9 +62,9 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
         //             }
         //         }
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //         await self._modalHideShow();
         //     }
         // });
@@ -75,7 +75,7 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
     //         const self = this;
     //         let options = selected_id ? { selectedIdOption: selected_id } : {};
     //         const select = $(`#conta_id${self.getSufixo}`);
-    //         await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+    //         await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
     //         return true;
     //     } catch (error) {
     //         return false;
@@ -84,18 +84,18 @@ class PagePessoaJuridicaFormEmpresa extends TemplateFormPessoaJuridica {
 
     async buscaEmpresa() {
         const self = this;
-        const objConn = new connectAjax(self._objConfigs.url.basePessoaPerfil);
+        const objConn = new ConnectAjax(self._objConfigs.url.basePessoaPerfil);
         objConn.setParam('empresa');
         const response = await objConn.getRequest();
 
         if (response?.data?.id) {
             self._idRegister = response.data.id;
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             await self._buscarDados({
                 urlApi: self._objConfigs.url.basePessoaPerfil,
             });
         } else {
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
     }

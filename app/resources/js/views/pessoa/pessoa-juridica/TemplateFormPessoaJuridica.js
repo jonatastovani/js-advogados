@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { MasksAndValidateHelpers } from "../../../helpers/MasksAndValidateHelpers";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -25,7 +25,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
             },
         };
 
-        objSuper.objConfigs = commonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
+        objSuper.objConfigs = CommonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
         super(objSuper);
     }
 
@@ -44,12 +44,12 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             await self._buscarDados({
                 urlApi: self._objConfigs.url.basePessoaPerfil,
             });
         } else {
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
 
@@ -68,7 +68,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
     _addEventosBotoes() {
         const self = this;
 
-        commonFunctions.applyCustomNumberMask($('.campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask($('.campo-monetario'), { format: '#.##0,00', reverse: true });
         MasksAndValidateHelpers.cpfMask($('.campo-cpf'));
         MasksAndValidateHelpers.addEventCheckCPF({ selector: $('.campo-cpf'), event: 'focusout' });
 
@@ -127,11 +127,11 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
         data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
-        data.capital_social = data.capital_social ? commonFunctions.removeCommasFromCurrencyOrFraction(data.capital_social) : null;
+        data.capital_social = data.capital_social ? CommonFunctions.removeCommasFromCurrencyOrFraction(data.capital_social) : null;
         data.enderecos = self._enderecoModule._retornaEnderecosNaTelaSaveButonAction();
 
         if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
@@ -150,9 +150,9 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
 
     _saveVerifications(data, formRegistration) {
         const self = this;
-        let blnSave = commonFunctions.verificationData(data.razao_social, { field: formRegistration.find('input[name="razao_social"]'), messageInvalid: 'O campo <b>Razão Social</b> deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.razao_social, { field: formRegistration.find('input[name="razao_social"]'), messageInvalid: 'O campo <b>Razão Social</b> deve ser informado.', setFocus: true });
 
-        blnSave = commonFunctions.verificationData(data.nome_fantasia, { field: formRegistration.find('input[name="nome_fantasia"]'), messageInvalid: 'O campo <b>Nome Fantasia</b> deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.nome_fantasia, { field: formRegistration.find('input[name="nome_fantasia"]'), messageInvalid: 'O campo <b>Nome Fantasia</b> deve ser informado.', setFocus: true });
 
         if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
             blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);

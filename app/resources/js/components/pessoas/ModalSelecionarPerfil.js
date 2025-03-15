@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 
@@ -28,7 +28,7 @@ export class ModalSelecionarPerfil extends ModalDefault {
 
     async modalOpen() {
         const self = this;
-        // await commonFunctions.loadingModalDisplay();
+        // await CommonFunctions.loadingModalDisplay();
         if (!await self.#preencherOpcoes()) {
             return self._returnPromisseResolve();
         }
@@ -39,7 +39,7 @@ export class ModalSelecionarPerfil extends ModalDefault {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
@@ -47,8 +47,8 @@ export class ModalSelecionarPerfil extends ModalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 
@@ -60,7 +60,7 @@ export class ModalSelecionarPerfil extends ModalDefault {
                 const perfil = window.Details.PessoaPerfilTipoEnum.find(item => item.id == perfilOpcao.perfil_tipo_id);
                 if (!perfil) {
                     console.error('Tipo de perfil inexistente.', perfilOpcao);
-                    commonFunctions.generateNotification('Tipo de perfil inexistente.', 'error');
+                    CommonFunctions.generateNotification('Tipo de perfil inexistente.', 'error');
                     return false;
                 }
                 perfilOpcao.idButton = await self.#inserirOpcao(perfil);
@@ -68,7 +68,7 @@ export class ModalSelecionarPerfil extends ModalDefault {
             }
             return true;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }

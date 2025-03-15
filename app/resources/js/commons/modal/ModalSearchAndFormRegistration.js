@@ -3,9 +3,9 @@ import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHe
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { QueueManager } from "../../utils/QueueManager";
-import { commonFunctions } from "../commonFunctions";
-import { connectAjax } from "../connectAjax";
-import { enumAction } from "../enumAction";
+import { CommonFunctions } from "../CommonFunctions";
+import { ConnectAjax } from "../ConnectAjax";
+import { EnumAction } from "../EnumAction";
 import { ModalDefault } from "./ModalDefault";
 
 export class ModalSearchAndFormRegistration extends ModalDefault {
@@ -21,7 +21,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
     _idRegister;
 
     constructor(objSuper) {
-        objSuper.objConfigs = commonFunctions.deepMergeObject({
+        objSuper.objConfigs = CommonFunctions.deepMergeObject({
             formRegister: true,
             modalSearch: {
                 disableSearchDefault: false,
@@ -30,7 +30,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
             typeCurrentSearch: null,
         }, objSuper.objConfigs ?? {});
 
-        objSuper.promisseReturnValue = commonFunctions.deepMergeObject({
+        objSuper.promisseReturnValue = CommonFunctions.deepMergeObject({
             selecteds: []
         }, objSuper.promisseReturnValue ?? {});
 
@@ -84,7 +84,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
     #addEventBtnNewRegister() {
         const self = this;
         $(self.getIdModal).find(this._btnNewRegister).on("click", () => {
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             self._actionsHideShowRegistrationFields(true);
             self._executeFocusElementOnModal($(self.getIdModal).find('.focusRegister'));
         });
@@ -142,6 +142,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         const self = this;
         self._clearForm();
         $(self.getIdModal).find('.formDataSearch')[0].reset();
+        $(`#tableData${self.getSufixo} tbody`).html('');
         self._actionsHideShowRegistrationFields();
     }
 
@@ -151,7 +152,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         const formRegistration = modal.find('.formRegistration');
         if (formRegistration.length > 0) {
             self._idRegister = undefined;
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             formRegistration.find('select').val(0);
             formRegistration[0].reset();
             formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
@@ -251,7 +252,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
             data.mes_ano = formDataSearch.find(`input[name="mesAno"]`).val();
         }
 
-        const searchFields = commonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
+        const searchFields = CommonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
         Object.keys(searchFields).forEach(element => {
             if (searchFields[element] === true) {
                 data.filtros.campos_busca.push(element);
@@ -259,11 +260,11 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         });
 
         if (arrayMensagens.length > 0) {
-            return commonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
+            return CommonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
         }
 
         if (options.appendData) {
-            commonFunctions.deepMergeObject(data, options.appendData);
+            CommonFunctions.deepMergeObject(data, options.appendData);
         }
 
         await self._getData(data);
@@ -304,14 +305,14 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
             }
         }
 
-        commonFunctions.generateNotification('O tipo de busca informado não foi encontrado.', 'error');
+        CommonFunctions.generateNotification('O tipo de busca informado não foi encontrado.', 'error');
         return false;
     }
 
     async _getData(data, page = 1) {
         const self = this;
         if (self._objConfigs.runningSearchBln) {
-            commonFunctions.generateNotification('Busca em andamento. Aguarde...', 'info');
+            CommonFunctions.generateNotification('Busca em andamento. Aguarde...', 'info');
             return;
         }
 
@@ -325,19 +326,19 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
         self._objConfigs.runningSearchBln = true;
         try {
-            commonFunctions.simulateLoading(buttonSearch);
+            CommonFunctions.simulateLoading(buttonSearch);
             self._paginationDefault({ footerPagination: footerPagination });
             self._refreshQueryQuantity('Consultando...', { footerPagination: footerPagination });
             self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination: footerPagination });
 
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const objConn = await new connectAjax(config.urlSearch);
+            const objConn = await new ConnectAjax(config.urlSearch);
             if (forcedDomainId) {
                 objConn.setForcedDomainCustomId = forcedDomainId;
             }
 
             data.page = page;
-            objConn.setAction(enumAction.POST);
+            objConn.setAction(EnumAction.POST);
             objConn.setData(data);
 
             const response = await objConn.envRequest();
@@ -350,7 +351,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
                 for (let item of responseData.data) {
                     const idTr = UUIDHelper.generateUUID();
-                    item = commonFunctions.deepMergeObject(item, { idTr });
+                    item = CommonFunctions.deepMergeObject(item, { idTr });
 
                     // Verifica se a propriedade `insertTableData` está definida no `config`
                     const functionName = config.insertTableData ? config.insertTableData : 'insertTableData';
@@ -381,10 +382,10 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
                 TenantTypeDomainCustomHelper.checkThIfNoRecords({ tbody });
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             footerPagination.find('.totalRegistros').html(0);
         } finally {
-            commonFunctions.simulateLoading(buttonSearch, false);
+            CommonFunctions.simulateLoading(buttonSearch, false);
             self._refreshQueryStatus('Aguardando comando do usuário...', { footerPagination: footerPagination });
             self._objConfigs.runningSearchBln = false;
         }
@@ -504,13 +505,13 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         if (!config) { return; }
 
         try {
-            const obj = new connectAjax(config.url);
+            const obj = new ConnectAjax(config.url);
             obj.setParam(idRegister);
             const response = await obj.getRequest();
             TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             return response;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -528,16 +529,16 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         } = options;
 
         try {
-            commonFunctions.simulateLoading(btnSave);
+            CommonFunctions.simulateLoading(btnSave);
 
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
             obj.setAction(self._action)
             obj.setData(data);
-            if (self._action === enumAction.PUT) {
+            if (self._action === EnumAction.PUT) {
                 obj.setParam(self._idRegister);
             }
 
@@ -564,12 +565,12 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
             const response = await obj.envRequest();
             if (response) {
-                commonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
+                CommonFunctions.generateNotification(`Dados enviados com sucesso!`, 'success');
                 self._promisseReturnValue.refresh = true;
                 if (functionExecuteAfterSuccess) {
                     self[functionExecuteAfterSuccess]();
                 }
-                if (self._action === enumAction.PUT) {
+                if (self._action === EnumAction.PUT) {
                     self.modalCancel();
                 } else {
                     self._clearForm();
@@ -577,10 +578,10 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
                 }
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
         finally {
-            commonFunctions.simulateLoading(btnSave, false);
+            CommonFunctions.simulateLoading(btnSave, false);
         };
     }
 
@@ -607,18 +608,18 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
             await self._modalHideShow(false);
             const result = await obj.modalOpen();
             if (result.confirmResult) {
-                await commonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
+                await CommonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
                 blnModalLoading = true;
                 if (await self._delRecurse(idDel, options)) {
-                    commonFunctions.generateNotification(success, 'success');
+                    CommonFunctions.generateNotification(success, 'success');
                     self.modalCancel();
                     self._generateQueryFilters();
                 };
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            if (blnModalLoading) await commonFunctions.loadingModalDisplay(false);
+            if (blnModalLoading) await CommonFunctions.loadingModalDisplay(false);
             await self._modalHideShow(true);
         }
     }
@@ -630,12 +631,12 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         if (!config) { return; }
 
         try {
-            const obj = new connectAjax(config.url);
+            const obj = new ConnectAjax(config.url);
             obj.setParam(idDel);
             const response = await obj.deleteRequest();
             return true;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -715,7 +716,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
             // Se não houver ID de domínio herdado, exibe erro e retorna falso
             if (!domainId) {
-                commonFunctions.generateNotification(
+                CommonFunctions.generateNotification(
                     'O ID da Unidade de domínio herdada não foi enviado. Caso o erro persista, contate o suporte.',
                     'error'
                 );

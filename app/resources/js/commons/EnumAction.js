@@ -1,4 +1,4 @@
-export class enumAction {
+export class EnumAction {
     static get GET() {
         return 'GET';
     }
@@ -20,11 +20,11 @@ export class enumAction {
     }
 
     static isValid(value) {
-        return value === enumAction.GET ||
-            value === enumAction.POST ||
-            value === enumAction.PUT ||
-            value === enumAction.PATCH ||
-            value === enumAction.DELETE;
+        return value === EnumAction.GET ||
+            value === EnumAction.POST ||
+            value === EnumAction.PUT ||
+            value === EnumAction.PATCH ||
+            value === EnumAction.DELETE;
     }
 
 }

@@ -2,6 +2,7 @@
     $sufixo = 'PageBalancoRepasseParceiroIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'nome' => 'Balanço de Repasse de Parceiro',
+        'sufixo' => $sufixo,
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -13,40 +14,94 @@
 
     @component('components.pagina.dados-pagina', ['paginaDados' => $paginaDados])
     @endcomponent
+    @php
+        $dados = new Illuminate\Support\Fluent([
+            'camposFiltrados' => [
+                'numero_servico' => ['nome' => 'Número de Serviço'],
+                'numero_pagamento' => ['nome' => 'Número do Pagamento'],
+                'titulo' => ['nome' => 'Título'],
+                'descricao' => ['nome' => 'Descrição'],
+            ],
+            'direcaoConsultaChecked' => 'asc',
+            'arrayCamposChecked' => ['numero_servico', 'numero_pagamento', 'titulo'],
+            'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
+            'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
+            'arrayCamposOrdenacao' => [
+                'created_at' => ['nome' => 'Data cadastro'],
+                'data_movimentacao' => ['nome' => 'Data movimentação'],
+                'data_recebimento' => ['nome' => 'Data Recebimento'],
+            ],
+            'consultaMesAnoBln' => true,
+            'camposExtras' => [
+                [
+                    'tipo' => 'select',
+                    'nome' => 'movimentacao_tipo_id',
+                    'opcoes' => [['id' => 0, 'nome' => 'Todas as movimentações']],
+                    'input_group' => [
+                        'before' => [
+                            "<span class='input-group-text'><label for='movimentacao_tipo_id{$sufixo}' title='Tipo de movimentação'>Tipo Mov.</label></span>",
+                        ],
+                    ],
+                ],
+                [
+                    'tipo' => 'select',
+                    'nome' => 'movimentacao_status_tipo_id',
+                    'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
+                    'input_group' => [
+                        'before' => [
+                            "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}'>Status</label></span>",
+                        ],
+                    ],
+                ],
+                [
+                    'tipo' => 'select',
+                    'nome' => 'conta_id',
+                    'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
+                    'input_group' => [
+                        'before' => [
+                            "<span class='input-group-text'  title='Conta de onde o valor será compensado ou debitado'><label for='conta_id{$sufixo}'>Conta</label></span>",
+                        ],
+                        'after' => [
+                            "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
+                <i class='bi bi-search'></i></button>",
+                        ],
+                    ],
+                ],
+            ],
+            'domainCustomComponent' => [
+                'divCapsula' => [
+                    'appendClass' => 'mt-2',
+                ],
+            ],
+        ]);
+    @endphp
+
     <div class="row">
         <div id="dados-parceiro{{ $sufixo }}" class="col mt-2">
             <div class="card card-parceiro">
                 <div class="card-body align-items-center justify-content-between py-0">
                     {{-- <div class="row">
-                        <div class="d-grid d-sm-block text-end mt-2">
-                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
-                                class="btn btn-outline-primary btn-sm border-0">
-                                Selecionar parceiro</button>
-                        </div>
-                        <div class="col">
-                            <div class="row">
-                                <div class="col-12 col-sm-8 align-content-center">
-                                    <h5 class="nome-parceiro">Selecione um parceiro</h5>
-                                </div>
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-text">Perfil referência</div>
-                                    <label class="form-label card-perfil-referencia">***</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-                    <div class="row">
                         <div class="col-12 col-sm-8 align-content-center my-2">
                             <h5 class="nome-parceiro">Selecione um parceiro</h5>
                         </div>
-                        {{-- <div class="col-12 col-sm-4">
-                            <div class="form-text">Perfil referência</div>
-                            <label class="form-label card-perfil-referencia">***</label>
-                        </div> --}}
                         <div class="d-grid d-sm-block col-12 col-sm-4 text-end my-2">
                             <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
                                 class="btn btn-outline-primary btn-sm border-0">
                                 Selecionar parceiro</button>
+                        </div>
+                    </div> --}}
+                    <div class="row">
+                        <div class="col-12 col-sm-7 col-md-8 col-lg-9 align-content-center my-2">
+                            <h5 class="nome-parceiro">Selecione um parceiro</h5>
+                        </div>
+                        <div class="d-grid d-sm-block col-12 col-sm-5 col-md-4 col-lg-3 text-end my-2">
+                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
+                                class="btn btn-outline-primary btn-sm border-0">
+                                Selecionar parceiro
+                            </button>
+
+                            <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" :display=true
+                                :dados="$dados" />
                         </div>
                     </div>
                 </div>
@@ -56,62 +111,6 @@
 
     <div id="camposConsulta{{ $sufixo }}">
         <div class="row">
-            @php
-                $dados = new Illuminate\Support\Fluent([
-                    'camposFiltrados' => [
-                        'numero_servico' => ['nome' => 'Número de Serviço'],
-                        'numero_pagamento' => ['nome' => 'Número do Pagamento'],
-                        'titulo' => ['nome' => 'Título'],
-                        'descricao' => ['nome' => 'Descrição'],
-                    ],
-                    'direcaoConsultaChecked' => 'asc',
-                    'arrayCamposChecked' => ['numero_servico', 'numero_pagamento', 'titulo'],
-                    'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
-                    'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
-                    'arrayCamposOrdenacao' => [
-                        'created_at' => ['nome' => 'Data cadastro'],
-                        'data_movimentacao' => ['nome' => 'Data movimentação'],
-                        'data_recebimento' => ['nome' => 'Data Recebimento'],
-                    ],
-                    'consultaMesAnoBln' => true,
-                    'camposExtras' => [
-                        [
-                            'tipo' => 'select',
-                            'nome' => 'movimentacao_tipo_id',
-                            'opcoes' => [['id' => 0, 'nome' => 'Todas as movimentações']],
-                            'input_group' => [
-                                'before' => [
-                                    "<span class='input-group-text'><label for='movimentacao_tipo_id{$sufixo}' title='Tipo de movimentação'>Tipo Mov.</label></span>",
-                                ],
-                            ],
-                        ],
-                        [
-                            'tipo' => 'select',
-                            'nome' => 'movimentacao_status_tipo_id',
-                            'opcoes' => [['id' => 0, 'nome' => 'Todos os status']],
-                            'input_group' => [
-                                'before' => [
-                                    "<span class='input-group-text'><label for='movimentacao_status_tipo_id{$sufixo}'>Status</label></span>",
-                                ],
-                            ],
-                        ],
-                        [
-                            'tipo' => 'select',
-                            'nome' => 'conta_id',
-                            'opcoes' => [['id' => 0, 'nome' => 'Todas as contas']],
-                            'input_group' => [
-                                'before' => [
-                                    "<span class='input-group-text'  title='Conta de onde o valor será compensado ou debitado'><label for='conta_id{$sufixo}'>Conta</label></span>",
-                                ],
-                                'after' => [
-                                    "<button id='openModalConta{$sufixo}' type='button' class='btn btn-outline-secondary'>
-                            <i class='bi bi-search'></i></button>",
-                                ],
-                            ],
-                        ],
-                    ],
-                ]);
-            @endphp
             <x-consulta.formulario-padrao-filtro.componente :sufixo="$sufixo" :dados="$dados" />
         </div>
         <div class="d-grid gap-2 d-sm-block mt-2">
@@ -150,14 +149,20 @@
     </div>
     <div class="row row-cols-1 row-cols-sm-2">
         <div class="col text-end mt-2">
-            <p class="mb-0">Total crédito: R$ <span class="campo_totais{{ $sufixo }}" id="total_credito{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Total débito: R$ <span class="campo_totais{{ $sufixo }}" id="total_debito{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Saldo: R$ <span class="campo_totais{{ $sufixo }}" id="total_saldo{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total crédito: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_credito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_debito{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_saldo{{ $sufixo }}">0,00</span></p>
         </div>
         <div class="col text-end mt-2">
-            <p class="mb-0">Total crédito liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_credito_liquidado{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Total débito liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_debito_liquidado{{ $sufixo }}">0,00</span></p>
-            <p class="mb-0">Saldo liquidado: R$ <span class="campo_totais{{ $sufixo }}" id="total_saldo_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total crédito liquidado: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_credito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Total débito liquidado: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_debito_liquidado{{ $sufixo }}">0,00</span></p>
+            <p class="mb-0">Saldo liquidado: R$ <span class="campo_totais{{ $sufixo }}"
+                    id="total_saldo_liquidado{{ $sufixo }}">0,00</span></p>
         </div>
     </div>
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 import { ModalMessage } from "../components/comum/ModalMessage";
 import { ModalSelecionarUsuarioDomains } from "../components/pessoas/ModalSelecionarUsuarioDomains";
 import { UUIDHelper } from "../helpers/UUIDHelper";
@@ -21,7 +21,7 @@ export class UsuarioDomainsModule {
 
         $(`#btnAdicionarDominio${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarUsuarioDomains();
                 objModal.setFocusElementWhenClosingModal = btn;
@@ -30,9 +30,9 @@ export class UsuarioDomainsModule {
                     await self._inserirDominio(response.register, true);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -48,7 +48,7 @@ export class UsuarioDomainsModule {
 
         // Verifica se ultrapassou o limite permitido
         if (dominiosComMesmoId.length) {
-            commonFunctions.generateNotification(`Este domínio já foi adicionado.`, 'warning');
+            CommonFunctions.generateNotification(`Este domínio já foi adicionado.`, 'warning');
             return false;
         }
         return true;
@@ -121,7 +121,7 @@ export class UsuarioDomainsModule {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }

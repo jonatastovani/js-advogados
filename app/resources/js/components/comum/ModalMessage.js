@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 /**
@@ -23,8 +23,8 @@ export class ModalMessage extends ModalDefault {
             idModal: "#ModalMessage",
         });
 
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
         this.#addEventsDefault();
     }
 
@@ -49,7 +49,7 @@ export class ModalMessage extends ModalDefault {
             self.setReadyQueueOpen;
             return await self._modalOpen();
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return await self._returnPromisseResolve();
         }
     }

@@ -1,7 +1,7 @@
 
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
+import { EnumAction } from "../../commons/EnumAction";
 
 $(document).ready(function () {
 
@@ -21,10 +21,10 @@ $(document).ready(function () {
     });
 
     // $('#send').click(async function () {
-    //     const data = commonFunctions.getInputsValues($('#form_login')[0]);
+    //     const data = CommonFunctions.getInputsValues($('#form_login')[0]);
     //     if (sendVerifications(data)) {
     //         try {
-    //             commonFunctions.simulateLoading(this);
+    //             CommonFunctions.simulateLoading(this);
 
     //             const apiService = new ApiService('http://10.14.20.22:8000');
     //             await apiService.initCsrf();
@@ -34,41 +34,41 @@ $(document).ready(function () {
     //             window.location.href = get.data.redirect;
 
     //         } catch (error) {
-    //             commonFunctions.generateNotificationErrorCatch(error);
+    //             CommonFunctions.generateNotificationErrorCatch(error);
     //         } finally {
-    //             commonFunctions.simulateLoading(this, false);
+    //             CommonFunctions.simulateLoading(this, false);
     //         }
     //     }
     // })
 
     $('#send').on('click', async function (e) {
         e.preventDefault();
-        const data = commonFunctions.getInputsValues($('#form_login')[0]);
+        const data = CommonFunctions.getInputsValues($('#form_login')[0]);
         if (sendVerifications(data)) {
             try {
-                commonFunctions.simulateLoading(this);
+                CommonFunctions.simulateLoading(this);
 
-                const objCsrf = new connectAjax('/sanctum/csrf-cookie');
+                const objCsrf = new ConnectAjax('/sanctum/csrf-cookie');
                 objCsrf.setAddCsrfTokenBln = false;
                 const responseCsrf = await objCsrf.getRequest();
 
-                const obj = new connectAjax(window.apiRoutes.urlLogin);
-                obj.setAction(enumAction.POST);
+                const obj = new ConnectAjax(window.apiRoutes.urlLogin);
+                obj.setAction(EnumAction.POST);
                 obj.setData(data);
                 const response = await obj.envRequest();
                 console.log(response);
                 window.location.href = response.data.redirect;
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(this, false);
+                CommonFunctions.simulateLoading(this, false);
             }
         }
     })
 
     function sendVerifications(data) {
-        let blnSave = commonFunctions.verificationData(data.username, { field: $('#username'), messageInvalid: 'O Username deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.password, { field: $('#password'), messageInvalid: 'A senha deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.username, { field: $('#username'), messageInvalid: 'O Username deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.password, { field: $('#password'), messageInvalid: 'A senha deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 

@@ -2,12 +2,12 @@
 import { ModalLoading } from "../components/comum/ModalLoading";
 import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
-import { connectAjax } from "./connectAjax";
-import { enumAction } from "./enumAction";
-import instanceManager from "./instanceManager";
+import { ConnectAjax } from "./ConnectAjax";
+import { EnumAction } from "./EnumAction";
+import InstanceManager from "./InstanceManager";
 import './select2-4.0.2';
 
-export class commonFunctions {
+export class CommonFunctions {
 
     /**
      * Removes all non-numeric characters from a string.
@@ -178,7 +178,7 @@ export class commonFunctions {
 
         // Verifica se o valor é numérico, caso contrário converte
         if (isNaN(Number(number))) {
-            number = commonFunctions.returnsOnlyNumber(number);
+            number = CommonFunctions.returnsOnlyNumber(number);
         }
 
         const formattedNumber = Number(number).toLocaleString('pt-BR', {
@@ -229,7 +229,7 @@ export class commonFunctions {
             firstOptionValue = 0,
             selectedIdOption = elem.val(),
             displayColumnName = 'nome',
-            typeRequest = enumAction.GET,
+            typeRequest = EnumAction.GET,
             envData = {},
             outInstanceParentBln = false,
             instanceParent = undefined,
@@ -237,7 +237,7 @@ export class commonFunctions {
 
         try {
 
-            const objConn = new connectAjax(urlApi);
+            const objConn = new ConnectAjax(urlApi);
             let response;
 
             // Verifica se o tenant é do tipo que permite domínios customizados
@@ -252,9 +252,9 @@ export class commonFunctions {
                 }
             }
 
-            if (typeRequest === enumAction.GET) {
+            if (typeRequest === EnumAction.GET) {
                 response = await objConn.getRequest();
-            } else if (typeRequest === enumAction.POST) {
+            } else if (typeRequest === EnumAction.POST) {
                 objConn.setAction(typeRequest);
                 objConn.setData(envData);
                 response = await objConn.envRequest();
@@ -279,7 +279,7 @@ export class commonFunctions {
             return Promise.resolve({ response });
         } catch (error) {
             elem.html(`<option>'Erro ao preencher'</option>`);
-            commonFunctions.generateNotificationErrorCatch(error)
+            CommonFunctions.generateNotificationErrorCatch(error)
             return Promise.reject(error);
         }
     }
@@ -330,7 +330,7 @@ export class commonFunctions {
             const errorMessage = 'Erro ao preencher';
             console.error(error);
             elem.html(`<option>${errorMessage}</option>`);
-            commonFunctions.generateNotification(error.message, 'error');
+            CommonFunctions.generateNotification(error.message, 'error');
             return Promise.reject(error);
         }
     }
@@ -742,7 +742,7 @@ export class commonFunctions {
     }
 
     /**
-     * Abre um modal setando a classe no instanceManager o ModalLoading aberto.
+     * Abre um modal setando a classe no InstanceManager o ModalLoading aberto.
      *
      * @param {boolean} displayBln - Status de visibilidade do modal.
      * @param {Object} [options={}] - Opções para personalizar o modal.
@@ -757,7 +757,7 @@ export class commonFunctions {
             elementFocus = null,
         } = options;
 
-        const loading = instanceManager.setInstance('ModalLoading', new ModalLoading());
+        const loading = InstanceManager.setInstance('ModalLoading', new ModalLoading());
         const isModalVisible = $(loading.getIdModal).hasClass('show');
 
         // Se o estado já é o desejado, retorna a Promise imediatamente
@@ -784,16 +784,16 @@ export class commonFunctions {
         const {
             // data = { trashed: true },
             data = {},
-            action = enumAction.GET,
+            action = EnumAction.GET,
             param = '?withTrashed=1',
         } = options;
 
         try {
-            const obj = new connectAjax(urlApi);
+            const obj = new ConnectAjax(urlApi);
             obj.setParam(param);
             obj.setAction(action);
             obj.setData(data);
-            const response = action === enumAction.GET ? await obj.getRequest() : await obj.envRequest();
+            const response = action === EnumAction.GET ? await obj.getRequest() : await obj.envRequest();
             return response;
         } catch (error) {
             console.error(error);
@@ -855,7 +855,7 @@ export class commonFunctions {
         }
         icoHeading = ico ? ico : icoHeading;
 
-        let strItemsMessage = commonFunctions.returnArrayToHTML(itemsArray);
+        let strItemsMessage = CommonFunctions.returnArrayToHTML(itemsArray);
         strItemsMessage ? strItemsMessage = `<hr><ol class="mb-0">${strItemsMessage}</ol>` : '';
 
         let btnDismiss = '';
@@ -915,7 +915,7 @@ export class commonFunctions {
 
         let strItems = '';
         if (itemsArray) {
-            strItems = commonFunctions.returnArrayToHTML(itemsArray, { tag: itemsTag });
+            strItems = CommonFunctions.returnArrayToHTML(itemsArray, { tag: itemsTag });
             strItems = strItems ? `<hr class="m-1"><ol class="mb-0">${strItems}</ol>` : '';
             message += strItems;
         }
@@ -929,8 +929,8 @@ export class commonFunctions {
 
     static generateNotificationErrorCatch(error) {
         console.error(error);
-        commonFunctions.generateNotification(
-            commonFunctions.firstUppercaseLetter(error.message),
+        CommonFunctions.generateNotification(
+            CommonFunctions.firstUppercaseLetter(error.message),
             'error',
             {
                 traceId: error.traceId,
@@ -957,9 +957,9 @@ export class commonFunctions {
             setFocus = false,
             returnForcedFalse = false
         } = options;
-        if (commonFunctions.getInvalidsDefaultValuesGenerateFilters().includes(data)) {
+        if (CommonFunctions.getInvalidsDefaultValuesGenerateFilters().includes(data)) {
             if (messageInvalid) {
-                commonFunctions.generateNotification(messageInvalid, typeNotification);
+                CommonFunctions.generateNotification(messageInvalid, typeNotification);
             }
             if (field) {
                 $(field).removeClass('is-valid').addClass('is-invalid');
@@ -1008,18 +1008,18 @@ export class commonFunctions {
 
     // static async checkPermissions(arrayPermissions) {
     //     // try {
-    //     //     const obj = new connectAjax(`${urlLocalAuthSession}/checkPermissions`);
-    //     //     obj.setAction(enumAction.POST);
+    //     //     const obj = new ConnectAjax(`${urlLocalAuthSession}/checkPermissions`);
+    //     //     obj.setAction(EnumAction.POST);
     //     //     obj.setData({ arrayPermissions: arrayPermissions })
     //     //     const response = await obj.envRequest();
     //     //     return response.data.permission;
     //     // } catch (error) {
     //     //     console.error(error);
     //     //     const traceId = error.traceId ? error.traceId : undefined;
-    //     //     commonFunctions.generateNotification(commonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
+    //     //     CommonFunctions.generateNotification(CommonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
     //     //     return false;
     //     // }
-    //     const obj = instanceManager.setInstance('managerPermissions', new managerPermissions());
+    //     const obj = InstanceManager.setInstance('managerPermissions', new managerPermissions());
     //     if (await obj.hasPermission(arrayPermissions)) {
     //         return true;
     //     }
@@ -1055,9 +1055,9 @@ export class commonFunctions {
     //     } = options;
     //     const setFails = new Set();
     //     for (const permission of arrayPermissions) {
-    //         if (!await commonFunctions.checkPermissions([permission.permission])) {
+    //         if (!await CommonFunctions.checkPermissions([permission.permission])) {
     //             const parts = permission.permission.split(':');
-    //             setFails.add(`${permission.name}: ${commonFunctions.firstUppercaseLetter(translate(parts[1]))}`);
+    //             setFails.add(`${permission.name}: ${CommonFunctions.firstUppercaseLetter(translate(parts[1]))}`);
     //         }
     //     }
     //     if (blnReturnArray) {
@@ -1067,7 +1067,7 @@ export class commonFunctions {
     //         }
     //     } else {
     //         if (setFails.size) {
-    //             commonFunctions.generateNotification(message, 'error', { itemsArray: setFails.values() })
+    //             CommonFunctions.generateNotification(message, 'error', { itemsArray: setFails.values() })
     //             return false;
     //         }
     //         return true;
@@ -1103,7 +1103,7 @@ export class commonFunctions {
                         target[key] = {};
                     }
                     // Chamada recursiva
-                    commonFunctions.deepMergeObject(target[key], source[key]);
+                    CommonFunctions.deepMergeObject(target[key], source[key]);
                 } else {
                     // Caso contrário, sobrescrevemos o valor diretamente
                     target[key] = source[key];
@@ -1125,10 +1125,10 @@ export class commonFunctions {
 
         $(selector).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
 
             try {
-                modalClass = new modalClass();
+                const objModal = new modalClass();
 
                 let dataEnvModal = {
                     attributes: {
@@ -1140,16 +1140,16 @@ export class commonFunctions {
                 };
 
                 if (options.dataEnvAppend) {
-                    commonFunctions.deepMergeObject(dataEnvModal, options.dataEnvAppend)
+                    CommonFunctions.deepMergeObject(dataEnvModal, options.dataEnvAppend)
                 }
 
-                modalClass.setDataEnvModal = dataEnvModal;
+                objModal.setDataEnvModal = dataEnvModal;
 
                 if (typeof self._modalHideShow === 'function') {
                     await self._modalHideShow(false);
                 }
 
-                const response = await modalClass.modalOpen();
+                const response = await objModal.modalOpen();
 
                 if (response.refresh) {
                     if (response.selected) {
@@ -1159,9 +1159,9 @@ export class commonFunctions {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 if (typeof self._modalHideShow === 'function') {
                     await self._modalHideShow();
                 }

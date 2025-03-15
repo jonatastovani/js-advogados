@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
@@ -51,67 +51,12 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-
-            try {
-                const objModal = new ModalLancamentoCategoriaTipoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarLancamentoCategoriaTipoTenant(response.selected.id);
-                    } else {
-                        self.#buscarLancamentoCategoriaTipoTenant();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
+    
+        CommonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
-            commonFunctions.generateNotification('Em desenvolvimento', 'warning');
+            CommonFunctions.generateNotification('Em desenvolvimento', 'warning');
             return;
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
                 // Flatten o objeto para gerar os parâmetros
@@ -137,7 +82,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
 
         $(`#btnInserirRessarcimento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
@@ -147,9 +92,9 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -160,7 +105,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
@@ -197,9 +142,9 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         const numero_lancamento = item.numero_lancamento;
         const status = item.status.nome;
         const tipoMovimentacao = item.movimentacao_tipo.nome;
-        const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
+        const valorEsperado = CommonFunctions.formatNumberToCurrency(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        const valorQuitado = item.data_quitado ? commonFunctions.formatNumberToCurrency(item.valor_quitado) : '***';
+        const valorQuitado = item.data_quitado ? CommonFunctions.formatNumberToCurrency(item.valor_quitado) : '***';
         const dataQuitado = item.data_quitado ? DateTimeHelper.retornaDadosDataHora(item.data_quitado, 2) : '***';
         const descricao = item.descricao;
         const categoriaTipo = item.categoria.nome
@@ -239,7 +184,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
 
         $(`#${item.idTr} .btn-edit`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO
@@ -252,9 +197,9 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -300,12 +245,30 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarLancamentoCategoriaTipoTenant(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                outInstanceParentBln: true,
+                insertFirstOption: true,
+                firstOptionName: 'Todas as categorias',
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#categoria_id${self.getSufixo}`);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;
@@ -322,7 +285,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -339,23 +302,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async #buscarLancamentoCategoriaTipoTenant(selected_id = null) {
-        try {
-            const self = this;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todas as categorias',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const select = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;

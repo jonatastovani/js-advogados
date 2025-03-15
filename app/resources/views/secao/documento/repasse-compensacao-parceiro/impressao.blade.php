@@ -46,11 +46,11 @@
             <p class="mb-0">Total débito: {{ $dataEnv['somatorias']['debito'] }}</p>
             <p class="mb-0">Saldo: {{ $dataEnv['somatorias']['total_saldo'] }}</p>
         </div>
-        <div class="col-sm-5 pdf-row-group">
+        {{-- <div class="col-sm-5 pdf-row-group">
             <p class="mb-0">Total crédito liquidado: {{ $dataEnv['somatorias']['credito_liquidado'] }}</p>
             <p class="mb-0">Total débito liquidado: {{ $dataEnv['somatorias']['debito_liquidado'] }}</p>
             <p class="mb-0">Saldo liquidado: {{ $dataEnv['somatorias']['total_saldo_liquidado'] }}</p>
-        </div>
+        </div> --}}
     </div>
 
 @endsection

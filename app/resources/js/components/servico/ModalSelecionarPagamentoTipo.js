@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../commons/commonFunctions";
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
-import { modalServicoPagamento } from "./ModalServicoPagamento";
+import { ModalServicoPagamento } from "./ModalServicoPagamento";
 
 export class ModalSelecionarPagamentoTipo extends ModalDefault {
 
@@ -27,9 +27,9 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
 
     async modalOpen() {
         const self = this;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de pagamento...', title: 'Aguarde...', elementFocus: null });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de pagamento...', title: 'Aguarde...', elementFocus: null });
         await self.#buscarPagamentoTipos($(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]'));
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -53,9 +53,9 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
 
         modal.find('.openModalPagamentoTipoTenant').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
-                commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de pagamento, em desenvolvimento.', 'warning');
+                CommonFunctions.generateNotification('Funcionalidade para criar e alterar formas de pagamento, em desenvolvimento.', 'warning');
                 // const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
@@ -76,9 +76,9 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
                 //     }
                 // }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 // await self._modalHideShow();
             }
         });
@@ -88,24 +88,24 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
         const select = $(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]');
-        await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
     }
 
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             try {
                 await self._modalHideShow(false);
-                const objModal = new modalServicoPagamento({ urlApi: `${self._objConfigs.url.baseServico}/pagamentos` });
+                const objModal = new ModalServicoPagamento({ urlApi: `${self._objConfigs.url.baseServico}/pagamentos` });
                 objModal._dataEnvModal = {
                     pagamento_tipo_tenant_id: data.pagamento_tipo_tenant_id,
                 }
                 self._promisseReturnValue = await objModal.modalOpen();
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 self._setEndTimer = true;
             }
@@ -113,7 +113,7 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.pagamento_tipo_tenant_id, { field: formRegistration.find('select[name="pagamento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de pagamento.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.pagamento_tipo_tenant_id, { field: formRegistration.find('select[name="pagamento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de pagamento.', setFocus: true });
         return blnSave;
     }
 

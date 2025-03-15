@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { ModalAreaJuridicaTenant } from "../../../components/tenant/ModalAreaJuridicaTenant";
 import { URLHelper } from "../../../helpers/URLHelper";
@@ -49,10 +49,10 @@ class PagePreenchimentoAutomatico extends TemplateForm {
             self._objConfigs.url.basePagamentos = `${url}/pagamentos`;
             self._objConfigs.url.baseParticipacao = `${url}/participacao`;
             self._objConfigs.url.baseValores = `${url}/relatorio/valores`;
-            this._action = enumAction.PUT;
+            this._action = EnumAction.PUT;
             await self._buscarDados();
         } else {
-            this._action = enumAction.POST;
+            this._action = EnumAction.POST;
         }
 
         self.#addEventosBotoes();
@@ -63,7 +63,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
 
         $(`#btnOpenAreaJuridicaTenant${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAreaJuridicaTenant();
                 objModal.setDataEnvModal = {
@@ -83,9 +83,9 @@ class PagePreenchimentoAutomatico extends TemplateForm {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -118,7 +118,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
 
         // $(`#${item.idCard}`).find('.btn-edit').on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
         //         objModal.setDataEnvModal = {
@@ -129,9 +129,9 @@ class PagePreenchimentoAutomatico extends TemplateForm {
         //             self.#buscarPagamentos();
         //         }
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //     }
         // });
 
@@ -142,7 +142,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const selArea = $(`#area_juridica_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
+            await CommonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true
         } catch (error) {
             return false;
@@ -152,7 +152,7 @@ class PagePreenchimentoAutomatico extends TemplateForm {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self.getSufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
@@ -162,10 +162,10 @@ class PagePreenchimentoAutomatico extends TemplateForm {
 
     saveVerifications(data, formRegistration) {
         const self = this;
-        if (self._action == enumAction.POST) {
-            let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-            blnSave = commonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-            blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        if (self._action == EnumAction.POST) {
+            let blnSave = CommonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
+            blnSave = CommonFunctions.verificationData(data.area_juridica_id, { field: formRegistration.find('select[name="area_juridica_id"]'), messageInvalid: 'A Área Jurídica deve ser selecionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+            blnSave = CommonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'A descrição deve ser preenchida.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
             return blnSave;
         }
         return true;

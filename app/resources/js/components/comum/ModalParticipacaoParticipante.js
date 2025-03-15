@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { ModalParticipacaoTipoTenant } from "../tenant/ModalParticipacaoTipoTenant";
 
@@ -36,10 +36,10 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
             idModal: "#ModalParticipacaoParticipante",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = EnumAction.POST;
     }
 
     set setValorTipoPermitido(tipo) {
@@ -54,7 +54,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         const self = this;
 
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
+            await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
 
             self.#addEventosPadrao();
 
@@ -66,10 +66,10 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
             await self.#preencherDados();
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return await self._returnPromisseResolve();
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
 
         await self._modalHideShow();
@@ -85,7 +85,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
 
         modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalParticipacaoTipoTenant();
                 objModal.setDataEnvModal = {
@@ -107,9 +107,9 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
@@ -120,7 +120,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
             if (porcentagem_livre == 100) {
                 valor.val(porcentagem_livre);
             } else if (porcentagem_livre > 0) {
-                valor.val(commonFunctions.formatWithCurrencyCommasOrFraction(porcentagem_livre));
+                valor.val(CommonFunctions.formatWithCurrencyCommasOrFraction(porcentagem_livre));
             }
         });
     }
@@ -175,7 +175,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         }
 
         const executarAcoesValorFixo = () => {
-            commonFunctions.applyCustomNumberMask(valor, { format: '#.##0,00', reverse: true });
+            CommonFunctions.applyCustomNumberMask(valor, { format: '#.##0,00', reverse: true });
             visibilidadeDadosPorcentagem(false);
             self._objConfigs.data.valor_tipo = 'valor_fixo';
         }
@@ -244,7 +244,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         let valor = dados.valor ?? 0;
 
         if (dados.valor_tipo == 'valor_fixo' || dados.valor_tipo == 'porcentagem' && dados.valor < 100) {
-            valor = commonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
+            valor = CommonFunctions.formatWithCurrencyCommasOrFraction(dados.valor ?? 0);
         }
 
         if (!livre) {
@@ -255,7 +255,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         }
 
         modal.find('.lblNome').html(nome);
-        modal.find('.lblPorcentagemLivre').html(commonFunctions.formatWithCurrencyCommasOrFraction(livre));
+        modal.find('.lblPorcentagemLivre').html(CommonFunctions.formatWithCurrencyCommasOrFraction(livre));
         if (dados.valor_tipo) {
             modal.find(`input[name="valor_tipo"][value="${dados.valor_tipo}"]`).prop('checked', true).trigger('click');
         }
@@ -267,7 +267,7 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
     async #buscarTipoParticipacaoTenant(selected_id = null) {
         const self = this;
         let options = {
-            typeRequest: enumAction.POST,
+            typeRequest: EnumAction.POST,
             envData: {
                 configuracao_tipo: self._dataEnvModal.configuracao_tipo,
             },
@@ -275,13 +275,13 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         }
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="participacao_tipo_id"]');
-        await commonFunctions.fillSelect(select, `${self._objConfigs.url.baseParticipacaoTipo}/index-configuracao-tipo`, options);
+        await CommonFunctions.fillSelect(select, `${self._objConfigs.url.baseParticipacaoTipo}/index-configuracao-tipo`, options);
     }
 
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.valor_tipo = self._objConfigs.data.valor_tipo;
 
         if (self.#saveVerifications(data)) {
@@ -295,20 +295,20 @@ export class ModalParticipacaoParticipante extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
 
-        let blnSave = commonFunctions.verificationData(data.participacao_tipo_id, { field: formRegistration.find('select[name="participacao_tipo_id"]'), messageInvalid: 'O <b>tipo de participação</b> deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.participacao_tipo_id, { field: formRegistration.find('select[name="participacao_tipo_id"]'), messageInvalid: 'O <b>tipo de participação</b> deve ser informado.', setFocus: true });
 
-        data.valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
+        data.valor = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
 
         if (data.valor > 0) {
             if (data.valor_tipo == 'porcentagem' && data.valor > self._objConfigs.data.porcentagem_livre) {
-                commonFunctions.generateNotification('O <b>valor da participação</b> ultrapassa o valor da porcentagem livre.', 'warning');
+                CommonFunctions.generateNotification('O <b>valor da participação</b> ultrapassa o valor da porcentagem livre.', 'warning');
                 if (blnSave === true) {
                     self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
                 }
                 blnSave = false;
             }
         } else {
-            commonFunctions.generateNotification('O <b>valor da participação</b> deve ser informado.', 'warning');
+            CommonFunctions.generateNotification('O <b>valor da participação</b> deve ser informado.', 'warning');
             if (blnSave === true) {
                 self._executeFocusElementOnModal(formRegistration.find('input[name="valor"]'));
             }

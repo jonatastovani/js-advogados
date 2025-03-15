@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 import { ModalMessage } from "../components/comum/ModalMessage";
 import { ModalPessoaDocumento } from "../components/pessoas/ModalPessoaDocumento";
 import { ModalSelecionarDocumentoTipo } from "../components/pessoas/ModalSelecionarDocumentoTipo";
@@ -22,7 +22,7 @@ export class PessoaDocumentoModule {
 
         $(`#btnAdicionarDocumento${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarDocumentoTipo();
                 objModal.setDataEnvModal = {
@@ -34,9 +34,9 @@ export class PessoaDocumentoModule {
                     await self._inserirDocumento(response.register, true);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -58,10 +58,10 @@ export class PessoaDocumentoModule {
             // Verifica se ultrapassou o limite permitido
             if (documentosComMesmoTipo.length >= quantidadePermitida) {
                 if (quantidadePermitida === 1) {
-                    commonFunctions.generateNotification(`Este documento já foi adicionado.`, 'warning');
+                    CommonFunctions.generateNotification(`Este documento já foi adicionado.`, 'warning');
                     return false;
                 } else {
-                    commonFunctions.generateNotification(`O limite de ${quantidadePermitida} documentos para este tipo foi atingido.`, 'warning');
+                    CommonFunctions.generateNotification(`O limite de ${quantidadePermitida} documentos para este tipo foi atingido.`, 'warning');
                     return false;
                 }
             }
@@ -137,7 +137,7 @@ export class PessoaDocumentoModule {
         $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
             const docNaTela = self._objConfigs.data.documentosNaTela;
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
                 if (indexDoc != -1) {
@@ -154,14 +154,14 @@ export class PessoaDocumentoModule {
                 } else {
                     console.error('Documento na tela não encontrado. Docs:', docNaTela);
                     console.error('Item buscado:', item);
-                    commonFunctions.generateNotification('Documento na tela não encontrado.', 'error');
+                    CommonFunctions.generateNotification('Documento na tela não encontrado.', 'error');
                     return false;
                 }
 
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -185,7 +185,7 @@ export class PessoaDocumentoModule {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }

@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
@@ -55,7 +55,7 @@ class PageClientePJIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.ativo_bln && [1, 0].includes(Number(data.ativo_bln))) {
                 appendData.ativo_bln = data.ativo_bln;
@@ -83,8 +83,8 @@ class PageClientePJIndex extends TemplateSearch {
         const naturezaJuridica = pessoaDados.natureza_juridica ?? '***';
         const regimeTributario = pessoaDados?.regime_tributario ?? '***';
         const responsavelLegal = pessoaDados?.responsavel_legal ?? '***';
-        const cpfResponsavel = pessoaDados?.cpf_responsavel ? commonFunctions.formatCPF(pessoaDados.cpf_responsavel) : '***';
-        const capitalSocial = pessoaDados.capital_social ? commonFunctions.formatNumberToCurrency(pessoaDados.capital_social) : '***';
+        const cpfResponsavel = pessoaDados?.cpf_responsavel ? CommonFunctions.formatCPF(pessoaDados.cpf_responsavel) : '***';
+        const capitalSocial = pessoaDados.capital_social ? CommonFunctions.formatNumberToCurrency(pessoaDados.capital_social) : '***';
         const dataFundacao = pessoaDados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoaDados.data_fundacao, 2) : '***';
 
         let perfis = 'N/C';
@@ -158,7 +158,7 @@ class PageClientePJIndex extends TemplateSearch {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            commonFunctions.generateNotification('Funcionalidade para excluir pessoa juridica, em desenvolvimento.', 'warning');
+            CommonFunctions.generateNotification('Funcionalidade para excluir pessoa juridica, em desenvolvimento.', 'warning');
             // self._delButtonAction(item.id, item.pessoa_dados.nome, {
             //     title: `Exclusão de Pessoa Física`,
             //     message: `

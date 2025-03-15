@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 
 export class ParticipacaoHelpers {
 
@@ -8,7 +8,7 @@ export class ParticipacaoHelpers {
 
         for (const participante of participantes) {
             let nomeParticipante = '';
-            let valor = commonFunctions.formatWithCurrencyCommasOrFraction(participante.valor);
+            let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(participante.valor);
             let participacao = participante.participacao_tipo.nome;
 
             switch (participante.valor_tipo) {
@@ -32,7 +32,7 @@ export class ParticipacaoHelpers {
                             break;
 
                         default:
-                            commonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                            CommonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
                             console.error('O tipo de pessoa ainda nao foi implementado.', participante);
                             return false;
                     }
@@ -54,7 +54,7 @@ export class ParticipacaoHelpers {
                                         break;
 
                                     default:
-                                        commonFunctions.generateNotification(`O tipo de pessoa <b>${integrante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                                        CommonFunctions.generateNotification(`O tipo de pessoa <b>${integrante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
                                         console.error('O tipo de pessoa ainda nao foi implementado.', integrante);
                                         return false;
                                 }
@@ -80,7 +80,7 @@ export class ParticipacaoHelpers {
 
         for (const participante of participantes) {
             let nomeParticipante = '';
-            let valor = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(participante.valor_participante)}`;
+            let valor = `R$ ${CommonFunctions.formatWithCurrencyCommasOrFraction(participante.valor_participante)}`;
             let descricao_automatica = participante.descricao_automatica;
 
             switch (participante.participacao_registro_tipo_id) {
@@ -95,7 +95,7 @@ export class ParticipacaoHelpers {
                             break;
 
                         default:
-                            commonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                            CommonFunctions.generateNotification(`O tipo de pessoa <b>${participante.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
                             console.error('O tipo de pessoa ainda nao foi implementado.', participante);
                             return false;
                     }

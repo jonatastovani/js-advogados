@@ -2,9 +2,9 @@ import { ModalMessage } from "../../components/comum/ModalMessage";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
-import { commonFunctions } from "../commonFunctions";
-import { connectAjax } from "../connectAjax";
-import { enumAction } from "../enumAction";
+import { CommonFunctions } from "../CommonFunctions";
+import { ConnectAjax } from "../ConnectAjax";
+import { EnumAction } from "../EnumAction";
 
 export class TemplateSearch {
 
@@ -21,11 +21,22 @@ export class TemplateSearch {
         typeCurrentSearch: undefined,
     };
 
+    /**
+     * Constructor da classe.
+     * 
+     * @param {Object} objSuper - Objeto com as configurações da superclasse.
+     * @param {string} objSuper.sufixo - Sufixo da página.
+     * @param {Object} [objSuper.objConfigs] - Configurações do template.
+     * @param {boolean} [objSuper.withOutVerifyDomainCustom=false] - Indica se a verificação de TenantTypeDomainCustom deve ser ignorada. Por padrão, a verificação de TenantTypeDomainCustom é feita.
+     */
     constructor(objSuper) {
         this._sufixo = objSuper.sufixo;
         this._objConfigs = Object.assign(this._objConfigs, objSuper.objConfigs ?? {});
         this.#addEventsDefault();
-        this.#verificarTenantTypeDomainCustom();
+
+        if (!objSuper?.withOutVerifyDomainCustom) {
+            this.#verificarTenantTypeDomainCustom()
+        };
     }
 
     #addEventsDefault() {
@@ -43,6 +54,25 @@ export class TemplateSearch {
 
     set _setTypeCurrentSearch(type) {
         this._objConfigs.typeCurrentSearch = type;
+    }
+
+    /**
+     * Define o ID forçado de domínio e marca as alterações como bloqueadas.
+     * 
+     * @param {number|string} id - ID do domínio a ser definido.
+     */
+    set setForcedDomainIdBlockedChanges(id) {
+        this._objConfigs.domainCustom.blocked_changes = true;
+        this._objConfigs.domainCustom.domain_id = id;
+    }
+
+    /**
+     * Retorna o ID do domínio forçado que está bloqueado de alterações.
+     * 
+     * @returns {number|string|undefined} ID do domínio forçado e bloqueado, se definido. Caso contrário, retorna `undefined`.
+     */
+    get getForcedDomainIdBlockedChanges() {
+        return this._objConfigs.domainCustom.domain_id;
     }
 
     //#endregion
@@ -159,7 +189,7 @@ export class TemplateSearch {
             data.mes_ano = formDataSearch.find(`input[name="mesAno"]`).val();
         }
 
-        const searchFields = commonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
+        const searchFields = CommonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
         Object.keys(searchFields).forEach(element => {
             if (searchFields[element] === true) {
                 data.filtros.campos_busca.push(element);
@@ -167,7 +197,7 @@ export class TemplateSearch {
         });
 
         if (arrayMensagens.length > 0) {
-            return commonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
+            return CommonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
         }
 
         if (options.appendData) {
@@ -212,14 +242,14 @@ export class TemplateSearch {
             }
         }
 
-        commonFunctions.generateNotification('O tipo de busca informado não foi encontrado.', 'error');
+        CommonFunctions.generateNotification('O tipo de busca informado não foi encontrado.', 'error');
         return false;
     }
 
     async _getData(data, page = 1) {
         const self = this;
         if (self._objConfigs.runningSearchBln) {
-            commonFunctions.generateNotification('Busca em andamento. Aguarde...', 'info');
+            CommonFunctions.generateNotification('Busca em andamento. Aguarde...', 'info');
             return;
         }
 
@@ -232,14 +262,19 @@ export class TemplateSearch {
 
         self._objConfigs.runningSearchBln = true;
         try {
-            commonFunctions.simulateLoading(buttonSearch);
+            CommonFunctions.simulateLoading(buttonSearch);
             self._paginationDefault({ footerPagination: footerPagination });
             self._refreshQueryQuantity('Consultando...', { footerPagination: footerPagination });
             self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination: footerPagination });
 
-            const objConn = await new connectAjax(config.urlSearch);
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const objConn = new ConnectAjax(config.urlSearch);
             data.page = page;
-            objConn.setAction(enumAction.POST);
+            if (forcedDomainId) {
+                objConn.setForcedDomainCustomId = forcedDomainId;
+            }
+
+            objConn.setAction(EnumAction.POST);
             objConn.setData(data);
             const response = await objConn.envRequest();
 
@@ -251,7 +286,7 @@ export class TemplateSearch {
 
                 for (let item of responseData.data) {
                     const idTr = UUIDHelper.generateUUID();
-                    item = commonFunctions.deepMergeObject(item, { idTr });
+                    item = CommonFunctions.deepMergeObject(item, { idTr });
 
                     // Verifica se a propriedade `insertTableData` está definida no `config`
                     const functionName = config.insertTableData ? config.insertTableData : 'insertTableData';
@@ -284,10 +319,10 @@ export class TemplateSearch {
 
         } catch (error) {
             tbody.html('');
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             footerPagination.find('.totalRegistros').html(0);
         } finally {
-            commonFunctions.simulateLoading(buttonSearch, false);
+            CommonFunctions.simulateLoading(buttonSearch, false);
             self._refreshQueryStatus('Aguardando comando do usuário...', { footerPagination: footerPagination });
             self._objConfigs.runningSearchBln = false;
         }
@@ -413,11 +448,11 @@ export class TemplateSearch {
     //     if (!config) { return; }
 
     //     try {
-    //         const obj = new connectAjax(config.url);
+    //         const obj = new ConnectAjax(config.url);
     //         obj.setParam(idRegister);
     //         return await obj.getRequest();
     //     } catch (error) {
-    //         commonFunctions.generateNotificationErrorCatch(error);
+    //         CommonFunctions.generateNotificationErrorCatch(error);
     //         return false;
     //     }
     // }
@@ -440,12 +475,12 @@ export class TemplateSearch {
             const result = await obj.modalOpen();
             if (result.confirmResult) {
                 if (await self._delRecurse(idDel, options)) {
-                    commonFunctions.generateNotification(success, 'success');
+                    CommonFunctions.generateNotification(success, 'success');
                     self._generateQueryFilters();
                 }
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -456,13 +491,13 @@ export class TemplateSearch {
         if (!config) { return; }
 
         try {
-            const obj = new connectAjax(config.url);
+            const obj = new ConnectAjax(config.url);
             obj.setParam(idDel);
-            obj.setAction(enumAction.DELETE)
+            obj.setAction(EnumAction.DELETE)
             await obj.deleteRequest();
             return true;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }

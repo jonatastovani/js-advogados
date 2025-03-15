@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 
@@ -51,11 +51,11 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
             idModal: "#ModalParticipacao",
         });
 
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        commonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-        commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
 
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
         this._objConfigs.url.base = options.urlApi;
         const objData = {
             objConfigs: this._objConfigs,
@@ -74,21 +74,21 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
 
         self._queueCheckDomainCustom.setReady();
 
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações da participação...' });
    
         if (!self._checkDomainCustomInherited()) {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve()
         };
 
         if (! await self._buscarDados()) {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve();
         };
 
         await self.#functionsParticipacao._buscarPresetParticipacaoTenant();
 
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -101,7 +101,7 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
 
         // modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const objModal = new ModalParticipacaoTipoTenant();
 
@@ -122,9 +122,9 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
         //             }
         //         }
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //         await self._modalHideShow();
         //     }
         // });
@@ -149,7 +149,7 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
             }
             return true;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }

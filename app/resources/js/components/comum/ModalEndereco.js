@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 
@@ -25,9 +25,9 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
             idModal: "#ModalEndereco",
         });
 
-        this._objConfigs = commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = commonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
-        this._action = enumAction.POST;
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this._action = EnumAction.POST;
     }
 
     async modalOpen() {
@@ -83,7 +83,7 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
         } = options;
 
         try {
-            commonFunctions.simulateLoading(btnBuscaCep);
+            CommonFunctions.simulateLoading(btnBuscaCep);
             const response = await self._getRecurse({
                 urlApi: self._objConfigs.url.baseCep,
                 idRegister: cep
@@ -98,10 +98,10 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
             modal.find(`input[name="pais"]`).val('Brasil');
             self._executeFocusElementOnModal(modal.find(`input[name="numero"]`));
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            commonFunctions.simulateLoading(btnBuscaCep, false);
+            CommonFunctions.simulateLoading(btnBuscaCep, false);
         }
 
     }
@@ -110,7 +110,7 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
         const self = this;
 
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando dados do endereço...', title: 'Aguarde...', elementFocus: null });
+            await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando dados do endereço...', title: 'Aguarde...', elementFocus: null });
             self._clearForm();
             const registerData = self._dataEnvModal.register;
 
@@ -131,10 +131,10 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
 
     }
@@ -153,10 +153,10 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
     #obterDados() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self._dataEnvModal.register) {
-            data = commonFunctions.deepMergeObject(self._dataEnvModal.register, data);
+            data = CommonFunctions.deepMergeObject(self._dataEnvModal.register, data);
         }
         return data;
     }
@@ -165,33 +165,33 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
 
-        let blnSave = commonFunctions.verificationData(data.logradouro, {
+        let blnSave = CommonFunctions.verificationData(data.logradouro, {
             field: formRegistration.find('input[name="logradouro"]'),
             messageInvalid: 'O logradouro deve ser informado.', setFocus: true
         });
 
-        blnSave = commonFunctions.verificationData(data.numero, {
+        blnSave = CommonFunctions.verificationData(data.numero, {
             field: formRegistration.find('input[name="numero"]'),
             messageInvalid: 'O número deve ser informado.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.bairro, {
+        blnSave = CommonFunctions.verificationData(data.bairro, {
             field: formRegistration.find('input[name="bairro"]'),
             messageInvalid: 'O bairro deve ser informado.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.cidade, {
+        blnSave = CommonFunctions.verificationData(data.cidade, {
             field: formRegistration.find('input[name="cidade"]'),
             messageInvalid: 'A cidade deve ser informada.',
             setFocus: blnSave == true,
             returnForcedFalse: blnSave == false
         });
 
-        blnSave = commonFunctions.verificationData(data.estado, {
+        blnSave = CommonFunctions.verificationData(data.estado, {
             field: formRegistration.find('input[name="estado"]'),
             messageInvalid: 'O Estado deve ser informado.',
             setFocus: blnSave == true,

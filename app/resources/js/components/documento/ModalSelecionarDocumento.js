@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
@@ -39,7 +39,7 @@ export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
         const self = this;
 
         if (!self._dataEnvModal.idRegister) {
-            commonFunctions.generateNotification('ID da movimentação não informado.', 'error');
+            CommonFunctions.generateNotification('ID da movimentação não informado.', 'error');
             return await self._returnPromisseResolve();
         }
 
@@ -63,14 +63,14 @@ export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
     async #buscarDados() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay();
+        await CommonFunctions.loadingModalDisplay();
         try {
             self._modalReset();
-            const objConn = new connectAjax(self._objConfigs.url.base);
+            const objConn = new ConnectAjax(self._objConfigs.url.base);
             const response = await objConn.getRequest();
             if (response?.data) {
                 if (!response.data.length) {
-                    commonFunctions.generateNotification('Nenhum documento encontrado.', 'info');
+                    CommonFunctions.generateNotification('Nenhum documento encontrado.', 'info');
                     return false;
                 }
                 response.data.map(documento => {
@@ -81,10 +81,10 @@ export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
     }
 
@@ -119,7 +119,7 @@ export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
                         return total + item.valor_movimentado;
                     }, 0);
 
-                    dadosEspecifico += ` - Total: ${commonFunctions.formatNumberToCurrency(somaValorMovimentado)}`;
+                    dadosEspecifico += ` - Total: ${CommonFunctions.formatNumberToCurrency(somaValorMovimentado)}`;
                 }
 
 

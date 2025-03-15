@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
@@ -21,7 +21,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         });
 
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
         this._objConfigs.url.base = options.urlApi;
         this.#addEventosPadrao();
     }
@@ -29,17 +29,17 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
     async modalOpen() {
         const self = this;
         if (self._dataEnvModal.idRegister) {
-            await commonFunctions.loadingModalDisplay();
+            await CommonFunctions.loadingModalDisplay();
             await self.#buscarFormaPagamento();
             if (!await self.#buscarDados()) {
-                await commonFunctions.loadingModalDisplay(false);
+                await CommonFunctions.loadingModalDisplay(false);
                 return await self._returnPromisseResolve();
             }
         } else {
-            commonFunctions.generateNotification('ID de Lancamento não informado. Caso o erro persista, contate o desenvolvedor.', 'error');
+            CommonFunctions.generateNotification('ID de Lancamento não informado. Caso o erro persista, contate o desenvolvedor.', 'error');
             return await self._returnPromisseResolve();
         }
-        await commonFunctions.loadingModalDisplay(false);
+        await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -50,7 +50,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
 
         modal.find('.openModalFormaPagamento').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalFormaPagamentoTenant();
                 objModal.setDataEnvModal = {
@@ -71,9 +71,9 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         });
@@ -86,7 +86,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             options = Object.assign(options, optionsDefault);
             const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
             return false;
@@ -98,12 +98,12 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
 
         try {
             self._clearForm();
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             const response = await self._getRecurse();
             if (response?.data) {
                 const responseData = response.data;
                 const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
-                const valor_esperado = commonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
+                const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
 
                 self._updateModalTitle(`Alterar: <b>${responseData.descricao_automatica}</b>`);
                 const form = $(self.getIdModal).find('.formRegistration');
@@ -115,7 +115,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
@@ -123,7 +123,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (data.forma_pagamento_id == 0) {
             delete data.forma_pagamento_id;

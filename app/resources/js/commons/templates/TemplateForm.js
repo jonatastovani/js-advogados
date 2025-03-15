@@ -2,9 +2,9 @@ import { ModalMessage } from "../../components/comum/ModalMessage";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { QueueManager } from "../../utils/QueueManager";
-import { commonFunctions } from "../commonFunctions";
-import { connectAjax } from "../connectAjax";
-import { enumAction } from "../enumAction";
+import { CommonFunctions } from "../CommonFunctions";
+import { ConnectAjax } from "../ConnectAjax";
+import { EnumAction } from "../EnumAction";
 
 
 export class TemplateForm {
@@ -39,7 +39,7 @@ export class TemplateForm {
     _queueSelectDomainCustom;
 
     constructor(objSuper = {}) {
-        commonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
+        CommonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
         let sufixo = objSuper.sufixo ?? this._objConfigs.sufixo ?? undefined;
 
         if (sufixo) {
@@ -93,31 +93,42 @@ export class TemplateForm {
         });
     }
 
+    /**
+     * Recupera um registro da API.
+     * 
+     * @param {Object} options - Opções adicionais.
+     * @param {number} options.idRegister - ID do registro a ser recuperado.
+     * @param {string} options.urlApi - URL da API.
+     * @param {boolean} options.checkForcedBefore - Indica se o domínio forçado deve ser verificado antes da consulta.
+     * 
+     * @returns {Promise<Object|boolean>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicita o seja bem-sucedida ou false caso contr rio.
+     */
     async _getRecurse(options = {}) {
         const self = this;
         const {
             idRegister = self._idRegister,
             urlApi = self._objConfigs.url.base,
-            outCheckForced = false,
+            checkForcedBefore = false,
         } = options;
 
         try {
-            // Se for realizar a checagem de domínio forçado, então não se faz a atribuição do domínio forçado no próximo passo
-            const forcedDomainId = !outCheckForced ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            // Se for realizar a checagem de domínio antes, então não se faz a atribuição do domínio forçado no próximo passo, pois já foi setado em outro momento.
+            const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
 
             obj.setParam(idRegister);
             const response = await obj.getRequest();
-            if (!outCheckForced) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            if (!checkForcedBefore) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             return response;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }
+
     async _buscarDados(options = {}) {
         const self = this;
         const {
@@ -130,7 +141,7 @@ export class TemplateForm {
 
         options.form = form;
         try {
-            await commonFunctions.loadingModalDisplay(true, {
+            await CommonFunctions.loadingModalDisplay(true, {
                 message: message ?? null,
                 title: title ?? null,
                 elementFocus: elementFocus ?? null
@@ -146,10 +157,10 @@ export class TemplateForm {
             return response;
 
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
     }
 
@@ -215,16 +226,16 @@ export class TemplateForm {
         } = options;
 
         try {
-            commonFunctions.simulateLoading(btnSave);
+            CommonFunctions.simulateLoading(btnSave);
 
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new connectAjax(urlApi);
+            const obj = new ConnectAjax(urlApi);
             if (forcedDomainId) {
                 obj.setForcedDomainCustomId = forcedDomainId;
             }
             obj.setAction(action);
             obj.setData(data);
-            if (action === enumAction.PUT) {
+            if (action === EnumAction.PUT) {
                 obj.setParam(idRegister);
             }
 
@@ -256,16 +267,16 @@ export class TemplateForm {
                         `${frontRedirectForm}${redirectWithIdBln ? `/${response.data[redirectWithId]}` : ''}`,
                         success, 'success');
                 } else {
-                    commonFunctions.generateNotification(success, 'success');
+                    CommonFunctions.generateNotification(success, 'success');
                 }
                 return returnObjectSuccess ? response : true;
             }
             return false
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
         finally {
-            commonFunctions.simulateLoading(btnSave, false);
+            CommonFunctions.simulateLoading(btnSave, false);
         };
     }
 
@@ -291,22 +302,22 @@ export class TemplateForm {
             const result = await obj.modalOpen();
             if (result.confirmResult) {
 
-                blnModalLoading = await commonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
+                blnModalLoading = await CommonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
 
                 if (await self._delRecurse(idDel, options)) {
                     if (functionExecuteAfterDelete) {
                         return await self[functionExecuteAfterDelete]
                     } else {
-                        commonFunctions.generateNotification(success, 'success');
+                        CommonFunctions.generateNotification(success, 'success');
                     };
                     return true;
                 }
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            if (blnModalLoading) await commonFunctions.loadingModalDisplay(false);
+            if (blnModalLoading) await CommonFunctions.loadingModalDisplay(false);
         }
 
     }
@@ -318,12 +329,12 @@ export class TemplateForm {
         } = options;
 
         try {
-            const obj = new connectAjax(url);
+            const obj = new ConnectAjax(url);
             obj.setParam(idDel);
             const response = await obj.deleteRequest();
             return true;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         }
     }

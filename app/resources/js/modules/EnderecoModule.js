@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 import { ModalEndereco } from "../components/comum/ModalEndereco";
 import { ModalMessage } from "../components/comum/ModalMessage";
 import { MasksAndValidateHelpers } from "../helpers/MasksAndValidateHelpers";
@@ -22,7 +22,7 @@ export class EnderecoModule {
 
         $(`#btnAdicionarEndereco${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalEndereco();
                 objModal.setFocusElementWhenClosingModal = btn;
@@ -31,9 +31,9 @@ export class EnderecoModule {
                     await self._inserirEndereco(response.register);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -196,7 +196,7 @@ export class EnderecoModule {
         }
 
         if (item.entrada_valor) {
-            const valorEntrada = commonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
+            const valorEntrada = CommonFunctions.formatWithCurrencyCommasOrFraction(item.entrada_valor);
             htmlColsEspecifico += `
                 <div class="col">
                     <div class="form-text mt-0">Valor Entrada</div>
@@ -263,7 +263,7 @@ export class EnderecoModule {
         $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
             const docNaTela = self._objConfigs.data.enderecosNaTela;
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const indexDoc = self.#pesquisaIndexEnderecoNaTela(item);
                 if (indexDoc != -1) {
@@ -280,14 +280,14 @@ export class EnderecoModule {
                 } else {
                     console.error('Endereço na tela não encontrado. Docs:', docNaTela);
                     console.error('Item buscado:', item);
-                    commonFunctions.generateNotification('Endereço na tela não encontrado.', 'error');
+                    CommonFunctions.generateNotification('Endereço na tela não encontrado.', 'error');
                     return false;
                 }
 
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -311,7 +311,7 @@ export class EnderecoModule {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }

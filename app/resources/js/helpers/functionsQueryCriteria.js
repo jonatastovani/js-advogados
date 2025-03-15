@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 
 export class functionsQueryCriteria {
 
@@ -81,7 +81,7 @@ export class functionsQueryCriteria {
             const criterio = $(colCriterios[i]);
             const ckb = criterio.find('.ckbCriterio');
             if (ckb.is(':checked')) {
-                const get = commonFunctions.getInputsValues(criterio);
+                const get = CommonFunctions.getInputsValues(criterio);
                 const texto = get.texto;
                 if (texto == '') {
                     arrayMensagens.push(`O critério do campo <b>${get.nomeCriterio}</b> deve ser preenchido.`);
@@ -103,7 +103,7 @@ export class functionsQueryCriteria {
         }
 
         if (arrayMensagens.length > 0) {
-            commonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
+            CommonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
             return false;
         }
 

@@ -1,6 +1,6 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { ConnectAjax } from "../../../commons/ConnectAjax";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalMessage } from "../../../components/comum/ModalMessage";
 import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
@@ -166,12 +166,12 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        commonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
+        CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-        commonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
+        CommonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
-            commonFunctions.generateNotification('Em desenvolvimento', 'warning');
+            CommonFunctions.generateNotification('Em desenvolvimento', 'warning');
             return;
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
                 // Flatten o objeto para gerar os parâmetros
@@ -197,7 +197,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         $(`#btnInserirLancamento${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
@@ -207,9 +207,9 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -220,7 +220,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
@@ -257,9 +257,9 @@ class PageLancamentoGeralIndex extends TemplateSearch {
         const numero_lancamento = item.numero_lancamento;
         const status = item.status.nome;
         const tipoMovimentacao = item.movimentacao_tipo.nome;
-        const valorEsperado = commonFunctions.formatNumberToCurrency(item.valor_esperado);
+        const valorEsperado = CommonFunctions.formatNumberToCurrency(item.valor_esperado);
         const dataVencimento = DateTimeHelper.retornaDadosDataHora(item.data_vencimento, 2);
-        const valorQuitado = item.data_quitado ? commonFunctions.formatNumberToCurrency(item.valor_quitado) : '***';
+        const valorQuitado = item.data_quitado ? CommonFunctions.formatNumberToCurrency(item.valor_quitado) : '***';
         const dataQuitado = item.data_quitado ? DateTimeHelper.retornaDadosDataHora(item.data_quitado, 2) : '***';
         const descricao = item.descricao;
         const categoriaTipo = item.categoria.nome
@@ -320,7 +320,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
@@ -345,8 +345,8 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                 obj.setFocusElementWhenClosingModal = this;
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
-                    const objConn = new connectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoGeral}/status-alterar`);
-                    objConn.setAction(enumAction.POST);
+                    const objConn = new ConnectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoGeral}/status-alterar`);
+                    objConn.setAction(EnumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,
                         status_id: status_id,
@@ -357,7 +357,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
@@ -413,7 +413,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         await self._executarBusca();
                     }
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 }
             });
         }
@@ -434,7 +434,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         $(`#${item.idTr} .btn-edit`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalLancamentoGeral({
                     modoOperacao: window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL
@@ -447,9 +447,9 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     await self._executarBusca();
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -568,7 +568,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -585,7 +585,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -602,7 +602,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -618,7 +618,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#categoria_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;
         } catch (error) {
             return false;

@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { connectAjax } from "../../commons/connectAjax";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 export class ModalSelecionarUsuarioDomains extends ModalDefault {
@@ -56,7 +56,7 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
             let options = { displayColumnName: 'name' };
             selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
             const select = $(`#domain_id${self._objConfigs.sufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
             return true
         } catch (error) {
             return false;
@@ -66,11 +66,11 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             try {
-                const objConn = new connectAjax(self._objConfigs.url.base);
+                const objConn = new ConnectAjax(self._objConfigs.url.base);
                 objConn.setParam(data.domain_id);
                 const response = await objConn.getRequest();
                 if (response.data) {
@@ -81,16 +81,16 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
                     self._promisseReturnValue.refresh = true;
                     self._endTimer = true;
                 } else {
-                    commonFunctions.generateNotification('Erro ao buscar domínio.', 'error');
+                    CommonFunctions.generateNotification('Erro ao buscar domínio.', 'error');
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
     }
 
     #saveVerifications(data, formRegistration) {
-        return commonFunctions.verificationData(data.domain_id, { field: formRegistration.find('select[name="domain_id"]'), messageInvalid: 'Selecione um domínio.', setFocus: true });
+        return CommonFunctions.verificationData(data.domain_id, { field: formRegistration.find('select[name="domain_id"]'), messageInvalid: 'Selecione um domínio.', setFocus: true });
     }
 
 }

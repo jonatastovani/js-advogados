@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
 export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
@@ -9,7 +9,7 @@ export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
             idModal: "#ModalAnotacaoLembreteTenant",
         });
 
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
         this._objConfigs.url.base = urlApi;
     }
 
@@ -31,7 +31,7 @@ export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
@@ -39,18 +39,18 @@ export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 
     async #buscarDados() {
         const self = this;
 
-        await commonFunctions.loadingModalDisplay();
+        await CommonFunctions.loadingModalDisplay();
         try {
             self._clearForm();
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             const response = await self._getRecurse();
             if (response?.data) {
                 const responseData = response.data;
@@ -62,10 +62,10 @@ export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
             }
             return false;
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
             return false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
     }
 }

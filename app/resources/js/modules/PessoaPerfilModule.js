@@ -1,4 +1,4 @@
-import { commonFunctions } from "../commons/commonFunctions";
+import { CommonFunctions } from "../commons/CommonFunctions";
 import { ModalMessage } from "../components/comum/ModalMessage";
 import { ModalSelecionarPessoaPerfilTipo } from "../components/pessoas/ModalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
@@ -21,7 +21,7 @@ export class PessoaPerfilModule {
 
         $(`#btnAdicionarPerfil${self._objConfigs.sufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarPessoaPerfilTipo();
                 objModal.setDataEnvModal = {
@@ -36,9 +36,9 @@ export class PessoaPerfilModule {
                     await self._inserirPerfil(response.register, true);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
     }
@@ -54,7 +54,7 @@ export class PessoaPerfilModule {
 
         // Verifica se ultrapassou o limite permitido
         if (perfisComMesmoTipo.length) {
-            commonFunctions.generateNotification(`Este perfil já foi adicionado.`, 'warning');
+            CommonFunctions.generateNotification(`Este perfil já foi adicionado.`, 'warning');
             return false;
         }
         return true;
@@ -148,7 +148,7 @@ export class PessoaPerfilModule {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }

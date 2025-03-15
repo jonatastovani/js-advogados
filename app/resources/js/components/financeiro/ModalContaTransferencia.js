@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
@@ -22,22 +22,22 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
             idModal: "#ModalContaTransferencia",
         });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
     }
 
     async modalOpen() {
         const self = this;
         try {
-            await commonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...' });
+            await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...' });
             self.#addEventosPadrao();
 
             if (!await self.#buscarContas()) {
                 return self._returnPromisseResolve();
             }
         } catch (error) {
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
         await self._modalHideShow();
         return await self._modalOpen();
@@ -47,7 +47,7 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
         const self = this;
         const modal = $(self._idModal);
 
-        commonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
+        CommonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
         const openModalContaTenant = async function (btn, selector) {
             try {
@@ -70,22 +70,22 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
                     }
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 await self._modalHideShow();
             }
         }
 
         modal.find('.openModalContaTenantOrigem').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             await openModalContaTenant(btn ,modal.find('select[name="conta_origem_id"]'));
         });
 
         modal.find('.openModalContaTenantDestino').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             await openModalContaTenant(btn ,modal.find('select[name="conta_destino_id"]'));
         });
     }
@@ -95,7 +95,7 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
             const self = this;
             let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = (selector ? $(selector) : $(self.getIdModal).find('.selectConta'));
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -105,8 +105,8 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
-        data.valor = commonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
+        data.valor = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor);
         
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
@@ -114,11 +114,11 @@ export class ModalContaTransferencia extends ModalRegistrationAndEditing {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.conta_origem_id, { field: formRegistration.find('select[name="conta_origem_id"]'), messageInvalid: 'A conta de origem deve ser informada.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.conta_destino_id, { field: formRegistration.find('select[name="conta_destino_id"]'), messageInvalid: 'A conta de destino deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-        blnSave = commonFunctions.verificationData(data.data_movimentacao, { field: formRegistration.find('input[name="data_movimentacao"]'), messageInvalid: 'A data de movimentação deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-        blnSave = commonFunctions.verificationData(data.valor, { field: formRegistration.find('input[name="valor"]'), messageInvalid: 'O valor deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-        blnSave = commonFunctions.verificationData(data.observacao, { field: formRegistration.find('input[name="observacao"]'), messageInvalid: 'Uma observação deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.conta_origem_id, { field: formRegistration.find('select[name="conta_origem_id"]'), messageInvalid: 'A conta de origem deve ser informada.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.conta_destino_id, { field: formRegistration.find('select[name="conta_destino_id"]'), messageInvalid: 'A conta de destino deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = CommonFunctions.verificationData(data.data_movimentacao, { field: formRegistration.find('input[name="data_movimentacao"]'), messageInvalid: 'A data de movimentação deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = CommonFunctions.verificationData(data.valor, { field: formRegistration.find('input[name="valor"]'), messageInvalid: 'O valor deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        blnSave = CommonFunctions.verificationData(data.observacao, { field: formRegistration.find('input[name="observacao"]'), messageInvalid: 'Uma observação deve ser informada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 }

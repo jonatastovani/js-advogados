@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 
 export class ModalNome extends ModalRegistrationAndEditing {
@@ -33,7 +33,7 @@ export class ModalNome extends ModalRegistrationAndEditing {
         this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
         this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = urlApi;
-        this._action = enumAction.POST;
+        this._action = EnumAction.POST;
 
         this.#addEventosPadrao();
     }
@@ -44,11 +44,11 @@ export class ModalNome extends ModalRegistrationAndEditing {
 
         if (!self._dataEnvModal.title) {
             blnOpen = false;
-            commonFunctions.generateNotification('Título não informado.', 'error');
+            CommonFunctions.generateNotification('Título não informado.', 'error');
         }
         if (!self._dataEnvModal.mensagem) {
             blnOpen = false;
-            commonFunctions.generateNotification('Mensagem não informada.', 'error');
+            CommonFunctions.generateNotification('Mensagem não informada.', 'error');
         }
 
         if (!blnOpen) {
@@ -83,7 +83,7 @@ export class ModalNome extends ModalRegistrationAndEditing {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        const data = commonFunctions.getInputsValues(formRegistration[0]);
+        const data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data)) {
             self._promisseReturnValue.name = data.nome;
@@ -96,7 +96,7 @@ export class ModalNome extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
 
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: "O Nome deve ser informado.", setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: "O Nome deve ser informado.", setFocus: true });
         return blnSave;
     }
 

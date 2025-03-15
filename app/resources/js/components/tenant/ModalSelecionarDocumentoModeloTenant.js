@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
@@ -33,10 +33,10 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
     async modalOpen() {
         const self = this;
         let blnOpen = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de modelo de documento...', title: 'Aguarde...', elementFocus: null });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de modelo de documento...', title: 'Aguarde...', elementFocus: null });
 
         if (!self._dataEnvModal.documento_modelo_tipo_id) {
-            commonFunctions.generateNotification('Tipo de modelo de documento não informado.', 'error');
+            CommonFunctions.generateNotification('Tipo de modelo de documento não informado.', 'error');
             return await self._returnPromisseResolve();
         }
 
@@ -46,7 +46,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
         } catch (error) {
             blnOpen = false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
 
         if (!blnOpen) {
@@ -68,7 +68,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
     async #buscarDocumentoModeloTipos(selected_id = null) {
         const self = this;
         let options = {
-            typeRequest: enumAction.POST,
+            typeRequest: EnumAction.POST,
             envData: {
                 documento_modelo_tipo_id: self._dataEnvModal.documento_modelo_tipo_id,
             }
@@ -76,7 +76,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
 
         selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
         const select = $(self.getIdModal).find('select[name="documento_modelo_tenant_id"]');
-        const response = await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        const response = await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
         self._objConfigs.data.itensNaTela = response.response.data;
         return response;
     }
@@ -84,7 +84,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         if (self.#saveVerifications(data, formRegistration)) {
             self._promisseReturnValue.refresh = true;
             self._promisseReturnValue.register = self._objConfigs.data.itensNaTela.find(item => item.id == data.documento_modelo_tenant_id);
@@ -97,7 +97,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
             //     }
             //     self._promisseReturnValue = await objModal.modalOpen();
             // } catch (error) {
-            //     commonFunctions.generateNotificationErrorCatch(error);
+            //     CommonFunctions.generateNotificationErrorCatch(error);
             // } finally {
             //     self._setEndTimer = true;
             // }
@@ -105,7 +105,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        return commonFunctions.verificationData(data.documento_modelo_tenant_id, { field: formRegistration.find('select[name="documento_modelo_tenant_id"]'), messageInvalid: 'Selecione um tipo de modelo de documento.', setFocus: true });
+        return CommonFunctions.verificationData(data.documento_modelo_tenant_id, { field: formRegistration.find('select[name="documento_modelo_tenant_id"]'), messageInvalid: 'Selecione um tipo de modelo de documento.', setFocus: true });
     }
 
 }

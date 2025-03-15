@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -34,8 +34,8 @@ class PageParticipacaoPresetForm extends TemplateForm {
         const sufixo = "PageParticipacaoPresetForm";
         super({ sufixo });
 
-        commonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        commonFunctions.deepMergeObject(this._objConfigs, { sufixo });
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._objConfigs, { sufixo });
 
         const objData = {
             objConfigs: this._objConfigs,
@@ -51,10 +51,10 @@ class PageParticipacaoPresetForm extends TemplateForm {
         const uuid = URLHelper.getURLSegment();
         if (UUIDHelper.isValidUUID(uuid)) {
             self._idRegister = uuid;
-            self._action = enumAction.PUT;
+            self._action = EnumAction.PUT;
             buscaDadosBln = await self._buscarDados();
         } else {
-            self._action = enumAction.POST;
+            self._action = EnumAction.POST;
             $(`#nome${self._objConfigs.sufixo}`).trigger('focus');
         }
 
@@ -66,7 +66,7 @@ class PageParticipacaoPresetForm extends TemplateForm {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.participantes = self._objConfigs.data.participantesNaTela;
 
         if (self.#saveVerifications(data, formRegistration)) {
@@ -101,20 +101,20 @@ class PageParticipacaoPresetForm extends TemplateForm {
     #saveVerifications(data, formRegistration) {
         const self = this;
 
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O <b>nome</b> do preset deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O <b>nome</b> do preset deve ser informado.', setFocus: true });
 
         let porcentagemOcupada = self._objConfigs.data.porcentagem_ocupada;
         if (porcentagemOcupada > 0 && porcentagemOcupada < 100 || porcentagemOcupada > 100) {
-            commonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${commonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
+            CommonFunctions.generateNotification(`As somas das porcentagens deve ser igual a 100%. Porcentagem informada ${CommonFunctions.formatWithCurrencyCommasOrFraction(porcentagemOcupada)}%.`, 'warning');
             blnSave = false;
         }
         if (!data.participantes || data.participantes.length == 0) {
-            commonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
+            CommonFunctions.generateNotification('E necessário informar pelo menos um participante.', 'warning');
             blnSave = false;
         } else {
             for (const participante of data.participantes) {
                 if (participante.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO && (!participante.integrantes || participante.integrantes.length == 0)) {
-                    commonFunctions.generateNotification('E necessário informar pelo menos um integrante no grupo.', 'warning');
+                    CommonFunctions.generateNotification('E necessário informar pelo menos um integrante no grupo.', 'warning');
                     blnSave = false;
                     break;
                 }

@@ -1,12 +1,13 @@
-import { commonFunctions } from "../../../commons/commonFunctions";
-import { connectAjax } from "../../../commons/connectAjax";
-import { enumAction } from "../../../commons/enumAction";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { ConnectAjax } from "../../../commons/ConnectAjax";
+import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalSelecionarConta } from "../../../components/financeiro/ModalSelecionarConta";
 import { ModalPessoa } from "../../../components/pessoas/ModalPessoa";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
@@ -35,12 +36,15 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 credito_liquidado: 0,
             },
             selecionados: [],
-        }
+        },
+        domainCustom: {
+            applyBln: true,
+        },
     };
 
     constructor() {
-        super({ sufixo: 'PageBalancoRepasseParceiroIndex' });
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
+        super({ sufixo: 'PageBalancoRepasseParceiroIndex', withOutVerifyDomainCustom: true });
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
 
@@ -88,20 +92,20 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
         $(`#btnSelecionarParceiro${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
-                const dataEnvModalAppend = {
+                const dataEnvModal = {
                     perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
                 };
-                const objModal = new ModalPessoa({ dataEnvModal: dataEnvModalAppend });
+                const objModal = new ModalPessoa({ dataEnvModal });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
                     preencherInfoParceiro(response.selected);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
             }
         });
 
@@ -128,41 +132,43 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             }
         });
 
-        $(`#openModalConta${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            commonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
+        CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selecteds.length > 0) {
-                        const item = response.selecteds[0];
-                        self.#buscarContas(item.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                commonFunctions.simulateLoading(btn, false);
-            }
-        });
+        // $(`#openModalConta${self.getSufixo}`).on('click', async function () {
+        //     const btn = $(this);
+        //     CommonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new ModalContaTenant();
+        //         objModal.setDataEnvModal = {
+        //             attributes: {
+        //                 select: {
+        //                     quantity: 1,
+        //                     autoReturn: true,
+        //                 }
+        //             }
+        //         }
+
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh) {
+        //             if (response.selecteds.length > 0) {
+        //                 const item = response.selecteds[0];
+        //                 self.#buscarContas(item.id);
+        //             } else {
+        //                 self.#buscarContas();
+        //             }
+        //         }
+        //     } catch (error) {
+        //         CommonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         CommonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
         $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
 
                 const btn = $(this);
-                commonFunctions.simulateLoading(btn);
+                CommonFunctions.simulateLoading(btn);
 
                 try {
 
@@ -173,34 +179,34 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                     const responseConta = await objModal.modalOpen();
 
                     if (responseConta.refresh) {
-                        const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-                        objConn.setAction(enumAction.POST);
+                        const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                        objConn.setAction(EnumAction.POST);
                         objConn.setData(
-                            commonFunctions.deepMergeObject(
+                            CommonFunctions.deepMergeObject(
                                 responseConta.register,
                                 self._objConfigs.querys.consultaFiltros.dataPost
                             ));
                         const response = await objConn.envRequest();
                         if (response.data) {
-                            commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
+                            CommonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
                             await self._executarBusca();
                         }
                     }
                 } catch (error) {
-                    commonFunctions.generateNotificationErrorCatch(error);
+                    CommonFunctions.generateNotificationErrorCatch(error);
                 } finally {
-                    commonFunctions.simulateLoading(btn, false);
+                    CommonFunctions.simulateLoading(btn, false);
                 }
             }
         });
 
         // $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const selecionados = self._objConfigs.data.selecionados;
         //         if (selecionados.length == 0) {
-        //             commonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
+        //             CommonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
         //             return;
         //         }
         //         let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
@@ -214,23 +220,23 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         //         const responseConta = await objModal.modalOpen();
 
         //         if (responseConta.refresh) {
-        //             const objConn = new connectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-        //             objConn.setAction(enumAction.POST);
+        //             const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+        //             objConn.setAction(EnumAction.POST);
         //             objConn.setData(
-        //                 commonFunctions.deepMergeObject(responseConta.register, {
+        //                 CommonFunctions.deepMergeObject(responseConta.register, {
         //                     participacoes: participacoesIds
         //                 })
         //             );
         //             const response = await objConn.envRequest();
         //             if (response.data) {
-        //                 commonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
+        //                 CommonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
         //                 await self.#executarBusca();
         //             }
         //         }
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //     }
         // });
 
@@ -240,7 +246,51 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             ckbNaTela.prop('checked', $(this).is(':checked')).trigger('change');
         });
 
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+            self.#addEventosDomainCustom();
+        }
         self.#statusCampos(false);
+    }
+
+    #addEventosDomainCustom() {
+        const self = this;
+
+        const selectDomain = $(`#domain_id${self.getSufixo}`);
+        if (!selectDomain.length) {
+            CommonFunctions.generateNotification('Elemento de seleção de domínio não encontrado! Contate o suporte.', 'error');
+        }
+
+        selectDomain.on('change', async function () {
+            try {
+                const domainId = $(this).val();
+                const domain = TenantTypeDomainCustomHelper.getDomainNameById(domainId);
+
+                if (!domain) {
+                    console.warn(`Domínio não encontrado: ${domainId}`, TenantTypeDomainCustomHelper.getDomainsOptions);
+                    throw new Error(`A unidade selecionada não foi encontrada. Contate o suporte.`, 'success');
+                }
+
+                self.setForcedDomainIdBlockedChanges = domainId;
+
+                if (self._objConfigs.data.parceiro_id) {
+                    await self._executarBusca();
+                }
+            } catch (error) {
+                CommonFunctions.generateNotificationErrorCatch(error);
+            }
+        });
+
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+        // Seleciona por padrão o domínio já selecionado. Caso contrário, seleciona o primeiro.
+        const selectedGlobal = instance.getSelectedValue;
+        if (selectedGlobal) {
+            selectDomain.val(selectedGlobal).trigger('change');
+        } else {
+            selectDomain.trigger('change');
+        }
+
     }
 
     async _executarBusca() {
@@ -259,7 +309,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
-            let data = commonFunctions.getInputsValues(formData[0]);
+            let data = CommonFunctions.getInputsValues(formData[0]);
 
             if (data.conta_id && UUIDHelper.isValidUUID(data.conta_id)) {
                 appendData.conta_id = data.conta_id;
@@ -284,7 +334,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             await self._generateQueryFilters(getAppendDataQuery());
             self.#atualizaValoresTotais();
         } else {
-            commonFunctions.generateNotification('Selecione um parceiro', 'warning');
+            CommonFunctions.generateNotification('Selecione um parceiro', 'warning');
         }
     }
 
@@ -312,7 +362,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
         const status = item.status.nome;
         let movimentacaoTipo = '';
-        const valorParticipante = `R$ ${commonFunctions.formatWithCurrencyCommasOrFraction(item.valor_participante)}`;
+        const valorParticipante = `R$ ${CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor_participante)}`;
 
 
         let dataMovimentacao = '';
@@ -411,83 +461,33 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         return true;
     }
 
-    // #executarSomatoriaTotais(item) {
-
-    //     const self = this;
-    //     let movimentacaoTipoId = null;
-
-    //     switch (item.parent_type) {
-    //         case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
-    //             movimentacaoTipoId = item.parent.movimentacao_tipo_id;
-    //             break;
-
-    //         case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
-    //             movimentacaoTipoId = item.parent.parceiro_movimentacao_tipo_id;
-    //             break;
-    //         default:
-    //             throw new Error(`Tipo parent de registro de balanço de parceiro não configurado.`);
-    //     }
-
-    //     switch (item.status_id) {
-    //         // Soma as que estão ativas
-    //         case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.ATIVA:
-
-    //             switch (movimentacaoTipoId) {
-    //                 case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
-    //                     self._objConfigs.data.totais.credito += item.valor_participante;
-    //                     break;
-    //                 case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
-    //                     self._objConfigs.data.totais.debito += item.valor_participante;
-    //                     break;
-    //                 default:
-    //                     throw new Error(`Tipo de movimentação de conta não configurado.`);
-    //             }
-    //             break;
-
-    //         // Soma as que estão liquidadas
-    //         case window.Enums.MovimentacaoContaParticipanteStatusTipoEnum.FINALIZADA:
-
-    //             switch (movimentacaoTipoId) {
-    //                 case window.Enums.MovimentacaoContaTipoEnum.CREDITO:
-    //                     self._objConfigs.data.totais.credito_liquidado += item.valor_participante;
-    //                     break;
-    //                 case window.Enums.MovimentacaoContaTipoEnum.DEBITO:
-    //                     self._objConfigs.data.totais.debito_liquidado += item.valor_participante;
-    //                     break;
-    //                 default:
-    //                     throw new Error(`Tipo de movimentação de conta não configurado.`);
-    //             }
-    //             break;
-
-    //         default:
-    //             throw new Error(`Status de participação não configurado.`);
-
-    //     }
-    // }
-
     async #atualizaValoresTotais() {
         const self = this;
 
         try {
-            const objTotais = new connectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
-            objTotais.setAction(enumAction.POST);
-            objTotais.setData(self._objConfigs.querys.consultaFiltros.dataPost);
-            const response = await objTotais.envRequest();
+            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
+            if (forcedDomainId) {
+                objConn.setForcedDomainCustomId = forcedDomainId;
+            }
+            objConn.setAction(EnumAction.POST);
+            objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+            const response = await objConn.envRequest();
 
             const totais = response.data.totais;
             // Ativos
-            $(`#total_credito${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.credito));
-            $(`#total_debito${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.debito));
-            $(`#total_saldo${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo));
+            $(`#total_credito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito));
+            $(`#total_debito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito));
+            $(`#total_saldo${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo));
 
             // Liquidados
-            $(`#total_credito_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.credito_liquidado));
-            $(`#total_debito_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.debito_liquidado));
-            $(`#total_saldo_liquidado${self.getSufixo}`).html(commonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo_liquidado));
+            $(`#total_credito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito_liquidado));
+            $(`#total_debito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito_liquidado));
+            $(`#total_saldo_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo_liquidado));
 
         } catch (error) {
             $(`.campo_totais${self.getSufixo}`).html('0,00');
-            commonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error);
         }
     }
 
@@ -549,7 +549,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                     ckbCheckAll.prop('checked', false);
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             }
         });
     }
@@ -558,12 +558,13 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
-            await commonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
             return false;
@@ -580,7 +581,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
@@ -597,7 +598,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             };
             if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
             const select = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
-            await commonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;

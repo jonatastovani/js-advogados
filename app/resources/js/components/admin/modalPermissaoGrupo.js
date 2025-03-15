@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { modalCode } from "./modalCode";
 
@@ -69,7 +69,7 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
     async #buscarModulos(selected_id = null) {
         const self = this;
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-        await commonFunctions.fillSelect($(self.getIdModal).find('select[name="modulo_id"]'), window.apiRoutes.baseModulos, options);
+        await CommonFunctions.fillSelect($(self.getIdModal).find('select[name="modulo_id"]'), window.apiRoutes.baseModulos, options);
         await self.#buscarGruposPai();
     }
 
@@ -84,7 +84,7 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
 
         let options = selected_id ? { selectedIdOption: selected_id } : {};
         const url = self._idRegister ? `${window.apiRoutes.baseGrupos}/modulo/${modulo_id}/exceto-grupo/${self._idRegister}` : `${window.apiRoutes.baseGrupos}/modulo/${modulo_id}`;
-        await commonFunctions.fillSelect(selGrupoPai, url, options);
+        await CommonFunctions.fillSelect(selGrupoPai, url, options);
     }
 
     async insertTableData(item, options = {}) {
@@ -123,11 +123,11 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
         const self = this;
 
         $(`#${item.idTr}`).find(`.btn-edit`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 self._clearForm();
                 self._idRegister = item.id
-                self._action = enumAction.PUT;
+                self._action = EnumAction.PUT;
                 const response = await self._getRecurse();
                 if (response?.data) {
                     const responseData = response.data;
@@ -144,14 +144,14 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
         $(`#${item.idTr}`).find(`.btn-php`).on('click', async function () {
-            commonFunctions.simulateLoading($(this));
+            CommonFunctions.simulateLoading($(this));
             try {
                 const objModal = new modalCode();
                 objModal.setDataEnvModal = {
@@ -161,10 +161,10 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
                 await self._modalHideShow(false);
                 const response = await objModal.modalOpen();
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 await self._modalHideShow();
-                commonFunctions.simulateLoading($(this), false);
+                CommonFunctions.simulateLoading($(this), false);
             }
         });
 
@@ -174,17 +174,17 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
 
         // modal.find('.btnBuscarPessoas').on('click', async function () {
         //     const btn = $(this);
-        //     commonFunctions.simulateLoading(btn);
+        //     CommonFunctions.simulateLoading(btn);
         //     try {
         //         const obj = new modalConsultaPessoas();
         //         await self._modalHideShow(false);
         //         const response = await obj.modalOpen();
         //         console.log(response);
         //     } catch (error) {
-        //         commonFunctions.generateNotificationErrorCatch(error);
+        //         CommonFunctions.generateNotificationErrorCatch(error);
         //     } finally {
         //         await self._modalHideShow();
-        //         commonFunctions.simulateLoading(btn, false);
+        //         CommonFunctions.simulateLoading(btn, false);
         //     }
         // });
 
@@ -193,7 +193,7 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
     saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, window.apiRoutes.basePermissoesGrupos);
@@ -201,8 +201,8 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = commonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do grupo deve ser informado.', setFocus: true });
-        blnSave = commonFunctions.verificationData(data.modulo_id, { field: formRegistration.find('select[name="modulo_id"]'), messageInvalid: 'O módulo deve ser selecionado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do grupo deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.modulo_id, { field: formRegistration.find('select[name="modulo_id"]'), messageInvalid: 'O módulo deve ser selecionado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }
 
@@ -230,16 +230,16 @@ export class modalPermissaoGrupo extends ModalSearchAndFormRegistration {
     //     try {
     //         const obj = new conectAjax(self.#urlApi);
     //         obj.setParam(idDel);
-    //         obj.setAction(enumAction.DELETE)
+    //         obj.setAction(EnumAction.DELETE)
     //         const response = await obj.deleteRequest();
-    //         commonFunctions.generateNotification(`Item deletado com sucesso!`, 'success');
+    //         CommonFunctions.generateNotification(`Item deletado com sucesso!`, 'success');
     //         self.#promisseReturnValue.refresh = true;
     //         self.modalCancel();
     //         self.generateFilters();
     //     } catch (error) {
     //         console.error(error);
     //         const traceId = error.traceId ? error.traceId : undefined;
-    //         commonFunctions.generateNotification(commonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
+    //         CommonFunctions.generateNotification(CommonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
     //     }
     // }
 

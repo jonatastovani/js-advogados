@@ -1,4 +1,4 @@
-import { commonFunctions } from "../../../../commons/commonFunctions";
+import { CommonFunctions } from "../../../../commons/CommonFunctions";
 import { UsuarioDomainsModule } from "../../../../modules/UsuarioDomainsModule";
 import { TemplateFormPessoaFisica } from "../TemplateFormPessoaFisica";
 
@@ -66,14 +66,14 @@ class PagePessoaFisicaFormUsuario extends TemplateFormPessoaFisica {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
 
-        let blnSave = commonFunctions.verificationData(data.email, {
+        let blnSave = CommonFunctions.verificationData(data.email, {
             field: formRegistration.find('input[name="email"]'),
             messageInvalid: 'O campo <b>email</b> deve ser informado.',
             setFocus: setFocus,
             returnForcedFalse: returnForcedFalse
         });
 
-        blnSave = commonFunctions.verificationData(data.name, {
+        blnSave = CommonFunctions.verificationData(data.name, {
             field: formRegistration.find('input[name="name"]'),
             messageInvalid: 'O campo <b>Nome de exibição</b> deve ser informado.',
             setFocus: blnSave == false,

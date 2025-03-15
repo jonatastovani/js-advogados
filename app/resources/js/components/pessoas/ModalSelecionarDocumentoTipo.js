@@ -1,5 +1,5 @@
-import { commonFunctions } from "../../commons/commonFunctions";
-import { enumAction } from "../../commons/enumAction";
+import { CommonFunctions } from "../../commons/CommonFunctions";
+import { EnumAction } from "../../commons/EnumAction";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 import { ModalPessoaDocumento } from "./ModalPessoaDocumento";
 
@@ -32,10 +32,10 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
     async modalOpen() {
         const self = this;
         let blnOpen = false;
-        await commonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de documento...', title: 'Aguarde...', elementFocus: null });
+        await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de documento...', title: 'Aguarde...', elementFocus: null });
 
         if (!self._dataEnvModal.pessoa_tipo_aplicavel) {
-            commonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
+            CommonFunctions.generateNotification('Tipo de pessoa aplicável não informado.', 'error');
             return await self._returnPromisseResolve();
         }
 
@@ -45,7 +45,7 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
         } catch (error) {
             blnOpen = false;
         } finally {
-            await commonFunctions.loadingModalDisplay(false);
+            await CommonFunctions.loadingModalDisplay(false);
         }
 
         if (!blnOpen) {
@@ -74,9 +74,9 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
 
         modal.find('.openModalDocumentoTipoTenant').on('click', async function () {
             const btn = $(this);
-            commonFunctions.simulateLoading(btn);
+            CommonFunctions.simulateLoading(btn);
             try {
-                commonFunctions.generateNotification('Funcionalidade para criar e alterar formas de documento, em desenvolvimento.', 'warning');
+                CommonFunctions.generateNotification('Funcionalidade para criar e alterar formas de documento, em desenvolvimento.', 'warning');
                 // const objModal = new ModalContaTenant();
                 // objModal.setDataEnvModal = {
                 //     attributes: {
@@ -97,9 +97,9 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
                 //     }
                 // }
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
-                commonFunctions.simulateLoading(btn, false);
+                CommonFunctions.simulateLoading(btn, false);
                 // await self._modalHideShow();
             }
         });
@@ -108,7 +108,7 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
     async #buscarDocumentoTipos(selected_id = null) {
         const self = this;
         let options = {
-            typeRequest: enumAction.POST,
+            typeRequest: EnumAction.POST,
             envData: {
                 pessoa_tipo_aplicavel: self._dataEnvModal.pessoa_tipo_aplicavel,
             }
@@ -116,13 +116,13 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
 
         selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
         const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
-        return await commonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        return await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
     }
 
     async saveButtonAction() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = commonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         if (self.#saveVerifications(data, formRegistration)) {
             try {
                 await self._modalHideShow(false);
@@ -132,7 +132,7 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
                 }
                 self._promisseReturnValue = await objModal.modalOpen();
             } catch (error) {
-                commonFunctions.generateNotificationErrorCatch(error);
+                CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 self._setEndTimer = true;
             }
@@ -140,7 +140,7 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
     }
 
     #saveVerifications(data, formRegistration) {
-        return commonFunctions.verificationData(data.documento_tipo_tenant_id, { field: formRegistration.find('select[name="documento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de documento.', setFocus: true });
+        return CommonFunctions.verificationData(data.documento_tipo_tenant_id, { field: formRegistration.find('select[name="documento_tipo_tenant_id"]'), messageInvalid: 'Selecione um tipo de documento.', setFocus: true });
     }
 
 }
