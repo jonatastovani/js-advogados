@@ -424,6 +424,26 @@ export class CommonFunctions {
     }
 
     /**
+     * Armazena um valor no LocalStorage.
+     *
+     * @param {string} name - A chave (nome) sob a qual o valor será armazenado.
+     * @param {string} value - O valor a ser armazenado no LocalStorage.
+     */
+    static setItemSessionStorage(name, value) {
+        sessionStorage.setItem(name, value);
+    }
+
+    /**
+     * Recupera um valor do SessionStorage.
+     *
+     * @param {string} name - A chave (nome) do item a ser recuperado do SessionStorage.
+     * @returns {string|null} - O valor armazenado ou `null` caso a chave não exista.
+     */
+    static getItemSessionStorage(name) {
+        return sessionStorage.getItem(name);
+    }
+
+    /**
      * Gets an array of default values considered as invalid for generating filters.
      *
      * @returns {Array} - An array of default values.

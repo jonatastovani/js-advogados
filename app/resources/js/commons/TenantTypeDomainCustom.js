@@ -66,19 +66,19 @@ export class TenantTypeDomainCustom {
     }
 
     /**
-     * Define o valor do domínio selecionado e o armazena no `localStorage`.
+     * Define o valor do domínio selecionado e o armazena no `sessionStorage`.
      * @param {number|string} selectedValue - Valor do domínio selecionado.
      */
     set setSelectedValue(selectedValue) {
-        CommonFunctions.setItemLocalStorage(this.getNameAttributeKey, selectedValue);
+        CommonFunctions.setItemSessionStorage(this.getNameAttributeKey, selectedValue);
     }
 
     /**
-     * Obtém o valor do domínio selecionado no `localStorage`. Se não houver, define um valor padrão.
+     * Obtém o valor do domínio selecionado no `sessionStorage`. Se não houver, define um valor padrão.
      * @returns {number} Valor numérico do domínio selecionado.
      */
     get getSelectedValue() {
-        let selectedValue = CommonFunctions.getItemLocalStorage(this.getNameAttributeKey);
+        let selectedValue = CommonFunctions.getItemSessionStorage(this.getNameAttributeKey);
         if (selectedValue == null) {
             selectedValue = this._objConfigs.selectedValueDefaultAllDomains;
             this.setSelectedValue = selectedValue;
@@ -109,7 +109,7 @@ export class TenantTypeDomainCustom {
     get getDomainCustomIdentificationClassName() {
         return this._objConfigs.domainCustom.domainCustomIdentificationClassName;
     }
-    
+
     get getDataCurrentDomain() {
         const selectedValue = this.getSelectedValue;
         const arrayDomains = this.getArrayDomains;

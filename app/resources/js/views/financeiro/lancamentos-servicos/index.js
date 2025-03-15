@@ -198,62 +198,9 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        $(`#openModalFormaPagamento${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalFormaPagamentoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
+        CommonFunctions.handleModal(self, $(`#openModalFormaPagamento${self.getSufixo}`), ModalFormaPagamentoTenant, self.#buscarFormaPagamento.bind(self));
 
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarFormaPagamento(response.selected.id);
-                    } else {
-                        self.#buscarFormaPagamento();
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-            }
-        });
-
-        $(`#openModalAreaJuridica${self.getSufixo}`).on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalAreaJuridicaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarAreasJuridicas(response.selected.id);
-                    } else {
-                        self.#buscarAreasJuridicas();
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-            }
-        });
+        CommonFunctions.handleModal(self, $(`#openModalAreaJuridica${self.getSufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
     }
 
@@ -636,12 +583,30 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as formas de pagamento',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#forma_pagamento_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async #buscarAreasJuridicas(selected_id = null) {
+        try {
+            const self = this;
+            let options = {
+                outInstanceParentBln: true,
+                insertFirstOption: true,
+                firstOptionName: 'Todas as áreas jurídicas',
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#area_juridica_id${self.getSufixo}`);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options);
             return true;
         } catch (error) {
             return false;
@@ -665,21 +630,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         }
     }
 
-    async #buscarAreasJuridicas(selected_id = null) {
-        try {
-            const self = this;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todas as áreas jurídicas',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
-            const select = $(`#area_juridica_id${self.getSufixo}`);
-            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
 }
 
 $(function () {

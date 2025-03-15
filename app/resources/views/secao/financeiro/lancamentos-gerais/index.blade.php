@@ -96,8 +96,9 @@
     <div class="d-grid gap-2 d-sm-block mt-2">
         {{-- <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
             consulta</button> --}}
-        <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
-            lançamento</button>
+        <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">
+            Inserir lançamento
+        </button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">

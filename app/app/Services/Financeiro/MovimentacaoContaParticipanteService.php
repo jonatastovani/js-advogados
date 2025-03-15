@@ -276,27 +276,31 @@ class MovimentacaoContaParticipanteService extends Service
             ]
         ]);
 
+        $tableMovimentacao = $this->modelMovimentacaoConta->getTableAsName();
+        $tableRessarcimento = $this->modelLancamentoRessarcimento->getTableAsName();
+
         $query->where("{$this->model->getTableAsName()}.referencia_id", $requestData->parceiro_id);
         $query->where("{$this->model->getTableAsName()}.referencia_type", $this->modelPessoaPerfil->getMorphClass());
 
         if ($requestData->conta_id) {
-            $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.conta_id", $requestData->conta_id);
+            $query->where("{$tableMovimentacao}.conta_id", $requestData->conta_id);
         }
 
         if ($requestData->movimentacao_tipo_id) {
-            $query->where(function (Builder $query) use ($requestData) {
+
+            $query->where(function (Builder $query) use ($requestData, $tableMovimentacao, $tableRessarcimento) {
 
                 // Ser for uma movimentação de conta, filtra-se diretamente pelo tipo de movimentação informado.
-                $query->where(function (Builder $query) use ($requestData) {
-                    $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
+                $query->where(function (Builder $query) use ($requestData, $tableMovimentacao) {
+                    $query->where("{$tableMovimentacao}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
                 });
 
                 // Se for ressarcimento, tem que inverter o valor, pois se for debito para empresa é credito para o participante
-                $query->orWhere(function (Builder $query) use ($requestData) {
+                $query->orWhere(function (Builder $query) use ($requestData, $tableRessarcimento) {
                     $tipoContrario = MovimentacaoContaTipoEnum::tipoMovimentacaoContraria(
                         intval($requestData->movimentacao_tipo_id)
                     );
-                    $query->where("{$this->modelLancamentoRessarcimento->getTableAsName()}.movimentacao_tipo_id", $tipoContrario['id']);
+                    $query->where("{$tableRessarcimento}.movimentacao_tipo_id", $tipoContrario['id']);
                 });
             });
         }
@@ -309,20 +313,21 @@ class MovimentacaoContaParticipanteService extends Service
 
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
-        // // Condições para Participantes da Movimentação de Contas e Lançamentos de Ressarcimentos
-        $query->where(function (Builder $query) use ($requestData) {
+        // Condições para Participantes da Movimentação de Contas e Lançamentos de Ressarcimentos
+        $query->where(function (Builder $query) use ($requestData, $tableMovimentacao, $tableRessarcimento) {
 
             // Condições para Participantes da Movimentação de Contas
-            $query->where(function (Builder $query) use ($requestData) {
+            $query->where(function (Builder $query) use ($requestData, $tableMovimentacao) {
 
-                $query->where(function (Builder $query) {
+                $query->where(function (Builder $query)  use ($tableMovimentacao) {
 
-                    // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do PERFIL EMPRESA se for lancamento de serviços
-                    $query->where(function (Builder $query) {
+                    // Inserir este filtro para não trazer os débitos da conta, pois este já é debitado automaticamente, trará somente os créditos do PERFIL EMPRESA se for lancamento de serviços.
+                    // Quando for crédito para empresa, proveniente de ressarcimento, a movimentação somente aparecerá para o parceiro.
+                    $query->where(function (Builder $query) use ($tableMovimentacao) {
 
-                        $query->where("{$this->modelMovimentacaoConta->getTableAsName()}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
+                        $query->where("{$tableMovimentacao}.movimentacao_tipo_id", MovimentacaoContaTipoEnum::CREDITO->value)
                             ->where("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value)
-                            ->where("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
+                            ->where("{$tableMovimentacao}.referencia_type", MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value);
                     });
 
                     $query->orWhereNot("{$this->model->getTableAsName()}_{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", PessoaPerfilTipoEnum::EMPRESA->value);
@@ -330,17 +335,17 @@ class MovimentacaoContaParticipanteService extends Service
 
                 // Aplicar filtro de quais referencias serão consideradas da movimentação de contas no balanco de repasse do parceiro
 
-                $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasseParceiro());
+                $query->whereIn("{$tableMovimentacao}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasseParceiro());
 
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$this->modelMovimentacaoConta->getTableAsName()}.data_movimentacao");
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$tableMovimentacao}.data_movimentacao");
             });
 
             // Condições para Lançamentos de Ressarcimentos
-            $query->orWhere(function (Builder $query) use ($requestData) {
+            $query->orWhere(function (Builder $query) use ($requestData, $tableRessarcimento) {
 
                 $query->where("{$this->model->getTableAsName()}.parent_type", $this->modelLancamentoRessarcimento::class);
 
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$this->modelLancamentoRessarcimento->getTableAsName()}.data_vencimento");
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$tableRessarcimento}.data_vencimento");
             });
         });
 

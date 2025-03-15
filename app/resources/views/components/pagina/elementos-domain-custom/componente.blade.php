@@ -38,7 +38,7 @@
 {{-- Se for identificação manual do domínio, então insere a opção de selecionar o domínio --}}
 @if ($domainCustomBln)
     {{-- Inicia sempre oculto caso o display seja false e o script verifica se mostra ou não --}}
-    <div class="{{ $display ? 'd-inline-flex' : 'd-none' }} {{ $domainCustomIdentificationClassName }} {{ $divCapsula->appendClass }}"
+    <div class="{{ $display ? 'd-inline-flex' : '' }} {{ $domainCustomIdentificationClassName }} {{ $divCapsula->appendClass }}"
         {{ $display ? '' : 'style=display:none;' }}>
 
         <div class="input-group {{ $divInputGroup->appendClass }}">

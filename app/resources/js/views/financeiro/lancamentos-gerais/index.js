@@ -4,7 +4,7 @@ import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
 import { ModalMessage } from "../../../components/comum/ModalMessage";
 import { ModalLancamentoGeral } from "../../../components/financeiro/ModalLancamentoGeral";
-import { ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar } from "../../../components/financeiro/ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar";
+import { ModalLancamentoGeralMovimentar } from "../../../components/financeiro/ModalLancamentoGeralMovimentar";
 import { ModalLancamentoReagendar } from "../../../components/servico/ModalLancamentoReagendar";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
@@ -309,7 +309,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         const openMovimentar = async function (status_id) {
             try {
-                const objModal = new ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar();
+                const objModal = new ModalLancamentoGeralMovimentar();
                 objModal.setDataEnvModal = {
                     idRegister: item.id,
                     pagamento_id: item.pagamento_id,
@@ -563,10 +563,11 @@ class PageLancamentoGeralIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
@@ -613,10 +614,11 @@ class PageLancamentoGeralIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
+                outInstanceParentBln: true,
                 insertFirstOption: true,
                 firstOptionName: 'Todas as categorias',
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#categoria_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseLancamentoCategoriaTipoTenant, options);
             return true;

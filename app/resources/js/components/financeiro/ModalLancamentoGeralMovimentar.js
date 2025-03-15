@@ -6,7 +6,7 @@ import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { ModalContaTenant } from "../tenant/ModalContaTenant";
 
-export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing {
+export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing {
 
     /**
      * Configuração local do modal
@@ -18,7 +18,7 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
             baseContas: window.apiRoutes.baseContas,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
         },
-        sufixo: 'ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar',
+        sufixo: 'ModalLancamentoGeralMovimentar',
         data: {
             lancamento_status_tipos: undefined,
             idRegister: undefined,
@@ -42,7 +42,7 @@ export class ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar extend
 
     constructor(options = {}) {
         super({
-            idModal: "#ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar",
+            idModal: "#ModalLancamentoGeralMovimentar",
         });
 
         this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
