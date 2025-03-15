@@ -153,12 +153,12 @@ export class ModalRegistrationAndEditing extends ModalDefault {
         try {
             // Se for realizar a checagem de domínio antes, então não se faz a atribuição do domínio forçado no próximo passo, pois já foi setado em outro momento.
             const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new ConnectAjax(urlApi);
+            const objConn = new ConnectAjax(urlApi);
             if (forcedDomainId) {
-                obj.setForcedDomainCustomId = forcedDomainId;
+                objConn.setForcedDomainCustomId = forcedDomainId;
             }
-            obj.setParam(idRegister);
-            const response = await obj.getRequest();
+            objConn.setParam(idRegister);
+            const response = await objConn.getRequest();
             if (!checkForcedBefore) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             return response;
         } catch (error) {

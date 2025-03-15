@@ -29,12 +29,12 @@
 
                 <x-pagina.info-campos-obrigatorios />
 
-            </div>
-            <div class="modal-footer">
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-outline-primary btn-save">
-                        Selecionar tipo
-                    </button>
+                <div class="row">
+                    <div class="col mt-2 text-end">
+                        <button type="submit" class="btn btn-outline-primary btn-save">
+                            Selecionar tipo
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>

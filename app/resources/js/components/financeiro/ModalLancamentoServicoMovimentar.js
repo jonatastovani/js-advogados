@@ -3,6 +3,7 @@ import { ConnectAjax } from "../../commons/ConnectAjax";
 import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
@@ -33,7 +34,10 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             participacao_tipo_tenant: {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_SERVICO,
             },
-        }
+        },
+        domainCustom: {
+            applyBln: true,
+        },
     };
 
     #dataEnvModal = {
@@ -70,13 +74,13 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
         if (self._dataEnvModal.idRegister) {
-            await this.#buscarFormaPagamento();
             await self.#buscarDadosLancamentoStatusTipo();
             open = await self.#buscarDados();
         } else {
             CommonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
         }
 
+        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
         await CommonFunctions.loadingModalDisplay(false);
         if (open) {
             await self._modalHideShow();
@@ -89,37 +93,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalFormaPagamento').on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalFormaPagamentoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarFormaPagamento(response.selected.id);
-                    } else {
-                        self.#buscarFormaPagamento();
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
-            }
-        });
-
-        self.#functionsParticipacao._buscarPresetParticipacaoTenant();
+        CommonFunctions.handleModal(self, modal.find('.openModalFormaPagamento'), ModalFormaPagamentoTenant, self.#buscarFormaPagamento.bind(self));
     }
 
     _modalReset() {
@@ -239,10 +213,11 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
     async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
-            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
-            return true;
+            let options = { outInstanceParentBln: true };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const selector = $(`#forma_pagamento_id${self._objConfigs.sufixo}`);
+            await CommonFunctions.fillSelect(selector, self._objConfigs.url.baseFormaPagamento, options);
+            return true
         } catch (error) {
             return false;
         }
@@ -260,6 +235,8 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             const response = await objConn.envRequest();
 
             if (response?.data) {
+                TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+
                 const responseData = response.data;
 
                 self._objConfigs.data.idRegister = self._dataEnvModal.idRegister;
@@ -300,7 +277,8 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
                 form.find('.pDataVencimento').html(data_vencimento);
                 form.find('.pValor').html(pValor);
                 form.find('input[name="observacao"]').val(responseData.observacao);
-                form.find('select[name="forma_pagamento_id"]').val(forma_pagamento_id);
+                // form.find('select[name="forma_pagamento_id"]').val(forma_pagamento_id);
+                this.#buscarFormaPagamento(forma_pagamento_id);
                 const diferenca = DateTimeHelper.retornaDiferencaDeDataEHora(responseData.data_vencimento, new Date(), 1);
                 form.find('input[name="data_recebimento"]').val(diferenca > 0 ? responseData.data_vencimento : DateTimeHelper.retornaDadosDataHora(new Date(), 1));
 

@@ -108,7 +108,7 @@ class PageServicoForm extends TemplateForm {
 
         if (self._queueSelectDomainCustom) {
             self._queueSelectDomainCustom.enqueue(() =>
-                self.#functionsParticipacao._buscarPresetParticipacaoTenant(null, self.#functionsParticipacao._retornaOptionsPreset())
+                self.#functionsParticipacao._buscarPresetParticipacaoTenant()
             )
         } else {
             self.#functionsParticipacao._buscarPresetParticipacaoTenant();

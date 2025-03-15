@@ -85,10 +85,18 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
     }
 
     async #buscarPagamentoTipos(selected_id = null) {
-        const self = this;
-        let options = selected_id ? { selectedIdOption: selected_id } : {};
-        const select = $(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]');
-        await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        try {
+            const self = this;
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#pagamento_tipo_tenant_id${self.getSufixo}`);
+            await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     async saveButtonAction() {

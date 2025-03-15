@@ -134,36 +134,6 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
         CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
 
-        // $(`#openModalConta${self.getSufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     CommonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new ModalContaTenant();
-        //         objModal.setDataEnvModal = {
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         }
-
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selecteds.length > 0) {
-        //                 const item = response.selecteds[0];
-        //                 self.#buscarContas(item.id);
-        //             } else {
-        //                 self.#buscarContas();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         CommonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         CommonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
-
         $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
             if (self._objConfigs.querys.consultaFiltros.dataPost) {
 
@@ -179,7 +149,13 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                     const responseConta = await objModal.modalOpen();
 
                     if (responseConta.refresh) {
+
+                        const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
                         const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                        if (forcedDomainId) {
+                            objConn.setForcedDomainCustomId = forcedDomainId;
+                        }d
+
                         objConn.setAction(EnumAction.POST);
                         objConn.setData(
                             CommonFunctions.deepMergeObject(

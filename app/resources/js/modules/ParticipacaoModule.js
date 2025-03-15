@@ -154,10 +154,10 @@ export class ParticipacaoModule {
                             await self._parentInstance._modalHideShow()
                         };
 
-                        await self._buscarPresetParticipacaoTenant(response.selected.id, self._retornaOptionsPreset());
+                        await self._buscarPresetParticipacaoTenant(response.selected.id);
                         $(`#preset_id${self._objConfigs.sufixo}`).trigger('change');
                     } else {
-                        self._buscarPresetParticipacaoTenant(null, self._retornaOptionsPreset());
+                        self._buscarPresetParticipacaoTenant(null);
                     }
                 }
             } catch (error) {
@@ -284,18 +284,6 @@ export class ParticipacaoModule {
     //     }
     //     return false;
     // }
-
-    _retornaOptionsPreset(optionsPreset = {}) {
-        const self = this;
-        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
-        if (instance) {
-            if (self._objConfigs?.domainCustom?.domain_id) {
-                return optionsPreset;
-            }
-            optionsPreset = instance.getSelectedValue == 0 ? { outInstanceParentBln: true } : {};
-        }
-        return optionsPreset;
-    }
 
     _limparDivParticipantes() {
         const self = this;
@@ -834,12 +822,24 @@ export class ParticipacaoModule {
         qtdIntegrantes.html(str);
     }
 
-    async _buscarPresetParticipacaoTenant(selected_id = null, options = {}) {
+    async _buscarPresetParticipacaoTenant(selected_id = null) {
         const self = this;
-        options.instanceParent = self;
+        const options = self._retornaOptionsPreset({ instanceParent: self._parentInstance });
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(`#preset_id${self._objConfigs.sufixo}`);
         await CommonFunctions.fillSelect(select, self._objConfigs.url.baseParticipacaoPreset, options);
+    }
+
+    _retornaOptionsPreset(optionsPreset = {}) {
+        const self = this;
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+            if (self._objConfigs?.domainCustom?.domain_id) {
+                return optionsPreset;
+            }
+            instance.getSelectedValue == 0 ? optionsPreset.outInstanceParentBln = true : null;
+        }
+        return optionsPreset;
     }
 
     async _inserirParticipantesEIntegrantes(participantes) {
