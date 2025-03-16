@@ -13,6 +13,10 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
             baseServico: undefined
         },
         sufixo: 'ModalSelecionarPagamentoTipo',
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: true,
+        },
     };
 
     constructor(urlBaseServico) {
@@ -20,7 +24,7 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
             idModal: "#ModalSelecionarPagamentoTipo",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._objConfigs.url.baseServico = urlBaseServico;
         this.#addEventosPadrao();
     }
@@ -28,6 +32,12 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
     async modalOpen() {
         const self = this;
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de pagamento...', title: 'Aguarde...', elementFocus: null });
+
+        if (!self._checkDomainCustomInherited()) {
+            await CommonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve()
+        };
+
         await self.#buscarPagamentoTipos($(self.getIdModal).find('select[name="pagamento_tipo_tenant_id"]'));
         await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
@@ -108,9 +118,9 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
             try {
                 await self._modalHideShow(false);
                 const objModal = new ModalServicoPagamento({ urlApi: `${self._objConfigs.url.baseServico}/pagamentos` });
-                objModal._dataEnvModal = {
+                objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
                     pagamento_tipo_tenant_id: data.pagamento_tipo_tenant_id,
-                }
+                });
                 self._promisseReturnValue = await objModal.modalOpen();
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);

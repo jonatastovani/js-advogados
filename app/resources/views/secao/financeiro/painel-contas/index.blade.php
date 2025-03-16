@@ -24,10 +24,10 @@
             title="Cadastrar, editar e excluir Contas">
             Gerenciar Contas</button>
         <button id="atualizarDados{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">
-            Atualizar Dados</button>
+            Atualizar Contas</button>
     </div>
 
-    <div class="row row-cols-1 row-cols-xxl-2 g-2" id="divContas{{ $sufixo }}"></div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2 row-cols-xxl-3 g-2" id="divContas{{ $sufixo }}"></div>
 @endsection
 
 @push('modals')

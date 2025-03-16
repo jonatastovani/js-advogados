@@ -31,6 +31,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             pagamento_tipo_tenant: undefined,
             lancamentos_na_tela: [],
         },
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: true,
+        }
     };
 
     /** 
@@ -56,9 +60,14 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
     async modalOpen() {
         const self = this;
+
+        self._queueCheckDomainCustom.setReady();
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do pagamento...' });
-        await this.#buscarFormaPagamento();
-        await this.#buscarStatusPagamento();
+
+        if (!self._checkDomainCustomInherited()) {
+            await CommonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve()
+        };
 
         if (self._dataEnvModal.idRegister) {
             self._objConfigs.url.baseLancamentos = `${self._objConfigs.url.base}/${self._dataEnvModal.idRegister}/lancamentos`;
@@ -70,6 +79,9 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             } else {
                 await self.#buscarDadosPagamentoTipo();
             }
+
+            self.#buscarFormaPagamento();
+            self.#buscarStatusPagamento();
         }
 
         await CommonFunctions.loadingModalDisplay(false);
@@ -326,8 +338,11 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#forma_pagamento_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
         } catch (error) {
@@ -338,9 +353,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarStatusPagamento(selected_id = null) {
         try {
             const self = this;
-            let options = { insertFirstOption: false };
-            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
-            const select = $(self.getIdModal).find('select[name="status_id"]');
+            let options = {
+                outInstanceParentBln: true,
+                insertFirstOption: false,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#status_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseStatusPagamento, options);
             return true;
         } catch (error) {
@@ -367,8 +385,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 await self.#buscarDadosPagamentoTipo(true);
 
                 const form = $(self.getIdModal).find('.formRegistration');
-                form.find('select[name="forma_pagamento_id"]').val(responseData.forma_pagamento_id);
-                form.find('select[name="status_id"]').val(responseData.status_id);
+                self.#buscarFormaPagamento(responseData.forma_pagamento_id);
+                self.#buscarStatusPagamento(responseData.status_id);
 
                 const tipoCampos = [pagamentoTipo.campos_obrigatorios, pagamentoTipo.campos_opcionais ?? []];
                 for (const tipoCampo of tipoCampos) {

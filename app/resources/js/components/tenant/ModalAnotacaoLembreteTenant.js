@@ -4,17 +4,38 @@ import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrati
 
 export class ModalAnotacaoLembreteTenant extends ModalRegistrationAndEditing {
 
+    /**
+     * Configuração local do modal
+     */
+    #objConfigs = {
+        url: {
+            base: undefined,
+        },
+        sufixo: 'ModalAnotacaoLembreteTenant',
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: true,
+        },
+    };
+
     constructor(urlApi) {
         super({
             idModal: "#ModalAnotacaoLembreteTenant",
         });
 
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._action = EnumAction.POST;
         this._objConfigs.url.base = urlApi;
     }
 
     async modalOpen() {
         const self = this;
+
+        if (!self._checkDomainCustomInherited()) {
+            await CommonFunctions.loadingModalDisplay(false);
+            return await self._returnPromisseResolve()
+        };
+        
         if (self._dataEnvModal.idRegister) {
             if (await self.#buscarDados()) {
                 await self._modalHideShow();

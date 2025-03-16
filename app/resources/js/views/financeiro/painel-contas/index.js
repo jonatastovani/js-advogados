@@ -1,8 +1,8 @@
 import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { ConnectAjax } from "../../../commons/ConnectAjax";
 import { ModalAjustarSaldo } from "../../../components/financeiro/ModalAjustarSaldo";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
-import { RequestsHelpers } from "../../../helpers/RequestsHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PagePainelContaIndex {
@@ -34,15 +34,6 @@ class PagePainelContaIndex {
             CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalContaTenant();
-                // objModal.setDataEnvModal = {
-                //     attributes: {
-                //         select: {
-                //             quantity: 1,
-                //             autoReturn: true,
-                //         }
-                //     }
-                // }
-
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
                     await self.#buscarDados();
@@ -67,8 +58,8 @@ class PagePainelContaIndex {
         try {
             await CommonFunctions.loadingModalDisplay();
 
-            const response = await RequestsHelpers.get({ urlApi: `${self.#objConfigs.url.base}/painel-conta` });
-            const form = $(`#formServico${self.#objConfigs.sufixo}`);
+            const objConn = new ConnectAjax(`${self.#objConfigs.url.base}/painel-conta`);
+            const response = await objConn.getRequest();
 
             if (response?.data) {
                 $(`#divContas${self.#objConfigs.sufixo}`).html('');

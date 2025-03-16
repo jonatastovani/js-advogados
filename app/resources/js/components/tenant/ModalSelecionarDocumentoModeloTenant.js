@@ -33,6 +33,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
     async modalOpen() {
         const self = this;
         let blnOpen = false;
+
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando tipos de modelo de documento...', title: 'Aguarde...', elementFocus: null });
 
         if (!self._dataEnvModal.documento_modelo_tipo_id) {
@@ -71,10 +72,11 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
             typeRequest: EnumAction.POST,
             envData: {
                 documento_modelo_tipo_id: self._dataEnvModal.documento_modelo_tipo_id,
-            }
+            },
+            outInstanceParentBln: true,
         };
 
-        selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
+        selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="documento_modelo_tenant_id"]');
         const response = await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
         self._objConfigs.data.itensNaTela = response.response.data;

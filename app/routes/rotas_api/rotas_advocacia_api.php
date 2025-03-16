@@ -27,6 +27,7 @@ Route::group([
             Route::prefix('anotacao')->group(function () {
 
                 Route::controller(App\Http\Controllers\Tenant\AnotacaoLembreteTenantController::class)->group(function () {
+                    Route::get('', 'indexAnotacaoServico');
                     Route::post('', 'storeAnotacaoServico');
                     Route::get('{uuid}', 'show');
                     Route::put('{uuid}', 'updateAnotacaoServico');

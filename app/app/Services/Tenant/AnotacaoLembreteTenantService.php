@@ -8,6 +8,7 @@ use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class AnotacaoLembreteTenantService extends Service
@@ -43,6 +44,20 @@ class AnotacaoLembreteTenantService extends Service
             'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
+    }
+
+    public function indexAnotacaoServico(Fluent $requestData)
+    {
+        return $this->indexPadrao($requestData, $requestData->servico_uuid, $this->modelServico);
+    }
+
+    public function indexPadrao(Fluent $requestData, string $idParent, Model $modelParent)
+    {
+        $resource = $this->model->with($this->loadFull())
+            ->where('parent_id', $idParent)
+            ->where('parent_type', $modelParent->getMorphClass())
+            ->get();
+        return $resource->toArray();
     }
 
     public function storeAnotacaoServico(Fluent $requestData)
@@ -103,6 +118,7 @@ class AnotacaoLembreteTenantService extends Service
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $resource = null;
+        /** @var AnotacaoLembreteTenant */
         $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
         $resource->fill($requestData->toArray());
         return $resource;

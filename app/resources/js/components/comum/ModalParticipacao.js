@@ -65,8 +65,6 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
             }
         }
         this.#functionsParticipacao = new ParticipacaoModule(this, objData);
-
-        // this.#addEventosPadrao();
     }
 
     async modalOpen() {
@@ -91,43 +89,6 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
         await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
-    }
-
-    #addEventosPadrao() {
-        const self = this;
-        
-        // remover tudo isso
-        // const modal = $(self._idModal);
-
-        // modal.find('.btnOpenModalTipoParticipacao').on('click', async function () {
-        //     const btn = $(this);
-        //     CommonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new ModalParticipacaoTipoTenant();
-
-        //         objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
-        //             attributes: {
-        //                 select: {
-        //                     quantity: 1,
-        //                     autoReturn: true,
-        //                 }
-        //             }
-        //         });
-
-        //         await self._modalHideShow(false);
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh) {
-        //             if (response.selected) {
-        //                 $(self.getIdModal).find('select[name="preset_id"]').val(response.selected.id);
-        //             }
-        //         }
-        //     } catch (error) {
-        //         CommonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         CommonFunctions.simulateLoading(btn, false);
-        //         await self._modalHideShow();
-        //     }
-        // });
     }
 
     _clearForm() {

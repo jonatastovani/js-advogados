@@ -1,5 +1,4 @@
 import { CommonFunctions } from "../../commons/CommonFunctions";
-import { ConnectAjax } from "../../commons/ConnectAjax";
 import { EnumAction } from "../../commons/EnumAction";
 import { TemplateForm } from "../../commons/templates/TemplateForm";
 import { ModalMessage } from "../../components/comum/ModalMessage";
@@ -197,6 +196,10 @@ class PageServicoForm extends TemplateForm {
             try {
                 const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
                 objModal.setFocusElementWhenClosingModal = btn;
+                const dataEnvModal = self._checkDomainCustomInheritDataEnvModal();
+                if (dataEnvModal?.inherit_domain_id) {
+                    objModal.setDataEnvModal = dataEnvModal;
+                }
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
                     self.#inserirAnotacao(response.register);
@@ -208,11 +211,19 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
+        $(`#atualizarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
+            await self.#buscarAnotacoes();
+        });
+
         $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalSelecionarPagamentoTipo(`${self._objConfigs.url.base}/${self._idRegister}`);
+                const dataEnvModal = self._checkDomainCustomInheritDataEnvModal();
+                if (dataEnvModal?.inherit_domain_id) {
+                    objModal.setDataEnvModal = dataEnvModal;
+                }
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
@@ -241,7 +252,6 @@ class PageServicoForm extends TemplateForm {
 
         $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
             await self.#buscarPagamentos();
-            // CommonFunctions.generateNotification('Dados atualizados com sucesso.', 'success');
         });
 
         // self.#openModal();
@@ -405,8 +415,7 @@ class PageServicoForm extends TemplateForm {
         try {
             blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando documentos...' }) : null;
 
-            const obj = new ConnectAjax(self._objConfigs.url.baseDocumento);
-            const response = await obj.getRequest();
+            const response = await self._get({ urlApi: self._objConfigs.url.baseDocumento, checkForcedBefore: true });
             if (response.data) {
                 self.#limparDocumentos();
                 response.data.map(item => {
@@ -533,8 +542,8 @@ class PageServicoForm extends TemplateForm {
 
         try {
             blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando clientes...' }) : null;
-            const obj = new ConnectAjax(self._objConfigs.url.baseCliente);
-            const response = await obj.getRequest();
+
+            const response = await self._get({ urlApi: self._objConfigs.url.baseCliente, checkForcedBefore: true });
             if (response.data) {
                 self.#limparClientes();
                 response.data.map(item => {
@@ -635,6 +644,33 @@ class PageServicoForm extends TemplateForm {
                 $(`#${item.idCol}`).remove();
             }
         });
+    }
+
+    #limparAnotacoes() {
+        const self = this;
+        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
+    }
+
+    async #buscarAnotacoes(options = {}) {
+        const self = this;
+        const { blnLoadingDisplay = true } = options;
+
+        try {
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando anotações...' }) : null;
+
+            const response = await self._get({ urlApi: self._objConfigs.url.baseAnotacao, checkForcedBefore: true });
+            if (response.data) {
+                self.#limparAnotacoes();
+                response.data.map(item => {
+                    self.#inserirAnotacao(item);
+                })
+                blnLoadingDisplay ? CommonFunctions.generateNotification('Anotações atualizadas com sucesso.', 'success') : null;
+            }
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+        } finally {
+            blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(false) : null;
+        }
     }
 
     async #inserirPagamento(item) {
@@ -1137,13 +1173,15 @@ class PageServicoForm extends TemplateForm {
         try {
             blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
 
-            const obj = new ConnectAjax(self._objConfigs.url.basePagamentos);
-            const response = await obj.getRequest();
-            $(`#divPagamento${self._objConfigs.sufixo}`).html('');
-            for (const item of response.data) {
-                self.#inserirPagamento(item);
+            const response = await self._get({ urlApi: self._objConfigs.url.basePagamentos, checkForcedBefore: true });
+
+            if (response.data) {
+                $(`#divPagamento${self._objConfigs.sufixo}`).html('');
+                for (const item of response.data) {
+                    self.#inserirPagamento(item);
+                }
+                await self.#buscarValores();
             }
-            await self.#buscarValores();
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
         } finally {
@@ -1155,9 +1193,10 @@ class PageServicoForm extends TemplateForm {
     async #buscarValores() {
         const self = this;
         try {
-            const obj = new ConnectAjax(self._objConfigs.url.baseValores);
-            const response = await obj.getRequest();
-            self.#atualizaTodosValores(response.data);
+            const response = await self._get({ urlApi: self._objConfigs.url.baseValores, checkForcedBefore: true });
+            if (response.data) {
+                self.#atualizaTodosValores(response.data);
+            }
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
         }

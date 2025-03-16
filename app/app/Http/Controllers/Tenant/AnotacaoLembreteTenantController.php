@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\AnotacaoLembreteTenant\AnotacaoLembreteTenantFormRequestDestroy;
+use App\Http\Requests\Tenant\AnotacaoLembreteTenant\AnotacaoLembreteTenantFormRequestIndex;
 use App\Http\Requests\Tenant\AnotacaoLembreteTenant\AnotacaoLembreteTenantFormRequestShow;
 use App\Http\Requests\Tenant\AnotacaoLembreteTenant\AnotacaoLembreteTenantFormRequestStoreAnotacao;
 use App\Http\Requests\Tenant\AnotacaoLembreteTenant\AnotacaoLembreteTenantFormRequestUpdateAnotacao;
@@ -16,6 +17,12 @@ class AnotacaoLembreteTenantController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public AnotacaoLembreteTenantService $service) {}
+
+    public function indexAnotacaoServico(AnotacaoLembreteTenantFormRequestIndex $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->indexAnotacaoServico($fluentData));
+    }
 
     public function storeAnotacaoServico(AnotacaoLembreteTenantFormRequestStoreAnotacao $formRequest)
     {

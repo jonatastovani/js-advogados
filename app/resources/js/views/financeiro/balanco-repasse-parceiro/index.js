@@ -150,11 +150,11 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                     if (responseConta.refresh) {
 
-                        const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+                        const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
                         const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
                         if (forcedDomainId) {
                             objConn.setForcedDomainCustomId = forcedDomainId;
-                        }d
+                        }
 
                         objConn.setAction(EnumAction.POST);
                         objConn.setData(
@@ -175,46 +175,6 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 }
             }
         });
-
-        // $(`#btnLancarRepasse${self.getSufixo}`).on('click', async function () {
-        //     const btn = $(this);
-        //     CommonFunctions.simulateLoading(btn);
-        //     try {
-        //         const selecionados = self._objConfigs.data.selecionados;
-        //         if (selecionados.length == 0) {
-        //             CommonFunctions.generateNotification('Selecione pelo menos uma movimentação para efetuar o repasse!', 'warning');
-        //             return;
-        //         }
-        //         let participacoesIds = selecionados.map(movimentacao => movimentacao.id);
-
-        //         const objModal = new ModalSelecionarConta();
-        //         objModal.setDataEnvModal = {
-        //             participacoes: participacoesIds,
-        //             perfil: self._objConfigs.data.perfil,
-        //         };
-
-        //         const responseConta = await objModal.modalOpen();
-
-        //         if (responseConta.refresh) {
-        //             const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
-        //             objConn.setAction(EnumAction.POST);
-        //             objConn.setData(
-        //                 CommonFunctions.deepMergeObject(responseConta.register, {
-        //                     participacoes: participacoesIds
-        //                 })
-        //             );
-        //             const response = await objConn.envRequest();
-        //             if (response.data) {
-        //                 CommonFunctions.generateNotification('Repasse efetuado com sucesso!', 'success');
-        //                 await self.#executarBusca();
-        //             }
-        //         }
-        //     } catch (error) {
-        //         CommonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         CommonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
 
         $(`#ckbCheckAll${self.getSufixo}`).on('change', async function () {
             const tableData = $(`#tableData${self.getSufixo} tbody`);

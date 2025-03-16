@@ -6,6 +6,7 @@ use App\Enums\TenantTypeEnum;
 use App\Models\Auth\Domain;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -50,15 +51,32 @@ class HandleTenantDomainForTenantType
                     // Obtém o domínio correto para redirecionamento
                     $correctDomain = Domain::find($idDomainRedirection)->domain;
 
+                    // Log::debug('Redirecionamento manual', [
+                    //     'protocol' => $protocol,
+                    //     'correctDomain' => $correctDomain,
+                    //     'originalUri' => $request->getRequestUri(),
+                    //     'fullUrl' => $request->fullUrl(),
+                    // ]);
+                    
                     // Redireciona para o domínio correto mantendo a URI original da requisição
                     return redirect()->to("{$protocol}://{$correctDomain}{$request->getRequestUri()}");
                 }
 
-                // Se o tenant permite a seleção de domínio manual (por exemplo, `tenant_type_id = 4`), captura essa informação
-                $selectedDomain = $request->header(config('tenancy_custom.tenant_type.header_attribute_key')) ?? 0;
+                $nameAttributeKey = config('tenancy_custom.tenant_type.name_attribute_key');
+                $headerAttributeKey = config('tenancy_custom.tenant_type.header_attribute_key');
+
+                // Se o tenant permite a seleção de domínio manual (por exemplo, tenant_type_id = 4), captura essa informação na chave esperada
+                $selectedDomainId = $request->header($headerAttributeKey) ?? 0;
+
+                if (!$selectedDomainId) {
+                    // Se nenhum id de domínio foi enviado pelo header, então se procura pelo input
+                    if ($request->has($nameAttributeKey)) {
+                        $selectedDomainId = $request->input($nameAttributeKey);
+                    }
+                }
 
                 // Adiciona a chave `tenant_domain_selected_id` à request para que possa ser utilizada posteriormente
-                $request->merge([config('tenancy_custom.tenant_type.name_attribute_key') => $selectedDomain]);
+                $request->merge([config('tenancy_custom.tenant_type.name_attribute_key') => $selectedDomainId]);
             }
         }
 

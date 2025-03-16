@@ -5,7 +5,6 @@ import { ModalNome } from "../components/comum/ModalNome";
 import { ModalParticipacaoParticipante } from "../components/comum/ModalParticipacaoParticipante";
 import { ModalParticipacaoPreset } from "../components/comum/ModalParticipacaoPreset";
 import { ModalPessoa } from "../components/pessoas/ModalPessoa";
-import { RequestsHelpers } from "../helpers/RequestsHelpers";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../helpers/UUIDHelper";
 
@@ -924,7 +923,9 @@ export class ParticipacaoModule {
         } = options;
 
         try {
-            return RequestsHelpers.getRecurse({ urlApi: urlApi, idRegister: idRegister });
+            const objConn = new ConnectAjax(urlApi);
+            objConn.setParam(idRegister);
+            return await objConn.getRequest();
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
             return false;

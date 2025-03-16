@@ -94,6 +94,39 @@ export class TemplateForm {
     }
 
     /**
+     * Recupera um registro da API conforme a url informada.
+     * 
+     * @param {Object} options - Opções adicionais.
+     * @param {string} options.urlApi - URL da API.
+     * @param {boolean} options.checkForcedBefore - Indica se o domínio forçado deve ser verificado antes da consulta.
+     * 
+     * @returns {Promise<Object|boolean>} - Retorna uma Promise que resolve com o objeto de resposta da API caso a solicita o seja bem-sucedida ou false caso contr rio.
+     */
+    async _get(options = {}) {
+        const self = this;
+        const {
+            urlApi = self._objConfigs.url.base,
+            checkForcedBefore = false,
+        } = options;
+
+        try {
+            // Se for realizar a checagem de domínio antes, então não se faz a atribuição do domínio forçado no próximo passo, pois já foi setado em outro momento.
+            const forcedDomainId = !checkForcedBefore ? null : TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+            const obj = new ConnectAjax(urlApi);
+            if (forcedDomainId) {
+                obj.setForcedDomainCustomId = forcedDomainId;
+            }
+
+            const response = await obj.getRequest();
+            if (!checkForcedBefore) TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
+            return response;
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    /**
      * Recupera um registro da API.
      * 
      * @param {Object} options - Opções adicionais.

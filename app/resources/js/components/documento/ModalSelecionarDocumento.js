@@ -31,8 +31,8 @@ export class ModalSelecionarDocumento extends ModalRegistrationAndEditing {
             idModal: "#ModalSelecionarDocumento",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
     }
 
     async modalOpen() {
