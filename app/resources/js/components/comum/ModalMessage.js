@@ -37,16 +37,16 @@ export class ModalMessage extends ModalDefault {
 
             if (([1, 2].findIndex((item) => item == self._dataEnvModal.idDefaultButton)) != -1) {
                 if (self._dataEnvModal.idDefaultButton == 1) {
-                    self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmYes')[0], 1000);
+                    self.setActionQueueOpen(() => self._executeFocusElementOnModal(modal.find('.confirmYes')[0], 1000));
                 } else {
-                    self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000);
+                    self.setActionQueueOpen(() => self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000));
                 }
             } else {
-                self.setActionQueueOpen = self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000);
+                self.setActionQueueOpen(() => self._executeFocusElementOnModal(modal.find('.confirmNo')[0], 1000));
             }
 
             await self._modalHideShow();
-            self.setReadyQueueOpen;
+            self.setReadyQueueOpen();
             return await self._modalOpen();
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);

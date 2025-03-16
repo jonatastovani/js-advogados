@@ -41,6 +41,7 @@ export class ModalDefault {
         data: undefined,
         modalConfig: undefined,
         queues: {
+            /** @type {QueueManager} */
             queueOpen: new QueueManager(),
         },
         domainCustom: {
@@ -144,18 +145,17 @@ export class ModalDefault {
          * 
          * @param {Function} action - Função a ser executada quando estiver pronto.
          */
-    set setActionQueueOpen(enqueue) {
-        this._objConfigs.queues.queueOpen.enqueue = enqueue;
+    setActionQueueOpen(enqueue) {
+        this._objConfigs.queues.queueOpen.enqueue(enqueue);
     }
 
     /**
      * Define que está pronto e processa a fila.
      * @param {Boolean} isReady - Indica se está pronto para processar a fila. Padrão é true.
      */
-    set setReadyQueueOpen(isReady = true) {
-        if (isReady === true) {
-            this._objConfigs.queues.queueOpen.isReady();
-        }
+    setReadyQueueOpen() {
+        console.log('setou')
+        this._objConfigs.queues.queueOpen.setReady();
     }
 
     /**

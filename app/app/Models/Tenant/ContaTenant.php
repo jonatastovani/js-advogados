@@ -5,6 +5,7 @@ namespace App\Models\Tenant;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
+use App\Scopes\Tenant\SaldoTotalContaTenantScope;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -24,6 +25,10 @@ class ContaTenant extends Model
 
     protected $table = 'tenant.conta_tenants';
     protected $tableAsName = 'conta_ten';
+
+    protected $casts = [
+        'saldo_total' => 'float',
+    ];
 
     protected $fillable = [
         'id',
@@ -55,8 +60,45 @@ class ContaTenant extends Model
         return $this->belongsTo(ContaStatusTipo::class);
     }
 
-    public function ultima_movimentacao()
+    public function conta_domain()
     {
-        return $this->hasOne(MovimentacaoConta::class, 'conta_id')->orderByDesc('created_at')->limit(1);
+        return $this->hasOne(ContaTenantDomain::class, 'conta_id')->first();
+    }
+
+    public function contas_domains()
+    {
+        return $this->hasMany(ContaTenantDomain::class, 'conta_id')->withoutDomain();
+    }
+
+    // public function ultima_movimentacao()
+    // {
+    //     return $this->hasOne(MovimentacaoConta::class, 'conta_id')->orderByDesc('created_at')->limit(1);
+    // }
+
+    public function ultimas_movimentacoes()
+    {
+        $movimentacaoTable = (new MovimentacaoConta())->getTable(); // Obtém o nome completo da tabela com esquema
+        $contaDomainTable = (new ContaTenantDomain())->getTable(); // Nome completo da tabela intermediária
+
+        return $this->hasManyThrough(
+            MovimentacaoConta::class, // Tabela final (destino)
+            ContaTenantDomain::class, // Tabela intermediária
+            'conta_id', // Chave estrangeira em ContaTenantDomain referenciando ContaTenant
+            'conta_domain_id', // Chave estrangeira em MovimentacaoConta referenciando ContaTenantDomain
+            'id', // Chave primária de ContaTenant
+            'id'  // Chave primária de ContaTenantDomain
+        )->whereRaw("
+            {$movimentacaoTable}.created_at = (
+                SELECT MAX(sub.created_at) 
+                FROM {$movimentacaoTable} as sub 
+                WHERE sub.conta_domain_id = {$movimentacaoTable}.conta_domain_id
+            )
+        ");
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::addGlobalScope(new SaldoTotalContaTenantScope);
     }
 }

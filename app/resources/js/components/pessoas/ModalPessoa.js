@@ -84,6 +84,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         super(envSuper);
 
         this.functionsCriteria = new functionsQueryCriteria(this, this._idModal);
+        this.setReadyQueueOpen();
     }
 
     async modalOpen() {

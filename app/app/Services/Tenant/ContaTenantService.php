@@ -78,7 +78,7 @@ class ContaTenantService extends Service
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome, 'domain_id' => DomainTenantResolver::$currentDomain->id], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para esta conta já existe.', $requestData->toArray());
-            return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+            RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $arrayErrors = new Fluent();
@@ -87,6 +87,7 @@ class ContaTenantService extends Service
         $checkDeletedAlteracaoContaSubtipo = true;
         $checkDeletedAlteracaoContaStatus = true;
         if ($id) {
+            /** @var Model */
             $resource = $this->buscarRecurso($requestData);
 
             if ($resource->conta_subtipo_id == $requestData->conta_subtipo_id) {
@@ -97,6 +98,7 @@ class ContaTenantService extends Service
                 $checkDeletedAlteracaoContaStatus = false;
             }
         } else {
+            /** @var Model */
             $resource = new $this->model();
         }
 
@@ -148,7 +150,7 @@ class ContaTenantService extends Service
         return [
             'conta_subtipo',
             'conta_status',
-            'ultima_movimentacao'
+            'ultimas_movimentacoes'
         ];
     }
 

@@ -23,12 +23,12 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
+use App\Models\Tenant\ContaTenantDomain;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
 use App\Services\Tenant\ContaTenantService;
 use App\Services\Tenant\FormaPagamentoTenantService;
-use App\Traits\ConsultaSelect2ServiceTrait;
 use App\Traits\ParticipacaoTrait;
 use App\Utils\CurrencyFormatterUtils;
 use Carbon\Carbon;
@@ -36,11 +36,12 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class MovimentacaoContaService extends Service
 {
-    use ConsultaSelect2ServiceTrait, ParticipacaoTrait;
+    use ParticipacaoTrait;
 
     /**Armazenar os dados dos participantes em casos de liquidado parcial */
     private array $arrayParticipantesOriginal = [];
@@ -330,8 +331,11 @@ class MovimentacaoContaService extends Service
                 $resource->movimentacao_tipo_id = MovimentacaoContaTipoEnum::CREDITO->value;
                 $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoLancamentoServico();
 
-                $conta = $this->getContaAtravesFormaPagamento($requestData->forma_pagamento_id);
-                $ultimoSaldo = $this->buscarSaldoConta($conta->id);
+                $contaDomain = $this->getContaDomainAtravesConta(
+                    $this->getContaAtravesFormaPagamento($requestData->forma_pagamento_id)->id
+                );
+
+                $ultimoSaldo = $this->buscarSaldoConta($contaDomain->id);
 
                 // Realiza o cálculo do novo saldo
                 $novoSaldo = $this->calcularNovoSaldo(
@@ -340,6 +344,9 @@ class MovimentacaoContaService extends Service
                     $resource->movimentacao_tipo_id
                 );
                 $resource->saldo_atualizado = $novoSaldo;
+                $resource->conta_domain_id = $contaDomain->id;
+
+                Log::debug("Dados antes de salvar", [$resource->toArray()]);
                 $resource->save();
 
                 $participantesComIntegrantes = $lancamento->participantes()->with('integrantes')->get();
@@ -352,9 +359,22 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function getContaAtravesFormaPagamento($contaId)
+    public function getContaAtravesFormaPagamento($formaPagamentoId)
     {
-        return FormaPagamentoTenant::with('conta')->find($contaId);
+        return FormaPagamentoTenant::with('conta')->find($formaPagamentoId)->conta;
+    }
+
+    public function getContaDomainAtravesConta($contaId)
+    {
+        $contaDomain = ContaTenantDomain::where('conta_id', $contaId)->first();
+        Log::debug("Conta domain encontrada: ", [$contaDomain]);
+        if (empty($contaDomain)) {
+            $contaDomain = new ContaTenantDomain();
+            $contaDomain->conta_id = $contaId;
+            $contaDomain->save();
+            Log::debug("Conta domain criada: ", [$contaDomain]);
+        }
+        return $contaDomain;
     }
 
     protected function renderizarDiluicao($lancamento, $requestData)
@@ -588,10 +608,10 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    protected function buscarSaldoConta(string $conta_id)
+    protected function buscarSaldoConta(string $conta_domain_id)
     {
         // Bloqueia e realiza operações na tabela MovimentacaoConta
-        return MovimentacaoConta::where('conta_id', $conta_id)
+        return MovimentacaoConta::where('conta_domain_id', $conta_domain_id)
             ->orderBy('created_at', 'desc')
             ->lockForUpdate()
             ->value('saldo_atualizado') ?? 0;

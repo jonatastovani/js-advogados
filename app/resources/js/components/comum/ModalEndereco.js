@@ -44,7 +44,7 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
 
         self.#addEventosPadrao();
         await self._modalHideShow();
-        self.setReadyQueueOpen;
+        self.setReadyQueueOpen();
 
         return await self._modalOpen();
     }
@@ -70,7 +70,7 @@ export class ModalEndereco extends ModalRegistrationAndEditing {
             eventoBuscaCep();
         });
 
-        self.setActionQueueOpen = self._executeFocusElementOnModal(inputCep, 1000);
+        self.setActionQueueOpen(() => self._executeFocusElementOnModal(inputCep, 1000));
 
         return true;
     }

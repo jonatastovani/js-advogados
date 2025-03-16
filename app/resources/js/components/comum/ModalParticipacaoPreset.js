@@ -44,13 +44,14 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
         CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
         CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        this.setReadyQueueOpen();
     }
 
     async modalOpen() {
         const self = this;
 
         self._queueCheckDomainCustom.setReady();
-        
+
         if (!self._checkDomainCustomInherited()) {
             await CommonFunctions.loadingModalDisplay(false);
             return await self._returnPromisseResolve()
@@ -67,11 +68,11 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
         self._executarBusca();
     }
 
-    async _executarBusca() {
-        const self = this;
-        BootstrapFunctionsHelper.removeEventPopover();
-        super._executarBusca();
-    }
+    // async _executarBusca() {
+    //     const self = this;
+    //     BootstrapFunctionsHelper.removeEventPopover();
+    //     super._executarBusca();
+    // }
 
     async insertTableData(item, options = {}) {
         const self = this;

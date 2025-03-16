@@ -31,8 +31,8 @@ return new class extends Migration
 
             $table->uuidMorphs('referencia');
 
-            $table->uuid('conta_id');
-            $table->foreign('conta_id')->references('id')->on((new App\Models\Tenant\ContaTenant)->getTableName());
+            $table->uuid('conta_domain_id');
+            $table->foreign('conta_domain_id')->references('id')->on((new App\Models\Tenant\ContaTenantDomain())->getTableName());
 
             $table->float('valor_movimentado');
             $table->float('saldo_atualizado');

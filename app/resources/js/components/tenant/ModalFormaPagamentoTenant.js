@@ -38,10 +38,12 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
         this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
+        this.setReadyQueueOpen();
     }
 
     async modalOpen() {
         const self = this;
+        self.#buscarContas();
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -53,8 +55,6 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
         modal.find('.btn-new-register').on('click', async () => {
             self._updateTitleRegistration('Nova Forma de Pagamento');
         });
-
-        CommonFunctions.fillSelect(modal.find(`select[name="conta_id"]`), self._objConfigs.url.baseContas);
 
         CommonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
@@ -184,8 +184,11 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
     async #buscarContas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#conta_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {

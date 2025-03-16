@@ -29,7 +29,7 @@ class MovimentacaoConta extends Model
     protected $fillable = [
         'referencia_id',
         'referencia_type',
-        'conta_id',
+        'conta_domain_id',
         'valor_movimentado',
         'data_movimentacao',
         'observacao',

@@ -34,6 +34,7 @@ export class ModalAreaJuridicaTenant extends ModalSearchAndFormRegistration {
         this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
 
         this.#addEventosPadrao();
+        this.setReadyQueueOpen();
     }
 
     async modalOpen() {

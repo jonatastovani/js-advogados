@@ -35,6 +35,7 @@ export class ModalTagTenant extends ModalSearchAndFormRegistration {
 
         this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this.setReadyQueueOpen();
     }
 
     async modalOpen() {
