@@ -83,10 +83,7 @@ class PagePainelContaIndex {
         const banco = item.banco ? `<p class="card-text mb-0">Banco: <span class="lblBanco">${item.banco}</span></p>` : '';
         const status = item.conta_status.nome
         const subtipo = item.conta_subtipo.nome
-        let saldo = item?.ultima_movimentacao?.saldo_atualizado ? item.ultima_movimentacao.saldo_atualizado : 0;
-        saldo = CommonFunctions.formatNumberToCurrency(saldo);
-        let dataHoraUltimaAtualizacao = item?.ultima_movimentacao?.created_at ? item.ultima_movimentacao.created_at : null;
-        dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(item.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
+        let saldo = CommonFunctions.formatNumberToCurrency(item.saldo_total);
 
         item.idCol = UUIDHelper.generateUUID();
         const htmlConta = `
@@ -126,8 +123,8 @@ class PagePainelContaIndex {
                         </div>
                         <a href="${self.#objConfigs.url.baseMovimentacaoContaFront}?conta_id=${item.id}" target="_blank" class="btn btn-outline-primary border-0">Ver movimentações</a>
                     </div>
-                    <div class="card-footer text-body-secondary">
-                        Última movimentação da conta: <span class="spUltimaMovimentacao">${dataHoraUltimaAtualizacao}</span>
+                    <div class="card-footer text-body-secondary ultimas-movimentacoes">
+                        
                     </div>
                 </div>
             </div >
@@ -136,6 +133,7 @@ class PagePainelContaIndex {
         $(`#divContas${self.#objConfigs.sufixo} `).append(htmlConta);
 
         self.#addEventosPagamento(item);
+        // self.#appendUltimasMovimentacoes(item);
     }
 
     async #addEventosPagamento(item) {
@@ -159,6 +157,37 @@ class PagePainelContaIndex {
                 CommonFunctions.simulateLoading(btn, false);
             }
         });
+    }
+
+    async #appendUltimasMovimentacoes(item) {
+        const self = this;
+        let dataHoraUltimaAtualizacao = item?.ultima_movimentacao?.created_at ? item.ultima_movimentacao.created_at : null;
+        dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(item.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
+
+        let htmlSubtotais = '';
+        item.ultimas_movimentacoes.map(ultimaMovimentacao => {
+            
+        })
+
+
+        // $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
+        //     const btn = $(this);
+        //     CommonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new ModalAjustarSaldo();
+        //         objModal.setDataEnvModal = {
+        //             idRegister: item.id,
+        //         }
+        //         const response = await objModal.modalOpen();
+        //         if (response.refresh && response.register) {
+        //             self.#buscarDados();
+        //         }
+        //     } catch (error) {
+        //         CommonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         CommonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
     }
 }
 

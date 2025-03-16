@@ -3,6 +3,7 @@
 namespace App\Scopes\Tenant;
 
 use App\Models\Financeiro\MovimentacaoConta;
+use App\Models\Tenant\ContaTenantDomain;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -21,24 +22,25 @@ class SaldoTotalContaTenantScope implements Scope
         }
 
         $tableMovimentacao = (new MovimentacaoConta())->getTable(); // Nome da tabela de movimentações
+        $tableContaDomain = (new ContaTenantDomain())->getTable(); // Nome da tabela intermediária
 
         // Adiciona a soma dos saldos das últimas movimentações de cada conta_domain_id
         $builder->addSelect([
             'saldo_total' => MovimentacaoConta::selectRaw("COALESCE(SUM(saldo_atualizado), 0)")
                 ->whereIn("id", function ($query) use ($tableMovimentacao) {
                     $query->selectRaw("id")
-                        ->from($tableMovimentacao . ' as m1')
+                        ->from("{$tableMovimentacao} as m1")
                         ->whereRaw("m1.created_at = (
                             SELECT MAX(m2.created_at) 
                             FROM {$tableMovimentacao} as m2 
                             WHERE m2.conta_domain_id = m1.conta_domain_id
                         )")
-                        ->groupBy("m1.conta_domain_id", "m1.id"); // Agrupamento correto
+                        ->groupBy("m1.conta_domain_id", "m1.id");
                 })
-                ->whereIn("conta_domain_id", function ($query) use ($tableMovimentacao, $tableAlias) {
+                ->whereIn("conta_domain_id", function ($query) use ($tableMovimentacao, $tableContaDomain, $tableAlias) {
                     $query->selectRaw("id")
-                        ->from($tableMovimentacao)
-                        ->whereColumn("conta_id", "{$tableAlias}.id");
+                        ->from("{$tableContaDomain} as ctd")
+                        ->whereColumn("ctd.conta_id", "{$tableAlias}.id"); // Correção aqui!
                 })
         ]);
     }
