@@ -242,18 +242,18 @@ export default class TenantTypeDomainCustomHelper {
             // Se for herdado, então não não aplica a verificação e atribuição e eventos na seleção
             if (instanceParent._objConfigs?.domainCustom?.inheritedBln) return;
 
-            if (!elementsDomain.length) {
-                CommonFunctions.generateNotification('Campos de domínio customizado não encontrados. Contate o suporte.', 'error');
-            } else {
-                // Se não estiver bloqueado a definição customizada de domínio, então se aplica os eventos;
-                if (!instanceParent._objConfigs.domainCustom?.blocked_changes) {
-                    // Executa a ação de exibição/ocultação e adiciona na fila para futuras execuções
+            // Se não estiver bloqueado a definição customizada de domínio, então se aplica os eventos;
+            if (!instanceParent._objConfigs.domainCustom?.blocked_changes) {
+
+                if (!elementsDomain.length) {
+                    CommonFunctions.generateNotification('Campos de domínio customizado não encontrados. Contate o suporte.', 'error');
+                } else {  // Executa a ação de exibição/ocultação e adiciona na fila para futuras execuções
                     this.toggleElementsDomainCustom(instanceParent, options);
                     instance.setEnqueueAction(() => this.toggleElementsDomainCustom(instanceParent, options));
-                } else {
-                    // Remove os elementos de seleção de domínio
-                    this.#hideElementsDomainCustom(instanceParent, elementsDomain, options);
                 }
+            } else {
+                // Remove os elementos de seleção de domínio
+                this.#hideElementsDomainCustom(instanceParent, elementsDomain, options);
             }
         }
     }

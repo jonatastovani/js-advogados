@@ -100,11 +100,11 @@ class FinanceiroController extends Controller
                             $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
                             break;
 
-                            // case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
+                        // case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
 
-                            //     $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
-                            //     $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
-                            // break;
+                        //     $dadosEspecificos .= " - NL#{$parent['referencia']['numero_lancamento']}";
+                        //     $dadosEspecificos .= " - ({$parent['referencia']['categoria']['nome']})";
+                        // break;
 
                         default:
                             throw new Exception('Tipo de referência de movimentação de conta não configurado.', 500);
@@ -129,7 +129,7 @@ class FinanceiroController extends Controller
             }
 
             $dadosRetorno->dados_especificos = $dadosEspecificos;
-            $dadosRetorno->conta = $parent['conta']['nome'];
+            $dadosRetorno->conta = $parent['conta_domain']['conta']['nome'];
             $dadosRetorno->created_at = (new DateTime($parent['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
@@ -198,7 +198,7 @@ class FinanceiroController extends Controller
             $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
             $dadosRetorno->valor_movimentado = CurrencyFormatterUtils::toBRL($value['valor_movimentado']);
             $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
-            $dadosRetorno->conta = $value['conta']['nome'];
+            $dadosRetorno->conta = $value['conta_domain']['conta']['nome'];
             $dadosRetorno->descricao_automatica = $value['descricao_automatica'];
             $dadosRetorno->observacao = $value['observacao'];
 
@@ -208,7 +208,7 @@ class FinanceiroController extends Controller
 
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
                     // $dadosEspecificos = "NS#{$value['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= " - NP#{$value['referencia']['pagamento']['numero_pagamento']}";
+                    $dadosEspecificos .= "NP#{$value['referencia']['pagamento']['numero_pagamento']}";
                     $dadosEspecificos .= " - ({$value['referencia']['pagamento']['servico']['area_juridica']['nome']})";
                     $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
                     break;

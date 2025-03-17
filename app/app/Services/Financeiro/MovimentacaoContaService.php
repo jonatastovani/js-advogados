@@ -49,7 +49,10 @@ class MovimentacaoContaService extends Service
     public function __construct(
         MovimentacaoConta $model,
         public ContaTenant $modelConta,
+        public ContaTenantDomain $modelContaDomain,
+
         public MovimentacaoContaParticipante $modelParticipanteConta,
+        
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ParticipacaoParticipante $modelParticipante,
         public ParticipacaoParticipanteIntegrante $modelIntegrante,
@@ -220,7 +223,8 @@ class MovimentacaoContaService extends Service
         }
 
         if ($requestData->conta_id) {
-            $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
+            $query = $this->model::joinContaDomain($query);
+            $query->where("{$this->modelContaDomain->getTableAsName()}.conta_id", $requestData->conta_id);
         }
         if ($requestData->movimentacao_tipo_id) {
             $query->where("{$this->model->getTableAsName()}.movimentacao_tipo_id", $requestData->movimentacao_tipo_id);
@@ -245,6 +249,9 @@ class MovimentacaoContaService extends Service
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+
+                $this->setBloqueioPorTabelaEmTransacao();
+
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
@@ -335,7 +342,7 @@ class MovimentacaoContaService extends Service
                     $this->getContaAtravesFormaPagamento($requestData->forma_pagamento_id)->id
                 );
 
-                $ultimoSaldo = $this->buscarSaldoConta($contaDomain->id);
+                $ultimoSaldo = $this->buscarSaldoContaPorDomain($contaDomain->id);
 
                 // Realiza o cálculo do novo saldo
                 $novoSaldo = $this->calcularNovoSaldo(
@@ -367,12 +374,10 @@ class MovimentacaoContaService extends Service
     public function getContaDomainAtravesConta($contaId)
     {
         $contaDomain = ContaTenantDomain::where('conta_id', $contaId)->first();
-        Log::debug("Conta domain encontrada: ", [$contaDomain]);
         if (empty($contaDomain)) {
             $contaDomain = new ContaTenantDomain();
             $contaDomain->conta_id = $contaId;
             $contaDomain->save();
-            Log::debug("Conta domain criada: ", [$contaDomain]);
         }
         return $contaDomain;
     }
@@ -555,65 +560,70 @@ class MovimentacaoContaService extends Service
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            if ($lancamentoRollbackBln) {
 
-                // Cria a movimentação de rollback
-                $movimentacaoContaRollback = new $this->model;
-                $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
-                $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
+            // Inicia a transação
+            return DB::transaction(function () use ($resourceLancamento, $requestData, $lancamentoRollbackBln, $movimentacaoConta, $statusArray) {
 
-                if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
+                $this->setBloqueioPorTabelaEmTransacao();
 
-                $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
+                if ($lancamentoRollbackBln) {
 
-                $ultimoSaldo = $this->buscarSaldoConta($movimentacaoContaRollback->conta_id);
-                // Realiza o cálculo do novo saldo
-                $novoSaldo = $this->calcularNovoSaldo(
-                    $ultimoSaldo,
-                    $movimentacaoContaRollback->valor_movimentado,
-                    $movimentacaoContaRollback->movimentacao_tipo_id
-                );
-                $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
-                $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
+                    // Cria a movimentação de rollback
+                    $movimentacaoContaRollback = new $this->model;
+                    $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
+                    $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
 
-                $movimentacaoContaRollback->save();
+                    if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
 
-                // Altera o status da movimentação original
-                $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
-                $movimentacaoConta->save();
+                    $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
 
-                $participantes = $this->modelParticipanteConta::where('parent_id', $movimentacaoConta->id)->get();
+                    $ultimoSaldo = $this->buscarSaldoContaPorDomain($movimentacaoContaRollback->conta_domain_id);
 
-                foreach ($participantes as $participante) {
-                    $participante->delete();
+                    // Realiza o cálculo do novo saldo
+                    $novoSaldo = $this->calcularNovoSaldo(
+                        $ultimoSaldo,
+                        $movimentacaoContaRollback->valor_movimentado,
+                        $movimentacaoContaRollback->movimentacao_tipo_id
+                    );
+
+                    $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
+                    $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
+
+                    $movimentacaoContaRollback->save();
+
+                    // Altera o status da movimentação original
+                    $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
+                    $movimentacaoConta->save();
+
+                    $participantes = $this->modelParticipanteConta::where('parent_id', $movimentacaoConta->id)->get();
+
+                    foreach ($participantes as $participante) {
+                        $participante->delete();
+                    }
+
+                    // Limpa alguns campos do lançamento
+                    $resourceLancamento->valor_recebido = null;
+                    $resourceLancamento->data_recebimento = null;
                 }
 
-                // Limpa alguns campos do lançamento
-                $resourceLancamento->valor_recebido = null;
-                $resourceLancamento->data_recebimento = null;
-            }
+                if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
+                $resourceLancamento->status_id = $requestData->status_id;
+                $resourceLancamento->save();
 
-            if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
-            $resourceLancamento->status_id = $requestData->status_id;
-            $resourceLancamento->save();
-
-            DB::commit();
-            return $resourceLancamento->toArray();
+                return $resourceLancamento->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
     }
 
-    protected function buscarSaldoConta(string $conta_domain_id)
+    protected function buscarSaldoContaPorDomain(string $conta_domain_id)
     {
         // Bloqueia e realiza operações na tabela MovimentacaoConta
         return MovimentacaoConta::where('conta_domain_id', $conta_domain_id)
             ->orderBy('created_at', 'desc')
-            ->lockForUpdate()
+            // ->lockForUpdate()
             ->value('saldo_atualizado') ?? 0;
     }
 
@@ -628,10 +638,10 @@ class MovimentacaoContaService extends Service
     private function calcularNovoSaldo($saldoAtual, $valorMovimentado, $movimentacaoTipoId)
     {
         return match ($movimentacaoTipoId) {
-            MovimentacaoContaTipoEnum::CREDITO->value => $saldoAtual + $valorMovimentado,
-            MovimentacaoContaTipoEnum::LIBERACAO_CREDITO->value => $saldoAtual + $valorMovimentado,
-            MovimentacaoContaTipoEnum::DEBITO->value => $saldoAtual - $valorMovimentado,
-            MovimentacaoContaTipoEnum::DEBITO_LIBERACAO_CREDITO->value => $saldoAtual - $valorMovimentado,
+            MovimentacaoContaTipoEnum::CREDITO->value => bcadd($saldoAtual, $valorMovimentado, 2),
+            MovimentacaoContaTipoEnum::LIBERACAO_CREDITO->value => bcadd($saldoAtual, $valorMovimentado, 2),
+            MovimentacaoContaTipoEnum::DEBITO->value => bcsub($saldoAtual, $valorMovimentado, 2),
+            MovimentacaoContaTipoEnum::DEBITO_LIBERACAO_CREDITO->value => bcsub($saldoAtual, $valorMovimentado, 2),
             default => throw new \InvalidArgumentException('Tipo de movimentação inválido.')
         };
     }
@@ -730,6 +740,9 @@ class MovimentacaoContaService extends Service
 
         try {
             return DB::transaction(function () use ($requestData, $resource, $idParent, $modelParent) {
+
+                $this->setBloqueioPorTabelaEmTransacao();
+
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
@@ -764,7 +777,9 @@ class MovimentacaoContaService extends Service
                 $resource->movimentacao_tipo_id = $lancamento->movimentacao_tipo_id;
                 $resource->status_id = MovimentacaoContaStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
 
-                $ultimoSaldo = $this->buscarSaldoConta($resource->conta_id);
+                $contaDomain = $this->getContaDomainAtravesConta($lancamento->conta_id);
+
+                $ultimoSaldo = $this->buscarSaldoContaPorDomain($contaDomain->id);
 
                 // Realiza o cálculo do novo saldo
                 $novoSaldo = $this->calcularNovoSaldo(
@@ -773,6 +788,7 @@ class MovimentacaoContaService extends Service
                     $resource->movimentacao_tipo_id
                 );
                 $resource->saldo_atualizado = $novoSaldo;
+                $resource->conta_domain_id = $contaDomain->id;
                 $resource->save();
 
                 $participantesComIntegrantes = $lancamento->participantes()->with('integrantes')->get();
@@ -792,34 +808,8 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    // private function inserirParticipanteEmpresaNoLancamento($dados)
-    // {
-
-    //     $empresa = $this->pessoaPerfilService->showEmpresa();
-    //     if (!is_array($empresa) || empty($empresa)) {
-    //         throw new Exception('Perfil da empresa não foi cadastrado. Favor acessar o menu Sistema > Dados da Empresa');
-    //     }
-
-    //     $participacaoEmpresaMovimentacao = $this->participacaoTipoTenantService->getParticipacaoEmpresaLancamentoGeral();
-
-    //     $newParticipante = new $this->modelParticipanteConta;
-    //     $newParticipante->parent_id = $dados['parent_id'];
-    //     $newParticipante->parent_type = $this->model->getMorphClass();
-    //     $newParticipante->referencia_id = $empresa['id'];
-    //     $newParticipante->referencia_type = PessoaPerfil::class;
-    //     $newParticipante->descricao_automatica = $dados['descricao_automatica'];
-    //     $newParticipante->valor_participante = $dados['valor'];
-    //     $newParticipante->participacao_tipo_id = $participacaoEmpresaMovimentacao['id'];
-    //     $newParticipante->participacao_registro_tipo_id = ParticipacaoRegistroTipoEnum::PERFIL;
-    //     $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
-
-    //     $newParticipante->save();
-    //     return $newParticipante;
-    // }
-
     public function alterarStatusLancamentoGeral(Fluent $requestData)
     {
-        LogHelper::habilitaQueryLog();
         $arrayErrors = new Fluent();
         $resourceLancamento = app(LancamentoGeralService::class)->buscarRecurso($requestData, ['conditions' => [
             'id' => $requestData->lancamento_id,
@@ -858,48 +848,50 @@ class MovimentacaoContaService extends Service
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        // Inicia a transação
-        DB::beginTransaction();
-
         try {
-            if ($isRollbackLancamento) {
 
-                // Cria a movimentação de rollback
-                $movimentacaoContaRollback = new $this->model;
-                $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
-                $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
+            return DB::transaction(function () use ($resourceLancamento, $requestData, $isRollbackLancamento, $movimentacaoConta, $statusArray) {
 
-                if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
+                $this->setBloqueioPorTabelaEmTransacao();
 
-                $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
+                if ($isRollbackLancamento) {
 
-                $ultimoSaldo = $this->buscarSaldoConta($movimentacaoContaRollback->conta_id);
-                // Realiza o cálculo do novo saldo
-                $novoSaldo = $this->calcularNovoSaldo(
-                    $ultimoSaldo,
-                    $movimentacaoContaRollback->valor_movimentado,
-                    $movimentacaoContaRollback->movimentacao_tipo_id
-                );
-                $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
-                $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
+                    // Cria a movimentação de rollback
+                    $movimentacaoContaRollback = new $this->model;
+                    $movimentacaoContaRollback->fill($movimentacaoConta->toArray());
+                    $movimentacaoContaRollback->movimentacao_tipo_id = $statusArray['movimentacao_tipo_id_rollback'];
 
-                $movimentacaoContaRollback->save();
+                    if ($requestData->observacao) $movimentacaoContaRollback->observacao = $requestData->observacao;
 
-                // Altera o status da movimentação original
-                $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
-                $movimentacaoConta->save();
+                    $movimentacaoContaRollback->descricao_automatica = "Cancelado - {$movimentacaoContaRollback->descricao_automatica}";
 
-                // Limpa alguns campos do lançamento
-                $resourceLancamento->valor_quitado = null;
-                $resourceLancamento->data_quitado = null;
-            }
+                    $ultimoSaldo = $this->buscarSaldoContaPorDomain($movimentacaoContaRollback->conta_domain_id);
+                    // Realiza o cálculo do novo saldo
+                    $novoSaldo = $this->calcularNovoSaldo(
+                        $ultimoSaldo,
+                        $movimentacaoContaRollback->valor_movimentado,
+                        $movimentacaoContaRollback->movimentacao_tipo_id
+                    );
+                    $movimentacaoContaRollback->saldo_atualizado = $novoSaldo;
+                    $movimentacaoContaRollback->status_id = $statusArray['movimentacao_status_id_rollback'];
 
-            if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
-            $resourceLancamento->status_id = $requestData->status_id;
-            $resourceLancamento->save();
+                    $movimentacaoContaRollback->save();
 
-            DB::commit();
-            return $resourceLancamento->toArray();
+                    // Altera o status da movimentação original
+                    $movimentacaoConta->status_id = $statusArray['movimentacao_status_alterado_id'];
+                    $movimentacaoConta->save();
+
+                    // Limpa alguns campos do lançamento
+                    $resourceLancamento->valor_quitado = null;
+                    $resourceLancamento->data_quitado = null;
+                }
+
+                if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
+                $resourceLancamento->status_id = $requestData->status_id;
+                $resourceLancamento->save();
+
+                return $resourceLancamento->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }
@@ -914,7 +906,12 @@ class MovimentacaoContaService extends Service
         $resource->status_id = $dadosMovimentacao->status_id;
         $resource->movimentacao_tipo_id = $dadosMovimentacao->movimentacao_tipo_id;
 
-        $ultimoSaldo = $this->buscarSaldoConta($resource->conta_id);
+        Log::debug("storeLancarRepasseParceiro", ['resource' => $resource->toArray(), 'dadosMovimentacao' => $dadosMovimentacao->toArray()]);
+
+        $contaDomain = $this->getContaDomainAtravesConta($dadosMovimentacao->conta_id);
+
+        $ultimoSaldo = $this->buscarSaldoContaPorDomain($contaDomain->id);
+        $resource->conta_domain_id = $contaDomain->id;
 
         // Realiza o cálculo do novo saldo
         $novoSaldo = $this->calcularNovoSaldo(
@@ -1083,7 +1080,7 @@ class MovimentacaoContaService extends Service
         // Relacionamentos iniciais padrão
         $relationships = [
             'movimentacao_tipo',
-            'conta',
+            'conta_domain.conta',
             'status',
         ];
 

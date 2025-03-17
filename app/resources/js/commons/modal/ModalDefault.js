@@ -154,7 +154,6 @@ export class ModalDefault {
      * @param {Boolean} isReady - Indica se está pronto para processar a fila. Padrão é true.
      */
     setReadyQueueOpen() {
-        console.log('setou')
         this._objConfigs.queues.queueOpen.setReady();
     }
 

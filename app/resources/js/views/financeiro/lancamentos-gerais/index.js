@@ -10,6 +10,7 @@ import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoGeralIndex extends TemplateSearch {
@@ -346,6 +347,16 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
                     const objConn = new ConnectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoGeral}/status-alterar`);
+
+                    const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+                    if (instance) {
+                        if (!item.domain_id) {
+                            console.error(item);
+                            throw new Error("Unidade de domínio do registro não encontrada. Contate o suporte.");
+                        }
+                        objConn.setForcedDomainCustomId = item.domain_id;
+                    }
+
                     objConn.setAction(EnumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,
@@ -363,42 +374,42 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
         if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Aguardando Pagamento (em Análise)', status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
         if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Aguardando Pagamento', status_id: enumLanc.AGUARDANDO_PAGAMENTO });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
         if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Liquidado (em Análise)', status_id: enumLanc.LIQUIDADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
         if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
         if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Reagendado (em Análise)', status_id: enumLanc.REAGENDADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
         if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 try {
                     const objModal = new ModalLancamentoReagendar({
                         urlApi: `${self._objConfigs.url.baseLancamentoGeral}/reagendar`
@@ -420,14 +431,14 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
         if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Cancelado (em Análise)', status_id: enumLanc.CANCELADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
         if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Cancelado', status_id: enumLanc.CANCELADO });
             });
         }

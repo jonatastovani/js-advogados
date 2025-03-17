@@ -27,9 +27,9 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 */
 
 Route::middleware([
-    HandleTenantDomainForTenantType::class,
-    'web',
+    // HandleTenantDomainForTenantType::class,
     InitializeTenancyByDomain::class,
+    'web',
     CheckManualInitializationTenantDomain::class,
     PreventAccessFromCentralDomains::class,
     AddIdentifierRequestMiddleware::class,

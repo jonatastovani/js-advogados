@@ -8,6 +8,7 @@ use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Tenant\ContaTenant;
+use App\Models\Tenant\ContaTenantDomain;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -78,9 +79,9 @@ class MovimentacaoConta extends Model
         return $this->morphTo();
     }
 
-    public function conta()
+    public function conta_domain()
     {
-        return $this->belongsTo(ContaTenant::class);
+        return $this->belongsTo(ContaTenantDomain::class);
     }
 
     public function status()
@@ -174,6 +175,34 @@ class MovimentacaoConta extends Model
         ];
 
         $query = (new self())->joinWithConditions($query, (new MovimentacaoContaParticipante())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.parent_id", $envOptions->toArray());
+
+        return $query;
+    }
+
+    /**
+     * Insere uma cláusula de junção com da movimentação e a ContaTenantDomain, o identificador da conta por domínio.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param array $options O array de opcões de personalização.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'inner'.
+     *              - 'aliasTable' (opcional) Alias da tabela MovimentaçãoContaParticipante. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Tenant\ContaTenantDomain.
+     *              - 'instanceSelf' (opcional) Instância da model atual ou uma modificada. Padrão é a instância da model atual(self).
+     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+     */
+    public static function joinContaDomain(Builder $query, array $options = [])
+    {
+        // Join com o ContaTenantDomain
+        $instanceSelf = $options['instanceSelf'] ?? new self();
+        $envOptions = new Fluent([]);
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new ContaTenantDomain())->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'inner';
+        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
+
+        $query = (new self())->joinWithConditions($query, (new ContaTenantDomain())->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.conta_domain_id", "=", "{$envOptions->aliasJoin}.id", $envOptions->toArray());
 
         return $query;
     }

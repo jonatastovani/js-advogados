@@ -241,11 +241,74 @@ abstract class Service
 
         return $resource;
     }
+    
+    /**
+     * Aplica bloqueios em uma ou mais tabelas dentro de uma transação para evitar leituras inconsistentes
+     * e garantir a integridade dos dados em concorrência.
+     *
+     * Funcionalidades:
+     * - Permite bloquear uma única tabela ou múltiplas tabelas simultaneamente.
+     * - Configura nível de isolamento da transação para evitar leituras inconsistentes.
+     * - Define um tempo máximo de espera antes de lançar um erro caso ocorra um bloqueio (lock timeout).
+     * - Protege contra injeção SQL ao validar se os modelos possuem a função `getTable()`.
+     * - Permite personalizar o modo de bloqueio para atender diferentes necessidades do banco de dados.
+     *
+     * @param array $options Configurações opcionais para personalizar o comportamento da função:
+     *     - 'isolation_level' (string, default: 'REPEATABLE READ') → Nível de isolamento da transação.
+     *         Opções: 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE', etc.
+     *     - 'lock_mode' (string, default: 'SHARE ROW EXCLUSIVE MODE') → Modo de bloqueio da tabela.
+     *         Opções: 'ACCESS EXCLUSIVE', 'ROW EXCLUSIVE', 'SHARE', etc.
+     *     - 'lock_timeout' (string, default: '5s') → Tempo máximo de espera antes de lançar erro de bloqueio.
+     *     - 'model' (array|Model|null, default: []) → Lista de modelos ou um único modelo a ser bloqueado.
+     *     - 'use_default_model' (bool, default: true) → Se `true`, usa `$this->model` caso `model` não seja passado.
+     *
+     * @throws \Exception Se um modelo inválido for passado.
+     * @return void
+     */
+    protected function setBloqueioPorTabelaEmTransacao(array $options = [])
+    {
+        // Configurações padrão
+        $defaults = [
+            'isolation_level' => 'REPEATABLE READ', // Evita leituras inconsistentes
+            'lock_mode' => 'SHARE ROW EXCLUSIVE MODE', // Impede leituras concorrentes na tabela
+            'lock_timeout' => '5s', // Tempo máximo de espera pelo bloqueio
+            'model' => [], // Pode ser um array de models ou uma única model
+            'use_default_model' => true, // Se `true`, usa `$this->model` caso `model` não seja informado
+        ];
+
+        // Mescla as opções passadas com os valores padrão
+        $config = array_merge($defaults, $options);
+
+        // Aplica o nível de isolamento para evitar leituras inconsistentes
+        DB::statement("SET TRANSACTION ISOLATION LEVEL {$config['isolation_level']}");
+
+        // Define o tempo máximo de espera antes de lançar erro por deadlock
+        DB::statement("SET LOCAL lock_timeout = '{$config['lock_timeout']}'");
+
+        // Se `model` estiver vazio e `use_default_model` for `true`, usa `$this->model`
+        if (empty($config['model']) && $config['use_default_model']) {
+            $config['model'] = [$this->model]; // Converte para array para facilitar a iteração
+        } elseif (!is_array($config['model'])) {
+            $config['model'] = [$config['model']]; // Transforma em array se for uma única model
+        }
+
+        // Bloqueia todas as tabelas informadas
+        foreach ($config['model'] as $model) {
+            if ($model && method_exists($model, 'getTable')) {
+                $table = $model->getTable();
+                DB::statement("LOCK TABLE {$table} IN {$config['lock_mode']}");
+            } else {
+                throw new \Exception("Modelo inválido passado para bloqueio.");
+            }
+        }
+    }
 
     protected function gerarLogExceptionErroSalvar(Exception $e)
     {
-        // Se ocorrer algum erro, fazer o rollback da transação
-        DB::rollBack();
+        // Só faz rollback se a transação ainda estiver ativa
+        if (DB::transactionLevel() > 0) {
+            DB::rollBack();
+        }
 
         // Gerar um log
         $codigo = 422;

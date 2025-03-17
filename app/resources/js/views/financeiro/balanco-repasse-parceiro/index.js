@@ -19,6 +19,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 name: 'consulta-filtros',
                 url: `${window.apiRoutes.baseRepasseParceiro}`,
                 urlSearch: `${window.apiRoutes.baseRepasseParceiro}/consulta-filtros`,
+                // functionExecuteOnError: 'functionExecuteOnError',
             }
         },
         url: {
@@ -267,8 +268,8 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         if (self._objConfigs.data.parceiro_id) {
             BootstrapFunctionsHelper.removeEventPopover();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+            self._objConfigs.atualizandoValores = false;
             await self._generateQueryFilters(getAppendDataQuery());
-            self.#atualizaValoresTotais();
         } else {
             CommonFunctions.generateNotification('Selecione um parceiro', 'warning');
         }
@@ -303,7 +304,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
         let dataMovimentacao = '';
         const descricaoAutomatica = item.descricao_automatica;
-        const conta = parent.conta.nome;
+        const conta = parent.conta_domain.conta.nome;
 
         let dadosEspecificos = '';
         let dadosEspecificosTitle = '';
@@ -397,34 +398,53 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         return true;
     }
 
+    async functionExecuteOnError(error) {
+        const self = this;
+        $(`.campo_totais${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(0));
+        self._objConfigs.atualizandoValores = false;
+    }
+
+    async functionExecuteOnSuccess(response) {
+        const self = this;
+        self.#atualizaValoresTotais();
+    }
+
     async #atualizaValoresTotais() {
         const self = this;
 
-        try {
-            const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
-            if (forcedDomainId) {
-                objConn.setForcedDomainCustomId = forcedDomainId;
+        // Se não estiver atualizando os valores, então se executa
+        if (!self._objConfigs?.atualizandoValores) {
+            self._objConfigs.atualizandoValores = true;
+
+            try {
+                const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+                const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
+                if (forcedDomainId) {
+                    objConn.setForcedDomainCustomId = forcedDomainId;
+                }
+                objConn.setAction(EnumAction.POST);
+                objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+                const response = await objConn.envRequest();
+
+                const totais = response.data.totais;
+                // Ativos
+                $(`#total_credito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito));
+                $(`#total_debito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito));
+                $(`#total_saldo${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo));
+
+                // Liquidados
+                $(`#total_credito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito_liquidado));
+                $(`#total_debito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito_liquidado));
+                $(`#total_saldo_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo_liquidado));
+
+            } catch (error) {
+                $(`.campo_totais${self.getSufixo}`).html('0,00');
+                CommonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                self._objConfigs.atualizandoValores = false;
             }
-            objConn.setAction(EnumAction.POST);
-            objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
-            const response = await objConn.envRequest();
-
-            const totais = response.data.totais;
-            // Ativos
-            $(`#total_credito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito));
-            $(`#total_debito${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito));
-            $(`#total_saldo${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo));
-
-            // Liquidados
-            $(`#total_credito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.credito_liquidado));
-            $(`#total_debito_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.debito_liquidado));
-            $(`#total_saldo_liquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_saldo_liquidado));
-
-        } catch (error) {
-            $(`.campo_totais${self.getSufixo}`).html('0,00');
-            CommonFunctions.generateNotificationErrorCatch(error);
         }
+
     }
 
     #htmlBtns() {

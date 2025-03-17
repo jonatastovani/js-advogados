@@ -70,11 +70,6 @@ class ContaTenant extends Model
         return $this->hasMany(ContaTenantDomain::class, 'conta_id')->withoutDomain();
     }
 
-    // public function ultima_movimentacao()
-    // {
-    //     return $this->hasOne(MovimentacaoConta::class, 'conta_id')->orderByDesc('created_at')->limit(1);
-    // }
-
     public function ultimas_movimentacoes()
     {
         $movimentacaoTable = (new MovimentacaoConta())->getTable(); // Obtém o nome completo da tabela com esquema

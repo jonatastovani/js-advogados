@@ -112,13 +112,15 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
             await self.#addEventosPadrao();
-            await self.#buscarContas();
             await self.#buscarMovimentacoesTipo();
-            await self.#buscarLancamentoCategoriaTipoTenant();
 
             if (self._dataEnvModal.idRegister) {
                 await self.#buscarDados();
             } else {
+
+                self.#buscarContas();
+                self.#buscarLancamentoCategoriaTipoTenant();
+
                 if (!self.#functionsParticipacao.getExibirPainelParticipantesPersonalizaveisBln) {
                     self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
                 }
@@ -461,8 +463,9 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                     break;
             }
 
-            form.find('select[name="conta_id"]').val(responseData.conta_id);
-            form.find('select[name="categoria_id"]').val(responseData.categoria_id);
+            self.#buscarContas(responseData.conta_id);
+            self.#buscarLancamentoCategoriaTipoTenant(responseData.categoria_id)
+
             form.find('select[name="movimentacao_tipo_id"]').val(responseData.movimentacao_tipo_id);
             form.find('input[name="descricao"]').val(descricao);
             form.find('input[name="valor_esperado').val(valor_esperado);

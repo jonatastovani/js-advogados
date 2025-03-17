@@ -201,7 +201,7 @@ export class TemplateSearch {
         }
 
         if (options.appendData) {
-            Object.assign(data, options.appendData);
+            CommonFunctions.deepMergeObject(data, options.appendData);
         }
 
         await self._getData(data);
@@ -263,9 +263,9 @@ export class TemplateSearch {
         self._objConfigs.runningSearchBln = true;
         try {
             CommonFunctions.simulateLoading(buttonSearch);
-            self._paginationDefault({ footerPagination: footerPagination });
-            self._refreshQueryQuantity('Consultando...', { footerPagination: footerPagination });
-            self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination: footerPagination });
+            self._paginationDefault({ footerPagination });
+            self._refreshQueryQuantity('Consultando...', { footerPagination });
+            self._refreshQueryStatus('Efetuando busca. Aguarde...', { footerPagination });
 
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
             const objConn = new ConnectAjax(config.urlSearch);
@@ -278,7 +278,7 @@ export class TemplateSearch {
             objConn.setData(data);
             const response = await objConn.envRequest();
 
-            self._refreshQueryStatus('Busca concluída. Preenchendo os dados...', { footerPagination: footerPagination });
+            self._refreshQueryStatus('Busca concluída. Preenchendo os dados...', { footerPagination });
             tbody.html('');
             if (response.data) {
                 const responseData = response.data;
@@ -303,14 +303,22 @@ export class TemplateSearch {
                     TenantTypeDomainCustomHelper.checkThIfNoRecords({ tbody });
                 }
 
-                self._refreshQueryQuantity(responseData.total, { footerPagination: footerPagination });
-                self.#fillPagination(responseData, { footerPagination: footerPagination, dataPost: data });
+                self._refreshQueryQuantity(responseData.total, { footerPagination });
+                self.#fillPagination(responseData, { footerPagination, dataPost: data });
                 config.dataPost = data;
                 config.recordsOnScreen = recordsOnScreen;
+
+                // Verifica se a propriedade `functionExecuteOnSuccess` está definida no `config`
+                const functionName = config.functionExecuteOnSuccess ?? 'functionExecuteOnSuccess';
+                if (typeof self[functionName] === 'function') {
+                    // Chama dinamicamente a função especificada em `config.functionExecuteOnSuccess` ou a padrão `functionExecuteOnSuccess`
+                    await self[functionName](response);
+                }
+
             } else {
 
-                self._refreshQueryQuantity(0, { footerPagination: footerPagination });
-                self._paginationDefault({ footerPagination: footerPagination });
+                self._refreshQueryQuantity(0, { footerPagination });
+                self._paginationDefault({ footerPagination });
                 config.dataPost = data;
                 config.recordsOnScreen = [];
 
@@ -321,9 +329,16 @@ export class TemplateSearch {
             tbody.html('');
             CommonFunctions.generateNotificationErrorCatch(error);
             footerPagination.find('.totalRegistros').html(0);
+
+            // Verifica se a propriedade `functionExecuteOnError` está definida no `config`
+            const functionName = config.functionExecuteOnError ? config.functionExecuteOnError : 'functionExecuteOnError';
+            if (typeof self[functionName] === 'function') {
+                // Chama dinamicamente a função especificada em `config.functionExecuteOnError` ou a padrão `functionExecuteOnError`
+                await self[functionName](error);
+            }
         } finally {
             CommonFunctions.simulateLoading(buttonSearch, false);
-            self._refreshQueryStatus('Aguardando comando do usuário...', { footerPagination: footerPagination });
+            self._refreshQueryStatus('Aguardando comando do usuário...', { footerPagination });
             self._objConfigs.runningSearchBln = false;
         }
     }

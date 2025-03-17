@@ -17,7 +17,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
             register: undefined,
         };
 
-        objSuper.promisseReturnValue = Object.assign(
+        objSuper.promisseReturnValue = CommonFunctions.deepMergeObject(
             promisseReturnValueAppend,
             objSuper.promisseReturnValue ?? {}
         );
@@ -26,7 +26,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
             idRegister: undefined
         };
 
-        objSuper.dataEnvModal = Object.assign(
+        objSuper.dataEnvModal = CommonFunctions.deepMergeObject(
             dataEnvModalAppend,
             objSuper.dataEnvModal ?? {}
         );
@@ -37,7 +37,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
             },
         };
 
-        objSuper.objConfigs = Object.assign(
+        objSuper.objConfigs = CommonFunctions.deepMergeObject(
             objConfigs,
             objSuper.objConfigs ?? {}
         );

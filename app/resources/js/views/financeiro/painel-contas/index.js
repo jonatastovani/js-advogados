@@ -61,8 +61,8 @@ class PagePainelContaIndex {
             const objConn = new ConnectAjax(`${self.#objConfigs.url.base}/painel-conta`);
             const response = await objConn.getRequest();
 
+            $(`#divContas${self.#objConfigs.sufixo}`).html('');
             if (response?.data) {
-                $(`#divContas${self.#objConfigs.sufixo}`).html('');
                 response.data.map(item => {
                     self.#inserirConta(item);
                 })
@@ -84,6 +84,8 @@ class PagePainelContaIndex {
         const status = item.conta_status.nome
         const subtipo = item.conta_subtipo.nome
         let saldo = CommonFunctions.formatNumberToCurrency(item.saldo_total);
+
+        let ultimasMovimentacoes = self.#htmlUltimasMovimentacoes(item);
 
         item.idCol = UUIDHelper.generateUUID();
         const htmlConta = `
@@ -122,10 +124,11 @@ class PagePainelContaIndex {
                             </div>
                         </div>
                         <a href="${self.#objConfigs.url.baseMovimentacaoContaFront}?conta_id=${item.id}" target="_blank" class="btn btn-outline-primary border-0">Ver movimentações</a>
-                    </div>
-                    <div class="card-footer text-body-secondary ultimas-movimentacoes">
                         
                     </div>
+                    <ul class="list-group list-group-flush">
+                        ${ultimasMovimentacoes}
+                    </ul>
                 </div>
             </div >
             `;
@@ -133,7 +136,6 @@ class PagePainelContaIndex {
         $(`#divContas${self.#objConfigs.sufixo} `).append(htmlConta);
 
         self.#addEventosPagamento(item);
-        // self.#appendUltimasMovimentacoes(item);
     }
 
     async #addEventosPagamento(item) {
@@ -159,35 +161,17 @@ class PagePainelContaIndex {
         });
     }
 
-    async #appendUltimasMovimentacoes(item) {
-        const self = this;
-        let dataHoraUltimaAtualizacao = item?.ultima_movimentacao?.created_at ? item.ultima_movimentacao.created_at : null;
-        dataHoraUltimaAtualizacao = dataHoraUltimaAtualizacao ? DateTimeHelper.retornaDadosDataHora(item.ultima_movimentacao.created_at, 12) : '<span class="fst-italic">Nenhuma movimentação registrada</span>';
+    #htmlUltimasMovimentacoes(item) {
 
         let htmlSubtotais = '';
         item.ultimas_movimentacoes.map(ultimaMovimentacao => {
-            
+            let dataHoraUltimaAtualizacao = DateTimeHelper.retornaDadosDataHora(ultimaMovimentacao.created_at, 12);
+            let subtotal = CommonFunctions.formatNumberToCurrency(ultimaMovimentacao.saldo_atualizado);
+
+            htmlSubtotais += `<li class="list-group-item">Unidade: <b>${ultimaMovimentacao.conta_domain.domain.name}</b> <br> Subtotal: <b>${subtotal}</b> | Última atualização: <b>${dataHoraUltimaAtualizacao}</b></li>`;
         })
 
-
-        // $(`#${item.idCol} .btn-ajustar`).on('click', async function () {
-        //     const btn = $(this);
-        //     CommonFunctions.simulateLoading(btn);
-        //     try {
-        //         const objModal = new ModalAjustarSaldo();
-        //         objModal.setDataEnvModal = {
-        //             idRegister: item.id,
-        //         }
-        //         const response = await objModal.modalOpen();
-        //         if (response.refresh && response.register) {
-        //             self.#buscarDados();
-        //         }
-        //     } catch (error) {
-        //         CommonFunctions.generateNotificationErrorCatch(error);
-        //     } finally {
-        //         CommonFunctions.simulateLoading(btn, false);
-        //     }
-        // });
+        return htmlSubtotais;
     }
 }
 

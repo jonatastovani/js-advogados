@@ -138,7 +138,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         const status = item.status.nome;
         const valorMovimentado = CommonFunctions.formatNumberToCurrency(item.valor_movimentado);
         const dataMovimentacao = DateTimeHelper.retornaDadosDataHora(item.data_movimentacao, 2);
-        const conta = item.conta.nome;
+        const conta = item.conta_domain.conta.nome;
         const descricaoAutomatica = item.descricao_automatica;
         const movimentacaoTipo = item.movimentacao_tipo.nome;
         const observacaoLancamento = item.observacao ?? '***';

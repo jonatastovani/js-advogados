@@ -7,12 +7,15 @@ use App\Common\RestResponse;
 use App\Enums\ContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
+use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
@@ -150,7 +153,9 @@ class ContaTenantService extends Service
         return [
             'conta_subtipo',
             'conta_status',
-            'ultimas_movimentacoes'
+            // 'contas_domains', // Retirado pois as contas em cada domínio já vem nas ultimas_movimentacoes
+            'ultimas_movimentacoes.conta_domain.conta',
+            'ultimas_movimentacoes.conta_domain.domain',
         ];
     }
 

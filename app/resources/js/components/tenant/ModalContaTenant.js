@@ -62,12 +62,6 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
         }
     }
 
-    async _executarBusca() {
-        const self = this;
-        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
-        await self._generateQueryFilters();
-    }
-
     async insertTableData(item, options = {}) {
         const self = this;
         const {
@@ -96,12 +90,8 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
                 </div>
             </div>`;
 
-        let saldo = 0;
-        if (item.ultima_movimentacao) {
-            saldo = item.ultima_movimentacao.saldo_atualizado;
-        }
-        saldo = CommonFunctions.formatNumberToCurrency(saldo);
-
+        let saldo = CommonFunctions.formatNumberToCurrency(item.saldo_total);
+        
         $(tbody).append(`
             <tr id="${item.idTr}" data-id="${item.id}">
                 <td class="text-center">

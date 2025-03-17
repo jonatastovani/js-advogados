@@ -10,6 +10,7 @@ import { ModalFormaPagamentoTenant } from "../../../components/tenant/ModalForma
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
+import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoServicoIndex extends TemplateSearch {
@@ -476,6 +477,16 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
                     const objConn = new ConnectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoServico}/status-alterar`);
+
+                    const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+                    if (instance) {
+                        if (!item.domain_id) {
+                            console.error(item);
+                            throw new Error("Unidade de domínio do registro não encontrada. Contate o suporte.");
+                        }
+                        objConn.setForcedDomainCustomId = item.domain_id;
+                    }
+
                     objConn.setAction(EnumAction.POST);
                     objConn.setData({
                         lancamento_id: item.id,

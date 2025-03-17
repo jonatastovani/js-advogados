@@ -1,5 +1,4 @@
 import { CommonFunctions } from "../../commons/CommonFunctions";
-import { ConnectAjax } from "../../commons/ConnectAjax";
 import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
@@ -29,7 +28,10 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
             participacao_tipo_tenant: {
                 configuracao_tipo: window.Enums.ParticipacaoTipoTenantConfiguracaoTipoEnum.LANCAMENTO_GERAL,
             },
-        }
+        },
+        domainCustom: {
+            applyBln: true,
+        },
     };
 
     #dataEnvModal = {
@@ -62,15 +64,17 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
 
     async modalOpen() {
         const self = this;
-        let open = false;
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do lançamento...' });
 
-        if (self._dataEnvModal.idRegister) {
-            await this.#buscarContas();
-            open = await self.#buscarDados();
-        } else {
+        if (!self._dataEnvModal.idRegister) {
             CommonFunctions.generateNotification('ID do Lançamento não informado. Caso o problema persista, contate o desenvolvedor.', 'error');
+            console.error(self._dataEnvModal);
+            return self._returnPromisseResolve();
         }
+
+        let open = await self.#buscarDados();
+
+        self._queueCheckDomainCustom.setReady();
 
         await CommonFunctions.loadingModalDisplay(false);
         if (open) {
@@ -84,35 +88,7 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalConta').on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalContaTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarContas(response.selected.id);
-                    } else {
-                        self.#buscarContas();
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
-            }
-        });
+        CommonFunctions.handleModal(self, modal.find('.openModalConta'), ModalContaTenant, self.#buscarContas.bind(self));
 
         CommonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
     }
@@ -127,8 +103,11 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
     async #buscarContas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            const select = $(self.getIdModal).find('select[name="conta_id"]');
+            let options = {
+                outInstanceParentBln: true,
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
+            const select = $(`#conta_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);
             return true;
         } catch (error) {
@@ -140,10 +119,9 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
         const self = this;
 
         try {
+
             self._clearForm();
-            const objConn = new ConnectAjax(self._objConfigs.url.baseLancamentoGeral);
-            objConn.setParam(self._dataEnvModal.idRegister);
-            const response = await objConn.getRequest();
+            const response = await self._getRecurse({ urlApi: self._objConfigs.url.baseLancamentoGeral });
 
             if (response?.data) {
                 const responseData = response.data;
@@ -170,9 +148,9 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
                 form.find('.pValor').attr('title', pValor).html(pValor);
                 form.find('.pDescricao').attr('title', descricao).html(descricao);
                 form.find('input[name="observacao"]').val(responseData.observacao);
-                form.find('select[name="conta_id"]').val(conta_id);
                 form.find('input[name="valor_quitado"]').val(valor_esperado);
                 form.find('input[name="data_quitado"]').val(data_quitado);
+                this.#buscarContas(conta_id);
 
                 responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
 

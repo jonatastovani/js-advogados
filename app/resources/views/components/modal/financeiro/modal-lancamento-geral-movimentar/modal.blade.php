@@ -1,5 +1,5 @@
 @php
-    $sufixo = 'ModalLancamentoGeralMovimentarModalLancamentoGeralMovimentar';
+    $sufixo = 'ModalLancamentoGeralMovimentar';
 @endphp
 
 <div class="modal fade" id="{{ $sufixo }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"

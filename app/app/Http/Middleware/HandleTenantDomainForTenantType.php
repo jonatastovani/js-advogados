@@ -20,6 +20,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class HandleTenantDomainForTenantType
 {
+
+
+    // Não está sendo utilizada porque o middleware CheckManualInitializationTenantDomain 
+    // trabalho de maneira mais eficaz, aproveitando a inicialização do tenant pelo middleware
+    // do tenancyforlaravel e somente manipulando o domínio selecionado depois
+
+    
     /**
      * Manipula a requisição verificando e aplicando o domínio correto para o tenant.
      *
@@ -57,7 +64,7 @@ class HandleTenantDomainForTenantType
                     //     'originalUri' => $request->getRequestUri(),
                     //     'fullUrl' => $request->fullUrl(),
                     // ]);
-                    
+
                     // Redireciona para o domínio correto mantendo a URI original da requisição
                     return redirect()->to("{$protocol}://{$correctDomain}{$request->getRequestUri()}");
                 }
@@ -76,7 +83,7 @@ class HandleTenantDomainForTenantType
                 }
 
                 // Adiciona a chave `tenant_domain_selected_id` à request para que possa ser utilizada posteriormente
-                $request->merge([config('tenancy_custom.tenant_type.name_attribute_key') => $selectedDomainId]);
+                $request->merge([$nameAttributeKey => $selectedDomainId]);
             }
         }
 
