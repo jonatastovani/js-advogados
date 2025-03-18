@@ -47,4 +47,14 @@ class TenantTypeDomainCustomHelper
     {
         return tenant('tenant_type_id') == TenantTypeEnum::ADVOCACIA_MANUAL->value;
     }
+
+    public static function setDomainSelectedInAttributeKey($domainId)
+    {
+        Request::merge([config('tenancy_custom.tenant_type.name_attribute_key') => $domainId]);
+    }
+
+    public static function getDomainIdSelectedInAttributeKey()
+    {
+        return Request::get(config('tenancy_custom.tenant_type.name_attribute_key'));
+    }
 }

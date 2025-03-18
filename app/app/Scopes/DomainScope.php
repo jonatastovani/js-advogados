@@ -3,6 +3,7 @@
 namespace App\Scopes;
 
 use App\Enums\TenantTypeEnum;
+use App\Helpers\TenantTypeDomainCustomHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -19,13 +20,17 @@ class DomainScope implements Scope
             case TenantTypeEnum::ADVOCACIA_MANUAL->value:
 
                 // Obtém o domínio da request (se existir)
-                $selectedDomainId = Request::get(config('tenancy_custom.tenant_type.name_attribute_key'));
+                $selectedDomainId = TenantTypeDomainCustomHelper::getDomainIdSelectedInAttributeKey();
 
                 // Se for selecionado todos os domínios, então o valor é 0 (zero) e não precisa ser filtrado
                 if ($selectedDomainId) {
                     // Filtra pelo domínio selecionado via request
                     $builder->where($model->qualifyColumn(BelongsToDomain::$domainIdColumn), $selectedDomainId);
                 }
+                //  else {
+                //     $domains =TenantTypeDomainCustomHelper::getDomainsPorUsuario()->pluck('id')->toArray();
+                //     $builder->whereIn($model->qualifyColumn(BelongsToDomain::$domainIdColumn), $domains);
+                // }
                 break;
 
             default:

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestDestroy;
 use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestIndex;
 use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestShow;
+use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestShowContaDomain;
 use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestStore;
 use App\Http\Requests\Tenant\ContaTenant\ContaTenantFormRequestUpdate;
 use App\Services\Tenant\ContaTenantService;
@@ -40,6 +41,12 @@ class ContaTenantController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->show($fluentData));
+    }
+
+    public function showContaDomain(ContaTenantFormRequestShowContaDomain $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->showContaDomain($fluentData));
     }
 
     public function update(ContaTenantFormRequestUpdate $formRequest)

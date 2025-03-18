@@ -11,8 +11,10 @@ use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Stancl\Tenancy\Database\Concerns\HasDataColumn;
+use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class ContaTenant extends Model
 {
@@ -60,11 +62,6 @@ class ContaTenant extends Model
         return $this->belongsTo(ContaStatusTipo::class);
     }
 
-    public function conta_domain()
-    {
-        return $this->hasOne(ContaTenantDomain::class, 'conta_id')->first();
-    }
-
     public function contas_domains()
     {
         return $this->hasMany(ContaTenantDomain::class, 'conta_id')->withoutDomain();
@@ -73,7 +70,6 @@ class ContaTenant extends Model
     public function ultimas_movimentacoes()
     {
         $movimentacaoTable = (new MovimentacaoConta())->getTable(); // Obtém o nome completo da tabela com esquema
-        $contaDomainTable = (new ContaTenantDomain())->getTable(); // Nome completo da tabela intermediária
 
         return $this->hasManyThrough(
             MovimentacaoConta::class, // Tabela final (destino)

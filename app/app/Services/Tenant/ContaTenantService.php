@@ -7,17 +7,14 @@ use App\Common\RestResponse;
 use App\Enums\ContaStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
-use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Referencias\ContaStatusTipo;
 use App\Models\Referencias\ContaSubtipo;
-use App\Services\Financeiro\MovimentacaoContaService;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class ContaTenantService extends Service
 {
@@ -26,28 +23,6 @@ class ContaTenantService extends Service
     {
         parent::__construct($model);
     }
-
-    public function index(Fluent $requestData)
-    {
-        $resource = $this->model->orderBy('nome', 'asc')->get();
-        return $resource->toArray();
-    }
-
-    public function indexPainelConta(Fluent $requestData)
-    {
-        $resource = $this->model->orderBy('nome', 'asc')->get();
-        $resource->load($this->loadFull());
-        return $resource->toArray();
-    }
-
-    // public function select2(Request $request)
-    // {
-    //     $dados = new Fluent([
-    //         'camposFiltros' => ['nome', 'descricao', 'banco'],
-    //     ]);
-
-    //     return $this->executaConsultaSelect2($request, $dados);
-    // }
 
     /**
      * Traduz os campos com base no array de dados fornecido.
@@ -76,9 +51,73 @@ class ContaTenantService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
     }
 
+    public function index(Fluent $requestData)
+    {
+        $resource = $this->model->orderBy('nome', 'asc')->get();
+        return $resource->toArray();
+    }
+
+    public function indexPainelConta(Fluent $requestData)
+    {
+        $resource = $this->model->orderBy('nome', 'asc')->get();
+        $resource->load($this->loadFull());
+        return $resource->toArray();
+    }
+
+    public function showContaDomain(Fluent $requestData)
+    {
+        // Obtém o ID do domínio solicitado
+        $domainId = $requestData->domain_id;
+
+        // Reexecuta a consulta para garantir que os dados estão corretos
+        $resource = $this->buscarRecurso($requestData);
+
+        // Força a consulta a usar o domínio correto ao carregar a relação
+        $resource->setRelation('conta_domain', $resource->contas_domains()->with('ultima_movimentacao')->where('domain_id', $domainId)->first());
+
+        return $resource->toArray();
+    }
+
+    // public function select2(Request $request)
+    // {
+    //     $dados = new Fluent([
+    //         'camposFiltros' => ['nome', 'descricao', 'banco'],
+    //     ]);
+
+    //     return $this->executaConsultaSelect2($request, $dados);
+    // }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        if (count($resource->ultimas_movimentacoes)) {
+            RestResponse::createErrorResponse(409, "Esta conta possui movimentações e não pode ser excluída. Considere a possibilidade de deixá-la inativa.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                // Verifica se há relacionamentos para exclusão em cascata
+                $relations = method_exists($this, 'loadDestroyResourceCascade') ? $this->loadDestroyResourceCascade() : [];
+
+                if (!empty($relations)) {
+                    $this->destroyCascade($resource, $relations);
+                }
+
+                // Exclui o próprio recurso
+                $resource->delete();
+
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
-        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome, 'domain_id' => DomainTenantResolver::$currentDomain->id], $id);
+        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para esta conta já existe.', $requestData->toArray());
             RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
@@ -86,31 +125,19 @@ class ContaTenantService extends Service
 
         $arrayErrors = new Fluent();
 
-        $resource = null;
-        $checkDeletedAlteracaoContaSubtipo = true;
-        $checkDeletedAlteracaoContaStatus = true;
-        if ($id) {
-            /** @var Model */
-            $resource = $this->buscarRecurso($requestData);
+        /** @var Model */
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
 
-            if ($resource->conta_subtipo_id == $requestData->conta_subtipo_id) {
-                $checkDeletedAlteracaoContaSubtipo = false;
-            }
-
-            if ($resource->conta_status_id == $requestData->conta_status_id) {
-                $checkDeletedAlteracaoContaStatus = false;
+        if ($requestData->conta_subtipo_id) {
+            $validacaoContaSubtipoId = ValidationRecordsHelper::validateRecord(ContaSubtipo::class, ['id' => $requestData->conta_subtipo_id]);
+            if (!$validacaoContaSubtipoId->count()) {
+                $arrayErrors->conta_subtipo_id = LogHelper::gerarLogDinamico(404, 'O subtipo da conta informado não existe ou foi excluído.', $requestData)->error;
             }
         } else {
-            /** @var Model */
-            $resource = new $this->model();
+            $requestData->conta_subtipo_id = null;
         }
 
-        $validacaoContaSubtipoId = ValidationRecordsHelper::validateRecord(ContaSubtipo::class, ['id' => $requestData->conta_subtipo_id], $checkDeletedAlteracaoContaSubtipo);
-        if (!$validacaoContaSubtipoId->count()) {
-            $arrayErrors->conta_subtipo_id = LogHelper::gerarLogDinamico(404, 'O subtipo da conta informado não existe ou foi excluído.', $requestData)->error;
-        }
-
-        $validacaoContaStatusId = ValidationRecordsHelper::validateRecord(ContaStatusTipo::class, ['id' => $requestData->conta_status_id], $checkDeletedAlteracaoContaStatus);
+        $validacaoContaStatusId = ValidationRecordsHelper::validateRecord(ContaStatusTipo::class, ['id' => $requestData->conta_status_id]);
         if (!$validacaoContaStatusId->count()) {
             $arrayErrors->conta_status_id = LogHelper::gerarLogDinamico(404, 'O valor de status para a conta não existe ou foi excluído.', $requestData)->error;
         }

@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\TenantTypeEnum;
 use App\Helpers\LogHelper;
+use App\Helpers\TenantTypeDomainCustomHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -64,7 +65,7 @@ trait CommonsConsultaServiceTrait
                 case TenantTypeEnum::ADVOCACIA_MANUAL->value:
 
                     // Obtém o domínio da request (se existir)
-                    $selectedDomainId = request(config('tenancy_custom.tenant_type.name_attribute_key'));
+                    $selectedDomainId = TenantTypeDomainCustomHelper::getDomainIdSelectedInAttributeKey();
 
                     // Se for selecionado todos os domínios, então o valor é 0 (zero) e não precisa ser filtrado
                     if ($selectedDomainId) {
@@ -75,6 +76,11 @@ trait CommonsConsultaServiceTrait
                             $selectedDomainId
                         );
                     }
+                    //  else {
+                    //     $domains = TenantTypeDomainCustomHelper::getDomainsPorUsuario()->pluck('id')->toArray();
+                    //     $query->whereIn($modelClass->qualifyColumn(BelongsToDomain::$domainIdColumn), $domains);
+                    // }
+
                     break;
 
                 default:

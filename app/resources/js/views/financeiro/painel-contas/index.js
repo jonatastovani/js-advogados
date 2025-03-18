@@ -82,7 +82,7 @@ class PagePainelContaIndex {
         const descricao = item.descricao ? `<p class="card-text mb-0">Descrição: <span class="lblDescricao">${item.descricao}</span></p>` : ``;
         const banco = item.banco ? `<p class="card-text mb-0">Banco: <span class="lblBanco">${item.banco}</span></p>` : '';
         const status = item.conta_status.nome
-        const subtipo = item.conta_subtipo.nome
+        const subtipo = item?.conta_subtipo?.nome ?? '';
         let saldo = CommonFunctions.formatNumberToCurrency(item.saldo_total);
 
         let ultimasMovimentacoes = self.#htmlUltimasMovimentacoes(item);

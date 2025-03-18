@@ -166,20 +166,10 @@ class ServicoService extends Service
     {
         $arrayErrors = new Fluent();
 
-        $resource = null;
-        $checkDeletedAlteracaoAreaJuridicaTenant = true;
-        if ($id) {
-            $resource = $this->buscarRecurso($requestData);
-
-            if ($resource->area_juridica_id == $requestData->area_juridica_id) {
-                $checkDeletedAlteracaoAreaJuridicaTenant = false;
-            }
-        } else {
-            $resource = new $this->model();
-        }
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
 
         //Verifica se a área jurídica informada existe
-        $validacaoAreaJuridicaTenantId = ValidationRecordsHelper::validateRecord(AreaJuridicaTenant::class, ['id' => $requestData->area_juridica_id], $checkDeletedAlteracaoAreaJuridicaTenant);
+        $validacaoAreaJuridicaTenantId = ValidationRecordsHelper::validateRecord(AreaJuridicaTenant::class, ['id' => $requestData->area_juridica_id]);
         if (!$validacaoAreaJuridicaTenantId->count()) {
             $arrayErrors->area_juridica_id = LogHelper::gerarLogDinamico(404, 'A Área Jurídica informada não existe ou foi excluída.', $requestData)->error;
         }
@@ -187,7 +177,6 @@ class ServicoService extends Service
         // Erros que impedem o processamento
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
-        /** @var Servico */
         $resource->titulo = $requestData->titulo;
         $resource->descricao = $requestData->descricao;
         $resource->area_juridica_id = $requestData->area_juridica_id;

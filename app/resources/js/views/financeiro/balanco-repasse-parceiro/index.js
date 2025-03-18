@@ -118,12 +118,14 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                 // Constrói a query string
                 Object.keys(flattenedParams).forEach(function (key) {
-                    queryString += encodeURIComponent(key) + '=' + encodeURIComponent(flattenedParams[key]) + '&';
+                    if (queryString != '') queryString += '&';
+                    queryString += `${encodeURIComponent(key)}=${encodeURIComponent(flattenedParams[key])}`;
                 });
 
-                // Remove o último '&'
-                queryString = queryString.slice(0, -1);
-
+                const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+                if (instance) {
+                    queryString += `&${instance.getNameAttributeKey}=${self._objConfigs.domainCustom.domain_id}`;
+                }
 
                 // Crie a URL base (substitua pela URL desejada)
                 const baseURL = self._objConfigs.url.baseFrontImpressao;

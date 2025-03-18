@@ -41,6 +41,7 @@ Route::group([
             Route::get('painel-conta', 'indexPainelConta');
             Route::post('', 'store')->name('api.tenant.conta');
             Route::get('{uuid}', 'show');
+            Route::get('{uuid}/conta-domain/{domain_id}', 'showContaDomain');
             Route::put('{uuid}', 'update');
             Route::delete('{uuid}', 'destroy');
         });

@@ -9,6 +9,7 @@ use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Helpers\LogHelper;
+use App\Helpers\TenantTypeDomainCustomHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Documento\DocumentoGerado;
 use App\Models\Tenant\ContaTenant;
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
+use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class MovimentacaoContaService extends Service
 {
@@ -52,7 +54,7 @@ class MovimentacaoContaService extends Service
         public ContaTenantDomain $modelContaDomain,
 
         public MovimentacaoContaParticipante $modelParticipanteConta,
-        
+
         public ServicoPagamentoLancamento $modelPagamentoLancamento,
         public ParticipacaoParticipante $modelParticipante,
         public ParticipacaoParticipanteIntegrante $modelIntegrante,
@@ -353,7 +355,6 @@ class MovimentacaoContaService extends Service
                 $resource->saldo_atualizado = $novoSaldo;
                 $resource->conta_domain_id = $contaDomain->id;
 
-                Log::debug("Dados antes de salvar", [$resource->toArray()]);
                 $resource->save();
 
                 $participantesComIntegrantes = $lancamento->participantes()->with('integrantes')->get();
@@ -906,8 +907,6 @@ class MovimentacaoContaService extends Service
         $resource->status_id = $dadosMovimentacao->status_id;
         $resource->movimentacao_tipo_id = $dadosMovimentacao->movimentacao_tipo_id;
 
-        Log::debug("storeLancarRepasseParceiro", ['resource' => $resource->toArray(), 'dadosMovimentacao' => $dadosMovimentacao->toArray()]);
-
         $contaDomain = $this->getContaDomainAtravesConta($dadosMovimentacao->conta_id);
 
         $ultimoSaldo = $this->buscarSaldoContaPorDomain($contaDomain->id);
@@ -963,10 +962,26 @@ class MovimentacaoContaService extends Service
 
     public function postAtualizarSaldoConta(Fluent $requestData)
     {
+        $domain = tenant('domains')->firstWhere('id', $requestData->domain_id);
+
+        if (empty($domain)) {
+            RestResponse::createErrorResponse(404, 'Domínio não encontrado.')->throwResponse();
+        }
+
+        // Altera o domínio no resolver manualmente
+        app(DomainTenantResolver::class)->resolved(tenant(), $domain->domain);
+        TenantTypeDomainCustomHelper::setDomainSelectedInAttributeKey($domain->id);
+
         try {
             return DB::transaction(function () use ($requestData) {
 
-                $ultimaMovimentacao = $this->model::where('conta_id', $requestData->conta_id)->orderBy('created_at', 'desc')->first();
+                $this->setBloqueioPorTabelaEmTransacao();
+
+                $contaDomain = $this->getContaDomainAtravesConta($requestData->conta_id);
+
+                $ultimaMovimentacao = $this->model::where('conta_domain_id', $contaDomain->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
 
                 if (!$ultimaMovimentacao) {
                     $ultimaMovimentacao = new $this->model;
@@ -976,12 +991,13 @@ class MovimentacaoContaService extends Service
                 $movimentacaoAjuste = new $this->model;
                 $movimentacaoAjuste->referencia_id = $requestData->conta_id;
                 $movimentacaoAjuste->referencia_type = MovimentacaoContaReferenciaEnum::CONTA->value;
+
                 $movimentacaoAjuste->valor_movimentado = $this->calcularValorMovimentadoAtualizarSaldo(
                     $ultimaMovimentacao,
                     $requestData->novo_saldo
                 );
                 $movimentacaoAjuste->saldo_atualizado = $requestData->novo_saldo;
-                $movimentacaoAjuste->conta_id = $requestData->conta_id;
+                $movimentacaoAjuste->conta_domain_id = $contaDomain->id;
                 $movimentacaoAjuste->data_movimentacao = Carbon::now()->format('Y-m-d');
 
                 $movimentacaoAjuste->descricao_automatica = "Ajuste de Saldo - (" . CurrencyFormatterUtils::toBRL($ultimaMovimentacao->saldo_atualizado) . " -> " . CurrencyFormatterUtils::toBRL($requestData->novo_saldo) . ")";

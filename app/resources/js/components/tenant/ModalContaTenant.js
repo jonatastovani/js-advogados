@@ -51,15 +51,16 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
             self._updateTitleRegistration('Nova Conta');
         });
 
-        CommonFunctions.fillSelect(modal.find(`select[name="conta_subtipo_id"]`), window.apiRoutes.baseContasSubtipo, { outInstanceParentBln: true });
-
-        CommonFunctions.fillSelect(modal.find(`select[name="conta_status_id"]`), window.apiRoutes.baseContasStatus, { selectedIdOption: 1, outInstanceParentBln: true });
-
         self._executarBusca();
+
         const queueCheck = self._queueCheckDomainCustom;
         if (this._objConfigs?.formRegister && queueCheck) {
             queueCheck.setReady();
         }
+
+        CommonFunctions.fillSelect(modal.find(`select[name="conta_subtipo_id"]`), window.apiRoutes.baseContasSubtipo, { outInstanceParentBln: true });
+
+        CommonFunctions.fillSelect(modal.find(`select[name="conta_status_id"]`), window.apiRoutes.baseContasStatus, { insertFirstOption: false, outInstanceParentBln: true });
     }
 
     async insertTableData(item, options = {}) {
@@ -69,9 +70,12 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
         } = options;
 
         let btns = `
-            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar registro ${item.nome}">Editar</button></li>
-            <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir registro ${item.nome}">Excluir</button></li>`;
+            <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar registro ${item.nome}">Editar</button></li>`;
 
+        if (!item?.ultimas_movimentacoes?.length) {
+            btns += `<li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir registro ${item.nome}">Excluir</button></li>`;
+        }
+        
         let btnSelect = '';
         if (self._dataEnvModal?.attributes?.select) {
             btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
@@ -91,7 +95,7 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
             </div>`;
 
         let saldo = CommonFunctions.formatNumberToCurrency(item.saldo_total);
-        
+
         $(tbody).append(`
             <tr id="${item.idTr}" data-id="${item.id}">
                 <td class="text-center">
@@ -102,7 +106,6 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.nome}">${item.nome}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${saldo}">${saldo}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.banco ?? ''}">${item.banco ?? ''}</td>
-                <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.conta_subtipo.nome}">${item.conta_subtipo.nome}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.conta_status.nome}">${item.conta_status.nome}</td>
             </tr>
         `);
@@ -126,7 +129,7 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
                     self._updateTitleRegistration(`Alterar: <b>${responseData.nome}</b>`);
                     const form = $(self.getIdModal).find('.formRegistration');
                     form.find('input[name="nome"]').val(responseData.nome);
-                    form.find('select[name="conta_subtipo_id"]').val(responseData.conta_subtipo_id);
+                    form.find('select[name="conta_subtipo_id"]').val(responseData.conta_subtipo_id ?? 0);
                     form.find('select[name="conta_status_id"]').val(responseData.conta_status_id);
                     form.find('input[name="banco"]').val(responseData.banco);
                     form.find('textarea[name="descricao"]').val(responseData.descricao);
@@ -187,7 +190,6 @@ export class ModalContaTenant extends ModalSearchAndFormRegistration {
 
     #saveVerifications(data, formRegistration) {
         let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome da conta deve ser informado.', setFocus: true });
-        blnSave = CommonFunctions.verificationData(data.conta_subtipo_id, { field: formRegistration.find('select[name="conta_subtipo_id"]'), messageInvalid: 'Um subtipo de conta deve ser selecionado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         blnSave = CommonFunctions.verificationData(data.conta_status_id, { field: formRegistration.find('select[name="conta_status_id"]'), messageInvalid: 'Uma status de conta deve ser selecionado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
         return blnSave;
     }

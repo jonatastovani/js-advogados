@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('nome');
             $table->string('descricao')->nullable();
 
-            $table->smallInteger('conta_subtipo_id');
+            $table->smallInteger('conta_subtipo_id')->nullable();
             $table->foreign('conta_subtipo_id')->references('id')->on((new App\Models\Referencias\ContaSubtipo)->getTableName());
 
             $table->string('banco')->nullable();

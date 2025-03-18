@@ -90,24 +90,11 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
         if (!self._objConfigs?.modalSearch?.disableSearchDefault) {
 
-            console.log(`#formDataSearch${self.getSufixo}`);
-            console.log($(`#formDataSearch${self.getSufixo}`).find('.btnBuscar'));
-
-            console.log($(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-                .find('.btnBuscar'));
-            console.log(`${self.getIdModal} #formDataSearch${self.getSufixo}`);
-
-            $(`#formDataSearch${self.getSufixo}`).find('.btnBuscar').on('click', async function (e) {
-                e.preventDefault();
-                // BootstrapFunctionsHelper.removeEventPopover();
-                self._executarBusca();
-            });
-
-            // $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
-            //     .find('.btnBuscar').on('click', async (e) => {
-            //         e.preventDefault();
-            //         await self._executarBusca();
-            //     });
+            $(`${self.getIdModal} #formDataSearch${self.getSufixo}`)
+                .find('.btnBuscar').on('click', async (e) => {
+                    e.preventDefault();
+                    await self._executarBusca();
+                });
 
         }
     }

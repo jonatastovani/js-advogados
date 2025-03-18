@@ -11,7 +11,7 @@ class ContaTenantFormRequestBase extends BaseFormRequest
         return [
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',
-            'conta_subtipo_id' => 'required|integer',
+            'conta_subtipo_id' => 'nullable|integer',
             'banco' => 'nullable|string',
             'conta_status_id' => 'required|integer',
         ];

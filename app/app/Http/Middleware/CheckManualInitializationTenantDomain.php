@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\TenantTypeEnum;
+use App\Helpers\TenantTypeDomainCustomHelper;
 use App\Models\Auth\Domain;
 use Closure;
 use Illuminate\Http\Request;
@@ -74,7 +75,7 @@ class CheckManualInitializationTenantDomain
                     }
                 }
                 // Adiciona a chave `tenant_domain_selected_id` à request para que possa ser utilizada posteriormente
-                $request->merge([$nameAttributeKey => $selectedDomainId]);
+                TenantTypeDomainCustomHelper::setDomainSelectedInAttributeKey($selectedDomainId);
 
                 // Se o id selecionado for diferente do domínio atual (que inicialmente é o domínio padrão de acesso), resolve o domínio
                 if ($selectedDomainId != $domain->id) {

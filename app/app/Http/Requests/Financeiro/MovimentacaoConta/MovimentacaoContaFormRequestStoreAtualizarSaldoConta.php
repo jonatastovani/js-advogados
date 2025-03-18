@@ -15,6 +15,7 @@ class MovimentacaoContaFormRequestStoreAtualizarSaldoConta extends BaseFormReque
     {
         return [
             'conta_id' => 'required|uuid',
+            'domain_id' => 'required|integer',
             'novo_saldo' => 'required|numeric|min:0.01',
             'observacao' => 'nullable|string|max:255',
         ];

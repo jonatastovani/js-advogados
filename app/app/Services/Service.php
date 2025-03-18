@@ -205,6 +205,18 @@ abstract class Service
         }
     }
 
+    /**
+     * Busca um recurso pela chave primária, UUID ou ID, dependendo do que for informado.
+     * Se o recurso não for encontrado, lança uma exceção com status 404.
+     *
+     * @param Fluent $requestData - Dados da requisição, contendo a chave primária.
+     * @param array $options - Opções para a busca:
+     *     - 'conditions' (array): Condições adicionais para a busca.
+     *     - 'message' (string): Mensagem de erro a ser retornada caso o recurso não seja encontrado.
+     *     - 'withTrashed' (bool): Se true, busca até registros excluídos.
+     * @return Model|null - O recurso encontrado, ou null se não encontrado.
+     * @throws \App\Exceptions\HttpResponseException - Se o recurso não for encontrado.
+     */
     public function buscarRecurso(Fluent $requestData, array $options = [])
     {
         $conditions = $options['conditions'] ?? null;
@@ -241,7 +253,7 @@ abstract class Service
 
         return $resource;
     }
-    
+
     /**
      * Aplica bloqueios em uma ou mais tabelas dentro de uma transação para evitar leituras inconsistentes
      * e garantir a integridade dos dados em concorrência.

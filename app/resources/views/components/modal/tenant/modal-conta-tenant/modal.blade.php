@@ -31,7 +31,6 @@
                                 <th>Nome</th>
                                 <th>Saldo</th>
                                 <th>Banco</th>
-                                <th>Subtipo</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
