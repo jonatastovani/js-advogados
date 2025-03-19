@@ -90,9 +90,11 @@ services:
             - --agree-tos
             - --non-interactive
             - --domains
-            - jsadvogadosmc.byteforge.com.br
+            - jsadvogados.byteforge.com.br
             - --domains
             - jsadvogadosprev.byteforge.com.br
+            - --domains
+            - jsadvogadostupi.byteforge.com.br
             - --domains
             - teste.byteforge.com.br
             - --domains

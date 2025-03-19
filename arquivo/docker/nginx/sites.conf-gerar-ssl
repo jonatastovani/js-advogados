@@ -1,6 +1,6 @@
 server {
     listen 80 default_server;
-    server_name jsadvogadosmc.byteforge.com.br jsadvogadosprev.byteforge.com.br teste.byteforge.com.br admin.byteforge.com.br;
+    server_name jsadvogados.byteforge.com.br jsadvogadosprev.byteforge.com.br jsadvogadostupi.byteforge.com.br teste.byteforge.com.br admin.byteforge.com.br;
 
     root /var/www/app/public;
 
