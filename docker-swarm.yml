@@ -81,6 +81,8 @@ services:
             - app-data:/var/www/app # Acesso aos arquivos da aplicação
         networks:
             - laravel
+        depends_on:
+            - web
         command:
             - certonly
             - --webroot
