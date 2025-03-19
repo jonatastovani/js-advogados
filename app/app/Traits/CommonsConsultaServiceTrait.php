@@ -4,17 +4,14 @@ namespace App\Traits;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
-use App\Enums\TenantTypeEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\TenantTypeDomainCustomHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 use InvalidArgumentException;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 trait CommonsConsultaServiceTrait
@@ -58,39 +55,10 @@ trait CommonsConsultaServiceTrait
         //Verifica se a trait BelongsToTenant está sendo utilizada no modelo
         if (in_array(\App\Traits\BelongsToDomain::class, class_uses_recursive($modelClass))) {
             $query->withoutDomain();
-
-            switch (tenant('tenant_type_id')) {
-
-                // Se for a identificação manual do domínio, então filtra pelo domínio selecionado
-                case TenantTypeEnum::ADVOCACIA_MANUAL->value:
-
-                    // Obtém o domínio da request (se existir)
-                    $selectedDomainId = TenantTypeDomainCustomHelper::getDomainIdSelectedInAttributeKey();
-
-                    // Se for selecionado todos os domínios, então o valor é 0 (zero) e não precisa ser filtrado
-                    if ($selectedDomainId) {
-                        // Filtra pelo domínio selecionado via request
-
-                        $query->where(
-                            $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn),
-                            $selectedDomainId
-                        );
-                    }
-                    //  else {
-                    //     $domains = TenantTypeDomainCustomHelper::getDomainsPorUsuario()->pluck('id')->toArray();
-                    //     $query->whereIn($modelClass->qualifyColumn(BelongsToDomain::$domainIdColumn), $domains);
-                    // }
-
-                    break;
-
-                default:
-
-                    $query->where(
-                        $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn),
-                        DomainTenantResolver::$currentDomain->id
-                    );
-                    break;
-            }
+            $query->whereIn(
+                $modelClass->qualifyColumn($modelClass->getTableAsName() . '.' . BelongsToDomain::$domainIdColumn),
+                TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain()
+            );
         }
     }
 

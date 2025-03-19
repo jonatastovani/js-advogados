@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Servico\ServicoPagamento\PostConsultaFiltroFormRequestServicoPagamento;
 use App\Http\Requests\Servico\ServicoPagamento\ServicoPagamentoFormRequestDestroy;
 use App\Http\Requests\Servico\ServicoPagamento\ServicoPagamentoFormRequestIndex;
 use App\Http\Requests\Servico\ServicoPagamento\ServicoPagamentoFormRequestShow;
@@ -17,6 +18,12 @@ class ServicoPagamentoController extends Controller
     use CommonsControllerMethodsTrait, CommonsConsultaControllerTrait;
 
     public function __construct(public ServicoPagamentoService $service) {}
+
+    public function postConsultaFiltros(PostConsultaFiltroFormRequestServicoPagamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
+    }
 
     public function index(ServicoPagamentoFormRequestIndex $formRequest)
     {

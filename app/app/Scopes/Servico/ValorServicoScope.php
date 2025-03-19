@@ -2,11 +2,11 @@
 
 namespace App\Scopes\Servico;
 
+use App\Helpers\TenantTypeDomainCustomHelper;
 use App\Models\Servico\ServicoPagamento;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class ValorServicoScope implements Scope
 {
@@ -27,7 +27,7 @@ class ValorServicoScope implements Scope
                     ->whereColumn("{$tableSubAlias}.servico_id", "{$tableAlias}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
-                    ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
+                    ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'valor_servico');
         } else {
             $builder->withSum('pagamento as valor_servico', 'valor_total');

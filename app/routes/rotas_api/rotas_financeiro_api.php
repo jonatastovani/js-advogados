@@ -100,6 +100,24 @@ Route::group([
         });
     });
 
+    Route::prefix('pagamentos')->group(function () {
+
+        Route::get('', function () {})->name('api.financeiro.pagamentos');
+
+        Route::prefix('servicos')->group(function () {
+
+            Route::controller(App\Http\Controllers\Servico\ServicoPagamentoController::class)->group(function () {
+                Route::post('consulta-filtros', 'postConsultaFiltros');
+
+                // Route::get('', 'index');
+                // Route::post('', 'store');
+                // Route::get('{uuid}', 'show');
+                // Route::put('{uuid}', 'update');
+                // Route::delete('{uuid}', 'destroy');
+            });
+        });
+    });
+
     Route::prefix('repasse-parceiro')->group(function () {
 
         Route::get('', function () {})->name('api.financeiro.repasse-parceiro');
@@ -108,7 +126,7 @@ Route::group([
 
             Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
             Route::post('consulta-filtros/obter-totais-participacoes', 'postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes');
-            
+
             Route::post('lancar', 'storeLancarRepasseParceiro')->name('api.financeiro.repasse-parceiro.lancar');
         });
     });

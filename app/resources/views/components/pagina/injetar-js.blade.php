@@ -42,5 +42,6 @@
         MovimentacaoContaTipoEnum: @json(\App\Enums\MovimentacaoContaTipoEnum::staticDetailsToArray()),
         LancamentoStatusTipoEnum: @json(\App\Enums\LancamentoStatusTipoEnum::staticDetailsToArray()),
         PessoaTipoEnum: @json(\App\Enums\PessoaTipoEnum::staticDetailsToArray()),
+        PagamentoStatusTipoEnum: @json(\App\Enums\PagamentoStatusTipoEnum::staticDetailsToArray()),
     };
 </script>

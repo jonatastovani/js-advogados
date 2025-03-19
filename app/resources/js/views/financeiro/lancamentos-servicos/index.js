@@ -43,6 +43,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                     ]
                 },
                 AGUARDANDO_PAGAMENTO: {
@@ -56,6 +58,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                     ]
                 },
                 LIQUIDADO_EM_ANALISE: {
@@ -103,6 +107,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                     ]
                 },
@@ -120,7 +125,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 },
                 REAGENDADO: {
                     id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
+                    cor: 'fst-italic text-info-emphasis text-decoration-line-through',
                     opcao_nos_status: [
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
@@ -133,7 +138,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 },
                 CANCELADO_EM_ANALISE: {
                     id: window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
-                    cor: 'fst-italic text-danger text-decoration-line-through bg-warning',
+                    cor: 'fst-italic text-secondary text-decoration-line-through bg-warning',
                     opcao_nos_status: [
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
@@ -149,7 +154,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 },
                 CANCELADO: {
                     id: window.Enums.LancamentoStatusTipoEnum.CANCELADO,
-                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
+                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
                     opcao_nos_status: [
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
@@ -159,6 +164,36 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                    ]
+                },
+                INADIMPLENTE_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                    cor: 'text-danger bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                    ]
+                },
+                INADIMPLENTE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                    cor: 'text-danger-emphasis',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                     ]
@@ -177,7 +212,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
     constructor() {
         super({ sufixo: 'PageLancamentoServicoIndex' });
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
 
@@ -411,6 +446,23 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 </li>`;
             }
 
+            if (configAcoes.INADIMPLENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                strBtns += `
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-inadimplente-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Inadimplente em Análise.">
+                        <i class="bi bi-dash-circle"></i> Inadimplente (em Análise)
+                    </button>
+                </li>`;
+            }
+            if (configAcoes.INADIMPLENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                strBtns += `
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-inadimplente text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Inadimplente.">
+                        <i class="bi bi-check2-all"></i> Inadimplente
+                    </button>
+                </li>`;
+            }
+
         }
 
         let strVerServico = `
@@ -504,28 +556,28 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
         let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
         if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Aguardando Pagamento (em Análise)', status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
         if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Aguardando Pagamento', status_id: enumLanc.AGUARDANDO_PAGAMENTO });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
         if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Liquidado (em Análise)', status_id: enumLanc.LIQUIDADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
         if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
             });
         }
@@ -533,7 +585,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
         if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
             && !lancamentoDiluido) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Liquidado Parcialmente (em Análise)', status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE });
             });
         }
@@ -541,21 +593,21 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
         if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
             && !lancamentoDiluido) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
         if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Reagendado (em Análise)', status_id: enumLanc.REAGENDADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
         if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 try {
                     const objModal = new ModalLancamentoReagendar({
                         urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
@@ -577,15 +629,29 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
         if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Cancelado (em Análise)', status_id: enumLanc.CANCELADO_EM_ANALISE });
             });
         }
 
         btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
         if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.click(async function () {
+            btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Cancelado', status_id: enumLanc.CANCELADO });
+            });
+        }
+
+        btnAcao = $(`#${item.idTr}`).find(`.btn-inadimplente-analise`);
+        if (btnAcao.length && configAcoes.INADIMPLENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            btnAcao.on('click', async function () {
+                await openAlterarStatus({ status_html: 'Inadimplente (em Análise)', status_id: enumLanc.INADIMPLENTE_EM_ANALISE });
+            });
+        }
+
+        btnAcao = $(`#${item.idTr}`).find(`.btn-inadimplente`);
+        if (btnAcao.length && configAcoes.INADIMPLENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+            btnAcao.on('click', async function () {
+                await openAlterarStatus({ status_html: 'Inadimplente', status_id: enumLanc.INADIMPLENTE });
             });
         }
     }

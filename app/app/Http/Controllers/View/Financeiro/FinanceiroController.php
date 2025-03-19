@@ -244,4 +244,9 @@ class FinanceiroController extends Controller
     {
         return view('secao.financeiro.painel-contas.index');
     }
+
+    public function pagamentosServicosIndex()
+    {
+        return view('secao.financeiro.pagamentos-servicos.index');
+    }
 }

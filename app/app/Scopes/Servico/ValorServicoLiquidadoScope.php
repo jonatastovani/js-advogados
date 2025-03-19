@@ -3,13 +3,13 @@
 namespace App\Scopes\Servico;
 
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Helpers\TenantTypeDomainCustomHelper;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\DB;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class ValorServicoLiquidadoScope implements Scope
 {
@@ -42,7 +42,7 @@ class ValorServicoLiquidadoScope implements Scope
                         LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
-                    ->where("{$tableSubAlias}.domain_id", DomainTenantResolver::$currentDomain->id);
+                    ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'total_liquidado');
         } else {
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'

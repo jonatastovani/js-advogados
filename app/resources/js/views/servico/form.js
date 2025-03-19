@@ -997,9 +997,9 @@ class PageServicoForm extends TemplateForm {
             CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
-                objModal.setDataEnvModal = {
+                objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
                     idRegister: item.id,
-                }
+                });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
                     self.#buscarPagamentos();

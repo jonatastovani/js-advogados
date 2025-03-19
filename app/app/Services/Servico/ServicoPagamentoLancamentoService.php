@@ -383,7 +383,7 @@ class ServicoPagamentoLancamentoService extends Service
             $resource = $this->buscarRecurso($requestData);
 
             if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
-                return RestResponse::createErrorResponse(422, "Este lancamento possui status que impossibilita a edição de informações")->throwResponse();
+                RestResponse::createErrorResponse(422, "Este lancamento possui status que impossibilita a edição de informações")->throwResponse();
             }
         } else {
             $resource = new $this->model;

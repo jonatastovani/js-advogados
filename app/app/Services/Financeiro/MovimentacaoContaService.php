@@ -544,6 +544,8 @@ class MovimentacaoContaService extends Service
         // Se terá que ser enviado um lançamento com movimentação contrária no mesmo valor lançado antes
         $lancamentoRollbackBln = in_array($resourceLancamento->status_id, collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())->pluck('status_id')->toArray());
 
+        $movimentacaoConta = null;
+        $statusArray = null;
         if ($lancamentoRollbackBln) {
             $statusArray = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
                 ->firstWhere('status_id', $resourceLancamento->status_id);
@@ -827,6 +829,8 @@ class MovimentacaoContaService extends Service
 
         $isRollbackLancamento = $rollbackLancamentosFiltrados->pluck('status_id')->contains($resourceLancamento->status_id);
 
+        $movimentacaoConta = null;
+        $statusArray = null;
         if ($isRollbackLancamento) {
 
             $statusArray = $rollbackLancamentosFiltrados->firstWhere('status_id', $resourceLancamento->status_id);

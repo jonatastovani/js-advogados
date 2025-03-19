@@ -23,7 +23,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             base: undefined,
             baseLancamentos: undefined,
             basePagamentoTipoTenants: window.apiRoutes.basePagamentoTipoTenants,
-            baseStatusPagamento: window.apiRoutes.baseStatusPagamento,
             baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
         },
         sufixo: 'ModalServicoPagamento',
@@ -353,13 +352,13 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarStatusPagamento(selected_id = null) {
         try {
             const self = this;
+            const arrayOpcoes = window.Details.PagamentoStatusTipoEnum;
             let options = {
-                outInstanceParentBln: true,
                 insertFirstOption: false,
             };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#status_id${self.getSufixo}`);
-            await CommonFunctions.fillSelect(select, self._objConfigs.url.baseStatusPagamento, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
         } catch (error) {
             return false;
