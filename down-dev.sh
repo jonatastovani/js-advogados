@@ -1,1 +1,1 @@
-docker stack rm application
+docker stack rm dev_stack

@@ -9,7 +9,6 @@ import { ModalServicoPagamento } from "../../components/servico/ModalServicoPaga
 import { ModalAnotacaoLembreteTenant } from "../../components/tenant/ModalAnotacaoLembreteTenant";
 import { ModalAreaJuridicaTenant } from "../../components/tenant/ModalAreaJuridicaTenant";
 import { ModalDocumentoModeloTenant } from "../../components/tenant/ModalDocumentoModeloTenant";
-import { ModalSelecionarDocumentoModeloTenant } from "../../components/tenant/ModalSelecionarDocumentoModeloTenant";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
@@ -157,38 +156,38 @@ class PageServicoForm extends TemplateForm {
             self.#saveButtonActionCliente();
         });
 
-        $(`#btnAdicionarDocumento${self._objConfigs.sufixo} `).on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalSelecionarDocumentoModeloTenant();
-                objModal.setDataEnvModal = {
-                    documento_modelo_tipo_id: window.Enums.DocumentoModeloTipoEnum.SERVICO,
-                };
-                const response = await objModal.modalOpen();
+        // $(`#btnAdicionarDocumento${self._objConfigs.sufixo} `).on('click', async function () {
+        //     const btn = $(this);
+        //     CommonFunctions.simulateLoading(btn);
+        //     try {
+        //         const objModal = new ModalSelecionarDocumentoModeloTenant();
+        //         objModal.setDataEnvModal = {
+        //             documento_modelo_tipo_id: window.Enums.DocumentoModeloTipoEnum.SERVICO,
+        //         };
+        //         const response = await objModal.modalOpen();
 
-                if (response.refresh && response.register) {
-                    try {
-                        const objModal = new ModalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
-                        objModal._dataEnvModal = {
-                            documento_modelo_tenant: response.register,
-                            objetos: await self.#getObjetosDocumentoModeloTenantRender(),
-                        }
-                        console.log(await objModal.modalOpen());
-                    } catch (error) {
-                        CommonFunctions.generateNotificationErrorCatch(error);
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-            }
-        });
+        //         if (response.refresh && response.register) {
+        //             try {
+        //                 const objModal = new ModalDocumentoModeloTenant(self._objConfigs.url.baseDocumento);
+        //                 objModal._dataEnvModal = {
+        //                     documento_modelo_tenant: response.register,
+        //                     objetos: await self.#getObjetosDocumentoModeloTenantRender(),
+        //                 }
+        //                 console.log(await objModal.modalOpen());
+        //             } catch (error) {
+        //                 CommonFunctions.generateNotificationErrorCatch(error);
+        //             }
+        //         }
+        //     } catch (error) {
+        //         CommonFunctions.generateNotificationErrorCatch(error);
+        //     } finally {
+        //         CommonFunctions.simulateLoading(btn, false);
+        //     }
+        // });
 
-        $(`#atualizarDocumentos${self._objConfigs.sufixo} `).on('click', async function () {
-            await self.#buscarDocumentos();
-        });
+        // $(`#atualizarDocumentos${self._objConfigs.sufixo} `).on('click', async function () {
+        //     await self.#buscarDocumentos();
+        // });
 
         $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
             const btn = $(this);
@@ -345,10 +344,10 @@ class PageServicoForm extends TemplateForm {
             self.#inserirCliente(item);
         });
 
-        self.#limparDocumentos();
-        responseData.documentos.forEach(item => {
-            self.#inserirDocumento(item);
-        });
+        // self.#limparDocumentos();
+        // responseData.documentos.forEach(item => {
+        //     self.#inserirDocumento(item);
+        // });
 
         self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
 

@@ -44,14 +44,14 @@
                         Clientes
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
+                {{-- <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelDocumentos{{ $sufixo }}-tab"
                         data-bs-toggle="tab" data-bs-target="#painelDocumentos{{ $sufixo }}-tab-pane" type="button"
                         role="tab" aria-controls="painelDocumentos{{ $sufixo }}-tab-pane" aria-selected="false">
                         Documentos
                     </button>
-                </li>
+                </li> --}}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 {{ $disabledNovoRegistro ? 'disabled' : '' }}"
                         aria-disabled="{{ $disabledNovoRegistro }}" id="painelAnotacao{{ $sufixo }}-tab"
@@ -92,12 +92,12 @@
                     @include('secao.servico.form.painel-clientes')
                 @endif
             </div>
-            <div class="tab-pane fade h-100" id="painelDocumentos{{ $sufixo }}-tab-pane" role="tabpanel"
+            {{-- <div class="tab-pane fade h-100" id="painelDocumentos{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelDocumentos{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)
                     @include('secao.servico.form.painel-documentos')
                 @endif
-            </div>
+            </div> --}}
             <div class="tab-pane fade h-100" id="painelAnotacao{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelAnotacao{{ $sufixo }}-tab" tabindex="0">
                 @if (!$disabledNovoRegistro)

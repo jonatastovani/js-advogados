@@ -37,7 +37,7 @@
     </div>
 
     <div class="row">
-        <div class="col mt-2 px-0">
+        <div class="col mt-3 px-0">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link px-2 active" id="painelServico{{ $sufixo }}-tab" data-bs-toggle="tab"

@@ -41,8 +41,8 @@
                         @else
                             @component('components.nav.nav-vertical-secao.nav-cliente')
                             @endcomponent
-                            @component('components.nav.nav-vertical-secao.nav-documento')
-                            @endcomponent
+                            {{-- @component('components.nav.nav-vertical-secao.nav-documento')
+                            @endcomponent --}}
                             @component('components.nav.nav-vertical-secao.nav-financeiro')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-parceiro')

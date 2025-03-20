@@ -1,11 +1,9 @@
-// import 'select2';
 import { ModalLoading } from "../components/comum/ModalLoading";
 import { SystemNotificationsHelper } from "../helpers/SystemNotificationsHelper";
 import TenantTypeDomainCustomHelper from "../helpers/TenantTypeDomainCustomHelper";
 import { ConnectAjax } from "./ConnectAjax";
 import { EnumAction } from "./EnumAction";
 import InstanceManager from "./InstanceManager";
-import './select2-4.0.2';
 
 export class CommonFunctions {
 

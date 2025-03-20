@@ -104,7 +104,6 @@ class PageDocumentoModeloTenantIndex extends TemplateSearch {
     }
 
     async #buscarDocumentoModeloTipo(selected_id = null) {
-        console.log('Vai consultar')
         try {
             const self = this;
             let options = {

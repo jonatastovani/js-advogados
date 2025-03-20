@@ -3,6 +3,8 @@ import jQuery from 'jquery';
 window.$ = jQuery;
 window.jQuery = jQuery; // Garantir que o jQuery esteja disponível globalmente
 
+import('./commons/select2-4.0.2');
+
 // Importa Bootstrap e outros recursos
 import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;

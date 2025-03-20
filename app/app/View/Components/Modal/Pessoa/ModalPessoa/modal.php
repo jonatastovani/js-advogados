@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Fluent;
 use Illuminate\View\Component;
 
-class modal extends Component
+class Modal extends Component
 {
     public Fluent $dados;
     /**
