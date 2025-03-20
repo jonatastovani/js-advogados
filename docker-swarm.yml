@@ -20,7 +20,8 @@ services:
         networks:
             - laravel
         environment:
-            - PHP_VERSION=8.3.9-fpm-bullseye
+            # APP_ENV é definido aqui, isso vai influenciar as configurações do Laravel
+            - APP_ENV=${APP_ENV}
 
     # Serviço Nginx
     nginx:
@@ -60,9 +61,9 @@ services:
             restart_policy:
                 condition: on-failure
         environment:
-            POSTGRES_DB: app-js-dev
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: secret
+            POSTGRES_DB: "${POSTGRES_DB}"
+            POSTGRES_USER: "${POSTGRES_USER}"
+            POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
         networks:
             - laravel
         volumes:
