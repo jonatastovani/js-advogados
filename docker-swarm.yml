@@ -17,6 +17,9 @@ services:
                 condition: on-failure
         volumes:
             - app_data:/var/www/app # Volume nomeado para a aplicação
+            # - ./app/database/migrations:/var/www/app/database/migrations # Volume para as migrations
+        depends_on:
+            - laravel
         networks:
             - laravel
         environment:
@@ -30,6 +33,9 @@ services:
             replicas: 1
             placement:
                 constraints: [node.role == manager]
+            update_config: # Atualização progressiva para evitar interrupções
+                parallelism: 1
+                delay: 10s
         ports:
             - "80:80" # Porta HTTP
             - "443:443" # Porta HTTPS
@@ -38,6 +44,8 @@ services:
             - ./docker/nginx/error.html:/var/www/html/error.html
             - ./docker/certbot/conf:/etc/letsencrypt
             - app_data:/var/www/app # Compartilha os dados da aplicação
+        depends_on:
+            - web
         networks:
             - laravel
 
@@ -69,40 +77,21 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
 
-    # Serviço Certbot
+        # Serviço Certbot com renovação automática
     certbot:
         image: certbot/certbot
         deploy:
             replicas: 1
             restart_policy:
-                condition: none
+                condition: any
         volumes:
-            - ./docker/certbot/conf:/etc/letsencrypt # Certificados gerados
-            - ./docker/certbot/logs:/var/log/letsencrypt # Logs do Certbot
-            - app_data:/var/www/app # Acesso aos arquivos da aplicação
+            - ./docker/certbot/conf:/etc/letsencrypt
+            - ./docker/certbot/logs:/var/log/letsencrypt
+            - app_data:/var/www/app
+            - ./renew_certificates.sh:/renew_certificates.sh # Monta o script no container
         networks:
             - laravel
-        depends_on:
-            - web
-        command:
-            - certonly
-            - --webroot
-            # - --staging  # <----- ADICIONE ESSA LINHA PARA MODO TESTE
-            - --webroot-path=/var/www/app/public
-            - --email
-            - byteforgesuporte@gmail.com
-            - --agree-tos
-            - --non-interactive
-            - --domains
-            - jsadvogados.byteforge.com.br
-            - --domains
-            - jsadvogadosprev.byteforge.com.br
-            - --domains
-            - jsadvogadostupi.byteforge.com.br
-            - --domains
-            - teste.byteforge.com.br
-            - --domains
-            - admin.byteforge.com.br
+        entrypoint: ["/bin/sh", "/renew_certificates.sh"] # Define o script como comando principal
 
 networks:
     laravel:
