@@ -59,7 +59,6 @@ class PessoaPerfilService extends Service
         $resource->pessoa->load('pessoa_perfil.perfil_tipo');
         if ($resource->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
             $resource->load('user.user_tenant_domains.domain');
-            Log::debug("user", ['user' => $resource->user->toArray()]);
         }
         return $resource->toArray();
     }
