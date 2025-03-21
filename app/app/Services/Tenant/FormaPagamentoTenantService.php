@@ -57,10 +57,10 @@ class FormaPagamentoTenantService extends Service
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
-        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome, 'domain_id' => DomainTenantResolver::$currentDomain->id], $id);
+        $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para esta forma de pagamento já existe.', $requestData->toArray());
-            return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+            RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $arrayErrors = new Fluent();

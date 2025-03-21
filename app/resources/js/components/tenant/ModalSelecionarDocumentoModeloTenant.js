@@ -75,7 +75,6 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
             },
             outInstanceParentBln: true,
         };
-
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="documento_modelo_tenant_id"]');
         const response = await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);

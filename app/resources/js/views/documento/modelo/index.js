@@ -107,10 +107,10 @@ class PageDocumentoModeloTenantIndex extends TemplateSearch {
         try {
             const self = this;
             let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os tipos',
+                outInstanceParentBln: true,
+                firstOptionName: 'Todos os tipos'
             };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#documento_modelo_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseDocumentoModeloTipo, options);
             return true;

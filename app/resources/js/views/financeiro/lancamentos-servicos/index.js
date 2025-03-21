@@ -661,7 +661,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as formas de pagamento',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -678,7 +677,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as áreas jurídicas',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -694,11 +692,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Details.LancamentoStatusTipoEnum;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os status',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            let options = { firstOptionName: 'Todos os status' };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;

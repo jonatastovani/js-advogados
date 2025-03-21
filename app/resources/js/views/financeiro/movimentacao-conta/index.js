@@ -284,7 +284,6 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -300,11 +299,8 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Details.MovimentacaoContaTipoEnum;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todas as movimentações',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            let options = { firstOptionName: 'Todas as movimentações' };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
@@ -317,11 +313,8 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Statics.MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os status',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            let options = { firstOptionName: 'Todos os status' };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;

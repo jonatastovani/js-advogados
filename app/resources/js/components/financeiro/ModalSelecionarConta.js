@@ -126,9 +126,7 @@ export class ModalSelecionarConta extends ModalDefault {
         const self = this;
 
         try {
-            let options = {
-                outInstanceParentBln: true,
-            };
+            let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_debito_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);

@@ -172,7 +172,6 @@ class PagePagamentoServicoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as formas de pagamento',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -189,7 +188,6 @@ class PagePagamentoServicoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as áreas jurídicas',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -205,10 +203,7 @@ class PagePagamentoServicoIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Details.PagamentoStatusTipoEnum;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os status',
-            };
+            let options = { firstOptionName: 'Todos os status' };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#pagamento_status_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
@@ -221,9 +216,7 @@ class PagePagamentoServicoIndex extends TemplateSearch {
     async #buscarPagamentoTipoTenant(selected_id = null) {
         try {
             const self = this;
-            let options = {
-                outInstanceParentBln: true,
-            };
+            let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#pagamento_tipo_tenant_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.basePagamentoTipoTenants, options);

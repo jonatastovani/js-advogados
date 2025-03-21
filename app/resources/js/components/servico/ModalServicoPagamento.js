@@ -337,9 +337,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
-            let options = {
-                outInstanceParentBln: true,
-            };
+            let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#forma_pagamento_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
@@ -353,9 +351,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         try {
             const self = this;
             const arrayOpcoes = window.Details.PagamentoStatusTipoEnum;
-            let options = {
-                insertFirstOption: false,
-            };
+            let options = { insertFirstOption: false };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#status_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);

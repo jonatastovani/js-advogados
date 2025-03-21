@@ -184,9 +184,7 @@ export class ModalFormaPagamentoTenant extends ModalSearchAndFormRegistration {
     async #buscarContas(selected_id = null) {
         try {
             const self = this;
-            let options = {
-                outInstanceParentBln: true,
-            };
+            let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#conta_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseContas, options);

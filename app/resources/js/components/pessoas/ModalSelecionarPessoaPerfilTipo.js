@@ -68,7 +68,6 @@ export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
         }
 
         let options = selected_id ? { selectedIdOption: selected_id } : {};
-
         const select = $(self.getIdModal).find('select[name="perfil_tipo_id"]');
         return await CommonFunctions.fillSelectArray(select, filtrados, options);
     }

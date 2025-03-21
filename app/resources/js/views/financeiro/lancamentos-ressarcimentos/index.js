@@ -52,7 +52,7 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         });
 
         CommonFunctions.handleModal(self, $(`#openModalConta${self.getSufixo}`), ModalContaTenant, self.#buscarContas.bind(self));
-    
+
         CommonFunctions.handleModal(self, $(`#openModalLancamentoCategoriaTipoTenant${self.getSufixo}`), ModalLancamentoCategoriaTipoTenant, self.#buscarLancamentoCategoriaTipoTenant.bind(self));
 
         $(`#btnImprimirConsulta${self.getSufixo}`).on('click', async function () {
@@ -246,7 +246,6 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as contas',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -263,7 +262,6 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
             const self = this;
             let options = {
                 outInstanceParentBln: true,
-                insertFirstOption: true,
                 firstOptionName: 'Todas as categorias',
             };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -279,11 +277,8 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todas as movimentações',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            let options = { firstOptionName: 'Todas as movimentações' };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;
@@ -296,11 +291,8 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         try {
             const self = this;
             const arrayOpcoes = window.Statics.LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoRessarcimento;
-            let options = {
-                insertFirstOption: true,
-                firstOptionName: 'Todos os status',
-            };
-            if (selected_id) Object.assign(options, { selectedIdOption: selected_id });
+            let options = { firstOptionName: 'Todos os status' };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#lancamento_status_tipo_id${self.getSufixo}`);
             await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
             return true;

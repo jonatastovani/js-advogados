@@ -37,7 +37,7 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
         return await self._modalOpen();
     }
 
-    async preenchimentoDados(response, options){
+    async preenchimentoDados(response, options) {
 
     }
 
@@ -53,8 +53,11 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
     async #buscarUsuarioDomains(selected_id = null) {
         try {
             const self = this;
-            let options = { displayColumnName: 'name' };
-            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
+            let options = {
+                outInstanceParentBln: true,
+                displayColumnName: 'name'
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#domain_id${self._objConfigs.sufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
             return true

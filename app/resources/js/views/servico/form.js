@@ -91,7 +91,7 @@ class PageServicoForm extends TemplateForm {
             this._action = EnumAction.PUT;
             buscaDadosBln = await self._buscarDados();
         } else {
-            await this.#buscarAreasJuridicas();
+            this.#buscarAreasJuridicas();
             this._action = EnumAction.POST;
         }
 

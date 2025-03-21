@@ -134,8 +134,8 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     async #buscarEscolaridade(selected_id = null) {
         try {
             const self = this;
-            let options = { firstOptionValue: null };
-            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
+            let options = { outInstanceParentBln: true, firstOptionValue: null };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#escolaridade_id${self._objConfigs.sufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseEscolaridadeTenant, options); 0
             return true
@@ -147,8 +147,8 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     async #buscarEstadoCivil(selected_id = null) {
         try {
             const self = this;
-            let options = { firstOptionValue: null };
-            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
+            let options = { outInstanceParentBln: true, firstOptionValue: null };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#estado_civil_id${self._objConfigs.sufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseEstadoCivilTenant, options); 0
             return true
@@ -160,8 +160,8 @@ export class TemplateFormPessoaFisica extends TemplateForm {
     async #buscarSexo(selected_id = null) {
         try {
             const self = this;
-            let options = { firstOptionValue: null };
-            selected_id ? Object.assign(options, { selectedIdOption: selected_id }) : null;
+            let options = { outInstanceParentBln: true, firstOptionValue: null };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#sexo_id${self._objConfigs.sufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseSexoTenant, options); 0
             return true

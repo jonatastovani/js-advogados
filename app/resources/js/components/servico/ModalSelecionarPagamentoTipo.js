@@ -97,9 +97,7 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
     async #buscarPagamentoTipos(selected_id = null) {
         try {
             const self = this;
-            let options = {
-                outInstanceParentBln: true,
-            };
+            let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#pagamento_tipo_tenant_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);

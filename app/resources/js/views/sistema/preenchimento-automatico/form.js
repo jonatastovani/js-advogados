@@ -140,7 +140,8 @@ class PagePreenchimentoAutomatico extends TemplateForm {
     async #buscarAreasJuridicas(selected_id = null) {
         try {
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
+            let options = { outInstanceParentBln: true };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const selArea = $(`#area_juridica_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(selArea, self._objConfigs.url.baseAreaJuridicaTenant, options); 0
             return true

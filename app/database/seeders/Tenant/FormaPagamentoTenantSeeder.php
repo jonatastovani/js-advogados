@@ -46,7 +46,7 @@ class FormaPagamentoTenantSeeder extends Seeder
                 'conta_id' => '9e18b6e1-187c-4795-9e52-5e491fc95485',
             ],
             [
-                "nome" => "Pix PJ Itaú",
+                "nome" => "Pix JS PJ Itaú",
                 'conta_id' => '9e18b6e1-187c-4795-9e52-5e491fc95485',
             ],
         ];

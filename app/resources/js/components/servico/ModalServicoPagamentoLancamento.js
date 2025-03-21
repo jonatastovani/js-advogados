@@ -82,9 +82,11 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
     async #buscarFormaPagamento(selected_id = null) {
         try {
             const self = this;
-            const optionsDefault = { firstOptionName: 'Forma de pagamento padrão do pagamento' };
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
-            options = Object.assign(options, optionsDefault);
+            let options = {
+                outInstanceParentBln: true,
+                firstOptionName: 'Forma de pagamento padrão do Pagamento',
+            };
+            selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(self.getIdModal).find('select[name="forma_pagamento_id"]');
             await CommonFunctions.fillSelect(select, self._objConfigs.url.baseFormaPagamento, options);
             return true;
