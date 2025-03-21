@@ -414,11 +414,11 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     const objModal = new ModalLancamentoReagendar({
                         urlApi: `${self._objConfigs.url.baseLancamentoGeral}/reagendar`
                     });
-                    objModal.setDataEnvModal = {
+                    objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModalForObjData(item, {
                         idRegister: item.id,
                         status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
                         data_atual: item.data_vencimento
-                    }
+                    });
                     const response = await objModal.modalOpen();
                     if (response.refresh) {
                         await self._executarBusca();

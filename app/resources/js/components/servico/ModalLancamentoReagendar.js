@@ -14,23 +14,22 @@ export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
      * Configuração local do modal
      */
     #objConfigs = {
+        url: {
+            base: undefined,
+        },
         sufixo: 'ModalLancamentoReagendar',
-    };
-
-    /** 
-     * Conteúdo a ser retornado na promisse como resolve()
-    */
-    #promisseReturnValue = {
-        refresh: false,
+        domainCustom: {
+            applyBln: true,
+            inheritedBln: true,
+        },
     };
 
     constructor(options = {}) {
         super({
             idModal: "#ModalLancamentoReagendar",
         });
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = options.urlApi;
         this._action = EnumAction.PUT;
 
@@ -40,10 +39,14 @@ export class ModalLancamentoReagendar extends ModalRegistrationAndEditing {
     async modalOpen() {
         const self = this;
 
+        self._queueCheckDomainCustom.setReady();
+
         if (self._dataEnvModal.data_atual) {
             $(self.getIdModal).find('input[name="data_vencimento"]').val(self._dataEnvModal.data_atual);
         }
-        
+
+        if (!self._checkDomainCustomInherited()) return await self._returnPromisseResolve();
+
         await self._modalHideShow();
         $(self.getIdModal).find('.formRegistration .focusRegister').trigger('focus');
         return await self._modalOpen();

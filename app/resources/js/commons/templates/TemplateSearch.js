@@ -94,6 +94,42 @@ export class TemplateSearch {
         }
     }
 
+    /**
+     * Verifica e herda o ID de domínio customizado para envio ao modal.
+     * 
+     * Esta função verifica se o tenant tem um domínio customizado configurado.
+     * Se sim, define o `inherit_domain_id` dentro do objeto `dataEnvModal`,
+     * obtendo o ID do objeto enviado. 
+     *
+     * @param {Object} objData - Objeto contendo os dados contendo o ID de domínio.
+     * @param {Object} dataEnvModal - Objeto contendo os dados a serem enviados ao modal.
+     *                                Caso `inherit_domain_id` ainda não exista, será inserido.
+     * @throws {Error} Se o domínio customizado exigir um ID, mas ele não for encontrado.
+     * @private
+     */
+    _checkDomainCustomInheritDataEnvModalForObjData(objData, dataEnvModal = {}) {
+        const self = this;
+
+        // Verifica se há uma instância de domínio customizado ativa
+        const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+        if (instance) {
+
+            // Obtém o ID do domínio customizado que deve ser herdado
+            const inherit_domain_id = objData?.domain_id;
+
+            // Se o ID não existir, lança um erro
+            if (!inherit_domain_id) {
+                console.error(objData);
+                throw new Error('O ID de Unidade de Domínio a ser herdado não foi informado. Contate o suporte.');
+            }
+
+            // Define o inherit_domain_id no objeto
+            dataEnvModal.inherit_domain_id ??= undefined;
+            dataEnvModal.inherit_domain_id = inherit_domain_id;
+        }
+        return dataEnvModal;
+    }
+
     //#endregion
 
     //#region Campos de busca padrão

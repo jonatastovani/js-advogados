@@ -13,6 +13,9 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         },
         sufixo: 'ModalServicoPagamentoLancamento',
         data: {},
+        domainCustom: {
+            applyBln: true,
+        },
     };
 
     constructor(options = {}) {
@@ -20,17 +23,16 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             idModal: "#ModalServicoPagamentoLancamento",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._action = EnumAction.POST;
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this._objConfigs.url.base = options.urlApi;
         this.#addEventosPadrao();
     }
 
     async modalOpen() {
         const self = this;
+
         if (self._dataEnvModal.idRegister) {
             await CommonFunctions.loadingModalDisplay();
-            await self.#buscarFormaPagamento();
             if (!await self.#buscarDados()) {
                 await CommonFunctions.loadingModalDisplay(false);
                 return await self._returnPromisseResolve();
@@ -39,6 +41,8 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             CommonFunctions.generateNotification('ID de Lancamento não informado. Caso o erro persista, contate o desenvolvedor.', 'error');
             return await self._returnPromisseResolve();
         }
+
+        self._queueCheckDomainCustom.setReady();
         await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
@@ -112,7 +116,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
                 form.find('.pDataVencimento').html(data_vencimento);
                 form.find('.pValor').html(valor_esperado);
                 form.find('input[name="observacao"]').val(responseData.observacao);
-                form.find('select[name="forma_pagamento_id"]').val(responseData.forma_pagamento_id ?? 0).trigger('change');
+                self.#buscarFormaPagamento(responseData.forma_pagamento_id);
                 return true;
             }
             return false;

@@ -14,7 +14,7 @@
 
         <div class="row text-end">
             <div class="col mt-2">
-                <button type="submit" id="btnSaveClientes{{ $sufixo }}" class="btn btn-sm btn-outline-success">
+                <button type="submit" id="btnSaveClientes{{ $sufixo }}" class="btn btn-outline-success">
                     Salvar Clientes
                 </button>
             </div>
