@@ -105,10 +105,15 @@ class PessoaService extends Service
         $caseTipoPessoa = $options['caseTipoPessoa'] ?? null;
 
         // Função para carregar dados de Pessoa Física ou Jurídica dinamicamente
-        $carregarPessoaPorTipo = function ($serviceTipoPessoa, $relationships) use ($options) {
+        $carregarPessoaPorTipo = function ($serviceTipoPessoa, $relationships) use ($options, $withOutClass) {
             $relationships = $this->mergeRelationships(
                 $relationships,
-                app($serviceTipoPessoa)->loadFull(['withOutClass' => array_merge([self::class], $options)]),
+                app($serviceTipoPessoa)->loadFull(array_merge(
+                    $options, // Passa os mesmos $options
+                    [
+                        'withOutClass' => $withOutClass, // Garante que o novo `withOutClass` seja propagado
+                    ]
+                )),
                 [
                     'addPrefix' => 'pessoa_dados.' // Adiciona um prefixo aos relacionamentos externos
                 ]

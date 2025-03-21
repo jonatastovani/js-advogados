@@ -181,7 +181,7 @@ return [
         'default' => [
             'prefix' => '',
             'url' => env('REDIS_URL'),
-            'host' =>  env('REDIS_HOST') ?: '127.0.0.1',
+            'host' =>  env('APP_ENV') == 'production' ? env('REDIS_HOST') : env('REDIS_HOST_LOCAL', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
@@ -190,7 +190,7 @@ return [
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' =>  env('APP_ENV') == 'production' ? env('REDIS_HOST') : '127.0.0.1',
+            'host' =>  env('APP_ENV') == 'production' ? env('REDIS_HOST') : env('REDIS_HOST_LOCAL', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),

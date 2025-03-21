@@ -28,7 +28,7 @@ services:
             - DB_USERNAME=${DB_USERNAME}
             - DB_PASSWORD=${DB_PASSWORD}
             - DB_HOST_LOCAL=${DB_HOST_LOCAL}
-            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_HOST_LOCAL=${REDIS_HOST_LOCAL}
 
     # Serviço Nginx
     nginx:

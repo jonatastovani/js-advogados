@@ -4,10 +4,12 @@ namespace App\Services\Pessoa;
 
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
+use App\Helpers\LogHelper;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class PessoaPerfilService extends Service
@@ -57,6 +59,7 @@ class PessoaPerfilService extends Service
         $resource->pessoa->load('pessoa_perfil.perfil_tipo');
         if ($resource->perfil_tipo_id == PessoaPerfilTipoEnum::USUARIO->value) {
             $resource->load('user.user_tenant_domains.domain');
+            Log::debug("user", ['user' => $resource->user->toArray()]);
         }
         return $resource->toArray();
     }
