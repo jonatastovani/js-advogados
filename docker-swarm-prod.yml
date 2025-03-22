@@ -97,6 +97,23 @@ services:
             - laravel
         entrypoint: ["/bin/sh", "/renew_certificates.sh"] # Define o script como comando principal
 
+    # Serviço PgAdmin
+    pgadmin:
+        image: dpage/pgadmin4
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        environment:
+            PGADMIN_DEFAULT_EMAIL: "dev@example.com"
+            PGADMIN_DEFAULT_PASSWORD: "admin"
+        networks:
+            - laravel
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+        ports:
+            - "15432:80"
+
 networks:
     laravel:
         driver: overlay

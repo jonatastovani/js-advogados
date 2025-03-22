@@ -4,12 +4,10 @@ namespace App\Services\Pessoa;
 
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
-use App\Helpers\LogHelper;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class PessoaPerfilService extends Service
