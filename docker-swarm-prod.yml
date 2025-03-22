@@ -123,3 +123,4 @@ volumes:
     app_data:
     postgres_data:
     phpredis_data:
+    pgadmin_data:
