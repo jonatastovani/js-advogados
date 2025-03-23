@@ -127,6 +127,7 @@ export class ModalLancamentoCategoriaTipoTenant extends ModalSearchAndFormRegist
                     const form = $(self.getIdModal).find('.formRegistration');
                     form.find('input[name="nome"]').val(responseData.nome);
                     form.find('textarea[name="descricao"]').val(responseData.descricao);
+                    form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
                     self._actionsHideShowRegistrationFields(true);
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }

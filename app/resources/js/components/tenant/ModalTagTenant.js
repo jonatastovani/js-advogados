@@ -99,6 +99,8 @@ export class ModalTagTenant extends ModalSearchAndFormRegistration {
             btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
         }
 
+        const ativo = item.ativo_bln ? 'Sim' : 'Não';
+
         let btnsDropDown = `
             <div class="btn-group">
                 ${btnSelect}
@@ -121,6 +123,7 @@ export class ModalTagTenant extends ModalSearchAndFormRegistration {
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
                 <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
+                <td class="text-center" title="${ativo}">${ativo}</td>
             </tr>
         `);
 
@@ -144,6 +147,7 @@ export class ModalTagTenant extends ModalSearchAndFormRegistration {
                     const form = $(self.getIdModal).find('.formRegistration');
                     form.find('input[name="nome"]').val(responseData.nome);
                     form.find('textarea[name="descricao"]').val(responseData.descricao);
+                    form.find('input[name="ativo_bln"]').prop('checked', responseData.ativo_bln);
                     self._actionsHideShowRegistrationFields(true);
                     self._executeFocusElementOnModal(form.find('input[name="nome"]'));
                 }
