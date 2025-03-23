@@ -108,7 +108,7 @@ class TagTenantService extends Service
         $identificacoes = IdentificacaoTags::where('tag_id', $resource->id)->count();
 
         if ($identificacoes > 0) {
-            RestResponse::createErrorResponse(422, "Esta tag está sendo utilizada em identificações, impossibilitando a exclusão. Verifique a possiibilidade de inativa-la.")->throwResponse();
+            RestResponse::createErrorResponse(422, "Esta tag está sendo utilizada em identificações, impossibilitando a exclusão. Verifique a possibilidade de inativa-la.")->throwResponse();
         }
 
         try {

@@ -81,7 +81,7 @@ class LancamentoCategoriaTipoTenantService extends Service
         $gerais = LancamentoGeral::where('categoria_id', $resource->id)->count();
 
         if ($ressarcimentos > 0 || $gerais > 0) {
-            RestResponse::createErrorResponse(422, "Esta categoria está sendo utilizada em lançamentos, impossibilitando a exclusão. Verifique a possiibilidade de inativa-la.")->throwResponse();
+            RestResponse::createErrorResponse(422, "Esta categoria está sendo utilizada em lançamentos, impossibilitando a exclusão. Verifique a possibilidade de inativa-la.")->throwResponse();
         }
 
         try {
