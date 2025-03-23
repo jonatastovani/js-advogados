@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (1 == 1) {
+        if (1 == 2) {
             $this->call([
                 TenantTypeSeeder::class,
                 TenantAdminSeeder::class,
@@ -127,10 +127,7 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                TenantEscritorioSeeder::class,
-                DomainEscritorioSeeder::class,
-                // DocumentoModeloTipoSeeder::class,
-                // ParticipacaoTipoTenantObrigatorioSeeder::class,
+                LancamentoStatusTipoSeeder::class,
             ]);
         }
     }

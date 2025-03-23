@@ -23,6 +23,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'name',
         'sigla',
         'created_user_id',
+        'lancamento_liquidado_migracao_sistema_bln',
     ];
 
     public static function getCustomColumns(): array

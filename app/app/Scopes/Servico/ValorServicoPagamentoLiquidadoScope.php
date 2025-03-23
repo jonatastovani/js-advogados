@@ -30,7 +30,8 @@ class ValorServicoPagamentoLiquidadoScope implements Scope
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
                         LancamentoStatusTipoEnum::LIQUIDADO->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
+                        LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
                     ])
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAlias}.id")
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
@@ -40,7 +41,8 @@ class ValorServicoPagamentoLiquidadoScope implements Scope
             $builder->withSum(['lancamentos as total_liquidado' => function ($query) {
                 $query->whereIn('status_id', [
                     LancamentoStatusTipoEnum::LIQUIDADO->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
+                    LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_recebido AS numeric), 2)'));
         }

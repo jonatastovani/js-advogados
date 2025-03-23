@@ -136,7 +136,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         super._modalReset();
         const self = this;
         $(self.getIdModal).find(`#dados-pagamento${self._objConfigs.sufixo}-tab`).trigger('click');
-        $(self.getIdModal).find('.elements-pane-lancamentos').show();
+        $(self.getIdModal).find('.elements-pane-lancamentos').css('display', '');
     }
 
     async #simularPagamento() {
@@ -298,7 +298,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
             if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.CONDICIONADO) {
-                $(self.getIdModal).find('.elements-pane-lancamentos').hide('fast');
+                $(self.getIdModal).find('.elements-pane-lancamentos').css('display', 'none');
             }
 
         } catch (error) {
@@ -350,7 +350,9 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #buscarStatusPagamento(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Details.PagamentoStatusTipoEnum;
+            const arrayOpcoes = self._dataEnvModal.idRegister ?
+                window.Details.PagamentoStatusTipoEnum :
+                window.Statics.StatusParaNovosPagamentosServicos;
             let options = { insertFirstOption: false };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#status_id${self.getSufixo}`);

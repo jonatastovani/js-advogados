@@ -39,7 +39,8 @@ class ValorServicoLiquidadoScope implements Scope
                     ->whereNull("{$tableSubAlias}.deleted_at")
                     ->whereIn("{$tableSubAlias}.status_id", [
                         LancamentoStatusTipoEnum::LIQUIDADO->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
+                        LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
                     ])
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
@@ -50,7 +51,8 @@ class ValorServicoLiquidadoScope implements Scope
                 $table = (new ServicoPagamentoLancamento())->getTable();
                 $query->whereIn("{$table}.status_id", [
                     LancamentoStatusTipoEnum::LIQUIDADO->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value
+                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
+                    LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
                 ]);
             }], DB::raw('ROUND(CAST(valor_recebido AS numeric), 2)'));
         }

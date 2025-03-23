@@ -155,19 +155,16 @@ enum LancamentoStatusTipoEnum: int
         };
     }
 
-    static public function statusPadraoSalvamento(int $idPagamentoStatus = null): int
+    static public function statusPadraoSalvamentoServico(int $idPagamentoStatus): int
     {
         switch ($idPagamentoStatus) {
             case PagamentoStatusTipoEnum::ATIVO->value:
                 return self::AGUARDANDO_PAGAMENTO->value;
 
-            case PagamentoStatusTipoEnum::LIQUIDADO->value:
-                return self::LIQUIDADO->value;
-
-            case PagamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value:
-                return self::LIQUIDADO_EM_ANALISE->value;
+            case PagamentoStatusTipoEnum::ATIVO_EM_ANALISE->value:
+            default:
+                return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
         }
-        return self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value;
     }
 
     static public function statusPadraoSalvamentoLancamentoGeral(): int

@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 class LancamentoStatusTipoSeeder extends Seeder
 {
     use CommonsSeederMethodsTrait;
-    
+
     protected $model;
 
     public function __construct()
@@ -23,17 +23,12 @@ class LancamentoStatusTipoSeeder extends Seeder
      */
     public function run(): void
     {
-        $insert = [];
+        $dataList = [];
         foreach (LancamentoStatusTipoEnum::cases() as $enumValue) {
-            $insert[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
+            $dataList[] = $enumValue->detalhes();  // Puxa os detalhes de cada enum
         }
 
-        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-        foreach ($insert as $data) {
-            $data['created_user_id'] = $adminTenantUserId;
-            $this->model::create($data);
-        }
-
-        $this->atualizaIdIncrementalNumerico();
+        // Chama o método genérico para inserção/atualização
+        $this->setAtualizaIdIncrementalBln(true)->upsertData($dataList);
     }
 }

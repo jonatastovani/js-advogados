@@ -55,11 +55,35 @@ enum PagamentoStatusTipoEnum: int
     {
         return self::ATIVO_EM_ANALISE->value;
     }
-    
+
     static public function statusPagamentoTachado(): array
     {
         return [
             self::CANCELADO->value,
         ];
+    }
+
+    /**
+     * Status que serão permitidos setar para novos registros de Pagamentos.
+     */
+    static private function statusPermitidoParaNovosPagamentos(): array
+    {
+        return [
+            self::ATIVO->value,
+            self::ATIVO_EM_ANALISE->value,
+        ];
+    }
+
+    /**
+     * Retorna os status que serão exibidos disponibilizados para novos registros de Pagamentos de Serviços.
+     */
+    static public function statusParaNovosPagamentosServicos(): array
+    {
+        $permitidos = self::statusPermitidoParaNovosPagamentos();
+
+        return array_values(array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => in_array($detalhe['id'], $permitidos)
+        ));
     }
 }

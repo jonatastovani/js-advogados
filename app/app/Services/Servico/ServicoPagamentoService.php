@@ -30,6 +30,7 @@ use App\Services\Tenant\FormaPagamentoTenantService;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
@@ -321,10 +322,7 @@ class ServicoPagamentoService extends Service
 
             $salvarLancamentos = function ($lancamentos) use ($resource) {
 
-                $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamento();
-                if ($resource->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
-                    $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
-                }
+                $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($resource->status_id);
 
                 $lancamentos = $lancamentos['lancamentos'] ?? [];
 
@@ -338,6 +336,17 @@ class ServicoPagamentoService extends Service
                     $newLancamento->data_vencimento = $lancamento->data_vencimento;
                     $newLancamento->valor_esperado = $lancamento->valor_esperado;
                     $newLancamento->status_id = $statusLancamento;
+
+                    if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
+                        // verificar se a data do vencimento da parcela é retroativa ao mês atual.
+                        // Se for, alterar o status do lancamento para Liquidado Migração
+                        if (Carbon::parse($lancamento->data_vencimento)->month < Carbon::now()->month) {
+                            $newLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                            $newLancamento->valor_recebido = $lancamento->valor_esperado;
+                            $newLancamento->data_recebimento = $lancamento->data_vencimento;
+                            $newLancamento->forma_pagamento_id = $resource->forma_pagamento_id;
+                        }
+                    }
 
                     $newLancamento->save();
                 }

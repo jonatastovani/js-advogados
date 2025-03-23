@@ -31,6 +31,6 @@ class DocumentoModeloTipoSeeder extends Seeder
         }
 
         // Chama o método genérico para inserção/atualização
-        $this->upsertData($dataList);
+        $this->setAtualizaIdIncrementalBln(true)->upsertData($dataList);
     }
 }

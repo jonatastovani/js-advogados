@@ -13,6 +13,7 @@ use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class TenantService extends Service
@@ -60,7 +61,7 @@ class TenantService extends Service
                 unset($resource->domains);
 
                 $resource->save();
-
+        
                 foreach ($domains as $domain) {
                     $domain->save();
                 }

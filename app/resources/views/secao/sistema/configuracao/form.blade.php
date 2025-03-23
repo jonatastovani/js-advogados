@@ -37,11 +37,19 @@
                         Domínios
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-2" id="painelConfiguracoes{{ $sufixo }}-tab" data-bs-toggle="tab"
+                        data-bs-target="#painelConfiguracoes{{ $sufixo }}-tab-pane" type="button" role="tab"
+                        aria-controls="painelConfiguracoes{{ $sufixo }}-tab-pane" aria-selected="false">
+                        Configurações
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
-    <div class="row row-cols-1 rounded rounded-top-0 border-top-0 flex-fill">
-        <div class="col tab-content overflow-auto" id="myTabContent">
+
+    <form id="form{{ $sufixo }}" class="row row-cols-1 rounded rounded-top-0 border-top-0 flex-fill">
+        <div class="col tab-content overflow-auto" id="myTabContent{{ $sufixo }}">
             <div class="tab-pane fade h-100 show active" id="painelDados{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelDados{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.sistema.configuracao.painel.painel-dados')
@@ -50,8 +58,12 @@
                 aria-labelledby="painelDominios{{ $sufixo }}-tab" tabindex="0">
                 @include('secao.sistema.configuracao.painel.painel-dominios')
             </div>
+            <div class="tab-pane fade h-100" id="painelConfiguracoes{{ $sufixo }}-tab-pane" role="tabpanel"
+                aria-labelledby="painelConfiguracoes{{ $sufixo }}-tab" tabindex="0">
+                @include('secao.sistema.configuracao.painel.painel-configuracoes')
+            </div>
         </div>
-    </div>
+    </form>
 
     <x-pagina.info-campos-obrigatorios />
 

@@ -28,6 +28,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
             baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
             baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
+            baseTenant: window.apiRoutes.baseTenant,
             baseFrontServicoForm: window.frontRoutes.baseFrontServicoForm,
         },
         data: {
@@ -45,6 +46,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 AGUARDANDO_PAGAMENTO: {
@@ -60,6 +62,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 LIQUIDADO_EM_ANALISE: {
@@ -73,6 +76,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 LIQUIDADO: {
@@ -98,6 +102,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 LIQUIDADO_PARCIALMENTE: {
@@ -121,6 +126,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 REAGENDADO: {
@@ -150,6 +156,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 CANCELADO: {
@@ -166,6 +173,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 INADIMPLENTE_EM_ANALISE: {
@@ -181,6 +189,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 INADIMPLENTE: {
@@ -196,6 +205,23 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                    ]
+                },
+                LIQUIDADO_MIGRACAO_SISTEMA: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                    cor: null,
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                     ]
                 },
                 PAGAMENTO_CANCELADO_EM_ANALISE: {
@@ -206,7 +232,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
                     cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
                 },
-            }
+            },
+            dados_tenant: undefined,
         }
     };
 
@@ -243,6 +270,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
     async _executarBusca() {
         const self = this;
 
+        await self.#buscaDadosTenant();
+
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
             let appendData = {};
@@ -266,6 +295,18 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         BootstrapFunctionsHelper.removeEventPopover();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
         await self._generateQueryFilters(getAppendDataQuery());
+    }
+
+    async #buscaDadosTenant() {
+        const self = this;
+
+        try {
+            const objConn = new ConnectAjax(`${self._objConfigs.url.baseTenant}/current`);
+            const response = await objConn.getRequest();
+            self._objConfigs.dados_tenant = response.data;
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+        }
     }
 
     async insertTableData(item, options = {}) {
@@ -463,6 +504,18 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 </li>`;
             }
 
+            // Se houver as configurações do tenant então se verifica se apresenta ou não o botão
+            if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
+                if (configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                    strBtns += `
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-liquidado-migracao" title="Registrar lançamento ${item.descricao_automatica} com status Liquidado Migração Sistema.">
+                        <i class="bi bi-journal-check"></i> Liquidado (Migração Sistema)
+                    </button>
+                </li>`;
+                }
+            }
+
         }
 
         let strVerServico = `
@@ -653,6 +706,16 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             btnAcao.on('click', async function () {
                 await openAlterarStatus({ status_html: 'Inadimplente', status_id: enumLanc.INADIMPLENTE });
             });
+        }
+
+        // Se houver as configurações do tenant então se verifica se apresenta ou não o botão
+        if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
+            btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-migracao`);
+            if (btnAcao.length && configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                btnAcao.on('click', async function () {
+                    await openAlterarStatus({ status_html: 'Liquidado (Migração Sistema)', status_id: enumLanc.LIQUIDADO_MIGRACAO_SISTEMA });
+                });
+            }
         }
     }
 
