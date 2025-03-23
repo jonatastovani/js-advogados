@@ -16,6 +16,16 @@
             </div>
         </div>
         <div class="row">
+            <div class="col mt-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="ativo_bln{{ $sufixo }}"
+                        name="ativo_bln" checked>
+                    <label class="form-check-label" for="ativo_bln{{ $sufixo }}">Ativo</label>
+                </div>
+            </div>
+            <div class="form-text">As tags inativas, não serão listadas no sistema.</div>
+        </div>
+        <div class="row">
             <div class="col-12 text-end mt-2">
                 <button type="submit" class="btn btn-outline-success btn-save" style="min-width: 7rem;">
                     Salvar

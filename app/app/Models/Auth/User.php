@@ -42,6 +42,7 @@ class User extends Authenticatable
         'email',
         'password',
         'tenant_id',
+        'ativo_bln',
         'pessoa_perfil_id',
     ];
 
@@ -83,6 +84,8 @@ class User extends Authenticatable
                 'password',
                 'email',
                 'remember_token',
+                'pessoa_perfil_id',
+                'ativo_bln',
                 'email_verified_at',
             ]
         );

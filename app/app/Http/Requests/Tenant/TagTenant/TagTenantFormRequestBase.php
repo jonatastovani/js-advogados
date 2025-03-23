@@ -15,6 +15,7 @@ class TagTenantFormRequestBase extends BaseFormRequest
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',
             'tipo' => "required|string|in:{$tiposPermitidos}",
+            'ativo_bln' => 'nullable|boolean',
         ];
     }
 }

@@ -20,5 +20,6 @@ class TagTenant extends Model
         'nome',
         'descricao',
         'tipo',
+        'ativo_bln',
     ];
 }

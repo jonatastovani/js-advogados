@@ -79,6 +79,8 @@ export class ModalLancamentoCategoriaTipoTenant extends ModalSearchAndFormRegist
             btnSelect = `<button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>`
         }
 
+        const ativo = item.ativo_bln ? 'Sim' : 'Não';
+
         let btnsDropDown = `
             <div class="btn-group">
                 ${btnSelect}
@@ -101,6 +103,7 @@ export class ModalLancamentoCategoriaTipoTenant extends ModalSearchAndFormRegist
                 </td>
                 <td class="text-nowrap text-truncate" title="${item.nome}">${item.nome}</td>
                 <td class="text-nowrap text-truncate campo-text-truncate-35" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
+                <td class="text-center" title="${ativo}">${ativo}</td>
             </tr>
         `);
 

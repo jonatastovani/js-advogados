@@ -11,6 +11,7 @@ class LancamentoCategoriaTipoTenantFormRequestBase extends BaseFormRequest
         return [
             'nome' => 'required|string|min:3',
             'descricao' => 'nullable|string',
+            'ativo_bln' => 'nullable|boolean',
         ];
     }
 

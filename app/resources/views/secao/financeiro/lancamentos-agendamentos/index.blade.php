@@ -136,13 +136,13 @@
             <ul class="dropdown-menu">
                 <li>
                     <button id="btnInserirAgendamentoGeral{{ $sufixo }}" type="button"
-                        class="dropdown-item" title="Editar agendamento ${descricao}.">
+                        class="dropdown-item" title="Editar agendamento.">
                         Lançamento geral
                     </button>
                 </li>
                 <li>
                     <button id="btnInserirAgendamentoRessarcimento{{ $sufixo }}" type="button"
-                        class="dropdown-item" title="Excluir agendamento ${descricao}.">
+                        class="dropdown-item" title="Excluir agendamento.">
                         Ressarcimento/Compensação
                     </button>
                 </li>

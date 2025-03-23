@@ -23,5 +23,6 @@ class LancamentoCategoriaTipoTenant extends Model
     protected $fillable = [
         'nome',
         'descricao',
+        'ativo_bln',
     ];
 }

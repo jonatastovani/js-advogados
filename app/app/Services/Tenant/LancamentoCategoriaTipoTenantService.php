@@ -5,10 +5,13 @@ namespace App\Services\Tenant;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Financeiro\LancamentoGeral;
+use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class LancamentoCategoriaTipoTenantService extends Service
@@ -21,7 +24,7 @@ class LancamentoCategoriaTipoTenantService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->all();
+        $resource = $this->model::where('ativo_bln', true)->get();
         return $resource->toArray();
     }
 
@@ -58,13 +61,7 @@ class LancamentoCategoriaTipoTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resource = null;
-        if ($id) {
-            $resource = $this->buscarRecurso($requestData);
-        } else {
-            $resource = new $this->model();
-        }
-
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
         $resource->fill($requestData->toArray());
 
         return $resource;
@@ -75,6 +72,28 @@ class LancamentoCategoriaTipoTenantService extends Service
         return parent::buscarRecurso($requestData, [
             'message' => 'A Categoria não foi encontrada.',
         ]);
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $ressarcimentos = LancamentoRessarcimento::where('categoria_id', $resource->id)->count();
+        $gerais = LancamentoGeral::where('categoria_id', $resource->id)->count();
+
+        if ($ressarcimentos > 0 || $gerais > 0) {
+            RestResponse::createErrorResponse(422, "Esta categoria está sendo utilizada em lançamentos, impossibilitando a exclusão. Verifique a possiibilidade de inativa-la.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     // private function executarEventoWebsocket()

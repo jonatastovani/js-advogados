@@ -5,11 +5,13 @@ namespace App\Services\Tenant;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Comum\IdentificacaoTags;
 use App\Models\Tenant\TagTenant;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class TagTenantService extends Service
@@ -23,7 +25,7 @@ class TagTenantService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->where('tipo', $requestData->tipo)->get();
+        $resource = $this->model->where('tipo', $requestData->tipo)->where('ativo_bln', true)->get();
         return $resource->toArray();
     }
 
@@ -35,7 +37,8 @@ class TagTenantService extends Service
         ]);
 
         $query =  $this->executaConsultaSelect2($requestData, $dados);
-        $query->where('tipo', $requestData->tipo);
+        $query->where('tipo', $requestData->tipo)
+            ->where('ativo_bln', true);
 
         // Definindo o campo de texto dinamicamente ou usando um padrão
         $campoTexto = $dados->campoTexto ?? 'nome'; // O padrão é 'nome'
@@ -81,13 +84,7 @@ class TagTenantService extends Service
             return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
-        $resource = null;
-        if ($id) {
-            $resource = $this->buscarRecurso($requestData);
-        } else {
-            $resource = new $this->model();
-        }
-
+        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model;
         $resource->fill($requestData->toArray());
 
         return $resource;
@@ -103,6 +100,27 @@ class TagTenantService extends Service
             'arrayErrors' => $arrayErrors,
             'resource' => $validacaoTag,
         ]);
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $identificacoes = IdentificacaoTags::where('tag_id', $resource->id)->count();
+
+        if ($identificacoes > 0) {
+            RestResponse::createErrorResponse(422, "Esta tag está sendo utilizada em identificações, impossibilitando a exclusão. Verifique a possiibilidade de inativa-la.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

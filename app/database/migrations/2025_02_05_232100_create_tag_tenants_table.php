@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('tipo', 50);
             $table->string('descricao')->nullable();
             $table->jsonb('data')->nullable();
+            $table->boolean('ativo_bln')->default(true);
 
             $this->addCommonFieldsCreatedUpdatedDeleted($table);
         });
