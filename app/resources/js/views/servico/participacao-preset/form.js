@@ -25,7 +25,8 @@ class PageParticipacaoPresetForm extends TemplateForm {
         },
         domainCustom: {
             applyBln: true,
-        }
+        },
+        preset_inherit: null,
     };
 
     #functionsParticipacao;
@@ -55,6 +56,16 @@ class PageParticipacaoPresetForm extends TemplateForm {
             buscaDadosBln = await self._buscarDados();
         } else {
             self._action = EnumAction.POST;
+            const presetInherit = URLHelper.getParameterURL('preset_inherit');
+
+            // Se for herdado, busca os dados
+            if (presetInherit) {
+                self._objConfigs.preset_inherit = presetInherit;
+                buscaDadosBln = await self._buscarDados({ idRegister: presetInherit });
+                self._idRegister = null;
+                URLHelper.removeURLParameter('preset_inherit');
+            }
+
             $(`#nome${self._objConfigs.sufixo}`).trigger('focus');
         }
 
@@ -85,11 +96,23 @@ class PageParticipacaoPresetForm extends TemplateForm {
 
         await Promise.all(
             responseData.participantes.map(async (participante) => {
+                // Remove a propriedade id, parent_type e parent_id em caso de herdado
+                if (self._objConfigs.preset_inherit) {
+                    delete participante.id;
+                    delete participante.parent_type;
+                    delete participante.parent_id;
+                }
                 const integrantes = participante.integrantes ?? [];
                 delete participante.integrantes;
                 const item = await self.#functionsParticipacao._inserirParticipanteNaTela(participante);
                 await Promise.all(
                     integrantes.map(async (integrante) => {
+                        // Remove a propriedade id, parent_type e parent_id em caso de herdado
+                        if (self._objConfigs.preset_inherit) {
+                            delete integrante.id;
+                            delete integrante.parent_type;
+                            delete integrante.parent_id;
+                        }
                         await self.#functionsParticipacao._inserirIntegrante(item, integrante);
                     })
                 );

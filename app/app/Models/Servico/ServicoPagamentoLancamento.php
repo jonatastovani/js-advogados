@@ -36,7 +36,7 @@ class ServicoPagamentoLancamento extends Model
         'data_vencimento',
         'valor_recebido',
         'data_recebimento',
-        'conta_id',
+        'forma_pagamento_id',
         'status_id',
         'tenant_id',
         'domain_id',

@@ -98,13 +98,6 @@ class ContaTenantService extends Service
         try {
             return DB::transaction(function () use ($resource) {
 
-                // Verifica se há relacionamentos para exclusão em cascata
-                $relations = method_exists($this, 'loadDestroyResourceCascade') ? $this->loadDestroyResourceCascade() : [];
-
-                if (!empty($relations)) {
-                    $this->destroyCascade($resource, $relations);
-                }
-
                 // Exclui o próprio recurso
                 $resource->delete();
 

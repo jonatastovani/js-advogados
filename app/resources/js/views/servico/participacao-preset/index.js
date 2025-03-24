@@ -91,6 +91,11 @@ class PageParticipacaoIndex extends TemplateSearch {
                         Excluir
                     </button>
                 </li>
+                <li>
+                    <a href="${self._objConfigs.querys.consultaFiltros.baseFront}/form?preset_inherit=${item.id}" class="dropdown-item fs-6 btn-new-inherit" title="Criar novo Preset copiando todas as configurações do preset ${item.nome}">
+                        Novo Preset a partir deste
+                    </a>
+                </li>
             </ul>`;
 
         return strBtns;

@@ -6,11 +6,14 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
 use App\Helpers\ValidationRecordsHelper;
+use App\Models\Servico\ServicoPagamento;
+use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
@@ -55,6 +58,59 @@ class FormaPagamentoTenantService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
     }
 
+    public function update(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+
+        // Se for alterado a conta, verifica-se o uso do recurso para não ser alterado
+        if ($resource->conta_original_id != $resource->conta_id) {
+            if ($this->verificacaoDeUso($resource) > 0) {
+                RestResponse::createErrorResponse(409, "Não será possível alterar a conta desta forma de pagamento, pois ela está sendo utilizada em serviços. Considere a possibilidade de deixá-la inativa e criar uma nova, associando a conta desejada.")->throwResponse();
+            }
+        }
+        unset($resource->conta_original_id);
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $resource->save();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        if ($this->verificacaoDeUso($resource) > 0) {
+            RestResponse::createErrorResponse(409, "Esta forma de pagamento está sendo utilizada em serviços e não pode ser excluída. Considere a possibilidade de deixá-la inativa.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                // Exclui o próprio recurso
+                $resource->delete();
+
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    protected function verificacaoDeUso($resource)
+    {
+        $totalUsoPagamentos = ServicoPagamento::where('forma_pagamento_id', $resource->id)->count();
+        $totalUsoLancamentos = ServicoPagamentoLancamento::where('forma_pagamento_id', $resource->id)->count();
+
+        return bcadd($totalUsoPagamentos, $totalUsoLancamentos, 0);
+    }
+
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
     {
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome], $id);
@@ -65,11 +121,18 @@ class FormaPagamentoTenantService extends Service
 
         $arrayErrors = new Fluent();
 
-        $resource = $id ? $this->buscarRecurso($requestData) : new $this->model();
+        $resource = null;
+        if ($id) {
+            $resource = $this->buscarRecurso($requestData);
+            // Adiciona o campo para enviar a informação da conta original
+            $resource->conta_original_id = $resource->conta_id;
+        } else {
+            $resource = new $this->model;
+        }
 
         $validacaoContaTenantId = ValidationRecordsHelper::validateRecord(ContaTenant::class, ['id' => $requestData->conta_id]);
         if (!$validacaoContaTenantId->count()) {
-            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe ou foi excluída.', $requestData)->error;
+            $arrayErrors->conta_id = LogHelper::gerarLogDinamico(404, 'A Conta informada não existe.', $requestData)->error;
         }
 
         // Erros que impedem o processamento
