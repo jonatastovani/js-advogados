@@ -18,6 +18,7 @@ use App\Traits\ParticipacaoTrait;
 use App\Traits\TagMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
@@ -76,7 +77,19 @@ class LancamentoRessarcimentoService extends Service
                 $tags = $resource->tags;
                 unset($resource->tags);
 
+
                 $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoRessarcimento();
+                
+                if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
+                    // verificar se a data do vencimento da parcela é retroativa ao mês atual.
+                    // Se for, alterar o status do lancamento para Liquidado Migração
+                    if (Carbon::parse($resource->data_vencimento)->month < Carbon::now()->month) {
+                        $resource->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                        $resource->valor_quitado = $resource->valor_esperado;
+                        $resource->data_quitado = $resource->data_vencimento;
+                    }
+                }
+
                 $resource->save();
 
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
@@ -221,7 +234,7 @@ class LancamentoRessarcimentoService extends Service
             $resource = $this->buscarRecurso($requestData);
 
             if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoRessarcimento())) {
-                return RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de informações.")->throwResponse();
+                RestResponse::createErrorResponse(422, "Este lançamento possui status que impossibilita a edição de informações.")->throwResponse();
             }
         } else {
             $resource = new $this->model;

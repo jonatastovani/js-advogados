@@ -153,6 +153,12 @@ return [
             'level' => 'debug',
         ],
 
+        'byteforge_app_processamento_agendamento_file' => [
+            'driver' => 'custom',
+            'via' => App\Logging\ByteForge\ByteForgeProcessamentoAgendamentoLogger::class,
+            'level' => 'debug',
+        ],
+
     ],
 
 ];

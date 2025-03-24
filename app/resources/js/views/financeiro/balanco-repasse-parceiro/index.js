@@ -303,10 +303,9 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         let movimentacaoTipo = '';
         const valorParticipante = `R$ ${CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor_participante)}`;
 
-
         let dataMovimentacao = '';
         const descricaoAutomatica = item.descricao_automatica;
-        const conta = parent.conta_domain.conta.nome;
+        let conta = 'Erro Conta';
 
         let dadosEspecificos = '';
         let dadosEspecificosTitle = '';
@@ -319,6 +318,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                 dadosEspecificos = parent.descricao_automatica;
                 dadosEspecificosTitle = `Descrição ${parent.descricao_automatica}`;
+                conta = parent.conta_domain.conta.nome;
 
                 switch (parent.referencia_type) {
 
@@ -364,6 +364,8 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                 dadosEspecificos += ` - ${parent.descricao}`;
                 dadosEspecificosTitle += ` - Descrição: ${parent.descricao}`;
+
+                conta = parent.conta.nome;
 
                 break;
 

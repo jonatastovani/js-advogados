@@ -41,6 +41,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 AGUARDANDO_PAGAMENTO: {
@@ -53,6 +54,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 LIQUIDADO_EM_ANALISE: {
@@ -65,6 +67,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 LIQUIDADO: {
@@ -88,6 +91,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 REAGENDADO: {
@@ -114,6 +118,7 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
                     ]
                 },
                 CANCELADO: {
@@ -126,6 +131,19 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                    ]
+                },
+                LIQUIDADO_MIGRACAO_SISTEMA: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                    cor: null,
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                     ]
@@ -217,6 +235,8 @@ class PageLancamentoGeralIndex extends TemplateSearch {
 
     async _executarBusca() {
         const self = this;
+
+        await self._buscaDadosTenant();
 
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
@@ -443,6 +463,16 @@ class PageLancamentoGeralIndex extends TemplateSearch {
             });
         }
 
+        // Se houver as configurações do tenant então se verifica se aplica o evento ou não o botão
+        if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
+            btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-migracao`);
+            if (btnAcao.length && configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                btnAcao.on('click', async function () {
+                    await openAlterarStatus({ status_html: 'Liquidado (Migração Sistema)', status_id: enumLanc.LIQUIDADO_MIGRACAO_SISTEMA });
+                });
+            }
+        }
+
         $(`#${item.idTr} .btn-edit`).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
@@ -556,6 +586,18 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                         <i class="bi bi-check2-all"></i> Cancelado
                     </button>
                 </li>`;
+        }
+
+        // Se houver as configurações do tenant então se verifica se apresenta ou não o botão
+        if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
+            if (configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                strBtns += `
+                <li>
+                    <button type="button" class="dropdown-item fs-6 btn-liquidado-migracao" title="Registrar lançamento ${item.descricao_automatica} com status Liquidado Migração Sistema.">
+                        <i class="bi bi-journal-check"></i> Liquidado (Migração Sistema)
+                    </button>
+                </li>`;
+            }
         }
 
         strBtns = `

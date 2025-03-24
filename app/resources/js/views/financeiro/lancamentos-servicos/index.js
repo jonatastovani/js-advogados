@@ -28,7 +28,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
             baseFormaPagamento: window.apiRoutes.baseFormaPagamento,
             baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
-            baseTenant: window.apiRoutes.baseTenant,
             baseFrontServicoForm: window.frontRoutes.baseFrontServicoForm,
         },
         data: {
@@ -270,7 +269,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
     async _executarBusca() {
         const self = this;
 
-        await self.#buscaDadosTenant();
+        await self._buscaDadosTenant();
 
         const getAppendDataQuery = () => {
             const formData = $(`#formDataSearch${self.getSufixo}`);
@@ -295,18 +294,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         BootstrapFunctionsHelper.removeEventPopover();
         self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
         await self._generateQueryFilters(getAppendDataQuery());
-    }
-
-    async #buscaDadosTenant() {
-        const self = this;
-
-        try {
-            const objConn = new ConnectAjax(`${self._objConfigs.url.baseTenant}/current`);
-            const response = await objConn.getRequest();
-            self._objConfigs.dados_tenant = response.data;
-        } catch (error) {
-            CommonFunctions.generateNotificationErrorCatch(error);
-        }
     }
 
     async insertTableData(item, options = {}) {
@@ -360,7 +347,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
@@ -368,10 +355,10 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap ${classCor}" title="${formaPagamento}">${formaPagamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
+                <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorPagamento}">${valorPagamento}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorLiquidado}">${valorLiquidado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorAguardando}">${valorAguardando}</td>
@@ -708,7 +695,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             });
         }
 
-        // Se houver as configurações do tenant então se verifica se apresenta ou não o botão
+        // Se houver as configurações do tenant então se verifica se aplica o evento ou não o botão
         if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
             btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-migracao`);
             if (btnAcao.length && configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {

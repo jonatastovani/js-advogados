@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Common\CommonsFunctions;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\LancamentoTipoEnum;
 use App\Models\Auth\Tenant;
@@ -34,7 +35,7 @@ class LancamentoAgendamentoHelper
                 self::processarAgendamentosPorTenant($tenant->id);
             } catch (\Exception $e) {
                 // Log do erro no tenant, mas continua com os outros tenants
-                Log::error("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}");
+                CommonsFunctions::generateLog("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             }
         }
     }
@@ -55,7 +56,7 @@ class LancamentoAgendamentoHelper
                 self::processarAgendamento($agendamento->id);
             } catch (\Exception $e) {
                 // Log do erro, mas continua com os outros agendamentos
-                Log::error("Erro ao processar agendamento ID {$agendamento->id}: {$e->getMessage()}");
+                CommonsFunctions::generateLog("Erro ao processar agendamento ID {$agendamento->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             }
         }
     }
@@ -70,7 +71,7 @@ class LancamentoAgendamentoHelper
         $agendamento = LancamentoAgendamento::find($agendamentoId);
 
         if (!$agendamento) {
-            Log::warning("Agendamento com ID {$agendamentoId} não encontrado.");
+            CommonsFunctions::generateLog("Agendamento com ID {$agendamentoId} não encontrado.", ['channel' => 'processamento_agendamento']);
             return;
         }
 
@@ -89,7 +90,7 @@ class LancamentoAgendamentoHelper
                             $agendamento->save();
                         }
                     } catch (\Exception $e) {
-                        Log::error("Erro ao lançar agendamento ID {$agendamentoId}: {$e->getMessage()}");
+                        CommonsFunctions::generateLog("Erro ao lançar agendamento ID {$agendamentoId}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
                     }
                 }
             }
@@ -187,7 +188,7 @@ class LancamentoAgendamentoHelper
                     }
                 }
             } catch (\Exception $e) {
-                Log::error("Erro geral no processamento de agendamento ID {$agendamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}");
+                CommonsFunctions::generateLog("Erro geral no processamento de agendamento ID {$agendamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
             }
         }
         // $queries = DB::getQueryLog();
@@ -226,6 +227,17 @@ class LancamentoAgendamentoHelper
             $novoLancamento->agendamento_id = $agendamento->id;
             $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
 
+            $tenant = Tenant::find($agendamento->tenant_id);
+            if ($tenant->lancamento_liquidado_migracao_sistema_bln) {
+                // verificar se a data do vencimento da parcela é retroativa ao mês atual.
+                // Se for, alterar o status do lancamento para Liquidado Migração
+                if (Carbon::parse($novoLancamento->data_vencimento)->month < Carbon::now()->month) {
+                    $novoLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                    $novoLancamento->valor_quitado = $novoLancamento->valor_esperado;
+                    $novoLancamento->data_quitado = $novoLancamento->data_vencimento;
+                }
+            }
+
             $novoLancamento->save();
 
             self::replicarParticipantes($agendamento, $novoLancamento);
@@ -238,7 +250,7 @@ class LancamentoAgendamentoHelper
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar
-            Log::error("Erro ao criar lancamento para agendamento ID ({$agendamento->id}): {$e->getMessage()}");
+            CommonsFunctions::generateLog("Erro ao criar lancamento para agendamento ID ({$agendamento->id}): {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             return false;
         }
     }

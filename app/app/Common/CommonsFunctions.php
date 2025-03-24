@@ -57,6 +57,7 @@ class CommonsFunctions
             'acesso_recusado' => 'byteforge_app_acesso_recusado_file',
             'usuario_sem_permissao' => 'byteforge_app_usuario_sem_permissao_file',
             'rota_nao_encontrada' => 'byteforge_app_rota_nao_encontrada_file',
+            'processamento_agendamento' => 'byteforge_app_processamento_agendamento_file',
         ];
 
         // Definir o canal baseado no map ou usar o padrão do config

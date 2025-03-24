@@ -145,6 +145,7 @@
             'baseMovimentacaoContaLancamentoGeral' => route('api.financeiro.movimentacao-conta.lancamento-geral'),
             'baseContas' => route('api.tenant.conta'),
             'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
+            'baseTenant' => route('api.tenant'),
         ],
     ])
     @endcomponent
