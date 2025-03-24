@@ -258,6 +258,7 @@ class MovimentacaoContaService extends Service
                 unset($resource->participantes);
 
                 $lancamento = $modelParent::find($idParent);
+                $metadata = (array) is_array($lancamento->metadata) ? $lancamento->metadata : [];
 
                 switch ($requestData->status_id) {
                     case LancamentoStatusTipoEnum::LIQUIDADO->value:
@@ -265,7 +266,7 @@ class MovimentacaoContaService extends Service
                         $restricaoDeAlteracaoDeParticipantes = false;
 
                         if ($lancamento->parent_id) {
-                            if ($lancamento->metadata['diluicao_pagamento_parcial']) {
+                            if (!empty($metadata['diluicao_pagamento_parcial'] ?? null)) {
                                 // Se tiver registro de ids de lançamentos diluídos, então não se troca os participantes porque senão a pessoa não recebe o restante que lhe é devido
                                 $restricaoDeAlteracaoDeParticipantes =  true;
                             }
@@ -315,7 +316,6 @@ class MovimentacaoContaService extends Service
                         $lancamento->valor_recebido = $requestData->valor_recebido;
                         $lancamento->data_recebimento = $requestData->data_recebimento;
 
-                        $metadata = $lancamento->metadata;
                         $metadata['diluicao_lancamentos_ids'] = $diluicaoData['diluicao_lancamentos_ids'];
                         $metadata['porcentagem_recebida'] = $diluicaoData['porcentagem_recebida'];
 
@@ -905,9 +905,11 @@ class MovimentacaoContaService extends Service
     public function storeLancarRepasseParceiro(Fluent $dadosMovimentacao)
     {
 
+        $metadata = (array) is_array($dadosMovimentacao->metadata) ? $dadosMovimentacao->metadata : [];
+
         $resource = new $this->model;
         $resource->fill($dadosMovimentacao->toArray());
-        $resource->metadata = $dadosMovimentacao->metadata;
+        $resource->metadata = $metadata;
         $resource->status_id = $dadosMovimentacao->status_id;
         $resource->movimentacao_tipo_id = $dadosMovimentacao->movimentacao_tipo_id;
 
