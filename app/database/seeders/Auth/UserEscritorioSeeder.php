@@ -86,6 +86,11 @@ class UserEscritorioSeeder extends Seeder
                     'tenant_id' => 'jsadvogados',
                     'domain_id' => 3,
                 ],
+                [
+                    'user_id' => $user->id,
+                    'tenant_id' => 'jsadvogados',
+                    'domain_id' => 4,
+                ],
             ];
 
             foreach ($insert as $data) {

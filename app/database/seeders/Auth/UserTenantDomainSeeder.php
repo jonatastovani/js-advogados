@@ -45,6 +45,11 @@ class UserTenantDomainSeeder extends Seeder
                 'tenant_id' => 'jsadvogados',
                 'domain_id' => 3,
             ],
+            [
+                'user_id' => $adminId,
+                'tenant_id' => 'jsadvogados',
+                'domain_id' => 4,
+            ],
         ];
         // Chama o método genérico para inserção/atualização
         $this->setDefaultTenantId()->upsertData($dataList);

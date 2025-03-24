@@ -14,6 +14,7 @@ class FirstAccessMail extends Mailable
     use Queueable, SerializesModels;
 
     public $resetLink;
+    public $nomeEmpresa;
 
     /**
      * Create a new message instance.
@@ -22,6 +23,7 @@ class FirstAccessMail extends Mailable
      */
     public function __construct(string $resetLink)
     {
+        $this->nomeEmpresa = tenant('name') ?? "Sistema Byteforge";
         $this->resetLink = $resetLink;
     }
 
@@ -30,8 +32,9 @@ class FirstAccessMail extends Mailable
      */
     public function envelope(): Envelope
     {
+
         return new Envelope(
-            subject: 'Defina sua senha no primeiro acesso',
+            subject: "{$this->nomeEmpresa} - Defina sua senha no primeiro acesso",
         );
     }
 
@@ -46,7 +49,7 @@ class FirstAccessMail extends Mailable
                 'level' => 'success',
                 'greeting' => 'Bem-vindo ao Sistema!',
                 'introLines' => [
-                    'Você foi cadastrado no sistema. Clique no botão abaixo para definir sua senha no primeiro acesso.',
+                    "Você foi cadastrado no sistema {$this->nomeEmpresa}. Clique no botão abaixo para definir sua senha no primeiro acesso.",
                 ],
                 'actionText' => 'Definir Senha',
                 'actionUrl' => $this->resetLink,
