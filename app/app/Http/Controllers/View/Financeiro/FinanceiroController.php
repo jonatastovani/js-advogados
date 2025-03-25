@@ -88,6 +88,7 @@ class FinanceiroController extends Controller
 
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
+                    $dadosRetorno->conta = $parent['conta_domain']['conta']['nome'];
 
                     $dadosEspecificos = $parent['descricao_automatica'];
 
@@ -116,6 +117,7 @@ class FinanceiroController extends Controller
 
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_vencimento']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
+                    $dadosRetorno->conta = $parent['conta']['nome'];
 
                     $dadosEspecificos = $participacao['descricao_automatica'];
                     $dadosEspecificos .= " - NR#{$parent['numero_lancamento']}";
@@ -129,7 +131,6 @@ class FinanceiroController extends Controller
             }
 
             $dadosRetorno->dados_especificos = $dadosEspecificos;
-            $dadosRetorno->conta = $parent['conta_domain']['conta']['nome'];
             $dadosRetorno->created_at = (new DateTime($parent['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
