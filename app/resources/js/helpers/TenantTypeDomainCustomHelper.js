@@ -104,7 +104,7 @@ export default class TenantTypeDomainCustomHelper {
                 // Verifica se já existe um `<td>` do domínio para evitar inserção duplicada
                 if (!tr.find('.td-domain-custom').length) {
                     const td = document.createElement('td');
-                    td.className = `td-domain-custom ${appendClass}`;
+                    td.className = `td-domain-custom text-nowrap ${appendClass}`;
                     td.textContent = tdContent;
                     tr.prepend(td); // Insere no início da `<tr>`
                 }

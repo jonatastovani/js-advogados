@@ -1,4 +1,5 @@
 import { TemplateSearch } from "../../commons/templates/TemplateSearch";
+import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 
 class PageServico extends TemplateSearch {
@@ -35,6 +36,13 @@ class PageServico extends TemplateSearch {
         });
     }
 
+    async _executarBusca() {
+        const self = this;
+        BootstrapFunctionsHelper.removeEventPopover();
+        self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
+        await self._generateQueryFilters();
+    }
+
     async insertTableData(item, options = {}) {
         const self = this;
         const {
@@ -42,7 +50,7 @@ class PageServico extends TemplateSearch {
         } = options;
 
         let strBtns = self.#htmlBtns(item);
-
+        const htmlCliente = self.#htmlRenderCliente(item);
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         $(tbody).append(`
@@ -52,14 +60,16 @@ class PageServico extends TemplateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-center" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
+                <td class="text-nowrap">${htmlCliente}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.titulo ?? ''}">${item.titulo}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.area_juridica.nome ?? ''}">${item.area_juridica.nome ?? ''}</td>
+                <td class="text-nowrap text-center" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 
         self.#addEventosRegistrosConsulta(item);
+        BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
 
@@ -99,6 +109,43 @@ class PageServico extends TemplateSearch {
             });
         });
     }
+
+
+    #htmlRenderCliente(item) {
+        const self = this;
+
+        const arrayCliente = item?.cliente;
+        if (!arrayCliente.length) {
+            return '<span class="fst-italic" title="Nenhum cliente encontrado">Nenhum cliente encontrado</span>';
+        }
+
+        let nomes = [];
+
+        arrayCliente.map(cliente => {
+            const pessoa = cliente.perfil.pessoa;
+            let nome = '';
+
+            switch (pessoa.pessoa_dados_type) {
+                case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                    nome = pessoa.pessoa_dados.nome;
+                    break;
+                case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                    nome = pessoa.pessoa_dados.nome_fantasia;
+                    break;
+
+                default:
+                    nome = `Não implementado - ${pessoa.pessoa_dados_type}`;
+                    console.error(`O tipo de pessoa <b>${pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, cliente);
+
+            }
+            nomes.push(nome);
+        });
+
+        if (nomes.length > 1) {
+            return `<button type="button" class="btn btn-sm btn-outline-info border-0 text-nowrap text-reset" data-bs-toggle="popover" data-bs-title="Cliente(s)" data-bs-html="true" data-bs-content="${nomes.join("<hr class='my-1'>")}">${nomes[0]}</button>`
+        }
+        return `<span class="text-nowrap">${nomes[0]}</span>`;
+    };
 }
 
 $(function () {

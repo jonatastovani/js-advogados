@@ -72,7 +72,7 @@ class Servico extends Model
 
     public function cliente()
     {
-        return $this->hasMany(ServicoCliente::class);
+        return $this->hasMany(ServicoCliente::class)->orderBy('created_at', 'asc');
     }
 
     public function documentos()

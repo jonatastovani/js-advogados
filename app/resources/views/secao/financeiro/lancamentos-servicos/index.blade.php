@@ -86,15 +86,16 @@
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-nowrap">Status</th>
-                    <th class="text-center" title="Número do Pagamento">N.P.</th>
-                    <th class="text-nowrap">Descrição Lançamento</th>
+                    <th class="text-nowrap">Data Vencimento</th>
+                    <th class="text-nowrap">Valor Esperado</th>
+                    <th class="text-nowrap">Cliente(s)</th>
                     <th class="text-nowrap">Titulo Serviço</th>
                     <th class="text-nowrap">Área Jurídica</th>
-                    <th class="text-nowrap">Valor Esperado</th>
-                    <th class="text-nowrap">Data Vencimento</th>
                     <th class="text-nowrap">Forma Pagamento</th>
                     <th class="text-nowrap">Valor Recebido</th>
                     <th class="text-nowrap">Data Recebimento</th>
+                    <th class="text-nowrap">Descrição Lançamento</th>
+                    <th class="text-center" title="Número do Pagamento">N.P.</th>
                     <th class="text-nowrap">Observação Lançamento</th>
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th class="text-nowrap">Valor Pagamento</th>

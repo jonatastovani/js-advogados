@@ -49,9 +49,10 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-center" title="Número de Serviço">N.S.</th>
+                    <th>Cliente(s)</th>
                     <th>Titulo</th>
                     <th>Área</th>
+                    <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Cadastro</th>
                 </tr>
             </thead>
