@@ -50,7 +50,7 @@
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th>Cliente(s)</th>
-                    <th>Titulo</th>
+                    <th>Título</th>
                     <th>Área</th>
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Cadastro</th>

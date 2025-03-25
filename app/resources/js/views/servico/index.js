@@ -142,7 +142,8 @@ class PageServico extends TemplateSearch {
         });
 
         if (nomes.length > 1) {
-            return `<button type="button" class="btn btn-sm btn-outline-info border-0 text-nowrap text-reset" data-bs-toggle="popover" data-bs-title="Cliente(s)" data-bs-html="true" data-bs-content="${nomes.join("<hr class='my-1'>")}">${nomes[0]}</button>`
+            const total = nomes.length;
+            return `<button type="button" class="btn btn-sm btn-outline-info border-0 text-nowrap text-reset" data-bs-toggle="popover" data-bs-title="Cliente(s)" data-bs-html="true" data-bs-content="${nomes.join("<hr class='my-1'>")}">${nomes[0]} + ${total - 1}</button>`
         }
         return `<span class="text-nowrap">${nomes[0]}</span>`;
     };
