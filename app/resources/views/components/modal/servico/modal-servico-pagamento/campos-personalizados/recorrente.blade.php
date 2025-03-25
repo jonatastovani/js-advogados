@@ -16,14 +16,14 @@
         <div class="input-group">
             <div class="input-group-text"><label for="parcela_valor{{ $sufixo }}">R$</label></div>
             <input type="text" id="parcela_valor{{ $sufixo }}" name="parcela_valor"
-                class="form-control text-end campo-monetario" {{ $readonly }}>
+                class="form-control text-end campo-monetario campo-readonly" {{ $readonly }}>
         </div>
     </div>
 
     <div class="col mt-2 align-content-end">
         <label for="cron_data_inicio{{ $sufixo }}" class="form-label">Data Início*</label>
         <input type="date" id="cron_data_inicio{{ $sufixo }}" name="cron_data_inicio"
-            class="form-control text-center inputCron" {{ $readonly }}>
+            class="form-control text-center inputCron campo-readonly" {{ $readonly }}>
     </div>
 
     {{-- <div class="col mt-2">
@@ -45,7 +45,7 @@
             <div class="input-group-text">
                 <label for="cronDay{{ $sufixo }}">Todo dia</label>
             </div>
-            <select class="form-select inputCron" id="cronDay{{ $sufixo }}" name="cronDay" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly" id="cronDay{{ $sufixo }}" name="cronDay" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer dia</option>
                 @for ($i = 1, $count = 32; $i < $count; $i++)
                     <option value="{{ $i }}">{{ $i }}</option>
@@ -59,7 +59,7 @@
             <div class="input-group-text">
                 <label for="cronMonth{{ $sufixo }}">Todo mês</label>
             </div>
-            <select class="form-select inputCron" id="cronMonth{{ $sufixo }}" name="cronMonth" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly" id="cronMonth{{ $sufixo }}" name="cronMonth" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer mês</option>
                 @for ($i = 1, $count = 13; $i < $count; $i++)
                     <option value="{{ $i }}">
@@ -75,7 +75,7 @@
             <div class="input-group-text">
                 <label for="cronWeekday{{ $sufixo }}">Todo dia da semana</label>
             </div>
-            <select class="form-select inputCron" id="cronWeekday{{ $sufixo }}" name="cronWeekday" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly" id="cronWeekday{{ $sufixo }}" name="cronWeekday" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer dia</option>
                 <option value="1">Segunda-feira</option>
                 <option value="2">Terça-feira</option>

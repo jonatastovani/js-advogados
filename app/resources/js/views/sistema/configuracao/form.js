@@ -43,6 +43,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         form.find('input[name="name"]').val(responseData.name);
         form.find('input[name="sigla"]').val(responseData.sigla ?? '');
         form.find('input[name="lancamento_liquidado_migracao_sistema_bln"]').prop('checked', responseData.lancamento_liquidado_migracao_sistema_bln);
+        form.find('input[name="cancelar_liquidado_migracao_sistema_automatico_bln"]').prop('checked', responseData.cancelar_liquidado_migracao_sistema_automatico_bln);
         if (domains.length) domains.map(domain => { self._inserirDominio(domain); });
     }
 

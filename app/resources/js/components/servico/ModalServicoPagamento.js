@@ -130,6 +130,15 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 CommonFunctions.simulateLoading($(this), false);
             }
         });
+
+        modal.find('.resetar_pagamento_bln').on('change', async function () {
+            CommonFunctions.simulateLoading($(this));
+            try {
+                await self.#simularPagamento();
+            } finally {
+                CommonFunctions.simulateLoading($(this), false);
+            }
+        });
     }
 
     _modalReset() {

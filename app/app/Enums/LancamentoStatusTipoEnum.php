@@ -23,6 +23,7 @@ enum LancamentoStatusTipoEnum: int
     case PAGAMENTO_CANCELADO_EM_ANALISE = 13;
     case PAGAMENTO_CANCELADO = 14;
     case LIQUIDADO_MIGRACAO_SISTEMA = 15;
+    case CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA = 16;
 
     public function detalhes(): array
     {
@@ -149,8 +150,13 @@ enum LancamentoStatusTipoEnum: int
             ],
             self::LIQUIDADO_MIGRACAO_SISTEMA => [
                 'id' => self::LIQUIDADO_MIGRACAO_SISTEMA->value,
-                'nome' => 'Liquidado (migração sistema)',
+                'nome' => 'Liquidado (Migração Sistema)',
                 'descricao' => 'O pagamento foi liquidado, mas sem movimentação de conta.',
+            ],
+            self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA => [
+                'id' => self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
+                'nome' => 'Cancelado - Liquidado (Migração Sistema)',
+                'descricao' => 'O lançamento marcado como liquidado somente para histórico, foi cancelado.',
             ],
         };
     }
@@ -248,6 +254,7 @@ enum LancamentoStatusTipoEnum: int
             self::REAGENDADO->value,
             self::CANCELADO->value,
             self::PAGAMENTO_CANCELADO->value,
+            self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
     }
 
@@ -307,6 +314,7 @@ enum LancamentoStatusTipoEnum: int
             self::INADIMPLENTE->value,
             self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
             self::LIQUIDADO_MIGRACAO_SISTEMA->value,
+            self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
     }
 

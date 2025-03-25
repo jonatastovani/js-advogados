@@ -19,6 +19,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'forma_pagamento_id' => 'required|uuid',
             'observacao' => 'nullable|string',
             'status_id' => 'nullable|integer',
+            'resetar_pagamento_bln' => 'nullable|boolean',
         ];
 
         $verificaPagamentoTipoTenant = function ($pagamentoTipoTenantId) {
@@ -36,43 +37,43 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             return $consulta;
         };
 
-        // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
-        if ($this->isMethod('post')) {
+        // // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
+        // if ($this->isMethod('post')) {
 
-            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-            $pagamentoTipo = $consulta->pagamento_tipo;
+        // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+        $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+        $pagamentoTipo = $consulta->pagamento_tipo;
 
-            // Define as regras de acordo com o tipo de pagamento
-            foreach ($pagamentoTipo->campos_obrigatorios as $value) {
-                switch ($pagamentoTipo->id) {
-                    case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                        if ($value['nome'] == 'valor_total') {
-                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
-                        }
-                        break;
+        // Define as regras de acordo com o tipo de pagamento
+        foreach ($pagamentoTipo->campos_obrigatorios as $value) {
+            switch ($pagamentoTipo->id) {
+                case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                    if ($value['nome'] == 'valor_total') {
+                        $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
+                    }
+                    break;
 
-                    case PagamentoTipoEnum::PARCELADO->value:
-                        if ($value['nome'] == 'valor_total') {
-                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
-                        }
-                }
-                $rules[$value['nome']] = $value['form_request_rule'];
+                case PagamentoTipoEnum::PARCELADO->value:
+                    if ($value['nome'] == 'valor_total') {
+                        $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
+                    }
             }
-        } else {
-
-            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-            $pagamentoTipo = $consulta->pagamento_tipo;
-
-            if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
-
-                // Define as regras de acordo com o tipo de pagamento
-                foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
-                    $rules[$value['nome']] = $value['form_request_rule'];
-                }
-            }
+            $rules[$value['nome']] = $value['form_request_rule'];
         }
+        // } else {
+
+        //     // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+        //     $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+        //     $pagamentoTipo = $consulta->pagamento_tipo;
+
+        //     if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
+
+        //         // Define as regras de acordo com o tipo de pagamento
+        //         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+        //             $rules[$value['nome']] = $value['form_request_rule'];
+        //         }
+        //     }
+        // }
 
         return $rules;
     }

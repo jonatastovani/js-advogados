@@ -20,6 +20,7 @@ class TenantFormRequestBase extends BaseFormRequest
             'domains.*.domain' => 'required|string|max:100',
             'domains.*.name' => 'required|string|max:30',
             'lancamento_liquidado_migracao_sistema_bln' => 'nullable|boolean',
+            'cancelar_liquidado_migracao_sistema_automatico_bln' => 'nullable|boolean',
         ];
 
         return $rules;

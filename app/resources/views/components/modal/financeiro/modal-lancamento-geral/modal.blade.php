@@ -76,17 +76,18 @@
                             <input class="form-check-input" type="checkbox" role="switch"
                                 id="resetar_execucao_bln{{ $sufixo }}" name="resetar_execucao_bln">
                             <label class="form-check-label" for="resetar_execucao_bln{{ $sufixo }}"
-                                title="Exclui os lançamentos que ainda não foram liquidados e gera os novos lançamentos conforme os dados agendamentos desde a data início cadastrada.">Resetar
+                                title="Com esta opção ativada, os lançamentos ainda não liquidados serão excluídos, e novos lançamentos serão gerados automaticamente com base nos agendamentos, a partir da data de início informada.">Resetar
                                 execução do agendamento</label>
                         </div>
                     </div>
-                    <div class="form-text mt-2">
-                        <p class="mb-0">
-                            Último agendamento inserido: <span class="spanUltimaExecucao">****</span>
-                        </p>
+                    <div class="form-text">
+                        Com esta opção ativada, os lançamentos ainda não liquidados serão excluídos, e novos lançamentos
+                        serão gerados automaticamente com base nos agendamentos, a partir da data de início informada.
                     </div>
+                    <p class="mt-2 mb-0">Último agendamento inserido: <span
+                            class="spanUltimaExecucao fw-bolder">****</span></p>
                 </div>
-                
+
                 <div class="row">
                     <div class="col">
 

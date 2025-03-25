@@ -14,17 +14,17 @@ class ServicoPagamentoFormRequestUpdate extends ServicoPagamentoFormRequestBase
         return true;
     }
 
-    public function rules()
-    {
-        // // Obtém as regras do parent
-        // $parent = parent::rules();
+    // public function rules()
+    // {
+    //     // // Obtém as regras do parent
+    //     // $parent = parent::rules();
 
-        // // Filtra as chaves 'titulo', 'descricao', 'categoria_id'
-        // $filter = array_filter($parent, function ($rule, $key) {
-        //     return in_array($key, ['forma_pagamento_id', 'observacao', 'status_id']);
-        // }, ARRAY_FILTER_USE_BOTH);
-        // return $filter;
+    //     // // Filtra as chaves 'titulo', 'descricao', 'categoria_id'
+    //     // $filter = array_filter($parent, function ($rule, $key) {
+    //     //     return in_array($key, ['forma_pagamento_id', 'observacao', 'status_id']);
+    //     // }, ARRAY_FILTER_USE_BOTH);
+    //     // return $filter;
 
-        return Arr::only(parent::rules(), ['forma_pagamento_id', 'observacao', 'status_id', 'descricao_condicionado']);
-    }
+    //     return Arr::only(parent::rules(), ['forma_pagamento_id', 'observacao', 'status_id', 'descricao_condicionado']);
+    // }
 }
