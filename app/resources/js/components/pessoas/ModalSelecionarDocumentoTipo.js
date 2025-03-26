@@ -24,8 +24,8 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
             idModal: "#ModalSelecionarDocumentoTipo",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this.#addEventosPadrao();
     }
 
@@ -108,11 +108,13 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
     async #buscarDocumentoTipos(selected_id = null) {
         const self = this;
         let options = {
+            outInstanceParentBln: true,
             typeRequest: EnumAction.POST,
             envData: {
                 pessoa_tipo_aplicavel: self._dataEnvModal.pessoa_tipo_aplicavel,
             }
         };
+
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
         return await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);

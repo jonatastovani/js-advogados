@@ -3,12 +3,21 @@
 namespace Database\Seeders\Tenant;
 
 use App\Enums\DocumentoTipoEnum;
-use App\Helpers\UUIDsHelpers;
-use App\Models\Tenant\DocumentoTipoTenant;
+use App\Traits\CommonsSeederMethodsTrait;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DocumentoTipoTenantSeeder extends Seeder
 {
+    use CommonsSeederMethodsTrait;
+
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new \App\Models\Tenant\DocumentoTipoTenant();
+    }
+
     /**
      * Run the database seeds.
      *
@@ -16,7 +25,7 @@ class DocumentoTipoTenantSeeder extends Seeder
      */
     public function run(): void
     {
-        $insert = [
+        $dataList = [
             [
                 'id' => "9dbde118-3e17-4a87-b5c5-8e595929a2ec",
                 'nome' => 'CPF',
@@ -59,20 +68,21 @@ class DocumentoTipoTenantSeeder extends Seeder
                 'documento_tipo_id' => DocumentoTipoEnum::CNAE->value,
                 'quantidade_permitida' => 1,
             ],
-            // [
-            //     'id' => "9dbde119-ebf9-4541-8722-6e18078d1321",
-            //     'nome' => 'Título Eleitoral',
-            //     'documento_tipo_id' => DocumentoTipoEnum::TITULO_ELEITORAL,
-            //     'quantidade_permitida' => 1,
-            // ],
+            [
+                'id' => "9dd02ad9-f9bb-45bd-aad0-2bbaba2a4dcb",
+                'nome' => 'CNAE',
+                'documento_tipo_id' => DocumentoTipoEnum::CNAE->value,
+                'quantidade_permitida' => 1,
+            ],
+            [
+                'id' => 'b7ec0ab7-ff11-4d4d-9753-db2aa785cf57',
+                'nome' => 'OAB',
+                'documento_tipo_id' => DocumentoTipoEnum::OAB->value,
+                'quantidade_permitida' => 1,
+            ],
         ];
 
-        $adminTenantUserId = UUIDsHelpers::getAdminTenantUser();
-
-        foreach ($insert as $data) {
-            $data['created_user_id'] = $adminTenantUserId;
-            $data['tenant_id'] = 'jsadvogados';
-            DocumentoTipoTenant::create($data);
-        }
+        // Chama o método genérico para inserção/atualização
+        $this->setDefaultTenantId()->upsertData($dataList);
     }
 }

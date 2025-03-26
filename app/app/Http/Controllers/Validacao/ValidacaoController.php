@@ -28,6 +28,4 @@ class ValidacaoController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated());
         return $this->retornoPadrao($this->service->CNPJValidacao($fluentData));
     }
-
-    public function PagamentoTipoEntradaComParcelamentoHelper(Request $request) {}
 }

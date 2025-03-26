@@ -62,6 +62,7 @@ class DocumentoTipoTenantService extends Service
             case DocumentoTipoEnum::INSCRICAO_ESTADUAL->value:
             case DocumentoTipoEnum::INSCRICAO_MUNICIPAL->value:
             case DocumentoTipoEnum::CNAE->value:
+            case DocumentoTipoEnum::OAB->value:
                 $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.campo-padrao', compact('requestData'))->render();
                 break;
 
@@ -103,7 +104,7 @@ class DocumentoTipoTenantService extends Service
         $validacaoRecursoExistente = ValidationRecordsHelper::validarRecursoExistente($this->model::class, ['nome' => $requestData->nome, 'tenant_id' => tenant('id')], $id);
         if ($validacaoRecursoExistente->count() > 0) {
             $arrayErrors =  LogHelper::gerarLogDinamico(409, 'O nome informado para este tipo de documento já existe.', $requestData->toArray());
-            return RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
+            RestResponse::createErrorResponse(404, $arrayErrors['error'], $arrayErrors['trace_id'])->throwResponse();
         }
 
         $arrayErrors = new Fluent();

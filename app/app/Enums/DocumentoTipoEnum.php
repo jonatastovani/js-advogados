@@ -16,6 +16,7 @@ enum DocumentoTipoEnum: int
     case INSCRICAO_ESTADUAL = 6;
     case INSCRICAO_MUNICIPAL = 7;
     case CNAE = 8;
+    case OAB = 9;
 
     // Método para retornar os detalhes como array
     public function detalhes(): array
@@ -91,6 +92,11 @@ enum DocumentoTipoEnum: int
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
                 'exp_reg' => '/^\d{4}-\d\/\d{2}$/',
                 'form_request_rule' => 'required|regex:/^\d{4}-\d\/\d{2}$/',
+            ],
+            self::OAB => [  
+                'id' => self::OAB->value,
+                'nome' => 'OAB',
+                'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
             ],
         };
     }
