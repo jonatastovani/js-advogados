@@ -86,4 +86,30 @@ enum PagamentoStatusTipoEnum: int
             fn($detalhe) => in_array($detalhe['id'], $permitidos)
         ));
     }
+
+    /**
+     * Status que serão permitidos setar para novos registros de Pagamentos.
+     */
+    static private function statusPermitidoParaPagamentos(): array
+    {
+        return [
+            self::ATIVO->value,
+            self::ATIVO_EM_ANALISE->value,
+            self::CANCELADO->value,
+            self::CANCELADO_EM_ANALISE->value,
+        ];
+    }
+
+    /**
+     * Retorna os status que serão exibidos disponibilizados para novos registros de Pagamentos de Serviços.
+     */
+    static public function statusParaPagamentosServicosExistentes(): array
+    {
+        $permitidos = self::statusPermitidoParaPagamentos();
+
+        return array_values(array_filter(
+            self::staticDetailsToArray(),
+            fn($detalhe) => in_array($detalhe['id'], $permitidos)
+        ));
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
+use App\Common\RestResponse;
 use App\Enums\PagamentoTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoStatusTipoEnum;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class ServicoPagamentoService extends Service
@@ -318,76 +320,157 @@ class ServicoPagamentoService extends Service
 
         try {
 
-            $resource->save();
-
-            $salvarLancamentos = function ($lancamentos) use ($resource) {
-
-                $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($resource->status_id);
-
-                $lancamentos = $lancamentos['lancamentos'] ?? [];
-
-                foreach ($lancamentos as $lancamento) {
-                    $lancamento = new Fluent($lancamento);
-                    $newLancamento = new ServicoPagamentoLancamento();
-
-                    $newLancamento->pagamento_id = $resource->id;
-                    $newLancamento->descricao_automatica = $lancamento->descricao_automatica;
-                    $newLancamento->observacao = $lancamento->observacao;
-                    $newLancamento->data_vencimento = $lancamento->data_vencimento;
-                    $newLancamento->valor_esperado = $lancamento->valor_esperado;
-                    $newLancamento->status_id = $statusLancamento;
-
-                    if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
-                        // verificar se a data do vencimento da parcela é retroativa ao mês atual.
-                        // Se for, alterar o status do lancamento para Liquidado Migração
-                        if (Carbon::parse($lancamento->data_vencimento)->month < Carbon::now()->month) {
-                            $newLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
-                            $newLancamento->valor_recebido = $lancamento->valor_esperado;
-                            $newLancamento->data_recebimento = $lancamento->data_vencimento;
-                            $newLancamento->forma_pagamento_id = $resource->forma_pagamento_id;
-                        }
-                    }
-
-                    $newLancamento->save();
-                }
-            };
-
             // Inicia a transação
-            return DB::transaction(function () use ($resource, $requestData, $salvarLancamentos) {
+            return DB::transaction(function () use ($resource, $requestData) {
+
                 if (!$resource->status_id) {
                     $resource->status_id = PagamentoStatusTipoEnum::statusPadraoSalvamento();
                 }
 
-                $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
+                $resource->save();
 
-                $lancamentos = [];
-                switch ($pagamentoTipoTenant->pagamento_tipo->id) {
+                $this->inserirLancamentos($requestData, $resource);
 
-                    case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
-                        $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData);
-                        $salvarLancamentos($lancamentos);
-                        break;
+                $resource->load($this->loadFull());
 
-                    case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                        $lancamentos = PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData);
-                        $salvarLancamentos($lancamentos);
-                        break;
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
 
-                    case PagamentoTipoEnum::PARCELADO->value:
-                        $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
-                        $salvarLancamentos($lancamentos);
-                        break;
+    private function inserirLancamentos(Fluent $requestData, $resource)
+    {
 
-                    case PagamentoTipoEnum::RECORRENTE->value:
-                        $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
-                        ServicoPagamentoRecorrenteHelper::processarServicoPagamentoRecorrentePorId($resource->id, true);
-                        break;
+        $salvarLancamentos = function ($lancamentos, $resource) {
 
-                    case PagamentoTipoEnum::CONDICIONADO->value:
-                        break;
+            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($resource->status_id);
 
-                    default:
-                        throw new Exception('Tipo de pagamento base não encontrado.');
+            $lancamentos = $lancamentos['lancamentos'] ?? [];
+
+            foreach ($lancamentos as $lancamento) {
+                $lancamento = new Fluent($lancamento);
+                $newLancamento = new ServicoPagamentoLancamento();
+
+                $newLancamento->pagamento_id = $resource->id;
+                $newLancamento->descricao_automatica = $lancamento->descricao_automatica;
+                $newLancamento->observacao = $lancamento->observacao;
+                $newLancamento->data_vencimento = $lancamento->data_vencimento;
+                $newLancamento->valor_esperado = $lancamento->valor_esperado;
+                $newLancamento->status_id = $statusLancamento;
+
+                if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
+                    $vencimento = Carbon::parse($lancamento->data_vencimento);
+                    $inicioMesAtual = now()->startOfMonth();
+
+                    // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
+                    if ($vencimento->lessThan($inicioMesAtual)) {
+                        $newLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                        $newLancamento->valor_recebido = $lancamento->valor_esperado;
+                        $newLancamento->data_recebimento = $lancamento->data_vencimento;
+                        $newLancamento->forma_pagamento_id = $resource->forma_pagamento_id;
+                    }
+                }
+
+
+                $newLancamento->save();
+            }
+        };
+
+        $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
+
+        $lancamentos = [];
+        switch ($pagamentoTipoTenant->pagamento_tipo->id) {
+
+            case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
+                $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData);
+                $salvarLancamentos($lancamentos, $resource);
+                break;
+
+            case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                $lancamentos = PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData);
+                $salvarLancamentos($lancamentos, $resource);
+                break;
+
+            case PagamentoTipoEnum::PARCELADO->value:
+                $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
+                $salvarLancamentos($lancamentos, $resource);
+                break;
+
+            case PagamentoTipoEnum::RECORRENTE->value:
+                $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
+                ServicoPagamentoRecorrenteHelper::processarServicoPagamentoRecorrentePorId($resource->id, true);
+                break;
+
+            case PagamentoTipoEnum::CONDICIONADO->value:
+                break;
+
+            default:
+                throw new Exception('Tipo de pagamento base não encontrado.');
+        }
+    }
+
+    public function update(Fluent $requestData)
+    {
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+
+        if ($requestData->resetar_pagamento_bln) {
+
+            // Se houver a configuração, então remove-se da consulta esses lançamentos porque eles serão excluídos, então só consultamos os outros registros
+            $removerLiquidadoMigracaoSistemaBln = tenant('cancelar_liquidado_migracao_sistema_automatico_bln');
+
+            $lancamentos = $resource->lancamentos()->with('movimentacao_conta')->get();
+            if ($removerLiquidadoMigracaoSistemaBln) {
+                // Remove os lançamentos com status "LIQUIDADO_MIGRACAO_SISTEMA" que não possuem movimentação
+                $lancamentos = $lancamentos->reject(function ($lancamento) {
+                    return $lancamento->status_id === LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value
+                        && $lancamento->movimentacao_conta->isEmpty();
+                });
+            }
+
+            if ($this->temLancamentosComMovimentacao($lancamentos)) {
+                return RestResponse::createErrorResponse(
+                    409,
+                    "Não é possível resetar um pagamento com lançamentos que movimentaram, em algum momento, alguma conta."
+                )->throwResponse();
+            }
+        }
+
+        try {
+            // Inicia a transação
+            return DB::Transaction(function () use ($resource, $requestData) {
+
+                $resource->save();
+
+                if ($requestData->resetar_pagamento_bln) {
+
+                    $this->destroyCascade($resource, ['lancamentos.participantes.integrantes']);
+                    $this->inserirLancamentos($requestData, $resource);
+                } else {
+
+                    switch ($resource->status_id) {
+                        case PagamentoStatusTipoEnum::ATIVO->value:
+                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
+                            break;
+
+                        case PagamentoStatusTipoEnum::ATIVO_EM_ANALISE->value:
+                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value);
+                            break;
+
+                        case PagamentoStatusTipoEnum::CANCELADO->value:
+                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+                            break;
+
+                        case PagamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value:
+                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value);
+                            break;
+
+                        default:
+                            # code...
+                            break;
+                    }
                 }
 
                 $resource->load($this->loadFull());
@@ -400,46 +483,100 @@ class ServicoPagamentoService extends Service
         }
     }
 
-    public function update(Fluent $requestData)
+    public function destroy(Fluent $requestData)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
-
-        // Inicia a transação
-        DB::beginTransaction();
+        $resource = $this->buscarRecurso($requestData);
 
         try {
-            $resource->save();
+            return DB::transaction(function () use ($resource) {
 
-            switch ($resource->status_id) {
-                case PagamentoStatusTipoEnum::ATIVO->value:
-                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
-                    break;
+                $todosLancamentos = $resource->lancamentos()->with('movimentacao_conta')->get();
 
-                case PagamentoStatusTipoEnum::ATIVO_EM_ANALISE->value:
-                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value);
-                    break;
+                if ($this->temLancamentosComMovimentacao($todosLancamentos)) {
+                    $this->alterarStatusDeLancamentosPagamentoExcluido($resource);
+                } else {
+                    $this->destroyCascade($resource, ['participantes.integrantes']);
+                    $resource->delete();
+                }
 
-                case PagamentoStatusTipoEnum::CANCELADO->value:
-                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
-                    break;
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
 
-                case PagamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value:
-                    $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value);
+    /**
+     * Verifica se há algum lançamento com status de movimentação financeira
+     * ou se possui movimentação registrada.
+     *
+     * @param \Illuminate\Support\Collection $lancamentos
+     * @return bool
+     */
+    protected function temLancamentosComMovimentacao($lancamentos): bool
+    {
+
+        $statusComMovimentacao = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
+            ->pluck('status_id')
+            ->unique()
+            ->toArray();
+
+        return $lancamentos->some(function ($lancamento) use ($statusComMovimentacao) {
+            return in_array($lancamento->status_id, $statusComMovimentacao)
+                || $lancamento->movimentacao_conta->isNotEmpty();
+        });
+    }
+
+    protected function alterarStatusDeLancamentosPagamentoExcluido(ServicoPagamento $resource)
+    {
+        $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+
+        $resource->status_id = PagamentoStatusTipoEnum::CANCELADO->value;
+        $resource->save();
+    }
+
+    protected function alterarStatusDeLancamentos(ServicoPagamento $resource, $statusLancamento)
+    {
+        $lancamentos = $resource->lancamentos()
+            ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
+            ->get();
+
+        foreach ($lancamentos as $lancamento) {
+
+            switch ($lancamento->status_id) {
+
+                // O Liquidado Migração tem um tratamento diferente conforme a propriedade cancelar_liquidado_migracao_sistema_automatico_bln do tenant
+                case LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value:
+                case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
+
+                    if (in_array($statusLancamento, [
+                        LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value,
+                        LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+                    ])) {
+
+                        $lancamento->status_id = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
+                        break;
+                    }
+
+                    if (in_array($statusLancamento, [
+                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
+                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+                        tenant('lancamento_liquidado_migracao_sistema_bln')
+                    ])) {
+
+                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                        break;
+                    }
+
+                    $lancamento->status_id = $statusLancamento;
                     break;
 
                 default:
-                    # code...
+                    $lancamento->status_id = $statusLancamento;
                     break;
             }
 
-            DB::commit();
-
-            $resource->load($this->loadFull());
-
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
-        } catch (\Exception $e) {
-            return $this->gerarLogExceptionErroSalvar($e);
+            $lancamento->save();
         }
     }
 
@@ -547,53 +684,6 @@ class ServicoPagamentoService extends Service
         }
 
         return $relationships;
-    }
-
-    public function destroy(Fluent $requestData)
-    {
-        $resource = $this->buscarRecurso($requestData);
-
-        // Inicia a transação
-        DB::beginTransaction();
-
-        try {
-            $lancamentosComStatusCritico = $resource->lancamentos()
-                ->whereIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
-                ->exists();
-
-            if ($lancamentosComStatusCritico) {
-                $this->alterarStatusDeLancamentosPagamentoExcluido($resource);
-            } else {
-                $resource->delete();
-            }
-
-            DB::commit();
-            // $this->executarEventoWebsocket();
-            return $resource->toArray();
-        } catch (\Exception $e) {
-            DB::rollBack(); // Garante o rollback em caso de erro
-            return $this->gerarLogExceptionErroSalvar($e);
-        }
-    }
-
-    protected function alterarStatusDeLancamentosPagamentoExcluido(ServicoPagamento $resource)
-    {
-        $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
-
-        $resource->status_id = PagamentoStatusTipoEnum::CANCELADO->value;
-        $resource->save();
-    }
-
-    protected function alterarStatusDeLancamentos(ServicoPagamento $resource, $statusLancamento)
-    {
-        $lancamentos = $resource->lancamentos()
-            ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
-            ->get();
-
-        foreach ($lancamentos as $lancamento) {
-            $lancamento->status_id = $statusLancamento;
-            $lancamento->save();
-        }
     }
 
     // private function executarEventoWebsocket()

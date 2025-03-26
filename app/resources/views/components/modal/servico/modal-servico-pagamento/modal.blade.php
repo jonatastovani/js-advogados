@@ -47,19 +47,20 @@
 
                 <x-pagina.info-campos-obrigatorios />
 
-                <div class="row div-resetar-lancamentos">
+                <div class="row div-resetar-lancamentos" style="display: none;">
                     <div class="col mt-2">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch"
-                                id="resetar_pagamento_bln{{ $sufixo }}" name="resetar_pagamento_bln">
+                                id="resetar_pagamento_bln{{ $sufixo }}" name="resetar_pagamento_bln" disabled>
                             <label class="form-check-label" for="resetar_pagamento_bln{{ $sufixo }}"
-                                title="Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação só será executada se nenhum dos lançamentos atuais estiver liquidado, total ou parcialmente.">
-                                Alterar lançamentos</label>
+                                title="Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação só será executada se nenhum dos lançamentos atuais, em momento algum, movimentaram alguma conta.">
+                                Recriar lançamentos
+                            </label>
                         </div>
                     </div>
                     <div class="form-text">
                         Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação
-                        só será executada se nenhum dos lançamentos atuais estiver liquidado, total ou parcialmente.
+                        só será executada se nenhum dos lançamentos atuais, em momento algum, movimentaram alguma conta.
                     </div>
                 </div>
 

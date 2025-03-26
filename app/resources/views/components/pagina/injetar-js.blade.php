@@ -36,6 +36,7 @@
         PessoaPerfilTipoRotasPessoaPerfilFormFront: @json(\App\Enums\PessoaPerfilTipoEnum::rotasPessoaPerfilFormFront()),
         PerfisPermitidoClienteServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoClienteServico()),
         StatusParaNovosPagamentosServicos: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaNovosPagamentosServicos()),
+        StatusParaPagamentosServicosExistentes: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaPagamentosServicosExistentes()),
     }
 
     window.Details = {
@@ -46,3 +47,10 @@
         PagamentoStatusTipoEnum: @json(\App\Enums\PagamentoStatusTipoEnum::staticDetailsToArray()),
     };
 </script>
+
+@component('components.api.api-routes', [
+    'routes' => [
+        'baseTenant' => route('api.tenant'),
+    ],
+])
+@endcomponent

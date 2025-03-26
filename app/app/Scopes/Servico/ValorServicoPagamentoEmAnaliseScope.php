@@ -28,28 +28,14 @@ class ValorServicoPagamentoEmAnaliseScope implements Scope
                 $query->from((new ServicoPagamentoLancamento())->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM(ROUND(CAST({$tableSubAlias}.valor_esperado AS numeric), 2)), 0)")
                     ->whereNull("{$tableSubAlias}.deleted_at")
-                    ->whereIn("{$tableSubAlias}.status_id", [
-                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
-                    ])
+                    ->whereIn("{$tableSubAlias}.status_id", LancamentoStatusTipoEnum::statusEmAnaliseScope())
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAlias}.id")
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
-            }, 'total_em_analise');
+            }, 'total_analise');
         } else {
-            $builder->withSum(['lancamentos as total_em_analise' => function ($query) {
-                $query->whereIn('status_id', [
-                    LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
-                ]);
+            $builder->withSum(['lancamentos as total_analise' => function ($query) {
+                $query->whereIn('status_id', LancamentoStatusTipoEnum::statusEmAnaliseScope());
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }
     }

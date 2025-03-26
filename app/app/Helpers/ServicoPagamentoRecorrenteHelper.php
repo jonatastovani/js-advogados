@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Common\CommonsFunctions;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoStatusTipoEnum;
 use App\Enums\PagamentoTipoEnum;
@@ -28,7 +29,7 @@ class ServicoPagamentoRecorrenteHelper
                 self::processarServicoPagamentoRecorrentePorTenant($tenant->id);
             } catch (\Exception $e) {
                 // Log do erro no tenant, mas continua com os outros tenants
-                Log::error("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}");
+                CommonsFunctions::generateLog("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             }
         }
     }
@@ -67,7 +68,7 @@ class ServicoPagamentoRecorrenteHelper
                 self::processarServicoPagamentoRecorrentePorId($pagamento->id);
             } catch (\Exception $e) {
                 // Log do erro, mas continua com os outros lancamentos
-                Log::error("Erro ao processar Lançamento de Serviço Recorrente ID {$pagamento->id}: {$e->getMessage()}");
+                CommonsFunctions::generateLog("Erro ao processar Lançamento de Serviço Recorrente ID {$pagamento->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             }
         }
     }
@@ -83,14 +84,14 @@ class ServicoPagamentoRecorrenteHelper
         $pagamento = ServicoPagamento::find($pagamentoId);
 
         if (!$pagamento) {
-            Log::warning("Pagamento de Serviço com ID {$pagamentoId} não encontrado.");
+            CommonsFunctions::generateLog("Pagamento de Serviço com ID {$pagamentoId} não encontrado.", ['channel' => 'processamento_agendamento']);
             return;
         }
 
         try {
             $lancamentos = PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()));
 
-            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamento();
+            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($pagamento->status_id);
             if ($pagamento->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
                 $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
             }
@@ -117,7 +118,7 @@ class ServicoPagamentoRecorrenteHelper
             if ($blnRetornoErroThrow) {
                 throw $e;
             }
-            Log::error("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}");
+            CommonsFunctions::generateLog("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
         }
 
         // $queries = DB::getQueryLog();
@@ -150,7 +151,7 @@ class ServicoPagamentoRecorrenteHelper
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar
-            Log::error("Erro ao criar lancamento geral para pagamento ID {$lancamento->pagamento_id}: {$e->getMessage()}");
+            CommonsFunctions::generateLog("Erro ao criar lancamento geral para pagamento ID {$lancamento->pagamento_id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             return false;
         }
     }

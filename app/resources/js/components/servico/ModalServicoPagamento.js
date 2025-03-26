@@ -3,6 +3,7 @@ import { ConnectAjax } from "../../commons/ConnectAjax";
 import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { TenantDataHelper } from "../../helpers/TenantDataHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
@@ -29,6 +30,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         data: {
             pagamento_tipo_tenant: undefined,
             lancamentos_na_tela: [],
+            resetar_pagamento_bln: false
         },
         domainCustom: {
             applyBln: true,
@@ -48,9 +50,9 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             idModal: "#ModalServicoPagamento",
         });
 
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = Object.assign(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._objConfigs.url.base = options.urlApi;
         this._action = EnumAction.POST;
 
@@ -146,6 +148,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         $(self.getIdModal).find(`#dados-pagamento${self._objConfigs.sufixo}-tab`).trigger('click');
         $(self.getIdModal).find('.elements-pane-lancamentos').css('display', '');
+        $(self.getIdModal).find('.div-resetar-lancamentos').hide();
+        $(`#resetar_pagamento_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
     }
 
     async #simularPagamento() {
@@ -360,7 +364,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         try {
             const self = this;
             const arrayOpcoes = self._dataEnvModal.idRegister ?
-                window.Details.PagamentoStatusTipoEnum :
+                window.Statics.StatusParaPagamentosServicosExistentes :
                 window.Statics.StatusParaNovosPagamentosServicos;
             let options = { insertFirstOption: false };
             selected_id ? options.selectedIdOption = selected_id : null;
@@ -378,11 +382,14 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         try {
             self._clearForm();
-            $(self.getIdModal).find('.btn-simular').hide();
             self._action = EnumAction.PUT;
             const response = await self._getRecurse();
+
             if (response?.data) {
                 const responseData = response.data;
+
+                await self.#verificaLancamentos(responseData);
+
                 const pagamentoTipoTenant = responseData.pagamento_tipo_tenant;
                 const pagamentoTipo = pagamentoTipoTenant.pagamento_tipo;
 
@@ -430,6 +437,58 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             }
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
+    async #verificaLancamentos(responseData) {
+        const self = this;
+        let blnStatus = false;
+
+        // Verifica se há alguma movimentação vinculada a lançamentos
+        const possuiMovimentacao = responseData.lancamentos.some(l => l?.movimentacao_conta?.length);
+
+        // Se não houver, verifica se há movimentação com liquidado migração. Se houver, verifica se o domínio cancelar_liquidado_migracao_sistema_automatico_bln está ativo 
+        if (possuiMovimentacao) {
+            blnStatus = true;
+        } else {
+            const tenantData = await TenantDataHelper.getTenantData();
+
+            // Verifica se há alguma movimentação com status LIQUIDADO_MIGRACAO_SISTEMA
+            const possuiMovimentacaoLiquidadoMigracao = responseData.lancamentos.some(l =>
+                Number(l.status_id) === window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA
+            );
+
+            if (possuiMovimentacaoLiquidadoMigracao && !tenantData?.cancelar_liquidado_migracao_sistema_automatico_bln) {
+                blnStatus = true;
+            };
+        }
+
+        self.#resetarLancamentos(!blnStatus);
+    }
+
+    #resetarLancamentos(statusVisibilidade = false) {
+        const self = this;
+
+        const ckbResetar = $(`#resetar_pagamento_bln${self.getSufixo}`);
+
+        if (statusVisibilidade) {
+            $(self.getIdModal).find('.div-resetar-lancamentos').show();
+            $(self.getIdModal).find('.btn-simular').hide();
+
+            ckbResetar.prop('checked', false).attr('disabled', false);
+
+            ckbResetar.on('change', () => {
+
+                const statusChecked = ckbResetar.is(':checked');
+                self._objConfigs.data.resetar_pagamento_bln = statusChecked;
+                $(self.getIdModal).find('.btn-simular')[statusChecked ? 'show' : 'hide']();
+                $(`${self.getIdModal} .campo-readonly`).prop('readonly', !statusChecked);
+
+            });
+        } else {
+            $(self.getIdModal).find('.btn-simular, .div-resetar-lancamentos').hide();
+            ckbResetar.prop('checked', false).attr('disabled', true);
+            self._objConfigs.data.resetar_pagamento_bln = false;
         }
     }
 
@@ -546,6 +605,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const data = self.#obterDados();
         data.pagamento_tipo_tenant_id = self._objConfigs.data.pagamento_tipo_tenant.id;
+        data.resetar_pagamento_bln = self._objConfigs.data.resetar_pagamento_bln;
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);
@@ -570,34 +630,38 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
         let blnSave = false;
 
-        if (self._action == EnumAction.POST || self._action == EnumAction.PUT && tipo == 'save') {
+        if (self._action == EnumAction.POST || (
+            self._action == EnumAction.PUT && (
+                tipo == 'save' || tipo == 'simulacao' &&
+                self._objConfigs.data?.resetar_pagamento_bln)
+        )) {
 
             blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
 
-            if (self._action == EnumAction.POST) {
-                for (const campo of pagamentoTipo.campos_obrigatorios) {
-                    const rules = campo.form_request_rule.split('|');
-                    const nullable = rules.find(rule => rule === 'nullable');
+            // if (self._action == EnumAction.POST) {
+            for (const campo of pagamentoTipo.campos_obrigatorios) {
+                const rules = campo.form_request_rule.split('|');
+                const nullable = rules.find(rule => rule === 'nullable');
 
-                    if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
-                        data[campo.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
-                    }
+                if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
+                    data[campo.nome] = CommonFunctions.removeCommasFromCurrencyOrFraction(data[campo.nome]);
+                }
 
-                    if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE && campo.nome == 'cron_expressao') {
-                        if (data[campo.nome] == '* * * * *') {
-                            CommonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
-                            blnSave = false;
-                        }
-                    } else {
-                        blnSave = CommonFunctions.verificationData(data[campo.nome], {
-                            field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
-                            messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
-                            setFocus: blnSave === true,
-                            returnForcedFalse: blnSave === false
-                        });
+                if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE && campo.nome == 'cron_expressao') {
+                    if (data[campo.nome] == '* * * * *') {
+                        CommonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
+                        blnSave = false;
                     }
+                } else {
+                    blnSave = CommonFunctions.verificationData(data[campo.nome], {
+                        field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
+                        messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,
+                        setFocus: blnSave === true,
+                        returnForcedFalse: blnSave === false
+                    });
                 }
             }
+            // }
         }
 
         return blnSave;

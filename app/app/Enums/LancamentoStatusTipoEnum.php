@@ -190,13 +190,18 @@ enum LancamentoStatusTipoEnum: int
 
     static public function statusImpossibilitaExclusao(): array
     {
-        return [
+        $status = [
             self::LIQUIDADO->value,
             self::LIQUIDADO_PARCIALMENTE->value,
             self::REAGENDADO->value,
             self::CANCELADO->value,
-            self::LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
+
+        if (!tenant('cancelar_liquidado_migracao_sistema_automatico_bln')) {
+            array_push($status, self::LIQUIDADO_MIGRACAO_SISTEMA->value);
+        }
+
+        return $status;
     }
 
     static public function statusImpossibilitaEdicaoLancamentoServico(): array
@@ -336,6 +341,27 @@ enum LancamentoStatusTipoEnum: int
         return [
             self::LIQUIDADO->value,
             self::LIQUIDADO_PARCIALMENTE->value,
+        ];
+    }
+
+    static public function statusEmAnaliseScope(): array
+    {
+        return [
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::CANCELADO_EM_ANALISE->value,
+            self::REAGENDADO_EM_ANALISE->value,
+            self::INADIMPLENTE_EM_ANALISE->value,
+        ];
+    }
+
+    static public function statusLiquidadoScope(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+            self::LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
     }
 }

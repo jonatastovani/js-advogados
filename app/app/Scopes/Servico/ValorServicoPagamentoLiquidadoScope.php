@@ -28,22 +28,14 @@ class ValorServicoPagamentoLiquidadoScope implements Scope
                 $query->from((new ServicoPagamentoLancamento())->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM(ROUND(CAST({$tableSubAlias}.valor_recebido AS numeric), 2)), 0)")
                     ->whereNull("{$tableSubAlias}.deleted_at")
-                    ->whereIn("{$tableSubAlias}.status_id", [
-                        LancamentoStatusTipoEnum::LIQUIDADO->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
-                    ])
+                    ->whereIn("{$tableSubAlias}.status_id", LancamentoStatusTipoEnum::statusLiquidadoScope())
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAlias}.id")
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'total_liquidado');
         } else {
             $builder->withSum(['lancamentos as total_liquidado' => function ($query) {
-                $query->whereIn('status_id', [
-                    LancamentoStatusTipoEnum::LIQUIDADO->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
-                ]);
+                $query->whereIn('status_id', LancamentoStatusTipoEnum::statusLiquidadoScope());
             }], DB::raw('ROUND(CAST(valor_recebido AS numeric), 2)'));
         }
     }

@@ -16,13 +16,16 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch"
                         name="cancelar_liquidado_migracao_sistema_automatico_bln"
                         id="cancelar_liquidado_migracao_sistema_automatico_bln{{ $sufixo }}">
-                    <label class="form-check-label" for="cancelar_liquidado_migracao_sistema_automatico_bln{{ $sufixo }}">
+                    <label class="form-check-label"
+                        for="cancelar_liquidado_migracao_sistema_automatico_bln{{ $sufixo }}">
                         Atualizar automaticamente lançamentos como <b>Liquidado (migração sistema)</b>.
                     </label>
                 </div>

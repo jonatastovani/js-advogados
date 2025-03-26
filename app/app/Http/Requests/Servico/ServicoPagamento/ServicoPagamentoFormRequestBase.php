@@ -37,43 +37,45 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             return $consulta;
         };
 
-        // // Somente se for POST. Depois de cadastrado, esses campos não se alterarão
-        // if ($this->isMethod('post')) {
+        // Somente se for POST ou se for PUT e o campo 'resetar_pagamento_bln' for true. Caso contrário, depois de cadastrado, esses campos não se alterarão
+        if ($this->isMethod('post') || (
+            $this->isMethod('put') && $this->has('resetar_pagamento_bln') && $this->input('resetar_pagamento_bln') == true
+        )) {
 
-        // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-        $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-        $pagamentoTipo = $consulta->pagamento_tipo;
+            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+            $pagamentoTipo = $consulta->pagamento_tipo;
 
-        // Define as regras de acordo com o tipo de pagamento
-        foreach ($pagamentoTipo->campos_obrigatorios as $value) {
-            switch ($pagamentoTipo->id) {
-                case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                    if ($value['nome'] == 'valor_total') {
-                        $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
-                    }
-                    break;
+            // Define as regras de acordo com o tipo de pagamento
+            foreach ($pagamentoTipo->campos_obrigatorios as $value) {
+                switch ($pagamentoTipo->id) {
+                    case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
+                        if ($value['nome'] == 'valor_total') {
+                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
+                        }
+                        break;
 
-                case PagamentoTipoEnum::PARCELADO->value:
-                    if ($value['nome'] == 'valor_total') {
-                        $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
-                    }
+                    case PagamentoTipoEnum::PARCELADO->value:
+                        if ($value['nome'] == 'valor_total') {
+                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
+                        }
+                }
+                $rules[$value['nome']] = $value['form_request_rule'];
             }
-            $rules[$value['nome']] = $value['form_request_rule'];
+        } else {
+
+            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+            $pagamentoTipo = $consulta->pagamento_tipo;
+
+            if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
+
+                // Define as regras de acordo com o tipo de pagamento
+                foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
+                    $rules[$value['nome']] = $value['form_request_rule'];
+                }
+            }
         }
-        // } else {
-
-        //     // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-        //     $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-        //     $pagamentoTipo = $consulta->pagamento_tipo;
-
-        //     if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
-
-        //         // Define as regras de acordo com o tipo de pagamento
-        //         foreach ($pagamentoTipo->configuracao['campos_obrigatorios'] as $value) {
-        //             $rules[$value['nome']] = $value['form_request_rule'];
-        //         }
-        //     }
-        // }
 
         return $rules;
     }

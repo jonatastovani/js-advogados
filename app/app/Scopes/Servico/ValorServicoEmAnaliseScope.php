@@ -37,29 +37,18 @@ class ValorServicoEmAnaliseScope implements Scope
                     )
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
-                    ->whereIn("{$tableSubAlias}.status_id", [
-                        LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
-                        LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
-                    ])
+                    ->whereIn(
+                        "{$tableSubAlias}.status_id",
+                        LancamentoStatusTipoEnum::statusEmAnaliseScope()
+                    )
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
-            }, 'total_em_analise');
+            }, 'total_analise');
         } else {
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
-            $builder->withSum(['lancamentos as total_em_analise' => function ($query) {
+            $builder->withSum(['lancamentos as total_analise' => function ($query) {
                 $table = (new ServicoPagamentoLancamento())->getTable();
-                $query->whereIn("{$table}.status_id", [
-                    LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::REAGENDADO_EM_ANALISE->value,
-                    LancamentoStatusTipoEnum::INADIMPLENTE_EM_ANALISE->value,
-                ]);
+                $query->whereIn("{$table}.status_id", LancamentoStatusTipoEnum::statusEmAnaliseScope());
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }
     }

@@ -427,7 +427,8 @@ class ServicoPagamentoLancamentoService extends Service
         );
 
         $relationships = [
-            'pagamento',
+            // 'pagamento',
+            'movimentacao_conta',
             'status',
             'forma_pagamento.conta',
             'participantes.participacao_tipo',

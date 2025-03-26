@@ -1123,7 +1123,7 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         self.#atualizarValorServico(data.valor_servico);
         self.#atualizarTotalAguardando(data.total_aguardando);
-        self.#atualizarTotalEmAnalise(data.total_em_analise);
+        self.#atualizarTotalEmAnalise(data.total_analise);
         self.#atualizarTotalLiquidado(data.total_liquidado);
         self.#atualizarTotalInadimplente(data.total_inadimplente);
     }

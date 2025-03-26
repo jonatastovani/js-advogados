@@ -37,11 +37,10 @@ class ValorServicoLiquidadoScope implements Scope
                     )
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAsNamePagamento}.id")
                     ->whereNull("{$tableSubAlias}.deleted_at")
-                    ->whereIn("{$tableSubAlias}.status_id", [
-                        LancamentoStatusTipoEnum::LIQUIDADO->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
-                        LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
-                    ])
+                    ->whereIn(
+                        "{$tableSubAlias}.status_id",
+                        LancamentoStatusTipoEnum::statusLiquidadoScope()
+                    )
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'total_liquidado');
