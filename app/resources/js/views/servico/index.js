@@ -1,3 +1,4 @@
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { TemplateSearch } from "../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
@@ -52,6 +53,7 @@ class PageServico extends TemplateSearch {
         let strBtns = self.#htmlBtns(item);
         const htmlCliente = self.#htmlRenderCliente(item);
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
+        const valorFinal = item.valor_final ? CommonFunctions.formatNumberToCurrency(item.valor_final) : '***';
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -63,6 +65,7 @@ class PageServico extends TemplateSearch {
                 <td class="text-nowrap">${htmlCliente}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.titulo ?? ''}">${item.titulo}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${item.area_juridica.nome ?? ''}">${item.area_juridica.nome ?? ''}</td>
+                <td class="text-nowrap text-center" title="${valorFinal}">${valorFinal}</td>
                 <td class="text-nowrap text-center" title="${item.numero_servico ?? ''}">${item.numero_servico}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>

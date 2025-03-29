@@ -24,6 +24,8 @@ enum LancamentoStatusTipoEnum: int
     case PAGAMENTO_CANCELADO = 14;
     case LIQUIDADO_MIGRACAO_SISTEMA = 15;
     case CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA = 16;
+    case EM_ATRASO_EM_ANALISE = 17;
+    case EM_ATRASO = 18;
 
     public function detalhes(): array
     {
@@ -158,6 +160,16 @@ enum LancamentoStatusTipoEnum: int
                 'nome' => 'Cancelado - Liquidado (Migração Sistema)',
                 'descricao' => 'O lançamento marcado como liquidado somente para histórico, foi cancelado.',
             ],
+            self::EM_ATRASO_EM_ANALISE => [
+                'id' => self::EM_ATRASO_EM_ANALISE->value,
+                'nome' => 'Lançamento em Atraso (em análise)',
+                'descricao' => 'O lançamento ultrapassou a data de vencimento e está dentro do mês corrente, mas ainda não foi confirmado.',
+            ],
+            self::EM_ATRASO => [
+                'id' => self::EM_ATRASO->value,
+                'nome' => 'Lançamento em Atraso',
+                'descricao' => 'O lançamento ultrapassou a data de vencimento e está dentro do mês de vencimento.',
+            ],
         };
     }
 
@@ -194,7 +206,7 @@ enum LancamentoStatusTipoEnum: int
             self::LIQUIDADO->value,
             self::LIQUIDADO_PARCIALMENTE->value,
             self::REAGENDADO->value,
-            self::CANCELADO->value,
+            // self::CANCELADO->value,
         ];
 
         if (!tenant('cancelar_liquidado_migracao_sistema_automatico_bln')) {
@@ -259,6 +271,7 @@ enum LancamentoStatusTipoEnum: int
             self::REAGENDADO->value,
             self::CANCELADO->value,
             self::PAGAMENTO_CANCELADO->value,
+            self::EM_ATRASO->value,
             self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
     }
@@ -311,7 +324,7 @@ enum LancamentoStatusTipoEnum: int
             self::REAGENDADO_EM_ANALISE->value,
             self::REAGENDADO->value,
             self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-            self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+            self::EM_ATRASO_EM_ANALISE->value,
             self::PAGAMENTO_CANCELADO->value,
             self::CANCELADO_EM_ANALISE->value,
             self::LIQUIDADO_EM_ANALISE->value,
@@ -353,6 +366,7 @@ enum LancamentoStatusTipoEnum: int
             self::CANCELADO_EM_ANALISE->value,
             self::REAGENDADO_EM_ANALISE->value,
             self::INADIMPLENTE_EM_ANALISE->value,
+            self::EM_ATRASO_EM_ANALISE->value,
         ];
     }
 
@@ -362,6 +376,14 @@ enum LancamentoStatusTipoEnum: int
             self::LIQUIDADO->value,
             self::LIQUIDADO_PARCIALMENTE->value,
             self::LIQUIDADO_MIGRACAO_SISTEMA->value,
+        ];
+    }
+
+    static public function statusCanceladoScope(): array
+    {
+        return [
+            self::CANCELADO->value,
+            self::PAGAMENTO_CANCELADO->value,
         ];
     }
 }

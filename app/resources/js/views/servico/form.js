@@ -1121,8 +1121,10 @@ class PageServicoForm extends TemplateForm {
 
     #atualizaTodosValores(data) {
         const self = this;
+        self.#atualizarValorFinal(data.valor_final);
         self.#atualizarValorServico(data.valor_servico);
         self.#atualizarTotalAguardando(data.total_aguardando);
+        self.#atualizarTotalCancelado(data.total_cancelado);
         self.#atualizarTotalEmAnalise(data.total_analise);
         self.#atualizarTotalLiquidado(data.total_liquidado);
         self.#atualizarTotalInadimplente(data.total_inadimplente);
@@ -1133,9 +1135,19 @@ class PageServicoForm extends TemplateForm {
         $(`#valorServico${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
+    #atualizarValorFinal(valor) {
+        const self = this;
+        $(`#valorFinal${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    }
+
     #atualizarTotalAguardando(valor) {
         const self = this;
         $(`#totalAguardando${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+    }
+
+    #atualizarTotalCancelado(valor) {
+        const self = this;
+        $(`#totalCancelado${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalEmAnalise(valor) {
@@ -1169,6 +1181,8 @@ class PageServicoForm extends TemplateForm {
     async #buscarPagamentos(options = {}) {
         const self = this;
         const { blnLoadingDisplay = true } = options;
+        BootstrapFunctionsHelper.removeEventPopover();
+       
         try {
             blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
 

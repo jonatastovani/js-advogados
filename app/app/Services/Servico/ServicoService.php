@@ -17,7 +17,9 @@ use App\Models\Comum\ParticipacaoParticipanteIntegrante;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class ServicoService extends Service
@@ -70,6 +72,11 @@ class ServicoService extends Service
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
+        $query = $filtrosData['query'];
+        $query->withoutValorServicoAguardandoScope()
+            ->withoutValorServicoEmAnaliseScope()
+            ->withoutValorServicoInadimplenteScope()
+            ->withoutValorServicoLiquidadoScope();
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
         // $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
@@ -78,7 +85,9 @@ class ServicoService extends Service
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'titulo',
         ], $options));
-        return $this->carregarRelacionamentos($query, $requestData, $options);
+        $options = array_merge($options, ['removePrefix' => ['']]);
+        $data = $this->carregarRelacionamentos($query, $requestData, $options);
+        return $data;
     }
 
     /**
@@ -128,6 +137,43 @@ class ServicoService extends Service
 
         $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
+    }
+
+    protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
+    {
+        // Remove o relacionamento recursivo do ServicoPagamento
+        $options = array_merge($options, ['withOutClass' => [ServicoPagamentoService::class]]);
+        
+        // Remove os relacionamentos que nao devem ser carregados
+        $relationships = array_values(array_diff(
+            $this->loadFull($options),
+            $this->relacionamentosNaoCarregarNaConsultaPostComFiltros()
+        ));
+
+        $query->with($relationships);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $query->paginate($requestData->perPage ?? 25);
+        $paginator->getCollection()->transform(function ($item) {
+            $item->valor_final = $item->valor_total;
+            return $item;
+        });
+        
+        return $paginator->toArray();
+    }
+
+    protected function relacionamentosNaoCarregarNaConsultaPostComFiltros()
+    {
+        return [
+            'anotacao',
+            'documentos',
+            'participantes.participacao_tipo',
+            'participantes.referencia.pessoa.pessoa_dados',
+            'participantes.referencia.perfil_tipo',
+            'participantes.participacao_registro_tipo',
+            'participantes.integrantes.referencia.perfil_tipo',
+            'participantes.integrantes.referencia.pessoa.pessoa_dados',
+        ];
     }
 
     public function show(Fluent $requestData)
@@ -254,7 +300,9 @@ class ServicoService extends Service
         $data->total_inadimplente = $resource->total_inadimplente;
         $data->total_liquidado = $resource->total_liquidado;
         $data->total_analise = $resource->total_analise;
+        $data->total_cancelado = $resource->total_cancelado;
         $data->valor_servico = $resource->valor_servico;
+        $data->valor_final = $resource->valor_final;
         return $data->toArray();
     }
 

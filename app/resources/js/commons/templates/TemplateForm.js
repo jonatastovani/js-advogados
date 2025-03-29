@@ -203,7 +203,6 @@ export class TemplateForm {
 
         if (!container.length) return;
 
-        console.log(container.find('input, textarea, select, button, a, label, fieldset'));
         // Remove eventos e desativa elementos interativos
         container.find('input, textarea, select, button, a, label, fieldset')
             .off("click keypress change focus blur")

@@ -52,6 +52,7 @@
                     <th>Cliente(s)</th>
                     <th>Título</th>
                     <th>Área</th>
+                    <th class="text-nowrap">Valor Total</th>
                     <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th>Cadastro</th>
                 </tr>

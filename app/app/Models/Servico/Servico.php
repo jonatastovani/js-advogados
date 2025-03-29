@@ -8,6 +8,7 @@ use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
+use App\Scopes\Servico\ValorServicoCanceladoScope;
 use App\Scopes\Servico\ValorServicoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoLiquidadoScope;
@@ -15,6 +16,7 @@ use App\Scopes\Servico\ValorServicoScope;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +42,7 @@ class Servico extends Model
         'total_inadimplente' => 'float',
         'total_liquidado' => 'float',
         'total_em_analise' => 'float',
+        'total_cancelado' => 'float',
         'descricao' => 'array',
     ];
 
@@ -80,15 +83,20 @@ class Servico extends Model
         return $this->morphMany(DocumentoTenant::class, 'parent');
     }
 
-    /**
-     * Acessor para obter a soma total dos pagamentos associados a um serviço.
-     *
-     * @return float
-     */
-    public function getValorServicoAttribute()
+    // /**
+    //  * Acessor para obter a soma total dos pagamentos associados a um serviço.
+    //  *
+    //  * @return float
+    //  */
+    // public function getValorServicoAttribute()
+    // {
+    //     // Usa a relação 'pagamento' para calcular a soma dos valores
+    //     return $this->pagamento()->sum('valor_total');
+    // }
+
+    public function getValorFinalAttribute()
     {
-        // Usa a relação 'pagamento' para calcular a soma dos valores
-        return $this->pagamento()->sum('valor_total');
+        return round(($this->valor_servico ?? 0) - ($this->total_cancelado ?? 0), 2);
     }
 
     // Relacionamento direto para ServicoPagamentoLancamento
@@ -115,6 +123,7 @@ class Servico extends Model
         static::addGlobalScope(new ValorServicoAguardandoScope);
         static::addGlobalScope(new ValorServicoInadimplenteScope);
         static::addGlobalScope(new ValorServicoEmAnaliseScope);
+        static::addGlobalScope(new ValorServicoCanceladoScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano

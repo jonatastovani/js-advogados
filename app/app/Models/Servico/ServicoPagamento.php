@@ -9,6 +9,7 @@ use App\Models\Referencias\PagamentoTipo;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Scopes\Servico\ValorServicoPagamentoAguardandoScope;
+use App\Scopes\Servico\ValorServicoPagamentoCanceladoScope;
 use App\Scopes\Servico\ValorServicoPagamentoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoPagamentoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoPagamentoLiquidadoScope;
@@ -104,6 +105,7 @@ class ServicoPagamento extends Model
         static::addGlobalScope(new ValorServicoPagamentoAguardandoScope);
         static::addGlobalScope(new ValorServicoPagamentoInadimplenteScope);
         static::addGlobalScope(new ValorServicoPagamentoEmAnaliseScope);
+        static::addGlobalScope(new ValorServicoPagamentoCanceladoScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano
