@@ -92,18 +92,17 @@ export class ModalOrdemLancamentoStatusTipoTenant extends ModalRegistrationAndEd
         const container = $(containerSelector);
         container.html('');
 
-        statusList.forEach((item) => {
-            console.log('vai inserir no container o item', item);
+        statusList.forEach((itemStatus) => {
 
-            item.idCol = UUIDHelper.generateUUID();
+            itemStatus.idCol = UUIDHelper.generateUUID();
             const card = `
-                <div id="${item.idCol}" class="col item-status" data-id="${item.id}">
+                <div id="${itemStatus.idCol}" class="col item-status" data-id="${itemStatus.id}">
                     <div class="card">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div class="">
-                                <p class="fw-bold mb-1">${item.nome}</p>
+                                <p class="fw-bold mb-1">${itemStatus.nome}</p>
                                 <p class="text-muted text-truncate text-wrap mb-1">
-                                    ${item.descricao}
+                                    ${itemStatus.descricao}
                                 </p>
                             </div>
                             <div class="ms-3 d-flex flex-column">
@@ -122,54 +121,83 @@ export class ModalOrdemLancamentoStatusTipoTenant extends ModalRegistrationAndEd
             container.append(card);
 
             // adiciona na ordem os status
-            self._objConfigs.data.ordem_custom_array.push(item);
+            self._objConfigs.data.ordem_custom_array.push(itemStatus);
             // adiciona eventos após renderizar
-            self.#adicionarEventosOrdenacao(item, container);
+            self.#adicionarEventosOrdenacao(itemStatus, container);
         });
 
     }
 
-    #adicionarEventosOrdenacao(item) {
+    #adicionarEventosOrdenacao(itemStatus) {
         const self = this;
 
         const reorganizar = (idCol, sentido) => {
             const ordem = self._objConfigs.data.ordem_custom_array;
 
             const indexAtual = ordem.findIndex(obj => obj.idCol === idCol);
-
-            // Define novo índice
             let novoIndex = sentido === 'cima' ? indexAtual - 1 : indexAtual + 1;
 
-            // Verifica se é um movimento válido
             if (novoIndex < 0 || novoIndex >= ordem.length) return;
 
-            // Troca os elementos de lugar no array
             const temp = ordem[indexAtual];
             ordem[indexAtual] = ordem[novoIndex];
             ordem[novoIndex] = temp;
         };
 
-        const card = $(`#${item.idCol}`);
+        const card = $(`#${itemStatus.idCol}`);
 
         card.off('click', '.btn-subir')
             .on('click', '.btn-subir', function () {
-                const $item = $(this).closest('.item-status');
-                const $anterior = $item.prev('.item-status');
+                const item = $(this).closest('.item-status');
+                const anterior = item.prev('.item-status');
 
-                if ($anterior.length) {
-                    $item.insertBefore($anterior);
-                    reorganizar(item.idCol, 'cima');
+                if (anterior.length) {
+                    
+                    item.addClass('fade-move fade-up fade-glow');
+                    anterior.addClass('fade-down');
+
+                    requestAnimationFrame(() => {
+                        setTimeout(() => item.removeClass('fade-up'), 10);
+                        setTimeout(() => item.removeClass('fade-move'), 300);
+                        setTimeout(() => item.removeClass('fade-glow'), 300);
+                    });
+
+                    item.insertBefore(anterior);
+                    reorganizar(itemStatus.idCol, 'cima');
+                    anterior.addClass('fade-move');
+
+                    requestAnimationFrame(() => {
+                        setTimeout(() => anterior.removeClass('fade-down'), 10);
+                        setTimeout(() => anterior.removeClass('fade-move'), 300);
+                    });
+
                 }
             });
 
         card.off('click', '.btn-descer')
             .on('click', '.btn-descer', function () {
-                const $item = $(this).closest('.item-status');
-                const $proximo = $item.next('.item-status');
+                const item = $(this).closest('.item-status');
+                const proximo = item.next('.item-status');
 
-                if ($proximo.length) {
-                    $item.insertAfter($proximo);
-                    reorganizar(item.idCol, 'baixo');
+                if (proximo.length) {
+
+                    item.addClass('fade-move fade-down fade-glow');
+                    proximo.addClass('fade-up');
+                    requestAnimationFrame(() => {
+                        setTimeout(() => item.removeClass('fade-down'), 10);
+                        setTimeout(() => item.removeClass('fade-move'), 300);
+                        setTimeout(() => item.removeClass('fade-glow'), 300);
+                    });
+
+                    item.insertAfter(proximo);
+                    reorganizar(itemStatus.idCol, 'baixo');
+                    proximo.addClass('fade-move');
+
+                    requestAnimationFrame(() => {
+                        setTimeout(() => proximo.removeClass('fade-up'), 10);
+                        setTimeout(() => proximo.removeClass('fade-move'), 300);
+                    });
+
                 }
             });
     }

@@ -3,7 +3,6 @@ import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
 import { ModalNome } from "../../../components/comum/ModalNome";
 import { ModalOrdemLancamentoStatusTipoTenant } from "../../../components/tenant/ModalOrdemLancamentoServicosTenant";
-import { TenantDataHelper } from "../../../helpers/TenantDataHelper";
 import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -18,7 +17,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
             sufixo: 'PageSistemaFormConfiguracoes',
             data: {
                 domainsNaTela: [],
-                order_by_servicos_lancamentos: [],
+                order_by_servicos_lancamentos_array: [],
             },
         };
 
@@ -44,9 +43,9 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         $(`#btn-ordem-lancamentos-status-servico`).on('click', async function () {
             try {
                 const objModal = new ModalOrdemLancamentoStatusTipoTenant();
-                if (self._objConfigs.data?.order_by_servicos_lancamentos?.length) {
+                if (self._objConfigs.data?.order_by_servicos_lancamentos_array?.length) {
                     objModal.setDataEnvModal = {
-                        ordem_custom_array: self._objConfigs.data.order_by_servicos_lancamentos,
+                        ordem_custom_array: self._objConfigs.data.order_by_servicos_lancamentos_array,
                     }
                     console.warn('Tem algo para enviar');
                 } else {
@@ -54,12 +53,12 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    self._objConfigs.data.order_by_servicos_lancamentos = response.ordem_custom_array;
+                    self._objConfigs.data.order_by_servicos_lancamentos_array = response.ordem_custom_array;
                 }
             } finally {
                 CommonFunctions.simulateLoading($(this), false);
             }
-        }).trigger('click');
+        });
     }
 
     async preenchimentoDados(response, options = {}) {
@@ -75,8 +74,7 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         form.find('input[name="cancelar_liquidado_migracao_sistema_automatico_bln"]').prop('checked', responseData.cancelar_liquidado_migracao_sistema_automatico_bln);
         if (domains.length) domains.map(domain => { self._inserirDominio(domain); });
 
-        const tenantData = TenantDataHelper.getTenantData();
-        self._objConfigs.data.order_by_servicos_lancamentos = tenantData.order_by_servicos_lancamentos ?? [];
+        self._objConfigs.data.order_by_servicos_lancamentos_array = responseData.order_by_servicos_lancamentos_array ?? [];
     }
 
     async _inserirDominio(domain) {
@@ -166,11 +164,11 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         let data = CommonFunctions.getInputsValues(formData[0]);
 
         data.domains = self._objConfigs.data.domainsNaTela;
+        data.order_by_servicos_lancamentos_array = self._objConfigs.data.order_by_servicos_lancamentos_array;
 
         if (self._saveVerifications(data, formData)) {
             self._save(data, `${self._objConfigs.url.base}/update-cliente`);
         }
-        return false;
     }
 
     _saveVerifications(data, formData) {

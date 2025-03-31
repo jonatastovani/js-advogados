@@ -45,3 +45,38 @@ $opacities: (
 .ql-toolbar button.ql-button:not(:hover) i {
     color: #444 !important;
 }
+
+.fade-move {
+    transition: transform 1s ease, opacity 0.3s ease;
+    z-index: 1;
+    position: relative;
+}
+
+.fade-up {
+    transform: translateY(10px);
+    opacity: 0.6;
+}
+
+.fade-down {
+    transform: translateY(-10px);
+    opacity: 0.6;
+}
+
+.fade-glow {
+    animation: glow-flash 0.3s ease-in-out;
+}
+
+@keyframes glow-flash {
+    0% {
+        box-shadow: 0 0 0px rgba(0, 123, 255, 0);
+        background-color: inherit;
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.6);
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    100% {
+        box-shadow: 0 0 0px rgba(0, 123, 255, 0);
+        background-color: inherit;
+    }
+}

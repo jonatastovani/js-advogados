@@ -314,7 +314,6 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
-
     /**
      * Status que não serão permitidos atribuir, como status de reagendado e liquidado parcialmente.
      */

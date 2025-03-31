@@ -22,6 +22,7 @@ class TenantFormRequestUpdateCliente extends TenantFormRequestBase
             'sigla',
             'lancamento_liquidado_migracao_sistema_bln',
             'cancelar_liquidado_migracao_sistema_automatico_bln',
+            'order_by_servicos_lancamentos_array',
             'domains',
             'domains.*.id',
             'domains.*.name',
