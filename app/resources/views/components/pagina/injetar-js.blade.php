@@ -37,6 +37,7 @@
         PerfisPermitidoClienteServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoClienteServico()),
         StatusParaNovosPagamentosServicos: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaNovosPagamentosServicos()),
         StatusParaPagamentosServicosExistentes: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaPagamentosServicosExistentes()),
+        OrdemPadraoStatusLancamentoServico: @json(\App\Enums\LancamentoStatusTipoEnum::ordemPadraoStatusLancamentoServico()),
     }
 
     window.Details = {

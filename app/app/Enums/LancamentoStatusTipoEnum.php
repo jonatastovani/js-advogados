@@ -386,4 +386,28 @@ enum LancamentoStatusTipoEnum: int
             self::PAGAMENTO_CANCELADO->value,
         ];
     }
+
+    static public function ordemPadraoStatusLancamentoServico(): array
+    {
+        return [
+            self::EM_ATRASO_EM_ANALISE->value,
+            self::EM_ATRASO->value,
+            self::INADIMPLENTE_EM_ANALISE->value,
+            self::INADIMPLENTE->value,
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+            self::AGUARDANDO_PAGAMENTO->value,
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+            self::REAGENDADO_EM_ANALISE->value,
+            self::REAGENDADO->value,
+            self::CANCELADO_EM_ANALISE->value,
+            self::CANCELADO->value,
+            self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+            self::PAGAMENTO_CANCELADO->value,
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_MIGRACAO_SISTEMA->value,
+            self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
+        ];
+    }
 }

@@ -80,6 +80,7 @@
 
 @push('modals')
     <x-modal.comum.modal-nome.modal />
+    <x-modal.tenant.modal-ordem-lancamento-status-tipo-tenant.modal />
 @endpush
 
 @push('scripts')

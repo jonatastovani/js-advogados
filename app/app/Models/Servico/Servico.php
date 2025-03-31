@@ -60,17 +60,17 @@ class Servico extends Model
 
     public function anotacao()
     {
-        return $this->morphMany(AnotacaoLembreteTenant::class, 'parent');
+        return $this->morphMany(AnotacaoLembreteTenant::class, 'parent')->orderBy('created_at', 'asc');
     }
 
     public function pagamento()
     {
-        return $this->hasMany(ServicoPagamento::class, 'servico_id');
+        return $this->hasMany(ServicoPagamento::class, 'servico_id')->orderBy('created_at', 'asc');
     }
 
     public function participantes()
     {
-        return $this->morphMany(ParticipacaoParticipante::class, 'parent');
+        return $this->morphMany(ParticipacaoParticipante::class, 'parent')->orderBy('created_at', 'asc');
     }
 
     public function cliente()
@@ -80,7 +80,7 @@ class Servico extends Model
 
     public function documentos()
     {
-        return $this->morphMany(DocumentoTenant::class, 'parent');
+        return $this->morphMany(DocumentoTenant::class, 'parent')->orderBy('created_at', 'asc');
     }
 
     // /**

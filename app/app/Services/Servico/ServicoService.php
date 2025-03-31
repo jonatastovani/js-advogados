@@ -180,6 +180,7 @@ class ServicoService extends Service
     {
         $resource = $this->buscarRecurso($requestData);
         $resource->load($this->loadFull());
+        $resource->valor_final = $resource->valor_total;
         return $resource->toArray();
     }
 
