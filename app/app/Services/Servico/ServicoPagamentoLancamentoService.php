@@ -5,9 +5,6 @@ namespace App\Services\Servico;
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
-use App\Helpers\LogHelper;
-use App\Helpers\ValidationRecordsHelper;
-use App\Models\Tenant\ContaTenant;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
@@ -16,7 +13,6 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
-use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
 use App\Services\Tenant\FormaPagamentoTenantService;
 use Illuminate\Database\Eloquent\Builder;
@@ -242,6 +238,10 @@ class ServicoPagamentoLancamentoService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+
+        // Ordenamento personalizado pelo tenant, ou usará o padrão
+        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', ['column' => "{$this->model->getTableAsName()}.status_id"]);
+        $query->orderByRaw($case);
 
         $ordenacao = $requestData->ordenacao ?? [];
         if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {

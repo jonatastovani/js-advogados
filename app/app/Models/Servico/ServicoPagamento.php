@@ -2,6 +2,7 @@
 
 namespace App\Models\Servico;
 
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\PagamentoStatusTipo;
@@ -85,17 +86,7 @@ class ServicoPagamento extends Model
 
     public function lancamentos()
     {
-        // Obter a ordem personalizada ou a padrão
-        $ordem = tenant()->order_by_servicos_lancamentos_array
-            ?? \App\Enums\LancamentoStatusTipoEnum::ordemPadraoStatusLancamentoServico();
-
-        // Gera a cláusula CASE WHEN para ordenar pelo status_id
-        $case = 'CASE';
-        foreach ($ordem as $index => $statusId) {
-            $case .= " WHEN status_id = {$statusId} THEN {$index}";
-        }
-        $case .= ' ELSE 999 END';
-
+        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('edicao');
         return $this->hasMany(ServicoPagamentoLancamento::class, 'pagamento_id')
             ->orderByRaw($case)
             ->orderBy('data_vencimento', 'asc');

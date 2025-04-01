@@ -43,15 +43,29 @@
     <div class="col">
         <div class="card h-100">
             <div class="card-body">
-                <button id="btn-ordem-lancamentos-status-servico" type="button" class="btn btn-outline-primary">
-                    Ordenar lançamentos por status
+                <p>Exibição de Lançamentos de Serviços por Status no Financeiro → Lançamentos de Serviços</p>
+                <button id="btn-ordem-lancamentos-status-servico-listagem" type="button" class="btn btn-outline-primary btn-sm">
+                    Reordenar Status
                 </button>
                 <div class="form-text">
                     Defina a ordem em que os <span class="fst-italic fw-bolder">Lançamentos de Serviços</span> serão
-                    exibidos,
-                    tanto em <a href="{{ route('financeiro.lancamentos-servicos.index') }}"
-                        class="fst-italic">Financeiro → Lançamentos de Serviços</a>,
-                    quanto na guia <span class="fst-italic">Pagamentos</span> dentro do Serviço em edição.
+                    exibidos no <a href="{{ route('financeiro.lancamentos-servicos.index') }}"
+                        class="fst-italic">Financeiro → Lançamentos de Serviços</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <p>Exibição de Lançamentos de Serviços por Status na Guia Pagamentos em Edição</p>
+                <button id="btn-ordem-lancamentos-status-servico-edicao" type="button" class="btn btn-outline-primary btn-sm">
+                    Reordenar Status
+                </button>
+                <div class="form-text">
+                    Defina a ordem em que os <span class="fst-italic fw-bolder">Lançamentos de Serviços</span> serão
+                    exibidos na guia <span class="fst-italic fw-bolder">Pagamentos</span>, dentro do Serviço em edição.
                 </div>
             </div>
         </div>

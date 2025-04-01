@@ -17,7 +17,8 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
             sufixo: 'PageSistemaFormConfiguracoes',
             data: {
                 domainsNaTela: [],
-                order_by_servicos_lancamentos_array: [],
+                order_by_servicos_lancamentos_listagem_array: [],
+                order_by_servicos_lancamentos_edicao_array: [],
             },
         };
 
@@ -40,20 +41,34 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         const self = this;
         const modal = $(self._idModal);
 
-        $(`#btn-ordem-lancamentos-status-servico`).on('click', async function () {
+        $(`#btn-ordem-lancamentos-status-servico-listagem`).on('click', async function () {
             try {
                 const objModal = new ModalOrdemLancamentoStatusTipoTenant();
-                if (self._objConfigs.data?.order_by_servicos_lancamentos_array?.length) {
+                if (self._objConfigs.data?.order_by_servicos_lancamentos_listagem_array?.length) {
                     objModal.setDataEnvModal = {
-                        ordem_custom_array: self._objConfigs.data.order_by_servicos_lancamentos_array,
+                        ordem_custom_array: self._objConfigs.data.order_by_servicos_lancamentos_listagem_array,
                     }
-                    console.warn('Tem algo para enviar');
-                } else {
-                    console.warn('Não tem nada para enviar');
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    self._objConfigs.data.order_by_servicos_lancamentos_array = response.ordem_custom_array;
+                    self._objConfigs.data.order_by_servicos_lancamentos_listagem_array = response.ordem_custom_array;
+                }
+            } finally {
+                CommonFunctions.simulateLoading($(this), false);
+            }
+        });
+
+        $(`#btn-ordem-lancamentos-status-servico-edicao`).on('click', async function () {
+            try {
+                const objModal = new ModalOrdemLancamentoStatusTipoTenant();
+                if (self._objConfigs.data?.order_by_servicos_lancamentos_edicao_array?.length) {
+                    objModal.setDataEnvModal = {
+                        ordem_custom_array: self._objConfigs.data.order_by_servicos_lancamentos_edicao_array,
+                    }
+                }
+                const response = await objModal.modalOpen();
+                if (response.refresh) {
+                    self._objConfigs.data.order_by_servicos_lancamentos_edicao_array = response.ordem_custom_array;
                 }
             } finally {
                 CommonFunctions.simulateLoading($(this), false);
@@ -74,7 +89,8 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         form.find('input[name="cancelar_liquidado_migracao_sistema_automatico_bln"]').prop('checked', responseData.cancelar_liquidado_migracao_sistema_automatico_bln);
         if (domains.length) domains.map(domain => { self._inserirDominio(domain); });
 
-        self._objConfigs.data.order_by_servicos_lancamentos_array = responseData.order_by_servicos_lancamentos_array ?? [];
+        self._objConfigs.data.order_by_servicos_lancamentos_listagem_array = responseData.order_by_servicos_lancamentos_listagem_array ?? [];
+        self._objConfigs.data.order_by_servicos_lancamentos_edicao_array = responseData.order_by_servicos_lancamentos_edicao_array ?? [];
     }
 
     async _inserirDominio(domain) {
@@ -164,7 +180,8 @@ class PageSistemaFormConfiguracoes extends TemplateForm {
         let data = CommonFunctions.getInputsValues(formData[0]);
 
         data.domains = self._objConfigs.data.domainsNaTela;
-        data.order_by_servicos_lancamentos_array = self._objConfigs.data.order_by_servicos_lancamentos_array;
+        data.order_by_servicos_lancamentos_listagem_array = self._objConfigs.data.order_by_servicos_lancamentos_listagem_array;
+        data.order_by_servicos_lancamentos_edicao_array = self._objConfigs.data.order_by_servicos_lancamentos_edicao_array;
 
         if (self._saveVerifications(data, formData)) {
             self._save(data, `${self._objConfigs.url.base}/update-cliente`);

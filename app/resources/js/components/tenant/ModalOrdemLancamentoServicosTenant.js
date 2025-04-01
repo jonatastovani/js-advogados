@@ -43,8 +43,6 @@ export class ModalOrdemLancamentoStatusTipoTenant extends ModalRegistrationAndEd
         await CommonFunctions.loadingModalDisplay(true);
         let blnOpen = false;
 
-        console.log(self._dataEnvModal.ordem_custom_array);
-
         blnOpen = await self.#preencherDados()
         await CommonFunctions.loadingModalDisplay(false);
 
@@ -69,13 +67,11 @@ export class ModalOrdemLancamentoStatusTipoTenant extends ModalRegistrationAndEd
             const ordem = self._dataEnvModal.ordem_custom_array ?? window.Statics.OrdemPadraoStatusLancamentoServico;
 
             const detalhes = window.Details.LancamentoStatusTipoEnum;
-            console.log('detalhes', JSON.parse(JSON.stringify(detalhes)));
             // Reordena os detalhes conforme a ordem definida
             const detalhesOrdenados = ordem
                 .map(statusId => detalhes.find(detalhe => detalhe.id === statusId))
                 .filter(Boolean);
 
-            console.log('detalhesOrdenados', JSON.parse(JSON.stringify(detalhesOrdenados)));
             self.#renderizarCardsStatus(detalhesOrdenados);
             return true;
 

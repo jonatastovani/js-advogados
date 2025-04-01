@@ -99,7 +99,10 @@ class Servico extends Model
         return round(($this->valor_servico ?? 0) - ($this->total_cancelado ?? 0), 2);
     }
 
-    // Relacionamento direto para ServicoPagamentoLancamento
+    /**
+     * Relacionamento direto para ServicoPagamentoLancamento.
+     * Usado nos Scopes do Serviço para somatórias
+     */
     public function lancamentos()
     {
         return $this->hasManyThrough(

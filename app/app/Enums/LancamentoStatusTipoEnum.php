@@ -389,24 +389,52 @@ enum LancamentoStatusTipoEnum: int
     static public function ordemPadraoStatusLancamentoServico(): array
     {
         return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
             self::EM_ATRASO_EM_ANALISE->value,
             self::EM_ATRASO->value,
             self::INADIMPLENTE_EM_ANALISE->value,
             self::INADIMPLENTE->value,
             self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
             self::AGUARDANDO_PAGAMENTO->value,
-            self::LIQUIDADO_EM_ANALISE->value,
-            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
-            self::LIQUIDADO_PARCIALMENTE->value,
             self::REAGENDADO_EM_ANALISE->value,
             self::REAGENDADO->value,
             self::CANCELADO_EM_ANALISE->value,
             self::CANCELADO->value,
             self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
             self::PAGAMENTO_CANCELADO->value,
-            self::LIQUIDADO->value,
             self::LIQUIDADO_MIGRACAO_SISTEMA->value,
             self::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value,
         ];
+    }
+
+    static public function renderizarCasesStatusLancamentoServico(string $tipo, $options = []): string
+    {
+        switch ($tipo) {
+            case 'edicao':
+                $array_tipo = 'order_by_servicos_lancamentos_edicao_array';
+                break;
+
+            case 'listagem':
+            default:
+                $array_tipo = 'order_by_servicos_lancamentos_listagem_array';
+                break;
+        }
+        $column = $options['column'] ?? 'status_id';
+
+        // Obter a ordem personalizada ou a padrão
+        $ordem = tenant()->$array_tipo
+            ?? self::ordemPadraoStatusLancamentoServico();
+
+        // Gera a cláusula CASE WHEN para ordenar pelo status_id
+        $case = 'CASE';
+        foreach ($ordem as $index => $statusId) {
+            $case .= " WHEN $column = {$statusId} THEN {$index}";
+        }
+        $case .= ' ELSE 999 END';
+
+        return $case;
     }
 }
