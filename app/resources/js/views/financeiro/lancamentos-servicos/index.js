@@ -223,6 +223,42 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                     ]
                 },
+                EM_ATRASO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                    cor: 'text-danger bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                EM_ATRASO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    cor: 'text-danger-emphasis',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                    ]
+                },
                 PAGAMENTO_CANCELADO_EM_ANALISE: {
                     id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
                     cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
@@ -233,7 +269,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 },
             },
             dados_tenant: undefined,
-        }
+        },
+        dados_tenant: undefined, // Configurações para os status de Liquidado (Migração Sistema)
     };
 
     constructor() {
@@ -382,129 +419,28 @@ class PageLancamentoServicoIndex extends TemplateSearch {
     #htmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
         let strBtns = '';
         const enumPag = window.Enums.PagamentoStatusTipoEnum;
         const pagamentoAtivo = item.pagamento.status_id == enumPag.ATIVO ? true : false;
 
         if (pagamentoAtivo) {
+            const botoes = self.#getBotoesStatus(item);
 
-            if (configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento-analise" title="Alterar status para Aguardando Pagamento em Análise para o lancamento ${item.descricao_automatica}.">
-                        <i class="bi bi-hourglass-top"></i> Aguardando Pagamento (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-primary btn-aguardando-pagamento" title="Alterar status para Aguardando Pagamento para o lancamento ${item.descricao_automatica}.">
-                        <i class="bi bi-check2-all"></i> Aguardando Pagamento
-                    </button>
-                </li>`;
-            }
+            botoes.forEach(botao => {
+                const podeExibir =
+                    configAcoes[botao.chave]?.opcao_nos_status?.includes(item.status_id) &&
+                    botao.condicao();
 
-            if (configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado em Análise.">
-                        <i class="bi bi-check2"></i> Liquidado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success btn-liquidado" title="Receber lancamento ${item.descricao_automatica} com status Liquidado.">
-                        <i class="bi bi-check2-all"></i> Liquidado
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE?.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente-analise" title="Receber lancamento ${item.descricao_automatica} com status Liquidado Parcial em Análise.">
-                        <i class="bi bi-exclamation-lg"></i> Liquidado Parcialmente (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-                && !lancamentoDiluido) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-success-emphasis btn-liquidado-parcialmente" title="Receber lançamento ${item.descricao_automatica} com status Liquidado Parcial.">
-                        <i class="bi bi-check2-all"></i> Liquidado Parcialmente
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado-analise" title="Reagendar lancamento ${item.descricao_automatica} em Análise.">
-                        <i class="bi bi-calendar-event"></i> Reagendado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 text-warning btn-reagendado" title="Reagendar lançamento ${item.descricao_automatica}.">
-                        <i class="bi bi-check2-all"></i> Reagendado
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado em Análise.">
-                        <i class="bi bi-dash-circle"></i> Cancelado (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-cancelado text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Cancelado.">
-                        <i class="bi bi-check2-all"></i> Cancelado
-                    </button>
-                </li>`;
-            }
-
-            if (configAcoes.INADIMPLENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-inadimplente-analise text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Inadimplente em Análise.">
-                        <i class="bi bi-dash-circle"></i> Inadimplente (em Análise)
-                    </button>
-                </li>`;
-            }
-            if (configAcoes.INADIMPLENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-inadimplente text-danger" title="Registrar lançamento ${item.descricao_automatica} com status Inadimplente.">
-                        <i class="bi bi-check2-all"></i> Inadimplente
-                    </button>
-                </li>`;
-            }
-
-            // Se houver as configurações do tenant então se verifica se apresenta ou não o botão
-            if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
-                if (configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
+                if (podeExibir) {
                     strBtns += `
-                <li>
-                    <button type="button" class="dropdown-item fs-6 btn-liquidado-migracao" title="Registrar lançamento ${item.descricao_automatica} com status Liquidado Migração Sistema.">
-                        <i class="bi bi-journal-check"></i> Liquidado (Migração Sistema)
-                    </button>
-                </li>`;
+                        <li>
+                            <button type="button" class="dropdown-item fs-6 ${botao.cor} ${botao.classe}" 
+                                title="Alterar status para ${botao.texto} para o lançamento ${item.descricao_automatica}.">
+                                ${botao.icon} ${botao.texto}
+                            </button>
+                        </li>`;
                 }
-            }
-
+            });
         }
 
         let strVerServico = `
@@ -526,11 +462,154 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         return strBtns;
     }
 
+    #getBotoesStatus(item) {
+        const self = this;
+        const lancamentoDiluido = item.parent_id ? true : false;
+
+        return [
+            {
+                chave: 'AGUARDANDO_PAGAMENTO_EM_ANALISE',
+                classe: 'btn-aguardando-pagamento-analise',
+                texto: 'Aguardando Pagamento (em Análise)',
+                icon: '<i class="bi bi-hourglass-top"></i>',
+                cor: 'text-primary',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'AGUARDANDO_PAGAMENTO',
+                classe: 'btn-aguardando-pagamento',
+                texto: 'Aguardando Pagamento',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-primary',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_EM_ANALISE',
+                classe: 'btn-liquidado-analise',
+                texto: 'Liquidado (em Análise)',
+                icon: '<i class="bi bi-check2"></i>',
+                cor: 'text-success',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO',
+                classe: 'btn-liquidado',
+                texto: 'Liquidado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-success',
+                tipoAcao: 'movimentar',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_PARCIALMENTE_EM_ANALISE',
+                classe: 'btn-liquidado-parcialmente-analise',
+                texto: 'Liquidado Parcialmente (em Análise)',
+                icon: '<i class="bi bi-exclamation-lg"></i>',
+                cor: 'text-success-emphasis',
+                tipoAcao: 'alterar_status',
+                condicao: () => !lancamentoDiluido
+            },
+            {
+                chave: 'LIQUIDADO_PARCIALMENTE',
+                classe: 'btn-liquidado-parcialmente',
+                texto: 'Liquidado Parcialmente',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-success-emphasis',
+                tipoAcao: 'movimentar',
+                condicao: () => !lancamentoDiluido
+            },
+            {
+                chave: 'REAGENDADO_EM_ANALISE',
+                classe: 'btn-reagendado-analise',
+                texto: 'Reagendado (em Análise)',
+                icon: '<i class="bi bi-calendar-event"></i>',
+                cor: 'text-warning',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'REAGENDADO',
+                classe: 'btn-reagendado',
+                texto: 'Reagendado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-warning',
+                tipoAcao: 'reagendar',
+                condicao: () => true
+            },
+            {
+                chave: 'EM_ATRASO_EM_ANALISE',
+                classe: 'btn-em-atraso-analise',
+                texto: 'Em atraso (em Análise)',
+                icon: '<i class="bi bi-stopwatch"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'EM_ATRASO',
+                classe: 'btn-em-atraso',
+                texto: 'Em atraso',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'CANCELADO_EM_ANALISE',
+                classe: 'btn-cancelado-analise',
+                texto: 'Cancelado (em Análise)',
+                icon: '<i class="bi bi-dash-circle"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'CANCELADO',
+                classe: 'btn-cancelado',
+                texto: 'Cancelado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'INADIMPLENTE_EM_ANALISE',
+                classe: 'btn-inadimplente-analise',
+                texto: 'Inadimplente (em Análise)',
+                icon: '<i class="bi bi-dash-circle"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'INADIMPLENTE',
+                classe: 'btn-inadimplente',
+                texto: 'Inadimplente',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_MIGRACAO_SISTEMA',
+                classe: 'btn-liquidado-migracao',
+                texto: 'Liquidado (Migração Sistema)',
+                icon: '<i class="bi bi-journal-check"></i>',
+                cor: '',
+                tipoAcao: 'alterar_status',
+                condicao: () => self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln
+            }
+        ];
+    }
+
     #addEventosRegistrosConsulta(item) {
         const self = this;
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
         const configAcoes = self.#objConfigs.data.configAcoes;
-        const lancamentoDiluido = item.parent_id ? true : false;
+        const botoes = self.#getBotoesStatus(item);
 
         const openMovimentar = async function (status_id) {
             try {
@@ -596,116 +675,40 @@ class PageLancamentoServicoIndex extends TemplateSearch {
             }
         }
 
-        let btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento-analise`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Aguardando Pagamento (em Análise)', status_id: enumLanc.AGUARDANDO_PAGAMENTO_EM_ANALISE });
-            });
-        }
+        botoes.forEach(config => {
+            const btn = $(`#${item.idTr}`).find(`.${config.classe}`);
+            const pode = configAcoes[config.chave]?.opcao_nos_status?.includes(item.status_id);
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-aguardando-pagamento`);
-        if (btnAcao.length && configAcoes.AGUARDANDO_PAGAMENTO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Aguardando Pagamento', status_id: enumLanc.AGUARDANDO_PAGAMENTO });
-            });
-        }
+            if (btn.length && pode && config.condicao()) {
+                btn.on('click', async function () {
+                    const status_id = enumLanc[config.chave];
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Liquidado (em Análise)', status_id: enumLanc.LIQUIDADO_EM_ANALISE });
-            });
-        }
+                    switch (config.tipoAcao) {
+                        case 'alterar_status':
+                            await openAlterarStatus({ status_html: config.texto, status_id });
+                            break;
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado`);
-        if (btnAcao.length && configAcoes.LIQUIDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO);
-            });
-        }
+                        case 'movimentar':
+                            await openMovimentar(status_id);
+                            break;
 
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente-analise`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Liquidado Parcialmente (em Análise)', status_id: enumLanc.LIQUIDADO_PARCIALMENTE_EM_ANALISE });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-parcialmente`);
-        if (btnAcao.length && configAcoes.LIQUIDADO_PARCIALMENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1
-            && !lancamentoDiluido) {
-            btnAcao.on('click', async function () {
-                await openMovimentar(window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE);
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado-analise`);
-        if (btnAcao.length && configAcoes.REAGENDADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Reagendado (em Análise)', status_id: enumLanc.REAGENDADO_EM_ANALISE });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-reagendado`);
-        if (btnAcao.length && configAcoes.REAGENDADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                try {
-                    const objModal = new ModalLancamentoReagendar({
-                        urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
-                    });
-                    objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModalForObjData(item, {
-                        idRegister: item.id,
-                        status_id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
-                        data_atual: item.data_vencimento
-                    });
-                    const response = await objModal.modalOpen();
-                    if (response.refresh) {
-                        await self._generateQueryFilters();
+                        case 'reagendar':
+                            const modal = new ModalLancamentoReagendar({
+                                urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
+                            });
+                            modal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModalForObjData(item, {
+                                idRegister: item.id,
+                                status_id,
+                                data_atual: item.data_vencimento
+                            });
+                            const response = await modal.modalOpen();
+                            if (response.refresh) await self._generateQueryFilters();
+                            break;
                     }
-                } catch (error) {
-                    CommonFunctions.generateNotificationErrorCatch(error);
-                }
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado-analise`);
-        if (btnAcao.length && configAcoes.CANCELADO_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Cancelado (em Análise)', status_id: enumLanc.CANCELADO_EM_ANALISE });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-cancelado`);
-        if (btnAcao.length && configAcoes.CANCELADO.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Cancelado', status_id: enumLanc.CANCELADO });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-inadimplente-analise`);
-        if (btnAcao.length && configAcoes.INADIMPLENTE_EM_ANALISE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Inadimplente (em Análise)', status_id: enumLanc.INADIMPLENTE_EM_ANALISE });
-            });
-        }
-
-        btnAcao = $(`#${item.idTr}`).find(`.btn-inadimplente`);
-        if (btnAcao.length && configAcoes.INADIMPLENTE.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-            btnAcao.on('click', async function () {
-                await openAlterarStatus({ status_html: 'Inadimplente', status_id: enumLanc.INADIMPLENTE });
-            });
-        }
-
-        // Se houver as configurações do tenant então se verifica se aplica o evento ou não o botão
-        if (self._objConfigs.dados_tenant && self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln) {
-            btnAcao = $(`#${item.idTr}`).find(`.btn-liquidado-migracao`);
-            if (btnAcao.length && configAcoes.LIQUIDADO_MIGRACAO_SISTEMA.opcao_nos_status.findIndex(status => status == item.status_id) != -1) {
-                btnAcao.on('click', async function () {
-                    await openAlterarStatus({ status_html: 'Liquidado (Migração Sistema)', status_id: enumLanc.LIQUIDADO_MIGRACAO_SISTEMA });
                 });
             }
-        }
+        });
+
     }
 
     #htmlRenderCliente(item) {
