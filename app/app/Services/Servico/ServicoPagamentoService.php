@@ -225,7 +225,10 @@ class ServicoPagamentoService extends Service
             );
         }
 
-        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.{$requestData->ordenacao[0]['campo']}");
+        $datasIntervalo = $requestData->datas_intervalo;
+        $datasIntervalo['campo_data'] = "{$this->model->getTableAsName()}.created_at";
+        $requestData->datas_intervalo = $datasIntervalo;
+        $query = $this->aplicarFiltroDataIntervalo($query, $requestData);
 
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
@@ -515,7 +518,6 @@ class ServicoPagamentoService extends Service
      */
     protected function temLancamentosComMovimentacao($lancamentos): bool
     {
-
         $statusComMovimentacao = collect(LancamentoStatusTipoEnum::statusComMovimentacaoConta())
             ->pluck('status_id')
             ->unique()

@@ -246,7 +246,7 @@ trait CommonsConsultaServiceTrait
         $dataFim = $requestData->datas_intervalo['data_fim'];
 
         // Aplica o filtro de intervalo de datas
-        return $query->whereBetween($campoData, [$dataInicio, $dataFim]);
+        return $query->whereBetween($campoData, ["$dataInicio 00:00:00", "$dataFim 23:59:59"]);
     }
 
     /**

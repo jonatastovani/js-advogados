@@ -2,6 +2,11 @@
     $sufixo = 'PagePagamentoServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'nome' => 'Pagamentos de Serviços',
+        'descricao' => [
+            [
+                'texto' => "Página destinada à visualização dos pagamentos de serviços cadastrados, juntamente com suas respectivas informações. Nesta seção, é possível, por exemplo, buscar especificamente os pagamentos do tipo 'Condicionado'.",
+            ],
+        ],
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -32,7 +37,7 @@
                 'arrayCamposOrdenacao' => [
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
-                'consultaMesAnoBln' => true,
+                'consultaIntervaloBln' => true,
                 'camposExtras' => [
                     [
                         'tipo' => 'select',

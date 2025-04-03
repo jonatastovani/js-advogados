@@ -45,19 +45,15 @@
         }
     }
 
-    $consultaIntervalo = isset($dados->consultaIntervaloBln) ? $dados->consultaIntervaloBln : false;
+    $consultaIntervaloBln = isset($dados->consultaIntervaloBln) ? $dados->consultaIntervaloBln : false;
     $dataInicio = now()->startOfMonth()->format('Y-m-d'); // Primeiro dia do mês corrente
     $dataFim = now()->endOfMonth()->format('Y-m-d'); // Último dia do mês corrente
 
-    if ($consultaIntervalo) {
-        if (
-            !isset($dados->arrayCamposDatasIntervalo) ||
-            (isset($dados->arrayCamposDatasIntervalo) && count($dados->arrayCamposDatasIntervalo) <= 0)
-        ) {
-            $consultaIntervalo = false;
-        } else {
-            $dataInicio = $dados->consultaIntervalo['data_inicio'] ?? now()->startOfMonth()->format('Y-m-d');
-            $dataFim = $dados->consultaIntervalo['data_fim'] ?? now()->endOfMonth()->format('Y-m-d');
+    if ($consultaIntervaloBln) {
+        // Se foi informado um intervalo de datas, utiliza essas datas
+        if (isset($dados->arrayCamposDatasIntervalo) && count($dados->arrayCamposDatasIntervalo) <= 0) {
+            $dataInicio = $dados->arrayCamposDatasIntervalo['data_inicio'] ?? now()->startOfMonth()->format('Y-m-d');
+            $dataFim = $dados->arrayCamposDatasIntervalo['data_fim'] ?? now()->endOfMonth()->format('Y-m-d');
         }
     }
 
@@ -94,7 +90,7 @@
         @endif
     </div>
 
-    @if ($consultaIntervalo)
+    @if ($consultaIntervaloBln)
         <div class="row text-end">
             <div class="{{ $row_col_campo_data }} mt-2">
                 <div class="input-group">
@@ -108,6 +104,7 @@
                     @php
                         $mergeDadosSelectDataIntervalo = array_merge(
                             ['name' => $nomeSelect, 'id' => $idSelect],
+                            // Array de campos para serem renderizados como opções de datas de busca
                             $dados->dadosSelectDataIntervalo ?? [],
                         );
                         ConsultaHelper::renderizarSelectDataIntervalo(

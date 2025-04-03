@@ -152,7 +152,8 @@ class LancamentoGeralService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.{$requestData->ordenacao[0]['campo']}");
+
+        $modelAsName = $this->model->getTableAsName();
 
         $ordenacao = $requestData->ordenacao ?? [];
         if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
@@ -163,6 +164,25 @@ class LancamentoGeralService extends Service
                 ]
             );
         }
+
+        // Condições para o filtro de data e a exibição dos registros baseado na data de recebimento e vencimento
+        $query->where(function ($query) use ($modelAsName, $requestData) {
+
+            // Trazer registros que tem a data de vencimento dentro do mês informado e estão com a data de recebimento vazia ou com a data de recebimento dentro do mês informado
+            $query->where(function ($query) use ($modelAsName, $requestData) {
+
+                // Registros com a data de vencimento dentro do mês informado
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_vencimento");
+
+                // Registro com data de recebimento vazia
+                $query->whereNull("{$modelAsName}.data_quitado");
+            });
+
+            $query->orWhere(function ($query) use ($modelAsName, $requestData) {
+                // Registros com a data de recebimento dentro do mês informado
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_quitado");
+            });
+        });
 
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([

@@ -19,14 +19,11 @@ class PostConsultaFiltroFormRequestServicoPagamento extends PostConsultaFiltroFo
     {
         // Previne o recebimento das regras de intervalo de datas
         $rules = Arr::except(parent::rules(), [
-            'datas_intervalo',
-            'datas_intervalo.campo_data',
-            'datas_intervalo.data_inicio',
-            'datas_intervalo.data_fim'
+            'mes_ano',
         ]);
 
         $rules = array_merge($rules, [
-            'mes_ano' => 'required|date:Y-m',
+            'datas_intervalo' => 'required|array',
             'forma_pagamento_id' => 'nullable|uuid',
             'pagamento_tipo_tenant_id' => 'nullable|uuid',
             'pagamento_status_tipo_id' => 'nullable|integer',

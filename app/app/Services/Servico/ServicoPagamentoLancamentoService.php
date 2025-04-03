@@ -17,6 +17,7 @@ use App\Services\Service;
 use App\Services\Tenant\FormaPagamentoTenantService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
@@ -238,9 +239,9 @@ class ServicoPagamentoLancamentoService extends Service
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-
+        $modelAsName = $this->model->getTableAsName();
         // Ordenamento personalizado pelo tenant, ou usará o padrão
-        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', ['column' => "{$this->model->getTableAsName()}.status_id"]);
+        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', ['column' => "{$modelAsName}.status_id"]);
         $query->orderByRaw($case);
 
         $ordenacao = $requestData->ordenacao ?? [];
@@ -251,7 +252,24 @@ class ServicoPagamentoLancamentoService extends Service
             );
         }
 
-        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.{$requestData->ordenacao[0]['campo']}");
+        // Condições para o filtro de data e a exibição dos registros baseado na data de recebimento e vencimento
+        $query->where(function ($query) use ($modelAsName, $requestData) {
+
+            // Trazer registros que tem a data de vencimento dentro do mês informado e estão com a data de recebimento vazia ou com a data de recebimento dentro do mês informado
+            $query->where(function ($query) use ($modelAsName, $requestData) {
+
+                // Registros com a data de vencimento dentro do mês informado
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_vencimento");
+
+                // Registro com data de recebimento vazia
+                $query->whereNull("{$modelAsName}.data_recebimento");
+            });
+
+            $query->orWhere(function ($query) use ($modelAsName, $requestData) {
+                // Registros com a data de recebimento dentro do mês informado
+                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_recebimento");
+            });
+        });
 
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
@@ -462,12 +480,21 @@ class ServicoPagamentoLancamentoService extends Service
 
     public function storeLancamentoReagendadoServico(Fluent $requestData)
     {
-        $idParent = $requestData->uuid;
-        $modelParent = $this->model;
-        try {
-            return DB::transaction(function () use ($requestData, $idParent, $modelParent) {
+        $lancamento = $this->buscarRecurso($requestData, [
+            'conditions' => null,
+        ]);
 
-                $lancamento = $modelParent::find($idParent);
+        if (in_array($lancamento->status_id, LancamentoStatusTipoEnum::statusImpossibilitaExclusao())) {
+            RestResponse::createErrorResponse(422, "Este lancamento possui status que impossibilita o reagendamento.")->throwResponse();
+        }
+
+        // Verifica com o Carbon se a data_vencimento do $requestData é diferente que a data_vencimento do $lancamento, se não for igual, reagendar o lancamento
+        if (Carbon::parse($requestData->data_vencimento)->eq($lancamento->data_vencimento)) {
+            RestResponse::createErrorResponse(422, "A data de vencimento informada deve ser diferente da data de vencimento atual.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($requestData, $lancamento) {
 
                 $lancamento->status_id = LancamentoStatusTipoEnum::REAGENDADO->value;
                 $lancamento->save();
@@ -483,8 +510,8 @@ class ServicoPagamentoLancamentoService extends Service
                 $newLancamento->save();
 
                 // IDs dos registros já salvos
-                $existingRegisters = $this->modelParticipante::where('parent_type', $modelParent->getMorphClass())
-                    ->where('parent_id', $idParent)
+                $existingRegisters = $this->modelParticipante::where('parent_type', $lancamento->getMorphClass())
+                    ->where('parent_id', $lancamento->id)
                     ->get();
 
                 $replicarIntegrantes = function ($integrantes, $participanteId) {

@@ -46,6 +46,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 AGUARDANDO_PAGAMENTO: {
@@ -62,6 +64,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 LIQUIDADO_EM_ANALISE: {
@@ -76,6 +80,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 LIQUIDADO: {
@@ -88,6 +94,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
@@ -102,6 +110,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 LIQUIDADO_PARCIALMENTE: {
@@ -113,6 +123,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 REAGENDADO_EM_ANALISE: {
@@ -126,6 +138,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 REAGENDADO: {
@@ -139,6 +153,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 CANCELADO_EM_ANALISE: {
@@ -156,6 +172,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 CANCELADO: {
@@ -173,6 +191,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 INADIMPLENTE_EM_ANALISE: {
@@ -189,6 +209,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 INADIMPLENTE: {
@@ -205,6 +227,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 LIQUIDADO_MIGRACAO_SISTEMA: {
@@ -221,6 +245,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                         window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
                         window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
                         window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
                     ]
                 },
                 EM_ATRASO_EM_ANALISE: {
@@ -386,14 +412,14 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
+                <td class="text-nowrap ${classCor}">${htmlCliente}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-                <td class="text-nowrap ${classCor}">${htmlCliente}</td>
                 <td class="text-truncate ${classCor}" title="${tituloServico}">${tituloServico}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap ${classCor}" title="${formaPagamento}">${formaPagamento}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorRecebido}">${valorRecebido}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataRecebimento}">${dataRecebimento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>

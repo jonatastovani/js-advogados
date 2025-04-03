@@ -76,7 +76,7 @@ class ConsultaHelper
     public static function renderizarSelectDataIntervalo(array $arrayDadosSelect, array $dados = [])
     {
         // Define os campos disponíveis ou usa o padrão
-        $arrayCampos = $dados['arrayCamposDatasIntervalo'] ?? ['data_cadastro' => ['nome' => 'Data cadastro']];
+        $arrayCampos = $dados['arrayCamposDatasIntervalo'] ?? ['created_at' => ['nome' => 'Data cadastro']];
 
         // Define a opção selecionada
         $selecionado = $arrayDadosSelect['selecionado'] ?? false;
