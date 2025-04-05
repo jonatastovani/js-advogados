@@ -1,9 +1,12 @@
 import { CommonFunctions } from "../../commons/CommonFunctions";
+import { ConnectAjax } from "../../commons/ConnectAjax";
 import { EnumAction } from "../../commons/EnumAction";
 import { TemplateForm } from "../../commons/templates/TemplateForm";
 import { ModalMessage } from "../../components/comum/ModalMessage";
 import { ModalParticipacao } from "../../components/comum/ModalParticipacao";
+import { ModalLancamentoServicoMovimentar } from "../../components/financeiro/ModalLancamentoServicoMovimentar";
 import { ModalPessoa } from "../../components/pessoas/ModalPessoa";
+import { ModalLancamentoReagendar } from "../../components/servico/ModalLancamentoReagendar";
 import { ModalSelecionarPagamentoTipo } from "../../components/servico/ModalSelecionarPagamentoTipo";
 import { ModalServicoPagamento } from "../../components/servico/ModalServicoPagamento";
 import { ModalAnotacaoLembreteTenant } from "../../components/tenant/ModalAnotacaoLembreteTenant";
@@ -13,6 +16,7 @@ import { BootstrapFunctionsHelper } from "../../helpers/BootstrapFunctionsHelper
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../helpers/ParticipacaoHelpers";
 import SimpleBarHelper from "../../helpers/SimpleBarHelper";
+import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
@@ -33,12 +37,277 @@ class PageServicoForm extends TemplateForm {
             baseAreaJuridicaTenant: window.apiRoutes.baseAreaJuridicaTenant,
             baseParticipacaoPreset: window.apiRoutes.baseParticipacaoPreset,
             baseParticipacaoTipo: window.apiRoutes.baseParticipacaoTipoTenant,
+            baseMovimentacaoContaLancamentoServico: window.apiRoutes.baseMovimentacaoContaLancamentoServico,
+            baseLancamento: window.apiRoutes.baseLancamento,
         },
         data: {
             porcentagemOcupada: 0,
             participantesNaTela: [],
             clientesNaTela: [],
             participacao_tipo_tenant: {
+            },
+            configAcoes: {
+                AGUARDANDO_PAGAMENTO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                    cor: 'text-bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                AGUARDANDO_PAGAMENTO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                    cor: null,
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                LIQUIDADO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                    cor: 'text-success bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                LIQUIDADO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                    cor: 'text-success',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                LIQUIDADO_PARCIALMENTE_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                    cor: 'text-success-emphasis bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                LIQUIDADO_PARCIALMENTE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                    cor: 'text-success-emphasis',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                REAGENDADO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                    cor: 'fst-italic text-bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                REAGENDADO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.REAGENDADO,
+                    cor: 'fst-italic text-info-emphasis text-decoration-line-through',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                CANCELADO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                    cor: 'fst-italic text-secondary text-decoration-line-through bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                CANCELADO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                    cor: 'fst-italic text-secondary-emphasis text-decoration-line-through',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                INADIMPLENTE_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                    cor: 'text-danger bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                INADIMPLENTE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                    cor: 'text-danger-emphasis',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                LIQUIDADO_MIGRACAO_SISTEMA: {
+                    id: window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                    cor: null,
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                EM_ATRASO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                    cor: 'text-danger bg-warning',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    ]
+                },
+                EM_ATRASO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.EM_ATRASO,
+                    cor: 'text-danger-emphasis',
+                    opcao_nos_status: [
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.AGUARDANDO_PAGAMENTO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_PARCIALMENTE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.INADIMPLENTE,
+                        window.Enums.LancamentoStatusTipoEnum.REAGENDADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.CANCELADO_EM_ANALISE,
+                        window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA,
+                        window.Enums.LancamentoStatusTipoEnum.EM_ATRASO_EM_ANALISE,
+                    ]
+                },
+                PAGAMENTO_CANCELADO_EM_ANALISE: {
+                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO_EM_ANALISE,
+                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
+                },
+                PAGAMENTO_CANCELADO: {
+                    id: window.Enums.LancamentoStatusTipoEnum.PAGAMENTO_CANCELADO,
+                    cor: 'fst-italic text-danger-emphasis text-decoration-line-through',
+                },
             },
         },
         participacao: {
@@ -860,134 +1129,6 @@ class PageServicoForm extends TemplateForm {
         return htmlAppend;
     }
 
-    #htmlLancamentos(item) {
-        const self = this;
-
-        let htmlLancamentos = '';
-        for (const lancamento of item.lancamentos) {
-
-            const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
-            const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-            const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
-            const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
-            const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
-
-            let editParticipante = true;
-            if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
-                editParticipante = false;
-            }
-
-            const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
-            lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
-
-            let htmlAppend = '';
-
-            if (lancamento.observacao) {
-                htmlAppend += `
-                <div class="row">
-                    <div class="col">
-                        <div class="form-text mt-0">Observação</div>
-                        <p class="text-truncate text-wrap" title="${lancamento.observacao}">${lancamento.observacao}</p>
-                    </div>
-                </div>`;
-            }
-
-            if (!tachado) htmlAppend += self.#htmlParticipantes(lancamento, 'lancamento', item.status_id);
-
-            htmlLancamentos += `
-                <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
-                    <div class="card-header d-flex align-items-center justify-content-between py-1">
-                        <span>${lancamento.descricao_automatica}</span>
-                        <div>
-                            <div class="dropdown">
-                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${pagamentoAtivo && editParticipante && !tachado ? '' : 'disabled'}" title="Inserir/Editar Participação ${lancamento.descricao_automatica}">Participação</button></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
-                            <div class="col">
-                                <div class="form-text mt-0">Data de vencimento</div>
-                                <p>${data_vencimento}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Valor</div>
-                                <p>${valor_esperado}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Status</div>
-                                <p>${lancamento.status.nome}</p>
-                            </div>
-                            <div class="col">
-                                <div class="form-text mt-0">Forma de Pagamento</div>
-                                <p class="text-truncate" title="${title_forma_pagamento}">
-                                    ${nome_forma_pagamento}
-                                </p>
-                            </div>
-                        </div>
-                        ${htmlAppend}
-                    </div>
-                </div>`
-        }
-
-        return htmlLancamentos;
-    }
-
-    #htmlParticipantes(item, tipo, pagamentoStatusId) {
-        let html = '';
-
-        let title = ''
-        let empty = '';
-        let btnDel = '';
-
-        const pagamentoAtivo = pagamentoStatusId == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
-
-        let editParticipante = true;
-        if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
-            editParticipante = false;
-        }
-
-        switch (tipo) {
-            case 'pagamento':
-                title = `Participantes do pagamento ${item.pagamento_tipo_tenant.nome}`;
-                empty = 'Participante(s) herdado do serviço';
-                btnDel = 'btn-delete-participante-pagamento';
-                break;
-
-            case 'lancamento':
-                title = `Participantes do lançamento ${item.descricao_automatica}`;
-                empty = 'Participante(s) herdado do pagamento';
-                btnDel = 'btn-delete-participante-lancamento';
-                break;
-        }
-
-        if (editParticipante && pagamentoAtivo) {
-            btnDel = `<button type="button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}">Excluir</button>`;
-        } else {
-            btnDel = '';
-        }
-
-        if (item?.participantes && item.participantes.length > 0) {
-            const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
-            html = `
-                <p class="mb-0">
-                Participação personalizada:
-                ${btnDel}
-                <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="${title}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver</button>
-                <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver integrantes dos grupos</button>
-                </p>`;
-        } else {
-            html = `
-                <p class="mb-0 fst-italic">${empty}</p>`;
-        }
-        return html;
-    }
-
     async #addEventosPagamento(item) {
         const self = this;
 
@@ -1061,14 +1202,365 @@ class PageServicoForm extends TemplateForm {
         await self.#addEventosLancamento(item);
     }
 
-    async #addEventosLancamento(item) {
+    #htmlLancamentos(item) {
         const self = this;
-        const accordionBody = $(`#accordionPagamento${item.id} .accordion-body`);
-        const urlLancamentos = `${self._objConfigs.url.basePagamentos}/${item.id}/lancamentos`;
+
+        let htmlLancamentos = '';
+        const pagamento = JSON.parse(JSON.stringify(item));
+        delete pagamento.lancamentos;
+
+        for (const lancamento of item.lancamentos) {
+            lancamento.pagamento = pagamento;
+
+            const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+
+            let editParticipante = true;
+            if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
+                editParticipante = false;
+            }
+
+            const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
+            lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+
+            let htmlAppend = '';
+
+            if (lancamento.observacao) {
+                htmlAppend += `
+                <div class="row">
+                    <div class="col">
+                        <div class="form-text mt-0">Observação</div>
+                        <p class="text-truncate text-wrap" title="${lancamento.observacao}">${lancamento.observacao}</p>
+                    </div>
+                </div>`;
+            }
+
+            if (!tachado) htmlAppend += self.#htmlParticipantes(lancamento, 'lancamento', item.status_id);
+
+            const htmlBtns = self.#htmlBtnsLancamentos(lancamento);
+            const htmlColsLancamento = self.#htmlColsLancamento(lancamento);
+
+            htmlLancamentos += `
+                <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
+                    <div class="card-header d-flex align-items-center justify-content-between py-1">
+                        <span>${lancamento.descricao_automatica}</span>
+                        <div>
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${pagamentoAtivo && editParticipante && !tachado ? '' : 'disabled'}" title="Inserir/Editar Participação ${lancamento.descricao_automatica}">
+                                            Participação
+                                        </button>
+                                    </li>
+                                    ${htmlBtns}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
+                            ${htmlColsLancamento}
+                        </div>
+                        ${htmlAppend}
+                    </div>
+                </div>`
+        }
+
+        return htmlLancamentos;
+    }
+
+    #htmlColsLancamento(lancamento) {
+
+        let htmlColsLancamento = `
+            <div class="col">
+                <div class="form-text mt-0">Status</div>
+                <p>${lancamento.status.nome}</p>
+            </div>`;
+
+        const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
+        const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
+        htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Forma de Pagamento</div>
+                <p class="text-truncate" title="${title_forma_pagamento}">
+                    ${nome_forma_pagamento}
+                </p>
+            </div>`;
+
+        const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado); htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Valor Esperado</div>
+                <p>${valor_esperado}</p>
+            </div>`;
+
+        const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
+        htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Data de vencimento</div>
+                <p>${data_vencimento}</p>
+            </div>`;
+
+        if (lancamento.valor_recebido) {
+            const valor_recebido = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_recebido);
+            htmlColsLancamento += `
+                <div class="col">
+                    <div class="form-text mt-0">Valor Recebido</div>
+                    <p>${valor_recebido}</p>
+                </div> `;
+        }
+
+        if (lancamento.data_recebimento) {
+            const data_recebimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_recebimento, 2);
+            htmlColsLancamento += `
+                <div class="col">
+                    <div class="form-text mt-0">Data recebimento</div>
+                    <p>${data_recebimento}</p>
+                </div> `;
+        }
+
+        return htmlColsLancamento;
+    }
+
+    #htmlParticipantes(item, tipo, pagamentoStatusId) {
+        let html = '';
+
+        let title = ''
+        let empty = '';
+        let btnDel = '';
+
+        const pagamentoAtivo = pagamentoStatusId == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+
+        let editParticipante = true;
+        if (window.Statics.StatusImpossibilitaEdicaoLancamentoServico.findIndex(x => x == item.status_id) != -1) {
+            editParticipante = false;
+        }
+
+        switch (tipo) {
+            case 'pagamento':
+                title = `Participantes do pagamento ${item.pagamento_tipo_tenant.nome} `;
+                empty = 'Participante(s) herdado do serviço';
+                btnDel = 'btn-delete-participante-pagamento';
+                break;
+
+            case 'lancamento':
+                title = `Participantes do lançamento ${item.descricao_automatica} `;
+                empty = 'Participante(s) herdado do pagamento';
+                btnDel = 'btn-delete-participante-lancamento';
+                break;
+        }
+
+        if (editParticipante && pagamentoAtivo) {
+            btnDel = `<button type = "button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}" > Excluir</button>`;
+        } else {
+            btnDel = '';
+        }
+
+        if (item?.participantes && item.participantes.length > 0) {
+            const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
+            html = `
+                <p class="mb-0">
+                    Participação personalizada:
+                    ${btnDel}
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="${title}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
+                        Ver
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
+                        Ver integrantes dos grupos
+                    </button>
+                </p>`;
+        } else {
+            html = `<p class="mb-0 fst-italic">${empty}</p>`;
+        }
+        return html;
+    }
+
+    #htmlBtnsLancamentos(lancamento) {
+        const self = this;
+        const configAcoes = self._objConfigs.data.configAcoes;
+        let strBtns = '';
+        const enumPag = window.Enums.PagamentoStatusTipoEnum;
+        const pagamentoAtivo = lancamento.pagamento.status_id == enumPag.ATIVO ? true : false;
+
+        if (pagamentoAtivo) {
+            const botoes = self.#getConfigBotoesStatus(lancamento);
+
+            botoes.forEach(botao => {
+                const podeExibir =
+                    configAcoes[botao.chave]?.opcao_nos_status?.includes(lancamento.status_id) &&
+                    botao.condicao();
+
+                if (podeExibir) {
+                    strBtns += `
+                    <li>
+                        <button type="button" class="dropdown-item fs-6 ${botao.cor} ${botao.classe}"
+                            title="Alterar status para ${botao.texto} para o lançamento ${lancamento.descricao_automatica}.">
+                            ${botao.icon} ${botao.texto}
+                        </button>
+                    </li>`;
+                }
+            });
+        }
+
+        return strBtns;
+    }
+
+    #getConfigBotoesStatus(lancamento) {
+        const self = this;
+        const lancamentoDiluido = lancamento.parent_id ? true : false;
+
+        return [
+            {
+                chave: 'AGUARDANDO_PAGAMENTO_EM_ANALISE',
+                classe: 'btn-aguardando-pagamento-analise',
+                texto: 'Aguardando Pagamento (em Análise)',
+                icon: '<i class="bi bi-hourglass-top"></i>',
+                cor: 'text-primary',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'AGUARDANDO_PAGAMENTO',
+                classe: 'btn-aguardando-pagamento',
+                texto: 'Aguardando Pagamento',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-primary',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_EM_ANALISE',
+                classe: 'btn-liquidado-analise',
+                texto: 'Liquidado (em Análise)',
+                icon: '<i class="bi bi-check2"></i>',
+                cor: 'text-success',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO',
+                classe: 'btn-liquidado',
+                texto: 'Liquidado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-success',
+                tipoAcao: 'movimentar',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_PARCIALMENTE_EM_ANALISE',
+                classe: 'btn-liquidado-parcialmente-analise',
+                texto: 'Liquidado Parcialmente (em Análise)',
+                icon: '<i class="bi bi-exclamation-lg"></i>',
+                cor: 'text-success-emphasis',
+                tipoAcao: 'alterar_status',
+                condicao: () => !lancamentoDiluido
+            },
+            {
+                chave: 'LIQUIDADO_PARCIALMENTE',
+                classe: 'btn-liquidado-parcialmente',
+                texto: 'Liquidado Parcialmente',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-success-emphasis',
+                tipoAcao: 'movimentar',
+                condicao: () => !lancamentoDiluido
+            },
+            {
+                chave: 'REAGENDADO_EM_ANALISE',
+                classe: 'btn-reagendado-analise',
+                texto: 'Reagendado (em Análise)',
+                icon: '<i class="bi bi-calendar-event"></i>',
+                cor: 'text-warning',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'REAGENDADO',
+                classe: 'btn-reagendado',
+                texto: 'Reagendado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-warning',
+                tipoAcao: 'reagendar',
+                condicao: () => true
+            },
+            {
+                chave: 'EM_ATRASO_EM_ANALISE',
+                classe: 'btn-em-atraso-analise',
+                texto: 'Em atraso (em Análise)',
+                icon: '<i class="bi bi-stopwatch"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'EM_ATRASO',
+                classe: 'btn-em-atraso',
+                texto: 'Em atraso',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'CANCELADO_EM_ANALISE',
+                classe: 'btn-cancelado-analise',
+                texto: 'Cancelado (em Análise)',
+                icon: '<i class="bi bi-dash-circle"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'CANCELADO',
+                classe: 'btn-cancelado',
+                texto: 'Cancelado',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'INADIMPLENTE_EM_ANALISE',
+                classe: 'btn-inadimplente-analise',
+                texto: 'Inadimplente (em Análise)',
+                icon: '<i class="bi bi-dash-circle"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'INADIMPLENTE',
+                classe: 'btn-inadimplente',
+                texto: 'Inadimplente',
+                icon: '<i class="bi bi-check2-all"></i>',
+                cor: 'text-danger',
+                tipoAcao: 'alterar_status',
+                condicao: () => true
+            },
+            {
+                chave: 'LIQUIDADO_MIGRACAO_SISTEMA',
+                classe: 'btn-liquidado-migracao',
+                texto: 'Liquidado (Migração Sistema)',
+                icon: '<i class="bi bi-journal-check"></i>',
+                cor: '',
+                tipoAcao: 'alterar_status',
+                condicao: () => self._objConfigs.dados_tenant?.lancamento_liquidado_migracao_sistema_bln
+            }
+        ];
+    }
+
+    #addEventosLancamento(lancamento) {
+        const self = this;
+        const accordionBody = $(`#accordionPagamento${lancamento.id} .accordion - body`);
+        const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${lancamento.id}/lancamentos`;
+
+        const enumLanc = window.Enums.LancamentoStatusTipoEnum;
+        const configAcoes = self._objConfigs.data.configAcoes;
+        const botoes = self.#getConfigBotoesStatus(lancamento);
 
         const atualizaLancamentos = async () => {
             try {
-                const response = await self._getRecurse({ idRegister: item.id, urlApi: self._objConfigs.url.basePagamentos });
+                const response = await self._getRecurse({ idRegister: lancamento.id, urlApi: self._objConfigs.url.basePagamentos });
                 const htmlLancamentos = self.#htmlLancamentos(response.data);
                 accordionBody.html(htmlLancamentos);
                 BootstrapFunctionsHelper.addEventPopover();
@@ -1078,9 +1570,73 @@ class PageServicoForm extends TemplateForm {
             }
         }
 
-        const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        const pagamentoAtivo = lancamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
         if (pagamentoAtivo) {
-            item.lancamentos.map((lancamento) => {
+            lancamento.lancamentos.map((lancamento) => {
+
+                const openMovimentar = async function (status_id) {
+                    try {
+                        const objModal = new ModalLancamentoServicoMovimentar();
+                        objModal.setDataEnvModal = {
+                            idRegister: lancamento.id,
+                            pagamento_id: lancamento.pagamento_id,
+                            status_id: status_id
+                        }
+                        const response = await objModal.modalOpen();
+                        if (response.refresh) {
+                            await atualizaLancamentos();
+                        }
+                    } catch (error) {
+                        CommonFunctions.generateNotificationErrorCatch(error);
+                    }
+                }
+
+                /**
+                 * Abre um modal para confirmar a alteração de status de um lançamento.
+                 * @param {object} [dados={}] - Dados para o modal.
+                 * @param {string} [dados.descricao_automatica] - Descrição automática do lançamento.
+                 * @param {string} [dados.status_html] - Status HTML do lançamento.
+                 * @param {number} [dados.status_id] - ID do status do lançamento.
+                 */
+                const openAlterarStatus = async function (dados = {}) {
+                    const descricao_automatica = dados.descricao_automatica ?? lancamento.descricao_automatica;
+                    const status_html = dados.status_html;
+                    const status_id = dados.status_id;
+
+                    try {
+                        const obj = new ModalMessage();
+                        obj.setDataEnvModal = {
+                            title: 'Alterar Status',
+                            message: `Confirma a alteração de status do lancamento <b> ${descricao_automatica}</b> para <b class="fst-italic"> ${status_html}</b>? `,
+                        };
+                        obj.setFocusElementWhenClosingModal = this;
+                        const result = await obj.modalOpen();
+                        if (result.confirmResult) {
+                            const objConn = new ConnectAjax(`${self._objConfigs.url.baseMovimentacaoContaLancamentoServico}/status-alterar`);
+
+                            const instance = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+                            if (instance) {
+                                if (!lancamento.domain_id) {
+                                    console.error(lancamento);
+                                    throw new Error("Unidade de domínio do registro não encontrada. Contate o suporte.");
+                                }
+                                objConn.setForcedDomainCustomId = lancamento.domain_id;
+                            }
+
+                            objConn.setAction(EnumAction.POST);
+                            objConn.setData({
+                                lancamento_id: lancamento.id,
+                                status_id: status_id,
+                            });
+                            const response = await objConn.envRequest();
+                            if (response.data) {
+                                await atualizaLancamentos();
+                            }
+                        }
+                    } catch (error) {
+                        CommonFunctions.generateNotificationErrorCatch(error);
+                    }
+                }
 
                 $(`#${lancamento.idCard}`).find('.btn-participacao-lancamento').on('click', async function () {
                     const btn = $(this);
@@ -1112,6 +1668,40 @@ class PageServicoForm extends TemplateForm {
                     });
                     if (response) {
                         atualizaLancamentos();
+                    }
+                });
+
+                botoes.forEach(config => {
+                    const btn = $(`#${lancamento.idCard}`).find(`.${config.classe}`);
+                    const pode = configAcoes[config.chave]?.opcao_nos_status?.includes(lancamento.status_id);
+
+                    if (btn.length && pode && config.condicao()) {
+                        btn.on('click', async function () {
+                            const status_id = enumLanc[config.chave];
+
+                            switch (config.tipoAcao) {
+                                case 'alterar_status':
+                                    await openAlterarStatus({ status_html: config.texto, status_id });
+                                    break;
+
+                                case 'movimentar':
+                                    await openMovimentar(status_id);
+                                    break;
+
+                                case 'reagendar':
+                                    const modal = new ModalLancamentoReagendar({
+                                        urlApi: `${self._objConfigs.url.baseLancamento}/servicos/reagendar`
+                                    });
+                                    modal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModalForObjData(lancamento, {
+                                        idRegister: lancamento.id,
+                                        status_id,
+                                        data_atual: lancamento.data_vencimento
+                                    });
+                                    const response = await modal.modalOpen();
+                                    if (response.refresh) await atualizaLancamentos();
+                                    break;
+                            }
+                        });
                     }
                 });
 
@@ -1182,7 +1772,7 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const { blnLoadingDisplay = true } = options;
         BootstrapFunctionsHelper.removeEventPopover();
-       
+
         try {
             blnLoadingDisplay ? await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando pagamentos...' }) : null;
 

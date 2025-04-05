@@ -9,6 +9,7 @@
 @endphp
 
 @extends('layouts.layout-guest')
+@section('title', 'Login')
 
 @section('conteudo')
     <div class="row justify-content-center align-items-center h-100">

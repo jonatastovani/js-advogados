@@ -30,7 +30,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         data: {
             pagamento_tipo_tenant: undefined,
             lancamentos_na_tela: [],
-            resetar_pagamento_bln: false
+            resetar_pagamento_bln: false,
+            liquidado_migracao_bln: false,
         },
         domainCustom: {
             applyBln: true,
@@ -81,6 +82,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 await self.#buscarDadosPagamentoTipo();
             }
 
+            self.#verificaLiquidadoMigracao();
             self.#buscarFormaPagamento();
             self.#buscarStatusPagamento();
         }
@@ -150,6 +152,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         $(self.getIdModal).find('.elements-pane-lancamentos').css('display', '');
         $(self.getIdModal).find('.div-resetar-lancamentos').hide();
         $(`#resetar_pagamento_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
+        $(self.getIdModal).find('.div-liquidado-migracao').hide();
+        $(`#liquidado_migracao_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
     }
 
     async #simularPagamento() {
@@ -463,15 +467,17 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             };
         }
 
-        self.#resetarLancamentos(!blnStatus);
+        self.#visibilidadeResetarLancamentos(!blnStatus);
     }
 
-    #resetarLancamentos(statusVisibilidade = false) {
+    #visibilidadeResetarLancamentos(statusVisibilidade = false) {
         const self = this;
 
         const ckbResetar = $(`#resetar_pagamento_bln${self.getSufixo}`);
 
         if (statusVisibilidade) {
+            self.#verificaLiquidadoMigracao();
+            
             $(self.getIdModal).find('.div-resetar-lancamentos').show();
             $(self.getIdModal).find('.btn-simular').hide();
 
@@ -489,6 +495,33 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             $(self.getIdModal).find('.btn-simular, .div-resetar-lancamentos').hide();
             ckbResetar.prop('checked', false).attr('disabled', true);
             self._objConfigs.data.resetar_pagamento_bln = false;
+        }
+    }
+
+    async #verificaLiquidadoMigracao() {
+        const self = this;
+        const tenantData = await TenantDataHelper.getTenantData();
+        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln);
+    }
+
+    #visibilidadeLiquidadoMigracao(statusVisibilidade = false) {
+        const self = this;
+
+        const ckbResetar = $(`#liquidado_migracao_bln${self.getSufixo}`);
+
+        if (statusVisibilidade) {
+            $(self.getIdModal).find('.div-liquidado-migracao').show();
+
+            ckbResetar.prop('checked', false).attr('disabled', false);
+
+            ckbResetar.on('change', () => {
+                const statusChecked = ckbResetar.is(':checked');
+                self._objConfigs.data.liquidado_migracao_bln = statusChecked;
+            });
+        } else {
+            $(self.getIdModal).find('.div-liquidado-migracao').hide();
+            ckbResetar.prop('checked', false).attr('disabled', true);
+            self._objConfigs.data.liquidado_migracao_bln = false;
         }
     }
 
@@ -606,6 +639,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const data = self.#obterDados();
         data.pagamento_tipo_tenant_id = self._objConfigs.data.pagamento_tipo_tenant.id;
         data.resetar_pagamento_bln = self._objConfigs.data.resetar_pagamento_bln;
+        data.liquidado_migracao_bln = self._objConfigs.data.liquidado_migracao_bln;
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

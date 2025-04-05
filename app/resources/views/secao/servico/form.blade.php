@@ -132,6 +132,8 @@
     <x-modal.comum.modal-nome.modal />
     <x-modal.tenant.modal-selecionar-documento-modelo-tenant.modal />
     <x-modal.tenant.modal-documento-modelo-tenant.modal />
+    <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
+    <x-modal.servico.modal-lancamento-reagendar.modal />
 @endpush
 
 @push('scripts')
@@ -142,6 +144,8 @@
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
             'baseParticipacaoPreset' => route('api.comum.participacao-preset'),
             'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
+            'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
+            'baseLancamento' => route('api.financeiro.lancamentos'),
         ],
     ])
     @endcomponent
