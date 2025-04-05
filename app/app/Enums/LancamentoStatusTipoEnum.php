@@ -425,8 +425,8 @@ enum LancamentoStatusTipoEnum: int
         $column = $options['column'] ?? 'status_id';
 
         // Obter a ordem personalizada ou a padrão
-        $ordem = tenant()->$array_tipo
-            ?? self::ordemPadraoStatusLancamentoServico();
+        $ordem = tenant()->$array_tipo;
+        $ordem = !empty($ordem) ? $ordem : self::ordemPadraoStatusLancamentoServico();
 
         // Gera a cláusula CASE WHEN para ordenar pelo status_id
         $case = 'CASE';

@@ -332,6 +332,11 @@ class ServicoPagamentoService extends Service
 
                 $resource->save();
 
+                // Insere a configuração de liquidado_migracao_bln caso tenha sido informado
+                if ($requestData->liquidado_migracao_bln) {
+                    $resource->liquidado_migracao_bln = $requestData->liquidado_migracao_bln;
+                }
+
                 $this->inserirLancamentos($requestData, $resource);
 
                 $resource->load($this->loadFull());
@@ -364,7 +369,8 @@ class ServicoPagamentoService extends Service
                 $newLancamento->valor_esperado = $lancamento->valor_esperado;
                 $newLancamento->status_id = $statusLancamento;
 
-                if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
+                // O tenant tem que ter a configuração ativa e a propriedade liquidado_migracao_bln como true
+                if (tenant('lancamento_liquidado_migracao_sistema_bln') && $resource->liquidado_migracao_bln) {
                     $vencimento = Carbon::parse($lancamento->data_vencimento);
                     $inicioMesAtual = now()->startOfMonth();
 
@@ -445,14 +451,22 @@ class ServicoPagamentoService extends Service
             // Inicia a transação
             return DB::Transaction(function () use ($resource, $requestData) {
 
+                // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
                 $resource->save();
 
                 if ($requestData->resetar_pagamento_bln) {
 
                     $this->destroyCascade($resource, ['lancamentos.participantes.integrantes']);
+
+                    // Insere a configuração de liquidado_migracao_bln caso tenha sido informado
+                    if ($requestData->liquidado_migracao_bln) {
+                        $resource->liquidado_migracao_bln = $requestData->liquidado_migracao_bln;
+                    }
+
                     $this->inserirLancamentos($requestData, $resource);
                 } else {
 
+                    // Se não é para resetar, então somente haverá manipulação dos status dos lançamentos, dependo do status do pagamento
                     switch ($resource->status_id) {
                         case PagamentoStatusTipoEnum::ATIVO->value:
                             $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
@@ -549,22 +563,24 @@ class ServicoPagamentoService extends Service
 
                 // O Liquidado Migração tem um tratamento diferente conforme a propriedade cancelar_liquidado_migracao_sistema_automatico_bln do tenant
                 case LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value:
-                case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
 
+                    // Se o status definido for cancelado ou PAGAMENTO_CANCELADO em PAGAMENTO_CANCELADO_EM_ANALISE então o lançamento vai ter o status alterado para CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA, caso o tenant tenha a propriedade cancelar_liquidado_migracao_sistema_automatico_bln como true
                     if (in_array($statusLancamento, [
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value,
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value,
-                    ])) {
+                    ]) && tenant('cancelar_liquidado_migracao_sistema_automatico_bln')) {
 
                         $lancamento->status_id = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
-                        break;
                     }
+                    break;
+                    
+                case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
 
+                    // Se o status definido for AGUARDANDO_PAGAMENTO ou AGUARDANDO_PAGAMENTO_EM_ANALISE então o lançamento vai ter o status alterado para LIQUIDADO_MIGRACAO_SISTEMA, caso o tenant tenha a propriedade lancamento_liquidado_migracao_sistema_bln como true
                     if (in_array($statusLancamento, [
                         LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
                         LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                        tenant('lancamento_liquidado_migracao_sistema_bln')
-                    ])) {
+                    ]) && tenant('lancamento_liquidado_migracao_sistema_bln')) {
 
                         $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
                         break;

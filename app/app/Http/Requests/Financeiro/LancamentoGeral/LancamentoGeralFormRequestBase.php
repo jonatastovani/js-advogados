@@ -9,7 +9,7 @@ class LancamentoGeralFormRequestBase extends BaseFormRequest
     public function rules()
     {
         // Define as regras básicas
-        $rules = [
+        return [
             'movimentacao_tipo_id' => 'required|integer',
             'descricao' => 'required|string',
             'valor_esperado' => 'required|numeric|min:0.01',
@@ -32,8 +32,7 @@ class LancamentoGeralFormRequestBase extends BaseFormRequest
             // 'participantes.*.integrantes' => 'nullable|required_if:participantes.*.participacao_registro_tipo_id,2|array|min:1',
             // 'participantes.*.integrantes.*.participacao_registro_tipo_id' => 'required|integer|in:1',
             // 'participantes.*.integrantes.*.referencia_id' => 'required|uuid',
+            'liquidado_migracao_bln' => 'nullable|boolean',
         ];
-
-        return $rules;
     }
 }

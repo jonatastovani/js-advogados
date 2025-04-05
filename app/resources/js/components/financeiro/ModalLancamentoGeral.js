@@ -3,6 +3,7 @@ import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { Select2Helpers } from "../../helpers/Select2Helpers";
+import { TenantDataHelper } from "../../helpers/TenantDataHelper";
 import { ParticipacaoModule } from "../../modules/ParticipacaoModule";
 import { QueueManager } from "../../utils/QueueManager";
 import { ModalContaTenant } from "../tenant/ModalContaTenant";
@@ -35,6 +36,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             idRegister: undefined,
             participantesNaTela: [],
             cronExpressao: undefined,
+            liquidado_migracao_bln: false,
         },
         modoOperacao: undefined,
         participacao: {
@@ -118,8 +120,9 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                 await self.#buscarDados();
             } else {
 
-                self.#buscarContas();
-                self.#buscarLancamentoCategoriaTipoTenant();
+                await self.#verificaLiquidadoMigracao();
+                await self.#buscarContas();
+                await self.#buscarLancamentoCategoriaTipoTenant();
 
                 if (!self.#functionsParticipacao.getExibirPainelParticipantesPersonalizaveisBln) {
                     self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
@@ -393,6 +396,8 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         $(self.getIdModal).find(`#dados-lancamento${self.getSufixo}-tab`).trigger('click');
         self.#agendamentoRecorrenteResetar(false);
         self.#toggleCronInputs(false);
+        $(self.getIdModal).find('.div-liquidado-migracao').hide();
+        $(`#liquidado_migracao_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
     }
 
     async #buscarDados() {
@@ -463,8 +468,8 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                     break;
             }
 
-            self.#buscarContas(responseData.conta_id);
-            self.#buscarLancamentoCategoriaTipoTenant(responseData.categoria_id)
+            await  self.#buscarContas(responseData.conta_id);
+            await  self.#buscarLancamentoCategoriaTipoTenant(responseData.categoria_id)
 
             form.find('select[name="movimentacao_tipo_id"]').val(responseData.movimentacao_tipo_id);
             form.find('input[name="descricao"]').val(descricao);
@@ -488,6 +493,33 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             return true;
         }
         throw new Error("Erro ao preencher formulário: Dados não encontrados.");
+    }
+
+    async #verificaLiquidadoMigracao() {
+        const self = this;
+        const tenantData = await TenantDataHelper.getTenantData();
+        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln);
+    }
+
+    #visibilidadeLiquidadoMigracao(statusVisibilidade = false) {
+        const self = this;
+
+        const ckbLiquidadoMigracao = $(`#liquidado_migracao_bln${self.getSufixo}`);
+
+        if (statusVisibilidade) {
+            $(self.getIdModal).find('.div-liquidado-migracao').show();
+
+            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', false);
+
+            ckbLiquidadoMigracao.on('change', () => {
+                const statusChecked = ckbLiquidadoMigracao.is(':checked');
+                self._objConfigs.data.liquidado_migracao_bln = statusChecked;
+            });
+        } else {
+            $(self.getIdModal).find('.div-liquidado-migracao').hide();
+            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', true);
+            self._objConfigs.data.liquidado_migracao_bln = false;
+        }
     }
 
     async #buscarContas(selected_id = null) {
@@ -547,6 +579,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
         data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
         data.tags = self.#getTags();
+        data.liquidado_migracao_bln = self._objConfigs.data.liquidado_migracao_bln;
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

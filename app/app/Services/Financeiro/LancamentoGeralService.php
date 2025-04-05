@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class LancamentoGeralService extends Service
@@ -68,7 +69,7 @@ class LancamentoGeralService extends Service
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
         try {
-            return DB::transaction(function () use ($resource) {
+            return DB::transaction(function () use ($resource, $requestData) {
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
@@ -76,17 +77,20 @@ class LancamentoGeralService extends Service
                 unset($resource->tags);
 
                 $resource->status_id = LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
-                $resource->save();
 
-                if (tenant('lancamento_liquidado_migracao_sistema_bln')) {
-                    // verificar se a data do vencimento da parcela é retroativa ao mês atual.
-                    // Se for, alterar o status do lancamento para Liquidado Migração
-                    if (Carbon::parse($resource->data_vencimento)->month < Carbon::now()->month) {
+                if (tenant('lancamento_liquidado_migracao_sistema_bln') && $requestData->liquidado_migracao_bln) {
+                    $vencimento = Carbon::parse($resource->data_vencimento);
+                    $inicioMesAtual = now()->startOfMonth();
+
+                    // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
+                    if ($vencimento->lessThan($inicioMesAtual)) {
                         $resource->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
                         $resource->valor_quitado = $resource->valor_esperado;
                         $resource->data_quitado = $resource->data_vencimento;
                     }
                 }
+
+                $resource->save();
 
                 $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
 

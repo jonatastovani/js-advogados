@@ -13,7 +13,7 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
         $agendamentoTipos = collect(LancamentoTipoEnum::toArray())->values()->except(LancamentoTipoEnum::LANCAMENTO_AGENDAMENTO->value)->implode(',');
 
         // Regras comuns
-        $rules = [
+        return  [
             'movimentacao_tipo_id' => 'required|integer',
             'agendamento_tipo' => "required|string|in:{$agendamentoTipos}",
             'descricao' => 'required|string',
@@ -66,9 +66,8 @@ class LancamentoAgendamentoFormRequestBase extends BaseFormRequest
             'participantes.*.observacao' => 'nullable|string',
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|uuid',
+            'liquidado_migracao_bln' => 'nullable|boolean',
         ];
-
-        return $rules;
     }
 
     protected function customMessages(): array

@@ -20,6 +20,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'observacao' => 'nullable|string',
             'status_id' => 'nullable|integer',
             'resetar_pagamento_bln' => 'nullable|boolean',
+            'liquidado_migracao_bln' => 'nullable|boolean',
         ];
 
         $verificaPagamentoTipoTenant = function ($pagamentoTipoTenantId) {

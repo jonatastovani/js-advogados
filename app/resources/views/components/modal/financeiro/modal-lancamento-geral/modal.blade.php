@@ -88,6 +88,24 @@
                             class="spanUltimaExecucao fw-bolder">****</span></p>
                 </div>
 
+                <div class="row div-liquidado-migracao" style="display: none;">
+                    <div class="col mt-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                id="liquidado_migracao_bln{{ $sufixo }}" name="liquidado_migracao_bln" disabled>
+                            <label class="form-check-label" for="liquidado_migracao_bln{{ $sufixo }}"
+                                title="Aplica o status 'Liquidado (Migração Sistema)' a lançamentos anteriores ao mês atual, sem movimentar valores.">
+                                Marcar como Liquidado (Migração Sistema)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        Ao ativar, lançamentos anteriores ao mês atual serão marcados como <span
+                            class="fst-italic">Liquidado (Migração Sistema)</span>,
+                        apenas para fins históricos, sem movimentar valores.
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col">
 

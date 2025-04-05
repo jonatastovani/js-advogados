@@ -163,7 +163,7 @@ class LancamentoAgendamentoService extends Service
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
 
         try {
-            return DB::transaction(function () use ($resource) {
+            return DB::transaction(function () use ($resource, $requestData) {
                 $participantes = $resource->participantes;
                 unset($resource->participantes);
 
@@ -176,6 +176,8 @@ class LancamentoAgendamentoService extends Service
                 $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $resource->id, $resource);
 
                 $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
+
+                LancamentoAgendamentoHelper::$liquidadoMigracaoSistemaBln = $requestData->liquidado_migracao_bln;
 
                 LancamentoAgendamentoHelper::processarAgendamento($resource->id);
 
@@ -221,6 +223,8 @@ class LancamentoAgendamentoService extends Service
                 }
 
                 $this->criarAtualizarTagsEnviadas($resource, $resource->tags, $tags);
+
+                LancamentoAgendamentoHelper::$liquidadoMigracaoSistemaBln = $requestData->liquidado_migracao_bln;
 
                 LancamentoAgendamentoHelper::processarAgendamento($resource->id);
 

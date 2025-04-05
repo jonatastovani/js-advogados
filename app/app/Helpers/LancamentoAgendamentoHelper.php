@@ -21,6 +21,12 @@ use Illuminate\Support\Facades\Log;
 
 class LancamentoAgendamentoHelper
 {
+    /**
+     * Variável estática para enviar se é para aplicar ou não o status de Liquidado Migração de Sistema para lançamentos anteriores ao mês da execução. 
+     * Esta configuração geralmente é usada somente ao criar o agendamento, ou editar e escolher a opção de resetar a execução, pois na recorrência sempre é processada para o futuro.
+     */
+    static $liquidadoMigracaoSistemaBln = false;
+
     use ParticipacaoTrait;
 
     /**
@@ -228,10 +234,12 @@ class LancamentoAgendamentoHelper
             $novoLancamento->status_id =  LancamentoStatusTipoEnum::statusPadraoSalvamentoLancamentoGeral();
 
             $tenant = Tenant::find($agendamento->tenant_id);
-            if ($tenant->lancamento_liquidado_migracao_sistema_bln) {
-                // verificar se a data do vencimento da parcela é retroativa ao mês atual.
-                // Se for, alterar o status do lancamento para Liquidado Migração
-                if (Carbon::parse($novoLancamento->data_vencimento)->month < Carbon::now()->month) {
+            if ($tenant->lancamento_liquidado_migracao_sistema_bln && self::$liquidadoMigracaoSistemaBln) {
+                $vencimento = Carbon::parse($novoLancamento->data_vencimento);
+                $inicioMesAtual = now()->startOfMonth();
+
+                // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
+                if ($vencimento->lessThan($inicioMesAtual)) {
                     $novoLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
                     $novoLancamento->valor_quitado = $novoLancamento->valor_esperado;
                     $novoLancamento->data_quitado = $novoLancamento->data_vencimento;

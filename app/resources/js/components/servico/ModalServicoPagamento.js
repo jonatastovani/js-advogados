@@ -476,8 +476,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const ckbResetar = $(`#resetar_pagamento_bln${self.getSufixo}`);
 
         if (statusVisibilidade) {
-            self.#verificaLiquidadoMigracao();
-            
+
             $(self.getIdModal).find('.div-resetar-lancamentos').show();
             $(self.getIdModal).find('.btn-simular').hide();
 
@@ -490,6 +489,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 $(self.getIdModal).find('.btn-simular')[statusChecked ? 'show' : 'hide']();
                 $(`${self.getIdModal} .campo-readonly`).prop('readonly', !statusChecked);
 
+                // Se for falso a o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa
+                statusChecked ? self.#verificaLiquidadoMigracao() : self.#visibilidadeLiquidadoMigracao();
             });
         } else {
             $(self.getIdModal).find('.btn-simular, .div-resetar-lancamentos').hide();
@@ -507,20 +508,20 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #visibilidadeLiquidadoMigracao(statusVisibilidade = false) {
         const self = this;
 
-        const ckbResetar = $(`#liquidado_migracao_bln${self.getSufixo}`);
+        const ckbLiquidadoMigracao = $(`#liquidado_migracao_bln${self.getSufixo}`);
 
         if (statusVisibilidade) {
             $(self.getIdModal).find('.div-liquidado-migracao').show();
 
-            ckbResetar.prop('checked', false).attr('disabled', false);
+            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', false);
 
-            ckbResetar.on('change', () => {
-                const statusChecked = ckbResetar.is(':checked');
+            ckbLiquidadoMigracao.on('change', () => {
+                const statusChecked = ckbLiquidadoMigracao.is(':checked');
                 self._objConfigs.data.liquidado_migracao_bln = statusChecked;
             });
         } else {
             $(self.getIdModal).find('.div-liquidado-migracao').hide();
-            ckbResetar.prop('checked', false).attr('disabled', true);
+            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', true);
             self._objConfigs.data.liquidado_migracao_bln = false;
         }
     }
@@ -649,7 +650,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #obterDados() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = CommonFunctions.getInputsValues(formRegistration[0]);
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);       
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
         if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
