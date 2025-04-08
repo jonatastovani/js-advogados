@@ -11,6 +11,7 @@ export class ModalSelecionarUsuarioDomains extends ModalDefault {
         url: {
             base: window.apiRoutes.baseTenantDomains,
         },
+        modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         sufixo: 'ModalSelecionarUsuarioDomains',
     };
 

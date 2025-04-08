@@ -43,7 +43,7 @@ export class TenantTypeDomainCustom {
          * @private
          * @type {QueueManager} 
          */
-        this._queueToogleDomainCustom = InstanceManager.setInstance('QueueToogleDomainCustom', new QueueManager());
+        this._queueToogleDomainCustom = InstanceManager.getOrCreateInstance('QueueToogleDomainCustom', () => new QueueManager());
         this._queueToogleDomainCustom.setDeduplicationMode = "last"; // Garante que a última ação seja a mantida
         this._queueToogleDomainCustom.setPreserveQueue = true; // Mantém os itens na fila após execução
     }

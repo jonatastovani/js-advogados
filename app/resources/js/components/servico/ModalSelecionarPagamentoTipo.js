@@ -13,6 +13,7 @@ export class ModalSelecionarPagamentoTipo extends ModalDefault {
             baseServico: undefined
         },
         sufixo: 'ModalSelecionarPagamentoTipo',
+        modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         domainCustom: {
             applyBln: true,
             inheritedBln: true,

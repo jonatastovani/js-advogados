@@ -76,7 +76,7 @@ class DefaultScriptLayoutBefore {
         const self = this;
 
         /** @type {TenantTypeDomainCustom} */
-        const instance = InstanceManager.setInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, new TenantTypeDomainCustom());
+        const instance = InstanceManager.getOrCreateInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, () => new TenantTypeDomainCustom());
 
         instance.setDomainCustom = window.domainCustom;
 

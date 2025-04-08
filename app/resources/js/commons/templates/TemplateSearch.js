@@ -52,6 +52,32 @@ export class TemplateSearch {
         return this._sufixo;
     }
 
+    get getIdSufixo() {
+        return `#${this.getSufixo}`;
+    }
+
+    /**
+     * Aplica foco a um elemento da página após um tempo determinado.
+     *
+     * Esta função é útil para garantir que o elemento esteja renderizado antes de receber o foco,
+     * especialmente em casos de componentes dinâmicos, abas, modais ou carregamento assíncrono.
+     *
+     * @param {string|HTMLElement|jQuery} element - Seletor, elemento HTML ou objeto jQuery que receberá o foco.
+     * @param {number} [timeout=0] - Tempo de espera em milissegundos antes de aplicar o foco (padrão: 0).
+     */
+    setFocusElement(element, timeout = 0) {
+        setTimeout(() => {
+            if ($(element).length) {
+                const el = $(element)[0];
+                if (el && typeof el.focus === 'function') {
+                    el.focus(); // uso do método nativo para maior confiabilidade
+                } else {
+                    $(element).trigger('focus'); // fallback para compatibilidade
+                }
+            }
+        }, timeout);
+    }
+
     set _setTypeCurrentSearch(type) {
         this._objConfigs.typeCurrentSearch = type;
     }
@@ -521,50 +547,76 @@ export class TemplateSearch {
     //     }
     // }
 
+    /**
+     * Executa a ação de exclusão de um item após confirmação em modal.
+     *
+     * @param {string|number} idDel - ID do registro que será excluído.
+     * @param {string} nameDel - Nome do registro (usado na mensagem do modal).
+     * @param {Object} [options={}] - Opções adicionais para configurar a exclusão.
+     * @param {HTMLElement|null} [options.button=null] - Botão que disparou a ação, usado para foco após o fechamento do modal.
+     * @param {string} [options.title='Exclusão de Registro'] - Título exibido no modal de confirmação.
+     * @param {string} [options.message] - Mensagem de confirmação personalizada do modal.
+     * @param {string} [options.success='Registro excluído com sucesso!'] - Mensagem de sucesso exibida após exclusão.
+     */
     async _delButtonAction(idDel, nameDel, options = {}) {
         const self = this;
-        const { button = null,
+        const {
+            button = null,
             title = 'Exclusão de Registro',
             message = `Confirma a exclusão do registro <b>${nameDel}</b>?`,
             success = `Registro excluído com sucesso!`,
         } = options;
 
         try {
+            // Cria e configura o modal de confirmação
             const obj = new ModalMessage();
             obj.setDataEnvModal = {
                 title: title,
                 message: message,
             };
-            obj.setFocusElementWhenClosingModal = button;
-            const result = await obj.modalOpen();
+            obj.setFocusElementWhenClosingModal = button; // Restaura o foco no botão após fechar
+
+            const result = await obj.modalOpen(); // Abre o modal e aguarda confirmação
+
             if (result.confirmResult) {
+                // Se confirmado, executa a exclusão
                 if (await self._delRecurse(idDel, options)) {
-                    CommonFunctions.generateNotification(success, 'success');
-                    self._generateQueryFilters();
+                    CommonFunctions.generateNotification(success, 'success'); // Notifica sucesso
+                    self._executarBusca(); // Atualiza os dados na tela
                 }
             }
         } catch (error) {
-            CommonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error); // Notifica erro, se houver
         }
     }
 
+    /**
+     * Executa a exclusão (DELETE) de um recurso, utilizando URL direta ou configuração interna.
+     *
+     * @param {string|number} idDel - O ID do recurso a ser deletado.
+     * @param {Object} [options={}] - Opções adicionais para o processo.
+     * @param {string} [options.urlApi] - URL da API a ser usada para deletar. Se não informada, será buscada da configuração interna.
+     * @returns {Promise<boolean>} - Retorna `true` se a exclusão for bem-sucedida, ou `false` em caso de erro.
+     */
     async _delRecurse(idDel, options = {}) {
         const self = this;
 
-        let config = self.#getConfigType();
-        if (!config) { return; }
+        // Define a URL da API: se não for passada, tenta buscar do config padrão
+        let url = options.urlApi ?? self.#getConfigType()?.url;
+        if (!url) return; // Se não houver URL, cancela a execução
 
         try {
-            const obj = new ConnectAjax(config.url);
-            obj.setParam(idDel);
-            obj.setAction(EnumAction.DELETE)
-            await obj.deleteRequest();
+            const obj = new ConnectAjax(url);
+            obj.setParam(idDel);               // Define o ID como parâmetro
+            obj.setAction(EnumAction.DELETE);  // Define a ação como DELETE
+            await obj.deleteRequest();         // Executa a requisição
             return true;
         } catch (error) {
-            CommonFunctions.generateNotificationErrorCatch(error);
+            CommonFunctions.generateNotificationErrorCatch(error); // Captura e trata erros
             return false;
         }
     }
+
 
     //#endregion
 }

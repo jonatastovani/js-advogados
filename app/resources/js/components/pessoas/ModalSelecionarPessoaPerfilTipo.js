@@ -10,6 +10,7 @@ export class ModalSelecionarPessoaPerfilTipo extends ModalDefault {
         url: {
             base: undefined,
         },
+        modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         sufixo: 'ModalSelecionarPessoaPerfilTipo',
     };
 

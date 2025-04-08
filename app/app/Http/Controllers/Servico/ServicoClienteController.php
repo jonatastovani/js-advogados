@@ -26,4 +26,10 @@ class ServicoClienteController extends Controller
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->store($fluentData));
     }
+
+    public function destroy(ServicoClienteFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroy($fluentData));
+    }
 }

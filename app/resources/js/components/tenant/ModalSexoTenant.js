@@ -48,7 +48,7 @@ export class ModalSexoTenant extends ModalSearchAndFormRegistration {
         const modal = $(self.getIdModal);
 
         modal.find('.btn-new-register').on('click', async () => {
-            self._updateTitleRegistration('Novo Gênero');
+            self._updateTitleRegistration('Novo Sexo');
         });
 
         self._executarBusca();
@@ -161,9 +161,9 @@ export class ModalSexoTenant extends ModalSearchAndFormRegistration {
 
         $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
             const response = await self._delButtonAction(item.id, item.nome, {
-                title: `Exclusão de Gênero`,
-                message: `Confirma a exclusão do gênero <b>${item.nome}</b>?`,
-                success: `Gênero excluído com sucesso!`,
+                title: `Exclusão de Sexo`,
+                message: `Confirma a exclusão do sexo <b>${item.nome}</b>?`,
+                success: `Sexo excluído com sucesso!`,
                 button: this,
                 urlApi: self._objConfigs.querys.consultaFiltros.url,
             });
@@ -181,7 +181,7 @@ export class ModalSexoTenant extends ModalSearchAndFormRegistration {
     }
 
     #saveVerifications(data, formRegistration) {
-        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do Gênero deve ser informado.', setFocus: true });
+        let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O nome do Sexo deve ser informado.', setFocus: true });
         return blnSave;
     }
 }

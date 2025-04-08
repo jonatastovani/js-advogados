@@ -36,22 +36,6 @@ export class ModalSelecionarPerfil extends ModalDefault {
         return await self._modalOpen();
     }
 
-    saveButtonAction() {
-        const self = this;
-        const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = CommonFunctions.getInputsValues(formRegistration[0]);
-
-        if (self.#saveVerifications(data, formRegistration)) {
-            self._save(data, self._objConfigs.url.base);
-        }
-    }
-
-    #saveVerifications(data, formRegistration) {
-        let blnSave = CommonFunctions.verificationData(data.titulo, { field: formRegistration.find('input[name="titulo"]'), messageInvalid: 'O título deve ser informado.', setFocus: true });
-        blnSave = CommonFunctions.verificationData(data.descricao, { field: formRegistration.find('textarea[name="descricao"]'), messageInvalid: 'Uma descrição deve ser adicionada.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
-        return blnSave;
-    }
-
     async #preencherOpcoes() {
         const self = this;
         $(self.getIdModal).find('.rowButtons').html('');

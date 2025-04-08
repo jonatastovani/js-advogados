@@ -105,6 +105,7 @@
     @vite('resources/js/views/pessoa/pessoa-juridica/cliente/index.js')
     @component('components.api.api-routes', [
         'routes' => [
+            'basePessoa' => route('api.pessoa'),
             'basePessoaJuridica' => route('api.pessoa.pessoa-juridica'),
         ],
     ])

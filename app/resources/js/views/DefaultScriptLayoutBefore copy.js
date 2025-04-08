@@ -17,7 +17,7 @@ class DefaultScriptLayoutBefore {
 
         if (window.domainCustom) {
             /** @type {TenantTypeDomainCustom} */
-            const custom = InstanceManager.setInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, new TenantTypeDomainCustom());
+            const custom = InstanceManager.getOrCreateInstance(TenantTypeDomainCustomHelper.getNameInstanceCustomDomain, () => new TenantTypeDomainCustom());
             custom.setDomainCustom = window.domainCustom;
 
             const select = $(`#${custom.getNameAttributeKey}`);

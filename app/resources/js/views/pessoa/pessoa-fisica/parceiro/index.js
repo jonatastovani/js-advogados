@@ -15,6 +15,7 @@ class PageParceiroPFIndex extends TemplateSearch {
         },
         url: {
             base: window.apiRoutes.basePessoaFisica,
+            basePessoa: window.apiRoutes.basePessoa,
             baseFrontPessoaFisicaParceiroForm: window.frontRoutes.baseFrontPessoaFisicaParceiroForm
         },
         data: {
@@ -133,23 +134,17 @@ class PageParceiroPFIndex extends TemplateSearch {
     #htmlBtns(pessoaDados) {
         const self = this;
 
-        // let strBtns = `
-        //     <li>
-        //         <a href="${self._objConfigs.url.baseFrontPessoaFisicaParceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
-        //             Editar
-        //         </a>
-        //     </li>
-        //     <li>
-        //         <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
-        //             Excluir
-        //         </button>
-        //     </li>`;
-
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaFisicaParceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaFisicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
                     Editar
                 </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
+                    Excluir Pessoa
+                </button>
             </li>`;
 
         strBtns = `
@@ -163,20 +158,21 @@ class PageParceiroPFIndex extends TemplateSearch {
         return strBtns;
     }
 
-    #addEventosRegistrosConsulta(item) {
+    #addEventosRegistrosConsulta(pessoaDados) {
         const self = this;
 
-        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            CommonFunctions.generateNotification('Funcionalidade para excluir pessoa fisica, em desenvolvimento.', 'warning');
-            // self._delButtonAction(item.id, item.pessoa_dados.nome, {
-            //     title: `Exclusão de Pessoa Física`,
-            //     message: `
-            //     Confirma a exclusão da Pessoa Física <b>${item.pessoa_dados.nome}</b>?
-            //     <br><br>
-            //     <div class="alert alert-danger blink-75">Atenção: Esta exclusão excluirá todos os perfis associados a ela.</div>`,
-            //     success: `Pessoa Física excluída com sucesso!`,
-            //     button: this
-            // });
+        $(`#${pessoaDados.idTr}`).find(`.btn-delete-pessoa`).click(async function () {
+            const perfis = pessoaDados.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
+                title: `Exclusão de Pessoa Física`,
+                message: `
+                <p>Confirma a exclusão da Pessoa Física <b>${pessoaDados.nome}</b>?</p>
+                <div class="alert alert-danger blink-75">Atenção: Todos os perfis vinculados a ela também serão excluídos.</div>
+                <p>Perfis desta pessoa: ${perfis}</p>`,
+                success: `Pessoa Física excluída com sucesso!`,
+                button: this,
+                urlApi: self._objConfigs.url.basePessoa,
+            });
         });
     }
 }

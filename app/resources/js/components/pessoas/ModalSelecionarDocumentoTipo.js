@@ -12,6 +12,7 @@ export class ModalSelecionarDocumentoTipo extends ModalDefault {
         url: {
             base: `${window.apiRoutes.baseDocumentoTipoTenants}/pessoa-tipo-aplicavel`,
         },
+        modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         sufixo: 'ModalSelecionarDocumentoTipo',
     };
 

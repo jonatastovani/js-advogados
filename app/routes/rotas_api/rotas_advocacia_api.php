@@ -41,6 +41,7 @@ Route::group([
 
                     Route::get('', 'index');
                     Route::post('', 'store');
+                    Route::delete('', 'destroy');
                 });
             });
 

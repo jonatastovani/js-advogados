@@ -7,7 +7,7 @@ export class TenantDataHelper {
         /**
          * @type {TenantData}
          */
-        const tenantData = InstanceManager.setInstance('TenantData', new TenantData());
+        const tenantData = InstanceManager.getOrCreateInstance('TenantData', () => new TenantData());
         return await tenantData.getTenantData();
     }
 }

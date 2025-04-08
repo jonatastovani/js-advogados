@@ -1,11 +1,12 @@
 import { ModalMessage } from "../../components/comum/ModalMessage";
+import { HotkeyManagerHelper } from "../../helpers/HotkeyManagerHelper";
 import { RedirectHelper } from "../../helpers/RedirectHelper";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { QueueManager } from "../../utils/QueueManager";
 import { CommonFunctions } from "../CommonFunctions";
 import { ConnectAjax } from "../ConnectAjax";
 import { EnumAction } from "../EnumAction";
-
+import InstanceManager from "../InstanceManager";
 
 export class TemplateForm {
 
@@ -38,6 +39,9 @@ export class TemplateForm {
     /** @type {QueueManager} */
     _queueSelectDomainCustom;
 
+    /** @type {HotkeyManagerHelper} */
+    _hotkeyManager;
+
     constructor(objSuper = {}) {
         CommonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
         let sufixo = objSuper.sufixo ?? this._objConfigs.sufixo ?? undefined;
@@ -45,6 +49,9 @@ export class TemplateForm {
         if (sufixo) {
             this._sufixo = sufixo;
         }
+
+        // InstanceManager.setVerboseTrueAutoFalse = true;
+        this._hotkeyManager = InstanceManager.getOrCreateInstance('HotkeyManagerHelper', () => new HotkeyManagerHelper());
 
         this.#addEventsDefault();
 
@@ -57,6 +64,32 @@ export class TemplateForm {
      */
     get getSufixo() {
         return this._sufixo ?? this._objConfigs.sufixo ?? undefined;
+    }
+
+    get getIdSufixo() {
+        return `#${this.getSufixo}`;
+    }
+
+    /**
+     * Aplica foco a um elemento da página após um tempo determinado.
+     *
+     * Esta função é útil para garantir que o elemento esteja renderizado antes de receber o foco,
+     * especialmente em casos de componentes dinâmicos, abas, modais ou carregamento assíncrono.
+     *
+     * @param {string|HTMLElement|jQuery} element - Seletor, elemento HTML ou objeto jQuery que receberá o foco.
+     * @param {number} [timeout=0] - Tempo de espera em milissegundos antes de aplicar o foco (padrão: 0).
+     */
+    setFocusElement(element, timeout = 0) {
+        setTimeout(() => {
+            if ($(element).length) {
+                const el = $(element)[0];
+                if (el && typeof el.focus === 'function') {
+                    el.focus(); // uso do método nativo para maior confiabilidade
+                } else {
+                    $(element).trigger('focus'); // fallback para compatibilidade
+                }
+            }
+        }, timeout);
     }
 
     /**
@@ -85,12 +118,20 @@ export class TemplateForm {
     }
 
     #addEventBtnSave() {
-        const btnSave = `#btnSave${this.getSufixo}`;
         const self = this;
+        const btnSave = `#btnSave${self.getSufixo}`;
+
+        const acaoSalvar = async () => {
+            $(btnSave)?.trigger('click');
+        };
+
         $(btnSave).on("click", async function (e) {
             e.preventDefault();
             await self.saveButtonAction();
         });
+
+        self._hotkeyManager.registrar(self.getIdSufixo, ['ctrl+s', 'ctrl+shift+s'], acaoSalvar);
+        self._hotkeyManager.ativarEscopo(self.getIdSufixo);
     }
 
     /**

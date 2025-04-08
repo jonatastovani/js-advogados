@@ -1,3 +1,4 @@
+import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalDefault } from "../../commons/modal/ModalDefault";
 
 export class ModalLoading extends ModalDefault {
@@ -14,7 +15,7 @@ export class ModalLoading extends ModalDefault {
             idModal: "#ModalLoading",
         });
 
-        this._dataEnvModal = Object.assign(this._dataEnvModal, this.#dataEnvModal);
+        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this.#openTimer = false;
         this.#endTimer = false;
         this.#addEventsDefault();

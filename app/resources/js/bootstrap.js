@@ -36,3 +36,6 @@ window.moment = moment;
 import 'jquery-mask-plugin';
 
 import 'quill/dist/quill.snow.css';
+
+import hotkeys from 'hotkeys-js';
+window.hotkeys = hotkeys;

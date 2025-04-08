@@ -1,6 +1,8 @@
+import { HotkeyManagerHelper } from "../../helpers/HotkeyManagerHelper";
 import TenantTypeDomainCustomHelper from "../../helpers/TenantTypeDomainCustomHelper";
 import { QueueManager } from "../../utils/QueueManager";
 import { CommonFunctions } from "../CommonFunctions";
+import InstanceManager from "../InstanceManager";
 
 export class ModalDefault {
 
@@ -8,30 +10,37 @@ export class ModalDefault {
      * URL do endpoint da Api
      */
     _urlApi;
+
     /**
      * ID do modal
      */
     _idModal;
+
     /** 
      * Conteúdo a ser retornado na promisse como resolve()
     */
     _promisseReturnValue;
+
     /**
      * Variável que executará o fim do setInterval de retoro da promisse com reject()
      */
     _endTimer;
+
     /**
      * Elemento foco ao fechar modal
      */
     _focusElementWhenClosingModal;
+
     /**
      * Variável para reservar o timeOut da consulta pelo search
      */
     _timerSearch;
+
     /** 
      * Dados ou parâmetros enviados para o modal.
      */
     _dataEnvModal;
+
     /**
      * Objeto para reservar configurações do modal
      */
@@ -40,6 +49,9 @@ export class ModalDefault {
         sufixo: undefined,
         data: undefined,
         modalConfig: undefined,
+        /** Quando os campos de cadastro estiverem ativos.
+        * Variável importante para os shortcuts do HotKey */
+        modeNewOrEditingRegister: false,
         queues: {
             /** @type {QueueManager} */
             queueOpen: new QueueManager(),
@@ -50,6 +62,9 @@ export class ModalDefault {
             blocked_changes: false,
         },
     };
+
+    /** @type {HotkeyManagerHelper} */
+    _hotkeyManager;
 
     /**
      * Inicializa uma nova instância da classe modal.
@@ -75,7 +90,6 @@ export class ModalDefault {
         this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, objSuper.objConfigs ?? {});
 
         this._endTimer = false;
-        this.#addEventsDefault();
     }
 
     //#region Getters e Setters para propriedades privadas
@@ -141,6 +155,26 @@ export class ModalDefault {
     }
 
     /**
+     * Ativa ou desativa o modo de cadastro ou edição de registros.
+     * @param {boolean} bln - `true` para ativar o modo de cadastro/edição, `false` para desativar.
+     */
+    set setModeNewOrEditingRegister(bln) {
+        this._objConfigs.modeNewOrEditingRegister = bln;
+    }
+
+    /**
+     * Retorna o valor do modo de cadastro ou edição de registros.
+     * @returns {boolean} `true` se o modo de cadastro/edição estiver ativo, `false` caso contrário.
+     */
+    get getModeNewOrEditingRegister() {
+        return this._objConfigs.modeNewOrEditingRegister;
+    }
+
+    set _setTypeCurrentSearch(type) {
+        this._objConfigs.typeCurrentSearch = type;
+    }
+
+    /**
          * Adiciona uma ação à fila.
          * 
          * @param {Function} action - Função a ser executada quando estiver pronto.
@@ -191,10 +225,23 @@ export class ModalDefault {
     _btnSave = ".btn-save";
     #addEventBtnSave() {
         const self = this;
-        $(self.getIdModal).find(self._btnSave).on("click", function (e) {
+        const btnSave = $(self.getIdModal).find(self._btnSave);
+
+        const acaoSalvar = async () => {
+            btnSave?.trigger('click');
+        };
+
+        btnSave.on("click", function (e) {
             e.preventDefault();
-            self.saveButtonAction();
+            if (self.getModeNewOrEditingRegister) {
+                self.saveButtonAction();
+            }
         });
+
+        if (self._hotkeyManager) {
+            self._hotkeyManager.registrar(self.getIdModal, ['ctrl+s', 'ctrl+shift+s'], acaoSalvar);
+            self._hotkeyManager.ativarEscopo(self.getIdModal);
+        }
     }
 
     _btnClose = ".btn-close";
@@ -268,15 +315,23 @@ export class ModalDefault {
     /**
      * Executa o foco em um elemento dentro do modal após um tempo especificado.
      *
-     * @param {jQuery} elem - O elemento jQuery no qual o foco será aplicado.
+     * @param {jQuery|string|HTMLElement} elem - O elemento (ou seletor jQuery) no qual o foco será aplicado.
      * @param {number} [timeOut=500] - O tempo de espera em milissegundos antes de aplicar o foco.
      */
     _executeFocusElementOnModal(elem, timeOut = 500) {
-        if (elem !== null && $(elem).length) {
-            setTimeout(function () {
-                $(elem).trigger('focus');
-            }, timeOut);
-        }
+        if (!elem) return;
+
+        const $el = $(elem);
+        if (!$el.length) return;
+
+        setTimeout(() => {
+            const el = $el[0];
+            if (el && typeof el.focus === 'function') {
+                el.focus(); // preferível, mais confiável
+            } else {
+                $el.trigger('focus'); // fallback
+            }
+        }, timeOut);
     }
 
     /**
@@ -293,11 +348,21 @@ export class ModalDefault {
      */
     async _modalOpen() {
         const self = this;
+
+        // InstanceManager.setVerboseTrueAutoFalse = true;
+        this._hotkeyManager = InstanceManager.getOrCreateInstance('HotkeyManagerHelper', () => new HotkeyManagerHelper());
+        this._hotkeyManager.setDebug;
+        this.#addEventsDefault();
+
         return new Promise(function (resolve) {
             !self._objConfigs.modalInitialized ? self._objConfigs.modalInitialized = true : null;
             const checkConfirmation = setInterval(async function () {
                 if (self._endTimer) {
                     clearInterval(checkConfirmation);
+
+                    // Remover o escopo do HotkeyManager
+                    if (self._hotkeyManager) self._hotkeyManager.removerEscopo(self.getIdModal);
+
                     await self._modalClose();
                     resolve(self._promisseReturnValue);
                 }
@@ -362,6 +427,7 @@ export class ModalDefault {
         if (typeof self._modalReset === 'function') {
             self._modalReset();
         }
+
         self._executeFocusElementOnModal(self._focusElementWhenClosingModal);
     }
 

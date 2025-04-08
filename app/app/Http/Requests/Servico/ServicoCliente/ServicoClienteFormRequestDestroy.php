@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Pessoa\Pessoa;
+namespace App\Http\Requests\Servico\ServicoCliente;
 
 use App\Http\Requests\BaseFormRequest;
 
-class PessoaFormRequestShow extends BaseFormRequest
+class ServicoClienteFormRequestDestroy extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,6 @@ class PessoaFormRequestShow extends BaseFormRequest
      */
     public function rules(): array
     {
-        return $this->rulesShowWithTrashed();
+        return [];
     }
 }

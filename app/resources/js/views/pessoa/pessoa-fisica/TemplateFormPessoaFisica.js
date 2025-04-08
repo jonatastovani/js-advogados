@@ -129,6 +129,7 @@ export class TemplateFormPessoaFisica extends TemplateForm {
             await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
         }
 
+        self.setFocusElement(form.find('input[name="nome"]'));
     }
 
     async #buscarEscolaridade(selected_id = null) {

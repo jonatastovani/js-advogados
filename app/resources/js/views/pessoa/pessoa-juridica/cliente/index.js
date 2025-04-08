@@ -15,6 +15,7 @@ class PageClientePJIndex extends TemplateSearch {
         },
         url: {
             base: window.apiRoutes.basePessoaJuridica,
+            basePessoa: window.apiRoutes.basePessoa,
             baseFrontPessoaJuridicaClienteForm: window.frontRoutes.baseFrontPessoaJuridicaClienteForm
         },
         data: {
@@ -133,13 +134,14 @@ class PageClientePJIndex extends TemplateSearch {
 
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaJuridicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaJuridicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa jurídica ${pessoaDados.nome}.">
                     Editar
                 </a>
             </li>
+            <li><hr class="dropdown-divider"></li>
             <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
-                    Excluir
+                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa jurídica ${pessoaDados.nome}.">
+                    Excluir Pessoa
                 </button>
             </li>`;
 
@@ -154,20 +156,21 @@ class PageClientePJIndex extends TemplateSearch {
         return strBtns;
     }
 
-    #addEventosRegistrosConsulta(item) {
+    #addEventosRegistrosConsulta(pessoaDados) {
         const self = this;
 
-        $(`#${item.idTr}`).find(`.btn-delete`).click(async function () {
-            CommonFunctions.generateNotification('Funcionalidade para excluir pessoa juridica, em desenvolvimento.', 'warning');
-            // self._delButtonAction(item.id, item.pessoa_dados.nome, {
-            //     title: `Exclusão de Pessoa Física`,
-            //     message: `
-            //     Confirma a exclusão da Pessoa Física <b>${item.pessoa_dados.nome}</b>?
-            //     <br><br>
-            //     <div class="alert alert-danger blink-75">Atenção: Esta exclusão excluirá todos os perfis associados a ela.</div>`,
-            //     success: `Pessoa Física excluída com sucesso!`,
-            //     button: this
-            // });
+        $(`#${pessoaDados.idTr}`).find(`.btn-delete-pessoa`).click(async function () {
+            const perfis = pessoaDados.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome_fantasia, {
+                title: `Exclusão de Pessoa Jurídica`,
+                message: `
+                <p>Confirma a exclusão da Pessoa Jurídica <b>${pessoaDados.nome_fantasia}</b>?</p>
+                <div class="alert alert-danger blink-75">Atenção: Todos os perfis vinculados a ela também serão excluídos.</div>
+                <p>Perfis desta pessoa: ${perfis}</p>`,
+                success: `Pessoa Jurídica excluída com sucesso!`,
+                button: this,
+                urlApi: self._objConfigs.url.basePessoa,
+            });
         });
     }
 }

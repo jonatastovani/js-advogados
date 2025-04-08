@@ -1,5 +1,6 @@
 // import commonjs from '@rollup/plugin-commonjs';
 import laravel from 'laravel-vite-plugin';
+import path from 'path'; // <--- precisa disso
 import { defineConfig } from 'vite';
 
 import { globSync } from 'glob'; // Use globSync com import na versão ESM
@@ -8,6 +9,11 @@ import { globSync } from 'glob'; // Use globSync com import na versão ESM
 
 export default defineConfig({
     // base: '/build/',
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'resources/js'),
+        },
+    },
     plugins: [
         // nodeResolve(),
         laravel({

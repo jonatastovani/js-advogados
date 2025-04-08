@@ -14,6 +14,7 @@ export class ModalSelecionarDocumentoModeloTenant extends ModalDefault {
         data: {
             itensNaTela: [],
         },
+        modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         sufixo: 'ModalSelecionarDocumentoModeloTenant',
     };
 

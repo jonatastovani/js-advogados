@@ -33,7 +33,12 @@ class Pessoa extends Model
     {
         return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->orderBy('created_at', 'desc');
     }
-    
+
+    public function perfil_cliente()
+    {
+        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::CLIENTE->value)->orderBy('created_at', 'desc');
+    }
+
     public function pessoa_dados()
     {
         return $this->morphTo();

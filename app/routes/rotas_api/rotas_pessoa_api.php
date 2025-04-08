@@ -10,6 +10,12 @@ Route::group([
     ],
 ], function () {
 
+    Route::controller(App\Http\Controllers\Pessoa\PessoaController::class)->group(function () {
+
+        Route::get('', function () {})->name('api.pessoa');
+        Route::delete('{uuid}', 'destroy');
+    });
+
     Route::controller(App\Http\Controllers\Pessoa\PessoaPerfilController::class)->group(function () {
 
         Route::prefix('perfil')->group(function () {

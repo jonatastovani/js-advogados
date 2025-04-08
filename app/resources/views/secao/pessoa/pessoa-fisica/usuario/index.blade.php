@@ -66,7 +66,7 @@
         <div class="col mt-2">
             <a href="{{ route('pessoa.pessoa-fisica.usuario.form') }}" class="btn btn-outline-primary">Cadastrar</a>
         </div>
-    </div>  
+    </div>
 
     <div class="table-responsive mt-2 flex-fill">
         <table id="tableData{{ $sufixo }}" class="table table-sm table-striped table-hover">
@@ -104,6 +104,7 @@
     @vite('resources/js/views/pessoa/pessoa-fisica/usuario/index.js')
     @component('components.api.api-routes', [
         'routes' => [
+            'basePessoa' => route('api.pessoa'),
             'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
         ],
     ])

@@ -2,20 +2,14 @@
 
 namespace App\Services\Pessoa;
 
-use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\PessoaTipoEnum;
-use App\Helpers\LogHelper;
-use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\Pessoa;
-use App\Models\Referencias\PessoaStatusTipo;
-use App\Models\Referencias\PessoaSubtipo;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
-use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class PessoaService extends Service
 {
@@ -60,6 +54,33 @@ class PessoaService extends Service
         return parent::buscarRecurso($requestData, array_merge([
             'message' => 'A Pessoa não foi encontrada.',
         ], $options));
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        if ($resource->perfil_cliente->servicos_vinculados->count()) {
+            RestResponse::createErrorResponse(422, "Esta pessoa possui serviços vinculados e não pode ser excluída.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+                $this->destroyCascade($resource, [
+                    'documentos',
+                    'enderecos',
+                    'pessoa_perfil.user',
+                    'pessoa_dados',
+                ]);
+                
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     /**

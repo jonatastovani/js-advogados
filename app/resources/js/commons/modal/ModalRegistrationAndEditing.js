@@ -35,6 +35,7 @@ export class ModalRegistrationAndEditing extends ModalDefault {
             url: {
                 base: undefined,
             },
+            modeNewOrEditingRegister: true, // Inicia com ela verdadeira, pois o formulário estará pronto para edição
         };
 
         objSuper.objConfigs = CommonFunctions.deepMergeObject(

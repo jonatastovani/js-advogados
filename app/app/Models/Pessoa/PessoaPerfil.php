@@ -7,6 +7,7 @@ use App\Models\Auth\User;
 use App\Models\Referencias\PessoaPerfilTipo;
 use App\Models\Referencias\PessoaTipo;
 use App\Models\Comum\ParticipacaoPresetParticipante;
+use App\Models\Servico\ServicoCliente;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -52,10 +53,10 @@ class PessoaPerfil extends Model
         return $this->hasOne(User::class);
     }
 
-    // public function servico_participacao_participante_preset()
-    // {
-    //     return $this->morphOne(ParticipacaoPresetParticipante::class, 'referencia');
-    // }
+    public function servicos_vinculados()
+    {
+        return $this->hasMany(ServicoCliente::class, 'perfil_id');
+    }
 
     /**
      * Insere uma cláusula de junção com a Pessoa.

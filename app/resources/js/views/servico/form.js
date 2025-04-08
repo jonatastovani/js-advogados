@@ -384,14 +384,14 @@ class PageServicoForm extends TemplateForm {
         self._classQuillEditor = new QuillEditorModule(`#descricao${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper'] });
         self.#quillQueueManager.setReady();  // Informa que o quill está pronto
 
-        CommonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self._objConfigs.sufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
+        CommonFunctions.handleModal(self, $(`#btnOpenAreaJuridicaTenant${self.getSufixo}`), ModalAreaJuridicaTenant, self.#buscarAreasJuridicas.bind(self));
 
-        $(`#btnSaveParticipantes${self._objConfigs.sufixo} `).on('click', async function (e) {
+        $(`#btnSaveParticipantes${self.getSufixo} `).on('click', async function (e) {
             e.preventDefault();
             await self.#saveButtonActionParticipacao();
         });
 
-        $(`#btnAdicionarCliente${self._objConfigs.sufixo} `).on('click', async function () {
+        $(`#btnAdicionarCliente${self.getSufixo} `).on('click', async function () {
 
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
@@ -416,16 +416,16 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#atualizarClientes${self._objConfigs.sufixo} `).on('click', async function () {
+        $(`#atualizarClientes${self.getSufixo} `).on('click', async function () {
             await self.#buscarClientes();
         });
 
-        $(`#btnSaveClientes${self._objConfigs.sufixo} `).on('click', async function (e) {
+        $(`#btnSaveClientes${self.getSufixo} `).on('click', async function (e) {
             e.preventDefault();
             self.#saveButtonActionCliente();
         });
 
-        // $(`#btnAdicionarDocumento${self._objConfigs.sufixo} `).on('click', async function () {
+        // $(`#btnAdicionarDocumento${self.getSufixo} `).on('click', async function () {
         //     const btn = $(this);
         //     CommonFunctions.simulateLoading(btn);
         //     try {
@@ -454,11 +454,11 @@ class PageServicoForm extends TemplateForm {
         //     }
         // });
 
-        // $(`#atualizarDocumentos${self._objConfigs.sufixo} `).on('click', async function () {
+        // $(`#atualizarDocumentos${self.getSufixo} `).on('click', async function () {
         //     await self.#buscarDocumentos();
         // });
 
-        $(`#btnAdicionarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
+        $(`#btnAdicionarAnotacao${self.getSufixo} `).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
@@ -479,11 +479,11 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#atualizarAnotacao${self._objConfigs.sufixo} `).on('click', async function () {
+        $(`#atualizarAnotacao${self.getSufixo} `).on('click', async function () {
             await self.#buscarAnotacoes();
         });
 
-        $(`#btnInserirPagamento${self._objConfigs.sufixo} `).on('click', async function () {
+        $(`#btnInserirPagamento${self.getSufixo} `).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
@@ -504,7 +504,7 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnExcluirParticipante${self.getSufixo}`).on('click', async function () {
             const response = await self._delButtonAction(`${self._idRegister}/participacao`, null, {
                 title: `Exclusão de Participantes`,
                 message: `Confirma a exclusão do(s) participante(s) deste serviço?`,
@@ -518,7 +518,21 @@ class PageServicoForm extends TemplateForm {
             }
         });
 
-        $(`#atualizarPagamentos${self._objConfigs.sufixo}`).on('click', async function () {
+        $(`#btnExcluirCliente${self.getSufixo}`).on('click', async function () {
+            const response = await self._delButtonAction(`${self._idRegister}/cliente`, null, {
+                title: `Exclusão de Clientes`,
+                message: `Confirma a exclusão do(s) cliente(s) deste serviço?`,
+                success: `Clientes excluídos com sucesso!`,
+                button: this,
+                url: `${self._objConfigs.url.base}`,
+            });
+
+            if (response) {
+                self.#buscarClientes();
+            }
+        });
+
+        $(`#atualizarPagamentos${self.getSufixo}`).on('click', async function () {
             await self.#buscarPagamentos();
         });
 
@@ -598,12 +612,12 @@ class PageServicoForm extends TemplateForm {
             self._classQuillEditor.getQuill.setContents(responseData.descricao);
         })
 
-        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
+        $(`#divAnotacao${self.getSufixo}`).html('');
         responseData.anotacao.forEach(item => {
             self.#inserirAnotacao(item);
         });
 
-        $(`#divPagamento${self._objConfigs.sufixo}`).html('');
+        $(`#divPagamento${self.getSufixo}`).html('');
         responseData.pagamento.forEach(item => {
             self.#inserirPagamento(item);
         });
@@ -625,7 +639,7 @@ class PageServicoForm extends TemplateForm {
 
     async #inserirDocumento(item) {
         const self = this;
-        const divDocumentos = $(`#divDocumentos${self._objConfigs.sufixo}`);
+        const divDocumentos = $(`#divDocumentos${self.getSufixo}`);
         item.idCard = UUIDHelper.generateUUID();
 
         const strCard = `
@@ -673,7 +687,7 @@ class PageServicoForm extends TemplateForm {
 
     #limparDocumentos() {
         const self = this;
-        $(`#divDocumentos${self._objConfigs.sufixo}`).html('');
+        $(`#divDocumentos${self.getSufixo}`).html('');
     }
 
     async #buscarDocumentos(options = {}) {
@@ -700,7 +714,7 @@ class PageServicoForm extends TemplateForm {
 
     async #inserirCliente(item) {
         const self = this;
-        const divClientes = $(`#divClientes${self._objConfigs.sufixo}`);
+        const divClientes = $(`#divClientes${self.getSufixo}`);
         item.idCard = UUIDHelper.generateUUID();
 
         let nome = '';
@@ -757,23 +771,23 @@ class PageServicoForm extends TemplateForm {
 
         $(`#${item.idCard} .btn-delete`).on('click', async function () {
             try {
-                const obj = new ModalMessage();
-                obj.setDataEnvModal = {
-                    title: 'Remoção de Cliente',
-                    message: 'Tem certeza que deseja remover este cliente?',
-                };
-                obj.setFocusElementWhenClosingModal = $(this);
-                const result = await obj.modalOpen();
-                if (result.confirmResult) {
+                // const obj = new ModalMessage();
+                // obj.setDataEnvModal = {
+                //     title: 'Remoção de Cliente',
+                //     message: 'Tem certeza que deseja remover este cliente?',
+                // };
+                // obj.setFocusElementWhenClosingModal = $(this);
+                // const result = await obj.modalOpen();
+                // if (result.confirmResult) {
 
-                    $(`#${item.idCard}`).remove();
-                    const clientes = self._objConfigs.data.clientesNaTela;
-                    const indexPart = clientes.findIndex(cliente => cliente.idCard === item.idCard);
+                $(`#${item.idCard}`).remove();
+                const clientes = self._objConfigs.data.clientesNaTela;
+                const indexPart = clientes.findIndex(cliente => cliente.idCard === item.idCard);
 
-                    if (indexPart > -1) {
-                        clientes.splice(indexPart, 1);
-                    }
+                if (indexPart > -1) {
+                    clientes.splice(indexPart, 1);
                 }
+                // }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
             }
@@ -801,7 +815,8 @@ class PageServicoForm extends TemplateForm {
     #limparClientes() {
         const self = this;
         self._objConfigs.data.clientesNaTela = [];
-        $(`#divClientes${self._objConfigs.sufixo}`).html('');
+        $(`#divClientes${self.getSufixo}`).html('');
+        $(`#btnExcluirCliente${self.getSufixo}`).hide('fast')
     }
 
     async #buscarClientes(options = {}) {
@@ -817,6 +832,11 @@ class PageServicoForm extends TemplateForm {
                 response.data.map(item => {
                     self.#inserirCliente(item);
                 })
+
+                // Somente páginas tem esse botão, nos modais não há
+                !response.data.length ? $(`#btnExcluirCliente${self.getSufixo}`).hide('fast') :
+                    $(`#btnExcluirCliente${self.getSufixo}`).show('fast');
+
                 blnLoadingDisplay ? CommonFunctions.generateNotification('Clientes atualizados com sucesso.', 'success') : null;
             }
         } catch (error) {
@@ -828,7 +848,7 @@ class PageServicoForm extends TemplateForm {
 
     async #inserirAnotacao(item) {
         const self = this;
-        const divAnotacao = $(`#divAnotacao${self._objConfigs.sufixo}`);
+        const divAnotacao = $(`#divAnotacao${self.getSufixo}`);
 
         item.idCol = UUIDHelper.generateUUID();
         let created_at = '';
@@ -916,7 +936,7 @@ class PageServicoForm extends TemplateForm {
 
     #limparAnotacoes() {
         const self = this;
-        $(`#divAnotacao${self._objConfigs.sufixo}`).html('');
+        $(`#divAnotacao${self.getSufixo}`).html('');
     }
 
     async #buscarAnotacoes(options = {}) {
@@ -943,9 +963,9 @@ class PageServicoForm extends TemplateForm {
 
     async #inserirPagamento(item) {
         const self = this;
-        const divPagamento = $(`#divPagamento${self._objConfigs.sufixo}`);
+        const divPagamento = $(`#divPagamento${self.getSufixo}`);
 
-        item.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+        item.idCard = `${UUIDHelper.generateUUID()}${self.getSufixo}`;
         const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
 
         let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
@@ -1220,7 +1240,7 @@ class PageServicoForm extends TemplateForm {
             }
 
             const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
-            lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+            lancamento.idCard = `${UUIDHelper.generateUUID()}${self.getSufixo}`;
 
             let htmlAppend = '';
 
@@ -1722,37 +1742,37 @@ class PageServicoForm extends TemplateForm {
 
     #atualizarValorServico(valor) {
         const self = this;
-        $(`#valorServico${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#valorServico${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarValorFinal(valor) {
         const self = this;
-        $(`#valorFinal${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#valorFinal${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalAguardando(valor) {
         const self = this;
-        $(`#totalAguardando${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalAguardando${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalCancelado(valor) {
         const self = this;
-        $(`#totalCancelado${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalCancelado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalEmAnalise(valor) {
         const self = this;
-        $(`#totalEmAnalise${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalEmAnalise${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalLiquidado(valor) {
         const self = this;
-        $(`#totalLiquidado${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalLiquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     #atualizarTotalInadimplente(valor) {
         const self = this;
-        $(`#totalInadimplente${self._objConfigs.sufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
+        $(`#totalInadimplente${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(valor ?? 0));
     }
 
     async #buscarAreasJuridicas(selected_id = null) {
@@ -1760,7 +1780,7 @@ class PageServicoForm extends TemplateForm {
             const self = this;
             let options = { outInstanceParentBln: true };
             selected_id ? options.selectedIdOption = selected_id : null;
-            const selector = $(`#area_juridica_id${self._objConfigs.sufixo}`);
+            const selector = $(`#area_juridica_id${self.getSufixo}`);
             await CommonFunctions.fillSelect(selector, self._objConfigs.url.baseAreaJuridicaTenant, options);
             return true
         } catch (error) {
@@ -1779,7 +1799,7 @@ class PageServicoForm extends TemplateForm {
             const response = await self._get({ urlApi: self._objConfigs.url.basePagamentos, checkForcedBefore: true });
 
             if (response.data) {
-                $(`#divPagamento${self._objConfigs.sufixo}`).html('');
+                $(`#divPagamento${self.getSufixo}`).html('');
                 for (const item of response.data) {
                     self.#inserirPagamento(item);
                 }
@@ -1807,7 +1827,7 @@ class PageServicoForm extends TemplateForm {
 
     saveButtonAction() {
         const self = this;
-        const formRegistration = $(`#form${self._objConfigs.sufixo}`);
+        const formRegistration = $(`#form${self.getSufixo}`);
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
         const descricaoDelta = self._classQuillEditor.getQuill.getContents();
         data.descricao = descricaoDelta;
@@ -1844,7 +1864,7 @@ class PageServicoForm extends TemplateForm {
         if (data.clientes.length) {
             const response = await self._save(data, self._objConfigs.url.baseCliente, {
                 action: EnumAction.POST,
-                btnSave: $(`#btnSaveClientes${self._objConfigs.sufixo}`),
+                btnSave: $(`#btnSaveClientes${self.getSufixo}`),
                 redirectBln: false,
                 returnObjectSuccess: true,
             });
@@ -1864,7 +1884,7 @@ class PageServicoForm extends TemplateForm {
         if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {
             const response = await self._save(data, self._objConfigs.url.baseParticipacao, {
                 action: EnumAction.POST,
-                btnSave: $(`#btnSaveParticipantes${self._objConfigs.sufixo}`),
+                btnSave: $(`#btnSaveParticipantes${self.getSufixo}`),
                 redirectBln: false,
                 returnObjectSuccess: true,
             });

@@ -11,6 +11,7 @@ use App\Traits\ServiceLogTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 abstract class Service
@@ -183,23 +184,45 @@ abstract class Service
     }
 
     /**
-     * Exclui os relacionamentos recursivamente, suportando múltiplos níveis de aninhamento.
+     * Exclui relacionamentos de forma recursiva, suportando múltiplos níveis e tipos de relações.
      *
-     * @param Model $resource - O recurso atual em que a exclusão será aplicada.
-     * @param array $relations - Array contendo os relacionamentos encadeados.
+     * Esta função percorre os relacionamentos informados, tratando corretamente relações simples,
+     * encadeadas e polimórficas (como morphTo e morphMany), garantindo que todos os registros
+     * relacionados sejam excluídos (Soft Delete), antes de excluir o recurso principal.
+     *
+     * @param Model $resource   O modelo principal a ser tratado.
+     * @param array $relations  Array com os nomes dos relacionamentos, podendo conter níveis encadeados, ex: ['enderecos', 'pessoa_perfil.user'].
      */
     private function deleteRecursive(Model $resource, array $relations)
     {
-        $relationName = array_shift($relations); // Pega o primeiro nível do relacionamento
+        // Obtém o primeiro relacionamento do array (nível atual)
+        $relationName = array_shift($relations);
 
+        // Verifica se o relacionamento existe no model
+        if (!method_exists($resource, $relationName)) {
+            return;
+        }
+
+        $relation = $resource->$relationName();
+
+        // Trata morphTo (relacionamento polimórfico singular)
+        if ($relation instanceof \Illuminate\Database\Eloquent\Relations\MorphTo) {
+            $related = $resource->$relationName;
+            if ($related && empty($relations)) {
+                $related->delete();
+            } elseif ($related) {
+                $this->deleteRecursive($related, $relations);
+                $related->delete();
+            }
+            return;
+        }
+
+        // Se o relacionamento é uma coleção (hasMany, morphMany, etc.)
         if ($resource->$relationName()->exists()) {
             foreach ($resource->$relationName as $relatedItem) {
                 if (!empty($relations)) {
-                    // Continua recursivamente caso existam mais níveis
                     $this->deleteRecursive($relatedItem, $relations);
                 }
-
-                // Exclui individualmente para capturar corretamente os dados do Soft Delete
                 $relatedItem->delete();
             }
         }

@@ -21,6 +21,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
     _idRegister;
 
     constructor(objSuper) {
+
         objSuper.objConfigs = CommonFunctions.deepMergeObject({
             formRegister: true,
             modalSearch: {
@@ -28,6 +29,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
             },
             runningSearchBln: false,
             typeCurrentSearch: null,
+            modeNewOrEditingRegister: false, // Inicia com ela falso, pois ela receberá true com a ação de exibição dos campos
         }, objSuper.objConfigs ?? {});
 
         objSuper.promisseReturnValue = CommonFunctions.deepMergeObject({
@@ -46,7 +48,6 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
 
     #addEventsDefault() {
         const self = this;
-        const modal = $(self.getIdModal);
         this.#addEventBtnNewRegister();
         this.#addDefaultSearchModalEvents();
     }
@@ -105,11 +106,12 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
         if (status) {
             modal.find('.divBtnAdd').slideUp();
             modal.find(".divRegistrationFields").slideDown();
+            self.setModeNewOrEditingRegister = true;
         } else {
             modal.find('.divBtnAdd').slideDown();
             modal.find(".divRegistrationFields").slideUp();
+            self.setModeNewOrEditingRegister = false;
         }
-
     }
 
     modalCancel() {

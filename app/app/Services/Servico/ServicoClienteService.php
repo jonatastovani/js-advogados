@@ -113,6 +113,25 @@ class ServicoClienteService extends Service
         }
     }
 
+    public function destroy(Fluent $requestData)
+    {
+        try {
+            return DB::transaction(function () use ($requestData) {
+
+                // Excluir todos clientes
+                $resource = $this->modelServico::find($requestData->servico_uuid);
+                if ($resource) {
+                    $this->destroyCascade($resource, ['cliente']);
+                }
+
+                // $this->executarEventoWebsocket();
+                return [];
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
     protected function verificacaoEPreenchimentoRecursoStore(Fluent $requestData): Fluent
     {
         $arrayErrors = new Fluent();

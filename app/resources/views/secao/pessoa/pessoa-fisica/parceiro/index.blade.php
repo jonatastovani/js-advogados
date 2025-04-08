@@ -103,6 +103,7 @@
     @vite('resources/js/views/pessoa/pessoa-fisica/parceiro/index.js')
     @component('components.api.api-routes', [
         'routes' => [
+            'basePessoa' => route('api.pessoa'),
             'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
         ],
     ])

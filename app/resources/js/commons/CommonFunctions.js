@@ -775,7 +775,7 @@ export class CommonFunctions {
             elementFocus = null,
         } = options;
 
-        const loading = InstanceManager.setInstance('ModalLoading', new ModalLoading());
+        const loading = InstanceManager.getOrCreateInstance('ModalLoading', () => new ModalLoading());
         const isModalVisible = $(loading.getIdModal).hasClass('show');
 
         // Se o estado já é o desejado, retorna a Promise imediatamente
@@ -1037,7 +1037,7 @@ export class CommonFunctions {
     //     //     CommonFunctions.generateNotification(CommonFunctions.firstUppercaseLetter(error.message), 'error', { traceId: traceId });
     //     //     return false;
     //     // }
-    //     const obj = InstanceManager.setInstance('managerPermissions', new managerPermissions());
+    //     const obj = InstanceManager.getOrCreateInstance('managerPermissions', () => new managerPermissions());
     //     if (await obj.hasPermission(arrayPermissions)) {
     //         return true;
     //     }

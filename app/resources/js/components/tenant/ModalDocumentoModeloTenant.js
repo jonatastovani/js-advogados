@@ -80,10 +80,7 @@ export class ModalDocumentoModeloTenant extends ModalRegistrationAndEditing {
 
         const instanceName = `QuillEditor${self.getSufixo}`;
         /** @type {QuillEditorModule} */
-        self._classQuillEditor = InstanceManager.instanceVerification(instanceName);
-        if (!self._classQuillEditor) {
-            self._classQuillEditor = InstanceManager.setInstance(instanceName, new QuillEditorModule(`#conteudo${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper', 'code', 'link'] }));
-        }
+        self._classQuillEditor = InstanceManager.getOrCreateInstance(instanceName, () => new QuillEditorModule(`#conteudo${self.getSufixo}`, { exclude: ['image', 'scriptSub', 'scriptSuper', 'code', 'link'] }));
 
         self._classQuillEditor.getQuill.setContents([]);
         self._quillQueueManager.setReady();  // Informa que o quill está pronto
