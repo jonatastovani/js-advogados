@@ -590,18 +590,18 @@ class ServicoPagamentoService extends Service
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value,
                     ]) && tenant('cancelar_liquidado_migracao_sistema_automatico_bln')
                 ) {
-                    $lancamento->valor_recebido = null;
-                    $lancamento->data_recebimento = null;
-                    $lancamento->forma_pagamento_id = null;
-
-                    $lancamento->status_id = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
-                    break;
+                    $statusAtribuir = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
                 }
+
+                $lancamento->valor_recebido = null;
+                $lancamento->data_recebimento = null;
+                $lancamento->forma_pagamento_id = null;
 
                 // Se não atender às condições acima, aplica o novo status normalmente
                 $lancamento->status_id = $statusAtribuir;
                 break;
 
+            // Geralmente quando tem este status é porque o cancelamento foi feito automaticamente pelo pagamento, nas ocasiões de pagamento cancelado ou tentativa de excluir o pagamento e o mesmo não podendo ser excluído)
             case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
                 // Se o novo status for de aguardando pagamento e o tenant permitir considerar como liquidado por migração
                 if (
