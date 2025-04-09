@@ -28,6 +28,7 @@ use App\Models\Tenant\ContaTenantDomain;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Services\Service;
 use App\Services\Servico\ServicoPagamentoLancamentoService;
+use App\Services\Servico\ServicoPagamentoService;
 use App\Services\Tenant\ContaTenantService;
 use App\Services\Tenant\FormaPagamentoTenantService;
 use App\Traits\ParticipacaoTrait;
@@ -611,8 +612,8 @@ class MovimentacaoContaService extends Service
                 }
 
                 if ($requestData->observacao) $resourceLancamento->observacao = $requestData->observacao;
-                $resourceLancamento->status_id = $requestData->status_id;
-                $resourceLancamento->save();
+
+                $resourceLancamento = app(ServicoPagamentoService::class)->alterarStatusDoLancamento($resourceLancamento->pagamento, $resourceLancamento, $requestData->status_id);
 
                 return $resourceLancamento->toArray();
             });

@@ -383,7 +383,6 @@ class ServicoPagamentoService extends Service
                     }
                 }
 
-
                 $newLancamento->save();
             }
         };
@@ -469,19 +468,19 @@ class ServicoPagamentoService extends Service
                     // Se não é para resetar, então somente haverá manipulação dos status dos lançamentos, dependo do status do pagamento
                     switch ($resource->status_id) {
                         case PagamentoStatusTipoEnum::ATIVO->value:
-                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
+                            $this->alterarStatusDeTodosLancamentosPorPagamento($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value);
                             break;
 
                         case PagamentoStatusTipoEnum::ATIVO_EM_ANALISE->value:
-                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value);
+                            $this->alterarStatusDeTodosLancamentosPorPagamento($resource, LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value);
                             break;
 
                         case PagamentoStatusTipoEnum::CANCELADO->value:
-                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+                            $this->alterarStatusDeTodosLancamentosPorPagamento($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
                             break;
 
                         case PagamentoStatusTipoEnum::CANCELADO_EM_ANALISE->value:
-                            $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value);
+                            $this->alterarStatusDeTodosLancamentosPorPagamento($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value);
                             break;
 
                         default:
@@ -545,57 +544,84 @@ class ServicoPagamentoService extends Service
 
     protected function alterarStatusDeLancamentosPagamentoExcluido(ServicoPagamento $resource)
     {
-        $this->alterarStatusDeLancamentos($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
+        $this->alterarStatusDeTodosLancamentosPorPagamento($resource, LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value);
 
         $resource->status_id = PagamentoStatusTipoEnum::CANCELADO->value;
         $resource->save();
     }
 
-    protected function alterarStatusDeLancamentos(ServicoPagamento $resource, $statusLancamento)
+    protected function alterarStatusDeTodosLancamentosPorPagamento(ServicoPagamento $resource, $statusAtribuir)
     {
         $lancamentos = $resource->lancamentos()
             ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
             ->get();
 
         foreach ($lancamentos as $lancamento) {
+            $this->alterarStatusDoLancamento($resource, $lancamento, $statusAtribuir);
+        }
+    }
 
-            switch ($lancamento->status_id) {
-
-                // O Liquidado Migração tem um tratamento diferente conforme a propriedade cancelar_liquidado_migracao_sistema_automatico_bln do tenant
-                case LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value:
-
-                    // Se o status definido for cancelado ou PAGAMENTO_CANCELADO em PAGAMENTO_CANCELADO_EM_ANALISE então o lançamento vai ter o status alterado para CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA, caso o tenant tenha a propriedade cancelar_liquidado_migracao_sistema_automatico_bln como true
-                    if (in_array($statusLancamento, [
+    /**
+     * Altera o status de um lançamento vinculado a um pagamento, considerando regras específicas
+     * para os casos de migração de sistema e cancelamentos automatizados.
+     *
+     * Esta função trata três situações:
+     * 1. Se o lançamento estiver como "Liquidado (Migração Sistema)" e o status novo for de cancelamento,
+     *    ele será alterado para "Cancelado (Liquidado Migração Sistema)" caso o tenant permita.
+     * 2. Se estiver como "Cancelado (Liquidado Migração Sistema)" e o novo status for aguardando pagamento,
+     *    será revertido para "Liquidado (Migração Sistema)", se a configuração do tenant permitir.
+     * 3. Para todos os demais casos, o status será simplesmente substituído pelo novo status informado.
+     *
+     * @param ServicoPagamento $pagamento Pagamento associado ao lançamento.
+     * @param ServicoPagamentoLancamento $lancamento Lançamento a ser atualizado.
+     * @param int $statusAtribuir ID do novo status a ser atribuído.
+     * @return ServicoPagamentoLancamento
+     */
+    public function alterarStatusDoLancamento(ServicoPagamento $pagamento, ServicoPagamentoLancamento $lancamento, $statusAtribuir): ServicoPagamentoLancamento
+    {
+        switch ($lancamento->status_id) {
+            case LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value:
+                // Se o novo status for de cancelamento e o tenant permitir cancelar migrações automaticamente,
+                // então o lançamento será marcado como "Cancelado (Liquidado Migração Sistema)"
+                if (
+                    in_array($statusAtribuir, [
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO->value,
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value,
-                    ]) && tenant('cancelar_liquidado_migracao_sistema_automatico_bln')) {
+                    ]) && tenant('cancelar_liquidado_migracao_sistema_automatico_bln')
+                ) {
+                    $lancamento->valor_recebido = null;
+                    $lancamento->data_recebimento = null;
+                    $lancamento->forma_pagamento_id = null;
 
-                        $lancamento->status_id = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
-                    }
-                    break;
-                    
-                case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
+                    $lancamento->status_id = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
+                }
+                break;
 
-                    // Se o status definido for AGUARDANDO_PAGAMENTO ou AGUARDANDO_PAGAMENTO_EM_ANALISE então o lançamento vai ter o status alterado para LIQUIDADO_MIGRACAO_SISTEMA, caso o tenant tenha a propriedade lancamento_liquidado_migracao_sistema_bln como true
-                    if (in_array($statusLancamento, [
+            case LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value:
+                // Se o novo status for de "Aguardando Pagamento" e o tenant permitir considerar como liquidado,
+                // reverte o status para "Liquidado (Migração Sistema)"
+                if (
+                    in_array($statusAtribuir, [
                         LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value,
                         LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
-                    ]) && tenant('lancamento_liquidado_migracao_sistema_bln')) {
+                    ]) && tenant('lancamento_liquidado_migracao_sistema_bln')
+                ) {
+                    $lancamento->valor_recebido = $lancamento->valor_esperado;
+                    $lancamento->data_recebimento = $lancamento->data_vencimento;
+                    $lancamento->forma_pagamento_id = $pagamento->forma_pagamento_id;
 
-                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
-                        break;
-                    }
+                    $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                }
+                break;
 
-                    $lancamento->status_id = $statusLancamento;
-                    break;
-
-                default:
-                    $lancamento->status_id = $statusLancamento;
-                    break;
-            }
-
-            $lancamento->save();
+            default:
+                // Para todos os demais casos, aplica diretamente o novo status informado
+                $lancamento->status_id = $statusAtribuir;
+                break;
         }
+
+        $lancamento->save();
+        return $lancamento;
     }
 
     protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model

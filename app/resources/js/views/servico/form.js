@@ -310,6 +310,7 @@ class PageServicoForm extends TemplateForm {
                 },
             },
         },
+        dados_tenant: undefined,
         participacao: {
             // perfis_busca: window.Statics.PerfisPermitidoParticipacaoRessarcimento,
             participacao_tipo_tenant: {
@@ -604,6 +605,9 @@ class PageServicoForm extends TemplateForm {
     async preenchimentoDados(response, options) {
         const self = this;
         const form = $(options.form);
+
+        // Busca os dados pois os lançamentos utilizam dado do tenant
+        await self._buscaDadosTenant();
 
         const responseData = response.data;
         form.find('input[name="titulo"]').val(responseData.titulo);
@@ -1569,30 +1573,31 @@ class PageServicoForm extends TemplateForm {
         ];
     }
 
-    #addEventosLancamento(lancamento) {
+    #addEventosLancamento(pagamento) {
         const self = this;
-        const accordionBody = $(`#accordionPagamento${lancamento.id} .accordion - body`);
-        const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${lancamento.id}/lancamentos`;
+        const accordionBody = $(`#accordionPagamento${pagamento.id} .accordion-body`);
+        const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${pagamento.id}/lancamentos`;
 
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
         const configAcoes = self._objConfigs.data.configAcoes;
-        const botoes = self.#getConfigBotoesStatus(lancamento);
+        const botoes = self.#getConfigBotoesStatus(pagamento);
 
         const atualizaLancamentos = async () => {
             try {
-                const response = await self._getRecurse({ idRegister: lancamento.id, urlApi: self._objConfigs.url.basePagamentos });
+                const response = await self._getRecurse({ idRegister: pagamento.id, urlApi: self._objConfigs.url.basePagamentos });
                 const htmlLancamentos = self.#htmlLancamentos(response.data);
                 accordionBody.html(htmlLancamentos);
                 BootstrapFunctionsHelper.addEventPopover();
                 await self.#addEventosLancamento(response.data);
+                CommonFunctions.generateNotification('Lançamento atualizado com sucesso.', 'success');
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
             }
         }
 
-        const pagamentoAtivo = lancamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
         if (pagamentoAtivo) {
-            lancamento.lancamentos.map((lancamento) => {
+            pagamento.lancamentos.map((lancamento) => {
 
                 const openMovimentar = async function (status_id) {
                     try {

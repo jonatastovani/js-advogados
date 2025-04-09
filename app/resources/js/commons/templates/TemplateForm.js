@@ -134,6 +134,19 @@ export class TemplateForm {
         self._hotkeyManager.ativarEscopo(self.getIdSufixo);
     }
 
+    async _buscaDadosTenant() {
+        const self = this;
+
+        try {
+            const urlApi = self._objConfigs?.url?.baseTenant ?? window.apiRoutes.baseTenant;
+            const objConn = new ConnectAjax(`${urlApi}/current`);
+            const response = await objConn.getRequest();
+            self._objConfigs.dados_tenant = response.data;
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+        }
+    }
+
     /**
      * Recupera um registro da API conforme a url informada.
      * 
