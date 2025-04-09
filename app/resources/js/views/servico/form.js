@@ -1588,7 +1588,8 @@ class PageServicoForm extends TemplateForm {
                 const htmlLancamentos = self.#htmlLancamentos(response.data);
                 accordionBody.html(htmlLancamentos);
                 BootstrapFunctionsHelper.addEventPopover();
-                await self.#addEventosLancamento(response.data);
+                self.#addEventosLancamento(response.data);
+                self.#buscarValores();
                 CommonFunctions.generateNotification('Lançamento atualizado com sucesso.', 'success');
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);

@@ -623,6 +623,18 @@ class ServicoPagamentoService extends Service
                 break;
 
             default:
+
+                // Se o status a atribuir for de liquidado por migração e o tenant permitir considerar como liquidado por migração, então se coloca o valor e data de recebimento e a forma de pagamento
+                if (
+                    in_array($statusAtribuir, [
+                        LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
+                    ]) && tenant('lancamento_liquidado_migracao_sistema_bln')
+                ) {
+                    $lancamento->valor_recebido = $lancamento->valor_esperado;
+                    $lancamento->data_recebimento = $lancamento->data_vencimento;
+                    $lancamento->forma_pagamento_id = $pagamento->forma_pagamento_id;
+                }
+
                 // Para os demais status, simplesmente atribui o novo status informado
                 $lancamento->status_id = $statusAtribuir;
                 break;
