@@ -965,30 +965,30 @@ class PageServicoForm extends TemplateForm {
         }
     }
 
-    async #inserirPagamento(item) {
+    async #inserirPagamento(pagamento) {
         const self = this;
         const divPagamento = $(`#divPagamento${self.getSufixo}`);
 
-        item.idCard = `${UUIDHelper.generateUUID()}${self.getSufixo}`;
-        const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(item.created_at, 12)}</span>`;
+        pagamento.idCard = `${UUIDHelper.generateUUID()}${self.getSufixo}`;
+        const created_at = `<span class="text-body-secondary d-block">Pagamento cadastrado em ${DateTimeHelper.retornaDadosDataHora(pagamento.created_at, 12)}</span>`;
 
-        let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(item);
-        let htmlAppend = self.#htmlParticipantes(item, 'pagamento', item.status_id);
-        htmlAppend += self.#htmlAppendPagamento(item);
-        let htmlLancamentos = self.#htmlLancamentos(item);
+        let htmlColsEspecifico = self.#htmlColsEspecificosPagamento(pagamento);
+        let htmlAppend = self.#htmlParticipantes(pagamento, 'pagamento', pagamento.status_id);
+        htmlAppend += self.#htmlAppendPagamento(pagamento);
+        let htmlLancamentos = self.#htmlLancamentos(pagamento);
         if (htmlLancamentos) {
             htmlLancamentos = `
-                <div class="accordion mt-2" id="accordionPagamento${item.id}">
+                <div class="accordion mt-2" id="accordionPagamento${pagamento.id}">
                     <div class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseOne${item.id}" aria-expanded="false"
-                                aria-controls="collapseOne${item.id}">
+                                data-bs-target="#collapseOne${pagamento.id}" aria-expanded="false"
+                                aria-controls="collapseOne${pagamento.id}">
                                 Lançamentos
                             </button>
                         </div>
-                        <div id="collapseOne${item.id}" class="accordion-collapse collapse"
-                            data-bs-parent="#accordionPagamento${item.id}">
+                        <div id="collapseOne${pagamento.id}" class="accordion-collapse collapse"
+                            data-bs-parent="#accordionPagamento${pagamento.id}">
                             <div class="accordion-body d-flex flex-column gap-2">
                                 ${htmlLancamentos}
                             </div>
@@ -996,30 +996,30 @@ class PageServicoForm extends TemplateForm {
                     </div>
                 </div>`;
         }
-        const pagamentoAtivo = item.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
-        const tachado = (window.Statics.StatusPagamentoTachado.findIndex(x => x == item.status_id) != -1);
+        const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
+        const tachado = (window.Statics.StatusPagamentoTachado.findIndex(x => x == pagamento.status_id) != -1);
 
         let strCard = `
-            <div id="${item.idCard}" class="card p-0">
+            <div id="${pagamento.idCard}" class="card p-0">
                 <div class="card-body">
                     <div class="row ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
                         <h5 class="card-title d-flex align-items-center justify-content-between">
                             <span class="text-truncate">
-                                <span title="Número do pagamento">N.P.</span> ${item.numero_pagamento} - ${item.pagamento_tipo_tenant.nome}</span>
+                                <span title="Número do pagamento">N.P.</span> ${pagamento.numero_pagamento} - ${pagamento.pagamento_tipo_tenant.nome}</span>
                             <div>
                                 <div class="dropdown">
                                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-three-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento ${pagamentoAtivo ? '' : 'disabled'}" title="Inserir/Editar Participação ${item.pagamento_tipo_tenant.nome}">Participação</button></li>
+                                        <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento ${pagamentoAtivo ? '' : 'disabled'}" title="Inserir/Editar Participação ${pagamento.pagamento_tipo_tenant.nome}">Participação</button></li>
                                         <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
-                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${item.pagamento_tipo_tenant.nome}">Excluir</button></li>
+                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${pagamento.pagamento_tipo_tenant.nome}">Excluir</button></li>
                                     </ul>
                                 </div>
                             </div>
                         </h5>
-                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
+                        <div id="divColsespecificopagamento${pagamento.id}" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
                             ${htmlColsEspecifico}
                         </div>
                         ${htmlAppend}
@@ -1031,7 +1031,7 @@ class PageServicoForm extends TemplateForm {
 
         divPagamento.append(strCard);
         BootstrapFunctionsHelper.addEventPopover();
-        self.#addEventosPagamento(item);
+        self.#addEventosPagamento(pagamento);
         return true;
     }
 
@@ -1576,6 +1576,8 @@ class PageServicoForm extends TemplateForm {
     #addEventosLancamento(pagamento) {
         const self = this;
         const accordionBody = $(`#accordionPagamento${pagamento.id} .accordion-body`);
+        const colsEspecificosPagamento = $(`#divColsespecificopagamento${pagamento.id}`);
+        console.log(colsEspecificosPagamento)
         const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${pagamento.id}/lancamentos`;
 
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
@@ -1585,9 +1587,11 @@ class PageServicoForm extends TemplateForm {
         const atualizaLancamentos = async () => {
             try {
                 const response = await self._getRecurse({ idRegister: pagamento.id, urlApi: self._objConfigs.url.basePagamentos });
-                const htmlLancamentos = self.#htmlLancamentos(response.data);
-                accordionBody.html(htmlLancamentos);
+
+                accordionBody.html(self.#htmlLancamentos(response.data));
+                colsEspecificosPagamento.html(self.#htmlColsEspecificosPagamento(pagamento));
                 BootstrapFunctionsHelper.addEventPopover();
+
                 self.#addEventosLancamento(response.data);
                 self.#buscarValores();
                 CommonFunctions.generateNotification('Lançamento atualizado com sucesso.', 'success');

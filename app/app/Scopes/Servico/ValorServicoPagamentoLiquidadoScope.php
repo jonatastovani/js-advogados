@@ -28,7 +28,10 @@ class ValorServicoPagamentoLiquidadoScope implements Scope
                 $query->from((new ServicoPagamentoLancamento())->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM(ROUND(CAST({$tableSubAlias}.valor_recebido AS numeric), 2)), 0)")
                     ->whereNull("{$tableSubAlias}.deleted_at")
-                    ->whereIn("{$tableSubAlias}.status_id", LancamentoStatusTipoEnum::statusLiquidadoScope())
+                    ->whereIn(
+                        "{$tableSubAlias}.status_id",
+                        LancamentoStatusTipoEnum::statusLiquidadoScope()
+                    )
                     ->whereColumn("{$tableSubAlias}.pagamento_id", "{$tableAlias}.id")
                     ->where("{$tableSubAlias}.tenant_id", tenant('id'))
                     ->whereIn("{$tableSubAlias}.domain_id", TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());

@@ -48,11 +48,10 @@ class ValorServicoLiquidadoScope implements Scope
             // Se não houver alias, usa o relacionamento direto com 'lancamentos'
             $builder->withSum(['lancamentos as total_liquidado' => function ($query) {
                 $table = (new ServicoPagamentoLancamento())->getTable();
-                $query->whereIn("{$table}.status_id", [
-                    LancamentoStatusTipoEnum::LIQUIDADO->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
-                    LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value,
-                ]);
+                $query->whereIn(
+                    "{$table}.status_id",
+                    LancamentoStatusTipoEnum::statusLiquidadoScope()
+                );
             }], DB::raw('ROUND(CAST(valor_recebido AS numeric), 2)'));
         }
     }
