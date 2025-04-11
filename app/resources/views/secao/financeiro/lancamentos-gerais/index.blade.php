@@ -22,16 +22,12 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    'numero_servico' => ['nome' => 'Número de Serviço'],
-                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
-                    'titulo' => ['nome' => 'Título'],
                     'descricao' => ['nome' => 'Descrição'],
-                    'nome_participante' => ['nome' => 'Nome Participante'],
-                    'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
-                    'nome_integrante' => ['nome' => 'Nome Integrante'],
+                    'observacao' => ['nome' => 'Observação'],
+                    'tag' => ['nome' => 'Tag'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                'arrayCamposChecked' => ['titulo', 'descricao'],
                 'arrayCamposOrdenacao' => [
                     'data_vencimento' => ['nome' => 'Data vencimento'],
                     'data_quitado' => ['nome' => 'Data quitado'],

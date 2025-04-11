@@ -24,6 +24,7 @@
                 'camposFiltrados' => [
                     'descricao' => ['nome' => 'Descrição'],
                     'observacao' => ['nome' => 'Observação'],
+                    'tag' => ['nome' => 'Tag'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['descricao'],

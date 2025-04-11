@@ -13,6 +13,7 @@ use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Referencias\MovimentacaoContaTipo;
 use App\Models\Tenant\LancamentoCategoriaTipoTenant;
+use App\Models\Tenant\TagTenant;
 use App\Services\Service;
 use App\Traits\ParticipacaoTrait;
 use App\Traits\TagMethodsTrait;
@@ -28,6 +29,7 @@ class LancamentoRessarcimentoService extends Service
 
     public function __construct(
         LancamentoRessarcimento $model,
+        public TagTenant $modelTagTenant,
 
         public MovimentacaoContaParticipante $modelParticipanteConta,
 
@@ -50,16 +52,18 @@ class LancamentoRessarcimentoService extends Service
     {
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
+        $tagAsName = $this->modelTagTenant->getTableAsName();
 
         $arrayAliasCampos = [
-
-            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $modelAsName,
             'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
+            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $modelAsName,
+            'col_tag' => isset($aliasCampos['col_tag']) ? $aliasCampos['col_tag'] : $tagAsName,
         ];
 
         $arrayCampos = [
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_automatica'],
+            'col_tag' => ['campo' => $arrayAliasCampos['col_tag'] . '.nome'],
         ];
 
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_descricao'], $dados);
@@ -224,6 +228,12 @@ class LancamentoRessarcimentoService extends Service
      */
     private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
     {
+        $blnTagFiltro = in_array('col_tag', $filtros['campos_busca']);
+
+        if ($blnTagFiltro) {
+            $query = $this->model::joinTagTenant($query);
+        }
+
         if ($requestData->conta_id) {
             $query->where("{$this->model->getTableAsName()}.conta_id", $requestData->conta_id);
         }
