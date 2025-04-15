@@ -2,7 +2,7 @@ export class HotkeyManagerHelper {
     constructor() {
         this._registrados = {}; // { scope: Set() }
         this._escoposAtivos = []; // Pilha de escopos
-        this.debug = true;
+        this.debug = false;
 
         hotkeys.filter = () => true;
 

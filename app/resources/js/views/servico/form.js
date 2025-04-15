@@ -1019,7 +1019,7 @@ class PageServicoForm extends TemplateForm {
                                 </div>
                             </div>
                         </h5>
-                        <div id="divColsespecificopagamento${pagamento.id}" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
+                        <div id="divColsEspecificoPagamento${pagamento.id}" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 align-items-end">
                             ${htmlColsEspecifico}
                         </div>
                         ${htmlAppend}
@@ -1576,8 +1576,7 @@ class PageServicoForm extends TemplateForm {
     #addEventosLancamento(pagamento) {
         const self = this;
         const accordionBody = $(`#accordionPagamento${pagamento.id} .accordion-body`);
-        const colsEspecificosPagamento = $(`#divColsespecificopagamento${pagamento.id}`);
-        console.log(colsEspecificosPagamento)
+        const colsEspecificosPagamento = $(`#divColsEspecificoPagamento${pagamento.id}`);
         const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${pagamento.id}/lancamentos`;
 
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
@@ -1589,7 +1588,7 @@ class PageServicoForm extends TemplateForm {
                 const response = await self._getRecurse({ idRegister: pagamento.id, urlApi: self._objConfigs.url.basePagamentos });
 
                 accordionBody.html(self.#htmlLancamentos(response.data));
-                colsEspecificosPagamento.html(self.#htmlColsEspecificosPagamento(pagamento));
+                colsEspecificosPagamento.html(self.#htmlColsEspecificosPagamento(response.data));
                 BootstrapFunctionsHelper.addEventPopover();
 
                 self.#addEventosLancamento(response.data);
