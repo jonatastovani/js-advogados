@@ -45,13 +45,9 @@ services:
 
     pgbackup:
         image: postgres:16.3
-        deploy:
-            replicas: 0  # só inicia manualmente quando você quiser
-            restart_policy:
-                condition: none
         networks:
         - laravel
-        entrypoint: ["sleep", "infinity"]  # fica parado, aguardando seu comando
+        command: sleep infinity  # fica parado, aguardando seu comando
 
 networks:
     laravel:

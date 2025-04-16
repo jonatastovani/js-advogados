@@ -1,26 +1,37 @@
 #!/bin/bash
 
-# Verifica se o arquivo .env e o backup foram informados
-if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "❌ Uso correto:"
-  echo "   ./restaurar_backup_pgsql_local.sh .env.dev backup.sql [nome_banco_opcional]"
-  exit 1
-fi
-
 ENV_FILE="$1"
 BACKUP_FILE="$2"
 CUSTOM_DB_NAME="$3"
 
-# Carrega as variáveis do .env
-export $(grep -v '^#' "$ENV_FILE" | xargs)
+if [ -z "$ENV_FILE" ] || [ -z "$BACKUP_FILE" ]; then
+  echo "❌ Uso: ./restaurar_backup_pgsql_local.sh ../.env.dev ../dumps/backup.sql [nome_banco_opcional]"
+  exit 1
+fi
 
-# Define o nome do banco: ou o terceiro argumento ou o do .env
+# Carrega variáveis do .env
+set -o allexport
+source "$ENV_FILE"
+set +o allexport
+
+# Nome do banco: argumento ou do .env
 BANCO_RESTORE="${CUSTOM_DB_NAME:-$DB_DATABASE}"
 
-echo "🧪 Criando banco de dados '$BANCO_RESTORE'..."
-createdb -U "$DB_USERNAME" "$BANCO_RESTORE"
+echo "🧪 Criando banco '$BANCO_RESTORE' dentro do container..."
 
-echo "🔁 Restaurando o backup em '$BANCO_RESTORE'..."
-PGPASSWORD="$DB_PASSWORD" psql -U "$DB_USERNAME" -d "$BANCO_RESTORE" < "$BACKUP_FILE"
+docker run --rm \
+  --network app_laravel \
+  -e PGPASSWORD="$DB_PASSWORD" \
+  postgres:16.3 \
+  createdb -h postgres -U "$DB_USERNAME" "$BANCO_RESTORE"
 
-echo "✅ Restauração concluída com sucesso!"
+echo "🔁 Restaurando backup do arquivo '$BACKUP_FILE'..."
+
+docker run --rm \
+  --network app_laravel \
+  -v "$(realpath "$BACKUP_FILE"):/backup.sql" \
+  -e PGPASSWORD="$DB_PASSWORD" \
+  postgres:16.3 \
+  psql -h postgres -U "$DB_USERNAME" -d "$BANCO_RESTORE" -f /backup.sql
+
+echo "✅ Restauração finalizada com sucesso no banco '$BANCO_RESTORE'!"
