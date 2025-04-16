@@ -28,6 +28,25 @@ export default defineConfig({
         }),
         // commonjs() // Adiciona suporte a módulos CommonJS
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                quietDeps: true
+            }
+        }
+    },
+    // permite acessar por vários domínios no dev
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        cors: {
+            origin: '*'
+        },
+        strictPort: true,
+        hmr: {
+            host: 'jsadvogados.byteforge.com.br'
+        }
+    },
     // build: {
     //     rollupOptions: {
     //         output: {
