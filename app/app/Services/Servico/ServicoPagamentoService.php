@@ -409,6 +409,7 @@ class ServicoPagamentoService extends Service
 
             case PagamentoTipoEnum::RECORRENTE->value:
                 $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
+                ServicoPagamentoRecorrenteHelper::$liquidadoMigracaoSistemaBln = $requestData->liquidado_migracao_bln;
                 ServicoPagamentoRecorrenteHelper::processarServicoPagamentoRecorrentePorId($resource->id, true);
                 break;
 
@@ -450,10 +451,14 @@ class ServicoPagamentoService extends Service
             // Inicia a transação
             return DB::Transaction(function () use ($resource, $requestData) {
 
-                // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
-                $resource->save();
-
                 if ($requestData->resetar_pagamento_bln) {
+
+                    if ($resource->pagamento_tipo_tenant->pagamento_tipo->id === PagamentoTipoEnum::RECORRENTE->value) {
+                        $resource->cron_ultima_execucao = null;
+                    }
+
+                    // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
+                    $resource->save();
 
                     $this->destroyCascade($resource, ['lancamentos.participantes.integrantes']);
 
@@ -463,7 +468,11 @@ class ServicoPagamentoService extends Service
                     }
 
                     $this->inserirLancamentos($requestData, $resource);
+                    
                 } else {
+
+                    // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
+                    $resource->save();
 
                     // Se não é para resetar, então somente haverá manipulação dos status dos lançamentos, dependo do status do pagamento
                     switch ($resource->status_id) {

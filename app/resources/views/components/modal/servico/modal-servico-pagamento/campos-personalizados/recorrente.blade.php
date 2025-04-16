@@ -45,7 +45,7 @@
             <div class="input-group-text">
                 <label for="cronDay{{ $sufixo }}">Todo dia</label>
             </div>
-            <select class="form-select inputCron campo-readonly" id="cronDay{{ $sufixo }}" name="cronDay" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly campo-readonly-disabled" id="cronDay{{ $sufixo }}" name="cronDay" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer dia</option>
                 @for ($i = 1, $count = 32; $i < $count; $i++)
                     <option value="{{ $i }}">{{ $i }}</option>
@@ -59,7 +59,7 @@
             <div class="input-group-text">
                 <label for="cronMonth{{ $sufixo }}">Todo mês</label>
             </div>
-            <select class="form-select inputCron campo-readonly" id="cronMonth{{ $sufixo }}" name="cronMonth" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly campo-readonly-disabled" id="cronMonth{{ $sufixo }}" name="cronMonth" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer mês</option>
                 @for ($i = 1, $count = 13; $i < $count; $i++)
                     <option value="{{ $i }}">
@@ -75,7 +75,7 @@
             <div class="input-group-text">
                 <label for="cronWeekday{{ $sufixo }}">Todo dia da semana</label>
             </div>
-            <select class="form-select inputCron campo-readonly" id="cronWeekday{{ $sufixo }}" name="cronWeekday" {{ $readonly ? 'disabled' : '' }}>
+            <select class="form-select inputCron campo-readonly campo-readonly-disabled" id="cronWeekday{{ $sufixo }}" name="cronWeekday" {{ $readonly ? 'disabled' : '' }}>
                 <option value="*">Qualquer dia</option>
                 <option value="1">Segunda-feira</option>
                 <option value="2">Terça-feira</option>

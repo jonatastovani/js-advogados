@@ -488,6 +488,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 self._objConfigs.data.resetar_pagamento_bln = statusChecked;
                 $(self.getIdModal).find('.btn-simular')[statusChecked ? 'show' : 'hide']();
                 $(`${self.getIdModal} .campo-readonly`).prop('readonly', !statusChecked);
+                $(`${self.getIdModal} .campo-readonly-disabled`).prop('disabled', !statusChecked);
 
                 // Se for falso a o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa
                 statusChecked ? self.#verificaLiquidadoMigracao() : self.#visibilidadeLiquidadoMigracao();

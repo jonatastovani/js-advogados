@@ -16,6 +16,11 @@ use Illuminate\Support\Fluent;
 
 class ServicoPagamentoRecorrenteHelper
 {
+    /**
+     * Variável estática para enviar se é para aplicar ou não o status de Liquidado Migração de Sistema para lançamentos anteriores ao mês da execução. 
+     * Esta configuração geralmente é usada somente ao criar o agendamento, ou editar e escolher a opção de resetar a execução, pois na recorrência sempre é processada para o futuro.
+     */
+    static $liquidadoMigracaoSistemaBln = false;
 
     /**
      * Executa todos os agendamentos de todos os tenants.
@@ -96,6 +101,9 @@ class ServicoPagamentoRecorrenteHelper
                 $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
             }
 
+            $tenant = Tenant::find($pagamento->tenant_id);
+            $inicioMesAtual = now()->startOfMonth();
+
             // Inserir os registros na tabela de lancamentos
             foreach ($lancamentos["lancamentos"] as $lancamento) {
                 $lancamento = new Fluent($lancamento);
@@ -104,6 +112,18 @@ class ServicoPagamentoRecorrenteHelper
                 $lancamento->tenant_id = $pagamento->tenant_id;
                 $lancamento->domain_id = $pagamento->domain_id;
                 $lancamento->created_user_id = $pagamento->created_user_id;
+
+                if ($tenant->lancamento_liquidado_migracao_sistema_bln && self::$liquidadoMigracaoSistemaBln) {
+                    $vencimento = Carbon::parse($lancamento->data_vencimento);
+
+                    // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
+                    if ($vencimento->lessThan($inicioMesAtual)) {
+                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                        $lancamento->valor_recebido = $lancamento->valor_esperado;
+                        $lancamento->data_recebimento = $lancamento->data_vencimento;
+                        $lancamento->forma_pagamento_id = $pagamento->forma_pagamento_id;
+                    }
+                }
 
                 if (self::executarLancamento($lancamento)) {
                     // Atualizar a última execução
@@ -136,18 +156,32 @@ class ServicoPagamentoRecorrenteHelper
      */
     private static function executarLancamento(Fluent $lancamento): bool
     {
-        try {
-            ServicoPagamentoLancamento::create([
-                'pagamento_id' => $lancamento->pagamento_id,
-                'descricao_automatica' => $lancamento->descricao_automatica,
-                'observacao' => $lancamento->observacao,
-                'data_vencimento' => $lancamento->data_vencimento,
-                'valor_esperado' => $lancamento->valor_esperado,
-                'status_id' => $lancamento->status_id,
-                'tenant_id' => $lancamento->tenant_id,
-                'domain_id' => $lancamento->domain_id,
-                'created_user_id' => $lancamento->created_user_id,
+        $dados = [
+            'pagamento_id' => $lancamento->pagamento_id,
+            'descricao_automatica' => $lancamento->descricao_automatica,
+            'observacao' => $lancamento->observacao,
+            'data_vencimento' => $lancamento->data_vencimento,
+            'valor_esperado' => $lancamento->valor_esperado,
+            'status_id' => $lancamento->status_id,
+            'tenant_id' => $lancamento->tenant_id,
+            'domain_id' => $lancamento->domain_id,
+            'created_user_id' => $lancamento->created_user_id,
+        ];
+
+        if (
+            filled($lancamento->valor_recebido) &&
+            filled($lancamento->data_recebimento) &&
+            filled($lancamento->forma_pagamento_id)
+        ) {
+            $dados = array_merge($dados, [
+                'valor_recebido' => $lancamento->valor_recebido,
+                'data_recebimento' => $lancamento->data_recebimento,
+                'forma_pagamento_id' => $lancamento->forma_pagamento_id,
             ]);
+        }
+
+        try {
+            ServicoPagamentoLancamento::create($dados);
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar

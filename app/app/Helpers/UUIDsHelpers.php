@@ -60,7 +60,7 @@ class UUIDsHelpers
 
     public static function getAdminTenantUser()
     {
-        $userTenant = UserTenantDomain::where('data->user_tenant_admin_master', true)->where('tenant_id', 'admin')->first();
+        $userTenant = UserTenantDomain::withoutDomain()->withoutTenancy()->where('data->user_tenant_admin_master', true)->where('tenant_id', 'admin')->first();
         return $userTenant->id ?? (new self())->execute('app/admin_tenant_user_uuid.txt');
     }
 
