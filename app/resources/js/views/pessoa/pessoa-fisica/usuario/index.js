@@ -138,7 +138,7 @@ class PageUsuarioPFIndex extends TemplateSearch {
 
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaFisicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaFisicaUsuarioForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
                     Editar
                 </a>
             </li>
