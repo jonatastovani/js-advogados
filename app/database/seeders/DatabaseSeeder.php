@@ -130,6 +130,7 @@ class DatabaseSeeder extends Seeder
                 // DocumentoTipoSeeder::class,
                 // DocumentoTipoTenantSeeder::class,
                 LancamentoStatusTipoSeeder::class,
+                PagamentoTipoSeeder::class,
             ]);
         }
     }

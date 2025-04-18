@@ -31,6 +31,7 @@ use App\Services\Tenant\FormaPagamentoTenantService;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -349,14 +350,13 @@ class ServicoPagamentoService extends Service
         }
     }
 
-    private function inserirLancamentos(Fluent $requestData, $resource)
+    private function inserirLancamentos(Fluent $requestData, ServicoPagamento $resource)
     {
+        $arrayErrors = new Fluent();
 
         $salvarLancamentos = function ($lancamentos, $resource) {
 
             $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($resource->status_id);
-
-            $lancamentos = $lancamentos['lancamentos'] ?? [];
 
             foreach ($lancamentos as $lancamento) {
                 $lancamento = new Fluent($lancamento);
@@ -368,6 +368,8 @@ class ServicoPagamentoService extends Service
                 $newLancamento->data_vencimento = $lancamento->data_vencimento;
                 $newLancamento->valor_esperado = $lancamento->valor_esperado;
                 $newLancamento->status_id = $statusLancamento;
+                $newLancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? null;
+                $newLancamento->observacao = $lancamento->observacao ?? null;
 
                 // O tenant tem que ter a configuração ativa e a propriedade liquidado_migracao_bln como true
                 if (tenant('lancamento_liquidado_migracao_sistema_bln') && $resource->liquidado_migracao_bln) {
@@ -379,7 +381,7 @@ class ServicoPagamentoService extends Service
                         $newLancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
                         $newLancamento->valor_recebido = $lancamento->valor_esperado;
                         $newLancamento->data_recebimento = $lancamento->data_vencimento;
-                        $newLancamento->forma_pagamento_id = $resource->forma_pagamento_id;
+                        $newLancamento->forma_pagamento_id = $newLancamento->forma_pagamento_id ?? $resource->forma_pagamento_id;
                     }
                 }
 
@@ -387,28 +389,58 @@ class ServicoPagamentoService extends Service
             }
         };
 
-        $pagamentoTipoTenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
+        $pagamentoTipo = $requestData->pagamento_tipo_tenant->pagamento_tipo;
+        $pagamentoTipoComLancamentosPersonalizaveis = PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis();
 
-        $lancamentos = [];
-        switch ($pagamentoTipoTenant->pagamento_tipo->id) {
+        $lancamentosPersonalizados = [];
+        $personalizadosBln = false;
+        if (
+            $requestData->personalizar_lancamentos_bln &&
+            in_array($pagamentoTipo->id, $pagamentoTipoComLancamentosPersonalizaveis) &&
+            count($requestData->lancamentos)
+        ) {
+            $this->verificacaoLancamentosPersonalizados($requestData, $resource, $arrayErrors);
+            $lanc = $requestData->lancamentos;
+            $lanc[0]['valor_esperado'] = 654;
+            $requestData->lancamentos = $lanc;
+
+            if (count($arrayErrors->toArray())) {
+                throw new HttpResponseException(
+                    response()->json(
+                        RestResponse::createGenericResponse(["errors" => $arrayErrors->toArray()], 422, "Inconsistência nos lançamentos personalizados.")->toArray(),
+                        422
+                    )
+                );
+                // Log::debug("message", $arrayErrors->toArray());
+
+                // RestResponse::createGenericResponse(["errors" => $arrayErrors->toArray()], 422, "Inconsistência nos lançamentos personalizados.")->throwResponse();
+            }
+
+            $personalizadosBln = true;
+        };
+
+        switch ($pagamentoTipo->id) {
 
             case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
-                $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData);
+                $lancamentos = PagamentoTipoPagamentoUnicoHelper::renderizar($requestData)['lancamentos'];
                 $salvarLancamentos($lancamentos, $resource);
                 break;
 
             case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                $lancamentos = PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData);
+                $lancamentos = $personalizadosBln ? $lancamentosPersonalizados : PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData)['lancamentos'];
+                Log::debug("Lançamentos Entrada com Parcelamento", $lancamentos);
                 $salvarLancamentos($lancamentos, $resource);
                 break;
 
             case PagamentoTipoEnum::PARCELADO->value:
-                $lancamentos = PagamentoTipoParceladoHelper::renderizar($requestData);
+                $lancamentos = $personalizadosBln ? $lancamentosPersonalizados : PagamentoTipoParceladoHelper::renderizar($requestData)['lancamentos'];
                 $salvarLancamentos($lancamentos, $resource);
                 break;
 
             case PagamentoTipoEnum::RECORRENTE->value:
-                $lancamentos = PagamentoTipoRecorrenteHelper::renderizar($requestData);
+                if ($personalizadosBln) {
+                    ServicoPagamentoRecorrenteHelper::$lancamentosPersonalizados = $lancamentosPersonalizados;
+                }
                 ServicoPagamentoRecorrenteHelper::$liquidadoMigracaoSistemaBln = $requestData->liquidado_migracao_bln;
                 ServicoPagamentoRecorrenteHelper::processarServicoPagamentoRecorrentePorId($resource->id, true);
                 break;
@@ -421,13 +453,108 @@ class ServicoPagamentoService extends Service
         }
     }
 
+    private function verificacaoLancamentosPersonalizados(Fluent $requestData, ServicoPagamento $resource, Fluent &$arrayErrors): void
+    {
+        $pagamentoTipo = $requestData->pagamento_tipo_tenant->pagamento_tipo;
+
+        if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis())) {
+
+            $agrupamentoCategoria = collect($requestData->lancamentos)->groupBy('categoria_lancamento');
+
+            // Verifica se o pagamento possui um lançamento com a categoria 'entrada'
+            if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosCategoriaEntrada())) {
+
+                // Verifica duplicidade de entrada
+                if ($agrupamentoCategoria->has('entrada')) {
+                    $lancamentosEntrada = $agrupamentoCategoria['entrada'];
+
+                    if ($lancamentosEntrada->count() > 1) {
+                        $arrayErrors->categoria_entrada_duplicada = LogHelper::gerarLogDinamico(
+                            409,
+                            'O pagamento possui mais de um lançamento com a categoria "entrada".',
+                            $requestData,
+                            ['resource' => $resource]
+                        )->error;
+                    } else {
+                        $first = $lancamentosEntrada->first();
+
+                        Log::debug("first", [$first['valor_esperado'], $first['data_vencimento']]);
+                        $valorEsperado = number_format((float) $first['valor_esperado'], 2, '.', '');
+                        $valorEntrada = number_format((float) $resource->entrada_valor, 2, '.', '');
+                        $dataEsperada = $first['data_vencimento'];
+                        $dataEntrada = $resource->entrada_data;
+
+                        if (
+                            bccomp($valorEsperado, $valorEntrada, 2) !== 0 ||
+                            $dataEsperada !== $dataEntrada
+                        ) {
+                            $arrayErrors->categoria_entrada_personalizada = LogHelper::gerarLogDinamico(
+                                409,
+                                'A categoria "entrada" não pode ser personalizada. Os lançamentos devem ser gerados automaticamente.',
+                                $requestData,
+                                ['resource' => $resource]
+                            )->toArray();
+                        }
+                    }
+                } else {
+                    $arrayErrors->categoria_entrada_duplicada = LogHelper::gerarLogDinamico(
+                        400,
+                        'O pagamento deve possuir um lançamento do tipo "entrada".',
+                        $requestData,
+                        ['resource' => $resource]
+                    )->error;
+                }
+            }
+
+            // Verifica quantidade e valor total de parcelas
+            if ($agrupamentoCategoria->has('parcela')) {
+                $lancamentosParcela = $agrupamentoCategoria['parcela'];
+
+                // Verifica quantidade
+                if ($lancamentosParcela->count() != $resource->parcela_quantidade) {
+                    $arrayErrors->categoria_parcela_quantidade = LogHelper::gerarLogDinamico(
+                        409,
+                        'A quantidade de parcelas não corresponde à informada no pagamento.',
+                        $requestData,
+                        ['resource' => $resource]
+                    )->toArray();
+                } else {
+                    // Soma de valores com bccomp
+                    $valorEntrada = $agrupamentoCategoria->has('entrada')
+                        ? $agrupamentoCategoria['entrada']->sum('valor_esperado')
+                        : 0;
+
+                    $valorParcelas = $lancamentosParcela->sum('valor_esperado');
+                    $valorTotalLancamentos = number_format((float) $valorParcelas + (float) $valorEntrada, 2, '.', '');
+                    $valorTotalEsperado = number_format((float) $resource->valor_total, 2, '.', '');
+
+                    if (bccomp($valorTotalLancamentos, $valorTotalEsperado, 2) !== 0) {
+                        $arrayErrors->categoria_parcela_valor_incorreto = LogHelper::gerarLogDinamico(
+                            409,
+                            "A soma dos lançamentos é diferente do valor total do pagamento. Esperado: R$ {$valorTotalEsperado}, Informado: R$ {$valorTotalLancamentos}",
+                            $requestData,
+                            ['resource' => $resource]
+                        )->error;
+                    }
+                }
+            } else {
+                $arrayErrors->categoria_parcela_quantidade = LogHelper::gerarLogDinamico(
+                    400,
+                    'O pagamento deve possuir pelo menos uma parcela.',
+                    $requestData,
+                    ['resource' => $resource]
+                )->error;
+            }
+        }
+    }
+
     public function update(Fluent $requestData)
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
 
         if ($requestData->resetar_pagamento_bln) {
 
-            // Se houver a configuração, então remove-se da consulta esses lançamentos porque eles serão excluídos, então só consultamos os outros registros
+            // Se houver a configuração, então se remove da consulta esses lançamentos porque eles serão excluídos, então só consultamos os outros registros
             $removerLiquidadoMigracaoSistemaBln = tenant('cancelar_liquidado_migracao_sistema_automatico_bln');
 
             $lancamentos = $resource->lancamentos()->with('movimentacao_conta')->get();
@@ -453,7 +580,11 @@ class ServicoPagamentoService extends Service
 
                 if ($requestData->resetar_pagamento_bln) {
 
-                    if ($resource->pagamento_tipo_tenant->pagamento_tipo->id === PagamentoTipoEnum::RECORRENTE->value) {
+                    // Atualiza o pagamento_tipo_tenant, pegando diretamente do próprio recurso já salvo (sobrescrevendo o do FormRequest)
+                    $resource->load('pagamento_tipo_tenant.pagamento_tipo');
+                    $requestData->pagamento_tipo_tenant = $resource->pagamento_tipo_tenant;
+
+                    if ($resource->pagamento_tipo_tenant->pagamento_tipo->id == PagamentoTipoEnum::RECORRENTE->value) {
                         $resource->cron_ultima_execucao = null;
                     }
 
@@ -468,7 +599,6 @@ class ServicoPagamentoService extends Service
                     }
 
                     $this->inserirLancamentos($requestData, $resource);
-                    
                 } else {
 
                     // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
@@ -664,11 +794,11 @@ class ServicoPagamentoService extends Service
             $resource = new $this->model;
             $resource->servico_id = $requestData->servico_uuid;
 
-            //Verifica se o tipo de pagamento do tenant informado existe
-            $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
-            if (!$validacaoPagamentoTipoTenantId->count()) {
-                $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
-            }
+            // //Verifica se o tipo de pagamento do tenant informado existe
+            // $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
+            // if (!$validacaoPagamentoTipoTenantId->count()) {
+            //     $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
+            // }
         }
 
         if ($requestData->status_id) {

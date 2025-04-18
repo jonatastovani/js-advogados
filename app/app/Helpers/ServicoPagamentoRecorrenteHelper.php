@@ -23,6 +23,11 @@ class ServicoPagamentoRecorrenteHelper
     static $liquidadoMigracaoSistemaBln = false;
 
     /**
+     * Variável estática para enviar os lançamentos personalizados já processados em outro local. Estes terão prioridade, e os lançamentos recorrentes serão lançados a partir da data do lançamento mais recente.
+     */
+    static $lancamentosPersonalizados = [];
+
+    /**
      * Executa todos os agendamentos de todos os tenants.
      */
     public static function processarTodosTenants(): void
@@ -94,7 +99,7 @@ class ServicoPagamentoRecorrenteHelper
         }
 
         try {
-            $lancamentos = PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()));
+            $lancamentos = self::getLancamentosRecorrentesPersonalizadosOuGerados($pagamento);
 
             $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($pagamento->status_id);
             if ($pagamento->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
@@ -105,7 +110,7 @@ class ServicoPagamentoRecorrenteHelper
             $inicioMesAtual = now()->startOfMonth();
 
             // Inserir os registros na tabela de lancamentos
-            foreach ($lancamentos["lancamentos"] as $lancamento) {
+            foreach ($lancamentos as $lancamento) {
                 $lancamento = new Fluent($lancamento);
                 $lancamento->pagamento_id = $pagamento->id;
                 $lancamento->status_id = $statusLancamento;
@@ -140,12 +145,34 @@ class ServicoPagamentoRecorrenteHelper
             }
             CommonsFunctions::generateLog("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
         }
+    }
 
-        // $queries = DB::getQueryLog();
-        // $queries = LogHelper::formatQueryLog($queries);
-        // foreach ($queries as $query) {
-        //     // Log::debug("Query: {$query};\n");
-        // }
+    protected static function getLancamentosRecorrentesPersonalizadosOuGerados(ServicoPagamento $pagamento): array
+    {
+        $lancamentos = [];
+
+        if (count(self::$lancamentosPersonalizados)) {
+            // Ordena por data_vencimento
+            $lancamentosPersonalizados = collect(self::$lancamentosPersonalizados)->sortBy(function ($item) {
+                return Carbon::parse($item['data_vencimento'])->timestamp;
+            })->values()->all();
+
+            $lancamentos = $lancamentosPersonalizados;
+
+            // Pega a última data de vencimento personalizada
+            $ultimaData = Carbon::parse(end($lancamentosPersonalizados)['data_vencimento']);
+
+            // Renderiza os lançamentos automáticos
+            $lancamentosGerados = PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()), [
+                'cron_ultima_execucao_personalizada' => $ultimaData
+            ]);
+
+            $lancamentos = array_merge($lancamentos, $lancamentosGerados['lancamentos']);
+        } else {
+            $lancamentos = PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()))['lancamentos'] ?? [];
+        }
+
+        return $lancamentos;
     }
 
     /**

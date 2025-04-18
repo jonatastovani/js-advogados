@@ -63,12 +63,21 @@ export class ModalRegistrationAndEditing extends ModalDefault {
 
     _clearForm() {
         const self = this;
+        self._action = EnumAction.POST;
         const modal = $(self.getIdModal);
         const formRegistration = modal.find('.formRegistration');
-        self._action = EnumAction.POST;
-        formRegistration.find('select').val(0);
-        formRegistration[0].reset();
-        formRegistration.find('input, select, textarea').removeClass('is-valid').removeClass('is-invalid');
+        if (formRegistration[0]) formRegistration[0].reset();
+        // Força selects a voltarem para a primeira opção
+        formRegistration.find('select').each(function () {
+            const $select = $(this);
+            const $primeiraOpcao = $select.find('option:first');
+            if ($primeiraOpcao.length) {
+                $select.val($primeiraOpcao.val());
+            } else {
+                $select.val('');
+            }
+        });
+        formRegistration.find('input, select, textarea').removeClass('is-valid is-invalid');
     }
 
     //#region Campos de busca padrão

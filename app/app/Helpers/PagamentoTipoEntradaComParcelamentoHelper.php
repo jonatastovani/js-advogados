@@ -35,6 +35,7 @@ class PagamentoTipoEntradaComParcelamentoHelper
         // Adiciona a entrada como primeira "parcela"
         $lancamentos[] = [
             'descricao_automatica' => 'Entrada',
+            'categoria_lancamento' => 'entrada',
             'observacao' => null,
             'data_vencimento' => $dataEntrada->format('Y-m-d'),
             'valor_esperado' => round((float) $valorEntrada, 2),
@@ -53,6 +54,7 @@ class PagamentoTipoEntradaComParcelamentoHelper
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
+                'categoria_lancamento' => 'parcela',
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => round((float) $valorParcelaAjustada, 2),

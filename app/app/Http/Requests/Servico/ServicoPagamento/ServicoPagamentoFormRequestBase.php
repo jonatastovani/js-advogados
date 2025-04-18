@@ -7,6 +7,7 @@ use App\Enums\PagamentoTipoEnum;
 use App\Helpers\LogHelper;
 use App\Http\Requests\BaseFormRequest;
 use App\Models\Tenant\PagamentoTipoTenant;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class ServicoPagamentoFormRequestBase extends BaseFormRequest
@@ -21,6 +22,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'status_id' => 'nullable|integer',
             'resetar_pagamento_bln' => 'nullable|boolean',
             'liquidado_migracao_bln' => 'nullable|boolean',
+            'personalizar_lancamentos_bln' => 'nullable|boolean',
         ];
 
         $verificaPagamentoTipoTenant = function ($pagamentoTipoTenantId) {
@@ -38,36 +40,53 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             return $consulta;
         };
 
-        // Somente se for POST ou se for PUT e o campo 'resetar_pagamento_bln' for true. Caso contrário, depois de cadastrado, esses campos não se alterarão
-        if ($this->isMethod('post') || (
-            $this->isMethod('put') && $this->has('resetar_pagamento_bln') && $this->input('resetar_pagamento_bln') == true
-        )) {
 
-            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-            $pagamentoTipo = $consulta->pagamento_tipo;
+        // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
+        $pagamentoTipoTenant = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
+        $pagamentoTipo = $pagamentoTipoTenant->pagamento_tipo;
+
+        // Somente se for POST ou se for PUT e o campo 'resetar_pagamento_bln' for true. Caso contrário, depois de cadastrado, esses campos não se alterarão
+        if (
+            $this->isMethod('post') ||
+            (
+                $this->isMethod('put') &&
+                $this->has('resetar_pagamento_bln') &&
+                $this->input('resetar_pagamento_bln') == true
+            )
+        ) {
 
             // Define as regras de acordo com o tipo de pagamento
             foreach ($pagamentoTipo->campos_obrigatorios as $value) {
                 switch ($pagamentoTipo->id) {
                     case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
                         if ($value['nome'] == 'valor_total') {
-                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01) + request('entrada_valor'), $value['form_request_rule']);
+                            $value['form_request_rule'] = str_replace('min:1', "min:" . (request('parcela_quantidade') * 1) + request('entrada_valor'), $value['form_request_rule']);
                         }
                         break;
 
                     case PagamentoTipoEnum::PARCELADO->value:
                         if ($value['nome'] == 'valor_total') {
-                            $value['form_request_rule'] = str_replace('min:0.01', "min:" . (request('parcela_quantidade') * 0.01), $value['form_request_rule']);
+                            $value['form_request_rule'] = str_replace('min:1', "min:" . (request('parcela_quantidade') * 1), $value['form_request_rule']);
                         }
                 }
                 $rules[$value['nome']] = $value['form_request_rule'];
             }
-        } else {
 
-            // Obtém o valor de 'pagamento_tipo_tenant_id' da requisição
-            $consulta = $verificaPagamentoTipoTenant($this->input('pagamento_tipo_tenant_id'));
-            $pagamentoTipo = $consulta->pagamento_tipo;
+            $pagamentoTipoComLancamentosPersonalizaveis = PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis();
+
+            // Se for personalizável, adiciona as regras dos lançamentos
+            if (
+                $this->boolean('personalizar_lancamentos_bln') &&
+                in_array($pagamentoTipo->id, $pagamentoTipoComLancamentosPersonalizaveis)
+            ) {
+                $camposLancamento = PagamentoTipoEnum::pagamentoTipoCamposLancamentosPersonalizados();
+                $rules['lancamentos'] = 'required|array|min:1';
+
+                foreach ($camposLancamento as $campo) {
+                    $rules["lancamentos.*.{$campo['nome']}"] = $campo['form_request_rule'];
+                }
+            }
+        } else {
 
             if ($pagamentoTipo->id == PagamentoTipoEnum::CONDICIONADO->value) {
 
@@ -78,6 +97,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             }
         }
 
+        $this->merge(['pagamento_tipo_tenant' => $pagamentoTipoTenant]);
         return $rules;
     }
 
@@ -105,6 +125,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             'valor_total.min' => 'O campo :attribute deve ser no mínimo :min.',
             'entrada_valor.min' => 'O campo :attribute deve ser no mínimo :min.',
             'parcela_valor.min' => 'O campo :attribute deve ser no mínimo :min.',
+            'lancamentos.*.valor_esperado.min' => 'O campo :attribute deve ser no mínimo :min.',
         ];
     }
 
@@ -113,7 +134,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
         $validator->after(function ($validator) {
             foreach ($validator->failed() as $field => $rules) {
                 foreach ($rules as $rule => $parameters) {
-                    if ($rule === 'Min' && in_array($field, ['valor_total', 'entrada_valor', 'parcela_valor'])) {
+                    if ($rule === 'Min' && in_array($field, ['valor_total', 'entrada_valor', 'parcela_valor', 'lancamentos.*.valor_esperado'])) {
                         // Formatar o valor mínimo para moeda e substituir :attribute e :min
                         $formattedMin = number_format($parameters[0], 2, ',', '.');
                         $attributeName = $this->attributes()[$field] ?? $field;

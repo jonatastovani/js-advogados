@@ -2,6 +2,7 @@ import { CommonFunctions } from "../../commons/CommonFunctions";
 import { EnumAction } from "../../commons/EnumAction";
 import { ModalRegistrationAndEditing } from "../../commons/modal/ModalRegistrationAndEditing";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
+import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
 
 export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing {
@@ -70,7 +71,8 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
 
         CommonFunctions.applyCustomNumberMask(modal.find('input[name="valor_esperado"]'), { format: '#.##0,00', reverse: true });
 
-        modal.find('.campos-personalizar-lancamento').prop('readonly', (self._objConfigs.modeReturn != 'object'));
+        modal.find('.campos-personalizar-lancamento').prop('readonly', !(self._objConfigs.modeReturn == 'object' &&
+            window.Statics.PagamentoTipoCategoriaLancamentosPersonalizaveis.includes(self._dataEnvModal?.register.categoria_lancamento)));
     }
 
     async #buscarFormaPagamento(selected_id = null) {
@@ -151,15 +153,8 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let blnSave = true;
 
-        // Se não for personalizar lançamentos, remove os demais campos
-        if (self._objConfigs.modeReturn != 'object') {
-            // Retorna somente os campos permitidos a serem alterados por padrão
-            Object.keys(data).forEach(key => {
-                if (!['forma_pagamento_id', 'observacao'].includes(key)) {
-                    delete data[key];
-                }
-            });
-        } else {
+        if (self._objConfigs.modeReturn == 'object' && window.Statics.PagamentoTipoCategoriaLancamentosPersonalizaveis.includes(self._dataEnvModal?.register.categoria_lancamento)) {
+
             blnSave = CommonFunctions.verificationData(data.data_vencimento, {
                 field: formRegistration.find('input[name="data_vencimento"]'),
                 messageInvalid: 'A <b>Data de Vencimento</b> deve ser informada.',
@@ -173,10 +168,18 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
                 setFocus: blnSave === true,
                 returnForcedFalse: blnSave === false
             });
-        }
 
-        if (self._objConfigs.modeReturn != 'object' && data.forma_pagamento_id == 0) {
-            delete data.forma_pagamento_id;
+        } else {
+            // Retorna somente os campos permitidos a serem alterados por padrão
+            Object.keys(data).forEach(key => {
+                if (!['forma_pagamento_id', 'observacao'].includes(key)) {
+                    delete data[key];
+                }
+            });
+
+            if (!UUIDHelper.isValidUUID(data.forma_pagamento_id)) {
+                delete data.forma_pagamento_id;
+            }
         }
 
         return blnSave;

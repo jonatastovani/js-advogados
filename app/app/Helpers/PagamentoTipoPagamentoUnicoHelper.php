@@ -16,6 +16,7 @@ class PagamentoTipoPagamentoUnicoHelper
             'lancamentos' => [
                 [
                     'descricao_automatica' => 'Pagamento Único',
+                    'categoria_lancamento' => 'entrada',
                     'observacao' => null,
                     'data_vencimento' => $dados->entrada_data,
                     'valor_esperado' => round((float) $dados->valor_total, 2),

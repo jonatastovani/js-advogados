@@ -6,6 +6,7 @@ import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { TenantDataHelper } from "../../helpers/TenantDataHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
+import { ValidatorHelper } from "../../helpers/ValidatorHelper";
 import { ModalMessage } from "../comum/ModalMessage";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
 import { ModalServicoPagamentoLancamento } from "./ModalServicoPagamentoLancamento";
@@ -136,6 +137,25 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         modal.find('.btn-simular').on('click', async function () {
             CommonFunctions.simulateLoading($(this));
             try {
+                // Se o usuário clicar em simular e houver lancamentos personalizados, alerta sobre a perda
+                if (self._objConfigs.data.personalizar_lancamentos_updated_bln) {
+
+                    const objMessage = new ModalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Atenção',
+                        message: `
+                            <p>Existem lançamentos personalizados.</p>
+                            <p>Este processo irá descartá-los e gerar uma nova simulação com valores e datas gerados pelo sistema.</p>
+                            <p>Deseja continuar?</p>
+                        `,
+                    };
+                    self._modalHideShow(false);
+                    const result = await objMessage.modalOpen();
+                    self._modalHideShow();
+
+                    // Se o usuário cancelar, sai da execução
+                    if (!result.confirmResult) return;
+                }
                 await self.#simularPagamento();
             } finally {
                 CommonFunctions.simulateLoading($(this), false);
@@ -181,7 +201,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             responseData.lancamentos.map(lancamento => {
                 self.#inserirLancamento(lancamento, { status_id: 1 });
             });
-            self.#ativarBtnEditarLancamentos(false);
+            self.#ativarBtnEditarLancamentos(self._objConfigs.data.personalizar_lancamentos_bln);
             CommonFunctions.generateNotification('Simulação de pagamento efetuada.', 'success');
             $(self.getIdModal).find(`#lancamentos${self._objConfigs.sufixo}-tab`).trigger('click');
         }
@@ -206,7 +226,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
 
-        let htmlAppend = '';
         lancamento.idCol = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
         const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
         const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
@@ -218,19 +237,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const btns = `<li>
             <button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${nameBtnEdit} ${disabledTachado}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button>
         </li>`;
-
-        if (lancamento.observacao) {
-            const observacao = lancamento.observacao ?? '';
-            htmlAppend = `
-                <div class="row">
-                    <div class="col">
-                        <label class="form-text">Observação (opcional)</label>
-                        <p class="mb-0 text-truncate lancamento-observacao" title="${observacao}">
-                            ${observacao}
-                        </p>
-                    </div>
-                </div>`;
-        }
 
         let btnsDropDown = `
             <div>
@@ -246,6 +252,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         if (!btns) btnsDropDown = '';
         const htmlColsLancamento = self.#htmlColsLancamento(lancamento);
+        const htmlAppend = self.#htmlAppendLancamento(lancamento);
 
         rowLancamentos.append(`
             <div id="${lancamento.idCol}" class="col">
@@ -258,7 +265,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                         <div class="row html-cols-lancamento row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
                             ${htmlColsLancamento}
                         </div>
-                        ${htmlAppend}
+                        <div class="html-append-lancamento">${htmlAppend}</div>
                     </div>
                 </div>
             </div>`);
@@ -348,6 +355,25 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         return htmlColsLancamento;
     }
 
+    #htmlAppendLancamento(lancamento) {
+
+        let htmlAppend = '';
+
+        if (lancamento.observacao) {
+            htmlAppend += `
+                <div class="row">
+                    <div class="col">
+                        <label class="form-text">Observação</label>
+                        <p class="mb-0 text-truncate lancamento-observacao" title="${lancamento.observacao}">
+                            ${lancamento.observacao}
+                        </p>
+                    </div>
+                </div>`;
+        }
+
+        return htmlAppend;
+    }
+
     #getIndexLancamento(lancamento, options = {}) {
         const self = this;
         const lancamentoIndex = self._objConfigs.data.lancamentos_na_tela.findIndex(lanc => lanc.idCol == lancamento.idCol);
@@ -356,8 +382,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             const message = "Lançamento não encontrado na tela.";
             if (exibirNotificacao) {
                 CommonFunctions.generateNotification(message, 'error');
-            } console.error(message, lancamento);
-            console.error(self._objConfigs.data.lancamentos_na_tela);
+            }
+            console.error(message, lancamento, self._objConfigs.data.lancamentos_na_tela);
             return false;
         }
         return lancamentoIndex;
@@ -429,40 +455,41 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             return false;
         }
 
-        // Se houver update, ao desmarcar a opção de personalizar, os lançamentos deverão ser simulados novamente, então setamos como personalizar_lancamentos_updated_bln = true.
+        // Marca que houve alteração personalizada
         self._objConfigs.data.personalizar_lancamentos_updated_bln = true;
 
         const lancamentoNaTela = self._objConfigs.data.lancamentos_na_tela[lancamentoIndex];
 
-        // Clona antes de sobrescrever com deepMerge
+        // Clona forma_pagamento original antes de sobrescrever com deepMerge
         const formaPagamentoOriginal = lancamentoNaTela.forma_pagamento;
 
         CommonFunctions.deepMergeObject(lancamentoNaTela, lancamento);
 
-        // Se for nulo ou vazio, limpa a forma de pagamento
-        if (!lancamentoNaTela.forma_pagamento_id || lancamentoNaTela.forma_pagamento_id == 0) {
+        // Se for nulo, vazio ou 0, limpa a forma de pagamento
+        if (!UUIDHelper.isValidUUID(lancamentoNaTela.forma_pagamento_id)) {
             delete lancamentoNaTela.forma_pagamento;
             lancamentoNaTela.forma_pagamento_id = null;
+        } else {
+
+            // Se o ID de forma de pagamento for diferente do original (ou não havia original), busca
+            if (!formaPagamentoOriginal || formaPagamentoOriginal.id !== lancamentoNaTela.forma_pagamento_id) {
+                lancamentoNaTela.forma_pagamento = await self.#buscarFormaPagamentoPorId(lancamentoNaTela.forma_pagamento_id);
+            }
         }
 
-        // Se mudou a forma de pagamento, busca a nova
-        if (
-            lancamentoNaTela.forma_pagamento_id &&
-            formaPagamentoOriginal &&
-            formaPagamentoOriginal.id != lancamentoNaTela.forma_pagamento_id
-        ) {
-            lancamentoNaTela.forma_pagamento = await self.#buscarFormaPagamentoPorId(lancamentoNaTela.forma_pagamento_id);
-        }
-
+        // Atualiza visual
         const colLancamento = $(`#${lancamentoNaTela.idCol}`);
         colLancamento.find('.lancamento-descricao-automatica').html(lancamentoNaTela.descricao_automatica);
         colLancamento.find('.html-cols-lancamento').html(self.#htmlColsLancamento(lancamentoNaTela));
+        colLancamento.find('.html-append-lancamento').html(self.#htmlAppendLancamento(lancamentoNaTela));
+
         await self.#validarSomaLancamentosComValorTotal();
     }
 
     #mensagemValidacaoSomaLancamentos() {
         const self = this;
 
+        if (!window.Statics.PagamentoTipoComLancamentosDependentesValorTotal.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)) return '';
         const lancamentos = self._objConfigs.data.lancamentos_na_tela || [];
 
         const somaLancamentos = lancamentos.reduce((acc, l) => acc + parseFloat(l.valor_esperado || 0), 0);
@@ -941,7 +968,15 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
             data.cron_expressao = self._objConfigs.data.cronExpressao;
         }
+
         return data;
+    }
+
+    #getLancamentosNaTelaParaEnvio() {
+        const self = this;
+        return self._objConfigs.data.lancamentos_na_tela.map(lancamento => {
+            return ValidatorHelper.validarItem(lancamento, window.Statics.PagamentoTipoCamposLancamentosPersonalizados);
+        });
     }
 
     #saveVerifications(data, tipo = 'save') {
@@ -984,13 +1019,31 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 }
             }
 
-            if (self._objConfigs.data.personalizar_lancamentos_bln) {
+            if (tipo == 'save' &&
+                self._objConfigs.data.personalizar_lancamentos_bln &&
+                self._objConfigs.data.personalizar_lancamentos_updated_bln
+            ) {
+                const lancamentosFiltrados = self.#getLancamentosNaTelaParaEnvio();
+                for (const lancamento of lancamentosFiltrados) {
+                    if (lancamento.errors.length) {
+                        blnSave = false;
+
+                        CommonFunctions.generateNotification(`O lançamento <b>${lancamento.filtrados.descricao_automatica}</b> possui pendências para serem corrigidas.`, 'warning', {
+                            itemsArray: lancamento.errors,
+                        });
+                        console.error(lancamento);
+                    }
+                }
+
                 const mensagemValidaSoma = this.#mensagemValidacaoSomaLancamentos();
                 if (mensagemValidaSoma) {
                     blnSave = false;
                     this.#conteudoDivAlertMessage(mensagemValidaSoma);
                     CommonFunctions.generateNotification(mensagemValidaSoma, 'warning');
                 }
+
+                data.lancamentos = lancamentosFiltrados.map(lancamento => lancamento.filtrados);
+                data.personalizar_lancamentos_bln = true;
             }
         }
 

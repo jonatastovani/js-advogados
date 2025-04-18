@@ -16,14 +16,18 @@ class PagamentoTipoRecorrenteHelper
     {
         // $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
+        // Se for enviada uma data para execução personalizada, ela será usada como base para o primeiro lançamento a processar.
+        $ultimaExecucaoPersonalizada = $options['cron_ultima_execucao_personalizada'] ?? null;
+
         $dataInicio = Carbon::parse($dados->cron_data_inicio);
         $dataFim = $dados->cron_data_fim ? Carbon::parse($dados->cron_data_fim) : null;
         $cron = new CronExpression($dados->cron_expressao);
         $hoje = Carbon::today();
         $dataLimite = $hoje->copy()->addDays(30);
-        $ultimaExecucao = $dados->cron_ultima_execucao
-            ? Carbon::parse($dados->cron_ultima_execucao)
-            : null;
+        $ultimaExecucao = $ultimaExecucaoPersonalizada ??
+            ($dados->cron_ultima_execucao
+                ? Carbon::parse($dados->cron_ultima_execucao)
+                : null);
 
         $proximasExecucoes = [];
         if (is_null($ultimaExecucao)) {
@@ -46,7 +50,7 @@ class PagamentoTipoRecorrenteHelper
         } else {
             // Gerar execuções a partir da última execução
             while (true) {
-                // Adiciona mais um dia na última execução, porque a última execução é o último dia inserido no lançamento geral
+                // Adiciona mais um dia na última execução, porque a última execução é o último dia inserido no banco
                 $ultimaExecucao->addDay();
                 $proximaExecucao = $cron->getNextRunDate($ultimaExecucao)->format('Y-m-d');
 
@@ -70,6 +74,7 @@ class PagamentoTipoRecorrenteHelper
         foreach ($proximasExecucoes as $proximaExecucao) {
             $lancamentos[] = [
                 'descricao_automatica' => 'Recorrente',
+                'categoria_lancamento' => 'parcela',
                 'observacao' => null,
                 'data_vencimento' => Carbon::parse($proximaExecucao)->format('Y-m-d'),
                 'valor_esperado' => round((float) $dados->parcela_valor, 2),

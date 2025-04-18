@@ -10,6 +10,7 @@ use App\Traits\CommonServiceMethodsTrait;
 use App\Traits\ServiceLogTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
@@ -343,6 +344,10 @@ abstract class Service
         // Só faz rollback se a transação ainda estiver ativa
         if (DB::transactionLevel() > 0) {
             DB::rollBack();
+        }
+
+        if ($e instanceof HttpResponseException) {
+            throw $e;
         }
 
         // Gerar um log

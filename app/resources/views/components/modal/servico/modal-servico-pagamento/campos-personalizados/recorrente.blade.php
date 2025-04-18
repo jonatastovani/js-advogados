@@ -34,7 +34,8 @@
 </div>
 
 <div class="form-text">
-    Este intervalo de datas é o período que o lançamento recorrente será vigente e executado. Por padrão, o lançamento será inserido na listagem dos <i>Lançamentos de Serviços</i> 30 dias antes.
+    {{-- Este intervalo de datas é o período que o lançamento recorrente será vigente e executado. --}}
+    Por padrão, o lançamento será inserido na listagem dos <i>Lançamentos de Serviços</i> 30 dias antes do vencimento.
 </div>
 
 <div class="fs-5 mt-2">Selecione o intervalo de recorrência</div>

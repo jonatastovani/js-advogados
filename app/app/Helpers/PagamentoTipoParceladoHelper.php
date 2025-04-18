@@ -35,6 +35,7 @@ class PagamentoTipoParceladoHelper
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
+                'categoria_lancamento' => 'parcela',
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => round((float) $valorParcelaAjustada, 2),

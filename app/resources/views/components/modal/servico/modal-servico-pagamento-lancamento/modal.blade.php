@@ -14,7 +14,7 @@
                 <form class="row formRegistration">
                     <div class="col">
 
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
+                        <div class="row row-cols-1 row-cols-md-2">
                             <div class="col">
                                 <div class="form-text mt-0">Data de vencimento</div>
                                 <input type="date" name="data_vencimento" id="data_vencimento{{ $sufixo }}"

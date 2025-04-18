@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use App\Helpers\PagamentoTipoCondicionadoHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
@@ -36,7 +35,7 @@ enum PagamentoTipoEnum: int
                     [
                         'nome' => 'valor_total',
                         'nome_exibir' => 'Valor total',
-                        'form_request_rule' => 'required|numeric|min:0.01',
+                        'form_request_rule' => 'required|numeric|min:1',
                     ],
                 ],
                 'helper' => [
@@ -68,7 +67,7 @@ enum PagamentoTipoEnum: int
                     [
                         'nome' => 'valor_total',
                         'nome_exibir' => 'Valor total',
-                        'form_request_rule' => 'required|numeric|min:0.01',
+                        'form_request_rule' => 'required|numeric|min:1',
                     ],
                 ],
                 'helper' => [
@@ -84,7 +83,7 @@ enum PagamentoTipoEnum: int
                     [
                         'nome' => 'entrada_valor',
                         'nome_exibir' => 'Vencimento entrada',
-                        'form_request_rule' => 'required|numeric|min:0.01',
+                        'form_request_rule' => 'required|numeric|min:1',
                     ],
                     [
                         'nome' => 'entrada_data',
@@ -109,7 +108,7 @@ enum PagamentoTipoEnum: int
                     [
                         'nome' => 'valor_total',
                         'nome_exibir' => 'Valor total',
-                        'form_request_rule' => 'required|numeric|min:0.01',
+                        'form_request_rule' => 'required|numeric|min:1',
                     ],
                 ],
                 'helper' => [
@@ -136,7 +135,7 @@ enum PagamentoTipoEnum: int
                     [
                         'nome' => 'parcela_valor',
                         'nome_exibir' => 'Valor da parcela',
-                        'form_request_rule' => 'required|numeric|min:0.01',
+                        'form_request_rule' => 'required|numeric|min:1',
                     ],
                 ],
                 'campos_opcionais' => [
@@ -182,6 +181,95 @@ enum PagamentoTipoEnum: int
             self::PARCELADO->value,
             self::ENTRADA_COM_PARCELAMENTO->value,
             self::RECORRENTE->value,
+        ];
+    }
+
+    static public function pagamentoTipoCategoriaLancamentosPersonalizaveis(): array
+    {
+        return [
+            'parcela',
+        ];
+    }
+
+    static public function pagamentoTipoComLancamentosCategoriaEntrada(): array
+    {
+        return [
+            PagamentoTipoEnum::PAGAMENTO_UNICO->value,
+            PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value,
+        ];
+    }
+
+    static public function pagamentoTipoComLancamentosDependentesValorTotal(): array
+    {
+        return [
+            self::PARCELADO->value,
+            self::ENTRADA_COM_PARCELAMENTO->value,
+        ];
+    }
+
+    static public function pagamentoTipoCamposLancamentosPersonalizados(): array
+    {
+        return [
+            [
+                'nome' => 'forma_pagamento_id',
+                'nome_exibir' => 'Forma de pagamento',
+                'form_request_rule' => 'nullable|uuid',
+                'validacao_front' => [
+                    'tipo' => 'uuid',
+                    'acao_se_invalido' => 'remover', // ou 'alertar'
+                    'mensagem' => 'Forma de pagamento inválida. O campo será ignorado.',
+                ],
+            ],
+            [
+                'nome' => 'valor_esperado',
+                'nome_exibir' => 'Valor esperado',
+                'form_request_rule' => 'required|numeric|min:1',
+                'validacao_front' => [
+                    'tipo' => 'numero',
+                    'acao_se_invalido' => 'alertar',
+                    'mensagem' => 'Informe um valor esperado válido (mínimo R$ 1,00).',
+                ],
+            ],
+            [
+                'nome' => 'data_vencimento',
+                'nome_exibir' => 'Data de vencimento',
+                'form_request_rule' => 'required|date',
+                'validacao_front' => [
+                    'tipo' => 'data',
+                    'acao_se_invalido' => 'alertar',
+                    'mensagem' => 'Informe uma data de vencimento válida.',
+                ],
+            ],
+            [
+                'nome' => 'descricao_automatica',
+                'nome_exibir' => 'Descrição automática',
+                'form_request_rule' => 'required|string|max:255',
+                'validacao_front' => [
+                    'tipo' => 'texto',
+                    'acao_se_invalido' => 'ignorar',
+                    'mensagem' => '',
+                ],
+            ],
+            [
+                'nome' => 'observacao',
+                'nome_exibir' => 'Observação',
+                'form_request_rule' => 'nullable|string|max:500',
+                'validacao_front' => [
+                    'tipo' => 'texto',
+                    'acao_se_invalido' => 'ignorar',
+                    'mensagem' => '',
+                ],
+            ],
+            [
+                'nome' => 'categoria_lancamento',
+                'nome_exibir' => 'Categoria',
+                'form_request_rule' => 'required|string|max:15',
+                'validacao_front' => [
+                    'tipo' => 'texto',
+                    'acao_se_invalido' => 'alertar',
+                    'mensagem' => 'A informação de categoria é obrigatória. Se o problema persistir, contate o desenvolvedor.',
+                ],
+            ],
         ];
     }
 }
