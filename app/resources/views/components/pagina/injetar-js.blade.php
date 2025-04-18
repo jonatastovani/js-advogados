@@ -38,6 +38,8 @@
         StatusParaNovosPagamentosServicos: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaNovosPagamentosServicos()),
         StatusParaPagamentosServicosExistentes: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaPagamentosServicosExistentes()),
         OrdemPadraoStatusLancamentoServico: @json(\App\Enums\LancamentoStatusTipoEnum::ordemPadraoStatusLancamentoServico()),
+        PagamentoTipoQuePermiteLiquidadoMigracao: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoQuePermiteLiquidadoMigracao()),
+        PagamentoTipoComLancamentosPersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis()),
     }
 
     window.Details = {

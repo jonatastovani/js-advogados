@@ -165,4 +165,23 @@ enum PagamentoTipoEnum: int
             ],
         };
     }
+
+    static public function pagamentoTipoQuePermiteLiquidadoMigracao(): array
+    {
+        return [
+            self::PAGAMENTO_UNICO->value,
+            self::PARCELADO->value,
+            self::ENTRADA_COM_PARCELAMENTO->value,
+            self::RECORRENTE->value,
+        ];
+    }
+
+    static public function pagamentoTipoComLancamentosPersonalizaveis(): array
+    {
+        return [
+            self::PARCELADO->value,
+            self::ENTRADA_COM_PARCELAMENTO->value,
+            self::RECORRENTE->value,
+        ];
+    }
 }

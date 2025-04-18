@@ -20,7 +20,7 @@ class PagamentoTipoEntradaComParcelamentoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
+        // $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         // Calcula o valor das parcelas após descontar a entrada
         $valorRestante = bcsub($valorTotal, $valorEntrada, 2);
@@ -37,10 +37,10 @@ class PagamentoTipoEntradaComParcelamentoHelper
             'descricao_automatica' => 'Entrada',
             'observacao' => null,
             'data_vencimento' => $dataEntrada->format('Y-m-d'),
-            'valor_esperado' => $valorEntrada,
+            'valor_esperado' => round((float) $valorEntrada, 2),
             'status' => ['nome' => 'Simulado'],
-            'forma_pagamento_id' => $formaPagamento->id,
-            'forma_pagamento' => $formaPagamento,
+            // 'forma_pagamento_id' => $formaPagamento->id,
+            // 'forma_pagamento' => $formaPagamento,
         ];
 
         $dataVencimento = new \DateTime($dataInicio);
@@ -55,10 +55,10 @@ class PagamentoTipoEntradaComParcelamentoHelper
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
-                'valor_esperado' => $valorParcelaAjustada,
+                'valor_esperado' => round((float) $valorParcelaAjustada, 2),
                 'status' => ['nome' => 'Simulado'],
-                'forma_pagamento_id' => $formaPagamento->id,
-                'forma_pagamento' => $formaPagamento,
+                // 'forma_pagamento_id' => $formaPagamento->id,
+                // 'forma_pagamento' => $formaPagamento,
             ];
 
             $dataVencimento = self::ajustarDataVencimentoSeguinte($dataVencimento, $diaVencimento);

@@ -32,7 +32,8 @@
                     </div>
                 </div>
                 <div class="row rounded rounded-top-0 border-top-0 flex-fill">
-                    <div class="tab-content h-100 overflow-auto" id="myTabContent" style="min-height: 20em;">
+                    <div class="tab-content d-flex flex-column overflow-auto" id="myTabContent"
+                        style="min-height: 20em;">
                         <div class="tab-pane fade h-100 show active" id="dados-pagamento{{ $sufixo }}-tab-pane"
                             role="tabpanel" aria-labelledby="dados-pagamento{{ $sufixo }}-tab" tabindex="0">
                             @include('components.modal.servico.modal-servico-pagamento.painel-dados-pagamento')
@@ -47,43 +48,10 @@
 
                 <x-pagina.info-campos-obrigatorios />
 
-                <div class="row div-resetar-lancamentos" style="display: none;">
-                    <div class="col mt-2">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch"
-                                id="resetar_pagamento_bln{{ $sufixo }}" name="resetar_pagamento_bln" disabled>
-                            <label class="form-check-label" for="resetar_pagamento_bln{{ $sufixo }}"
-                                title="Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação só será executada se nenhum dos lançamentos atuais, em momento algum, movimentaram alguma conta.">
-                                Recriar lançamentos
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-text">
-                        Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação
-                        só será executada se nenhum dos lançamentos atuais, em momento algum, movimentaram alguma conta.
-                    </div>
-                </div>
-
-                <div class="row div-liquidado-migracao" style="display: none;">
-                    <div class="col mt-2">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch"
-                                id="liquidado_migracao_bln{{ $sufixo }}" name="liquidado_migracao_bln" disabled>
-                            <label class="form-check-label" for="liquidado_migracao_bln{{ $sufixo }}"
-                                title="Aplica o status 'Liquidado (Migração Sistema)' a lançamentos anteriores ao mês atual, sem movimentar valores.">
-                                Marcar como Liquidado (Migração Sistema)
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-text">
-                        Ao ativar, lançamentos anteriores ao mês atual serão marcados como <span
-                            class="fst-italic">Liquidado (Migração Sistema)</span>,
-                        apenas para fins históricos, sem movimentar valores.
-                    </div>
-                </div>
-
             </div>
             <div class="modal-footer py-1">
+                <div class="alert alert-warning divAlertMessage w-100 mb-1 py-1" role="alert" style="display: none;">
+                </div>
                 <div class="col-12 text-end">
                     <button type="button" class="btn btn-outline-primary btn-simular elements-pane-lancamentos w-50"
                         style="max-width: 7rem">

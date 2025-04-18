@@ -16,6 +16,7 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         domainCustom: {
             applyBln: true,
         },
+        modeReturn: 'object',
     };
 
     constructor(options = {}) {
@@ -23,9 +24,9 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             idModal: "#ModalServicoPagamentoLancamento",
         });
 
-        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._objConfigs.url.base = options.urlApi;
-        this.#addEventosPadrao();
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+
+        this._objConfigs.url.base = options.urlApi ?? undefined;
     }
 
     async modalOpen() {
@@ -37,12 +38,25 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
                 await CommonFunctions.loadingModalDisplay(false);
                 return await self._returnPromisseResolve();
             }
+            self._objConfigs.modeReturn = false;
+
+            // Verifica domínio customizado somente quando é uma edição de registro já salvo
+            self._queueCheckDomainCustom.setReady();
+
+        } else if (self._dataEnvModal.register) {
+            if (!await self.#preencherDados(self._dataEnvModal.register)) {
+                await CommonFunctions.loadingModalDisplay(false);
+                return await self._returnPromisseResolve();
+            }
+            self._objConfigs.modeReturn = 'object';
+
         } else {
-            CommonFunctions.generateNotification('ID de Lancamento não informado. Caso o erro persista, contate o desenvolvedor.', 'error');
+            CommonFunctions.generateNotification('ID de Lançamento ou Objeto de Lançamento não informado. Caso o erro persista, contate o desenvolvedor.', 'error');
             return await self._returnPromisseResolve();
         }
 
-        self._queueCheckDomainCustom.setReady();
+        this.#addEventosPadrao();
+
         await CommonFunctions.loadingModalDisplay(false);
         await self._modalHideShow();
         return await self._modalOpen();
@@ -52,35 +66,11 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         const self = this;
         const modal = $(self._idModal);
 
-        modal.find('.openModalFormaPagamento').on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalFormaPagamentoTenant();
-                objModal.setDataEnvModal = {
-                    attributes: {
-                        select: {
-                            quantity: 1,
-                            autoReturn: true,
-                        }
-                    }
-                }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh) {
-                    if (response.selected) {
-                        self.#buscarFormaPagamento(response.selected.id);
-                    } else {
-                        self.#buscarFormaPagamento();
-                    }
-                }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                CommonFunctions.simulateLoading(btn, false);
-                await self._modalHideShow();
-            }
-        });
+        CommonFunctions.handleModal(self, modal.find('.openModalFormaPagamento'), ModalFormaPagamentoTenant, self.#buscarFormaPagamento.bind(self));
+
+        CommonFunctions.applyCustomNumberMask(modal.find('input[name="valor_esperado"]'), { format: '#.##0,00', reverse: true });
+
+        modal.find('.campos-personalizar-lancamento').prop('readonly', (self._objConfigs.modeReturn != 'object'));
     }
 
     async #buscarFormaPagamento(selected_id = null) {
@@ -107,19 +97,29 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             self._action = EnumAction.PUT;
             const response = await self._getRecurse();
             if (response?.data) {
-                const responseData = response.data;
-                const data_vencimento = DateTimeHelper.retornaDadosDataHora(responseData.data_vencimento, 2);
-                const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(responseData.valor_esperado);
-
-                self._updateModalTitle(`Alterar: <b>${responseData.descricao_automatica}</b>`);
-                const form = $(self.getIdModal).find('.formRegistration');
-                form.find('.pDataVencimento').html(data_vencimento);
-                form.find('.pValor').html(valor_esperado);
-                form.find('input[name="observacao"]').val(responseData.observacao);
-                self.#buscarFormaPagamento(responseData.forma_pagamento_id);
-                return true;
+                return self.#preencherDados(response.data);
             }
             return false;
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+
+    async #preencherDados(lancamento) {
+        const self = this;
+
+        try {
+            const data_vencimento = lancamento.data_vencimento ?? DateTimeHelper.retornaDadosDataHora(new Date(), 1);
+            const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado ?? 0);
+
+            self._updateModalTitle(`Alterar: <b>${lancamento.descricao_automatica}</b>`);
+            const form = $(self.getIdModal).find('.formRegistration');
+            form.find('input[name="data_vencimento"]').val(data_vencimento);
+            form.find('input[name="valor_esperado"]').val(valor_esperado).trigger('input');
+            form.find('input[name="observacao"]').val(lancamento.observacao);
+            self.#buscarFormaPagamento(lancamento.forma_pagamento_id);
+            return true;
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
             return false;
@@ -131,9 +131,55 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
-        if (data.forma_pagamento_id == 0) {
+        if (self.#saveVerifications(data)) {
+            switch (self._objConfigs.modeReturn) {
+                case 'object':
+                    CommonFunctions.deepMergeObject(self._dataEnvModal.register, data);
+                    self._promisseReturnValue.refresh = true;
+                    self._promisseReturnValue.register = self._dataEnvModal.register;
+                    self._endTimer = true;
+                    break;
+
+                default:
+                    self._save(data, self._objConfigs.url.base);
+            }
+        }
+    }
+
+    #saveVerifications(data) {
+        const self = this;
+        const formRegistration = $(self.getIdModal).find('.formRegistration');
+        let blnSave = true;
+
+        // Se não for personalizar lançamentos, remove os demais campos
+        if (self._objConfigs.modeReturn != 'object') {
+            // Retorna somente os campos permitidos a serem alterados por padrão
+            Object.keys(data).forEach(key => {
+                if (!['forma_pagamento_id', 'observacao'].includes(key)) {
+                    delete data[key];
+                }
+            });
+        } else {
+            blnSave = CommonFunctions.verificationData(data.data_vencimento, {
+                field: formRegistration.find('input[name="data_vencimento"]'),
+                messageInvalid: 'A <b>Data de Vencimento</b> deve ser informada.',
+                setFocus: true
+            });
+
+            data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
+            blnSave = CommonFunctions.verificationData(data.valor_esperado, {
+                field: formRegistration.find('input[name="valor_esperado"]'),
+                messageInvalid: 'O <b>Valor</b> deve ser informado.',
+                setFocus: blnSave === true,
+                returnForcedFalse: blnSave === false
+            });
+        }
+
+        if (self._objConfigs.modeReturn != 'object' && data.forma_pagamento_id == 0) {
             delete data.forma_pagamento_id;
         }
-        self._save(data, self._objConfigs.url.base);
+
+        return blnSave;
     }
+
 }

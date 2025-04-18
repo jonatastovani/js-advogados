@@ -14,7 +14,7 @@ class PagamentoTipoRecorrenteHelper
 
     static public function renderizar(Fluent $dados, array $options = [])
     {
-        $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
+        // $formaPagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         $dataInicio = Carbon::parse($dados->cron_data_inicio);
         $dataFim = $dados->cron_data_fim ? Carbon::parse($dados->cron_data_fim) : null;
@@ -72,10 +72,10 @@ class PagamentoTipoRecorrenteHelper
                 'descricao_automatica' => 'Recorrente',
                 'observacao' => null,
                 'data_vencimento' => Carbon::parse($proximaExecucao)->format('Y-m-d'),
-                'valor_esperado' => $dados->parcela_valor,
+                'valor_esperado' => round((float) $dados->parcela_valor, 2),
                 'status' => ['nome' => 'Simulado'],
-                'forma_pagamento_id' => $formaPagamento->id,
-                'forma_pagamento' => $formaPagamento,
+                // 'forma_pagamento_id' => $formaPagamento->id,
+                // 'forma_pagamento' => $formaPagamento,
             ];
         }
 

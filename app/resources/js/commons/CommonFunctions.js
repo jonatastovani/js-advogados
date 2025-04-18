@@ -1187,4 +1187,8 @@ export class CommonFunctions {
         });
     }
 
+
+    static logJSONParseStringify(data) {
+        console.warn(JSON.parse(JSON.stringify(data)));
+    }
 }

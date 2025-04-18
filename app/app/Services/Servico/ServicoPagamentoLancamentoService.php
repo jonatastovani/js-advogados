@@ -408,7 +408,7 @@ class ServicoPagamentoLancamentoService extends Service
         }
 
         if ($requestData->forma_pagamento_id) {
-            //Verifica se a forma de pagamento informada existe e a conta desta forma está com status que permite movimentação
+            //Verifica se a forma de pagamento informada existe e a conta desta forma de pagamento está com status que permite movimentação
             $validacaoFormaPagamentoTenant = app(FormaPagamentoTenantService::class)->validacaoRecurso($requestData, $arrayErrors);
             $arrayErrors = $validacaoFormaPagamentoTenant->arrayErrors;
 

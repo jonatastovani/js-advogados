@@ -86,11 +86,11 @@ export class ModalRegistrationAndEditing extends ModalDefault {
         const { urlApi = self._objConfigs.url.base } = options;
         try {
             const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-            const obj = new ConnectAjax(urlApi);
+            const objConn = new ConnectAjax(urlApi);
             if (forcedDomainId) {
-                obj.setForcedDomainCustomId = forcedDomainId;
+                objConn.setForcedDomainCustomId = forcedDomainId;
             }
-            const response = await obj.getRequest();
+            const response = await objConn.getRequest();
             if (!forcedDomainId) {
                 TenantTypeDomainCustomHelper.checkDomainCustomBlockedChangesDomainId(self, response.data);
             }

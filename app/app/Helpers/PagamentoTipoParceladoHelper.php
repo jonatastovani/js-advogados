@@ -18,7 +18,7 @@ class PagamentoTipoParceladoHelper
         $dataInicio = $dados->parcela_data_inicio;
         $diaVencimento = $dados->parcela_vencimento_dia;
 
-        $formapagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
+        // $formapagamento = FormaPagamentoTenant::find($dados->forma_pagamento_id);
 
         $valorParcela = bcdiv($valorTotal, $quantidadeParcelas, 2); // Divisão precisa com 2 casas decimais
         $valorTotalParcelas = bcmul($valorParcela, $quantidadeParcelas, 2);
@@ -29,18 +29,18 @@ class PagamentoTipoParceladoHelper
 
         // Gerar as parcelas
         for ($i = 1; $i <= $quantidadeParcelas; $i++) {
-            $valorParcelaAjustada = ($i === 1) 
-                ? bcadd($valorParcela, $diferenca, 2) 
+            $valorParcelaAjustada = ($i === 1)
+                ? bcadd($valorParcela, $diferenca, 2)
                 : $valorParcela;
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
-                'valor_esperado' => $valorParcelaAjustada,
+                'valor_esperado' => round((float) $valorParcelaAjustada, 2),
                 'status' => ['nome' => 'Simulado'],
-                'forma_pagamento_id' => $formapagamento->id,
-                'forma_pagamento' => $formapagamento,
+                // 'forma_pagamento_id' => $formapagamento->id,
+                // 'forma_pagamento' => $formapagamento,
             ];
 
             // Ajusta a data para o próximo mês

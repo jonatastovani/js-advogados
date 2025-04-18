@@ -6,6 +6,7 @@ import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { TenantDataHelper } from "../../helpers/TenantDataHelper";
 import { URLHelper } from "../../helpers/URLHelper";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
+import { ModalMessage } from "../comum/ModalMessage";
 import { ModalFormaPagamentoTenant } from "../tenant/ModalFormaPagamentoTenant";
 import { ModalServicoPagamentoLancamento } from "./ModalServicoPagamentoLancamento";
 
@@ -32,6 +33,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             lancamentos_na_tela: [],
             resetar_pagamento_bln: false,
             liquidado_migracao_bln: false,
+            personalizar_lancamentos_bln: false,
+            personalizar_lancamentos_updated_bln: false
         },
         domainCustom: {
             applyBln: true,
@@ -78,16 +81,20 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             if (!self._dataEnvModal.pagamento_tipo_tenant_id) {
                 CommonFunctions.generateNotification('Tipo de pagamento não informado', 'error');
                 return await self._returnPromisseResolve();
-            } else {
-                await self.#buscarDadosPagamentoTipo();
             }
 
+            await self.#buscarDadosPagamentoTipo();
+            self.#limparLancamentosNaTela();
+            self.#verificaPersonalizarLancamentos();
             self.#verificaLiquidadoMigracao();
             self.#buscarFormaPagamento();
             self.#buscarStatusPagamento();
+            self.#conteudoDivAlertMessage();
         }
 
         await CommonFunctions.loadingModalDisplay(false);
+        self._executeFocusElementOnModal($(self.getIdModal).find('.focusRegister'));
+
         await self._modalHideShow();
         return await self._modalOpen();
     }
@@ -154,12 +161,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         $(`#resetar_pagamento_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
         $(self.getIdModal).find('.div-liquidado-migracao').hide();
         $(`#liquidado_migracao_bln${self.getSufixo}`).prop('checked', false).attr('disabled', true);
+        self.#conteudoDivAlertMessage();
     }
 
     async #simularPagamento() {
         const self = this;
-        const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
-        rowLancamentos.html('');
+        self.#limparLancamentosNaTela();
 
         const data = self.#obterDados();
 
@@ -170,10 +177,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const response = await self.#buscarSimulacao(data);
 
         if (response?.data) {
-            for (const lancamento of response.data.lancamentos) {
-                const inserido = await self.#inserirLancamentos(lancamento, { status_id: 1 });
-            }
-            CommonFunctions.generateNotification('Simulação de pagamento concluída.', 'success');
+            const responseData = response.data;
+            responseData.lancamentos.map(lancamento => {
+                self.#inserirLancamento(lancamento, { status_id: 1 });
+            });
+            self.#ativarBtnEditarLancamentos(false);
+            CommonFunctions.generateNotification('Simulação de pagamento efetuada.', 'success');
             $(self.getIdModal).find(`#lancamentos${self._objConfigs.sufixo}-tab`).trigger('click');
         }
     }
@@ -193,36 +202,34 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         }
     }
 
-    async #inserirLancamentos(lancamento, pagamento) {
+    async #inserirLancamento(lancamento, pagamento) {
         const self = this;
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
-        const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
-        const valor_esperado = CommonFunctions.formatWithCurrencyCommasOrFraction(lancamento.valor_esperado);
-        const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
-        const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
 
         let htmlAppend = '';
-        let btns = '';
-        lancamento.idCard = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
+        lancamento.idCol = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
         const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
         const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
 
-        if (lancamento.pagamento_id) {
-            btns = `
-            <li><button type="button" class="dropdown-item fs-6 btn-participacao-lancamento btn-edit ${pagamentoAtivo && !tachado ? '' : 'disabled'}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button></li>`;
+        const personalizavel = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
+        const nameBtnEdit = pagamento?.id ? 'btn-edit' : 'btn-edit-object';
+        const disabledTachado = personalizavel && pagamentoAtivo && !tachado ? '' : 'disabled';
 
-            if (lancamento.observacao) {
-                const observacao = lancamento.observacao ?? '';
-                htmlAppend = `
+        const btns = `<li>
+            <button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${nameBtnEdit} ${disabledTachado}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button>
+        </li>`;
+
+        if (lancamento.observacao) {
+            const observacao = lancamento.observacao ?? '';
+            htmlAppend = `
                 <div class="row">
                     <div class="col">
                         <label class="form-text">Observação (opcional)</label>
-                        <p class="mb-0 text-truncate observacao-parcela" title="${observacao}">
+                        <p class="mb-0 text-truncate lancamento-observacao" title="${observacao}">
                             ${observacao}
                         </p>
                     </div>
                 </div>`;
-            }
         }
 
         let btnsDropDown = `
@@ -238,65 +245,258 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             </div>`;
 
         if (!btns) btnsDropDown = '';
+        const htmlColsLancamento = self.#htmlColsLancamento(lancamento);
 
         rowLancamentos.append(`
-            <div id="${lancamento.idCard}" class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
-                <div class="card-header d-flex align-items-center justify-content-between py-1">
-                    <span>${lancamento.descricao_automatica}</span>
-                    ${btnsDropDown}
-                </div>
-                <div class="card-body">
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
-                        <div class="col">
-                            <div class="form-text mt-0">Data de vencimento</div>
-                            <p class="mb-0">${data_vencimento}</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-text mt-0">Valor</div>
-                            <p class="mb-0">${valor_esperado}</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-text mt-0">Status</div>
-                            <p class="mb-0">${lancamento.status.nome}</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-text mt-0">Forma de pagamento</div>
-                            <p class="mb-0 text-truncate" title="${title_forma_pagamento}">
-                                ${nome_forma_pagamento}
-                            </p>
-                        </div>
+            <div id="${lancamento.idCol}" class="col">
+                <div class="card p-0 ${tachado ? 'fst-italic text-secondary-emphasis text-decoration-line-through' : ''}">
+                    <div class="card-header d-flex align-items-center justify-content-between py-1">
+                        <span class="lancamento-descricao-automatica">${lancamento.descricao_automatica}</span>
+                        ${btnsDropDown}
                     </div>
-                    ${htmlAppend}
+                    <div class="card-body">
+                        <div class="row html-cols-lancamento row-cols-1 row-cols-md-2 row-cols-lg-4 align-items-end">
+                            ${htmlColsLancamento}
+                        </div>
+                        ${htmlAppend}
+                    </div>
                 </div>
             </div>`);
 
+        self.#pushLancamentoNaTela(lancamento);
         self.#addEventosLancamentos(lancamento);
         return lancamento;
     }
 
+    #pushLancamentoNaTela(lancamento) {
+        const self = this;
+        const lancamentosNaTela = self._objConfigs.data.lancamentos_na_tela;
+        lancamentosNaTela.push(lancamento);
+    }
+
+    #limparLancamentosNaTela() {
+        const self = this;
+        $(self.getIdModal).find('.row-lancamentos').html('');
+        self._objConfigs.data.lancamentos_na_tela = [];
+        self._objConfigs.data.personalizar_lancamentos_updated_bln = false;
+        self.#conteudoDivAlertMessage();
+    }
+
+    #conteudoDivAlertMessage(html = null) {
+        const self = this;
+        const divAlertMessage = $(self.getIdModal).find('.divAlertMessage');
+
+        // Remove espaços em branco e verifica se o conteúdo é "vazio"
+        const isConteudoValido = html && html.trim() !== '';
+
+        if (isConteudoValido) {
+            divAlertMessage.html(html).show('fast');
+        } else {
+            divAlertMessage.hide('fast').html('');
+        }
+    }
+
+    #htmlColsLancamento(lancamento) {
+
+        let htmlColsLancamento = `
+            <div class="col">
+                <div class="form-text mt-0">Status</div>
+                <p>${lancamento.status.nome}</p>
+            </div>`;
+
+        const title_forma_pagamento = lancamento.forma_pagamento?.nome ?? 'Forma de Pagamento Padrão do Pagamento';
+        const nome_forma_pagamento = lancamento.forma_pagamento?.nome ?? `<i>${title_forma_pagamento}</i>`;
+        htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Forma de Pagamento</div>
+                <p class="text-truncate" title="${title_forma_pagamento}">
+                    ${nome_forma_pagamento}
+                </p>
+            </div>`;
+
+        const valor_esperado = CommonFunctions.formatNumberToCurrency(lancamento.valor_esperado); htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Valor Esperado</div>
+                <p>${valor_esperado}</p>
+            </div>`;
+
+        const data_vencimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_vencimento, 2);
+        htmlColsLancamento += `
+            <div class="col">
+                <div class="form-text mt-0">Data de vencimento</div>
+                <p>${data_vencimento}</p>
+            </div>`;
+
+        if (lancamento.valor_recebido) {
+            const valor_recebido = CommonFunctions.formatNumberToCurrency(lancamento.valor_recebido);
+            htmlColsLancamento += `
+                <div class="col">
+                    <div class="form-text mt-0">Valor Recebido</div>
+                    <p>${valor_recebido}</p>
+                </div> `;
+        }
+
+        if (lancamento.data_recebimento) {
+            const data_recebimento = DateTimeHelper.retornaDadosDataHora(lancamento.data_recebimento, 2);
+            htmlColsLancamento += `
+                <div class="col">
+                    <div class="form-text mt-0">Data recebimento</div>
+                    <p>${data_recebimento}</p>
+                </div> `;
+        }
+
+        return htmlColsLancamento;
+    }
+
+    #getIndexLancamento(lancamento, options = {}) {
+        const self = this;
+        const lancamentoIndex = self._objConfigs.data.lancamentos_na_tela.findIndex(lanc => lanc.idCol == lancamento.idCol);
+        const exibirNotificacao = options.exibirNotificacao ?? true;
+        if (lancamentoIndex == -1) {
+            const message = "Lançamento não encontrado na tela.";
+            if (exibirNotificacao) {
+                CommonFunctions.generateNotification(message, 'error');
+            } console.error(message, lancamento);
+            console.error(self._objConfigs.data.lancamentos_na_tela);
+            return false;
+        }
+        return lancamentoIndex;
+    }
+
     async #addEventosLancamentos(lancamento) {
         const self = this;
+        const personalizavel = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
 
-        $(`#${lancamento.idCard}`).find('.btn-edit').on('click', async function () {
-            const btn = $(this);
-            CommonFunctions.simulateLoading(btn);
-            try {
-                const objModal = new ModalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
-                objModal.setDataEnvModal = {
-                    idRegister: lancamento.id,
+        if (personalizavel) {
+            $(`#${lancamento.idCol}`).find('.btn-edit').on('click', async function () {
+                const btn = $(this);
+                CommonFunctions.simulateLoading(btn);
+                try {
+                    const objModal = new ModalServicoPagamentoLancamento({ urlApi: self._objConfigs.url.baseLancamentos });
+                    objModal.setDataEnvModal = { idRegister: lancamento.id, };
+                    await self._modalHideShow(false);
+                    const response = await objModal.modalOpen();
+                    if (response.refresh && response.register) {
+                        self.#buscarLancamentos()
+                    }
+                } catch (error) {
+                    CommonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    await self._modalHideShow();
+                    CommonFunctions.simulateLoading(btn, false);
                 }
-                await self._modalHideShow(false);
-                const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
-                    self.#buscarLancamentos()
+            });
+
+            $(`#${lancamento.idCol}`).find('.btn-edit-object').on('click', async function () {
+                if (!self._objConfigs.data.personalizar_lancamentos_bln) return;
+
+                const btn = $(this);
+                CommonFunctions.simulateLoading(btn);
+                try {
+                    const lancamentoIndex = self.#getIndexLancamento(lancamento);
+                    if (lancamentoIndex === false) {
+                        return false;
+                    }
+                    const register = self._objConfigs.data.lancamentos_na_tela[lancamentoIndex];
+
+                    const objModal = new ModalServicoPagamentoLancamento();
+                    objModal.setDataEnvModal = { register };
+                    await self._modalHideShow(false);
+                    const response = await objModal.modalOpen();
+                    if (response.refresh && response.register) {
+                        await self.#updateLancamento(response.register)
+                    }
+                } catch (error) {
+                    CommonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    await self._modalHideShow();
+                    CommonFunctions.simulateLoading(btn, false);
                 }
-            } catch (error) {
-                CommonFunctions.generateNotificationErrorCatch(error);
-            } finally {
-                await self._modalHideShow();
-                CommonFunctions.simulateLoading(btn, false);
+            });
+
+            if ($(`#${lancamento.idCol}`).find('.btn-edit-object').length > 0 && !self._objConfigs._testeLancamento) {
+                self._objConfigs._testeLancamento = true;
+                $(`#${lancamento.idCol}`).find('.btn-edit-object').trigger('click');
             }
-        });
+        }
+    }
+
+    async #updateLancamento(lancamento) {
+        const self = this;
+
+        const lancamentoIndex = self.#getIndexLancamento(lancamento);
+        if (lancamentoIndex === false) {
+            return false;
+        }
+
+        // Se houver update, ao desmarcar a opção de personalizar, os lançamentos deverão ser simulados novamente, então setamos como personalizar_lancamentos_updated_bln = true.
+        self._objConfigs.data.personalizar_lancamentos_updated_bln = true;
+
+        const lancamentoNaTela = self._objConfigs.data.lancamentos_na_tela[lancamentoIndex];
+
+        // Clona antes de sobrescrever com deepMerge
+        const formaPagamentoOriginal = lancamentoNaTela.forma_pagamento;
+
+        CommonFunctions.deepMergeObject(lancamentoNaTela, lancamento);
+
+        // Se for nulo ou vazio, limpa a forma de pagamento
+        if (!lancamentoNaTela.forma_pagamento_id || lancamentoNaTela.forma_pagamento_id == 0) {
+            delete lancamentoNaTela.forma_pagamento;
+            lancamentoNaTela.forma_pagamento_id = null;
+        }
+
+        // Se mudou a forma de pagamento, busca a nova
+        if (
+            lancamentoNaTela.forma_pagamento_id &&
+            formaPagamentoOriginal &&
+            formaPagamentoOriginal.id != lancamentoNaTela.forma_pagamento_id
+        ) {
+            lancamentoNaTela.forma_pagamento = await self.#buscarFormaPagamentoPorId(lancamentoNaTela.forma_pagamento_id);
+        }
+
+        const colLancamento = $(`#${lancamentoNaTela.idCol}`);
+        colLancamento.find('.lancamento-descricao-automatica').html(lancamentoNaTela.descricao_automatica);
+        colLancamento.find('.html-cols-lancamento').html(self.#htmlColsLancamento(lancamentoNaTela));
+        await self.#validarSomaLancamentosComValorTotal();
+    }
+
+    #mensagemValidacaoSomaLancamentos() {
+        const self = this;
+
+        const lancamentos = self._objConfigs.data.lancamentos_na_tela || [];
+
+        const somaLancamentos = lancamentos.reduce((acc, l) => acc + parseFloat(l.valor_esperado || 0), 0);
+
+        const valorTotal = CommonFunctions.removeCommasFromCurrencyOrFraction(
+            $(`${self.getIdModal} input[name="valor_total"]`).val() ?? 0
+        );
+
+        const diferenca = somaLancamentos - valorTotal;
+
+        const formatado = (v) => CommonFunctions.formatWithCurrencyCommasOrFraction(v, { decimalPlaces: 2 });
+
+        if (diferenca > 0) {
+            return `A soma dos lançamentos (<strong>R$ ${formatado(somaLancamentos)}</strong>) ultrapassa o valor total (<strong>R$ ${formatado(valorTotal)}</strong>) em <strong>R$ ${formatado(diferenca)}</strong>.`;
+        } else if (diferenca < 0) {
+            return `A soma dos lançamentos (<strong>R$ ${formatado(somaLancamentos)}</strong>) está abaixo do valor total (<strong>R$ ${formatado(valorTotal)}</strong>) em <strong>R$ ${formatado(Math.abs(diferenca))}</strong>.`;
+        }
+
+        return ''; // Tudo certo
+    }
+
+
+    async #validarSomaLancamentosComValorTotal() {
+        const self = this;
+        const mensagem = self.#mensagemValidacaoSomaLancamentos();
+        self.#conteudoDivAlertMessage(mensagem);
+    }
+
+    async #buscarFormaPagamentoPorId(id) {
+        const self = this;
+        const objConn = new ConnectAjax(self._objConfigs.url.baseFormaPagamento);
+        objConn.setParam(id);
+        const response = await objConn.getRequest();
+        return response.data;
     }
 
     async #buscarDadosPagamentoTipo(modo_editar_bln = false) {
@@ -317,7 +517,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.CONDICIONADO) {
                 $(self.getIdModal).find('.elements-pane-lancamentos').css('display', 'none');
             }
-
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
         }
@@ -382,28 +581,29 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
     async #buscarDados() {
         const self = this;
-        $(self.getIdModal).find('.row-lancamentos').html('');
+        self.#limparLancamentosNaTela();
 
         try {
             self._clearForm();
+            self.#conteudoDivAlertMessage();
             self._action = EnumAction.PUT;
             const response = await self._getRecurse();
 
             if (response?.data) {
                 const responseData = response.data;
 
-                await self.#verificaLancamentos(responseData);
-
                 const pagamentoTipoTenant = responseData.pagamento_tipo_tenant;
                 const pagamentoTipo = pagamentoTipoTenant.pagamento_tipo;
 
                 self._updateModalTitle(`Alterar: <b>${pagamentoTipoTenant.nome}</b>`);
                 self._dataEnvModal.pagamento_tipo_tenant_id = pagamentoTipoTenant.id;
+
                 await self.#buscarDadosPagamentoTipo(true);
+                await self.#verificaLancamentos(responseData);
 
                 const form = $(self.getIdModal).find('.formRegistration');
-                self.#buscarFormaPagamento(responseData.forma_pagamento_id);
-                self.#buscarStatusPagamento(responseData.status_id);
+                await self.#buscarFormaPagamento(responseData.forma_pagamento_id);
+                await self.#buscarStatusPagamento(responseData.status_id);
 
                 const tipoCampos = [pagamentoTipo.campos_obrigatorios, pagamentoTipo.campos_opcionais ?? []];
                 for (const tipoCampo of tipoCampos) {
@@ -435,7 +635,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 }
 
                 for (const lancamento of responseData.lancamentos) {
-                    self.#inserirLancamentos(lancamento, responseData);
+                    self.#inserirLancamento(lancamento, responseData);
                 }
                 form.find('input[name="observacao"]').val(responseData.observacao);
             }
@@ -482,7 +682,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
             ckbResetar.prop('checked', false).attr('disabled', false);
 
-            ckbResetar.on('change', () => {
+            ckbResetar.off('change').on('change', () => {
 
                 const statusChecked = ckbResetar.is(':checked');
                 self._objConfigs.data.resetar_pagamento_bln = statusChecked;
@@ -490,20 +690,32 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 $(`${self.getIdModal} .campo-readonly`).prop('readonly', !statusChecked);
                 $(`${self.getIdModal} .campo-readonly-disabled`).prop('disabled', !statusChecked);
 
-                // Se for falso a o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa
+                // Se for falso a o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa.
                 statusChecked ? self.#verificaLiquidadoMigracao() : self.#visibilidadeLiquidadoMigracao();
+
+                // Se for falso a o reset, então já se aplica falso na visibilidade dos lançamentos personalizados, pois não editará os registros antigos.
+                statusChecked ? self.#verificaPersonalizarLancamentos() : self.#visibilidadePersonalizarLancamentos();
+
+                // Se for true, então busca uma simulação com os dados que estão na tela, para liberar a personalização. Caso contrário, busca os lançamentos já cadastrados.
+                statusChecked ? self.#simularPagamento() : self.#buscarLancamentos()
+
             });
         } else {
             $(self.getIdModal).find('.btn-simular, .div-resetar-lancamentos').hide();
-            ckbResetar.prop('checked', false).attr('disabled', true);
+            ckbResetar.prop('checked', false).attr('disabled', true).off('change');
             self._objConfigs.data.resetar_pagamento_bln = false;
         }
+        self.#visibilidadePersonalizarLancamentos();
     }
 
+    /**
+     * Verifica se o tenant tem a opção de lancamento_liquidado_migracao_sistema_bln ativa e define a visibilidade da opção de liquidado migração. Esta execução deve ser realizada depois do buscarDadosPagamentoTipo, pois verifica também o tipo do pagamento.
+     */
     async #verificaLiquidadoMigracao() {
         const self = this;
         const tenantData = await TenantDataHelper.getTenantData();
-        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln);
+        const permiteLiquidadoMigracao = window.Statics.PagamentoTipoQuePermiteLiquidadoMigracao.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
+        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln && permiteLiquidadoMigracao);
     }
 
     #visibilidadeLiquidadoMigracao(statusVisibilidade = false) {
@@ -516,27 +728,99 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
             ckbLiquidadoMigracao.prop('checked', false).attr('disabled', false);
 
-            ckbLiquidadoMigracao.on('change', () => {
+            ckbLiquidadoMigracao.off('change').on('change', () => {
                 const statusChecked = ckbLiquidadoMigracao.is(':checked');
                 self._objConfigs.data.liquidado_migracao_bln = statusChecked;
             });
         } else {
             $(self.getIdModal).find('.div-liquidado-migracao').hide();
-            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', true);
+            ckbLiquidadoMigracao.prop('checked', false).attr('disabled', true).off('change');
             self._objConfigs.data.liquidado_migracao_bln = false;
         }
     }
 
+    #verificaPagamentoTipoComLancamentosPersonalizaveis() {
+        const self = this;
+        return window.Statics.PagamentoTipoComLancamentosPersonalizaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
+    }
+
+    async #verificaPersonalizarLancamentos() {
+        const self = this;
+        const permitePersonalizar = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
+        self.#visibilidadePersonalizarLancamentos(permitePersonalizar);
+    }
+
+    #visibilidadePersonalizarLancamentos(statusVisibilidade = false) {
+        const self = this;
+        const ckbPersonalizarLancamentos = $(`#personalizar_lancamentos_bln${self.getSufixo}`);
+
+        if (statusVisibilidade) {
+            // Mostra a opção de personalizar lançamentos
+            $(self.getIdModal).find('.div-personalizar-lancamentos').show();
+
+            // Ativa o checkbox
+            ckbPersonalizarLancamentos.prop('checked', false).attr('disabled', false);
+
+            // Define evento de alteração
+            ckbPersonalizarLancamentos.off('change').on('change', async () => {
+                const statusChecked = ckbPersonalizarLancamentos.is(':checked');
+
+                // Se o usuário tentar desmarcar após ter personalizado, alerta sobre a perda
+                if (!statusChecked && self._objConfigs.data.personalizar_lancamentos_updated_bln) {
+
+                    const objMessage = new ModalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Atenção',
+                        message: `
+                            <p>Existem lançamentos personalizados.</p>
+                            <p>Desmarcar esta opção irá descartá-los e gerar uma nova simulação com valores e datas gerados pelo sistema.</p>
+                            <p>Deseja continuar?</p>
+                        `,
+                    };
+                    self._modalHideShow(false);
+                    const result = await objMessage.modalOpen();
+                    self._modalHideShow();
+
+                    // Se o usuário cancelar, volta o checkbox para "true" e sai da função
+                    if (!result.confirmResult) {
+                        ckbPersonalizarLancamentos.prop('checked', true);
+                        return;
+                    } else {
+                        await self.#simularPagamento();
+                    }
+                }
+
+                self.#ativarBtnEditarLancamentos(statusChecked);
+
+                // Atualiza os dados com o novo estado do checkbox
+                self._objConfigs.data.personalizar_lancamentos_bln = statusChecked;
+                self._objConfigs.data.personalizar_lancamentos_updated_bln = false;
+            });
+
+        } else {
+            // Esconde a opção e reseta os dados
+            $(self.getIdModal).find('.div-personalizar-lancamentos').hide();
+            ckbPersonalizarLancamentos.prop('checked', false).attr('disabled', true).off('change');
+            self._objConfigs.data.personalizar_lancamentos_bln = false;
+            self._objConfigs.data.personalizar_lancamentos_updated_bln = false;
+        }
+    }
+
+    #ativarBtnEditarLancamentos(status = true) {
+        const self = this;
+        $(self.getIdModal).find(`.row-lancamentos .btn-edit-object`).attr('disabled', !status);
+    }
+
     async #buscarLancamentos() {
         const self = this;
-        $(self.getIdModal).find('.row-lancamentos').html('');
+        self.#limparLancamentosNaTela();
 
         try {
             const response = await self._getRecurse();
             if (response?.data) {
                 const responseData = response.data;
                 responseData.lancamentos.map(lancamento => {
-                    self.#inserirLancamentos(lancamento, lancamento.pagamento);
+                    self.#inserirLancamento(lancamento, responseData);
                 })
             }
         } catch (error) {
@@ -651,7 +935,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #obterDados() {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        let data = CommonFunctions.getInputsValues(formRegistration[0]);       
+        let data = CommonFunctions.getInputsValues(formRegistration[0]);
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
 
         if (pagamentoTipo.id == window.Enums.PagamentoTipoEnum.RECORRENTE) {
@@ -668,8 +952,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         if (self._action == EnumAction.POST || (
             self._action == EnumAction.PUT && (
-                tipo == 'save' || tipo == 'simulacao' &&
-                self._objConfigs.data?.resetar_pagamento_bln)
+                tipo == 'save' ||
+                (tipo == 'simulacao' &&
+                    self._objConfigs.data?.resetar_pagamento_bln)
+            )
         )) {
 
             blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
@@ -697,7 +983,15 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                     });
                 }
             }
-            // }
+
+            if (self._objConfigs.data.personalizar_lancamentos_bln) {
+                const mensagemValidaSoma = this.#mensagemValidacaoSomaLancamentos();
+                if (mensagemValidaSoma) {
+                    blnSave = false;
+                    this.#conteudoDivAlertMessage(mensagemValidaSoma);
+                    CommonFunctions.generateNotification(mensagemValidaSoma, 'warning');
+                }
+            }
         }
 
         return blnSave;
