@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\LancamentosCategoriaEnum;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Illuminate\Support\Fluent;
@@ -35,7 +36,7 @@ class PagamentoTipoParceladoHelper
 
             $lancamentos[] = [
                 'descricao_automatica' => "Parcela {$i} de {$quantidadeParcelas}",
-                'categoria_lancamento' => 'parcela',
+                'lancamento_categoria_id' => $i == 1 ? LancamentosCategoriaEnum::PRIMEIRA_PARCELA->value : LancamentosCategoriaEnum::PARCELA->value,
                 'observacao' => null,
                 'data_vencimento' => $dataVencimento->format('Y-m-d'),
                 'valor_esperado' => round((float) $valorParcelaAjustada, 2),

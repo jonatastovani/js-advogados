@@ -184,17 +184,35 @@ enum PagamentoTipoEnum: int
         ];
     }
 
-    static public function pagamentoTipoCategoriaLancamentosPersonalizaveis(): array
-    {
-        return [
-            'parcela',
-        ];
-    }
-
     static public function pagamentoTipoComLancamentosCategoriaEntrada(): array
     {
         return [
             PagamentoTipoEnum::PAGAMENTO_UNICO->value,
+            PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value,
+        ];
+    }
+
+    static public function pagamentoTipoComLancamentosCategoriaPrimeiraParcela(): array
+    {
+        return [
+            PagamentoTipoEnum::PARCELADO->value,
+            PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value,
+        ];
+    }
+
+    static public function pagamentoTipoComConferenciaDeValorTotal(): array
+    {
+        return [
+            PagamentoTipoEnum::PAGAMENTO_UNICO->value,
+            PagamentoTipoEnum::PARCELADO->value,
+            PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value,
+        ];
+    }
+
+    static public function pagamentoTipoComConferenciaDeNumeroDeParcelas(): array
+    {
+        return [
+            PagamentoTipoEnum::PARCELADO->value,
             PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value,
         ];
     }
@@ -225,7 +243,7 @@ enum PagamentoTipoEnum: int
                 'nome_exibir' => 'Valor esperado',
                 'form_request_rule' => 'required|numeric|min:1',
                 'validacao_front' => [
-                    'tipo' => 'numero',
+                    'tipo' => 'numeric',
                     'acao_se_invalido' => 'alertar',
                     'mensagem' => 'Informe um valor esperado válido (mínimo R$ 1,00).',
                 ],
@@ -235,7 +253,7 @@ enum PagamentoTipoEnum: int
                 'nome_exibir' => 'Data de vencimento',
                 'form_request_rule' => 'required|date',
                 'validacao_front' => [
-                    'tipo' => 'data',
+                    'tipo' => 'date',
                     'acao_se_invalido' => 'alertar',
                     'mensagem' => 'Informe uma data de vencimento válida.',
                 ],
@@ -245,7 +263,7 @@ enum PagamentoTipoEnum: int
                 'nome_exibir' => 'Descrição automática',
                 'form_request_rule' => 'required|string|max:255',
                 'validacao_front' => [
-                    'tipo' => 'texto',
+                    'tipo' => 'string',
                     'acao_se_invalido' => 'ignorar',
                     'mensagem' => '',
                 ],
@@ -255,17 +273,17 @@ enum PagamentoTipoEnum: int
                 'nome_exibir' => 'Observação',
                 'form_request_rule' => 'nullable|string|max:500',
                 'validacao_front' => [
-                    'tipo' => 'texto',
+                    'tipo' => 'string',
                     'acao_se_invalido' => 'ignorar',
                     'mensagem' => '',
                 ],
             ],
             [
-                'nome' => 'categoria_lancamento',
+                'nome' => 'lancamento_categoria_id',
                 'nome_exibir' => 'Categoria',
-                'form_request_rule' => 'required|string|max:15',
+                'form_request_rule' => 'required|integer',
                 'validacao_front' => [
-                    'tipo' => 'texto',
+                    'tipo' => 'integer',
                     'acao_se_invalido' => 'alertar',
                     'mensagem' => 'A informação de categoria é obrigatória. Se o problema persistir, contate o desenvolvedor.',
                 ],

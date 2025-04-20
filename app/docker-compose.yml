@@ -43,11 +43,11 @@ services:
         networks:
             - laravel
 
-    pgbackup:
-        image: postgres:16.3
-        networks:
-        - laravel
-        command: sleep infinity  # fica parado, aguardando seu comando
+    # pgbackup:
+    #     image: postgres:16.3
+    #     networks:
+    #     - laravel
+    #     command: sleep infinity  # fica parado, aguardando seu comando
 
 networks:
     laravel:

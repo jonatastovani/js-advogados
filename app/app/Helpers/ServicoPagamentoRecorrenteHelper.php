@@ -117,6 +117,7 @@ class ServicoPagamentoRecorrenteHelper
                 $lancamento->tenant_id = $pagamento->tenant_id;
                 $lancamento->domain_id = $pagamento->domain_id;
                 $lancamento->created_user_id = $pagamento->created_user_id;
+                $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? null;
 
                 if ($tenant->lancamento_liquidado_migracao_sistema_bln && self::$liquidadoMigracaoSistemaBln) {
                     $vencimento = Carbon::parse($lancamento->data_vencimento);
@@ -126,7 +127,7 @@ class ServicoPagamentoRecorrenteHelper
                         $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
                         $lancamento->valor_recebido = $lancamento->valor_esperado;
                         $lancamento->data_recebimento = $lancamento->data_vencimento;
-                        $lancamento->forma_pagamento_id = $pagamento->forma_pagamento_id;
+                        $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? $pagamento->forma_pagamento_id;
                     }
                 }
 
@@ -149,7 +150,6 @@ class ServicoPagamentoRecorrenteHelper
 
     protected static function getLancamentosRecorrentesPersonalizadosOuGerados(ServicoPagamento $pagamento): array
     {
-        $lancamentos = [];
 
         if (count(self::$lancamentosPersonalizados)) {
             // Ordena por data_vencimento
@@ -167,12 +167,10 @@ class ServicoPagamentoRecorrenteHelper
                 'cron_ultima_execucao_personalizada' => $ultimaData
             ]);
 
-            $lancamentos = array_merge($lancamentos, $lancamentosGerados['lancamentos']);
+            return array_merge($lancamentos, $lancamentosGerados['lancamentos']);
         } else {
-            $lancamentos = PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()))['lancamentos'] ?? [];
+            return PagamentoTipoRecorrenteHelper::renderizar(new Fluent($pagamento->toArray()))['lancamentos'] ?? [];
         }
-
-        return $lancamentos;
     }
 
     /**
@@ -183,32 +181,9 @@ class ServicoPagamentoRecorrenteHelper
      */
     private static function executarLancamento(Fluent $lancamento): bool
     {
-        $dados = [
-            'pagamento_id' => $lancamento->pagamento_id,
-            'descricao_automatica' => $lancamento->descricao_automatica,
-            'observacao' => $lancamento->observacao,
-            'data_vencimento' => $lancamento->data_vencimento,
-            'valor_esperado' => $lancamento->valor_esperado,
-            'status_id' => $lancamento->status_id,
-            'tenant_id' => $lancamento->tenant_id,
-            'domain_id' => $lancamento->domain_id,
-            'created_user_id' => $lancamento->created_user_id,
-        ];
-
-        if (
-            filled($lancamento->valor_recebido) &&
-            filled($lancamento->data_recebimento) &&
-            filled($lancamento->forma_pagamento_id)
-        ) {
-            $dados = array_merge($dados, [
-                'valor_recebido' => $lancamento->valor_recebido,
-                'data_recebimento' => $lancamento->data_recebimento,
-                'forma_pagamento_id' => $lancamento->forma_pagamento_id,
-            ]);
-        }
-
         try {
-            ServicoPagamentoLancamento::create($dados);
+            // ServicoPagamentoLancamento::create($dados);
+            ServicoPagamentoLancamento::create($lancamento->toArray());
             return true;
         } catch (\Exception $e) {
             // Log do erro na tentativa de salvar

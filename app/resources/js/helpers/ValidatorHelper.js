@@ -23,15 +23,27 @@ export class ValidatorHelper {
                     valido = UUIDHelper.isValidUUID(valor);
                     break;
 
-                case 'numero':
+                case 'numeric':
                     valido = !isNaN(parseFloat(valor)) && isFinite(valor);
                     break;
 
-                case 'data':
+                case 'integer':
+                    valido = !isNaN(parseInt(valor)) && isFinite(valor);
+                    break;
+
+                case 'boolean':
+                    valido = typeof valor === 'boolean';
+                    break;
+
+                case 'email':
+                    valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+                    break;
+
+                case 'date':
                     valido = !isNaN(Date.parse(valor));
                     break;
 
-                case 'texto':
+                case 'string':
                     valido = typeof valor === 'string';
                     break;
 

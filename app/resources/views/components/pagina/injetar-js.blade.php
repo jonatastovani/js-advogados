@@ -42,7 +42,6 @@
         PagamentoTipoComLancamentosPersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis()),
         PagamentoTipoComLancamentosDependentesValorTotal: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComLancamentosDependentesValorTotal()),
         PagamentoTipoCamposLancamentosPersonalizados: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoCamposLancamentosPersonalizados()),
-        PagamentoTipoCategoriaLancamentosPersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoCategoriaLancamentosPersonalizaveis()),
     }
 
     window.Details = {
@@ -51,6 +50,7 @@
         LancamentoStatusTipoEnum: @json(\App\Enums\LancamentoStatusTipoEnum::staticDetailsToArray()),
         PessoaTipoEnum: @json(\App\Enums\PessoaTipoEnum::staticDetailsToArray()),
         PagamentoStatusTipoEnum: @json(\App\Enums\PagamentoStatusTipoEnum::staticDetailsToArray()),
+        LancamentosCategoriaEnum: @json(\App\Enums\LancamentosCategoriaEnum::staticDetailsToArray()),
     };
 </script>
 

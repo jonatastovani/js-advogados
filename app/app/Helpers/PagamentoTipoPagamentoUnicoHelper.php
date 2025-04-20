@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\LancamentosCategoriaEnum;
 use App\Models\Tenant\FormaPagamentoTenant;
 use Illuminate\Support\Fluent;
 
@@ -16,7 +17,7 @@ class PagamentoTipoPagamentoUnicoHelper
             'lancamentos' => [
                 [
                     'descricao_automatica' => 'Pagamento Único',
-                    'categoria_lancamento' => 'entrada',
+                    'lancamento_categoria_id' => LancamentosCategoriaEnum::ENTRADA->value,
                     'observacao' => null,
                     'data_vencimento' => $dados->entrada_data,
                     'valor_esperado' => round((float) $dados->valor_total, 2),

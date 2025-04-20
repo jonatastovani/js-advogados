@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\LancamentosCategoriaEnum;
 use App\Models\Tenant\FormaPagamentoTenant;
 use App\Traits\ParcelamentoTipoHelperTrait;
 use Carbon\Carbon;
@@ -74,7 +75,7 @@ class PagamentoTipoRecorrenteHelper
         foreach ($proximasExecucoes as $proximaExecucao) {
             $lancamentos[] = [
                 'descricao_automatica' => 'Recorrente',
-                'categoria_lancamento' => 'parcela',
+                'lancamento_categoria_id' => LancamentosCategoriaEnum::PARCELA->value,
                 'observacao' => null,
                 'data_vencimento' => Carbon::parse($proximaExecucao)->format('Y-m-d'),
                 'valor_esperado' => round((float) $dados->parcela_valor, 2),

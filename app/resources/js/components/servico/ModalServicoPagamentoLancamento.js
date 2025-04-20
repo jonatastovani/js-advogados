@@ -71,8 +71,26 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
 
         CommonFunctions.applyCustomNumberMask(modal.find('input[name="valor_esperado"]'), { format: '#.##0,00', reverse: true });
 
-        modal.find('.campos-personalizar-lancamento').prop('readonly', !(self._objConfigs.modeReturn == 'object' &&
-            window.Statics.PagamentoTipoCategoriaLancamentosPersonalizaveis.includes(self._dataEnvModal?.register.categoria_lancamento)));
+        const camposPersonalizarLancamento = modal.find('.campos-personalizar-lancamento');
+        const isModoObjeto = self._objConfigs.modeReturn === 'object';
+
+        if (isModoObjeto) {
+            const categoriaId = self._dataEnvModal?.register?.lancamento_categoria_id;
+            const categoria = window.Details.LancamentosCategoriaEnum.find(x => x.id == categoriaId);
+            const camposPermitidos = categoria?.configuracao?.personalizar_lancamento?.campos_permitidos || [];
+
+            const liberarTodos = camposPermitidos.includes('*');
+
+            camposPersonalizarLancamento.each((_, element) => {
+                const podeEditar = liberarTodos || camposPermitidos.includes(element.name);
+                $(element).prop('readonly', !podeEditar);
+            });
+            modal.find('.divInfoLancamentoPersonalizado').html(categoria?.descricao ? `<div class="form-text mt-1 fst-italic">${categoria?.descricao}</div>` : '');
+        } else {
+            camposPersonalizarLancamento.prop('readonly', true);
+            modal.find('.divInfoLancamentoPersonalizado').html('');
+        }
+
     }
 
     async #buscarFormaPagamento(selected_id = null) {
@@ -153,24 +171,40 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let blnSave = true;
 
-        if (self._objConfigs.modeReturn == 'object' && window.Statics.PagamentoTipoCategoriaLancamentosPersonalizaveis.includes(self._dataEnvModal?.register.categoria_lancamento)) {
+        if (self._objConfigs.modeReturn === 'object') {
+            const categoriaId = self._dataEnvModal?.register?.lancamento_categoria_id;
+            const categoriaEnum = window.Details.LancamentosCategoriaEnum.find(x => x.id == categoriaId);
+            const camposPermitidos = categoriaEnum?.configuracao?.personalizar_lancamento?.campos_permitidos || [];
 
-            blnSave = CommonFunctions.verificationData(data.data_vencimento, {
-                field: formRegistration.find('input[name="data_vencimento"]'),
-                messageInvalid: 'A <b>Data de Vencimento</b> deve ser informada.',
-                setFocus: true
-            });
+            const liberarTodos = camposPermitidos.includes('*');
 
-            data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
-            blnSave = CommonFunctions.verificationData(data.valor_esperado, {
-                field: formRegistration.find('input[name="valor_esperado"]'),
-                messageInvalid: 'O <b>Valor</b> deve ser informado.',
-                setFocus: blnSave === true,
-                returnForcedFalse: blnSave === false
+            if (liberarTodos || camposPermitidos.includes('data_vencimento')) {
+                blnSave = CommonFunctions.verificationData(data.data_vencimento, {
+                    field: formRegistration.find('input[name="data_vencimento"]'),
+                    messageInvalid: 'A <b>Data de Vencimento</b> deve ser informada.',
+                    setFocus: true
+                });
+            }
+
+            if (liberarTodos || camposPermitidos.includes('valor_esperado')) {
+                data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
+                blnSave = CommonFunctions.verificationData(data.valor_esperado, {
+                    field: formRegistration.find('input[name="valor_esperado"]'),
+                    messageInvalid: 'O <b>Valor</b> deve ser informado.',
+                    setFocus: blnSave === true,
+                    returnForcedFalse: blnSave === false
+                });
+            }
+
+            // Se quiser, já remove os campos não permitidos aqui também:
+            Object.keys(data).forEach(key => {
+                if (!liberarTodos && !camposPermitidos.includes(key)) {
+                    delete data[key];
+                }
             });
 
         } else {
-            // Retorna somente os campos permitidos a serem alterados por padrão
+            // Se não for objeto, restringe à forma_pagamento_id e observacao
             Object.keys(data).forEach(key => {
                 if (!['forma_pagamento_id', 'observacao'].includes(key)) {
                     delete data[key];
@@ -181,6 +215,36 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
                 delete data.forma_pagamento_id;
             }
         }
+
+
+        // if (self._objConfigs.modeReturn == 'object' && window.Statics.PagamentoTipoCategoriaLancamentosPersonalizaveis.includes(self._dataEnvModal?.register.lancamento_categoria_id)) {
+
+        //     blnSave = CommonFunctions.verificationData(data.data_vencimento, {
+        //         field: formRegistration.find('input[name="data_vencimento"]'),
+        //         messageInvalid: 'A <b>Data de Vencimento</b> deve ser informada.',
+        //         setFocus: true
+        //     });
+
+        //     data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
+        //     blnSave = CommonFunctions.verificationData(data.valor_esperado, {
+        //         field: formRegistration.find('input[name="valor_esperado"]'),
+        //         messageInvalid: 'O <b>Valor</b> deve ser informado.',
+        //         setFocus: blnSave === true,
+        //         returnForcedFalse: blnSave === false
+        //     });
+
+        // } else {
+        //     // Retorna somente os campos permitidos a serem alterados por padrão
+        //     Object.keys(data).forEach(key => {
+        //         if (!['forma_pagamento_id', 'observacao'].includes(key)) {
+        //             delete data[key];
+        //         }
+        //     });
+
+        //     if (!UUIDHelper.isValidUUID(data.forma_pagamento_id)) {
+        //         delete data.forma_pagamento_id;
+        //     }
+        // }
 
         return blnSave;
     }

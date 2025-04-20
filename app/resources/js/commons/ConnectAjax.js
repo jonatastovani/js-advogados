@@ -134,13 +134,26 @@ export class ConnectAjax {
     }
 
     #handleError(xhr) {
-        // if (xhr.status === 401) {
-        //     return { status: xhr.status, message: 'Este usuário não possui permissão para realizar esta ação. Possíveis razões:', itemsMessage: ['Sessão expirada', 'Permissões insuficientes'] };
-        // } else 
         if (xhr.responseText) {
             return this.#parseErrorResponse(xhr);
+        } else if (xhr.status === 0) {
+            if (!navigator.onLine) {
+                return {
+                    status: 0,
+                    message: 'Sem conexão com a internet. Verifique sua rede e tente novamente.',
+                };
+            } else {
+                return {
+                    status: 0,
+                    message: 'Não foi possível conectar ao servidor de API. O servidor pode estar fora do ar.',
+                };
+            }
         } else {
-            return { xhr: xhr, status: xhr.status, message: 'Erro interno no servidor API.' };
+            return {
+                xhr: xhr,
+                status: xhr.status,
+                message: 'Erro interno no servidor API.',
+            };
         }
     }
 

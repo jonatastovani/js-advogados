@@ -97,7 +97,6 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
             }
         }
 
-        $this->merge(['pagamento_tipo_tenant' => $pagamentoTipoTenant]);
         return $rules;
     }
 

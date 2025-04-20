@@ -4,6 +4,7 @@ namespace App\Services\Servico;
 
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
+use App\Enums\LancamentosCategoriaEnum;
 use App\Enums\PagamentoTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoStatusTipoEnum;
@@ -389,6 +390,11 @@ class ServicoPagamentoService extends Service
             }
         };
 
+        if (empty($requestData->pagamento_tipo_tenant['pagamento_tipo'])) {
+            $resource->load('pagamento_tipo_tenant.pagamento_tipo');
+            $requestData->pagamento_tipo_tenant = $resource->pagamento_tipo_tenant;
+        }
+
         $pagamentoTipo = $requestData->pagamento_tipo_tenant->pagamento_tipo;
         $pagamentoTipoComLancamentosPersonalizaveis = PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis();
 
@@ -400,23 +406,13 @@ class ServicoPagamentoService extends Service
             count($requestData->lancamentos)
         ) {
             $this->verificacaoLancamentosPersonalizados($requestData, $resource, $arrayErrors);
-            $lanc = $requestData->lancamentos;
-            $lanc[0]['valor_esperado'] = 654;
-            $requestData->lancamentos = $lanc;
 
             if (count($arrayErrors->toArray())) {
-                throw new HttpResponseException(
-                    response()->json(
-                        RestResponse::createGenericResponse(["errors" => $arrayErrors->toArray()], 422, "Inconsistência nos lançamentos personalizados.")->toArray(),
-                        422
-                    )
-                );
-                // Log::debug("message", $arrayErrors->toArray());
-
-                // RestResponse::createGenericResponse(["errors" => $arrayErrors->toArray()], 422, "Inconsistência nos lançamentos personalizados.")->throwResponse();
+                RestResponse::createGenericResponse(["errors" => $arrayErrors->toArray()], 422, "Inconsistência nos lançamentos personalizados.")->throwResponse();
             }
 
             $personalizadosBln = true;
+            $lancamentosPersonalizados = $requestData->lancamentos;
         };
 
         switch ($pagamentoTipo->id) {
@@ -459,91 +455,166 @@ class ServicoPagamentoService extends Service
 
         if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis())) {
 
-            $agrupamentoCategoria = collect($requestData->lancamentos)->groupBy('categoria_lancamento');
+            $somatoriaConferenciaValorTotal = 0;
+            $somatoriaConferenciaQuantidadeParcelas = 0;
+            $agrupamentoCategoria = collect($requestData->lancamentos)->groupBy('lancamento_categoria_id');
 
             // Verifica se o pagamento possui um lançamento com a categoria 'entrada'
             if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosCategoriaEntrada())) {
 
-                // Verifica duplicidade de entrada
-                if ($agrupamentoCategoria->has('entrada')) {
-                    $lancamentosEntrada = $agrupamentoCategoria['entrada'];
+                $detalhes = LancamentosCategoriaEnum::ENTRADA->detalhes();
+                $label = $detalhes['label'];
+                $nome = $detalhes['nome'];
+                if ($agrupamentoCategoria->has(LancamentosCategoriaEnum::ENTRADA->value)) {
+                    $lancamentosEntrada = $agrupamentoCategoria[LancamentosCategoriaEnum::ENTRADA->value];
 
+                    // Verifica duplicidade de entrada
                     if ($lancamentosEntrada->count() > 1) {
                         $arrayErrors->categoria_entrada_duplicada = LogHelper::gerarLogDinamico(
                             409,
-                            'O pagamento possui mais de um lançamento com a categoria "entrada".',
+                            "O pagamento possui mais de um lançamento com a categoria \"{$label}\" [$nome].",
                             $requestData,
                             ['resource' => $resource]
                         )->error;
                     } else {
                         $first = $lancamentosEntrada->first();
 
-                        Log::debug("first", [$first['valor_esperado'], $first['data_vencimento']]);
-                        $valorEsperado = number_format((float) $first['valor_esperado'], 2, '.', '');
-                        $valorEntrada = number_format((float) $resource->entrada_valor, 2, '.', '');
-                        $dataEsperada = $first['data_vencimento'];
+                        $valorEsperado = (float) $first['valor_esperado'];
+                        $valorEntrada = (float) $resource->entrada_valor;
+                        $dataVencimento = $first['data_vencimento'];
                         $dataEntrada = $resource->entrada_data;
+                        $somatoriaConferenciaValorTotal = bcadd($somatoriaConferenciaValorTotal, $valorEsperado, 2);
 
                         if (
-                            bccomp($valorEsperado, $valorEntrada, 2) !== 0 ||
-                            $dataEsperada !== $dataEntrada
+                            bccomp($valorEsperado, $valorEntrada, 2) !== 0
                         ) {
-                            $arrayErrors->categoria_entrada_personalizada = LogHelper::gerarLogDinamico(
+                            $valorEsperado = number_format($valorEsperado, 2, ',', '.');
+                            $valorEntrada = number_format($valorEntrada, 2, ',', '.');
+                            $arrayErrors->lancamento_valor_entrada_personalizada = LogHelper::gerarLogDinamico(
                                 409,
-                                'A categoria "entrada" não pode ser personalizada. Os lançamentos devem ser gerados automaticamente.',
+                                "O valor do lançamento da categoria \"{$label}\" [{$nome}] não permite ser alterado. O lançamento deve ser gerado conforme o valor da entrada configurado no pagamento. Esperado: R$ {$valorEntrada}, Informado: R$ {$valorEsperado}.",
+                                $requestData,
+                                ['resource' => $resource]
+                            )->toArray();
+                        }
+
+                        if (
+                            $dataVencimento !== $dataEntrada
+                        ) {
+                            $dataVencimento = Carbon::parse($dataVencimento)->format('d/m/Y');
+                            $dataEntrada = Carbon::parse($dataEntrada)->format('d/m/Y');
+                            $arrayErrors->lancamento_data_entrada_personalizada = LogHelper::gerarLogDinamico(
+                                409,
+                                "A data de vencimento da categoria \"{$label}\" [{$nome}] não permite ser alterada. O lançamento deve ser gerado conforme a data da entrada configurada no pagamento. Esperado: {$dataEntrada}, Informado: {$dataVencimento}.",
                                 $requestData,
                                 ['resource' => $resource]
                             )->toArray();
                         }
                     }
                 } else {
-                    $arrayErrors->categoria_entrada_duplicada = LogHelper::gerarLogDinamico(
+                    $arrayErrors->categoria_entrada_ausente = LogHelper::gerarLogDinamico(
                         400,
-                        'O pagamento deve possuir um lançamento do tipo "entrada".',
+                        "O pagamento deve possuir um lançamento do tipo \"{$label}\" [{$nome}].",
                         $requestData,
                         ['resource' => $resource]
                     )->error;
                 }
             }
 
-            // Verifica quantidade e valor total de parcelas
-            if ($agrupamentoCategoria->has('parcela')) {
-                $lancamentosParcela = $agrupamentoCategoria['parcela'];
+            // Verifica se o pagamento possui um lançamento com a categoria 'primeira_parcela'
+            if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosCategoriaPrimeiraParcela())) {
 
-                // Verifica quantidade
-                if ($lancamentosParcela->count() != $resource->parcela_quantidade) {
-                    $arrayErrors->categoria_parcela_quantidade = LogHelper::gerarLogDinamico(
-                        409,
-                        'A quantidade de parcelas não corresponde à informada no pagamento.',
-                        $requestData,
-                        ['resource' => $resource]
-                    )->toArray();
-                } else {
-                    // Soma de valores com bccomp
-                    $valorEntrada = $agrupamentoCategoria->has('entrada')
-                        ? $agrupamentoCategoria['entrada']->sum('valor_esperado')
-                        : 0;
+                $detalhes = LancamentosCategoriaEnum::PRIMEIRA_PARCELA->detalhes();
+                $label = $detalhes['label'];
+                $nome = $detalhes['nome'];
+                // Verifica duplicidade de primeira parcela
+                if ($agrupamentoCategoria->has(LancamentosCategoriaEnum::PRIMEIRA_PARCELA->value)) {
+                    $lancamentosPrimeiraParcela = $agrupamentoCategoria[LancamentosCategoriaEnum::PRIMEIRA_PARCELA->value];
 
-                    $valorParcelas = $lancamentosParcela->sum('valor_esperado');
-                    $valorTotalLancamentos = number_format((float) $valorParcelas + (float) $valorEntrada, 2, '.', '');
-                    $valorTotalEsperado = number_format((float) $resource->valor_total, 2, '.', '');
+                    if ($lancamentosPrimeiraParcela->count() > 1) {
 
-                    if (bccomp($valorTotalLancamentos, $valorTotalEsperado, 2) !== 0) {
-                        $arrayErrors->categoria_parcela_valor_incorreto = LogHelper::gerarLogDinamico(
+                        $arrayErrors->categoria_primeira_parcela_duplicada = LogHelper::gerarLogDinamico(
                             409,
-                            "A soma dos lançamentos é diferente do valor total do pagamento. Esperado: R$ {$valorTotalEsperado}, Informado: R$ {$valorTotalLancamentos}",
+                            "O pagamento possui mais de um lançamento com a categoria \"{$label}\" [{$nome}].",
                             $requestData,
                             ['resource' => $resource]
                         )->error;
+                    } else {
+
+                        $first = $lancamentosPrimeiraParcela->first();
+
+                        $valorEsperado = (float) $first['valor_esperado'];
+                        $dataVencimento = $first['data_vencimento'];
+                        $parcelaDataInicio = $resource->parcela_data_inicio;
+                        $somatoriaConferenciaValorTotal = bcadd($somatoriaConferenciaValorTotal, $valorEsperado, 2);
+
+                        if (
+                            $dataVencimento !== $parcelaDataInicio
+                        ) {
+                            $dataVencimento = Carbon::parse($dataVencimento)->format('d/m/Y');
+                            $parcelaDataInicio = Carbon::parse($parcelaDataInicio)->format('d/m/Y');
+                            $arrayErrors->lancamento_data_primeira_parcela_personalizada = LogHelper::gerarLogDinamico(
+                                409,
+                                "A data de vencimento da categoria \"{$label}\" [{$nome}] não permite ser alterada. O lançamento deve ser gerado conforme a data da primeira parcela configurada no pagamento. Esperado: {$parcelaDataInicio}, Informado: {$dataVencimento}.",
+                                $requestData,
+                                ['resource' => $resource]
+                            )->toArray();
+                        }
+                    }
+
+                    // Sempre soma uma, para critério de conferência nas outras parcelas do tipo 'parcela'
+                    $somatoriaConferenciaQuantidadeParcelas++;
+                } else {
+                    $arrayErrors->categoria_primeira_parcela_ausente = LogHelper::gerarLogDinamico(
+                        400,
+                        "O pagamento deve possuir um lançamento do tipo \"{$label}\" [{$nome}].",
+                        $requestData,
+                        ['resource' => $resource]
+                    )->error;
+                }
+            }
+
+            if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComConferenciaDeNumeroDeParcelas())) { // Soma o valor total das parcelas
+                if ($agrupamentoCategoria->has(LancamentosCategoriaEnum::PARCELA->value)) {
+                    $lancamentosParcela = $agrupamentoCategoria[LancamentosCategoriaEnum::PARCELA->value];
+                    $somatoriaConferenciaQuantidadeParcelas = bcadd($somatoriaConferenciaQuantidadeParcelas, $lancamentosParcela->count(), 0);
+
+                    // Verifica quantidade
+                    if ($somatoriaConferenciaQuantidadeParcelas != $resource->parcela_quantidade) {
+                        $arrayErrors->categoria_parcela_quantidade = LogHelper::gerarLogDinamico(
+                            409,
+                            "A quantidade de parcelas não corresponde à informada no pagamento. Esperado: {$resource->parcela_quantidade}, Informado: {$somatoriaConferenciaQuantidadeParcelas}.",
+                            $requestData,
+                            ['resource' => $resource]
+                        )->error;
+                    } else {
+                        // Soma de valores com bccomp
+                        $valorEntrada = $agrupamentoCategoria->has('entrada')
+                            ? $agrupamentoCategoria['entrada']->sum('valor_esperado')
+                            : 0;
+
+                        $valorParcelas = $lancamentosParcela->sum('valor_esperado') ?? 0;
+                        $somatoriaConferenciaValorTotal = bcadd($somatoriaConferenciaValorTotal, $valorParcelas, 2);
                     }
                 }
-            } else {
-                $arrayErrors->categoria_parcela_quantidade = LogHelper::gerarLogDinamico(
-                    400,
-                    'O pagamento deve possuir pelo menos uma parcela.',
-                    $requestData,
-                    ['resource' => $resource]
-                )->error;
+            }
+
+            if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComConferenciaDeValorTotal())) {
+                $valorTotalEsperado = number_format((float) $resource->valor_total, 2, '.', '');
+                $somatoriaConferenciaValorTotal = number_format((float) $somatoriaConferenciaValorTotal, 2, '.', '');
+
+                Log::debug("message", ['somatoriaConferenciaValorTotal' => $somatoriaConferenciaValorTotal, 'resource->valor_total' => $resource->valor_total, 'resource' => $resource]);
+
+                if (bccomp($somatoriaConferenciaValorTotal, $valorTotalEsperado, 2) !== 0) {
+                    $valorTotalLancamentos = number_format((float) $somatoriaConferenciaValorTotal, 2, ',', '.');
+                    $valorTotalEsperado = number_format((float) $valorTotalEsperado, 2, ',', '.');
+                    $arrayErrors->categoria_parcela_valor_incorreto = LogHelper::gerarLogDinamico(
+                        409,
+                        "A soma dos lançamentos é diferente do valor total do pagamento. Esperado: R$ {$valorTotalEsperado}, Informado: R$ {$valorTotalLancamentos}.",
+                        $requestData,
+                        ['resource' => $resource]
+                    )->error;
+                }
             }
         }
     }
