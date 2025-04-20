@@ -5,7 +5,7 @@ namespace App\Http\Requests\Referencias\PagamentoTipo;
 use App\Enums\PagamentoTipoEnum;
 use App\Models\Referencias\PagamentoTipo;
 
-class PagamentoTipoFormRequestRenderPagamentoUnico extends PagamentoTipoFormRequestRenderBase
+class PagamentoTipoFormRequestRenderLivreIncremental extends PagamentoTipoFormRequestRenderBase
 {
     public function authorize(): bool
     {
@@ -14,7 +14,7 @@ class PagamentoTipoFormRequestRenderPagamentoUnico extends PagamentoTipoFormRequ
 
     public function rules(): array
     {
-        return $this->buildRulesFromTipoPagamento(PagamentoTipoEnum::PAGAMENTO_UNICO->value);
+        return $this->buildRulesFromTipoPagamento(PagamentoTipoEnum::LIVRE_INCREMENTAL->value);
     }
 
     // /**
@@ -24,7 +24,7 @@ class PagamentoTipoFormRequestRenderPagamentoUnico extends PagamentoTipoFormRequ
     //  */
     // public function rules(): array
     // {
-    //     $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::PAGAMENTO_UNICO->value);
+    //     $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::LIVRE_INCREMENTAL->value);
     //     $rules = parent::rules();
     //     foreach ($pagamentoTipo->campos_obrigatorios as $value) {
     //         $rules[$value['nome']] = $value['form_request_rule'];

@@ -10,7 +10,7 @@
 @endphp
 
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 dadosCron">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 dadosCron">
     <div class="col mt-2 align-content-end">
         <label for="parcela_valor{{ $sufixo }}" class="form-label">Valor da parcela*</label>
         <div class="input-group">

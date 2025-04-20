@@ -3,16 +3,13 @@
 namespace App\Http\Controllers\Referencias;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestDestroy;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestIndex;
-use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderCondicionado;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderEntradaComParcelamento;
+use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderLivreIncremental;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderPagamentoUnico;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderParcelado;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestRenderRecorrente;
 use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestShow;
-use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestStore;
-use App\Http\Requests\Referencias\PagamentoTipo\PagamentoTipoFormRequestUpdate;
 use App\Services\Referencias\PagamentoTipoService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -75,5 +72,11 @@ class PagamentoTipoController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->renderRecorrente($fluentData));
+    }
+
+    public function renderLivreIncremental(PagamentoTipoFormRequestRenderLivreIncremental $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->renderLivreIncremental($fluentData));
     }
 }

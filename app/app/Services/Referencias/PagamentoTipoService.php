@@ -6,6 +6,7 @@ use App\Common\RestResponse;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
+use App\Helpers\PagamentoTipoLivreIncrementalHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
 use App\Helpers\ValidationRecordsHelper;
@@ -105,6 +106,11 @@ class PagamentoTipoService extends Service
     public function renderRecorrente(Fluent $requestData, array $options = [])
     {
         return PagamentoTipoRecorrenteHelper::renderizar($requestData, $options);
+    }
+
+    public function renderLivreIncremental(Fluent $requestData, array $options = [])
+    {
+        return PagamentoTipoLivreIncrementalHelper::renderizar($requestData, $options);
     }
 
     // private function executarEventoWebsocket()

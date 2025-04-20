@@ -40,8 +40,9 @@
         OrdemPadraoStatusLancamentoServico: @json(\App\Enums\LancamentoStatusTipoEnum::ordemPadraoStatusLancamentoServico()),
         PagamentoTipoQuePermiteLiquidadoMigracao: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoQuePermiteLiquidadoMigracao()),
         PagamentoTipoComLancamentosPersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComLancamentosPersonalizaveis()),
-        PagamentoTipoComLancamentosDependentesValorTotal: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComLancamentosDependentesValorTotal()),
+        PagamentoTipoComConferenciaDeValorTotal: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComConferenciaDeValorTotal()),
         PagamentoTipoCamposLancamentosPersonalizados: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoCamposLancamentosPersonalizados()),
+        PagamentoTipoNaoRecriaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoNaoRecriaveis()),
     }
 
     window.Details = {

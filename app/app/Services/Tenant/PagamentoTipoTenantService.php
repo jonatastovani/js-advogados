@@ -34,25 +34,31 @@ class PagamentoTipoTenantService extends Service
         $resource->load('pagamento_tipo');
         // $resource = new Fluent($resource->toArray());
 
+        $path = 'components.modal.servico.modal-servico-pagamento.campos-personalizados.';
+
         switch ($resource->pagamento_tipo_id) {
             case PagamentoTipoEnum::PAGAMENTO_UNICO->value:
-                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.pagamento-unico', compact('requestData'))->render();
+                $html = view("{$path}.pagamento-unico", compact('requestData'))->render();
                 break;
 
             case PagamentoTipoEnum::PARCELADO->value:
-                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.parcelado', compact('requestData'))->render();
+                $html = view("{$path}.parcelado", compact('requestData'))->render();
                 break;
 
             case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
-                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.entrada-com-parcelamento', compact('requestData'))->render();
+                $html = view("{$path}.entrada-com-parcelamento", compact('requestData'))->render();
                 break;
 
             case PagamentoTipoEnum::RECORRENTE->value:
-                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.recorrente', compact('requestData'))->render();
+                $html = view("{$path}.recorrente", compact('requestData'))->render();
                 break;
 
             case PagamentoTipoEnum::CONDICIONADO->value:
-                $html = view('components.modal.servico.modal-servico-pagamento.campos-personalizados.condicionado', compact('requestData'))->render();
+                $html = view("{$path}.condicionado", compact('requestData'))->render();
+                break;
+
+            case PagamentoTipoEnum::LIVRE_INCREMENTAL->value:
+                $html = view("{$path}.livre-incremental", compact('requestData'))->render();
                 break;
 
             default:

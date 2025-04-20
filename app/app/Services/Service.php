@@ -346,6 +346,8 @@ abstract class Service
             DB::rollBack();
         }
 
+        // Se a exceção for uma HttpResponseException, lançar diretamente como throw,
+        // pois se entrou aqui é uma exceção dentro do try catch dentro da transação;
         if ($e instanceof HttpResponseException) {
             throw $e;
         }

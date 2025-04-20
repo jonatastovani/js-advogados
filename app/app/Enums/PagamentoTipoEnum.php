@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
+use App\Helpers\PagamentoTipoLivreIncrementalHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
@@ -17,6 +18,7 @@ enum PagamentoTipoEnum: int
     case ENTRADA_COM_PARCELAMENTO = 3;
     case RECORRENTE = 4;
     case CONDICIONADO = 5;
+    case LIVRE_INCREMENTAL = 6;
 
     // Método para retornar os detalhes como array
     public function detalhes(): array
@@ -46,7 +48,6 @@ enum PagamentoTipoEnum: int
             self::PARCELADO => [
                 'id' => self::PARCELADO->value,
                 'nome' => 'Parcelado',
-
                 'descricao' => "Método que divide o valor total pela quantidade de parcelas informadas.",
                 'campos_obrigatorios' => [
                     [
@@ -162,9 +163,58 @@ enum PagamentoTipoEnum: int
                     ],
                 ],
             ],
+            self::LIVRE_INCREMENTAL => [
+                'id' => self::LIVRE_INCREMENTAL->value,
+                'nome' => 'Livre Incremental',
+                'descricao' => "Método flexível que permite adicionar parcelas conforme necessário, sem necessidade de informar um valor total ou número fixo de lançamentos. Ideal para casos não padronizados. Os dados informados são usados somente na geração de novos lançamentos.",
+                'campos_obrigatorios' => [
+                    [
+                        'nome' => 'parcela_mes_ano_inicio',
+                        'nome_exibir' => 'Primeiro mês',
+                        'form_request_rule_helper' => 'required|date|date_format:"Y-m"',
+                        'front_by_pass' => [
+                            'save' => 'nullable'
+                        ],
+                    ],
+                    [
+                        'nome' => 'parcela_quantidade',
+                        'nome_exibir' => 'Quantidade de parcelas',
+                        'form_request_rule_helper' => 'required|integer|min:1',
+                        'front_by_pass' => [
+                            'save' => 'nullable'
+                        ],
+                    ],
+                    [
+                        'nome' => 'parcela_vencimento_dia',
+                        'nome_exibir' => 'Dia de vencimento',
+                        'form_request_rule_helper' => 'required|integer|min:1|max:31',
+                        'front_by_pass' => [
+                            'save' => 'nullable'
+                        ],
+                    ],
+                    [
+                        'nome' => 'parcela_valor',
+                        'nome_exibir' => 'Valor da parcela',
+                        'form_request_rule_helper' => 'required|numeric|min:1',
+                        'front_by_pass' => [
+                            'save' => 'nullable'
+                        ],
+                    ],
+                ],
+                'helper' => [
+                    'class' => PagamentoTipoLivreIncrementalHelper::class,
+                    'endpoint_api' => 'api/helper/pagamento-tipo/livre-incremental',
+                ],
+            ],
         };
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que permite
+     * seus lançamentos serem liquidados com o status Liquidado Migração de Sistema.
+     *
+     * @return array
+     */
     static public function pagamentoTipoQuePermiteLiquidadoMigracao(): array
     {
         return [
@@ -172,18 +222,36 @@ enum PagamentoTipoEnum: int
             self::PARCELADO->value,
             self::ENTRADA_COM_PARCELAMENTO->value,
             self::RECORRENTE->value,
+            self::LIVRE_INCREMENTAL->value,
         ];
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que possuem
+     * lançamentos personalizáveis, ou seja, seus lançamentos podem ter suas informações
+     * personalizadas, partindo ou não de uma geração de lançamentos definido pelo sistema e 
+     * manualmente alterado pelo usuário.
+     *
+     * @return array
+     */
     static public function pagamentoTipoComLancamentosPersonalizaveis(): array
     {
         return [
             self::PARCELADO->value,
             self::ENTRADA_COM_PARCELAMENTO->value,
             self::RECORRENTE->value,
+            self::LIVRE_INCREMENTAL->value,
         ];
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que possuem a
+     * categoria "Entradas", [ID = 1] nos seus lançamentos. Esta categoria é utilizada
+     * para identificar o lançamento de entrada em um conjunto de parcelas, que pode
+     * ter regras ou condições especiais associadas.
+     *
+     * @return array
+     */
     static public function pagamentoTipoComLancamentosCategoriaEntrada(): array
     {
         return [
@@ -192,6 +260,14 @@ enum PagamentoTipoEnum: int
         ];
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que possuem a
+     * categoria "Primeira Parcela", [ID = 2] nos seus lançamentos. Esta categoria é utilizada
+     * para identificar o lançamento de primeira parcela em um conjunto de parcelas, que pode
+     * ter regras ou condições especiais associadas.
+     *
+     * @return array
+     */
     static public function pagamentoTipoComLancamentosCategoriaPrimeiraParcela(): array
     {
         return [
@@ -200,6 +276,14 @@ enum PagamentoTipoEnum: int
         ];
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que possuem a opção de
+     * conferência de valor total. A opção de conferência de valor total é utilizada para
+     * verificar se o valor total das somatória dos lançamentos personalizados deverão 
+     * corresponder ao valor total do pagamento. Caso haja discrepâncias, o sistema irá gerar um erro.
+     *
+     * @return array
+     */
     static public function pagamentoTipoComConferenciaDeValorTotal(): array
     {
         return [
@@ -209,6 +293,14 @@ enum PagamentoTipoEnum: int
         ];
     }
 
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que possuem a opção de
+     * conferência de número de parcelas. A opção de conferência de número de parcelas serve para
+     * verificar se o número de parcelas informado no pagamento é igual ao número de parcelas
+     * personalizadas enviadas. Caso o número de parcelas seja diferente, o sistema irá gerar um erro.
+     *
+     * @return array
+     */
     static public function pagamentoTipoComConferenciaDeNumeroDeParcelas(): array
     {
         return [
@@ -217,11 +309,33 @@ enum PagamentoTipoEnum: int
         ];
     }
 
-    static public function pagamentoTipoComLancamentosDependentesValorTotal(): array
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que não são
+     * recriáveis, ou seja, a opção de resetar o pagamento não exclui os lançamentos.
+     * Os lançamentos devem ser excluídos manualmente. Esta opção serve para filtrar no frontend
+     * a exibição do Recriar Lançamentos, aplicando principalmente no PagamentoTipo Livre Incremental.
+     *
+     * @return array
+     */
+    static public function pagamentoTipoNaoRecriaveis(): array
     {
         return [
-            self::PARCELADO->value,
-            self::ENTRADA_COM_PARCELAMENTO->value,
+            self::CONDICIONADO->value,
+            self::LIVRE_INCREMENTAL->value,
+        ];
+    }
+
+    /**
+     * Retorna um array com os valores dos enums de PagamentoTipo que são
+     * sempre personalizáveis, ou seja, enquanto não possuírem status que 
+     * não permitam edição ou exclusão, eles são sempre personalizáveis.
+     *
+     * @return array
+     */
+    static public function pagamentoTipoSemprePersonalizaveis(): array
+    {
+        return [
+            self::LIVRE_INCREMENTAL->value,
         ];
     }
 

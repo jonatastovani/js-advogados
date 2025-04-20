@@ -439,11 +439,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                     CommonFunctions.simulateLoading(btn, false);
                 }
             });
-
-            if ($(`#${lancamento.idCol}`).find('.btn-edit-object').length > 0 && !self._objConfigs._testeLancamento) {
-                self._objConfigs._testeLancamento = true;
-                $(`#${lancamento.idCol}`).find('.btn-edit-object').trigger('click');
-            }
         }
     }
 
@@ -489,7 +484,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #mensagemValidacaoSomaLancamentos() {
         const self = this;
 
-        if (!window.Statics.PagamentoTipoComLancamentosDependentesValorTotal.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)) return '';
+        if (!window.Statics.PagamentoTipoComConferenciaDeValorTotal.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)) return '';
         const lancamentos = self._objConfigs.data.lancamentos_na_tela || [];
 
         const somaLancamentos = lancamentos.reduce((acc, l) => acc + parseFloat(l.valor_esperado || 0), 0);
@@ -510,7 +505,6 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
         return ''; // Tudo certo
     }
-
 
     async #validarSomaLancamentosComValorTotal() {
         const self = this;
@@ -674,27 +668,35 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #verificaLancamentos(responseData) {
         const self = this;
         let blnStatus = false;
+        const pagamentoTipoNaoRecriaveis = window.Statics.PagamentoTipoNaoRecriaveis;
 
-        // Verifica se há alguma movimentação vinculada a lançamentos
-        const possuiMovimentacao = responseData.lancamentos.some(l => l?.movimentacao_conta?.length);
+        // Se não for recriável, então nem ofere a opção de recriar
+        if (!pagamentoTipoNaoRecriaveis.includes(responseData.pagamento_tipo_tenant.pagamento_tipo.id)) {
+            // Verifica se há alguma movimentação vinculada a lançamentos
+            const possuiMovimentacao = responseData.lancamentos.some(l => l?.movimentacao_conta?.length);
 
-        // Se não houver, verifica se há movimentação com liquidado migração. Se houver, verifica se o domínio cancelar_liquidado_migracao_sistema_automatico_bln está ativo 
-        if (possuiMovimentacao) {
-            blnStatus = true;
-        } else {
-            const tenantData = await TenantDataHelper.getTenantData();
-
-            // Verifica se há alguma movimentação com status LIQUIDADO_MIGRACAO_SISTEMA
-            const possuiMovimentacaoLiquidadoMigracao = responseData.lancamentos.some(l =>
-                Number(l.status_id) === window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA
-            );
-
-            if (possuiMovimentacaoLiquidadoMigracao && !tenantData?.cancelar_liquidado_migracao_sistema_automatico_bln) {
+            // Se não houver, verifica se há movimentação com liquidado migração. Se houver, verifica se o domínio cancelar_liquidado_migracao_sistema_automatico_bln está ativo 
+            if (possuiMovimentacao) {
                 blnStatus = true;
-            };
-        }
+            } else {
+                const tenantData = await TenantDataHelper.getTenantData();
 
-        self.#visibilidadeResetarLancamentos(!blnStatus);
+                // Verifica se há alguma movimentação com status LIQUIDADO_MIGRACAO_SISTEMA
+                const possuiMovimentacaoLiquidadoMigracao = responseData.lancamentos.some(l =>
+                    Number(l.status_id) === window.Enums.LancamentoStatusTipoEnum.LIQUIDADO_MIGRACAO_SISTEMA
+                );
+
+                if (possuiMovimentacaoLiquidadoMigracao && !tenantData?.cancelar_liquidado_migracao_sistema_automatico_bln) {
+                    blnStatus = true;
+                };
+            }
+            self.#visibilidadeResetarLancamentos(!blnStatus);
+        } else {
+
+            self.#visibilidadeResetarLancamentos();
+            self.#verificaPersonalizarLancamentos();
+            self.#verificaPersonalizarLancamentos();
+        }
     }
 
     #visibilidadeResetarLancamentos(statusVisibilidade = false) {
@@ -728,10 +730,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
             });
         } else {
+
             $(self.getIdModal).find('.btn-simular, .div-resetar-lancamentos').hide();
             ckbResetar.prop('checked', false).attr('disabled', true).off('change');
             self._objConfigs.data.resetar_pagamento_bln = false;
         }
+
         self.#visibilidadePersonalizarLancamentos();
     }
 
@@ -771,7 +775,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         return window.Statics.PagamentoTipoComLancamentosPersonalizaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
     }
 
-    async #verificaPersonalizarLancamentos() {
+    #verificaPersonalizarLancamentos() {
         const self = this;
         const permitePersonalizar = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
         self.#visibilidadePersonalizarLancamentos(permitePersonalizar);
@@ -825,6 +829,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             });
 
         } else {
+
             // Esconde a opção e reseta os dados
             $(self.getIdModal).find('.div-personalizar-lancamentos').hide();
             ckbPersonalizarLancamentos.prop('checked', false).attr('disabled', true).off('change');
@@ -997,7 +1002,23 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
             // if (self._action == EnumAction.POST) {
             for (const campo of pagamentoTipo.campos_obrigatorios) {
-                const rules = campo.form_request_rule.split('|');
+                let rules = '';
+
+                if (tipo == 'simulacao') {
+                    rules = campo.form_request_rule_helper ?? campo.form_request_rule;
+                } else {
+                    rules = campo?.form_request_rule ?? '';
+                }
+                rules = rules.split('|').filter(Boolean);
+                console.log('rules', rules);
+
+                if (!rules.length && tipo == 'simulacao') {
+                    CommonFunctions.generateNotification(`O campo <b>${campo.nome_exibir}</b> deve possuir regras de validação. Se o problema persistir, contate o desenvolvedor.`, 'warning');
+                    continue;
+                } else if (!rules.length) {
+                    continue;
+                }
+
                 const nullable = rules.find(rule => rule === 'nullable');
 
                 if (rules.find(rule => rule === 'numeric' || rule === 'integer')) {
@@ -1009,7 +1030,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                         CommonFunctions.generateNotification('A <b>Recorrência</b> deve ser informada.', 'warning');
                         blnSave = false;
                     }
-                } else {
+                } else if (!nullable) {
                     blnSave = CommonFunctions.verificationData(data[campo.nome], {
                         field: formRegistration.find(`#${campo.nome}${self._objConfigs.sufixo}`),
                         messageInvalid: `O campo <b>${campo.nome_exibir}</b> deve ser informado.`,

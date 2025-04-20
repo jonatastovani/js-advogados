@@ -40,4 +40,28 @@ trait ParcelamentoTipoHelperTrait
 
         return $dataClone;
     }
+
+    /**
+     * Ajusta a data da primeira parcela com base no mês de início (Y-m) e no dia de vencimento.
+     * Se o dia informado não existir no mês (ex: 31 de fevereiro), ajusta para o último dia do mês.
+     *
+     * @param string $mesAnoInicio Mês e ano no formato "Y-m", ex: "2025-02"
+     * @param int $diaVencimento Dia de vencimento desejado
+     * @return \DateTime Data ajustada corretamente
+     */
+    public static function ajustarDataVencimentoPrimeiraParcela(string $mesAnoInicio, int $diaVencimento): \DateTime
+    {
+        [$ano, $mes] = explode('-', $mesAnoInicio);
+
+        // Tenta criar a data com o dia desejado
+        $data = \DateTime::createFromFormat('Y-m-d', "{$ano}-{$mes}-{$diaVencimento}");
+
+        // Se a data resultante tiver um mês diferente, quer dizer que o dia era inválido (ex: 31/02 virou 03/02)
+        if ((int)$data->format('m') !== (int)$mes) {
+            $data = new \DateTime("{$ano}-{$mes}-01");
+            $data->modify('last day of this month');
+        }
+
+        return $data;
+    }
 }

@@ -42,7 +42,7 @@ Route::group([
         Route::post('entrada-com-parcelamento/render', 'renderEntradaComParcelamento');
         Route::post('parcelado/render', 'renderParcelado');
         Route::post('recorrente/render', 'renderRecorrente');
-        Route::post('condicionado/render', 'renderCondicionado');
+        Route::post('livre-incremental/render', 'renderLivreIncremental');
     });
 
     Route::group([

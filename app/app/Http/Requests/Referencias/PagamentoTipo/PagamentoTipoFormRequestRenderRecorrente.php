@@ -12,18 +12,23 @@ class PagamentoTipoFormRequestRenderRecorrente extends PagamentoTipoFormRequestR
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::RECORRENTE->value);
-        $rules = parent::rules();
-        foreach ($pagamentoTipo->campos_obrigatorios as $value) {
-            $rules[$value['nome']] = $value['form_request_rule'];
-        }
-        return $rules;
+        return $this->buildRulesFromTipoPagamento(PagamentoTipoEnum::RECORRENTE->value);
     }
+
+    // /**
+    //  * Get the validation rules that apply to the request.
+    //  *
+    //  * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+    //  */
+    // public function rules(): array
+    // {
+    //     $pagamentoTipo = PagamentoTipo::find(PagamentoTipoEnum::RECORRENTE->value);
+    //     $rules = parent::rules();
+    //     foreach ($pagamentoTipo->campos_obrigatorios as $value) {
+    //         $rules[$value['nome']] = $value['form_request_rule'];
+    //     }
+    //     return $rules;
+    // }
 }

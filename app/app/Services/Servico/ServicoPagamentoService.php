@@ -10,6 +10,7 @@ use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoStatusTipoEnum;
 use App\Helpers\LogHelper;
 use App\Helpers\PagamentoTipoEntradaComParcelamentoHelper;
+use App\Helpers\PagamentoTipoLivreIncrementalHelper;
 use App\Helpers\PagamentoTipoPagamentoUnicoHelper;
 use App\Helpers\PagamentoTipoParceladoHelper;
 use App\Helpers\PagamentoTipoRecorrenteHelper;
@@ -22,6 +23,7 @@ use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\PagamentoStatusTipo;
+use App\Models\Referencias\PagamentoTipo;
 use App\Models\Servico\Servico;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Servico\ServicoPagamento;
@@ -33,6 +35,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -321,7 +324,7 @@ class ServicoPagamentoService extends Service
 
     public function store(Fluent $requestData)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdateCustomizado($requestData);
 
         try {
 
@@ -424,7 +427,6 @@ class ServicoPagamentoService extends Service
 
             case PagamentoTipoEnum::ENTRADA_COM_PARCELAMENTO->value:
                 $lancamentos = $personalizadosBln ? $lancamentosPersonalizados : PagamentoTipoEntradaComParcelamentoHelper::renderizar($requestData)['lancamentos'];
-                Log::debug("Lançamentos Entrada com Parcelamento", $lancamentos);
                 $salvarLancamentos($lancamentos, $resource);
                 break;
 
@@ -442,6 +444,11 @@ class ServicoPagamentoService extends Service
                 break;
 
             case PagamentoTipoEnum::CONDICIONADO->value:
+                break;
+
+            case PagamentoTipoEnum::LIVRE_INCREMENTAL->value:
+                $lancamentos = $personalizadosBln ? $lancamentosPersonalizados : PagamentoTipoLivreIncrementalHelper::renderizar($requestData)['lancamentos'];
+                $salvarLancamentos($lancamentos, $resource);
                 break;
 
             default:
@@ -603,8 +610,6 @@ class ServicoPagamentoService extends Service
                 $valorTotalEsperado = number_format((float) $resource->valor_total, 2, '.', '');
                 $somatoriaConferenciaValorTotal = number_format((float) $somatoriaConferenciaValorTotal, 2, '.', '');
 
-                Log::debug("message", ['somatoriaConferenciaValorTotal' => $somatoriaConferenciaValorTotal, 'resource->valor_total' => $resource->valor_total, 'resource' => $resource]);
-
                 if (bccomp($somatoriaConferenciaValorTotal, $valorTotalEsperado, 2) !== 0) {
                     $valorTotalLancamentos = number_format((float) $somatoriaConferenciaValorTotal, 2, ',', '.');
                     $valorTotalEsperado = number_format((float) $valorTotalEsperado, 2, ',', '.');
@@ -621,7 +626,7 @@ class ServicoPagamentoService extends Service
 
     public function update(Fluent $requestData)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdateCustomizado($requestData, $requestData->uuid);
 
         if ($requestData->resetar_pagamento_bln) {
 
@@ -854,7 +859,7 @@ class ServicoPagamentoService extends Service
         return $lancamento;
     }
 
-    protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
+    protected function verificacaoEPreenchimentoRecursoStoreUpdateCustomizado(Fluent &$requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
         $resource = null;
@@ -865,11 +870,13 @@ class ServicoPagamentoService extends Service
             $resource = new $this->model;
             $resource->servico_id = $requestData->servico_uuid;
 
-            // //Verifica se o tipo de pagamento do tenant informado existe
-            // $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
-            // if (!$validacaoPagamentoTipoTenantId->count()) {
-            //     $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
-            // }
+            //Verifica se o tipo de pagamento do tenant informado existe
+            $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
+            if (!$validacaoPagamentoTipoTenantId->count()) {
+                $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
+            } else {
+                $requestData->pagamento_tipo_tenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
+            }
         }
 
         if ($requestData->status_id) {
@@ -888,6 +895,14 @@ class ServicoPagamentoService extends Service
         CommonsFunctions::retornaErroQueImpedemProcessamento422($arrayErrors->toArray());
 
         $resource->fill($requestData->toArray());
+
+        if ($requestData->pagamento_tipo_tenant->pagamento_tipo->id == PagamentoTipoEnum::LIVRE_INCREMENTAL->value) {
+
+            // Neste tipo de pagamento, não se armazena estes dados, pois são informados a cada vez que quiser adicionar lançamentos
+            $resource->parcela_quantidade = null;
+            $resource->parcela_vencimento_dia = null;
+            $resource->parcela_valor = null;
+        }
 
         return $resource;
     }

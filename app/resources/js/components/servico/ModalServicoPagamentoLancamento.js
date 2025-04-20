@@ -248,5 +248,4 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
 
         return blnSave;
     }
-
 }
