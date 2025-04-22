@@ -2,6 +2,7 @@ import { CommonFunctions } from "../../commons/CommonFunctions";
 import { ModalSearchAndFormRegistration } from "../../commons/modal/ModalSearchAndFormRegistration";
 import { DateTimeHelper } from "../../helpers/DateTimeHelper";
 import { functionsQueryCriteria } from "../../helpers/functionsQueryCriteria";
+import { MasksAndValidateHelpers } from "../../helpers/MasksAndValidateHelpers";
 import { UUIDHelper } from "../../helpers/UUIDHelper";
 import { ModalSelecionarPerfil } from "./ModalSelecionarPerfil";
 
@@ -221,7 +222,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         }
         const pessoa_dados = pessoa.pessoa_dados;
 
-        const cpf = pessoa_dados.cpf ? CommonFunctions.formatCPF(pessoa_dados.cpf) : '';
+        const cpf = pessoa_dados.cpf ? MasksAndValidateHelpers.formatCPF(pessoa_dados.cpf) : '';
 
         const itemSelecionado = self.#verificaRegistroSelecionado(pessoa);
         let botoes = '';
@@ -315,7 +316,7 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         const naturezaJuridica = pessoa_dados.natureza_juridica ?? '***';
         const regimeTributario = pessoa_dados?.regime_tributario ?? '***';
         const responsavelLegal = pessoa_dados?.responsavel_legal ?? '***';
-        const cpfResponsavel = pessoa_dados?.cpf_responsavel ? CommonFunctions.formatCPF(pessoa_dados.cpf_responsavel) : '***';
+        const cpfResponsavel = pessoa_dados?.cpf_responsavel ? MasksAndValidateHelpers.formatCPF(pessoa_dados.cpf_responsavel) : '***';
         const capitalSocial = pessoa_dados.capital_social ? CommonFunctions.formatNumberToCurrency(pessoa_dados.capital_social) : '***';
         const dataFundacao = pessoa_dados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoa_dados.data_fundacao, 2) : '***';
 

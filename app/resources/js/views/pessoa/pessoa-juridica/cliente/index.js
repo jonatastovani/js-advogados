@@ -2,6 +2,7 @@ import { CommonFunctions } from "../../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
+import { MasksAndValidateHelpers } from "../../../../helpers/MasksAndValidateHelpers";
 
 class PageClientePJIndex extends TemplateSearch {
 
@@ -84,7 +85,7 @@ class PageClientePJIndex extends TemplateSearch {
         const naturezaJuridica = pessoaDados.natureza_juridica ?? '***';
         const regimeTributario = pessoaDados?.regime_tributario ?? '***';
         const responsavelLegal = pessoaDados?.responsavel_legal ?? '***';
-        const cpfResponsavel = pessoaDados?.cpf_responsavel ? CommonFunctions.formatCPF(pessoaDados.cpf_responsavel) : '***';
+        const cpfResponsavel = pessoaDados?.cpf_responsavel ? MasksAndValidateHelpers.formatCPF(pessoaDados.cpf_responsavel) : '***';
         const capitalSocial = pessoaDados.capital_social ? CommonFunctions.formatNumberToCurrency(pessoaDados.capital_social) : '***';
         const dataFundacao = pessoaDados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoaDados.data_fundacao, 2) : '***';
 
