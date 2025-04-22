@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Referencias\PagamentoTipo;
 
 use App\Enums\PagamentoTipoEnum;
-use App\Models\Referencias\PagamentoTipo;
 
 class PagamentoTipoFormRequestRenderLivreIncremental extends PagamentoTipoFormRequestRenderBase
 {

@@ -343,6 +343,26 @@ enum PagamentoTipoEnum: int
     {
         return [
             [
+                'nome' => 'id',
+                'nome_exibir' => 'ID Lançamento',
+                'form_request_rule' => 'nullable|uuid',
+                'validacao_front' => [
+                    'tipo' => 'uuid',
+                    'acao_se_invalido' => 'remover',
+                    'mensagem' => '.',
+                ],
+            ],
+            [
+                'nome' => 'forma_pagamento_id',
+                'nome_exibir' => 'Forma de pagamento',
+                'form_request_rule' => 'nullable|uuid',
+                'validacao_front' => [
+                    'tipo' => 'uuid',
+                    'acao_se_invalido' => 'remover', // ou 'alertar'
+                    'mensagem' => 'Forma de pagamento inválida. O campo será ignorado.',
+                ],
+            ],
+            [
                 'nome' => 'forma_pagamento_id',
                 'nome_exibir' => 'Forma de pagamento',
                 'form_request_rule' => 'nullable|uuid',
@@ -395,7 +415,7 @@ enum PagamentoTipoEnum: int
             [
                 'nome' => 'lancamento_categoria_id',
                 'nome_exibir' => 'Categoria',
-                'form_request_rule' => 'required|integer',
+                'form_request_rule' => 'required_if:id,uuid|integer',
                 'validacao_front' => [
                     'tipo' => 'integer',
                     'acao_se_invalido' => 'alertar',

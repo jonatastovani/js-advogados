@@ -537,7 +537,7 @@ class PageServicoForm extends TemplateForm {
             await self.#buscarPagamentos();
         });
 
-        self.#openModalServicoPagamento();
+        // self.#openModalServicoPagamento();
     }
 
     async #openModalServicoPagamento() {
@@ -545,7 +545,7 @@ class PageServicoForm extends TemplateForm {
         try {
             const objModal = new ModalServicoPagamento({ urlApi: self._objConfigs.url.basePagamentos });
             objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
-                pagamento_tipo_tenant_id: "9eb84e18-e0cb-4b53-b8a2-2db8caac543a",
+                pagamento_tipo_tenant_id: "9eba6a1e-fb99-4249-843a-9ab312c5630a",
             });
             console.log(await objModal.modalOpen());
         } catch (error) {
@@ -1187,6 +1187,11 @@ class PageServicoForm extends TemplateForm {
                 CommonFunctions.simulateLoading(btn, false);
             }
         });
+
+        // if (!self._objConfigs?._teste) {
+        //     $(`#${item.idCard}`).find('.btn-edit').trigger('click');
+        //     self._objConfigs._teste = true;
+        // }
 
         $(`#${item.idCard}`).find(`.btn-delete`).on('click', async function () {
             const response = await self._delButtonAction(item.id, item.pagamento_tipo_tenant.nome, {

@@ -447,8 +447,19 @@ class ServicoPagamentoService extends Service
                 break;
 
             case PagamentoTipoEnum::LIVRE_INCREMENTAL->value:
-                $lancamentos = $personalizadosBln ? $lancamentosPersonalizados : PagamentoTipoLivreIncrementalHelper::renderizar($requestData)['lancamentos'];
-                $salvarLancamentos($lancamentos, $resource);
+                // Tipo Livre Incremental, somente receberá personalizados.
+                // Os lançamentos já salvos poderão ser editados diretamente 
+                // em suas rotas, aqui somente salva os novos.
+                $lancamentos = $lancamentosPersonalizados ?? [];
+
+                if (!empty($lancamentos)) {
+                    $lancamentosFiltrados = collect($lancamentos)
+                        ->filter(fn($lancamento) => empty($lancamento['id']))
+                        ->values()
+                        ->toArray();
+
+                    $salvarLancamentos($lancamentosFiltrados, $resource);
+                }
                 break;
 
             default:
@@ -464,7 +475,13 @@ class ServicoPagamentoService extends Service
 
             $somatoriaConferenciaValorTotal = 0;
             $somatoriaConferenciaQuantidadeParcelas = 0;
-            $agrupamentoCategoria = collect($requestData->lancamentos)->groupBy('lancamento_categoria_id');
+            $lancamentos = collect($requestData->lancamentos);
+
+            // Filtra apenas os lançamentos novos (sem ID)
+            $lancamentosNovos = $lancamentos->filter(fn($lancamento) => empty($lancamento['id']))->values();
+
+            // Agrupa por categoria
+            $agrupamentoCategoria = $lancamentosNovos->groupBy('lancamento_categoria_id');
 
             // Verifica se o pagamento possui um lançamento com a categoria 'entrada'
             if (in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoComLancamentosCategoriaEntrada())) {
@@ -654,11 +671,19 @@ class ServicoPagamentoService extends Service
             // Inicia a transação
             return DB::Transaction(function () use ($resource, $requestData) {
 
-                if ($requestData->resetar_pagamento_bln) {
-
-                    // Atualiza o pagamento_tipo_tenant, pegando diretamente do próprio recurso já salvo (sobrescrevendo o do FormRequest)
+                // Atualiza o pagamento_tipo_tenant, pegando diretamente do próprio recurso já salvo (sobrescrevendo o do FormRequest)
+                if (empty($requestData->pagamento_tipo_tenant['pagamento_tipo'])) {
                     $resource->load('pagamento_tipo_tenant.pagamento_tipo');
                     $requestData->pagamento_tipo_tenant = $resource->pagamento_tipo_tenant;
+                }
+                $pagamentoTipo = $requestData->pagamento_tipo_tenant->pagamento_tipo;
+
+                $blnInserirLancamentos = (
+                    in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoNaoRecriaveis()) &&
+                    count($requestData->lancamentos ?? [])) ? true : false;
+
+                // Só executa aqui quando é para resetar e o pagamento não é do tipo recriável, pois recriável remove os lançamentos, já o Livre Incremental só acrescenta
+                if ($requestData->resetar_pagamento_bln && !$blnInserirLancamentos) {
 
                     if ($resource->pagamento_tipo_tenant->pagamento_tipo->id == PagamentoTipoEnum::RECORRENTE->value) {
                         $resource->cron_ultima_execucao = null;
@@ -674,7 +699,7 @@ class ServicoPagamentoService extends Service
                         $resource->liquidado_migracao_bln = $requestData->liquidado_migracao_bln;
                     }
 
-                    $this->inserirLancamentos($requestData, $resource);
+                    $blnInserirLancamentos = true;
                 } else {
 
                     // Salva seguramente pois o que não poderia ser alterado, não passa pelo FormRequest
@@ -702,6 +727,10 @@ class ServicoPagamentoService extends Service
                             # code...
                             break;
                     }
+                }
+
+                if ($blnInserirLancamentos) {
+                    $this->inserirLancamentos($requestData, $resource);
                 }
 
                 $resource->load($this->loadFull());
@@ -874,8 +903,6 @@ class ServicoPagamentoService extends Service
             $validacaoPagamentoTipoTenantId = ValidationRecordsHelper::validateRecord(PagamentoTipoTenant::class, ['id' => $requestData->pagamento_tipo_tenant_id]);
             if (!$validacaoPagamentoTipoTenantId->count()) {
                 $arrayErrors->pagamento_tipo_tenant_id = LogHelper::gerarLogDinamico(404, 'O Tipo de Pagamento do Tenant informado não existe ou foi excluído.', $requestData)->error;
-            } else {
-                $requestData->pagamento_tipo_tenant = PagamentoTipoTenant::with('pagamento_tipo')->find($requestData->pagamento_tipo_tenant_id);
             }
         }
 
@@ -896,7 +923,12 @@ class ServicoPagamentoService extends Service
 
         $resource->fill($requestData->toArray());
 
-        if ($requestData->pagamento_tipo_tenant->pagamento_tipo->id == PagamentoTipoEnum::LIVRE_INCREMENTAL->value) {
+        if (empty($requestData->pagamento_tipo_tenant['pagamento_tipo'])) {
+            $resource->load('pagamento_tipo_tenant.pagamento_tipo');
+            $requestData->pagamento_tipo_tenant = $resource->pagamento_tipo_tenant;
+        }
+
+        if ($requestData->pagamento_tipo_tenant['pagamento_tipo']['id'] == PagamentoTipoEnum::LIVRE_INCREMENTAL->value) {
 
             // Neste tipo de pagamento, não se armazena estes dados, pois são informados a cada vez que quiser adicionar lançamentos
             $resource->parcela_quantidade = null;

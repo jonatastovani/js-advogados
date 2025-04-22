@@ -90,7 +90,6 @@ export class ModalServicoPagamentoLancamento extends ModalRegistrationAndEditing
             camposPersonalizarLancamento.prop('readonly', true);
             modal.find('.divInfoLancamentoPersonalizado').html('');
         }
-
     }
 
     async #buscarFormaPagamento(selected_id = null) {
