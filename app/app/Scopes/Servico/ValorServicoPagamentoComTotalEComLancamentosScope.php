@@ -19,14 +19,12 @@ class ValorServicoPagamentoComTotalEComLancamentosScope implements Scope
         $pagamentoModel = new ServicoPagamento();
         $pagamentoTipoTenantModel = new PagamentoTipoTenant();
 
-        $pagamentoTable = $pagamentoModel->getTable();
-
         if (strpos($tableAlias, ' as ') !== false) {
             [, $tableAlias] = explode(' as ', $tableAlias);
             $tableAlias = trim($tableAlias);
 
-            $builder->selectSub(function ($query) use ($tableAlias, $pagamentoTable, $pagamentoTipoTenantModel) {
-                $query->from($pagamentoTable)
+            $builder->selectSub(function ($query) use ($tableAlias, $pagamentoModel, $pagamentoTipoTenantModel) {
+                $query->from($pagamentoModel->getTable())
                     ->selectRaw('COALESCE(SUM(ROUND(CAST(valor_total AS numeric), 2)), 0)')
                     ->whereIn('pagamento_tipo_tenant_id', function ($sub) use ($pagamentoTipoTenantModel) {
                         $sub->from($pagamentoTipoTenantModel->getTable())
@@ -40,7 +38,7 @@ class ValorServicoPagamentoComTotalEComLancamentosScope implements Scope
                     ->whereIn('domain_id', TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'total_pagamento_com_total');
         } else {
-            $builder->withSum(['pagamento as total_pagamento_com_total' => function ($query) use ($pagamentoModel, $pagamentoTipoTenantModel) {
+            $builder->withSum(['pagamento as total_pagamento_com_total' => function ($query) use ($pagamentoTipoTenantModel) {
                 $query->whereIn('pagamento_tipo_tenant_id', function ($sub) use ($pagamentoTipoTenantModel) {
                     $sub->from($pagamentoTipoTenantModel->getTable())
                         ->select('id')

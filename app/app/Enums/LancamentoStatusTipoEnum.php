@@ -386,6 +386,18 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
+    /**
+     * Status para não somar no scope que calcula o valor do total
+     * do pagamento conforme os valores dos lançamento.
+     * Geralmente são os pagamentos RECORRENTE e os LIVRE_INCREMENTAL.
+     */
+    static public function statusNaoSomarPagamentoSemValorTotalScope(): array
+    {
+        return [
+            self::REAGENDADO->value,
+        ];
+    }
+
     static public function ordemPadraoStatusLancamentoServico(): array
     {
         return [

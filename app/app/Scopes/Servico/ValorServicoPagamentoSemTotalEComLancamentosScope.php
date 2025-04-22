@@ -2,6 +2,7 @@
 
 namespace App\Scopes\Servico;
 
+use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoTipoEnum;
 use App\Helpers\TenantTypeDomainCustomHelper;
 use App\Models\Servico\ServicoPagamento;
@@ -45,16 +46,17 @@ class ValorServicoPagamentoSemTotalEComLancamentosScope implements Scope
                     ->whereNull('deleted_at');
 
                 // Soma apenas dos lançamentos relacionados a esses pagamentos
-                $query->from($lancamentoModel->getTable())
+                $query->from($lancamentoModel->getTableNameAsName())
                     ->selectRaw("COALESCE(SUM(ROUND(CAST(valor_esperado AS numeric), 2)), 0)")
                     ->whereIn('pagamento_id', $idsPagamentosValidos)
+                    ->whereNotIn("{$lancamentoModel->getTableAsName()}.status_id", LancamentoStatusTipoEnum::statusNaoSomarPagamentoSemValorTotalScope())
                     ->where('tenant_id', tenant('id'))
                     ->whereNull('deleted_at')
                     ->whereIn('domain_id', TenantTypeDomainCustomHelper::getDominiosInserirScopeDomain());
             }, 'total_pagamento_sem_total');
         } else {
             // Fallback sem alias
-            $builder->withSum(['lancamentos as total_pagamento_sem_total' => function ($query) use ($pagamentoModel, $pagamentoTipoTenantModel) {
+            $builder->withSum(['lancamentos as total_pagamento_sem_total' => function ($query) use ($pagamentoModel, $pagamentoTipoTenantModel, $lancamentoModel) {
                 $query->whereIn('pagamento_id', function ($subquery) use ($pagamentoModel, $pagamentoTipoTenantModel) {
                     $subquery->from($pagamentoModel->getTable())
                         ->select('id')
@@ -65,7 +67,8 @@ class ValorServicoPagamentoSemTotalEComLancamentosScope implements Scope
                                 ->whereNull('deleted_at');
                         })
                         ->whereNull('deleted_at');
-                });
+                })
+                    ->whereNotIn("{$lancamentoModel->getTable()}.status_id", LancamentoStatusTipoEnum::statusNaoSomarPagamentoSemValorTotalScope());
             }], DB::raw('ROUND(CAST(valor_esperado AS numeric), 2)'));
         }
     }
