@@ -12,7 +12,8 @@ use App\Scopes\Servico\ValorServicoCanceladoScope;
 use App\Scopes\Servico\ValorServicoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoLiquidadoScope;
-use App\Scopes\Servico\ValorServicoScope;
+use App\Scopes\Servico\ValorServicoPagamentoComTotalEComLancamentosScope;
+use App\Scopes\Servico\ValorServicoPagamentoSemTotalEComLancamentosScope;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Servico extends Model
@@ -43,8 +45,12 @@ class Servico extends Model
         'total_liquidado' => 'float',
         'total_em_analise' => 'float',
         'total_cancelado' => 'float',
+        'total_pagamento_com_total' => 'float',
+        'total_pagamento_sem_total' => 'float',
         'descricao' => 'array',
     ];
+
+    protected $appends = ['valor_servico', 'valor_final'];
 
     protected $exceptHidden = [
         'created_at'
@@ -83,18 +89,18 @@ class Servico extends Model
         return $this->morphMany(DocumentoTenant::class, 'parent')->orderBy('created_at', 'asc');
     }
 
-    // /**
-    //  * Acessor para obter a soma total dos pagamentos associados a um serviço.
-    //  *
-    //  * @return float
-    //  */
-    // public function getValorServicoAttribute()
-    // {
-    //     // Usa a relação 'pagamento' para calcular a soma dos valores
-    //     return $this->pagamento()->sum('valor_total');
-    // }
+    public function getValorServicoAttribute(): float
+    {
+        $valorPagamentosCommTotal = floatval($this->total_pagamento_com_total ?? 0);
+        $valorPagamentosSemTotal = floatval($this->total_pagamento_sem_total ?? 0);
 
-    public function getValorFinalAttribute()
+        return $valorPagamentosCommTotal + $valorPagamentosSemTotal;
+    }
+
+    /**
+     * Valor final do serviço, descontando os cancelados
+     */
+    public function getValorFinalAttribute(): float
     {
         return round(($this->valor_servico ?? 0) - ($this->total_cancelado ?? 0), 2);
     }
@@ -121,12 +127,13 @@ class Servico extends Model
     protected static function boot()
     {
         parent::boot();
-        static::addGlobalScope(new ValorServicoScope);
+        static::addGlobalScope(new ValorServicoPagamentoComTotalEComLancamentosScope);
         static::addGlobalScope(new ValorServicoLiquidadoScope);
         static::addGlobalScope(new ValorServicoAguardandoScope);
         static::addGlobalScope(new ValorServicoInadimplenteScope);
         static::addGlobalScope(new ValorServicoEmAnaliseScope);
         static::addGlobalScope(new ValorServicoCanceladoScope);
+        static::addGlobalScope(new ValorServicoPagamentoSemTotalEComLancamentosScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano

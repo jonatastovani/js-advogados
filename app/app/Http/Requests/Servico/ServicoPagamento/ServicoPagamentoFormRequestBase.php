@@ -53,7 +53,7 @@ class ServicoPagamentoFormRequestBase extends BaseFormRequest
                 (
                     ($this->has('resetar_pagamento_bln') &&
                         $this->input('resetar_pagamento_bln') == true) ||
-                    in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoNaoRecriaveis())
+                    in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis())
                 )
             )
         ) {

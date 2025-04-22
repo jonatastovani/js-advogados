@@ -339,6 +339,14 @@ enum PagamentoTipoEnum: int
         ];
     }
 
+    static public function pagamentoTipoSemTotalDefinidoEComLancamentos(): array
+    {
+        return [
+            self::RECORRENTE->value,
+            self::LIVRE_INCREMENTAL->value,
+        ];
+    }
+
     static public function pagamentoTipoCamposLancamentosPersonalizados(): array
     {
         return [

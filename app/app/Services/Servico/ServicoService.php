@@ -85,7 +85,7 @@ class ServicoService extends Service
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'titulo',
         ], $options));
-        $options = array_merge($options, ['removePrefix' => ['']]);
+        // $options = array_merge($options, ['removePrefix' => ['']]);
         $data = $this->carregarRelacionamentos($query, $requestData, $options);
         return $data;
     }
@@ -143,7 +143,7 @@ class ServicoService extends Service
     {
         // Remove o relacionamento recursivo do ServicoPagamento
         $options = array_merge($options, ['withOutClass' => [ServicoPagamentoService::class]]);
-        
+
         // Remove os relacionamentos que nao devem ser carregados
         $relationships = array_values(array_diff(
             $this->loadFull($options),
@@ -154,11 +154,6 @@ class ServicoService extends Service
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
         $paginator = $query->paginate($requestData->perPage ?? 25);
-        $paginator->getCollection()->transform(function ($item) {
-            $item->valor_final = $item->valor_total;
-            return $item;
-        });
-        
         return $paginator->toArray();
     }
 
@@ -180,7 +175,6 @@ class ServicoService extends Service
     {
         $resource = $this->buscarRecurso($requestData);
         $resource->load($this->loadFull());
-        $resource->valor_final = $resource->valor_total;
         return $resource->toArray();
     }
 

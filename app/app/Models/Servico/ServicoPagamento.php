@@ -14,6 +14,7 @@ use App\Scopes\Servico\ValorServicoPagamentoCanceladoScope;
 use App\Scopes\Servico\ValorServicoPagamentoEmAnaliseScope;
 use App\Scopes\Servico\ValorServicoPagamentoInadimplenteScope;
 use App\Scopes\Servico\ValorServicoPagamentoLiquidadoScope;
+use App\Scopes\Servico\ValorServicoPagamentoPagamentoSemTotalEComLancamentosScope;
 use App\Traits\BelongsToDomain;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -63,6 +64,8 @@ class ServicoPagamento extends Model
         'total_inadimplente' => 'float',
         'total_liquidado' => 'float',
         'total_em_analise' => 'float',
+        'total_cancelado' => 'float',
+        'total_pagamento_sem_total' => 'float',
     ];
 
     protected $exceptHidden = [
@@ -102,6 +105,16 @@ class ServicoPagamento extends Model
         return $this->morphMany(ParticipacaoParticipante::class, 'parent');
     }
 
+    public function getValorTotalAttribute($value)
+    {
+        $valor = (!empty($value) || $this->total_pagamento_sem_total == 0)
+            ? $value
+            // : $value; 
+            : $this->total_pagamento_sem_total;
+
+        return floatval($valor);
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -110,6 +123,7 @@ class ServicoPagamento extends Model
         static::addGlobalScope(new ValorServicoPagamentoInadimplenteScope);
         static::addGlobalScope(new ValorServicoPagamentoEmAnaliseScope);
         static::addGlobalScope(new ValorServicoPagamentoCanceladoScope);
+        static::addGlobalScope(new ValorServicoPagamentoPagamentoSemTotalEComLancamentosScope);
 
         static::creating(function (Model $model) {
             // Verifica se já foi informado um número e ano

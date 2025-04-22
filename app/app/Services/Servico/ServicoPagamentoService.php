@@ -62,7 +62,22 @@ class ServicoPagamentoService extends Service
 
     public function index(Fluent $requestData)
     {
-        $resource = $this->model->with($this->loadFull())->where('servico_id', $requestData->servico_uuid)->get();
+        $resource = $this->model->with($this->loadFull())
+            ->where('servico_id', $requestData->servico_uuid)
+            ->orderBy('created_at')
+            ->get()
+            // ->map(function ($item) {
+            //     if (
+            //         empty($item->valor_total) &&
+            //         !empty($item->total_pagamento_sem_total)
+            //     ) {
+            //         $item->valor_total = $item->total_pagamento_sem_total;
+            //     }
+
+            //     return $item;
+            // })
+            ;
+
         return $resource->toArray();
     }
 
@@ -178,7 +193,7 @@ class ServicoPagamentoService extends Service
 
         $arrayCampos = [
             'col_observacao' => ['campo' => $arrayAliasCampos['col_observacao'] . '.observacao'],
-            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_automatica'],
+            'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao_condicionado'],
 
             'col_nome_grupo_participante' => ['campo' => $arrayAliasCampos['col_nome_grupo_participante'] . '.nome_grupo'],
             'col_observacao_participante' => ['campo' => $arrayAliasCampos['col_observacao_participante'] . '.observacao'],
@@ -243,6 +258,35 @@ class ServicoPagamentoService extends Service
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
+
+    // protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
+    // {
+    //     if ($options['loadFull'] ?? false) {
+    //         $query->with($options['loadFull']);
+    //     } else {
+    //         if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
+    //             $query->with($this->loadFull($options));
+    //         }
+    //     }
+
+    //     /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+    //     $paginator = $query->paginate($requestData->perPage ?? 25);
+
+    //     // Ajusta o valor_total da relação pagamento se estiver vazio
+    //     $paginator->getCollection()->transform(function ($item) {
+    //         if (
+    //             isset($item->pagamento) &&
+    //             (empty($item->pagamento->valor_total) || $item->pagamento->valor_total == 0) &&
+    //             !empty($item->pagamento->total_pagamento_sem_total)
+    //         ) {
+    //             $item->pagamento->valor_total = $item->pagamento->total_pagamento_sem_total;
+    //         }
+
+    //         return $item;
+    //     });
+
+    //     return $paginator->toArray();
+    // }
 
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
@@ -679,7 +723,7 @@ class ServicoPagamentoService extends Service
                 $pagamentoTipo = $requestData->pagamento_tipo_tenant->pagamento_tipo;
 
                 $blnInserirLancamentos = (
-                    in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoNaoRecriaveis()) &&
+                    in_array($pagamentoTipo->id, PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis()) &&
                     count($requestData->lancamentos ?? [])) ? true : false;
 
                 // Só executa aqui quando é para resetar e o pagamento não é do tipo recriável, pois recriável remove os lançamentos, já o Livre Incremental só acrescenta

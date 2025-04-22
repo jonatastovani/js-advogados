@@ -43,6 +43,7 @@
         PagamentoTipoComConferenciaDeValorTotal: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoComConferenciaDeValorTotal()),
         PagamentoTipoCamposLancamentosPersonalizados: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoCamposLancamentosPersonalizados()),
         PagamentoTipoNaoRecriaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoNaoRecriaveis()),
+        PagamentoTipoSemprePersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis()),
     }
 
     window.Details = {

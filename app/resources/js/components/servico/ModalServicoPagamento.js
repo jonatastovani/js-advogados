@@ -90,21 +90,12 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 }
 
                 await self.#buscarDadosPagamentoTipo();
-
-                self.#limparLancamentosNaTela();
-                self.#visibilidadePersonalizarLancamentos();
-                self.#verificaLiquidadoMigracao();
                 self.#buscarFormaPagamento();
                 self.#buscarStatusPagamento();
 
-                const pagamentoTipoNaoRecriaveis = window.Statics.PagamentoTipoNaoRecriaveis;
-                if (pagamentoTipoNaoRecriaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)) {
-
-                    // self.#aplicarStatusEdicaoCamposCamposReadonly();
-                    const permitePersonalizar = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
-                    self._objConfigs.data.personalizar_lancamentos_bln = permitePersonalizar;
-                    self._objConfigs.data.personalizar_lancamentos_updated_bln = permitePersonalizar;
-                }
+                self.#limparLancamentosNaTela();
+                self.#verificaPersonalizarLancamentos();
+                self.#verificaLiquidadoMigracao();
             }
 
             await CommonFunctions.loadingModalDisplay(false);
@@ -173,7 +164,9 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             .find('input, select, textarea')
             .map(function () {
                 return `#${this.id}`;
-            }).get().filter(id => id); // remove campos sem ID para evitar erros
+            }).get()
+            // remove campos sem ID para evitar erros e os campos que não quero que sejam verificados
+            .filter(id => id && ![`#personalizar_lancamentos_bln${self.getSufixo}`].includes(id));
 
         self.#camposVerificarSnapshotWatcherHelper = new SnapshotWatcherHelper(selectors);
     }
@@ -653,6 +646,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
                 await self.#buscarDadosPagamentoTipo(true);
                 await self.#verificaLancamentos(responseData);
+                await self.#verificaPersonalizarLancamentos();
+                await self.#verificaLiquidadoMigracaoPagamentoSemprePersonalizaveis();
 
                 const form = $(self.getIdModal).find('.formRegistration');
                 await self.#buscarFormaPagamento(responseData.forma_pagamento_id);
@@ -700,16 +695,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     async #verificaLancamentos(responseData) {
         const self = this;
         let blnStatus = false;
-        const pagamentoTipoNaoRecriaveis = window.Statics.PagamentoTipoNaoRecriaveis;
+        const pagamentoTipoNaoRecriaveis = self.#verificaPagamentoTipoNaoRecriaveis();
 
-        // Se for não recriável, então nem ofere a opção de recriar
-        if (pagamentoTipoNaoRecriaveis.includes(responseData.pagamento_tipo_tenant.pagamento_tipo.id)) {
-
-            self.#aplicarStatusEdicaoCamposCamposReadonly();
-            const permitePersonalizar = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
-            self._objConfigs.data.personalizar_lancamentos_bln = permitePersonalizar;
-            self._objConfigs.data.personalizar_lancamentos_updated_bln = permitePersonalizar;
-        } else {
+        // Se não for recriável, então nem ofere a opção de recriar
+        if (!pagamentoTipoNaoRecriaveis) {
 
             // Verifica se há alguma movimentação vinculada a lançamentos
             const possuiMovimentacao = responseData.lancamentos.some(l => l?.movimentacao_conta?.length);
@@ -750,10 +739,10 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
                 self.#aplicarStatusEdicaoCamposCamposReadonly(statusChecked);
 
-                // Se for falso a o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa.
+                // Se for falso o reset, então já se aplica falso na visibilidade do liquidado migração, pois não editará os registros antigos, mesmo que o tenant tenha a opção de lancamento_liquidado_migracao_sistema_bln ativa.
                 statusChecked ? self.#verificaLiquidadoMigracao() : self.#visibilidadeLiquidadoMigracao();
 
-                // Se for falso a o reset, então já se aplica falso na visibilidade dos lançamentos personalizados, pois não editará os registros antigos.
+                // Se for falso o reset, então já se aplica falso na visibilidade dos lançamentos personalizados, pois não editará os registros antigos.
                 statusChecked ? self.#verificaPersonalizarLancamentos() : self.#visibilidadePersonalizarLancamentos();
 
                 // Se for true, então busca uma simulação com os dados que estão na tela, para liberar a personalização. Caso contrário, busca os lançamentos já cadastrados.
@@ -765,14 +754,18 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
             ckbResetar.prop('checked', false).attr('disabled', true).off('change');
             self._objConfigs.data.resetar_pagamento_bln = false;
         }
-
-        self.#visibilidadePersonalizarLancamentos();
     }
 
     #aplicarStatusEdicaoCamposCamposReadonly(statusEditable = true) {
         const self = this;
         $(`${self.getIdModal} .campo-readonly`).prop('readonly', !statusEditable);
         $(`${self.getIdModal} .campo-readonly-disabled`).prop('disabled', !statusEditable);
+    }
+
+    async #verificaLiquidadoMigracaoPagamentoSemprePersonalizaveis() {
+        const self = this;
+        const pagamentoTipoSemprePersonalizaveis = self.#verificaPagamentoTipoSemprePersonalizaveis();
+        if (pagamentoTipoSemprePersonalizaveis) await self.#verificaLiquidadoMigracao();
     }
 
     /**
@@ -782,6 +775,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const tenantData = await TenantDataHelper.getTenantData();
         const permiteLiquidadoMigracao = window.Statics.PagamentoTipoQuePermiteLiquidadoMigracao.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
+
         self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln && permiteLiquidadoMigracao);
     }
 
@@ -811,10 +805,33 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         return window.Statics.PagamentoTipoComLancamentosPersonalizaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
     }
 
+    #verificaPagamentoTipoSemprePersonalizaveis() {
+        const self = this;
+        return window.Statics.PagamentoTipoSemprePersonalizaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
+    }
+
+    #verificaPagamentoTipoNaoRecriaveis() {
+        const self = this;
+        return window.Statics.PagamentoTipoNaoRecriaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id);
+    }
+
     #verificaPersonalizarLancamentos() {
         const self = this;
         const permitePersonalizar = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
-        self.#visibilidadePersonalizarLancamentos(permitePersonalizar);
+        const pagamentoTipoSemprePersonalizaveis = self.#verificaPagamentoTipoSemprePersonalizaveis();
+
+        if (pagamentoTipoSemprePersonalizaveis) {
+
+            self.#aplicarStatusEdicaoCamposCamposReadonly();
+            self._objConfigs.data.personalizar_lancamentos_bln = permitePersonalizar;
+            self._objConfigs.data.personalizar_lancamentos_updated_bln = permitePersonalizar;
+        } else {
+
+            self.#visibilidadePersonalizarLancamentos(permitePersonalizar && (
+                !self._dataEnvModal?.idRegister ||
+                self._objConfigs.data.resetar_pagamento_bln
+            ));
+        }
     }
 
     #visibilidadePersonalizarLancamentos(statusVisibilidade = false) {
@@ -1025,18 +1042,22 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         const pagamentoTipo = self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo;
-        const pagamentoTipoNaoRecriaveis = window.Statics.PagamentoTipoNaoRecriaveis;
+        const PagamentoTipoSemprePersonalizaveis = window.Statics.PagamentoTipoSemprePersonalizaveis;
         let blnSave = false;
 
         if (self._action == EnumAction.POST || (
             self._action == EnumAction.PUT && (
                 tipo == 'save' ||
                 (tipo == 'simulacao' &&
-                    (self._objConfigs.data?.resetar_pagamento_bln || pagamentoTipoNaoRecriaveis.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)))
+                    (self._objConfigs.data?.resetar_pagamento_bln || PagamentoTipoSemprePersonalizaveis))
             )
         )) {
 
-            blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, { field: formRegistration.find('select[name="forma_pagamento_id"]'), messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.', setFocus: true });
+            blnSave = CommonFunctions.verificationData(data.forma_pagamento_id, {
+                field: formRegistration.find('select[name="forma_pagamento_id"]'),
+                messageInvalid: 'A <b>Forma de Pagamento padrão</b> deve ser informada.',
+                setFocus: true
+            });
 
             // if (self._action == EnumAction.POST) {
             for (const campo of pagamentoTipo.campos_obrigatorios) {
