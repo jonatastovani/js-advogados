@@ -86,6 +86,7 @@ Route::group([
                             // Route::post('', 'store');
                             Route::get('{uuid}', 'show');
                             Route::put('{uuid}', 'update');
+                            Route::delete('{uuid}', 'destroy');
                         });
 
                         Route::prefix('{lancamento_uuid}/participacao')->group(function () {

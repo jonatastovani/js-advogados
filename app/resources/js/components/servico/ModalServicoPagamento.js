@@ -233,16 +233,8 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         const rowLancamentos = $(self.getIdModal).find('.row-lancamentos');
 
         lancamento.idCol = `${UUIDHelper.generateUUID()}${self._objConfigs.sufixo}`;
-        const pagamentoAtivo = pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;
-        const tachado = (window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1);
-
-        const personalizavel = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
-        const nameBtnEdit = pagamento?.id ? 'btn-edit' : 'btn-edit-object';
-        const disabledTachado = personalizavel && pagamentoAtivo && !tachado ? '' : 'disabled';
-
-        const btns = `<li>
-            <button type="button" class="dropdown-item fs-6 btn-participacao-lancamento ${nameBtnEdit} ${disabledTachado}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button>
-        </li>`;
+        const tachado = self.#verificaLancamentoTachado(lancamento);
+        const btns = self.#htmlBtnsLancamento(lancamento, pagamento);
 
         let btnsDropDown = `
             <div>
@@ -327,6 +319,37 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
         } else {
             divAlertMessage.hide('fast').html('');
         }
+    }
+
+    #verificaLancamentoTachado(lancamento) {
+        return window.Statics.StatusLancamentoTachado.findIndex(x => x == lancamento.status_id) != -1;
+    }
+
+    #verificaPagamentoAtivo(pagamento) {
+        return pagamento.status_id == window.Enums.PagamentoStatusTipoEnum.ATIVO ? true : false;;
+    }
+
+    #htmlBtnsLancamento(lancamento, pagamento) {
+        const self = this;
+
+        const tachado = self.#verificaLancamentoTachado(lancamento);
+        const pagamentoAtivo = self.#verificaPagamentoAtivo(pagamento);
+        const personalizavel = self.#verificaPagamentoTipoComLancamentosPersonalizaveis();
+        const nameBtnEdit = pagamento?.id ? 'btn-edit' : 'btn-edit-object';
+        const disabledTachado = personalizavel && pagamentoAtivo && !tachado ? '' : 'disabled';
+        const semprePersonalizavel = self.#verificaPagamentoTipoSemprePersonalizaveis();
+
+        let htmlBtns = `<li>
+            <button type="button" class="dropdown-item fs-6 ${nameBtnEdit} ${disabledTachado}" title="Editar Lançamento ${lancamento.descricao_automatica}">Editar</button>
+        </li>`;
+
+        if (semprePersonalizavel & !disabledTachado && pagamentoAtivo && lancamento?.id) {
+            htmlBtns += `<li>
+                <button type="button" class="dropdown-item fs-6 btn-danger btn-delete-lancamento ${disabledTachado}" title="Excluir Lançamento ${lancamento.descricao_automatica}">Excluir</button>
+            </li>`;
+        }
+
+        return htmlBtns;
     }
 
     #htmlColsLancamento(lancamento) {
@@ -461,6 +484,54 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
                 } catch (error) {
                     CommonFunctions.generateNotificationErrorCatch(error);
                 } finally {
+                    await self._modalHideShow();
+                    CommonFunctions.simulateLoading(btn, false);
+                }
+            });
+
+            $(`#${lancamento.idCol}`).find('.btn-delete-lancamento').on('click', async function () {
+
+                if (!lancamento?.id) return;
+
+                const btn = $(this);
+                CommonFunctions.simulateLoading(btn);
+                let blnModalLoading = false;
+                try {
+                    const lancamentoIndex = self.#getIndexLancamento(lancamento);
+                    if (lancamentoIndex === false) {
+                        CommonFunctions.generateNotification('Lançamento não encontrado na tela. Se o problema persistir, contate o desenvolvedor.', 'error');
+                        console.error({ lancamento }, { 'lancamentos_na_tela': self._objConfigs.data.lancamentos_na_tela });
+                        return false;
+                    }
+
+                    const objMessage = new ModalMessage();
+                    objMessage.setDataEnvModal = {
+                        title: 'Exlclusão de Lançamento',
+                        message: `<p>Confirma a exclusão do lançamento <b>${lancamento.descricao_automatica}</b>?</p>`,
+                    };
+                    self._modalHideShow(false);
+                    const result = await objMessage.modalOpen();
+
+                    if (!result.confirmResult) return;
+
+                    blnModalLoading = await CommonFunctions.loadingModalDisplay(true, { message: 'Excluindo registro...', title: 'Aguarde...' });
+                    if (await self._delRecurse(lancamento.id, {
+                        url: self._objConfigs.url.baseLancamentos,
+                    })) {
+                        CommonFunctions.generateNotification('Lançamento excluído com sucesso!', 'success');
+
+                        self._objConfigs.data.lancamentos_na_tela = self._objConfigs.data.lancamentos_na_tela.filter(l => l.id !== lancamento.id);
+
+                        // Remove da tela o HTML correspondente
+                        $(`#${lancamento.idCol}`).remove();
+
+                        self._promisseReturnValue.refresh = true;
+                    }
+
+                } catch (error) {
+                    CommonFunctions.generateNotificationErrorCatch(error);
+                } finally {
+                    if (blnModalLoading) await CommonFunctions.loadingModalDisplay(false);
                     await self._modalHideShow();
                     CommonFunctions.simulateLoading(btn, false);
                 }

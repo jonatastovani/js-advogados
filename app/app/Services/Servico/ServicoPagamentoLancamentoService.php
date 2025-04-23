@@ -5,6 +5,7 @@ namespace App\Services\Servico;
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
+use App\Enums\PagamentoTipoEnum;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
@@ -442,6 +443,43 @@ class ServicoPagamentoLancamentoService extends Service
 
             // $this->executarEventoWebsocket();
             return $resource->toArray();
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $arrayErrors = new Fluent();
+
+        $movimentacoes = $resource->movimentacao_conta()->get();
+        // Se possuir lancamentos com movimentação, impossibilita a exclusão ou edição
+        if ($movimentacoes->count() > 0) {
+            $arrayErrors->impossibilitado_edicao_exclusao = 'Possui histórico de movimentação de conta.';
+        }
+
+        if (in_array($resource->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
+            $arrayErrors->impossibilitado_edicao_exclusao = 'Possui status que impossibilita edição ou exclusão.';
+        }
+
+        // Se o pagamento não é sempre personalizável então não é permitido exclusão de um só lançamento, se permitir a exclusão deverá ser por outra rota (ex: exclusão quando é recriado o pagamento)
+        if (!in_array($resource->pagamento->pagamento_tipo_tenant->pagamento_tipo_id, PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis())) {
+            $arrayErrors->impossibilitado_edicao_exclusao = 'Pagamento não permite exclusão isolada do lançamento.';
+        }
+
+        if (count($arrayErrors->toArray()) > 0) {
+            RestResponse::createGenericResponse(["errors" => $arrayErrors], 422, "A exclusão não foi realizada pois o lançamento possui uma ou mais restrições.")->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                $this->destroyCascade($resource, ['participantes.integrantes']);
+                $resource->delete();
+
+                return $resource->toArray();
+            });
         } catch (\Exception $e) {
             return $this->gerarLogExceptionErroSalvar($e);
         }

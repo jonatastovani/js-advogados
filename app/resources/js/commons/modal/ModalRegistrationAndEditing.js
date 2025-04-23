@@ -208,4 +208,24 @@ export class ModalRegistrationAndEditing extends ModalDefault {
 
     //#endregion
 
+    //#region Metodos de exclusão padrão
+
+    async _delRecurse(idDel, options = {}) {
+        const self = this;
+        const {
+            url = self._objConfigs.url.base
+        } = options;
+
+        try {
+            const obj = new ConnectAjax(url);
+            obj.setParam(idDel);
+            const response = await obj.deleteRequest();
+            return true;
+        } catch (error) {
+            CommonFunctions.generateNotificationErrorCatch(error);
+            return false;
+        }
+    }
+    //#endregion
+
 }

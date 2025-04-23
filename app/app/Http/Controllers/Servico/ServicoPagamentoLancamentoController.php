@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\PostConsultaFiltroFormRequestServicoPagamentoLancamento;
+use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestDestroy;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestShow;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestStoreLancamentoReagendadoServico;
 use App\Http\Requests\Servico\ServicoPagamentoLancamento\ServicoPagamentoLancamentoFormRequestUpdate;
@@ -46,5 +47,11 @@ class ServicoPagamentoLancamentoController extends Controller
     ) {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
         return $this->retornoPadrao($this->service->storeLancamentoReagendadoServico($fluentData));
+    }
+    
+    public function destroy(ServicoPagamentoLancamentoFormRequestDestroy $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
+        return $this->retornoPadrao($this->service->destroy($fluentData));
     }
 }
