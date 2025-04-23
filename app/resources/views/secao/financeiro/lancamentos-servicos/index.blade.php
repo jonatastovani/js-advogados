@@ -113,7 +113,44 @@
             <tbody></tbody>
         </table>
     </div>
-
+    {{-- <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 text-end">
+        <p class="mb-0">
+            Valor final dos pagamentos: R$
+            <span id="valorFinal{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+        <p class="mb-0">
+            Lançamentos cancelados: R$
+            <span id="totalCancelado{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+        <p class="mb-0">
+            Lançamentos aguardando: R$
+            <span id="totalAguardando{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+        <p class="mb-0">
+            Lançamentos em análise: R$
+            <span id="totalEmAnalise{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+        <p class="mb-0">
+            Lançamentos liquidado: R$
+            <span id="totalLiquidado{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+        <p class="mb-0">
+            Lançamentos inadimplente: R$
+            <span id="totalInadimplente{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+                0,00
+            </span>
+        </p>
+    </div> --}}
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />
 
 @endsection

@@ -23,6 +23,12 @@ class ServicoPagamentoLancamentoController extends Controller
         return $this->retornoPadrao($this->service->postConsultaFiltros($fluentData));
     }
 
+    public function postConsultaFiltrosObterTotais(PostConsultaFiltroFormRequestServicoPagamentoLancamento $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->postConsultaFiltrosObterTotais($fluentData));
+    }
+
     public function show(ServicoPagamentoLancamentoFormRequestShow $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);

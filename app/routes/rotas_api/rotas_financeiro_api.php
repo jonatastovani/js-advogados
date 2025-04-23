@@ -63,6 +63,7 @@ Route::group([
             Route::controller(App\Http\Controllers\Servico\ServicoPagamentoLancamentoController::class)->group(function () {
 
                 Route::post('consulta-filtros', 'postConsultaFiltros');
+                Route::post('consulta-filtros/obter-totais', 'postConsultaFiltrosObterTotais');
                 Route::post('{uuid}', 'show');
                 Route::put('reagendar/{uuid}', 'storeLancamentoReagendadoServico');
             });

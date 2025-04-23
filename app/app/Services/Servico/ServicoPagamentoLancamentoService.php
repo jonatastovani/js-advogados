@@ -18,6 +18,7 @@ use App\Services\Tenant\FormaPagamentoTenantService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
@@ -235,6 +236,59 @@ class ServicoPagamentoLancamentoService extends Service
 
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
+        $query = $this->montaConsultaRegistrosLancamentos($requestData, $options);
+
+        return $this->carregarRelacionamentos($query, $requestData, $options);
+    }
+
+    public function postConsultaFiltrosObterTotais(Fluent $requestData, array $options = [])
+    {
+        $options = array_merge($options, ['arrayCamposSelect' => ['pagamento_id']]);
+        $query = $this->montaConsultaRegistrosLancamentos($requestData, $options);
+        $uniqueIDPagamentos = $query->pluck('pagamento_id')->unique();
+        $queryPagamento = $this->modelPagamento->whereIn('id', $uniqueIDPagamentos)->get();
+
+        $somatorias = $this->obterTotaisLancamentos($queryPagamento, $options);
+
+        return [
+            'totais' => $somatorias->toArray(),
+        ];
+    }
+
+    public function obterTotaisLancamentos(Collection $resources, array $options = []): Fluent
+    {
+        $totaisASomar = [
+            "valor_total",
+            "total_liquidado",
+            "total_aguardando",
+            "total_inadimplente",
+            "total_analise",
+            "total_cancelado",
+            "total_pagamento_sem_total",
+            "valor_final",
+        ];
+
+        $fluentTotais = new Fluent();
+
+        foreach ($totaisASomar as $campo) {
+            $soma = $resources->sum(function ($item) use ($campo) {
+                return floatval($item->{$campo} ?? 0);
+            });
+
+            // Arredonda para 2 casas e força tipo float
+            $fluentTotais->{$campo} = round($soma, 2);
+        }
+
+        // O Chat sugeriu, mas ainda não vou usar
+        // // Valor final = valor_total - total_cancelado
+        // $valorFinal = ($fluentTotais->valor_total ?? 0) - ($fluentTotais->total_cancelado ?? 0);
+        // $fluentTotais->valor_final = round($valorFinal, 2);
+
+        return $fluentTotais;
+    }
+
+    public function montaConsultaRegistrosLancamentos(Fluent $requestData, array $options = [])
+    {
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
@@ -276,7 +330,8 @@ class ServicoPagamentoLancamentoService extends Service
             'campoOrdenacao' => 'data_vencimento',
         ], $options));
 
-        return $this->carregarRelacionamentos($query, $requestData, $options);
+        /** @var Builder */
+        return $query;
     }
 
     /**

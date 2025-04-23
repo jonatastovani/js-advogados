@@ -442,6 +442,55 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         return true;
     }
 
+    async functionExecuteOnError(error) {
+        const self = this;
+        // $(`.campo_totais${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(0));
+        // self._objConfigs.atualizandoValores = false;
+    }
+
+    async functionExecuteOnSuccess(response) {
+        const self = this;
+        self.#atualizaValoresTotais();
+    }
+
+    async #atualizaValoresTotais() {
+        const self = this;
+
+        // Configurar back para retornar soma da consulta separada da geral (todos pagamentos envolvidos)
+        return;
+        // Se não estiver atualizando os valores, então se executa
+        if (!self._objConfigs?.atualizandoValores) {
+            self._objConfigs.atualizandoValores = true;
+
+            try {
+                const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
+                const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais`);
+                if (forcedDomainId) {
+                    objConn.setForcedDomainCustomId = forcedDomainId;
+                }
+                objConn.setAction(EnumAction.POST);
+                objConn.setData(self._objConfigs.querys.consultaFiltros.dataPost);
+                const response = await objConn.envRequest();
+
+                const totais = response.data.totais;
+                // Ativos
+                $(`#valorFinal${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.valor_total));
+                $(`#totalCancelado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_cancelado));
+                $(`#totalAguardando${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_aguardando));
+                $(`#totalEmAnalise${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_analise));
+                $(`#totalLiquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_liquidado));
+                $(`#totalInadimplente${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_inadimplente));
+
+            } catch (error) {
+                $(`.campo_totais${self.getSufixo}`).html('0,00');
+                CommonFunctions.generateNotificationErrorCatch(error);
+            } finally {
+                self._objConfigs.atualizandoValores = false;
+            }
+        }
+
+    }
+
     #htmlBtns(item) {
         const self = this;
         const configAcoes = self.#objConfigs.data.configAcoes;

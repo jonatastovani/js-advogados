@@ -115,6 +115,14 @@ class ServicoPagamento extends Model
         return floatval($valor);
     }
 
+    /**
+     * Valor final do pagamento, descontando os cancelados
+     */
+    public function getValorFinalAttribute(): float
+    {
+        return round(($this->valor_total ?? 0) - ($this->total_cancelado ?? 0), 2);
+    }
+
     protected static function boot()
     {
         parent::boot();
