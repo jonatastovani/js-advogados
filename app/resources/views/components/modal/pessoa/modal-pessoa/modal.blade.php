@@ -9,7 +9,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-lg-down">
         <div class="modal-content">
             <div class="modal-header py-1">
-                <h4 class="modal-title">Pessoas</h4>
+                <h4 class="modal-title">Busca de Pessoas</h4>
                 <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex flex-column pt-1">

@@ -83,7 +83,7 @@ export class PessoaPerfilModule {
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
-                            <span class="text-truncate spanTitle">${nomePerfil}</span>
+                            <span class="text-truncate spanTitle" title="${item.perfil_tipo.descricao}">${nomePerfil}</span>
                             <div>
                                 ${!perfilVigente ? `<a href="${item.id ? `${rotaEdit}/${item.id}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}" ${item.id ? `target="_blank"` : ''}>Editar</a>` : ''}
                                 ${!item.id && !perfilObrigatorio ? `<button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Excluir perfil ${nomePerfil}">Remover</button>` : ''}

@@ -129,8 +129,8 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 // DocumentoTipoSeeder::class,
                 // DocumentoTipoTenantSeeder::class,
-                PagamentoTipoSeeder::class,
-                PagamentoTipoTenantSeeder::class,
+                PessoaPerfilTipoSeeder::class,
+                // PagamentoTipoTenantSeeder::class,
             ]);
         }
     }

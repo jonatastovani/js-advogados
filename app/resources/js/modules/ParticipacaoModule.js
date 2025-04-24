@@ -600,7 +600,7 @@ export class ParticipacaoModule {
                 try {
                     const objModal = new ModalPessoa();
                     objModal.setDataEnvModal = {
-                        perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                        perfis_busca: self._objConfigs.participacao.perfis_busca,
                     }
                     if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                     const response = await objModal.modalOpen();

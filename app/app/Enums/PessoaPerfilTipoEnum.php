@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Helpers\EnumFiltroHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaJuridica;
 use App\Traits\EnumTrait;
@@ -14,6 +15,7 @@ enum PessoaPerfilTipoEnum: int
     case PARCEIRO = 2;
     case CLIENTE = 3;
     case EMPRESA = 4;
+    case TERCEIRO = 5;
 
     // Método para retornar os detalhes como array
     public function detalhes(): array
@@ -60,15 +62,36 @@ enum PessoaPerfilTipoEnum: int
                     ],
                 ],
             ],
+            self::TERCEIRO => [
+                'id' => self::TERCEIRO->value,
+                'nome' => 'Terceiro',
+                'descricao' => "Perfil para terceiros (Credores ou Recebedores).",
+                'configuracao' => [
+                    'pessoa_tipo_aplicavel' => [
+                        PessoaFisica::class,
+                        PessoaJuridica::class,
+                    ],
+                ],
+            ],
         };
     }
 
-    static public function perfisPermitidoParticipacaoServico(): array
+    static private function padraoPerfisPermitidoParticipacaoServico()
     {
         return [
             self::PARCEIRO->detalhes(),
             self::EMPRESA->detalhes(),
+            self::TERCEIRO->detalhes(),
         ];
+    }
+
+    static public function perfisPermitidoParticipacaoServico(): array
+    {
+        return array_values(EnumFiltroHelper::filtrarOuSugerir(
+            self::class,
+            TenantConfigExtrasEnum::PERFIS_PERMITIDO_PARTICIPACAO_SERVICO->value,
+            self::padraoPerfisPermitidoParticipacaoRessarcimento(),
+        ));
     }
 
     static public function perfisPermitidoClienteServico(): array
@@ -78,11 +101,29 @@ enum PessoaPerfilTipoEnum: int
         ];
     }
 
-    static public function perfisPermitidoParticipacaoRessarcimento(): array
+    static private function perfisNaoPermitidoParticipacaoRessarcimento(): array
+    {
+        return [
+            self::EMPRESA->detalhes(),
+        ];
+    }
+
+    static private function padraoPerfisPermitidoParticipacaoRessarcimento()
     {
         return [
             self::PARCEIRO->detalhes(),
+            self::TERCEIRO->detalhes(),
         ];
+    }
+
+    static public function perfisPermitidoParticipacaoRessarcimento(): array
+    {
+        return array_values(EnumFiltroHelper::filtrarOuSugerir(
+            self::class,
+            TenantConfigExtrasEnum::PERFIS_PERMITIDO_PARTICIPACAO_RESSARCIMENTO->value,
+            self::padraoPerfisPermitidoParticipacaoRessarcimento(),
+            collect(self::perfisNaoPermitidoParticipacaoRessarcimento())->pluck('id')->toArray(),
+        ));
     }
 
     /**
