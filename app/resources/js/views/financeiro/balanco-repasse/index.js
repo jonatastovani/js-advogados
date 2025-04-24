@@ -11,25 +11,25 @@ import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCusto
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
-class PageBalancoRepasseParceiroIndex extends TemplateSearch {
+class PageBalancoRepasseIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: `${window.apiRoutes.baseRepasseParceiro}`,
-                urlSearch: `${window.apiRoutes.baseRepasseParceiro}/consulta-filtros`,
+                url: `${window.apiRoutes.baseRepasse}`,
+                urlSearch: `${window.apiRoutes.baseRepasse}/consulta-filtros`,
                 // functionExecuteOnError: 'functionExecuteOnError',
             }
         },
         url: {
             baseContas: window.apiRoutes.baseContas,
-            baseLancarRepasseParceiro: window.apiRoutes.baseLancarRepasseParceiro,
-            baseRepasseParceiro: window.apiRoutes.baseRepasseParceiro,
+            baseLancarRepasse: window.apiRoutes.baseLancarRepasse,
+            baseRepasse: window.apiRoutes.baseRepasse,
             baseFrontImpressao: window.frontRoutes.baseFrontImpressao,
         },
         data: {
-            parceiro_id: undefined,
+            perfil_id: undefined,
             totais: {
                 debito: 0,
                 credito: 0,
@@ -44,7 +44,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageBalancoRepasseParceiroIndex', withOutVerifyDomainCustom: true });
+        super({ sufixo: 'PageBalancoRepasseIndex', withOutVerifyDomainCustom: true });
         this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -65,8 +65,8 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        const preencherInfoParceiro = (perfil) => {
-            const card = $(`#dados-parceiro${self.getSufixo}`);
+        const preencherInfoPessoa = (perfil) => {
+            const card = $(`#dados-pessoa${self.getSufixo}`);
 
             let nome = '';
             const perfilNome = perfil.perfil_tipo.nome;
@@ -84,14 +84,14 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                     throw new Error('Tipo de pessoa inválido');
             }
 
-            card.find(`.nome-parceiro`).html(nome);
-            card.find(`.card-perfil-referencia`).html(perfilNome);
-            self._objConfigs.data.parceiro_id = perfil.id;
+            card.find(`.nome-pessoa`).html(nome);
+            card.find(`.card-perfil-referencia`).html(`Perfil Referência: <span class="fw-bolder">${perfilNome}</span>`);
+            self._objConfigs.data.perfil_id = perfil.id;
             self._objConfigs.data.perfil = perfil;
             self.#statusCampos(true);
         }
 
-        $(`#btnSelecionarParceiro${self.getSufixo}`).on('click', async function () {
+        $(`#btnSelecionarPessoa${self.getSufixo}`).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
@@ -101,7 +101,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 const objModal = new ModalPessoa({ dataEnvModal });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.selected) {
-                    preencherInfoParceiro(response.selected);
+                    preencherInfoPessoa(response.selected);
                 }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
@@ -154,7 +154,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                     if (responseConta.refresh) {
 
                         const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-                        const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasseParceiro);
+                        const objConn = new ConnectAjax(self._objConfigs.url.baseLancarRepasse);
                         if (forcedDomainId) {
                             objConn.setForcedDomainCustomId = forcedDomainId;
                         }
@@ -212,7 +212,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
                 self.setForcedDomainIdBlockedChanges = domainId;
 
-                if (self._objConfigs.data.parceiro_id) {
+                if (self._objConfigs.data.perfil_id) {
                     await self._executarBusca();
                 }
             } catch (error) {
@@ -262,18 +262,18 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 appendData.movimentacao_status_tipo_id = data.movimentacao_status_tipo_id;
             }
 
-            appendData.parceiro_id = self._objConfigs.data.parceiro_id;
+            appendData.perfil_id = self._objConfigs.data.perfil_id;
 
             return { appendData: appendData };
         }
 
-        if (self._objConfigs.data.parceiro_id) {
+        if (self._objConfigs.data.perfil_id) {
             BootstrapFunctionsHelper.removeEventPopover();
             self._setTypeCurrentSearch = self._objConfigs.querys.consultaFiltros.name;
             self._objConfigs.atualizandoValores = false;
             await self._generateQueryFilters(getAppendDataQuery());
         } else {
-            CommonFunctions.generateNotification('Selecione um parceiro', 'warning');
+            CommonFunctions.generateNotification('Selecione uma pessoa', 'warning');
         }
     }
 
@@ -311,7 +311,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
         let dadosEspecificosTitle = '';
 
         switch (item.parent_type) {
-            case window.Enums.BalancoRepasseParceiroTipoParentEnum.MOVIMENTACAO_CONTA:
+            case window.Enums.BalancoRepasseTipoParentEnum.MOVIMENTACAO_CONTA:
 
                 dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_movimentacao, 2);
                 movimentacaoTipo = parent.movimentacao_tipo.nome;
@@ -348,7 +348,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
                 }
                 break;
 
-            case window.Enums.BalancoRepasseParceiroTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
+            case window.Enums.BalancoRepasseTipoParentEnum.LANCAMENTO_RESSARCIMENTO:
 
                 dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_vencimento, 2);
                 movimentacaoTipo = parent.parceiro_movimentacao_tipo.nome;
@@ -422,7 +422,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 
             try {
                 const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);
-                const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais-participacoes`);
+                const objConn = new ConnectAjax(`${self._objConfigs.querys.consultaFiltros.urlSearch}/obter-totais`);
                 if (forcedDomainId) {
                     objConn.setForcedDomainCustomId = forcedDomainId;
                 }
@@ -547,7 +547,7 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
     async #buscarMovimentacoesStatusTipo(selected_id = null) {
         try {
             const self = this;
-            const arrayOpcoes = window.Statics.StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd;
+            const arrayOpcoes = window.Statics.StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseFrontEnd;
             let options = { firstOptionName: 'Todos os status' };
             selected_id ? options.selectedIdOption = selected_id : null;
             const select = $(`#movimentacao_status_tipo_id${self.getSufixo}`);
@@ -561,5 +561,5 @@ class PageBalancoRepasseParceiroIndex extends TemplateSearch {
 }
 
 $(function () {
-    new PageBalancoRepasseParceiroIndex();
+    new PageBalancoRepasseIndex();
 });

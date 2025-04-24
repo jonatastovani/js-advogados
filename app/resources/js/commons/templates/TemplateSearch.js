@@ -582,7 +582,14 @@ export class TemplateSearch {
                 // Se confirmado, executa a exclusão
                 if (await self._delRecurse(idDel, options)) {
                     CommonFunctions.generateNotification(success, 'success'); // Notifica sucesso
-                    self._executarBusca(); // Atualiza os dados na tela
+
+                    let config = self.#getConfigType();
+                    if (!config) {
+                        self._executarBusca(); // Atualiza os dados na tela
+                        return;
+                    } else {
+                        self._getData(config.dataPost, config.dataPost.page ?? 1);
+                    }
                 }
             }
         } catch (error) {

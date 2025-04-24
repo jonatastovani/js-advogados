@@ -360,169 +360,298 @@ export class ModalPessoa extends ModalSearchAndFormRegistration {
         return null; // Pessoa não selecionada
     }
 
+    // #addEventosRegistrosConsulta(registro) {
+    //     const self = this;
+
+    //     let item = CommonFunctions.clonePure(registro);
+
+    //     const selecionaUnicoPerfil = async (item) => {
+
+    //         const selecionaPrimeiro = (perfis) => {
+    //             return CommonFunctions.clonePure(perfis[0]);
+    //         }
+
+    //         let objPerfil = undefined;
+    //         if (item.pessoa_perfil.length > 1) {
+    //             const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
+    //             const perfisExibir = item.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
+
+    //             if (perfisExibir.length > 1) {
+
+    //                 try {
+    //                     const objModal = new ModalSelecionarPerfil();
+    //                     objModal.setDataEnvModal = {
+    //                         perfis_opcoes: perfisExibir,
+    //                     };
+    //                     await self._modalHideShow(false);
+    //                     const response = await objModal.modalOpen();
+    //                     objPerfil = response.register;
+    //                     objPerfil.pessoa = item;
+    //                 } catch (error) {
+    //                     CommonFunctions.generateNotificationErrorCatch(error);
+    //                 } finally {
+    //                     await self._modalHideShow();
+    //                 }
+    //             } else {
+
+    //                 objPerfil = selecionaPrimeiro(perfisExibir);
+    //                 objPerfil.pessoa = item;
+    //             }
+    //         } else {
+    //             objPerfil = selecionaPrimeiro(item.pessoa_perfil);
+    //             objPerfil.pessoa = item;
+    //         }
+    //         return objPerfil;
+    //     }
+
+    //     const inserirSelecionado = (item) => {
+    //         const select = self._dataEnvModal?.attributes?.select ?? {};
+    //         const promisseReturnValue = self._promisseReturnValue;
+
+    //         if (select?.quantity && select.quantity == 1) {
+    //             promisseReturnValue.selected = item;
+    //         } else {
+    //             promisseReturnValue.selecteds.push(item);
+    //         }
+    //         promisseReturnValue.refresh = true;
+
+    //         if (select?.autoReturn && select.autoReturn &&
+    //             (
+    //                 select?.quantity && promisseReturnValue.selecteds.length == select.quantity ||
+    //                 (
+    //                     select?.quantity && select.quantity == 1 && promisseReturnValue.selected
+    //                 )
+    //             )
+    //         ) {
+    //             self._setEndTimer = true;
+    //         }
+    //     }
+
+    //     //#region Eventos de botões
+    //     const adicionaEventoSelecionar = (itemEnv) => {
+    //         let itemSelecionar = CommonFunctions.clonePure(itemEnv);
+
+    //         const tr = $(`#${itemSelecionar.idTr}`);
+    //         tr.find('.btn-select').on("click", async function () {
+
+    //             for (const query of Object.values(self._objConfigs.querys)) {
+
+    //                 if (!query.recordsOnScreen) continue;
+    //                 for (let element of query.recordsOnScreen) {
+    //                     element = CommonFunctions.clonePure(element);
+
+    //                     if (element.id == itemSelecionar.id) {
+
+    //                         let elementPerfil = await selecionaUnicoPerfil(element);
+    //                         console.warn(elementPerfil);
+
+    //                         let elementPessoa = elementPerfil.pessoa;
+
+    //                         const selecionado = self.#verificaRegistroSelecionado(elementPerfil);
+    //                         if (!selecionado) {
+
+    //                             elementPessoa.idTrSelecionado = UUIDHelper.generateUUID();
+
+    //                             const tempIdTr = elementPessoa.idTr;
+    //                             elementPessoa.idTr = elementPessoa.idTrSelecionado;
+
+    //                             const returnInsert = await self.insertTableDataSelecionados(elementPessoa);
+    //                             elementPessoa.idTr = tempIdTr;
+    //                             elementPessoa.idsTrs = [elementPessoa.idTr];
+
+    //                             inserirSelecionado(elementPerfil);
+    //                             $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+    //                         } else {
+
+    //                             elementPessoa.idTrSelecionado = selecionado.idTrSelecionado;
+    //                             $(`#${elementPessoa.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+    //                         }
+
+    //                         $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btn-select').remove();
+    //                         adicionaEventoDeletar(elementPessoa);
+
+    //                         // const selecionado = self.#verificaRegistroSelecionado(element);
+    //                         // if (!selecionado) {
+    //                         //     element.idTrSelecionado = UUIDHelper.generateUUID();
+
+    //                         //     const tempIdTr = element.idTr;
+    //                         //     element.idTr = element.idTrSelecionado;
+
+    //                         //     const returnInsert = await self.insertTableDataSelecionados(element);
+    //                         //     element.idTr = tempIdTr;
+    //                         //     element.idsTrs = [element.idTr];
+
+    //                         //     inserirSelecionado(element);
+    //                         //     $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+    //                         // } else {
+    //                         //     element.idTrSelecionado = selecionado.idTrSelecionado;
+    //                         //     $(`#${element.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+    //                         // }
+
+    //                         // $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btn-select').remove();
+    //                         // adicionaEventoDeletar(element);
+    //                     }
+    //                 }
+    //             }
+    //             self.#atualizaBadge();
+    //         });
+    //     }
+
+    //     const adicionaEventoDeletar = (itemEnv) => {
+    //         let itemDeletar = CommonFunctions.clonePure(itemEnv);
+
+    //         $(`#${itemDeletar.idTrSelecionado}`).find('.btn-delete').off('click');
+    //         const trs = $(`#${itemDeletar.idTr}, #${itemDeletar.idTrSelecionado}`);
+    //         trs.find('.btn-delete').on("click", async function () {
+    //             const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado == itemDeletar.idTrSelecionado);
+
+    //             self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado != itemDeletar.idTrSelecionado);
+
+    //             $(`#${itemDeletar.idTrSelecionado}`).remove();
+    //             $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btn-delete').remove();
+    //             $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
+    //             for (const idTrConsulta of selecionado[0].pessoa.idsTrs) {
+    //                 if ($(`#${idTrConsulta}`).length) {
+    //                     itemDeletar.idTr = idTrConsulta;
+    //                     adicionaEventoSelecionar({ ...itemDeletar });
+    //                 }
+    //             }
+    //             self.#atualizaBadge();
+    //         });
+    //     }
+
+    //     //#endregion
+
+    //     if (registro.idTrSelecionado) {
+    //         adicionaEventoDeletar(item);
+    //     } else {
+    //         adicionaEventoSelecionar(item);
+    //     }
+    //     // adicionaEventoVisualizar(item, item.idTr);
+    // }
+
     #addEventosRegistrosConsulta(registro) {
         const self = this;
+        let item = CommonFunctions.clonePure(registro);
 
-        let item = JSON.parse(JSON.stringify(registro));
+        const selecionaUnicoPerfil = async (pessoa) => {
+            const perfisPermitidos = self._dataEnvModal.perfis_busca.map(p => p.id);
+            const perfisFiltrados = pessoa.pessoa_perfil.filter(p => perfisPermitidos.includes(p.perfil_tipo_id));
 
-        const selecionaUnicoPerfil = async (item) => {
+            const selecionarPrimeiroPerfil = (perfis) => CommonFunctions.clonePure(perfis[0]);
 
-            const selecionaPrimeiro = (perfis) => {
-                return JSON.parse(JSON.stringify(perfis[0]));
-            }
+            let perfilSelecionado;
 
-            let objPerfil = undefined;
-            if (item.pessoa_perfil.length > 1) {
-                const perfis_busca = self._dataEnvModal.perfis_busca.map(item => item.id);
-                const perfisExibir = item.pessoa_perfil.filter(perfil => perfis_busca.includes(perfil.perfil_tipo_id));
-                if (perfisExibir.length > 1) {
-                    try {
-                        const objModal = new ModalSelecionarPerfil();
-                        objModal.setDataEnvModal = {
-                            perfis_opcoes: perfisExibir,
-                        };
-                        await self._modalHideShow(false);
-                        const response = await objModal.modalOpen();
-                        objPerfil = response.register;
-                        objPerfil.pessoa = item;
-                    } catch (error) {
-                        CommonFunctions.generateNotificationErrorCatch(error);
-                    } finally {
-                        await self._modalHideShow();
-                    }
-                } else {
-                    objPerfil = selecionaPrimeiro(perfisExibir);
-                    objPerfil.pessoa = item;
+            if (pessoa.pessoa_perfil.length > 1 && perfisFiltrados.length > 1) {
+                try {
+                    const modal = new ModalSelecionarPerfil();
+                    modal.setDataEnvModal = { perfis_opcoes: perfisFiltrados };
+                    await self._modalHideShow(false);
+                    const result = await modal.modalOpen();
+                    perfilSelecionado = result.register;
+                } catch (e) {
+                    CommonFunctions.generateNotificationErrorCatch(e);
+                } finally {
+                    await self._modalHideShow();
                 }
             } else {
-                objPerfil = selecionaPrimeiro(item.pessoa_perfil);
-                objPerfil.pessoa = item;
+                perfilSelecionado = selecionarPrimeiroPerfil(perfisFiltrados.length ? perfisFiltrados : pessoa.pessoa_perfil);
             }
-            return objPerfil;
-        }
 
-        const inserirSelecionado = (item) => {
+            perfilSelecionado.pessoa = CommonFunctions.clonePure(pessoa);
+            return perfilSelecionado;
+        };
+
+        const inserirSelecionado = (perfil) => {
             const select = self._dataEnvModal?.attributes?.select ?? {};
             const promisseReturnValue = self._promisseReturnValue;
 
-            if (select?.quantity && select.quantity == 1) {
-                promisseReturnValue.selected = item;
+            if (select?.quantity === 1) {
+                promisseReturnValue.selected = perfil;
             } else {
-                promisseReturnValue.selecteds.push(item);
+                promisseReturnValue.selecteds.push(perfil);
             }
+
             promisseReturnValue.refresh = true;
 
-            if (select?.autoReturn && select.autoReturn &&
+            const atingeLimite = select?.autoReturn &&
                 (
-                    select?.quantity && promisseReturnValue.selecteds.length == select.quantity ||
-                    (
-                        select?.quantity && select.quantity == 1 && promisseReturnValue.selected
-                    )
-                )
-            ) {
-                self._setEndTimer = true;
-            }
-        }
+                    (select.quantity && promisseReturnValue.selecteds.length === select.quantity) ||
+                    (select.quantity === 1 && promisseReturnValue.selected)
+                );
 
-        //#region Eventos de botões
-        const adicionaEventoSelecionar = (itemEnv) => {
-            let itemSelecionar = JSON.parse(JSON.stringify(itemEnv));
+            if (atingeLimite) self._setEndTimer = true;
+        };
 
-            const tr = $(`#${itemSelecionar.idTr}`);
-            tr.find('.btn-select').on("click", async function () {
+        const adicionaEventoSelecionar = (registroOriginal) => {
+            const item = CommonFunctions.clonePure(registroOriginal);
+            const tr = $(`#${item.idTr}`);
 
+            tr.find('.btn-select').on('click', async function () {
                 for (const query of Object.values(self._objConfigs.querys)) {
-
                     if (!query.recordsOnScreen) continue;
+
                     for (let element of query.recordsOnScreen) {
-                        element = JSON.parse(JSON.stringify(element));
+                        if (element.id !== item.id) continue;
 
-                        if (element.id == itemSelecionar.id) {
+                        const perfil = await selecionaUnicoPerfil(CommonFunctions.clonePure(element));
+                        const pessoa = perfil.pessoa;
 
-                            let elementPerfil = await selecionaUnicoPerfil(element);
-                            let elementPessoa = elementPerfil.pessoa;
+                        if (!self.#verificaRegistroSelecionado(perfil)) {
+                            pessoa.idTrSelecionado = UUIDHelper.generateUUID();
+                            const originalId = pessoa.idTr;
+                            pessoa.idTr = pessoa.idTrSelecionado;
 
-                            const selecionado = self.#verificaRegistroSelecionado(elementPerfil);
-                            if (!selecionado) {
+                            await self.insertTableDataSelecionados(pessoa);
 
-                                elementPessoa.idTrSelecionado = UUIDHelper.generateUUID();
+                            pessoa.idTr = originalId;
+                            pessoa.idsTrs = [originalId];
 
-                                const tempIdTr = elementPessoa.idTr;
-                                elementPessoa.idTr = elementPessoa.idTrSelecionado;
+                            inserirSelecionado(perfil);
 
-                                const returnInsert = await self.insertTableDataSelecionados(elementPessoa);
-                                elementPessoa.idTr = tempIdTr;
-                                elementPessoa.idsTrs = [elementPessoa.idTr];
-
-                                inserirSelecionado(elementPerfil);
-                                $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                            } else {
-
-                                elementPessoa.idTrSelecionado = selecionado.idTrSelecionado;
-                                $(`#${elementPessoa.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                            }
-
-                            $(`#${elementPessoa.idTr}, #${elementPessoa.idTrSelecionado}`).find('.btn-select').remove();
-                            adicionaEventoDeletar(elementPessoa);
-
-                            // const selecionado = self.#verificaRegistroSelecionado(element);
-                            // if (!selecionado) {
-                            //     element.idTrSelecionado = UUIDHelper.generateUUID();
-
-                            //     const tempIdTr = element.idTr;
-                            //     element.idTr = element.idTrSelecionado;
-
-                            //     const returnInsert = await self.insertTableDataSelecionados(element);
-                            //     element.idTr = tempIdTr;
-                            //     element.idsTrs = [element.idTr];
-
-                            //     inserirSelecionado(element);
-                            //     $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                            // } else {
-                            //     element.idTrSelecionado = selecionado.idTrSelecionado;
-                            //     $(`#${element.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
-                            // }
-
-                            // $(`#${element.idTr}, #${element.idTrSelecionado}`).find('.btn-select').remove();
-                            // adicionaEventoDeletar(element);
+                            $(`#${originalId}, #${pessoa.idTrSelecionado}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
+                        } else {
+                            pessoa.idTrSelecionado = self.#verificaRegistroSelecionado(perfil).idTrSelecionado;
+                            $(`#${pessoa.idTr}`).find('.btnsAcao').prepend(self.#htmlBtnRemover());
                         }
+
+                        $(`#${pessoa.idTr}, #${pessoa.idTrSelecionado}`).find('.btn-select').remove();
+                        adicionaEventoDeletar(pessoa);
                     }
                 }
+
                 self.#atualizaBadge();
             });
-        }
+        };
 
-        const adicionaEventoDeletar = (itemEnv) => {
-            let itemDeletar = JSON.parse(JSON.stringify(itemEnv));
+        const adicionaEventoDeletar = (item) => {
+            const itemClone = CommonFunctions.clonePure(item);
+            const trs = $(`#${itemClone.idTr}, #${itemClone.idTrSelecionado}`);
 
-            $(`#${itemDeletar.idTrSelecionado}`).find('.btn-delete').off('click');
-            const trs = $(`#${itemDeletar.idTr}, #${itemDeletar.idTrSelecionado}`);
-            trs.find('.btn-delete').on("click", async function () {
-                const selecionado = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado == itemDeletar.idTrSelecionado);
+            trs.find('.btn-delete').off('click').on('click', () => {
+                const selecionados = self._promisseReturnValue.selecteds.filter(p => p.pessoa.idTrSelecionado === itemClone.idTrSelecionado);
+                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter(p => p.pessoa.idTrSelecionado !== itemClone.idTrSelecionado);
 
-                self._promisseReturnValue.selecteds = self._promisseReturnValue.selecteds.filter((selecionados) => selecionados.pessoa.idTrSelecionado != itemDeletar.idTrSelecionado);
+                $(`#${itemClone.idTrSelecionado}`).remove();
 
-                $(`#${itemDeletar.idTrSelecionado}`).remove();
-                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btn-delete').remove();
-                $(`#${selecionado[0].pessoa.idsTrs.join(', #')}`).find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
-                for (const idTrConsulta of selecionado[0].pessoa.idsTrs) {
-                    if ($(`#${idTrConsulta}`).length) {
-                        itemDeletar.idTr = idTrConsulta;
-                        adicionaEventoSelecionar({ ...itemDeletar });
+                const idsTrs = selecionados[0]?.pessoa?.idsTrs ?? [];
+                $(`#${idsTrs.join(', #')}`).find('.btn-delete').remove().end().find('.btnsAcao').prepend(self.#htmlBtnSelecionar());
+
+                for (const idTr of idsTrs) {
+                    if ($(`#${idTr}`).length) {
+                        adicionaEventoSelecionar({ ...itemClone, idTr });
                     }
                 }
+
                 self.#atualizaBadge();
             });
-        }
-
-        //#endregion
+        };
 
         if (registro.idTrSelecionado) {
             adicionaEventoDeletar(item);
         } else {
             adicionaEventoSelecionar(item);
         }
-        // adicionaEventoVisualizar(item, item.idTr);
     }
 
     #htmlBtnSelecionar() {

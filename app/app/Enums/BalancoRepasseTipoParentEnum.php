@@ -6,7 +6,7 @@ use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Traits\EnumTrait;
 
-enum BalancoRepasseParceiroTipoParentEnum: string
+enum BalancoRepasseTipoParentEnum: string
 {
     use EnumTrait;
 

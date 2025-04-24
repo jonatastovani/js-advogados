@@ -73,7 +73,7 @@ export class ParticipacaoModule {
             objModal.setDataEnvModal = dataEnvModal;
             const response = await objModal.modalOpen();
             if (response.refresh) {
-                await self._inserirParticipanteNaTela(Object.assign(dados_participacao, response.register));
+                await self._inserirParticipante(CommonFunctions.deepMergeObject(dados_participacao, response.register));
             }
         }
 
@@ -193,9 +193,7 @@ export class ParticipacaoModule {
                                 checkForcedBefore: true,
                             });
                             if (response.data) {
-                                self._objConfigs.data.participantesNaTela = [];
-                                divParticipantes.html('');
-                                self._atualizaPorcentagemLivre();
+                                self._limparDivParticipantes();
                                 const participantes = response.data.participantes.map(participante => {
                                     delete participante.id;
                                     delete participante.parent_type;
@@ -286,7 +284,7 @@ export class ParticipacaoModule {
 
     _limparDivParticipantes() {
         const self = this;
-        self._objConfigs.data.participantesNaTela = [];
+        self._getParticipantesNaTela().length = 0;
         $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
         self._atualizaPorcentagemLivre();
     }
@@ -296,32 +294,35 @@ export class ParticipacaoModule {
         return await self.#getRecurse({ idRegister: id, urlApi: self._objConfigs.url.baseParticipacaoTipo });
     }
 
-    async _inserirParticipanteNaTela(item) {
+    async _inserirParticipante(participante) {
         const self = this;
         const divParticipantes = $(`#divParticipantes${self._objConfigs.sufixo}`);
-        item.idCard = UUIDHelper.generateUUID();
+        participante.idCard = UUIDHelper.generateUUID();
 
         let nome = '';
         let btnsAppend = '';
         let accordionIntegrantes = '';
         let displayObservacao = 'none';
+        let tipoReferencia = '';
 
-        const naTela = self.#verificaRegistroNaTela(item);
+        const naTela = self.#verificaRegistroParticipanteNaTela(participante);
 
-        switch (item.participacao_registro_tipo_id) {
+        switch (participante.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
 
-                switch (item.referencia.pessoa.pessoa_dados_type) {
+                const pessoa = participante.referencia.pessoa;
+
+                switch (pessoa.pessoa_dados_type) {
                     case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
-                        nome = item.referencia.pessoa.pessoa_dados.nome;
+                        nome = pessoa.pessoa_dados.nome;
                         break;
                     case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
-                        nome = item.referencia.pessoa.pessoa_dados.nome_fantasia;
+                        nome = pessoa.pessoa_dados.nome_fantasia;
                         break;
 
                     default:
-                        CommonFunctions.generateNotification(`O tipo de pessoa <b>${item.referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
-                        console.error('O tipo de pessoa ainda nao foi implementado.', item);
+                        CommonFunctions.generateNotification(`O tipo de pessoa <b>${pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, 'error');
+                        console.error('O tipo de pessoa ainda nao foi implementado.', participante);
                         return false;
                 }
 
@@ -329,28 +330,35 @@ export class ParticipacaoModule {
                     CommonFunctions.generateNotification(`Participante <b>${nome}</b> já foi inserido(a) para este tipo de participação.`, 'error');
                     return false;
                 }
+
+                tipoReferencia = `Perfil <span class="fw-bolder">${participante.referencia.perfil_tipo.nome}</span>`;
                 break;
+
             case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
-                nome = item.nome_grupo;
+
+                nome = participante.nome_grupo;
                 if (naTela) {
                     CommonFunctions.generateNotification(`O Grupo <b>${nome}</b> já foi inserido. O nome foi alterado para <b>${nome} (Alterar)</b>.<br>Altere o nome do grupo posteriormente.`, 'warning');
-                    item.nome_grupo = `${nome} (Alterar)`;
-                    nome = item.nome_grupo;
+                    participante.nome_grupo = `${nome} (Alterar)`;
+                    nome = participante.nome_grupo;
                 }
                 btnsAppend += `<li><button type="button" class="dropdown-item fs-6 btn-add-pessoa">Inserir Pessoa</button></li>`;
                 btnsAppend += `<li><button type="button" class="dropdown-item fs-6 btn-edit-name">Editar Nome</button></li>`;
-                accordionIntegrantes = self.#accordionIntegrantesGrupo(item);
+                accordionIntegrantes = self.#accordionIntegrantesGrupo(participante);
+
                 break;
+
             default:
+
                 CommonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
-                console.error('Tipo de registro de participação não informado.', item);
+                console.error('Tipo de registro de participação não informado.', participante);
                 return false;
         }
 
-        let participacao_tipo = item.participacao_tipo ?? null;
+        let participacao_tipo = participante.participacao_tipo ?? null;
         if (!participacao_tipo) {
-            if (item.participacao_tipo_id) {
-                const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
+            if (participante.participacao_tipo_id) {
+                const response = await self.#buscarParticipacaoTipo(participante.participacao_tipo_id);
                 if (response) {
                     participacao_tipo = response.data;
                 } else {
@@ -358,18 +366,18 @@ export class ParticipacaoModule {
                 }
             } else {
                 CommonFunctions.generateNotification('Tipo de participação não informado.', 'error');
-                console.error('Tipo de participação não informado.', item);
+                console.error('Tipo de participação não informado.', participante);
                 return false;
             }
         }
 
-        if (item.observacao) {
+        if (participante.observacao) {
             displayObservacao = 'block';
         }
 
         let valor_tipo = ''
-        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
-        switch (item.valor_tipo) {
+        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(participante.valor);
+        switch (participante.valor_tipo) {
             case 'porcentagem':
                 valor_tipo = 'Porcentagem';
                 valor += '%';
@@ -380,12 +388,20 @@ export class ParticipacaoModule {
                 break;
             default:
                 valor_tipo = 'Erro valor tipo';
-                console.error('Erro no tipo de valor', item);
+                console.error('Erro no tipo de valor', participante);
                 break;
         }
 
         let rowColsDados = 'row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4';
         if (self._extraConfigs?.typeParent == 'modal') rowColsDados = 'row-cols-1 row-cols-sm-2 row-cols-md-3';
+
+        if (tipoReferencia) {
+            tipoReferencia = `
+                <div class="col">
+                    <div class="form-text">Perfil Referência</div>
+                    <label class="form-label">${tipoReferencia}</label>
+                </div>`;
+        }
 
         const strCard = `
             <div class="card-body">
@@ -405,6 +421,7 @@ export class ParticipacaoModule {
                     </div>
                 </h5>
                 <div class="row ${rowColsDados}">
+                    ${tipoReferencia}
                     <div class="col">
                         <div class="form-text">Participação</div>
                         <label class="form-label text-truncate w-100 lblParticipacao">${participacao_tipo.nome}</label>
@@ -421,48 +438,177 @@ export class ParticipacaoModule {
                 <div class="row rowObservacao" style="display: ${displayObservacao};">
                     <div class="col">
                         <div class="form-text">Observação</div>
-                        <label class="form-label lblObservacao" title="${item.observacao ?? ''}">${item.observacao ?? ''}</label>
+                        <label class="form-label lblObservacao" title="${participante.observacao ?? ''}">${participante.observacao ?? ''}</label>
                     </div>
                 </div>
                 ${accordionIntegrantes}
             </div>`;
 
-        self._objConfigs.data.participantesNaTela.push(item);
+        self._pushObjetoParticipanteNaTela(participante);
 
-        divParticipantes.append(`<div id="${item.idCard}" class="card card-participante">${strCard}</div>`);
+        divParticipantes.append(`<div id="${participante.idCard}" class="card card-participante">${strCard}</div>`);
 
-        await self.#addEventoParticipante(item);
-        await self._atualizaPorcentagemLivre(item);
-        return item;
+        await self.#addEventoParticipante(participante);
+        self._atualizaPorcentagemLivre(participante);
+        return participante;
     }
 
-    _inserirObjetoParticipanteNaTela(item) {
+    /**
+     * Adiciona um novo objeto de participante ao array `participantesNaTela`.
+     * 
+     * @param {Object} participante - Objeto do participante a ser inserido.
+     */
+    _pushObjetoParticipanteNaTela(participante) {
         const self = this;
-        self._objConfigs.data.participantesNaTela.push(item);
+        self._getParticipantesNaTela().push(participante);
     }
 
-    async #atualizaParticipanteNaTela(item) {
+    /**
+     * Retorna o índice de um participante na lista `participantesNaTela`, baseado em um campo específico.
+     * 
+     * @param {*} valor - Valor a ser comparado.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @param {string} [options.campo='idCard'] - Nome do campo do participante para comparar.
+     * @returns {number} - Índice do participante encontrado ou -1 se não encontrado.
+     */
+    _getIndexObjetoParticipanteNaTela(valor, options = {}) {
+        const self = this;
+        const campo = options.campo ?? 'idCard';
+
+        return self._getParticipantesNaTela().findIndex(part => part[campo] === valor);
+    }
+
+    /**
+     * Retorna o objeto participante da lista `participantesNaTela` com base em um campo específico.
+     * 
+     * @param {*} valor - Valor a ser comparado.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @param {string} [options.campo='idCard'] - Nome do campo do participante para comparar.
+     * @returns {Object|null} - Participante encontrado ou null.
+     */
+    _getObjetoParticipanteNaTela(valor, options = {}) {
+        const self = this;
+        const campo = options.campo ?? 'idCard';
+
+        return self._getParticipantesNaTela().find(p => p[campo] === valor);
+    }
+
+    /**
+     * Remove um participante da lista `participantesNaTela` e do DOM (HTML), se encontrado.
+     * 
+     * @param {*} valor - Valor a ser comparado para identificar o participante.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @param {string} [options.campo='idCard'] - Nome do campo do participante para comparação.
+     */
+    _removerParticipanteDaTela(valor, options = {}) {
+        const self = this;
+        const index = self._getIndexObjetoParticipanteNaTela(valor, options);
+
+        if (index > -1) {
+            const idHtml = self._getParticipantesNaTela()[index].idCard;
+            $(`#${idHtml}`).remove();
+            self._getParticipantesNaTela().splice(index, 1);
+            self._atualizaPorcentagemLivre?.();
+        }
+    }
+
+    /**
+     * Insere um integrante no array `integrantes` de um participante previamente adicionado à tela.
+     *
+     * A função busca o participante no array `participantesNaTela` com base no `idCard` do item informado
+     * e insere o novo integrante no array interno `integrantes`. Caso o array ainda não exista, ele é inicializado.
+     *
+     * @param {Object} participante - Objeto do participante, deve conter ao menos o campo `idCard`.
+     * @param {Object} integrante - Objeto do integrante a ser inserido dentro do participante.
+     * @returns {void}
+     */
+    _inserirObjetoIntegranteNoParticipante(participante, integrante) {
         const self = this;
 
-        let participacao_tipo = item.participacao_tipo ?? null;
-        if (!participacao_tipo || participacao_tipo && (participacao_tipo.id != item.participacao_tipo_id)) {
-            if (item.participacao_tipo_id) {
-                const response = await self.#buscarParticipacaoTipo(item.participacao_tipo_id);
+        let part = self._getParticipantesNaTela().find(p => p.idCard === participante.idCard);
+        if (!part) return;
+
+        part.integrantes = part.integrantes ?? [];
+        part.integrantes.push(integrante);
+    }
+
+    // /**
+    //  * Busca um integrante dentro de um participante específico, com base em campos de identificação.
+    //  * 
+    //  * @param {*} valorParticipante - Valor usado para identificar o participante.
+    //  * @param {*} valorIntegrante - Valor usado para identificar o integrante.
+    //  * @param {Object} [options={}] - Opções adicionais.
+    //  * @param {string} [options.campoParticipante='idCard'] - Campo usado para identificar o participante.
+    //  * @param {string} [options.campoIntegrante='idCard'] - Campo usado para identificar o integrante.
+    //  * @returns {Object|null} - Objeto do integrante, se encontrado, ou null.
+    //  */
+    // _getIntegranteDeParticipanteNaTela(valorParticipante, valorIntegrante, options = {}) {
+    //     const self = this;
+    //     const campoParticipante = options.campoParticipante ?? 'idCard';
+    //     const campoIntegrante = options.campoIntegrante ?? 'idCard';
+
+    //     const participante = self._getObjetoParticipanteNaTela(valorParticipante, { campo: campoParticipante });
+    //     if (!participante || !Array.isArray(participante.integrantes)) return null;
+
+    //     return participante.integrantes.find(integrante => integrante[campoIntegrante] === valorIntegrante);
+    // }
+
+    /**
+     * Remove um integrante do array `integrantes` dentro de um participante, com base em campos personalizados.
+     *
+     * @param {*} valorParticipante - Valor usado para identificar o participante.
+     * @param {*} valorIntegrante - Valor usado para identificar o integrante.
+     * @param {Object} [options={}] - Opções adicionais.
+     * @param {string} [options.campoParticipante='idCard'] - Campo usado para identificar o participante.
+     * @param {string} [options.campoIntegrante='idCard'] - Campo usado para identificar o integrante.
+     * @returns {boolean} - Retorna true se o integrante foi removido, false caso contrário.
+     */
+    _removerIntegranteDeParticipanteNaTela(valorParticipante, valorIntegrante, options = {}) {
+        const self = this;
+        const campoParticipante = options.campoParticipante ?? 'idCard';
+        const campoIntegrante = options.campoIntegrante ?? 'idCard';
+
+        const participante = self._getObjetoParticipanteNaTela(valorParticipante, { campo: campoParticipante });
+        if (!participante || !Array.isArray(participante.integrantes)) return false;
+
+        const index = participante.integrantes.findIndex(integrante => integrante[campoIntegrante] === valorIntegrante);
+        if (index > -1) {
+            const idHtml = participante.integrantes[index].idCard;
+            $(`#${idHtml}`).remove();
+            participante.integrantes.splice(index, 1);
+            self.#atualizaQuantidadeIntegrantes(participante);
+            return true;
+        }
+
+        return false;
+    }
+
+    async #atualizaParticipanteNaTela(participante) {
+        const self = this;
+
+        let participacao_tipo = participante.participacao_tipo ?? null;
+
+        if (!participacao_tipo || participacao_tipo && (participacao_tipo.id != participante.participacao_tipo_id)) {
+
+            if (participante.participacao_tipo_id) {
+
+                const response = await self.#buscarParticipacaoTipo(participante.participacao_tipo_id);
                 if (response) {
                     participacao_tipo = response.data;
                 } else {
                     participacao_tipo = { nome: 'Erro de busca' }
                 }
             } else {
+
                 CommonFunctions.generateNotification('Tipo de participação não informado.', 'error');
-                console.error('Tipo de participação não informado.', item);
+                console.error('Tipo de participação não informado.', participante);
                 return false;
             }
         }
 
         let valor_tipo = ''
-        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(item.valor);
-        switch (item.valor_tipo) {
+        let valor = CommonFunctions.formatWithCurrencyCommasOrFraction(participante.valor);
+        switch (participante.valor_tipo) {
             case 'porcentagem':
                 valor_tipo = 'Porcentagem';
                 valor += '%';
@@ -473,55 +619,55 @@ export class ParticipacaoModule {
                 break;
             default:
                 valor_tipo = 'Erro valor tipo';
-                console.error('Erro no tipo de valor', item);
+                console.error('Erro no tipo de valor', participante);
                 break;
         }
 
-        for (const element of self._objConfigs.data.participantesNaTela) {
-            if (element.idCard == item.idCard) {
-                element.participacao_tipo_id = item.participacao_tipo_id;
-                element.valor_tipo = item.valor_tipo;
-                element.valor = item.valor;
+        for (const part of self._getParticipantesNaTela()) {
+            if (part.idCard == participante.idCard) {
+                part.participacao_tipo_id = participante.participacao_tipo_id;
+                part.valor_tipo = participante.valor_tipo;
+                part.valor = participante.valor;
                 break;
             }
         }
 
-        $(`#${item.idCard} .lblParticipacao`).html(participacao_tipo.nome);
-        $(`#${item.idCard} .lblValorTipo`).html(valor_tipo);
-        $(`#${item.idCard} .lblValor`).html(valor);
-        if (item.observacao) {
-            $(`#${item.idCard} .lblObservacao`).html(item.observacao);
-            $(`#${item.idCard} .rowObservacao`).show('fast');
+        $(`#${participante.idCard} .lblParticipacao`).html(participacao_tipo.nome);
+        $(`#${participante.idCard} .lblValorTipo`).html(valor_tipo);
+        $(`#${participante.idCard} .lblValor`).html(valor);
+        if (participante.observacao) {
+            $(`#${participante.idCard} .lblObservacao`).html(participante.observacao);
+            $(`#${participante.idCard} .rowObservacao`).show('fast');
         } else {
-            $(`#${item.idCard} .rowObservacao`).hide('fast');
+            $(`#${participante.idCard} .rowObservacao`).hide('fast');
         }
-        await self._atualizaPorcentagemLivre();
+        self._atualizaPorcentagemLivre();
     }
 
-    async #addEventoParticipante(item) {
+    async #addEventoParticipante(participante) {
         const self = this;
 
-        $(`#${item.idCard} .btn-edit`).on('click', async function () {
+        $(`#${participante.idCard} .btn-edit`).on('click', async function () {
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
                 let porcentagem_ocupada = self._objConfigs.data.porcentagem_ocupada;
-                if (item.valor_tipo == 'porcentagem') {
-                    porcentagem_ocupada -= item.valor;
+                if (participante.valor_tipo == 'porcentagem') {
+                    porcentagem_ocupada -= participante.valor;
                 }
                 const objModal = new ModalParticipacaoParticipante();
                 if (this._objConfigs?.participacao?.valor_tipo_permitido) {
                     objModal.setValorTipoPermitido = this._objConfigs.participacao.valor_tipo_permitido;
                 }
                 objModal.setDataEnvModal = {
-                    dados_participacao: item,
+                    dados_participacao: participante,
                     porcentagem_ocupada: porcentagem_ocupada,
                     configuracao_tipo: self._objConfigs.participacao.participacao_tipo_tenant.configuracao_tipo,
                 }
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self.#atualizaParticipanteNaTela(Object.assign(item, response.register));
+                    await self.#atualizaParticipanteNaTela(CommonFunctions.deepMergeObject(participante, response.register));
                 }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
@@ -531,7 +677,7 @@ export class ParticipacaoModule {
             }
         });
 
-        $(`#${item.idCard} .btn-delete`).on('click', async function () {
+        $(`#${participante.idCard} .btn-delete`).on('click', async function () {
             try {
                 const obj = new ModalMessage();
                 obj.setDataEnvModal = {
@@ -542,16 +688,7 @@ export class ParticipacaoModule {
                 if (self._extraConfigs?.typeParent == 'modal') await self._parentInstance._modalHideShow(false);
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
-
-                    $(`#${item.idCard}`).remove();
-                    const participantes = self._objConfigs.data.participantesNaTela;
-                    const indexPart = participantes.findIndex(participante => participante.idCard === item.idCard);
-
-                    if (indexPart > -1) {
-                        participantes.splice(indexPart, 1);
-                    }
-
-                    self._atualizaPorcentagemLivre();
+                    self._removerParticipanteDaTela(participante.idCard);
                 }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
@@ -560,13 +697,13 @@ export class ParticipacaoModule {
             }
         });
 
-        if (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO) {
+        if (participante.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO) {
 
-            $(`#${item.idCard} .btn-edit-name`).on('click', async function () {
+            $(`#${participante.idCard} .btn-edit-name`).on('click', async function () {
 
                 let registro = undefined;
-                for (const element of self._objConfigs.data.participantesNaTela) {
-                    if (element.idCard == item.idCard) {
+                for (const element of self._getParticipantesNaTela()) {
+                    if (element.idCard == participante.idCard) {
                         registro = element;
                         break;
                     }
@@ -584,7 +721,7 @@ export class ParticipacaoModule {
                     const response = await objModalNome.modalOpen();
                     if (response.refresh) {
                         registro.nome_grupo = response.name;
-                        $(`#${item.idCard} .spanNome`).html(registro.nome_grupo);
+                        $(`#${participante.idCard} .spanNome`).html(registro.nome_grupo);
                     }
                 } catch (error) {
                     CommonFunctions.generateNotificationErrorCatch(error);
@@ -594,7 +731,7 @@ export class ParticipacaoModule {
                 }
             });
 
-            $(`#${item.idCard} .btn-add-pessoa`).on('click', async function () {
+            $(`#${participante.idCard} .btn-add-pessoa`).on('click', async function () {
                 const btn = $(this);
                 CommonFunctions.simulateLoading(btn);
                 try {
@@ -607,7 +744,7 @@ export class ParticipacaoModule {
                     if (response.refresh && response.selecteds) {
                         await Promise.all(
                             response.selecteds.map(async (integrante) => {
-                                await self._inserirIntegrante(item, {
+                                await self._inserirIntegrante(participante, {
                                     participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
                                     referencia: integrante,
                                     referencia_id: integrante.id,
@@ -625,21 +762,37 @@ export class ParticipacaoModule {
         }
     }
 
-    #verificaRegistroNaTela(item) {
+    /**
+     * Verifica se um participante com os mesmos identificadores já está na tela.
+     *
+     * @param {Object} participante - Participante a ser verificado.
+     * @returns {Object|null} - Retorna o participante existente ou null se não encontrado.
+     */
+    #verificaRegistroParticipanteNaTela(participante) {
         const self = this;
+        const registroTipo = participante.participacao_registro_tipo_id;
 
-        for (const element of self._objConfigs.data.participantesNaTela) {
-            if (element.participacao_registro_tipo_id == item.participacao_registro_tipo_id
-                && (
-                    (element.participacao_tipo_id == item.participacao_tipo_id
-                        && (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.PERFIL
-                            && element.referencia.id == item.referencia.id))
-                    || (item.participacao_registro_tipo_id == window.Enums.ParticipacaoRegistroTipoEnum.GRUPO
-                        && element.nome_grupo == item.nome_grupo))
+        for (const element of self._getParticipantesNaTela()) {
+            if (element.participacao_registro_tipo_id !== registroTipo) continue;
+
+            const mesmoTipo = element.participacao_tipo_id === participante.participacao_tipo_id;
+
+            if (
+                registroTipo === window.Enums.ParticipacaoRegistroTipoEnum.PERFIL &&
+                mesmoTipo &&
+                element.referencia?.id === participante.referencia?.id
+            ) {
+                return element;
+            }
+
+            if (
+                registroTipo === window.Enums.ParticipacaoRegistroTipoEnum.GRUPO &&
+                element.nome_grupo === participante.nome_grupo
             ) {
                 return element;
             }
         }
+
         return null;
     }
 
@@ -656,12 +809,12 @@ export class ParticipacaoModule {
         }
     }
 
-    async _atualizaPorcentagemLivre() {
+    _atualizaPorcentagemLivre() {
         const self = this;
         let porcentagemOcupada = 0;
         let valorFixo = 0;
 
-        for (const itemTela of self._objConfigs.data.participantesNaTela) {
+        for (const itemTela of self._getParticipantesNaTela()) {
             if (itemTela.valor_tipo == 'porcentagem') {
                 porcentagemOcupada += itemTela.valor;
             } else {
@@ -685,9 +838,9 @@ export class ParticipacaoModule {
         CommonFunctions.atualizarProgressBar($(`#progressBar${self._objConfigs.sufixo}`), porcentagemOcupada);
     }
 
-    async _inserirIntegrante(item, integrante) {
+    async _inserirIntegrante(participante, integrante) {
         const self = this;
-        const rowIntegrantes = $(`#accordionIntegrantes${item.idCard} .rowIntegrantes`);
+        const rowIntegrantes = $(`#accordionIntegrantes${participante.idCard} .rowIntegrantes`);
         integrante.idCard = UUIDHelper.generateUUID();
 
         let nome = '';
@@ -706,12 +859,12 @@ export class ParticipacaoModule {
                     default:
                         break;
                 }
-                tipoReferencia = `Perfil ${integrante.referencia.perfil_tipo.nome}`;
+                tipoReferencia = `Perfil <span class="fw-bolder">${integrante.referencia.perfil_tipo.nome}</span>`;
 
                 break;
             default:
                 CommonFunctions.generateNotification('Tipo de registro de participação não informado.', 'error');
-                console.error('Tipo de registro de participação não informado.', item);
+                console.error('Tipo de registro de participação não informado.', participante);
                 return false;
         }
 
@@ -736,18 +889,12 @@ export class ParticipacaoModule {
             </div>
             `);
 
-
-        let element = self._objConfigs.data.participantesNaTela.find(participante => participante.idCard == item.idCard);
-        if (!element.integrantes) {
-            element.integrantes = [];
-        }
-        element.integrantes.push(integrante);
-
-        await self.#atualizaQuantidadeIntegrantes(item.idCard);
-        await self.#addEventoPerfilIntegrante(item, integrante);
+        self._inserirObjetoIntegranteNoParticipante(participante, integrante);
+        self.#atualizaQuantidadeIntegrantes(participante);
+        await self.#addEventoPerfilIntegrante(participante, integrante);
     }
 
-    async #addEventoPerfilIntegrante(item, integrante) {
+    async #addEventoPerfilIntegrante(participante, integrante) {
         const self = this;
 
         $(`#${integrante.idCard} .btn-delete-integrante`).on('click', async function () {
@@ -762,19 +909,7 @@ export class ParticipacaoModule {
                 const result = await obj.modalOpen();
                 if (result.confirmResult) {
 
-                    $(`#${integrante.idCard}`).remove();
-                    const participantes = self._objConfigs.data.participantesNaTela;
-                    const indexPart = participantes.findIndex(participante => participante.idCard === item.idCard);
-
-                    if (indexPart > -1) {
-                        const indexInt = participantes[indexPart].integrantes.findIndex(item => item.idCard === integrante.idCard);
-                        if (indexInt > -1) {
-                            participantes[indexPart].integrantes.splice(indexInt, 1);
-                        }
-                    }
-
-                    await self.#atualizaQuantidadeIntegrantes(item.idCard);
-                    CommonFunctions.generateNotification('Integrante removido.', 'success');
+                    self._removerIntegranteDeParticipanteNaTela(participante.idCard, integrante.idCard);
                 }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
@@ -784,19 +919,19 @@ export class ParticipacaoModule {
         });
     }
 
-    #accordionIntegrantesGrupo(item) {
+    #accordionIntegrantesGrupo(grupo) {
         return `
-            <div class="accordion mt-2" id="accordionIntegrantes${item.idCard}">
+            <div class="accordion mt-2" id="accordionIntegrantes${grupo.idCard}">
                 <div class="accordion-item">
                     <div class="accordion-header">
                         <button class="accordion-button py-1 collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseOne${item.idCard}" aria-expanded="true"
-                            aria-controls="collapseOne${item.idCard}">
+                            data-bs-target="#collapseOne${grupo.idCard}" aria-expanded="true"
+                            aria-controls="collapseOne${grupo.idCard}">
                             <span class="qtdIntegrantes">Nenhum integrante no grupo</span>
                         </button>
                     </div>
-                    <div id="collapseOne${item.idCard}" class="accordion-collapse collapse"
-                        data-bs-parent="#accordionIntegrantes${item.idCard}">
+                    <div id="collapseOne${grupo.idCard}" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionIntegrantes${grupo.idCard}">
                         <div class="accordion-body">
                             <div class="row rowIntegrantes row-cols-1 g-2"></div>
                         </div>
@@ -806,9 +941,11 @@ export class ParticipacaoModule {
         `;
     }
 
-    async #atualizaQuantidadeIntegrantes(idCard) {
+    #atualizaQuantidadeIntegrantes(participante) {
         const self = this;
-        let element = self._objConfigs.data.participantesNaTela.find(item => item.idCard == idCard);
+        let idCard = participante.idCard
+        let element = self._getParticipantesNaTela().find(item => item.idCard == idCard);
+
         const totalIntegrantes = element.integrantes.length;
         const qtdIntegrantes = $(`#accordionIntegrantes${idCard} .qtdIntegrantes`);
         let str = 'Nenhum integrante no grupo';
@@ -844,9 +981,6 @@ export class ParticipacaoModule {
     async _inserirParticipantesEIntegrantes(participantes) {
         const self = this;
         self._limparDivParticipantes();
-        // $(`#divParticipantes${self._objConfigs.sufixo}`).html('');
-        // self._objConfigs.data.participantesNaTela = [];
-        await self._atualizaPorcentagemLivre();
 
         // Somente páginas tem esse botão, nos modais não há
         !participantes.length ? $(`#btnExcluirParticipante${self._objConfigs.sufixo}`).hide('fast') :
@@ -856,7 +990,7 @@ export class ParticipacaoModule {
             participantes.map(async (participante) => {
                 const integrantes = participante.integrantes ?? [];
                 delete participante.integrantes;
-                const item = await self._inserirParticipanteNaTela(participante);
+                const item = await self._inserirParticipante(participante);
                 await Promise.all(
                     integrantes.map(async (integrante) => {
                         await self._inserirIntegrante(item, integrante);
@@ -868,7 +1002,12 @@ export class ParticipacaoModule {
 
     _getParticipantesNaTela() {
         const self = this;
-        return self._objConfigs.data.participantesNaTela.map(part => {
+        return self._objConfigs.data.participantesNaTela;
+    }
+
+    _getParticipantesNaTelaFiltrado() {
+        const self = this;
+        return self._getParticipantesNaTela().map(part => {
             let participante = {};
             part.id ? participante.id = part.id : null;
             participante.participacao_registro_tipo_id = part.participacao_registro_tipo_id;
@@ -950,7 +1089,7 @@ export class ParticipacaoModule {
             });
 
             let nomeFuncao = self.getExibirPainelParticipantesPersonalizaveisBln ?
-                '_inserirParticipanteNaTela' : '_inserirObjetoParticipanteNaTela';
+                '_inserirParticipante' : '_pushObjetoParticipanteNaTela';
 
             self[nomeFuncao]({
                 participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,

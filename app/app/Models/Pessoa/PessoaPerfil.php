@@ -2,11 +2,11 @@
 
 namespace App\Models\Pessoa;
 
-use App\Enums\PessoaTipoEnum;
+use App\Enums\ParticipacaoReferenciaTipoEnum;
+use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Models\Auth\User;
+use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Referencias\PessoaPerfilTipo;
-use App\Models\Referencias\PessoaTipo;
-use App\Models\Comum\ParticipacaoPresetParticipante;
 use App\Models\Servico\ServicoCliente;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
@@ -53,9 +53,18 @@ class PessoaPerfil extends Model
         return $this->hasOne(User::class);
     }
 
-    public function servicos_vinculados()
+    public function cliente_servicos_vinculados()
     {
-        return $this->hasMany(ServicoCliente::class, 'perfil_id');
+        return $this->hasMany(ServicoCliente::class, 'perfil_id')
+            ->withoutDomain();
+    }
+
+    public function participante_servicos_vinculados()
+    {
+        return $this->morphMany(ParticipacaoParticipante::class, 'referencia')
+            ->withoutDomain()
+            ->whereIn('parent_type', ParticipacaoReferenciaTipoEnum::participacaoReferenciaTipoParaServicosEDependentes())
+            ->where('participacao_registro_tipo_id', ParticipacaoRegistroTipoEnum::PERFIL->value);
     }
 
     /**

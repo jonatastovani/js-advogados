@@ -1187,8 +1187,26 @@ export class CommonFunctions {
         });
     }
 
-
-    static logJSONParseStringify(data) {
-        console.warn(JSON.parse(JSON.stringify(data)));
+    /**
+     * Retorna uma cópia pura de qualquer dado, sem referências, ideal para logs ou manipulações isoladas.
+     * @param {*} data Dados que deseja clonar.
+     * @returns {*} Cópia dos dados, sem referências com o original.
+     */
+    static clonePure(data) {
+        try {
+            return JSON.parse(JSON.stringify(data));
+        } catch (e) {
+            console.error('Erro ao clonar dados (provavelmente contém funções ou tipos não serializáveis)', e);
+            return null;
+        }
     }
+
+    /**
+     * Exibe no console uma versão pura e sem referência de um dado.
+     * @param {*} data
+    */
+    static logPure(data) {
+        console.warn(this.clonePure(data));
+    }
+
 }

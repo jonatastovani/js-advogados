@@ -3,7 +3,7 @@ import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
 
-class PageClientePFIndex extends TemplateSearch {
+class PageTerceiroPFIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -16,12 +16,12 @@ class PageClientePFIndex extends TemplateSearch {
         url: {
             base: window.apiRoutes.basePessoaFisica,
             basePessoa: window.apiRoutes.basePessoa,
-            baseFrontPessoaFisicaClienteForm: window.frontRoutes.baseFrontPessoaFisicaClienteForm,
+            baseFrontPessoaFisicaTerceiroForm: window.frontRoutes.baseFrontPessoaFisicaTerceiroForm
         },
         data: {
-            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
             perfis_busca: [
-                window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+                window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
             ],
             // Pré carregamento de dados vindo da URL
             preload: {}
@@ -29,7 +29,7 @@ class PageClientePFIndex extends TemplateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageClientePFIndex' });
+        super({ sufixo: 'PageTerceiroPFIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -126,7 +126,7 @@ class PageClientePFIndex extends TemplateSearch {
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(pessoaDados);
+        self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
@@ -136,7 +136,7 @@ class PageClientePFIndex extends TemplateSearch {
 
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaFisicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaFisicaTerceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
                     Editar
                 </a>
             </li>
@@ -174,24 +174,9 @@ class PageClientePFIndex extends TemplateSearch {
                 urlApi: self._objConfigs.url.basePessoa,
             });
         });
-
-        $(`#${pessoaDados.idTr}`).find(`.btn-delete-perfil`).on('click', async function () {
-
-            const perfil = pessoaDados.pessoa_perfil_referencia;
-
-            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
-                title: `Exclusão de Perfil`,
-                message: `
-                <p>Confirma a exclusão do Perfil <b>${perfil.perfil_tipo.nome}</b> da Pessoa Física <b>${pessoaDados.nome}</b>?</p>`,
-                success: `Perfil <b>${perfil.perfil_tipo.nome}</b> excluído com sucesso!`,
-                button: this,
-                urlApi: self._objConfigs.url.basePessoa,
-            });
-        });
-
     }
 }
 
 $(function () {
-    new PageClientePFIndex();
+    new PageTerceiroPFIndex();
 });

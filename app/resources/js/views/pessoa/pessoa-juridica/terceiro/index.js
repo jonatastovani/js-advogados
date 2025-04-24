@@ -2,26 +2,27 @@ import { CommonFunctions } from "../../../../commons/CommonFunctions";
 import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
 import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
+import { MasksAndValidateHelpers } from "../../../../helpers/MasksAndValidateHelpers";
 
-class PageClientePFIndex extends TemplateSearch {
+class PageTerceiroPJIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
             consultaFiltros: {
                 name: 'consulta-filtros',
-                url: window.apiRoutes.basePessoaFisica,
-                urlSearch: `${window.apiRoutes.basePessoaFisica}/consulta-filtros`,
+                url: window.apiRoutes.basePessoaJuridica,
+                urlSearch: `${window.apiRoutes.basePessoaJuridica}/consulta-filtros`,
             }
         },
         url: {
-            base: window.apiRoutes.basePessoaFisica,
+            base: window.apiRoutes.basePessoaJuridica,
             basePessoa: window.apiRoutes.basePessoa,
-            baseFrontPessoaFisicaClienteForm: window.frontRoutes.baseFrontPessoaFisicaClienteForm,
+            baseFrontPessoaJuridicaTerceiroForm: window.frontRoutes.baseFrontPessoaJuridicaTerceiroForm
         },
         data: {
-            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
             perfis_busca: [
-                window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+                window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
             ],
             // Pré carregamento de dados vindo da URL
             preload: {}
@@ -29,7 +30,7 @@ class PageClientePFIndex extends TemplateSearch {
     };
 
     constructor() {
-        super({ sufixo: 'PageClientePFIndex' });
+        super({ sufixo: 'PageTerceiroPJIndex' });
         this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
         this.initEvents();
     }
@@ -79,15 +80,14 @@ class PageClientePFIndex extends TemplateSearch {
 
         const pessoa = item.pessoa;
         const pessoaDados = item;
-        const nome = pessoaDados.nome;
-        const mae = pessoaDados.mae ?? '***';
-        const pai = pessoaDados.pai ?? '***';
-        const estadoCivil = pessoaDados?.estado_civil?.nome ?? '***';
-        const escolaridade = pessoaDados?.escolaridade?.nome ?? '***';
-        const genero = pessoaDados?.genero?.nome ?? '***';
-        const dataNascimento = pessoaDados.nascimento_data ? DateTimeHelper.retornaDadosDataHora(pessoaDados.nascimento_data, 2) : '***';
-        const naturalidade = pessoaDados.naturalidade ?? '***';
-        const nacionalidade = pessoaDados.nacionalidade ?? '***';
+        const razaoSocial = pessoaDados.razao_social;
+        const nomeFantasia = pessoaDados.nome_fantasia ?? '***';
+        const naturezaJuridica = pessoaDados.natureza_juridica ?? '***';
+        const regimeTributario = pessoaDados?.regime_tributario ?? '***';
+        const responsavelLegal = pessoaDados?.responsavel_legal ?? '***';
+        const cpfResponsavel = pessoaDados?.cpf_responsavel ? MasksAndValidateHelpers.formatCPF(pessoaDados.cpf_responsavel) : '***';
+        const capitalSocial = pessoaDados.capital_social ? CommonFunctions.formatNumberToCurrency(pessoaDados.capital_social) : '***';
+        const dataFundacao = pessoaDados.data_fundacao ? DateTimeHelper.retornaDadosDataHora(pessoaDados.data_fundacao, 2) : '***';
 
         let perfis = 'N/C';
         if (pessoa.pessoa_perfil) {
@@ -111,22 +111,21 @@ class PageClientePFIndex extends TemplateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${nome}">${nome}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${mae}">${mae}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${pai}">${pai}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${estadoCivil}">${estadoCivil}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${escolaridade}">${escolaridade}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${genero}">${genero}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataNascimento}">${dataNascimento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${naturalidade}">${naturalidade}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${nacionalidade}">${nacionalidade}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${razaoSocial}">${razaoSocial}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${nomeFantasia}">${nomeFantasia}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${naturezaJuridica}">${naturezaJuridica}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${dataFundacao}">${dataFundacao}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${capitalSocial}">${capitalSocial}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${regimeTributario}">${regimeTributario}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${responsavelLegal}">${responsavelLegal}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${cpfResponsavel}">${cpfResponsavel}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${perfis}">${perfis}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${ativo}">${ativo}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(pessoaDados);
+        self.#addEventosRegistrosConsulta(item);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
@@ -136,13 +135,13 @@ class PageClientePFIndex extends TemplateSearch {
 
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaFisicaClienteForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa física ${pessoaDados.nome}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaJuridicaTerceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa jurídica ${pessoaDados.nome}.">
                     Editar
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
+                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa jurídica ${pessoaDados.nome}.">
                     Excluir Pessoa
                 </button>
             </li>`;
@@ -163,35 +162,20 @@ class PageClientePFIndex extends TemplateSearch {
 
         $(`#${pessoaDados.idTr}`).find(`.btn-delete-pessoa`).click(async function () {
             const perfis = pessoaDados.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
-            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
-                title: `Exclusão de Pessoa Física`,
+            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome_fantasia, {
+                title: `Exclusão de Pessoa Jurídica`,
                 message: `
-                <p>Confirma a exclusão da Pessoa Física <b>${pessoaDados.nome}</b>?</p>
+                <p>Confirma a exclusão da Pessoa Jurídica <b>${pessoaDados.nome_fantasia}</b>?</p>
                 <div class="alert alert-danger blink-75">Atenção: Todos os perfis vinculados a ela também serão excluídos.</div>
                 <p>Perfis desta pessoa: ${perfis}</p>`,
-                success: `Pessoa Física excluída com sucesso!`,
+                success: `Pessoa Jurídica excluída com sucesso!`,
                 button: this,
                 urlApi: self._objConfigs.url.basePessoa,
             });
         });
-
-        $(`#${pessoaDados.idTr}`).find(`.btn-delete-perfil`).on('click', async function () {
-
-            const perfil = pessoaDados.pessoa_perfil_referencia;
-
-            self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
-                title: `Exclusão de Perfil`,
-                message: `
-                <p>Confirma a exclusão do Perfil <b>${perfil.perfil_tipo.nome}</b> da Pessoa Física <b>${pessoaDados.nome}</b>?</p>`,
-                success: `Perfil <b>${perfil.perfil_tipo.nome}</b> excluído com sucesso!`,
-                button: this,
-                urlApi: self._objConfigs.url.basePessoa,
-            });
-        });
-
     }
 }
 
 $(function () {
-    new PageClientePFIndex();
+    new PageTerceiroPJIndex();
 });

@@ -14,4 +14,9 @@ enum ParticipacaoReferenciaTipoEnum: string
     case SERVICO = Servico::class;
     case PAGAMENTO = ServicoPagamento::class;
     case LANCAMENTO = ServicoPagamentoLancamento::class;
+
+    public static function participacaoReferenciaTipoParaServicosEDependentes(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

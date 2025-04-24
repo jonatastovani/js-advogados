@@ -5,7 +5,7 @@ namespace App\Http\Requests\Financeiro\MovimentacaoContaParticipante;
 use App\Http\Requests\Comum\Consulta\PostConsultaFiltroFormRequestBase;
 use Illuminate\Support\Arr;
 
-class PostConsultaFiltroFormRequestBalancoRepasseParceiro extends PostConsultaFiltroFormRequestBase
+class PostConsultaFiltroFormRequestBalancoRepasse extends PostConsultaFiltroFormRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class PostConsultaFiltroFormRequestBalancoRepasseParceiro extends PostConsultaFi
 
         $rules = array_merge($rules, [
             'mes_ano' => 'required|date:Y-m',
-            'parceiro_id' => 'required|uuid',
+            'perfil_id' => 'required|uuid',
             'conta_id' => 'nullable|uuid',
             'movimentacao_tipo_id' => 'nullable|integer',
             'movimentacao_status_tipo_id' => 'nullable|integer',

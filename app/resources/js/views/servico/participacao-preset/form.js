@@ -78,7 +78,7 @@ class PageParticipacaoPresetForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
-        data.participantes = self._objConfigs.data.participantesNaTela;
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTelaFiltrado();
 
         if (self.#saveVerifications(data, formRegistration)) {
             self._save(data, self._objConfigs.url.base);
@@ -104,7 +104,7 @@ class PageParticipacaoPresetForm extends TemplateForm {
                 }
                 const integrantes = participante.integrantes ?? [];
                 delete participante.integrantes;
-                const item = await self.#functionsParticipacao._inserirParticipanteNaTela(participante);
+                const item = await self.#functionsParticipacao._inserirParticipante(participante);
                 await Promise.all(
                     integrantes.map(async (integrante) => {
                         // Remove a propriedade id, parent_type e parent_id em caso de herdado

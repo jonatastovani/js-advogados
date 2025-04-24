@@ -12,7 +12,7 @@
         PagamentoTipoEnum: @json(\App\Enums\PagamentoTipoEnum::toArray()),
         DocumentoGeradoTipoEnum: @json(\App\Enums\DocumentoGeradoTipoEnum::toArray()),
         ParticipacaoTipoTenantConfiguracaoTipoEnum: @json(\App\Enums\ParticipacaoTipoTenantConfiguracaoTipoEnum::toArray()),
-        BalancoRepasseParceiroTipoParentEnum: @json(\App\Enums\BalancoRepasseParceiroTipoParentEnum::toArray()),
+        BalancoRepasseTipoParentEnum: @json(\App\Enums\BalancoRepasseTipoParentEnum::toArray()),
         MovimentacaoContaParticipanteStatusTipoEnum: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::toArray()),
         TagTipoTenantEnum: @json(\App\Enums\TagTipoTenantEnum::toArray()),
         LancamentoTipoEnum: @json(\App\Enums\LancamentoTipoEnum::toArray()),
@@ -27,12 +27,12 @@
         StatusLancamentoTachado: @json(\App\Enums\LancamentoStatusTipoEnum::statusLancamentoTachado()),
         StatusPagamentoTachado: @json(\App\Enums\PagamentoStatusTipoEnum::statusPagamentoTachado()),
         StatusServicoLancamentoComParticipantes: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusServicoLancamentoComParticipantes()),
-        StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
+        StatusMovimentacaoParticipanteStatusMostrarBalancoRepasseFrontEnd: @json(\App\Enums\MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseFrontEnd()),
         TiposMovimentacaoParaLancamentos: @json(\App\Enums\MovimentacaoContaTipoEnum::tiposMovimentacaoParaLancamentos()),
         MovimentacaoContaStatusTipoStatusParaFiltrosFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusParaFiltrosFrontEnd()),
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoGeral()),
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoRessarcimento: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoRessarcimento()),
-        MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseParceiroFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseParceiroFrontEnd()),
+        MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseFrontEnd()),
         PessoaPerfilTipoRotasPessoaPerfilFormFront: @json(\App\Enums\PessoaPerfilTipoEnum::rotasPessoaPerfilFormFront()),
         PerfisPermitidoClienteServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoClienteServico()),
         StatusParaNovosPagamentosServicos: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaNovosPagamentosServicos()),
@@ -44,6 +44,7 @@
         PagamentoTipoCamposLancamentosPersonalizados: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoCamposLancamentosPersonalizados()),
         PagamentoTipoNaoRecriaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoNaoRecriaveis()),
         PagamentoTipoSemprePersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis()),
+        LancamentoTipoQuePermiteLiquidadoMigracao: @json(\App\Enums\LancamentoTipoEnum::lancamentoTipoQuePermiteLiquidadoMigracao()),
     }
 
     window.Details = {

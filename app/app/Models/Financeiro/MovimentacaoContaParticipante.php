@@ -29,7 +29,7 @@ class MovimentacaoContaParticipante extends Model
     /**
      * Obtém o valor do atributo 'metadata', garantindo que ele seja decodificado corretamente.
      * 
-     * Esta função existe devido ao uso do método `hydrate()` na função `carregarDadosAdicionaisBalancoRepasseParceiro`.
+     * Esta função existe devido ao uso do método `hydrate()` na função `carregarDadosAdicionaisBalancoRepasse`.
      * O `hydrate()` recria os modelos a partir de um array, mas como o Laravel já converte o campo `metadata`
      * automaticamente (por causa do cast definido na model), os dados podem ser decodificados novamente,
      * resultando em um erro. Para evitar isso, esta função verifica se o valor já foi decodificado (é um array)
@@ -83,16 +83,17 @@ class MovimentacaoContaParticipante extends Model
     {
         // Join com o Movimentação Conta Participante
         $instanceSelf = $options['instanceSelf'] ?? new self();
+        $modelJoin = app(MovimentacaoConta::class);
         $envOptions = new Fluent();
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new MovimentacaoConta())->getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? $modelJoin->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
         $envOptions->wheres = [
-            ['column' => "{$aliasTable}.parent_type", 'operator' => "=", 'value' => MovimentacaoConta::class],
-            ['column' => "{$aliasTable}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.parent_type", 'operator' => "=", 'value' => $modelJoin->getMorphClass()],
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        $query = (new self())->joinWithConditions($query, (new MovimentacaoConta())->getTableName() . " as {$envOptions->aliasJoin}", "$envOptions->aliasJoin.id", "=", "{$aliasTable}.parent_id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions($query, $modelJoin->getTableName() . " as {$envOptions->aliasJoin}", "$envOptions->aliasJoin.id", "=", "{$aliasTable}.parent_id", $envOptions->toArray());
 
         return $query;
     }
@@ -112,16 +113,17 @@ class MovimentacaoContaParticipante extends Model
     {
         // Join com o Movimentação Conta Participante
         $instanceSelf = $options['instanceSelf'] ?? new self();
+        $modelJoin = app(LancamentoRessarcimento::class);
         $envOptions = new Fluent();
-        $envOptions->aliasJoin = $options['aliasJoin'] ?? (new LancamentoRessarcimento())->getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? $modelJoin->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
         $envOptions->wheres = [
-            ['column' => "{$aliasTable}.parent_type", 'operator' => "=", 'value' => LancamentoRessarcimento::class],
-            ['column' => "{$aliasTable}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.parent_type", 'operator' => "=", 'value' => $modelJoin->getMorphClass()],
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
-        $query = (new self())->joinWithConditions($query, (new LancamentoRessarcimento())->getTableName() . " as {$envOptions->aliasJoin}", "$envOptions->aliasJoin.id", "=", "{$aliasTable}.parent_id", $envOptions->toArray());
+        $query = (new self())->joinWithConditions($query, $modelJoin->getTableName() . " as {$envOptions->aliasJoin}", "$envOptions->aliasJoin.id", "=", "{$aliasTable}.parent_id", $envOptions->toArray());
 
         return $query;
     }

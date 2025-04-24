@@ -9,6 +9,7 @@ use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class PessoaService extends Service
@@ -59,9 +60,47 @@ class PessoaService extends Service
     public function destroy(Fluent $requestData)
     {
         $resource = $this->buscarRecurso($requestData);
+        $resource->load([
+            'perfil_cliente.cliente_servicos_vinculados',
+            'perfil_parceiro.participante_servicos_vinculados',
+            'perfil_terceiro.participante_servicos_vinculados',
+            'perfil_usuario.user.user_tenant_domains',
+        ]);
 
-        if ($resource->perfil_cliente->servicos_vinculados->count()) {
-            RestResponse::createErrorResponse(422, "Esta pessoa possui serviços vinculados e não pode ser excluída.")->throwResponse();
+        $fluentErrors = new Fluent();
+
+        $totalServicosVinculadosCliente = count($resource->perfil_cliente->cliente_servicos_vinculados ?? []);
+        if ($totalServicosVinculadosCliente) {
+            $fluentErrors->cliente_servicos_vinculados = "Serviços vinculados ao perfil Cliente: {$totalServicosVinculadosCliente}.";
+        }
+
+        $totalServicosVinculadosParceiro = count($resource->perfil_parceiro->participante_servicos_vinculados ?? []);
+        if ($totalServicosVinculadosParceiro) {
+            $fluentErrors->participante_parceiro_vinculado = "Serviços vinculados ao perfil Parceiro: {$totalServicosVinculadosParceiro}.";
+        }
+
+        $totalServicosVinculadosTerceiro = count($resource->perfil_terceiro->participante_servicos_vinculados ?? []);
+        if ($totalServicosVinculadosTerceiro) {
+            $fluentErrors->participante_terceiro_vinculado  = "Serviços vinculados ao perfil Terceiro: {$totalServicosVinculadosTerceiro}.";
+        }
+
+        $usuarioVinculado = $resource->perfil_usuario->user->user_tenant_domains ?? [];
+        if (count($usuarioVinculado)) {
+            // Verifica se todos os domínios podem ser excluídos forçadamente
+            foreach ($usuarioVinculado as $userTenantDomain) {
+                if (! $this->deleteForceTest($userTenantDomain)) {
+                    $fluentErrors->usuario = "O usuário possui vínculos e não pode ser excluído. Utilize a funcionalidade de desativação.";
+                    break;
+                }
+            }
+        }
+
+        if (count($fluentErrors->toArray())) {
+            RestResponse::createGenericResponse(
+                ['errors' => $fluentErrors->toArray()],
+                422,
+                "Esta pessoa possui vínculos e não pode ser excluída."
+            )->throwResponse();
         }
 
         try {
@@ -72,7 +111,7 @@ class PessoaService extends Service
                     'pessoa_perfil.user',
                     'pessoa_dados',
                 ]);
-                
+
                 $resource->delete();
 
                 // $this->executarEventoWebsocket();

@@ -49,7 +49,7 @@ enum MovimentacaoContaParticipanteStatusTipoEnum: int
     /**
      * Registros que serão filtrados nos relatorios de balanço de repasse com parceiro.
      */
-    static public function statusMostrarBalancoRepasseParceiro(): array
+    static public function statusMostrarBalancoRepasse(): array
     {
         return [
             self::ATIVA->value,
@@ -57,9 +57,9 @@ enum MovimentacaoContaParticipanteStatusTipoEnum: int
         ];
     }
     
-    static public function statusMostrarBalancoRepasseParceiroFrontEnd(): array
+    static public function statusMostrarBalancoRepasseFrontEnd(): array
     {
-        $mostrar = self::statusMostrarBalancoRepasseParceiro();
+        $mostrar = self::statusMostrarBalancoRepasse();
 
         return array_values(array_filter(
             self::staticDetailsToArray(),

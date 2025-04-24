@@ -141,7 +141,7 @@ class ParticipacaoParticipante extends Model
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
         $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $instanceSelf->getTableAsName();
         $envOptions->wheres = [
-            ['column' => "{$aliasTable}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];
 
         return $instanceSelf->joinWithConditions($query, $model->getTableName() . " as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.participante_id", $envOptions->toArray());

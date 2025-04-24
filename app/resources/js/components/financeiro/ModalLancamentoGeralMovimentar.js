@@ -150,7 +150,7 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
                 form.find('input[name="data_quitado"]').val(data_quitado);
                 this.#buscarContas(conta_id);
 
-                responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
+                responseData.participantes.map(item => self.#functionsParticipacao._pushObjetoParticipanteNaTela(item));
 
                 return true;
             }
@@ -167,7 +167,7 @@ export class ModalLancamentoGeralMovimentar extends ModalRegistrationAndEditing 
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
         data.valor_quitado = data.valor_quitado ? CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_quitado) : null;
-        data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTelaFiltrado();
 
         if (self.#saveVerifications(data)) {
             self._save(data, self._objConfigs.url.base);

@@ -41,10 +41,6 @@
             </label>
         </div>
     </div>
-    {{-- <div class="form-text">
-        Esta opção exclui os lançamentos existentes e os recria com as informações atualizadas. A ação
-        só será executada se nenhum dos lançamentos atuais, em momento algum, movimentaram alguma conta.
-    </div> --}}
 </div>
 
 <div class="row div-liquidado-migracao" style="display: none;">
@@ -56,22 +52,8 @@
                 title="Aplica o status 'Liquidado (Migração Sistema)' a lançamentos anteriores ao mês atual, sem movimentar valores.">
                 Marcar como Liquidado (Migração Sistema)
                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-                    data-bs-title="Ao ativar, lançamentos anteriores ao mês atual serão marcados como <span class='fst-italic fw-bolder'>Liquidado (Migração Sistema)</span>, apenas para fins históricos, sem movimentar valores."></i>
+                    data-bs-title="Ao ativar esta opção, lançamentos anteriores ao mês atual serão marcados como <span class='fst-italic fw-bolder'>Liquidado (Migração Sistema)</span>, apenas para fins históricos, sem movimentar valores."></i>
             </label>
         </div>
-        {{-- <div class="form-text">
-            Ao ativar, lançamentos anteriores ao mês atual serão marcados como <span class="fst-italic">Liquidado
-                (Migração Sistema)</span>,
-            apenas para fins históricos, sem movimentar valores.
-        </div> --}}
     </div>
 </div>
-
-{{-- 
-<div class="row">
-    <div class="col-12 mt-2">
-        <label for="descricao_condicionado{{ $sufixo }}" class="form-label">Descrição condicionado</label>
-        <textarea name="descricao_condicionado" id="descricao_condicionado{{ $sufixo }}" class="form-control"></textarea>
-    </div>
-</div>
---}}

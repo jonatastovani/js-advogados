@@ -47,6 +47,25 @@ class PessoaController extends Controller
         return view('secao.pessoa.pessoa-fisica.parceiro.form');
     }
 
+    public function pessoaFisicaTerceiroIndex()
+    {
+        return view('secao.pessoa.pessoa-fisica.terceiro.index');
+    }
+
+    public function pessoaFisicaTerceiroForm()
+    {
+        return view('secao.pessoa.pessoa-fisica.terceiro.form');
+    }
+
+    public function pessoaFisicaTerceiroFormEditar(Request $request)
+    {
+        $recurso = PessoaPerfil::find($request->uuid);
+        if ($recurso) {
+            return view('secao.pessoa.pessoa-fisica.terceiro.form', compact('recurso'));
+        }
+        return view('secao.pessoa.pessoa-fisica.terceiro.form');
+    }
+
     public function pessoaFisicaUsuarioIndex()
     {
         return view('secao.pessoa.pessoa-fisica.usuario.index');
@@ -83,6 +102,25 @@ class PessoaController extends Controller
             return view('secao.pessoa.pessoa-juridica.cliente.form', compact('recurso'));
         }
         return view('secao.pessoa.pessoa-juridica.cliente.form');
+    }
+
+    public function pessoaJuridicaTerceiroIndex()
+    {
+        return view('secao.pessoa.pessoa-juridica.terceiro.index');
+    }
+
+    public function pessoaJuridicaTerceiroForm()
+    {
+        return view('secao.pessoa.pessoa-juridica.terceiro.form');
+    }
+
+    public function pessoaJuridicaTerceiroFormEditar(Request $request)
+    {
+        $recurso = PessoaPerfil::find($request->uuid);
+        if ($recurso) {
+            return view('secao.pessoa.pessoa-juridica.terceiro.form', compact('recurso'));
+        }
+        return view('secao.pessoa.pessoa-juridica.terceiro.form');
     }
 
 }

@@ -25,8 +25,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('financeiro.balanco-repasse-parceiro.index') }}">
-                        <span class="nav-link-text">Balanço de Repasse de Parceiro</span>
+                    <a class="nav-link" href="{{ route('financeiro.balanco-repasse.index') }}">
+                        <span class="nav-link-text">Balanço e Repasse</span>
                     </a>
                 </li>
                 <li class="nav-item">

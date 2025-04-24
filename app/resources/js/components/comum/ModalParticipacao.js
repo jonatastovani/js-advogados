@@ -118,7 +118,7 @@ export class ModalParticipacao extends ModalRegistrationAndEditing {
     async saveButtonAction() {
         const self = this;
         let data = {
-            participantes: self.#functionsParticipacao._getParticipantesNaTela(),
+            participantes: self.#functionsParticipacao._getParticipantesNaTelaFiltrado(),
         }
 
         if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {

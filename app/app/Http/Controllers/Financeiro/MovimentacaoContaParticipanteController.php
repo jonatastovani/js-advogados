@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Financeiro;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
-use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro;
+use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasse;
+use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\MovimentacaoContaParticipanteFormRequestStoreLancarRepasse;
 use App\Services\Financeiro\MovimentacaoContaParticipanteService;
 use App\Traits\CommonsConsultaControllerTrait;
 use App\Traits\CommonsControllerMethodsTrait;
@@ -15,21 +15,21 @@ class MovimentacaoContaParticipanteController extends Controller
 
     public function __construct(public MovimentacaoContaParticipanteService $service) {}
 
-    public function postConsultaFiltrosBalancoRepasseParceiro(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
+    public function postConsultaFiltrosBalancoRepasse(PostConsultaFiltroFormRequestBalancoRepasse $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
-        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiro($fluentData));
+        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasse($fluentData));
     }
 
-    public function postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
+    public function postConsultaFiltrosBalancoRepasseObterTotais(PostConsultaFiltroFormRequestBalancoRepasse $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
-        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes($fluentData));
+        return $this->retornoPadrao($this->service->postConsultaFiltrosBalancoRepasseObterTotais($fluentData));
     }
 
-    public function storeLancarRepasseParceiro(MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro $formRequest)
+    public function storeLancarRepasse(MovimentacaoContaParticipanteFormRequestStoreLancarRepasse $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated(), $formRequest);
-        return $this->retornoPadrao($this->service->storeLancarRepasseParceiro($fluentData));
+        return $this->retornoPadrao($this->service->storeLancarRepasse($fluentData));
     }
 }

@@ -29,14 +29,24 @@ class Pessoa extends Model
         return $this->hasMany(PessoaPerfil::class);
     }
 
-    public function perfil_usuario()
-    {
-        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->orderBy('created_at', 'desc');
-    }
-
     public function perfil_cliente()
     {
         return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::CLIENTE->value)->orderBy('created_at', 'desc');
+    }
+
+    public function perfil_parceiro()
+    {
+        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::PARCEIRO->value)->orderBy('created_at', 'desc');
+    }
+
+    public function perfil_terceiro()
+    {
+        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::TERCEIRO->value)->orderBy('created_at', 'desc');
+    }
+
+    public function perfil_usuario()
+    {
+        return $this->hasOne(PessoaPerfil::class)->where('perfil_tipo_id', PessoaPerfilTipoEnum::USUARIO->value)->orderBy('created_at', 'desc');
     }
 
     public function pessoa_dados()

@@ -53,6 +53,8 @@
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-sistema')
                             @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-terceiro')
+                            @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-usuario')
                             @endcomponent
                         @endif

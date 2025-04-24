@@ -903,7 +903,7 @@ class MovimentacaoContaService extends Service
         }
     }
 
-    public function storeLancarRepasseParceiro(Fluent $dadosMovimentacao)
+    public function storeLancarRepasse(Fluent $dadosMovimentacao)
     {
 
         $metadata = (array) is_array($dadosMovimentacao->metadata) ? $dadosMovimentacao->metadata : [];

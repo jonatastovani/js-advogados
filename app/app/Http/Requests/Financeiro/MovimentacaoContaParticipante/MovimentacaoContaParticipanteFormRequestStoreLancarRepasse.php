@@ -4,7 +4,7 @@ namespace App\Http\Requests\Financeiro\MovimentacaoContaParticipante;
 
 use App\Enums\PessoaPerfilTipoEnum;
 
-class MovimentacaoContaParticipanteFormRequestStoreLancarRepasseParceiro extends PostConsultaFiltroFormRequestBalancoRepasseParceiro
+class MovimentacaoContaParticipanteFormRequestStoreLancarRepasse extends PostConsultaFiltroFormRequestBalancoRepasse
 {
     public function authorize(): bool
     {

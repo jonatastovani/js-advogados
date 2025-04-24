@@ -2,12 +2,14 @@
 
 namespace App\Services\Pessoa;
 
+use App\Common\RestResponse;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Models\Pessoa\Pessoa;
 use App\Models\Pessoa\PessoaPerfil;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 
 class PessoaPerfilService extends Service
@@ -66,6 +68,85 @@ class PessoaPerfilService extends Service
         // Se não encontrar o perfil, retorna vazio
         $resource = PessoaPerfil::where('perfil_tipo_id', PessoaPerfilTipoEnum::EMPRESA->value)->orderBy('created_at', 'asc')->first();
         return $resource ? $resource->toArray() : [];
+    }
+
+    public function destroy(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $resource->load([
+            'cliente_servicos_vinculados',
+            'participante_servicos_vinculados',
+            'participante_servicos_vinculados',
+            'user.user_tenant_domains',
+        ]);
+
+        $fluentErrors = new Fluent();
+
+        switch ($resource->perfil_tipo_id) {
+            case PessoaPerfilTipoEnum::CLIENTE->value:
+
+                $totalServicosVinculadosCliente = count($resource->cliente_servicos_vinculados ?? []);
+                if ($totalServicosVinculadosCliente) {
+                    $fluentErrors->cliente_servicos_vinculados = "Serviços vinculados ao perfil Cliente: {$totalServicosVinculadosCliente}.";
+                }
+                break;
+
+            case PessoaPerfilTipoEnum::PARCEIRO->value:
+
+                $totalServicosVinculadosParceiro = count($resource->participante_servicos_vinculados ?? []);
+                if ($totalServicosVinculadosParceiro) {
+                    $fluentErrors->participante_parceiro_vinculado  = "Serviços vinculados ao perfil Parceiro: {$totalServicosVinculadosParceiro}.";
+                }
+                break;
+
+            case PessoaPerfilTipoEnum::TERCEIRO->value:
+
+                $totalServicosVinculadosTerceiro = count($resource->participante_servicos_vinculados ?? []);
+                if ($totalServicosVinculadosTerceiro) {
+                    $fluentErrors->participante_terceiro_vinculado  = "Serviços vinculados ao perfil Terceiro: {$totalServicosVinculadosTerceiro}.";
+                }
+                break;
+
+            case PessoaPerfilTipoEnum::USUARIO->value:
+
+                $usuarioVinculado = $resource->user->user_tenant_domains ?? [];
+
+                if (count($usuarioVinculado)) {
+                    // Verifica se todos os domínios podem ser excluídos forçadamente
+                    foreach ($usuarioVinculado as $userTenantDomain) {
+                        if (! $this->deleteForceTest($userTenantDomain)) {
+                            $fluentErrors->usuario = "Este usuário possui vínculos e não pode ser excluído. Utilize a funcionalidade de desativação.";
+                            break; // Interrompe ao encontrar o primeiro impedimento
+                        }
+                    }
+                }
+
+                break;
+
+            case PessoaPerfilTipoEnum::EMPRESA->value:
+                $fluentErrors->usuario = "Perfis de Empresa não podem ser excluídos. Utilize a funcionalidade de desativação.";
+                break;
+        }
+
+        if (count($fluentErrors->toArray())) {
+            RestResponse::createGenericResponse(
+                ['errors' => $fluentErrors->toArray()],
+                422,
+                "Este perfil possui vínculos e não pode ser excluído."
+            )->throwResponse();
+        }
+
+        try {
+            return DB::transaction(function () use ($resource) {
+
+                $resource->delete();
+
+                // $this->executarEventoWebsocket();
+                return $resource->toArray();
+            });
+        } catch (\Exception $e) {
+            return $this->gerarLogExceptionErroSalvar($e);
+        }
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

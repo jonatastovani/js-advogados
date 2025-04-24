@@ -37,6 +37,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             participantesNaTela: [],
             cronExpressao: undefined,
             liquidado_migracao_bln: false,
+            lancamento_tipo: undefined,
         },
         modoOperacao: undefined,
         participacao: {
@@ -175,6 +176,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
 
         CommonFunctions.applyCustomNumberMask(modal.find('.campo-monetario'), { format: '#.##0,00', reverse: true });
 
+        self._objConfigs.data.lancamento_tipo = self._objConfigs.modoOperacao;
         switch (self._objConfigs.modoOperacao) {
             case window.Enums.LancamentoTipoEnum.LANCAMENTO_AGENDAMENTO:
 
@@ -193,6 +195,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                         throw new Error(`Tipo de agendamento (${self._dataEnvModal.agendamento_tipo ?? 'indefinido'}) inválido.`);
                 }
 
+                self._objConfigs.data.lancamento_tipo = self._dataEnvModal.agendamento_tipo;
                 self.#visualizacaoModoOperacaoAgendamento(true);
 
                 // Evento para monitorar mudanças no checkbox `ckbRecorrente`
@@ -424,7 +427,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
 
                         case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
                             self._updateModalTitle('Editar Agendamento Geral');
-                            responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
+                            responseData.participantes.map(item => self.#functionsParticipacao._pushObjetoParticipanteNaTela(item));
                             break;
 
                         case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
@@ -464,12 +467,12 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
 
                 default:
                     self._updateModalTitle(`Editar lancamento ${responseData.numero_lancamento ?? null}`);
-                    responseData.participantes.map(item => self.#functionsParticipacao._inserirObjetoParticipanteNaTela(item));
+                    responseData.participantes.map(item => self.#functionsParticipacao._pushObjetoParticipanteNaTela(item));
                     break;
             }
 
-            await  self.#buscarContas(responseData.conta_id);
-            await  self.#buscarLancamentoCategoriaTipoTenant(responseData.categoria_id)
+            await self.#buscarContas(responseData.conta_id);
+            await self.#buscarLancamentoCategoriaTipoTenant(responseData.categoria_id)
 
             form.find('select[name="movimentacao_tipo_id"]').val(responseData.movimentacao_tipo_id);
             form.find('input[name="descricao"]').val(descricao);
@@ -495,10 +498,17 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         throw new Error("Erro ao preencher formulário: Dados não encontrados.");
     }
 
+    /**
+     * Verifica se o tenant tem a opção de lancamento_liquidado_migracao_sistema_bln ativa e define a visibilidade da opção de liquidado migração.
+     * Esta execução deve ser realizada depois do buscarDadosPagamentoTipo, pois verifica também o tipo do pagamento.
+     */
     async #verificaLiquidadoMigracao() {
         const self = this;
         const tenantData = await TenantDataHelper.getTenantData();
-        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln);
+
+        const permiteLiquidadoMigracao = window.Statics.LancamentoTipoQuePermiteLiquidadoMigracao.includes(self._objConfigs.data.lancamento_tipo);
+
+        self.#visibilidadeLiquidadoMigracao(tenantData?.lancamento_liquidado_migracao_sistema_bln && permiteLiquidadoMigracao);
     }
 
     #visibilidadeLiquidadoMigracao(statusVisibilidade = false) {
@@ -577,7 +587,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
         data.valor_esperado = CommonFunctions.removeCommasFromCurrencyOrFraction(data.valor_esperado);
-        data.participantes = self.#functionsParticipacao._getParticipantesNaTela();
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTelaFiltrado();
         data.tags = self.#getTags();
         data.liquidado_migracao_bln = self._objConfigs.data.liquidado_migracao_bln;
 

@@ -3,7 +3,7 @@
 namespace App\Services\Financeiro;
 
 use App\Common\RestResponse;
-use App\Enums\BalancoRepasseParceiroTipoParentEnum;
+use App\Enums\BalancoRepasseTipoParentEnum;
 use App\Enums\DocumentoGeradoTipoEnum;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\MovimentacaoContaParticipanteStatusTipoEnum;
@@ -93,15 +93,15 @@ class MovimentacaoContaParticipanteService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
-    public function postConsultaFiltrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
+    public function postConsultaFiltrosBalancoRepasse(Fluent $requestData, array $options = [])
     {
-        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
+        $query = $this->montaConsultaRegistrosBalancoRepasse($requestData, $options);
 
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => "{$this->modelMovimentacaoConta->getTableAsName()}.data_movimentacao",
         ], $options));
 
-        $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, $options);
+        $resources = $this->carregarDadosAdicionaisBalancoRepasse($query, $requestData, $options);
 
         return $resources;
     }
@@ -114,9 +114,9 @@ class MovimentacaoContaParticipanteService extends Service
      * @param array $options
      * @return array
      */
-    public function postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes(Fluent $requestData, array $options = [])
+    public function postConsultaFiltrosBalancoRepasseObterTotais(Fluent $requestData, array $options = [])
     {
-        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
+        $query = $this->montaConsultaRegistrosBalancoRepasse($requestData, $options);
         $resources = $query->get();
 
         $somatorias = $this->obterTotaisParticipacoes($resources, $options);
@@ -154,7 +154,7 @@ class MovimentacaoContaParticipanteService extends Service
 
             $registros = MovimentacaoContaParticipante::hydrate($registros->toArray());
 
-            if ($parentType == BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value) {
+            if ($parentType == BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value) {
 
                 if (!$registros[0]['parent']) {
                     // Somente o parent é carregado para obter o tipo de movimentação (crédito ou débito), no caso do Ressarcimento só ter esta informação em seu modelo.
@@ -171,12 +171,12 @@ class MovimentacaoContaParticipanteService extends Service
 
                 switch ($participacao->parent_type) {
 
-                    case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                    case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
 
                         $movimentacaoTipoId = $participacao->parent['movimentacao_tipo_id'];
                         break;
 
-                    case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                    case BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
                         $movimentacaoTipoId = $participacao->parent['parceiro_movimentacao_tipo_id'];
                         break;
 
@@ -239,11 +239,11 @@ class MovimentacaoContaParticipanteService extends Service
         return $fluentTotais;
     }
 
-    private function montaConsultaRegistrosBalancoRepasseParceiro(Fluent $requestData, array $options = [])
+    private function montaConsultaRegistrosBalancoRepasse(Fluent $requestData, array $options = [])
     {
         $filtrosData = $this->extrairFiltros($requestData, $options);
 
-        $query = $this->aplicarFiltrosEspecificosBalancoRepasseParceiro($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
+        $query = $this->aplicarFiltrosEspecificosBalancoRepasse($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
 
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
@@ -259,7 +259,7 @@ class MovimentacaoContaParticipanteService extends Service
      * @param array $options Opcionalmente, define parâmetros adicionais.
      * @return Builder Retorna a query modificada com os joins e filtros específicos aplicados.
      */
-    protected function aplicarFiltrosEspecificosBalancoRepasseParceiro(Builder $query, $filtros, $requestData, array $options = [])
+    protected function aplicarFiltrosEspecificosBalancoRepasse(Builder $query, $filtros, $requestData, array $options = [])
     {
 
         $query = $this->model::joinMovimentacao($query);
@@ -276,7 +276,7 @@ class MovimentacaoContaParticipanteService extends Service
         $tableMovimentacao = $this->modelMovimentacaoConta->getTableAsName();
         $tableRessarcimento = $this->modelLancamentoRessarcimento->getTableAsName();
 
-        $query->where("{$this->model->getTableAsName()}.referencia_id", $requestData->parceiro_id);
+        $query->where("{$this->model->getTableAsName()}.referencia_id", $requestData->perfil_id);
         $query->where("{$this->model->getTableAsName()}.referencia_type", $this->modelPessoaPerfil->getMorphClass());
 
         if ($requestData->conta_id) {
@@ -306,7 +306,7 @@ class MovimentacaoContaParticipanteService extends Service
             $query->where("{$this->model->getTableAsName()}.status_id", $requestData->movimentacao_status_tipo_id);
         }
 
-        $query->whereIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasseParceiro());
+        $query->whereIn("{$this->model->getTableAsName()}.status_id", MovimentacaoContaParticipanteStatusTipoEnum::statusMostrarBalancoRepasse());
 
         $query = $this->aplicarScopesPadrao($query, $this->model, $options);
 
@@ -332,7 +332,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                 // Aplicar filtro de quais referencias serão consideradas da movimentação de contas no balanco de repasse do parceiro
 
-                $query->whereIn("{$tableMovimentacao}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasseParceiro());
+                $query->whereIn("{$tableMovimentacao}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasse());
 
                 $query = $this->aplicarFiltroMes($query, $requestData, "{$tableMovimentacao}.data_movimentacao");
             });
@@ -349,7 +349,7 @@ class MovimentacaoContaParticipanteService extends Service
         return $query;
     }
 
-    protected function carregarDadosAdicionaisBalancoRepasseParceiro(Builder $query, Fluent $requestData, array $options = [])
+    protected function carregarDadosAdicionaisBalancoRepasse(Builder $query, Fluent $requestData, array $options = [])
     {
         // Retira a paginação, em casos de busca feita para geração de PDF
         $withOutPagination = $options['withOutPagination'] ?? false;
@@ -485,7 +485,7 @@ class MovimentacaoContaParticipanteService extends Service
         return $registrosOrdenados;
     }
 
-    public function storeLancarRepasseParceiro(Fluent $requestData, array $options = [])
+    public function storeLancarRepasse(Fluent $requestData, array $options = [])
     {
         $resources = $this->buscarParticipacaoLancamentoRepasse($requestData, $options);
 
@@ -525,11 +525,11 @@ class MovimentacaoContaParticipanteService extends Service
                 $agrupamentoPorParentType->map(function ($registros, $tipo) use ($documentoGeradoInserir, $movimentacoesRepasse, $requestData) {
 
                     switch ($tipo) {
-                        case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                        case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
                             $this->inserirInformacaoDocumentoGeradoMovimentacaoConta($registros, $documentoGeradoInserir, $movimentacoesRepasse, $requestData);
                             break;
 
-                        case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                        case BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
                             $this->inserirInformacaoDocumentoGeradoLancamentoRessarcimento($registros, $documentoGeradoInserir, $movimentacoesRepasse, $requestData);
                             break;
 
@@ -549,7 +549,7 @@ class MovimentacaoContaParticipanteService extends Service
     private function buscarParticipacaoLancamentoRepasse(Fluent $requestData, array $options = [])
     {
         // LogHelper::habilitaQueryLog();
-        $query = $this->montaConsultaRegistrosBalancoRepasseParceiro($requestData, $options);
+        $query = $this->montaConsultaRegistrosBalancoRepasse($requestData, $options);
 
         // Filtros adicionais
         $query->where(function (Builder $query) {
@@ -557,7 +557,7 @@ class MovimentacaoContaParticipanteService extends Service
             // Filtro adicional para Movimentação de Conta e Status das movimentações
             $query->where(function (Builder $query) {
 
-                $query->where('parent_type', BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value);
+                $query->where('parent_type', BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value);
 
                 $query->whereIn("{$this->modelMovimentacaoConta->getTableAsName()}.status_id", [
                     MovimentacaoContaStatusTipoEnum::ATIVA->value,
@@ -568,7 +568,7 @@ class MovimentacaoContaParticipanteService extends Service
             // Filtro adicional para Lançamento Ressarcimento e Status dos lançamentos
             $query->orWhere(function (Builder $query) {
 
-                $query->where('parent_type', BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value);
+                $query->where('parent_type', BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value);
 
                 $query->whereIn("{$this->modelLancamentoRessarcimento->getTableAsName()}.status_id", [
                     LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value,
@@ -594,7 +594,7 @@ class MovimentacaoContaParticipanteService extends Service
             'campoOrdenacao' => $this->model->getTableAsName() . ".created_at",
         ], $options));
 
-        $resources = $this->carregarDadosAdicionaisBalancoRepasseParceiro($query, $requestData, array_merge($options, ['withOutPagination' => true]));
+        $resources = $this->carregarDadosAdicionaisBalancoRepasse($query, $requestData, array_merge($options, ['withOutPagination' => true]));
 
         // LogHelper::escreverLogSomenteComQuery($query);
 
@@ -658,13 +658,13 @@ class MovimentacaoContaParticipanteService extends Service
                     $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::DEBITO_LIBERACAO_CREDITO->value;
 
                     // Lança a movimentação
-                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasseParceiro($dadosMovimentacao);
+                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasse($dadosMovimentacao);
 
                     // Lança o crédito de liberação para a empresa saber que este valor é de circulação
                     $dadosMovimentacao->movimentacao_tipo_id = MovimentacaoContaTipoEnum::LIBERACAO_CREDITO->value;
 
                     // Lança a movimentação
-                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasseParceiro($dadosMovimentacao);
+                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasse($dadosMovimentacao);
 
                     break;
 
@@ -679,7 +679,7 @@ class MovimentacaoContaParticipanteService extends Service
                     }
 
                     // Lança o repasse para a pessoa
-                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasseParceiro($dadosMovimentacao);
+                    $movimentacoesRepasse[] = app(MovimentacaoContaService::class)->storeLancarRepasse($dadosMovimentacao);
                     break;
             }
         });
@@ -747,11 +747,11 @@ class MovimentacaoContaParticipanteService extends Service
 
             switch ($participacao['parent_type']) {
 
-                case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
                     $movimentacaoTipoId = $participacao['parent']['movimentacao_tipo_id'];
                     break;
 
-                case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                case BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
                     $movimentacaoTipoId = $participacao['parent']['parceiro_movimentacao_tipo_id'];
                     break;
 
@@ -1026,7 +1026,6 @@ class MovimentacaoContaParticipanteService extends Service
                     'addPrefix' => 'parent.' // Adiciona um prefixo aos relacionamentos externos
                 ]
             );
-
             return $relationships;
         };
 

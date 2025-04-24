@@ -1,8 +1,14 @@
 @php
-    $sufixo = 'PageBalancoRepasseParceiroIndex';
+    $sufixo = 'PageBalancoRepasseIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Balanço de Repasse de Parceiro',
+        'nome' => 'Balanço de Repasse',
         'sufixo' => $sufixo,
+        'descricao' => [
+            [
+                'texto' =>
+                    'Área destinada à consulta e à execução de repasses financeiros destinados a parceiros, terceiros ou recebedores. Também permite a liberação de créditos vinculados à empresa.',
+            ],
+        ],
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp
@@ -77,31 +83,24 @@
     @endphp
 
     <div class="row">
-        <div id="dados-parceiro{{ $sufixo }}" class="col mt-2">
-            <div class="card card-parceiro">
+        <div id="dados-pessoa{{ $sufixo }}" class="col mt-2">
+            <div class="card card-pessoa">
                 <div class="card-body align-items-center justify-content-between py-0">
-                    {{-- <div class="row">
-                        <div class="col-12 col-sm-8 align-content-center my-2">
-                            <h5 class="nome-parceiro">Selecione um parceiro</h5>
-                        </div>
-                        <div class="d-grid d-sm-block col-12 col-sm-4 text-end my-2">
-                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
-                                class="btn btn-outline-primary btn-sm border-0">
-                                Selecionar parceiro</button>
-                        </div>
-                    </div> --}}
                     <div class="row">
-                        <div class="col-12 col-sm-7 col-md-8 col-lg-9 align-content-center my-2">
-                            <h5 class="nome-parceiro">Selecione um parceiro</h5>
+                        <div class="col-12 col-sm-7 col-xl-9 align-content-center my-2">
+                            <h5 class="nome-pessoa">Selecione uma pessoa</h5>
+                            <p class="card-perfil-referencia"></p>
                         </div>
-                        <div class="d-grid d-sm-block col-12 col-sm-5 col-md-4 col-lg-3 text-end my-2">
-                            <button id="btnSelecionarParceiro{{ $sufixo }}" type="button"
+                        <div class="d-grid d-sm-block col-12 col-sm-5 col-xl-3 text-end my-2">
+                            <button id="btnSelecionarPessoa{{ $sufixo }}" type="button"
                                 class="btn btn-outline-primary btn-sm border-0">
-                                Selecionar parceiro
+                                Selecionar pessoa
                             </button>
 
-                            <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" :display=true
-                                :dados="$dados" />
+                            <div>
+                                <x-pagina.elementos-domain-custom.componente :sufixo="$sufixo" :display=true
+                                    :dados="$dados" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -177,18 +176,18 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/balanco-repasse-parceiro/index.js')
+    @vite('resources/js/views/financeiro/balanco-repasse/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'baseContas' => route('api.tenant.conta'),
-            'baseLancarRepasseParceiro' => route('api.financeiro.repasse-parceiro.lancar'),
-            'baseRepasseParceiro' => route('api.financeiro.repasse-parceiro'),
+            'baseLancarRepasse' => route('api.financeiro.repasse.lancar'),
+            'baseRepasse' => route('api.financeiro.repasse'),
         ],
     ])
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFrontImpressao' => route('financeiro.balanco-repasse-parceiro.impressao'),
+            'baseFrontImpressao' => route('financeiro.balanco-repasse.impressao'),
         ],
     ])
     @endcomponent

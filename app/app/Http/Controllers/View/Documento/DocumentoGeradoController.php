@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\View\Documento;
 
-use App\Enums\BalancoRepasseParceiroTipoParentEnum;
+use App\Enums\BalancoRepasseTipoParentEnum;
 use App\Enums\DocumentoGeradoTipoEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
@@ -80,7 +80,7 @@ class DocumentoGeradoController extends Controller
 
             switch ($participacao['parent_type']) {
 
-                case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
 
                     if (!$mes_ano_movimentacao) {
                         $mes_ano_movimentacao = $parent['data_movimentacao'];
@@ -107,7 +107,7 @@ class DocumentoGeradoController extends Controller
                     }
                     break;
 
-                case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                case BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
 
                     if (!$mes_ano_movimentacao) {
                         // dump($parent);

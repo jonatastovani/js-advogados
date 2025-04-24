@@ -119,16 +119,16 @@ Route::group([
         });
     });
 
-    Route::prefix('repasse-parceiro')->group(function () {
+    Route::prefix('repasse')->group(function () {
 
-        Route::get('', function () {})->name('api.financeiro.repasse-parceiro');
+        Route::get('', function () {})->name('api.financeiro.repasse');
 
         Route::controller(App\Http\Controllers\Financeiro\MovimentacaoContaParticipanteController::class)->group(function () {
 
-            Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasseParceiro');
-            Route::post('consulta-filtros/obter-totais-participacoes', 'postConsultaFiltrosBalancoRepasseParceiroObterTotaisParticipacoes');
+            Route::post('consulta-filtros', 'postConsultaFiltrosBalancoRepasse');
+            Route::post('consulta-filtros/obter-totais', 'postConsultaFiltrosBalancoRepasseObterTotais');
 
-            Route::post('lancar', 'storeLancarRepasseParceiro')->name('api.financeiro.repasse-parceiro.lancar');
+            Route::post('lancar', 'storeLancarRepasse')->name('api.financeiro.repasse.lancar');
         });
     });
 });

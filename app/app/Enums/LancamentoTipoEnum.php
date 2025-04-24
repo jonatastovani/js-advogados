@@ -14,4 +14,17 @@ enum LancamentoTipoEnum: string
     case LANCAMENTO_AGENDAMENTO = LancamentoAgendamento::class;
     case LANCAMENTO_GERAL = LancamentoGeral::class;
     case LANCAMENTO_RESSARCIMENTO = LancamentoRessarcimento::class;
+
+    /**
+     * Retorna um array com os valores dos enums de LancamentoTipo que permite
+     * seus lançamentos serem liquidados com o status Liquidado Migração de Sistema.
+     *
+     * @return array
+     */
+    static public function lancamentoTipoQuePermiteLiquidadoMigracao(): array
+    {
+        return [
+            self::LANCAMENTO_GERAL->value,
+        ];
+    }
 }

@@ -164,7 +164,9 @@ class PageUsuarioPFIndex extends TemplateSearch {
         const self = this;
 
         $(`#${pessoaDados.idTr}`).find(`.btn-delete-pessoa`).click(async function () {
+
             const perfis = pessoaDados.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+
             self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
                 title: `Exclusão de Pessoa Física`,
                 message: `
@@ -175,6 +177,7 @@ class PageUsuarioPFIndex extends TemplateSearch {
                 button: this,
                 urlApi: self._objConfigs.url.basePessoa,
             });
+
         });
     }
 }

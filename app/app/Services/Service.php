@@ -10,6 +10,7 @@ use App\Traits\CommonServiceMethodsTrait;
 use App\Traits\ServiceLogTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -226,6 +227,41 @@ abstract class Service
                 }
                 $relatedItem->delete();
             }
+        }
+    }
+
+    /**
+     * Verifica se é possível excluir um registro de forma permanente (force delete).
+     *
+     * Esta função é útil para saber se o model possui vínculos em outras tabelas que impediriam
+     * a exclusão física no banco de dados (como foreign keys com `ON DELETE RESTRICT`).
+     *
+     * A exclusão é feita dentro de uma transação, e imediatamente revertida com `rollback`,
+     * garantindo que os dados não sejam de fato apagados, apenas testados.
+     *
+     * @param Model $model Instância do model que se deseja testar a exclusão forçada.
+     * @return bool Retorna true se o modelo pode ser excluído fisicamente (sem restrições), ou false se ocorrer erro.
+     */
+    public function deleteForceTest(Model $model): bool
+    {
+        try {
+            // Inicia uma transação para garantir que nenhuma exclusão seja efetiva
+            DB::beginTransaction();
+
+            // Força a exclusão física (ignora soft delete)
+            $model->forceDelete();
+
+            // Cancela a transação — desfaz a exclusão
+            DB::rollBack();
+
+            // Se chegou até aqui, significa que o banco permitiu o delete
+            return true;
+        } catch (QueryException $e) {
+            // Se o banco bloqueou a exclusão por causa de vínculos (FKs, por exemplo)
+            DB::rollBack();
+
+            // Retorna false, indicando que o model não pode ser excluído com segurança
+            return false;
         }
     }
 

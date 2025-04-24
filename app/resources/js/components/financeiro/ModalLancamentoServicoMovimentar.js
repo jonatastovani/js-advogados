@@ -338,7 +338,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
             }
         }
 
-        data.participantes = self._objConfigs.data.participantesNaTela;
+        data.participantes = self.#functionsParticipacao._getParticipantesNaTelaFiltrado();
         data.referencia_id = self._objConfigs.data.idRegister;
         data.status_id = self._objConfigs.data.status_id;
 

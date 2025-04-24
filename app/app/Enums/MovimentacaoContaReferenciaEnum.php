@@ -20,7 +20,7 @@ enum MovimentacaoContaReferenciaEnum: string
     /**
      * Status que mostrarão participantes, caso a movimentação tenha participantes.
      */
-    static public function referenciasMostrarBalancoRepasseParceiro(): array
+    static public function referenciasMostrarBalancoRepasse(): array
     {
         return [
             self::SERVICO_LANCAMENTO->value,

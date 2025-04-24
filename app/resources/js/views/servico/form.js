@@ -1905,7 +1905,7 @@ class PageServicoForm extends TemplateForm {
     async #saveButtonActionParticipacao() {
         const self = this;
         let data = {
-            participantes: self._objConfigs.data.participantesNaTela,
+            participantes: self.#functionsParticipacao._getParticipantesNaTelaFiltrado(),
         }
 
         if (self.#functionsParticipacao._saveVerificationsParticipantes(data)) {

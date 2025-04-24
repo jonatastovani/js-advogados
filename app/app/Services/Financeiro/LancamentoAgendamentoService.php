@@ -171,7 +171,7 @@ class LancamentoAgendamentoService extends Service
 
     public function store(Fluent $requestData)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdatePersonalizado($requestData);
 
         try {
             return DB::transaction(function () use ($resource, $requestData) {
@@ -202,7 +202,7 @@ class LancamentoAgendamentoService extends Service
 
     public function update(Fluent $requestData)
     {
-        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData, $requestData->uuid);
+        $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdatePersonalizado($requestData, $requestData->uuid);
 
         try {
             return DB::transaction(function () use ($resource, $requestData) {
@@ -247,7 +247,7 @@ class LancamentoAgendamentoService extends Service
         }
     }
 
-    protected function verificacaoEPreenchimentoRecursoStoreUpdate(Fluent $requestData, $id = null): Model
+    protected function verificacaoEPreenchimentoRecursoStoreUpdatePersonalizado(Fluent &$requestData, $id = null): Model
     {
         $arrayErrors = new Fluent();
 
@@ -286,6 +286,13 @@ class LancamentoAgendamentoService extends Service
             $resource->cron_expressao = null;
             $resource->cron_data_inicio = null;
             $resource->cron_data_fim = null;
+        }
+
+        if (
+            isset($requestData->liquidado_migracao_bln) && $requestData->liquidado_migracao_bln
+            && !in_array($requestData->agendamento_tipo, LancamentoTipoEnum::lancamentoTipoQuePermiteLiquidadoMigracao())
+        ) {
+            unset($requestData->liquidado_migracao_bln);
         }
 
         $participantesData = $this->verificacaoParticipantes($requestData->participantes, $requestData, $arrayErrors, ['conferencia_valor_consumido' => true]);

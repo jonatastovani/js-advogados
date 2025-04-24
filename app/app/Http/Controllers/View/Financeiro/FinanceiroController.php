@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\View\Financeiro;
 
-use App\Enums\BalancoRepasseParceiroTipoParentEnum;
+use App\Enums\BalancoRepasseTipoParentEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasseParceiro;
+use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasse;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
 use App\Services\Financeiro\MovimentacaoContaParticipanteService;
 use App\Services\Financeiro\MovimentacaoContaService;
@@ -39,15 +39,15 @@ class FinanceiroController extends Controller
         return view('secao.financeiro.lancamentos-agendamentos.index');
     }
 
-    public function balancoRepasseParceiroIndex()
+    public function balancoRepasseIndex()
     {
-        return view('secao.financeiro.balanco-repasse-parceiro.index');
+        return view('secao.financeiro.balanco-repasse.index');
     }
 
-    public function balancoRepasseParceiroImpressao(PostConsultaFiltroFormRequestBalancoRepasseParceiro $formRequest)
+    public function balancoRepasseImpressao(PostConsultaFiltroFormRequestBalancoRepasse $formRequest)
     {
         $fluentData = $this->makeFluent($formRequest->validated());
-        $dados = $this->serviceMovimentacaoContaParticipante->postConsultaFiltrosBalancoRepasseParceiro($fluentData, ['withOutPagination' => true]);
+        $dados = $this->serviceMovimentacaoContaParticipante->postConsultaFiltrosBalancoRepasse($fluentData, ['withOutPagination' => true]);
 
         $somatorias = $this->serviceMovimentacaoContaParticipante->obterTotaisParticipacoes(collect($dados));
 
@@ -59,7 +59,7 @@ class FinanceiroController extends Controller
             'mes_ano' => Carbon::parse($fluentData->mes_ano)->translatedFormat('F/Y'),
         ]);
 
-        $dataEnv = $this->balancoRepasseParceiroImpressaoRenderInfo($dataEnv);
+        $dataEnv = $this->balancoRepasseImpressaoRenderInfo($dataEnv);
 
         // Configurações personalizadas de PDF
         $pdfService = new PdfGenerator([
@@ -67,10 +67,10 @@ class FinanceiroController extends Controller
             'paper' => 'A4',
         ]);
 
-        return $pdfService->generate('secao.financeiro.balanco-repasse-parceiro.impressao', compact('dataEnv'));
+        return $pdfService->generate('secao.financeiro.balanco-repasse.impressao', compact('dataEnv'));
     }
 
-    private function balancoRepasseParceiroImpressaoRenderInfo(Fluent $dataEnv)
+    private function balancoRepasseImpressaoRenderInfo(Fluent $dataEnv)
     {
         $processedData = [];
 
@@ -84,7 +84,7 @@ class FinanceiroController extends Controller
 
             switch ($participacao['parent_type']) {
 
-                case BalancoRepasseParceiroTipoParentEnum::MOVIMENTACAO_CONTA->value:
+                case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
 
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
@@ -113,7 +113,7 @@ class FinanceiroController extends Controller
                     }
                     break;
 
-                case BalancoRepasseParceiroTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
+                case BalancoRepasseTipoParentEnum::LANCAMENTO_RESSARCIMENTO->value:
 
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_vencimento']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
