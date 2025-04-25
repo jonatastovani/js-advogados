@@ -79,9 +79,19 @@ class PessoaService extends Service
             $fluentErrors->participante_parceiro_vinculado = "Serviços vinculados ao perfil Parceiro: {$totalServicosVinculadosParceiro}.";
         }
 
+        $totalMovimentacaoVinculadosParceiro = count($resource->perfil_parceiro->financeiro_movimentacao_participante ?? []);
+        if ($totalMovimentacaoVinculadosParceiro) {
+            $fluentErrors->movimentacao_conta_parceiro_vinculado  = "Movimentações de conta vinculados ao perfil Parceiro: {$totalMovimentacaoVinculadosParceiro}.";
+        }
+
         $totalServicosVinculadosTerceiro = count($resource->perfil_terceiro->participante_servicos_vinculados ?? []);
         if ($totalServicosVinculadosTerceiro) {
             $fluentErrors->participante_terceiro_vinculado  = "Serviços vinculados ao perfil Terceiro: {$totalServicosVinculadosTerceiro}.";
+        }
+
+        $totalMovimentacaoVinculadosTerceiro = count($resource->perfil_terceiro->financeiro_movimentacao_participante ?? []);
+        if ($totalMovimentacaoVinculadosTerceiro) {
+            $fluentErrors->movimentacao_conta_terceiro_vinculado  = "Movimentações de conta vinculados ao perfil Terceiro: {$totalMovimentacaoVinculadosTerceiro}.";
         }
 
         $usuarioVinculado = $resource->perfil_usuario->user->user_tenant_domains ?? [];
@@ -108,7 +118,7 @@ class PessoaService extends Service
                 $this->destroyCascade($resource, [
                     'documentos',
                     'enderecos',
-                    'pessoa_perfil.user',
+                    'pessoa_perfil.user.user_tenant_domains',
                     'pessoa_dados',
                 ]);
 

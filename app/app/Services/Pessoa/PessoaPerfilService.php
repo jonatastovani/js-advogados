@@ -77,11 +77,22 @@ class PessoaPerfilService extends Service
             'cliente_servicos_vinculados',
             'participante_servicos_vinculados',
             'participante_servicos_vinculados',
+            'financeiro_movimentacao_participante',
             'user.user_tenant_domains',
+            'pessoa.pessoa_perfil',
         ]);
 
         $fluentErrors = new Fluent();
 
+        // Verifica se é o único perfil vinculado à pessoa
+        $isUltimoPerfil  = (count($resource->pessoa->pessoa_perfil) === 1);
+
+        // Caso seja o único perfil, delega a exclusão completa da pessoa
+        if ($isUltimoPerfil) {
+            return app(PessoaService::class)->destroy(new Fluent($resource->pessoa->toArray()));
+        }
+
+        // Verificações de vínculos conforme o tipo do perfil
         switch ($resource->perfil_tipo_id) {
             case PessoaPerfilTipoEnum::CLIENTE->value:
 
@@ -97,6 +108,11 @@ class PessoaPerfilService extends Service
                 if ($totalServicosVinculadosParceiro) {
                     $fluentErrors->participante_parceiro_vinculado  = "Serviços vinculados ao perfil Parceiro: {$totalServicosVinculadosParceiro}.";
                 }
+
+                $totalMovimentacaoVinculadosParceiro = count($resource->financeiro_movimentacao_participante ?? []);
+                if ($totalMovimentacaoVinculadosParceiro) {
+                    $fluentErrors->movimentacao_conta_parceiro_vinculado  = "Movimentações de conta vinculados ao perfil Parceiro: {$totalMovimentacaoVinculadosParceiro}.";
+                }
                 break;
 
             case PessoaPerfilTipoEnum::TERCEIRO->value:
@@ -104,6 +120,11 @@ class PessoaPerfilService extends Service
                 $totalServicosVinculadosTerceiro = count($resource->participante_servicos_vinculados ?? []);
                 if ($totalServicosVinculadosTerceiro) {
                     $fluentErrors->participante_terceiro_vinculado  = "Serviços vinculados ao perfil Terceiro: {$totalServicosVinculadosTerceiro}.";
+                }
+
+                $totalMovimentacaoVinculadosTerceiro = count($resource->financeiro_movimentacao_participante ?? []);
+                if ($totalMovimentacaoVinculadosTerceiro) {
+                    $fluentErrors->movimentacao_conta_terceiro_vinculado  = "Movimentações de conta vinculados ao perfil Terceiro: {$totalMovimentacaoVinculadosTerceiro}.";
                 }
                 break;
 

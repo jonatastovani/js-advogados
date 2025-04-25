@@ -107,6 +107,7 @@
         'routes' => [
             'basePessoa' => route('api.pessoa'),
             'basePessoaJuridica' => route('api.pessoa.pessoa-juridica'),
+            'basePessoaPerfil' => route('api.pessoa.perfil'),
         ],
     ])
     @endcomponent

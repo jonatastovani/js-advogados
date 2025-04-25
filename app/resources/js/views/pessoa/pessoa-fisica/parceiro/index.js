@@ -16,6 +16,7 @@ class PageParceiroPFIndex extends TemplateSearch {
         url: {
             base: window.apiRoutes.basePessoaFisica,
             basePessoa: window.apiRoutes.basePessoa,
+            basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
             baseFrontPessoaFisicaParceiroForm: window.frontRoutes.baseFrontPessoaFisicaParceiroForm
         },
         data: {
@@ -133,6 +134,7 @@ class PageParceiroPFIndex extends TemplateSearch {
 
     #htmlBtns(pessoaDados) {
         const self = this;
+        const perfil = pessoaDados.pessoa_perfil_referencia;
 
         let strBtns = `
             <li>
@@ -140,9 +142,14 @@ class PageParceiroPFIndex extends TemplateSearch {
                     Editar
                 </a>
             </li>
+            <li>
+                <button type="button" class="dropdown-item fs-6 btn-delete-perfil text-danger" title="Excluir perfil ${perfil.perfil_tipo.nome}.">
+                    Excluir perfil ${perfil.perfil_tipo.nome}
+                </button>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
+                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-bg-danger" title="Excluir pessoa física ${pessoaDados.nome}.">
                     Excluir Pessoa
                 </button>
             </li>`;
@@ -160,20 +167,46 @@ class PageParceiroPFIndex extends TemplateSearch {
 
     #addEventosRegistrosConsulta(pessoaDados) {
         const self = this;
+        const perfil = pessoaDados.pessoa_perfil_referencia;
 
         $(`#${pessoaDados.idTr}`).find(`.btn-delete-pessoa`).click(async function () {
+
             const perfis = pessoaDados.pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
+
             self._delButtonAction(pessoaDados.pessoa.id, pessoaDados.nome, {
                 title: `Exclusão de Pessoa Física`,
                 message: `
-                <p>Confirma a exclusão da Pessoa Física <b>${pessoaDados.nome}</b>?</p>
-                <div class="alert alert-danger blink-75">Atenção: Todos os perfis vinculados a ela também serão excluídos.</div>
-                <p>Perfis desta pessoa: ${perfis}</p>`,
-                success: `Pessoa Física excluída com sucesso!`,
+                    <p>Tem certeza de que deseja excluir a Pessoa Física <b>${pessoaDados.nome}</b>?</p>
+                    <div class="alert alert-danger blink-75">
+                        Atenção: todos os perfis vinculados a esta pessoa também serão removidos.
+                    </div>
+                    <p><b>Perfis vinculados:</b> ${perfis}</p>`,
+                success: `Pessoa Física <b>${pessoaDados.nome}</b> excluída com sucesso!`,
                 button: this,
                 urlApi: self._objConfigs.url.basePessoa,
             });
+
         });
+
+        $(`#${pessoaDados.idTr}`).find(`.btn-delete-perfil`).on('click', async function () {
+
+            const perfil = pessoaDados.pessoa_perfil_referencia;
+            const perfilNome = perfil.perfil_tipo.nome;
+
+            self._delButtonAction(perfil.id, perfilNome, {
+                title: `Exclusão de Perfil`,
+                message: `
+                    <p>Tem certeza de que deseja excluir o perfil <b>${perfilNome}</b> da Pessoa Física <b>${pessoaDados.nome}</b>?</p>
+                    <div class="alert alert-danger blink-75">
+                        Atenção: caso este seja o único perfil vinculado a esta pessoa, todas as informações associadas serão excluídas permanentemente.
+                    </div>`,
+                success: `Perfil <b>${perfilNome}</b> excluído com sucesso!`,
+                button: this,
+                urlApi: self._objConfigs.url.basePessoaPerfil,
+            });
+
+        });
+
     }
 }
 

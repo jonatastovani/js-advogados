@@ -23,6 +23,7 @@ Route::group([
 
             Route::get('{uuid}', 'show');
             Route::get('empresa', 'showEmpresa')->name('api.pessoa.perfil.empresa'); // Busca a empresa do domínio
+            Route::delete('{uuid}', 'destroy');
         });
     });
 

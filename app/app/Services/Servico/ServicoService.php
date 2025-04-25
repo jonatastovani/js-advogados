@@ -193,6 +193,18 @@ class ServicoService extends Service
 
         try {
             return DB::transaction(function () use ($resource) {
+
+                $cascade = [
+                    'anotacao',
+                    'documentos',
+                    'cliente',
+                    'participantes.integrantes',
+                    'pagamento.participantes.integrantes',
+                    'pagamento.lancamentos.participantes.integrantes',
+                ];
+
+                $this->destroyCascade($resource, $cascade);
+
                 $resource->delete();
 
                 // $this->executarEventoWebsocket();

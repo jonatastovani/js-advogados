@@ -125,6 +125,7 @@ class PageServico extends TemplateSearch {
         let nomes = [];
 
         arrayCliente.map(cliente => {
+            console.warn(cliente);
             const pessoa = cliente.perfil.pessoa;
             let nome = '';
 

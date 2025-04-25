@@ -6,6 +6,7 @@ use App\Enums\ParticipacaoReferenciaTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Models\Auth\User;
 use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Financeiro\MovimentacaoContaParticipante;
 use App\Models\Referencias\PessoaPerfilTipo;
 use App\Models\Servico\ServicoCliente;
 use App\Traits\CommonsModelsMethodsTrait;
@@ -64,6 +65,13 @@ class PessoaPerfil extends Model
         return $this->morphMany(ParticipacaoParticipante::class, 'referencia')
             ->withoutDomain()
             ->whereIn('parent_type', ParticipacaoReferenciaTipoEnum::participacaoReferenciaTipoParaServicosEDependentes())
+            ->where('participacao_registro_tipo_id', ParticipacaoRegistroTipoEnum::PERFIL->value);
+    }
+
+    public function financeiro_movimentacao_participante()
+    {
+        return $this->morphMany(MovimentacaoContaParticipante::class, 'referencia')
+            ->withoutDomain()
             ->where('participacao_registro_tipo_id', ParticipacaoRegistroTipoEnum::PERFIL->value);
     }
 
