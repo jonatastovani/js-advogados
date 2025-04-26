@@ -1595,7 +1595,7 @@ class PageServicoForm extends TemplateForm {
         const self = this;
         const accordionBody = $(`#accordionPagamento${pagamento.id} .accordion-body`);
         const colsEspecificosPagamento = $(`#divColsEspecificoPagamento${pagamento.id}`);
-        const urlLancamentos = `${self._objConfigs.url.basePagamentos} /${pagamento.id}/lancamentos`;
+        const urlLancamentos = `${self._objConfigs.url.basePagamentos}/${pagamento.id}/lancamentos`;
 
         const enumLanc = window.Enums.LancamentoStatusTipoEnum;
         const configAcoes = self._objConfigs.data.configAcoes;

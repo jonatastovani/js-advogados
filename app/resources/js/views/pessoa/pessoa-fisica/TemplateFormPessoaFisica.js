@@ -112,9 +112,12 @@ export class TemplateFormPessoaFisica extends TemplateForm {
                 self._pessoaDocumentoModule._inserirDocumento(documento);
             });
         }
+
         if (responseData.pessoa?.pessoa_perfil.length) {
             responseData.pessoa.pessoa_perfil.map(perfil => {
-                // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
+                // Envia a pessoa para ser identificado o tipo de pessoa e perfil e fornecer a rota de redirecionamento para edição do perfil
+                perfil.pessoa = CommonFunctions.clonePure(responseData.pessoa);
+                // Não verifica se o perfil existe porque está vindo direto do banco
                 self._pessoaPerfilModule._inserirPerfil(perfil);
             });
         }

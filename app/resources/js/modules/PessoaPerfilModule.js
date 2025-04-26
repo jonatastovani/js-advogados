@@ -110,11 +110,10 @@ export class PessoaPerfilModule {
         return true;
     }
 
-    #pesquisarRotaEditPerfil(item) {
+    #pesquisarRotaEditPerfil(perfil) {
         const rotas = window.Statics.PessoaPerfilTipoRotasPessoaPerfilFormFront;
-
-        // Encontra o objeto com o perfil_tipo correspondente
-        const rota = rotas.find(itemEnum => itemEnum.perfil_tipo == item.perfil_tipo_id);
+        // Encontra o objeto com o perfil_tipo e pessoa_dados_type correspondente
+        const rota = rotas.find(r => r.perfil_tipo == perfil.perfil_tipo_id && r.pessoa_dados_type == perfil.pessoa.pessoa_dados_type);
 
         // Retorna somente a rota ou null caso não encontre
         return rota ? rota.rota : null;

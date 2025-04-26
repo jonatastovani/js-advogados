@@ -134,16 +134,34 @@ enum PessoaPerfilTipoEnum: int
     {
         return [
             [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
                 'perfil_tipo' => self::CLIENTE->value,
                 'rota' => route('pessoa.pessoa-fisica.cliente.form')
             ],
             [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_JURIDICA->value,
+                'perfil_tipo' => self::CLIENTE->value,
+                'rota' => route('pessoa.pessoa-juridica.cliente.form')
+            ],
+            [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
                 'perfil_tipo' => self::PARCEIRO->value,
                 'rota' => route('pessoa.pessoa-fisica.parceiro.form')
             ],
             [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
                 'perfil_tipo' => self::USUARIO->value,
                 'rota' => route('pessoa.pessoa-fisica.usuario.form')
+            ],
+            [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
+                'perfil_tipo' => self::TERCEIRO->value,
+                'rota' => route('pessoa.pessoa-fisica.terceiro.form')
+            ],
+            [
+                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_JURIDICA->value,
+                'perfil_tipo' => self::TERCEIRO->value,
+                'rota' => route('pessoa.pessoa-juridica.terceiro.form')
             ],
         ];
     }
