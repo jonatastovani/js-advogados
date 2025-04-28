@@ -32,15 +32,35 @@ export class PessoaPerfilModule {
 
                 objModal.setFocusElementWhenClosingModal = btn;
                 const response = await objModal.modalOpen();
+
                 if (response.refresh && response.register) {
-                    await self._inserirPerfil(response.register, true);
+                    const register = response.register;
+                    self.#inserirPessoaDadosTypePadrao(register);
+                    await self._inserirPerfil(register, true);
                 }
+
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
             } finally {
                 CommonFunctions.simulateLoading(btn, false);
             }
         });
+    }
+
+    #inserirPessoaDadosTypePadrao(register) {
+        const self = this;
+
+        // Verifica se o objeto register possui a propriedade pessoa
+        // Se não existir, cria um objeto vazio
+        if (!register.pessoa) {
+            register.pessoa = {};
+        }
+
+        // Verifica se o objeto register.pessoa possui a propriedade pessoa_dados_type
+        // Se não existir, atribui o valor padrão
+        if (!register.pessoa.pessoa_dados_type) {
+            register.pessoa.pessoa_dados_type = self._objConfigs.data.pessoa_dados_type_padrao;
+        }
     }
 
     #verificaPerfilAdicionado(perfilAInserir) {
@@ -169,6 +189,7 @@ export class PessoaPerfilModule {
             perfil_tipo: window.Details.PessoaPerfilTipoEnum.filter(item =>
                 item.id == self._objConfigs.data.pessoa_perfil_tipo_id)[0]
         }
+        self.#inserirPessoaDadosTypePadrao(novoPerfil);
         self._inserirPerfil(novoPerfil, false, true);
     }
 }

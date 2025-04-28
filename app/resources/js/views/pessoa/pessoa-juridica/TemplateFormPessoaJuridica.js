@@ -22,6 +22,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
                 documentosNaTela: [],
                 perfisNaTela: [],
                 enderecosNaTela: [],
+                pessoa_dados_type_padrao: window.Enums.PessoaTipoEnum.PESSOA_JURIDICA,
             },
         };
 
