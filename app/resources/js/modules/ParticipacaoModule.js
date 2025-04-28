@@ -1000,8 +1000,19 @@ export class ParticipacaoModule {
         );
     }
 
+    /**
+     * Retorna a lista de participantes na tela, garantindo que seja um array.
+     * Se a propriedade não existir ou não for um array, inicializa como um array vazio.
+     * 
+     * @returns {Array} Lista de participantes na tela.
+     */
     _getParticipantesNaTela() {
         const self = this;
+
+        if (!Array.isArray(self._objConfigs.data.participantesNaTela)) {
+            self._objConfigs.data.participantesNaTela = [];
+        }
+
         return self._objConfigs.data.participantesNaTela;
     }
 

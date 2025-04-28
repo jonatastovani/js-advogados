@@ -25,7 +25,7 @@ export class ModalLancamentoServicoMovimentar extends ModalRegistrationAndEditin
         sufixo: 'ModalLancamentoServicoMovimentar',
         data: {
             lancamento_status_tipos: undefined,
-            participantesNaTela: undefined,
+            participantesNaTela: [],
             idRegister: undefined,
             status_id: undefined,
         },
