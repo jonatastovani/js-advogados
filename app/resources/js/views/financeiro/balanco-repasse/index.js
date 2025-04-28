@@ -150,7 +150,8 @@ class PageBalancoRepasseIndex extends TemplateSearch {
                         perfil: self._objConfigs.data.perfil,
                     };
                     const responseConta = await objModal.modalOpen();
-
+                    console.log(responseConta);
+                    
                     if (responseConta.refresh) {
 
                         const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);

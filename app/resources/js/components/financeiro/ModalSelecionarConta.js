@@ -12,6 +12,7 @@ export class ModalSelecionarConta extends ModalDefault {
             base: window.apiRoutes.baseContas,
         },
         sufixo: 'ModalSelecionarConta',
+        modeNewOrEditingRegister: true,
     };
 
     #dataEnvModal = {

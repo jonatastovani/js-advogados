@@ -237,7 +237,7 @@ export class ModalDefault {
                 self.saveButtonAction();
             }
         });
-
+        
         if (self._hotkeyManager) {
             self._hotkeyManager.registrar(self.getIdModal, ['ctrl+s', 'ctrl+shift+s'], acaoSalvar);
             self._hotkeyManager.ativarEscopo(self.getIdModal);
