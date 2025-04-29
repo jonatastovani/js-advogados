@@ -20,7 +20,7 @@ BANCO_RESTORE="${CUSTOM_DB_NAME:-$DB_DATABASE}"
 echo "🧪 Criando banco '$BANCO_RESTORE' dentro do container..."
 
 docker run --rm \
-  --network app_laravel \
+  --network "$PREFIX_SWARM"_laravel \
   -e PGPASSWORD="$DB_PASSWORD" \
   postgres:16.3 \
   createdb -h postgres -U "$DB_USERNAME" "$BANCO_RESTORE"
@@ -28,7 +28,7 @@ docker run --rm \
 echo "🔁 Restaurando backup do arquivo '$BACKUP_FILE'..."
 
 docker run --rm \
-  --network app_laravel \
+  --network "$PREFIX_SWARM"_laravel \
   -v "$(realpath "$BACKUP_FILE"):/backup.sql" \
   -e PGPASSWORD="$DB_PASSWORD" \
   postgres:16.3 \

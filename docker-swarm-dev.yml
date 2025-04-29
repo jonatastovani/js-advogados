@@ -3,7 +3,7 @@ version: "3.9"
 services:
     # Serviço PHP
     web:
-        image: tovanijonatas/php839-jsadvogados:latest
+        image: tovanijonatas/php839-jsadvogados:v1
         deploy:
             replicas: 1
             resources:
@@ -16,8 +16,8 @@ services:
             restart_policy:
                 condition: on-failure
         volumes:
-            # - app_data:/var/www/app # Monta o volume nomeado no container web
-            - ./app:/var/www/app # teste
+            - app_data:/var/www/app # Monta o volume nomeado no container web
+            # - ./app:/var/www/app # teste
         networks:
             - laravel
         environment:
@@ -44,8 +44,8 @@ services:
             - ${NGINX_DEFAULT_CONF_PATH}:/etc/nginx/conf.d/default.conf
             - ./docker/nginx/error.html:/var/www/html/error.html
             # - ./app:/var/www/app
-            # - app_data:/var/www/app # Monta o volume nomeado no container nginx
-            - ./app:/var/www/app # Monta o volume nomeado no container nginx
+            - app_data:/var/www/app # Monta o volume nomeado no container nginx
+            # - ./app:/var/www/app # Monta o volume nomeado no container nginx
         networks:
             - laravel
 
