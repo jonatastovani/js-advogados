@@ -921,9 +921,9 @@ class PageServicoForm extends TemplateForm {
             CommonFunctions.simulateLoading(btn);
             try {
                 const objModal = new ModalAnotacaoLembreteTenant(self._objConfigs.url.baseAnotacao);
-                objModal.setDataEnvModal = {
+                objModal.setDataEnvModal = self._checkDomainCustomInheritDataEnvModal({
                     idRegister: item.id,
-                };
+                });
                 const response = await objModal.modalOpen();
                 if (response.refresh && response.register) {
                     $(`#${item.idCol}`).find('.spanTitle').html(response.register.titulo);
