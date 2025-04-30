@@ -94,6 +94,16 @@ enum PessoaPerfilTipoEnum: int
         ));
     }
 
+    static public function perfisPermitidoBalancoRepasse(): array
+    {
+        return array_merge(
+            self::perfisPermitidoParticipacaoServico(),
+            [
+                self::EMPRESA->detalhes(),
+            ]
+        );
+    }
+
     static public function perfisPermitidoClienteServico(): array
     {
         return [

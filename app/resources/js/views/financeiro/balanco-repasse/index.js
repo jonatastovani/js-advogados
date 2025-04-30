@@ -96,7 +96,7 @@ class PageBalancoRepasseIndex extends TemplateSearch {
             CommonFunctions.simulateLoading(btn);
             try {
                 const dataEnvModal = {
-                    perfis_busca: window.Statics.PerfisPermitidoParticipacaoServico,
+                    perfis_busca: window.Statics.PerfisPermitidoBalancoRepasse,
                 };
                 const objModal = new ModalPessoa({ dataEnvModal });
                 const response = await objModal.modalOpen();
@@ -150,8 +150,7 @@ class PageBalancoRepasseIndex extends TemplateSearch {
                         perfil: self._objConfigs.data.perfil,
                     };
                     const responseConta = await objModal.modalOpen();
-                    console.log(responseConta);
-                    
+
                     if (responseConta.refresh) {
 
                         const forcedDomainId = TenantTypeDomainCustomHelper.checkDomainCustomForcedDomainId(self);

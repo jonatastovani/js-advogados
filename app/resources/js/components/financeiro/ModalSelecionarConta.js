@@ -47,6 +47,7 @@ export class ModalSelecionarConta extends ModalDefault {
             if (self._dataEnvModal.perfil.perfil_tipo_id == window.Enums.PessoaPerfilTipoEnum.EMPRESA) {
 
                 self.#eventosTipoEmpresa(true);
+                self.#renderMensagem(`Confirma a liberação dos créditos referentes aos lançamentos exibidos na consulta atual?`);
             } else {
 
                 await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando contas...', title: 'Aguarde...', elementFocus: null });
@@ -54,6 +55,8 @@ export class ModalSelecionarConta extends ModalDefault {
                 if (await self.#buscarContas()) {
                     self.#addEventosPadrao();
                 }
+
+                self.#renderMensagem(`Confirma a realização do balanço para crédito ou débito conforme os lançamentos da consulta atual?`);
             }
 
             self.#renderMensagem();
@@ -117,9 +120,8 @@ export class ModalSelecionarConta extends ModalDefault {
 
     }
 
-    #renderMensagem() {
+    #renderMensagem(message) {
         const self = this;
-        const message = `Confirma o repasse/compensação da consulta em tela?`;
         $(`${self.getIdModal} .messageConfirmacao`).html(message);
     }
 

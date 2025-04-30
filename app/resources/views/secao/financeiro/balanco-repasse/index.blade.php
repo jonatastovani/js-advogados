@@ -33,11 +33,13 @@
             'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
             'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
             'arrayCamposOrdenacao' => [
-                'created_at' => ['nome' => 'Data cadastro'],
                 'data_movimentacao' => ['nome' => 'Data movimentação'],
-                'data_recebimento' => ['nome' => 'Data Recebimento'],
+                'created_at' => ['nome' => 'Data cadastro'],
             ],
-            'consultaMesAnoBln' => true,
+            'consultaIntervaloBln' => true,
+            'arrayCamposDatasIntervalo' => [
+                'exibirCampoDataDeBuscaBln' => false,
+            ],
             'camposExtras' => [
                 [
                     'tipo' => 'select',

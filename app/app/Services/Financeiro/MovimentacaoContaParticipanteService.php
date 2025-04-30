@@ -12,6 +12,7 @@ use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
+use App\Helpers\LogHelper;
 use App\Models\Documento\DocumentoGerado;
 use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Models\Financeiro\MovimentacaoConta;
@@ -97,8 +98,34 @@ class MovimentacaoContaParticipanteService extends Service
     {
         $query = $this->montaConsultaRegistrosBalancoRepasse($requestData, $options);
 
+        $aliasMovimentacao = $this->modelMovimentacaoConta->getTableAsName();
+        $aliasRessarcimento = $this->modelLancamentoRessarcimento->getTableAsName();
+
+        $query->addSelect(DB::raw(
+            "COALESCE({$aliasMovimentacao}.data_movimentacao, {$aliasRessarcimento}.data_vencimento) AS data_ordenar"
+        ));
+
+        $ordenacao = $requestData->ordenacao ?? [];
+
+        $novaOrdenacao = collect($ordenacao)->map(function ($item) {
+            // Substitui 'data_movimentacao' por 'data_ordenar'
+            if (isset($item['campo']) && $item['campo'] === 'data_movimentacao') {
+                $item['campo'] = 'data_ordenar';
+            }
+            return $item;
+        })->all();
+
+        // Se após substituição não houver 'data_ordenar', adiciona no fim
+        $contemDataOrdenar = collect($novaOrdenacao)->pluck('campo')->contains('data_ordenar');
+
+        if (!$contemDataOrdenar) {
+            $novaOrdenacao[] = ['campo' => 'data_ordenar', 'direcao' => 'asc'];
+        }
+
+        $requestData->ordenacao = $novaOrdenacao;
+
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => "{$this->modelMovimentacaoConta->getTableAsName()}.data_movimentacao",
+            'campoOrdenacao' => "data_ordenar",
         ], $options));
 
         $resources = $this->carregarDadosAdicionaisBalancoRepasse($query, $requestData, $options);
@@ -334,7 +361,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                 $query->whereIn("{$tableMovimentacao}.referencia_type", MovimentacaoContaReferenciaEnum::referenciasMostrarBalancoRepasse());
 
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$tableMovimentacao}.data_movimentacao");
+                $query = $this->aplicarFiltroDataIntervalo($query, $requestData, ['campo_data' => "{$tableMovimentacao}.data_movimentacao"]);
             });
 
             // Condições para Lançamentos de Ressarcimentos
@@ -342,7 +369,7 @@ class MovimentacaoContaParticipanteService extends Service
 
                 $query->where("{$this->model->getTableAsName()}.parent_type", $this->modelLancamentoRessarcimento::class);
 
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$tableRessarcimento}.data_vencimento");
+                $query = $this->aplicarFiltroDataIntervalo($query, $requestData, ['campo_data' => "{$tableRessarcimento}.data_vencimento"]);
             });
         });
 

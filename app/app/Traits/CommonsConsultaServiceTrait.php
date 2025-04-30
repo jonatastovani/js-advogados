@@ -65,33 +65,43 @@ trait CommonsConsultaServiceTrait
     /**
      * Extrai os filtros e inicializa o query builder para a consulta.
      *
-     * @param Fluent $requestData Dados da requisição contendo os filtros.
-     * @param array $options Opcionalmente, define parâmetros adicionais.
+     * Este método prepara uma consulta base (`Builder`) a partir do model atual, aplicando os filtros 
+     * fornecidos e construindo os parâmetros para busca textual e LIKE. 
+     * Permite a customização da seleção (`SELECT`) de colunas com os parâmetros abaixo.
+     *
+     * @param \Illuminate\Support\Fluent $requestData Dados da requisição contendo os filtros.
+     * @param array $options Parâmetros adicionais:
+     *   - 'arrayCamposSelect' => array de colunas (ex: ['id', 'nome']) que serão incluídas no select (com alias de tabela)
+     *   - 'selectRaw' => string SQL de select customizado (ex: 'id, nome, COUNT(*) as total') que substitui o arrayCamposSelect
+     *
      * @return array Retorna um array com a query inicializada e os parâmetros processados:
-     *               - query: Builder da consulta inicial
-     *               - filtros: Filtros aplicados na consulta
-     *               - arrayCamposFiltros: Campos traduzidos para uso no filtro
-     *               - arrayTexto: Textos extraídos para busca textual
-     *               - parametrosLike: Parâmetros de busca usando LIKE
+     *   - 'query': Builder da consulta inicial com filtros aplicados
+     *   - 'filtros': Filtros extraídos da requisição
+     *   - 'arrayCamposFiltros': Campos traduzidos para uso no filtro
+     *   - 'arrayTexto': Textos extraídos para busca textual
+     *   - 'parametrosLike': Parâmetros de busca usando LIKE
      */
     protected function extrairFiltros(Fluent $requestData, array $options = [])
     {
         $filtros = $requestData->filtros ?? [];
         $arrayCamposFiltros = $this->traducaoCampos($filtros);
-        $arrayCamposSelect = $options['arrayCamposSelect'] ?? ['*'];
-
-        $strSelect = '';
-        foreach ($arrayCamposSelect as $value) {
-            if ($strSelect != '') {
-                $strSelect .= ', ';
-            }
-            $strSelect .= "{$this->model->getTableAsName()}.$value";
-        }
-
         $query = $this->model::query()
-            ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
-            ->from($this->model->getTableNameAsName())
-            ->select($strSelect);
+            ->withTrashed()
+            ->from($this->model->getTableNameAsName());
+
+        if (!empty($options['selectRaw']) && is_string($options['selectRaw'])) {
+            // Select customizado tem prioridade
+            $query->selectRaw($options['selectRaw']);
+        } else {
+            $arrayCamposSelect = $options['arrayCamposSelect'] ?? ['*'];
+            $strSelect = '';
+
+            foreach ($arrayCamposSelect as $value) {
+                $strSelect .= ($strSelect !== '' ? ', ' : '') . "{$this->model->getTableAsName()}.$value";
+            }
+
+            $query->select($strSelect);
+        }
 
         $arrayTexto = CommonsFunctions::retornaArrayTextoParaFiltros($requestData->toArray());
         $parametrosLike = CommonsFunctions::retornaCamposParametrosLike($requestData->toArray());
@@ -208,83 +218,94 @@ trait CommonsConsultaServiceTrait
     /**
      * Aplica um filtro de intervalo de datas em uma query.
      *
-     * Este método filtra os resultados de uma query com base em um intervalo de datas
-     * especificado no parâmetro `$requestData`. O filtro é aplicado ao campo especificado
-     * em `datas_intervalo['campo_data']`, considerando as datas de início e fim fornecidas.
+     * Este método filtra os resultados com base em um intervalo de datas definido em `$options`
+     * ou, alternativamente, dentro de `$requestData->datas_intervalo`. Se os valores estiverem
+     * presentes em `$options`, eles terão prioridade.
+     *
+     * Campos aceitos (por $options ou $requestData->datas_intervalo):
+     * - campo_data (string): nome da coluna de data a ser filtrada
+     * - data_inicio (string): data inicial (formato YYYY-MM-DD)
+     * - data_fim (string): data final (formato YYYY-MM-DD)
      *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $query
      *     A query na qual o filtro será aplicado.
      * @param \Illuminate\Support\Fluent $requestData
-     *     Os dados da requisição contendo as informações de filtro.
+     *     Os dados da requisição contendo as informações de filtro (caso $options não forneça).
      * @param array $options
-     *     Opções adicionais para personalizar o comportamento do filtro (não utilizado atualmente).
+     *     Opções que sobrescrevem os valores de filtro do $requestData (prioridade).
+     *     Exemplo: ['campo_data' => 'created_at', 'data_inicio' => '2024-01-01', 'data_fim' => '2024-12-31']
      * 
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
      *     A query modificada com o filtro de intervalo de datas aplicado.
      *
      * @throws \RestResponse
-     *     Se as informações de `campo_data`, `data_inicio` ou `data_fim` não estiverem presentes no `$requestData`.
+     *     Se as informações forem ausentes ou inválidas.
      */
     protected function aplicarFiltroDataIntervalo(Builder $query, Fluent $requestData, array $options = [])
     {
-        // Valida se os campos necessários estão presentes no requestData
+        // Coleta os dados com prioridade para $options
+        $campoData = $options['campo_data'] ?? ($requestData->datas_intervalo['campo_data'] ?? null);
+        $dataInicio = $options['data_inicio'] ?? ($requestData->datas_intervalo['data_inicio'] ?? null);
+        $dataFim = $options['data_fim'] ?? ($requestData->datas_intervalo['data_fim'] ?? null);
+
+        // Validação básica de existência
         if (
-            empty($requestData->datas_intervalo['campo_data']) ||
-            !is_string($requestData->datas_intervalo['campo_data']) ||
-            empty($requestData->datas_intervalo['data_inicio']) ||
-            !strtotime($requestData->datas_intervalo['data_inicio']) ||
-            empty($requestData->datas_intervalo['data_fim']) ||
-            !strtotime($requestData->datas_intervalo['data_fim'])
+            empty($campoData) || !is_string($campoData) ||
+            empty($dataInicio) || !strtotime($dataInicio) ||
+            empty($dataFim) || !strtotime($dataFim)
         ) {
             $log = LogHelper::gerarLogDinamico(400, 'As informações de intervalo de datas (campo_data, data_inicio, data_fim) são obrigatórias e devem ser válidas.', $requestData);
             RestResponse::createErrorResponse(400, $log->error, $log->trace_id)->throwResponse();
         }
 
-        // Recupera os valores do intervalo de datas
-        $campoData = $requestData->datas_intervalo['campo_data'];
-        $dataInicio = $requestData->datas_intervalo['data_inicio'];
-        $dataFim = $requestData->datas_intervalo['data_fim'];
-
-        // Aplica o filtro de intervalo de datas
-        return $query->whereBetween($campoData, ["$dataInicio 00:00:00", "$dataFim 23:59:59"]);
+        // Aplica o filtro
+        return $query->whereBetween($campoData, [
+            "{$dataInicio} 00:00:00",
+            "{$dataFim} 23:59:59"
+        ]);
     }
 
     /**
      * Aplica um filtro de data (ano e mês) em uma query.
      *
-     * Este método filtra os resultados de uma query com base em uma data especificada no formato `YYYY-MM`.
-     * O campo a ser filtrado é indicado no parâmetro `$campoData`.
+     * Este método filtra os resultados com base em uma data especificada no formato `YYYY-MM`.
+     * O campo a ser filtrado pode ser fornecido diretamente pelo parâmetro `$campoData` ou,
+     * preferencialmente, pelas opções passadas via `$options`.
+     *
+     * Parâmetros aceitos (com prioridade para $options):
+     * - mes_ano (string, obrigatório): data no formato `YYYY-MM`
+     * - campo_data (string, opcional): nome do campo a ser filtrado. Se omitido, será usado o $campoData.
      *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $query
      *     A query na qual o filtro será aplicado.
      * @param \Illuminate\Support\Fluent $requestData
      *     Os dados da requisição contendo as informações de filtro.
      * @param string $campoData
-     *     O nome do campo na base de dados que será usado para o filtro (exemplo: `created_at`).
+     *     Nome do campo de data (usado se $options não definir 'campo_data').
      * @param array $options
-     *     Opções adicionais para personalizar o comportamento do filtro (não utilizado atualmente).
+     *     Opções adicionais, como 'mes_ano' e 'campo_data'.
      *
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
-     *     A query modificada com o filtro de data (ano e mês) aplicado.
+     *     A query modificada com o filtro de ano e mês aplicado.
      *
      * @throws \RestResponse
-     *     Se as informações de `mes_ano` não forem enviadas ou estiverem inválidas.
+     *     Se as informações de `mes_ano` forem ausentes ou inválidas.
      * @throws \InvalidArgumentException
-     *     Se o campo `$campoData` não for válido.
+     *     Se o campo de data não for uma string válida.
      */
     protected function aplicarFiltroMes(Builder $query, Fluent $requestData, string $campoData, array $options = [])
     {
-        // Valida o campo de data a ser filtrado
-        if (empty($campoData) || !is_string($campoData)) {
-            throw new InvalidArgumentException('O campo de data a ser filtrado ($campoData) é obrigatório e deve ser uma string válida.');
+        // Prioriza o campo_data das opções, se presente
+        $campoDataFinal = $options['campo_data'] ?? $campoData;
+
+        if (empty($campoDataFinal) || !is_string($campoDataFinal)) {
+            throw new InvalidArgumentException('O campo de data a ser filtrado (campo_data) é obrigatório e deve ser uma string válida.');
         }
 
-        // Valida os campos obrigatórios
-        if (
-            empty($requestData->mes_ano) ||
-            !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $requestData->mes_ano) // Valida formato YYYY-MM
-        ) {
-            // Gera o log e lança uma resposta de erro padronizada
+        // Prioriza o mes_ano das opções, se presente
+        $mesAno = $options['mes_ano'] ?? ($requestData->mes_ano ?? null);
+
+        if (empty($mesAno) || !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $mesAno)) {
             $log = LogHelper::gerarLogDinamico(
                 400,
                 'As informações de filtro de mês (mes_ano) são obrigatórias e devem estar no formato YYYY-MM.',
@@ -293,13 +314,10 @@ trait CommonsConsultaServiceTrait
             RestResponse::createErrorResponse(400, $log->error, $log->trace_id)->throwResponse();
         }
 
-        // Recupera o valor do mês
-        $mesAno = $requestData->mes_ano;
-
-        // Extrai o ano e o mês da data
+        // Extrai o ano e o mês
         [$ano, $mes] = explode('-', $mesAno);
 
-        // Aplica o filtro de ano e mês na query
-        return $query->whereYear($campoData, $ano)->whereMonth($campoData, $mes);
+        return $query->whereYear($campoDataFinal, $ano)
+            ->whereMonth($campoDataFinal, $mes);
     }
 }

@@ -232,7 +232,7 @@ export class TemplateSearch {
         const { formDataSearch = options.formDataSearch ?? $(`#formDataSearch${self.getSufixo}`) } = options;
         const texto = formDataSearch.find('input[name="texto"]').val();
         let arrayMensagens = [];
-
+    
         let data = {
             texto: texto,
             parametros_like: self._returnQueryParameters(formDataSearch.find('select[name="selFormaBusca"]').val()),
@@ -250,35 +250,57 @@ export class TemplateSearch {
             },
             page: 1
         };
-
-        if (formDataSearch.find(`select[name="selCampoDataIntervalo"]`).length > 0 &&
-            formDataSearch.find(`input[name="data_inicio"]`).length > 0 &&
-            formDataSearch.find(`input[name="data_fim"]`).length > 0) {
+    
+        // Verifica e define intervalo de datas, se presente
+        const selCampo = formDataSearch.find(`select[name="selCampoDataIntervalo"]`);
+        const dataInicio = formDataSearch.find(`input[name="data_inicio"]`);
+        const dataFim = formDataSearch.find(`input[name="data_fim"]`);
+    
+        const possuiCampoData = selCampo.length && selCampo.val();
+        const possuiDatasInicioFim = dataInicio.length && dataFim.length && dataInicio.val() && dataFim.val();
+    
+        if (possuiCampoData || possuiDatasInicioFim) {
             data.datas_intervalo = {};
-            data.datas_intervalo.campo_data = formDataSearch.find(`select[name="selCampoDataIntervalo"]`).val();
-            data.datas_intervalo.data_inicio = formDataSearch.find(`input[name="data_inicio"]`).val();
-            data.datas_intervalo.data_fim = formDataSearch.find(`input[name="data_fim"]`).val();
+    
+            if (possuiCampoData) {
+                data.datas_intervalo.campo_data = selCampo.val();
+            }
+    
+            if (possuiDatasInicioFim) {
+                data.datas_intervalo.data_inicio = dataInicio.val();
+                data.datas_intervalo.data_fim = dataFim.val();
+            }
         }
-
-        if (formDataSearch.find(`input[name="mesAno"]`).length > 0) {
-            data.mes_ano = formDataSearch.find(`input[name="mesAno"]`).val();
+    
+        // Filtro de mês/ano (YYYY-MM)
+        const inputMesAno = formDataSearch.find(`input[name="mesAno"]`);
+        if (inputMesAno.length && inputMesAno.val()) {
+            data.mes_ano = inputMesAno.val();
         }
-
+    
+        // Campos de busca dinâmicos
         const searchFields = CommonFunctions.getInputsValues(formDataSearch.find('.searchFields'));
         Object.keys(searchFields).forEach(element => {
             if (searchFields[element] === true) {
                 data.filtros.campos_busca.push(element);
             }
         });
-
+    
+        // Geração de aviso, se necessário
         if (arrayMensagens.length > 0) {
-            return CommonFunctions.generateNotification("Não foi possivel realizar a busca. Verifique as seguintes recomendações:", 'info', { itemsArray: arrayMensagens });
+            return CommonFunctions.generateNotification(
+                "Não foi possível realizar a busca. Verifique as seguintes recomendações:",
+                'info',
+                { itemsArray: arrayMensagens }
+            );
         }
-
+    
+        // Merge de dados adicionais
         if (options.appendData) {
             CommonFunctions.deepMergeObject(data, options.appendData);
         }
-
+    
+        // Executa a busca
         await self._getData(data);
     }
 

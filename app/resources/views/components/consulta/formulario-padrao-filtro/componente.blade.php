@@ -45,16 +45,15 @@
         }
     }
 
-    $consultaIntervaloBln = isset($dados->consultaIntervaloBln) ? $dados->consultaIntervaloBln : false;
-    $dataInicio = now()->startOfMonth()->format('Y-m-d'); // Primeiro dia do mês corrente
-    $dataFim = now()->endOfMonth()->format('Y-m-d'); // Último dia do mês corrente
+    $consultaIntervaloBln = $dados->consultaIntervaloBln ?? false;
+    $exibirCampoDataDeBuscaBln = $dados->arrayCamposDatasIntervalo['exibirCampoDataDeBuscaBln'] ?? true;
 
-    if ($consultaIntervaloBln) {
-        // Se foi informado um intervalo de datas, utiliza essas datas
-        if (isset($dados->arrayCamposDatasIntervalo) && count($dados->arrayCamposDatasIntervalo) <= 0) {
-            $dataInicio = $dados->arrayCamposDatasIntervalo['data_inicio'] ?? now()->startOfMonth()->format('Y-m-d');
-            $dataFim = $dados->arrayCamposDatasIntervalo['data_fim'] ?? now()->endOfMonth()->format('Y-m-d');
-        }
+    $dataInicio = now()->startOfMonth()->format('Y-m-d');
+    $dataFim = now()->endOfMonth()->format('Y-m-d');
+
+    if ($consultaIntervaloBln && isset($dados->arrayCamposDatasIntervalo)) {
+        $dataInicio = $dados->arrayCamposDatasIntervalo['data_inicio'] ?? $dataInicio;
+        $dataFim = $dados->arrayCamposDatasIntervalo['data_fim'] ?? $dataFim;
     }
 
     $consultaMesAno = isset($dados->consultaMesAnoBln) ? $dados->consultaMesAnoBln : false;
@@ -92,28 +91,35 @@
 
     @if ($consultaIntervaloBln)
         <div class="row text-end">
-            <div class="{{ $row_col_campo_data }} mt-2">
-                <div class="input-group">
-                    <div class="input-group-text">
-                        <?php $nomeSelect = 'selCampoDataIntervalo'; ?>
-                        <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
-                        <label for="<?= $idSelect ?>" {{-- title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação." --}}>
-                            Data de busca
-                        </label>
+
+            {{-- Se alguma consulta possuir o campo fixo ou setado dinamicamente no service,
+            então não precisa inserir este campo de qual data pesquisar.
+            Ex: Balanço e Repasse, os campos de datas são setados no service --}}
+
+            @if ($exibirCampoDataDeBuscaBln)
+                <div class="{{ $row_col_campo_data }} mt-2">
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <?php $nomeSelect = 'selCampoDataIntervalo'; ?>
+                            <?php $idSelect = "{$nomeSelect}{$sufixo}"; ?>
+                            <label for="<?= $idSelect ?>" {{-- title="O campo de ordenação é o campo que será utilizado para aplicar o sentido da ordenação." --}}>
+                                Data de busca
+                            </label>
+                        </div>
+                        @php
+                            $mergeDadosSelectDataIntervalo = array_merge(
+                                ['name' => $nomeSelect, 'id' => $idSelect],
+                                // Array de campos para serem renderizados como opções de datas de busca
+                                $dados->dadosSelectDataIntervalo ?? [],
+                            );
+                            ConsultaHelper::renderizarSelectDataIntervalo(
+                                $mergeDadosSelectDataIntervalo,
+                                $dados->toArray(),
+                            );
+                        @endphp
                     </div>
-                    @php
-                        $mergeDadosSelectDataIntervalo = array_merge(
-                            ['name' => $nomeSelect, 'id' => $idSelect],
-                            // Array de campos para serem renderizados como opções de datas de busca
-                            $dados->dadosSelectDataIntervalo ?? [],
-                        );
-                        ConsultaHelper::renderizarSelectDataIntervalo(
-                            $mergeDadosSelectDataIntervalo,
-                            $dados->toArray(),
-                        );
-                    @endphp
                 </div>
-            </div>
+            @endif
 
             <div class="{{ $row_cols_datas }} mt-2">
                 <div class="input-group">
@@ -124,6 +130,7 @@
                         name="data_inicio" value="{{ $dataInicio }}">
                 </div>
             </div>
+
             <div class="{{ $row_cols_datas }} mt-2">
                 <div class="input-group">
                     <div class="input-group-text">
@@ -133,6 +140,7 @@
                         name="data_fim" value="{{ $dataFim }}">
                 </div>
             </div>
+
         </div>
     @endif
 

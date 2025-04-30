@@ -19,14 +19,14 @@ class PostConsultaFiltroFormRequestBalancoRepasse extends PostConsultaFiltroForm
     {
         // Previne o recebimento das regras de intervalo de datas
         $rules = Arr::except(parent::rules(), [
-            'datas_intervalo',
+            'mes_ano',
             'datas_intervalo.campo_data',
-            'datas_intervalo.data_inicio',
-            'datas_intervalo.data_fim'
         ]);
 
         $rules = array_merge($rules, [
-            'mes_ano' => 'required|date:Y-m',
+            'datas_intervalo' => 'nullable|array',
+            'datas_intervalo.data_inicio' => 'required|date',
+            'datas_intervalo.data_fim' => 'required|date',
             'perfil_id' => 'required|uuid',
             'conta_id' => 'nullable|uuid',
             'movimentacao_tipo_id' => 'nullable|integer',
