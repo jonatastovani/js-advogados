@@ -7,6 +7,7 @@ use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoTipoEnum;
 use App\Helpers\LogHelper;
+use App\Helpers\ParticipacaoOrdenadorHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
@@ -86,8 +87,7 @@ class ServicoService extends Service
             'campoOrdenacao' => 'titulo',
         ], $options));
         // $options = array_merge($options, ['removePrefix' => ['']]);
-        $data = $this->carregarRelacionamentos($query, $requestData, $options);
-        return $data;
+        return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
     /**
@@ -175,7 +175,15 @@ class ServicoService extends Service
     {
         $resource = $this->buscarRecurso($requestData);
         $resource->load($this->loadFull());
-        return $resource->toArray();
+
+        $data = $resource->toArray();
+
+        $data = ParticipacaoOrdenadorHelper::ordenarItem($data, [
+            'participantes',
+            'integrantes',
+        ], 'asc');
+
+        return $data;
     }
 
     public function destroy(Fluent $requestData)

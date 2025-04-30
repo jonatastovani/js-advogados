@@ -131,20 +131,19 @@
     <div class="d-grid gap-2 d-sm-block mt-2">
 
         <div class="btn-group">
-            <button class="btn dropdown-toggle btn-outline-primary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Inserir agendamento
+            <button class="btn dropdown-toggle btn-outline-primary btn-sm" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Inserir
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <button id="btnInserirAgendamentoGeral{{ $sufixo }}" type="button"
-                        class="dropdown-item" title="Editar agendamento.">
-                        Lançamento geral
+                    <button id="btnInserirAgendamentoGeral{{ $sufixo }}" type="button" class="dropdown-item">
+                        Lançamento de Despesas
                     </button>
                 </li>
                 <li>
-                    <button id="btnInserirAgendamentoRessarcimento{{ $sufixo }}" type="button"
-                        class="dropdown-item" title="Excluir agendamento.">
-                        Ressarcimento/Compensação
+                    <button id="btnInserirAgendamentoRessarcimento{{ $sufixo }}" type="button" class="dropdown-item">
+                        Ressarcimento/Auxílios
                     </button>
                 </li>
             </ul>

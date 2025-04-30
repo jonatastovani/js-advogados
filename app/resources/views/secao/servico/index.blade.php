@@ -24,13 +24,13 @@
                     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
-                'direcaoConsultaChecked' => 'desc',
+                'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['titulo', 'numero_servico'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
-                    'created_at' => ['nome' => 'Data cadastro'],
                     'titulo' => ['nome' => 'Título'],
+                    'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'consultaMesAnoBln' => true,
             ]);

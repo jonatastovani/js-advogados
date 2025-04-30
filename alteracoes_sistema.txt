@@ -1,0 +1,27 @@
+1 - Ordem ascendente e por nome na busca de preset
+--- OK
+2 - Ordem por nome dentro dos grupos do preset
+--- OK
+3 - Nome da Financeiro -> Pagamentos de Serviços ** Entrar em Relatórios -> Pagamentos Cadastrados
+--- OK
+3 - Nome da Financeiro -> Lançamentos de Serviços para Lançamentos de Receitas
+--- OK
+4 - Lançamentos Gerais alterar para -> Lancamentos de Despesas
+--- OK
+5 - Relatórios de Metas (Desenvolver)
+***NOVO***
+6 - Pessoas unificadas -> Alterar nome para Participantes
+7 - Repasse filtrando por dia, não por mês - Adicionar intervalo
+    - Perfil de referência está sempre como terceiro
+8 - Ordem alfabéticas por nome de cliente na Listagem de Serviços
+9 - Permitir exclusão do lançamento livre
+10 - Title na Participação - Participante
+--- OK
+11 - Ressarcimento/Auxílios
+    - Dentro da página "Ressarcimento/Auxílios"
+--- OK
+    - Btn Inserir Ressarcimentos -> Inserir
+--- OK
+12 - Tentativa de excluir a Faxina ou Faxina Roseli nas Tags
+
+14 - Ordenar as colunas conforme é na planilha

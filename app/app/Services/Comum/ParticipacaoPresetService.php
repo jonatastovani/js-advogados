@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
+use App\Helpers\ParticipacaoOrdenadorHelper;
 use App\Helpers\ValidationRecordsHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaPerfil;
@@ -142,6 +143,21 @@ class ParticipacaoPresetService extends Service
 
         $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
+    }
+
+    public function show(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+        $resource->load($this->loadFull());
+
+        $data = $resource->toArray();
+
+        $data = ParticipacaoOrdenadorHelper::ordenarItem($data, [
+            'participantes',
+            'integrantes',
+        ], 'asc');
+
+        return $data;
     }
 
     public function store(Fluent $requestData)

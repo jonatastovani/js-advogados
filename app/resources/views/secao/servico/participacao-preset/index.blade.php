@@ -28,7 +28,7 @@
                     'nome_participante' => ['nome' => 'Nome Participante'],
                     'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
-                'direcaoConsultaChecked' => 'desc',
+                'direcaoConsultaChecked' => 'asc',
                 'arrayCamposChecked' => ['nome', 'descricao'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],

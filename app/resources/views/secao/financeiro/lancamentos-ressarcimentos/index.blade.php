@@ -1,10 +1,10 @@
 @php
     $sufixo = 'PageLancamentoRessarcimentoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Lançamentos de Ressarcimentos',
+        'nome' => 'Lançamentos de Ressarcimento/Auxílios',
         'descricao' => [
             [
-                'texto' => 'Ressarcimento/compensação da empresa para parceiros e vice-versa.',
+                'texto' => 'Ressarcimento/Auxílios da empresa para parceiros e vice-versa.',
             ],
         ],
     ]);
@@ -93,8 +93,9 @@
     <div class="d-grid gap-2 d-sm-block mt-2">
         {{-- <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
             consulta</button> --}}
-        <button id="btnInserirRessarcimento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Inserir
-            ressarcimento</button>
+        <button id="btnInserirRessarcimento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">
+            Inserir
+        </button>
     </div>
 
     <div class="table-responsive mt-2 flex-fill">

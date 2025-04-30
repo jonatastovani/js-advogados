@@ -6,6 +6,7 @@ use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\ParticipacaoRegistroTipoEnum;
 use App\Helpers\LogHelper;
+use App\Helpers\ParticipacaoOrdenadorHelper;
 use App\Models\Servico\Servico;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
@@ -64,8 +65,16 @@ class ParticipacaoService extends Service
     {
         $resource = $this->modelParticipante::with($this->loadFull())
             ->where('parent_type', $modelParent->getMorphClass())
-            ->where('parent_id', $idParent)->get();
-        return $resource->toArray();
+            ->where('parent_id', $idParent)
+            ->get();
+
+        $data = $resource->toArray();
+        
+        $dataOrdenado = ParticipacaoOrdenadorHelper::ordenarItem([
+            'participantes' => $data
+        ], ['participantes', 'integrantes'], 'asc');
+
+        return $dataOrdenado['participantes'];
     }
 
     public function indexServico(Fluent $requestData)

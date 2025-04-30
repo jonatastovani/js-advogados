@@ -304,6 +304,7 @@ export class ParticipacaoModule {
         let accordionIntegrantes = '';
         let displayObservacao = 'none';
         let tipoReferencia = '';
+        let tipoReferenciaTitle = '';
 
         const naTela = self.#verificaRegistroParticipanteNaTela(participante);
 
@@ -331,7 +332,8 @@ export class ParticipacaoModule {
                     return false;
                 }
 
-                tipoReferencia = `Perfil <span class="fw-bolder">${participante.referencia.perfil_tipo.nome}</span>`;
+                tipoReferenciaTitle = participante.referencia.perfil_tipo.nome;
+                tipoReferencia = `Perfil <span class="fw-bolder">${tipoReferenciaTitle}</span>`;
                 break;
 
             case window.Enums.ParticipacaoRegistroTipoEnum.GRUPO:
@@ -399,14 +401,14 @@ export class ParticipacaoModule {
             tipoReferencia = `
                 <div class="col">
                     <div class="form-text">Perfil Referência</div>
-                    <label class="form-label">${tipoReferencia}</label>
+                    <label class="form-label" title="${tipoReferenciaTitle}">${tipoReferencia}</label>
                 </div>`;
         }
 
         const strCard = `
             <div class="card-body">
                 <h5 class="card-title d-flex align-items-center justify-content-between">
-                    <span class="spanNome">${nome}</span>
+                    <span class="spanNome" title="${nome}">${nome}</span>
                     <div>
                         <div class="dropdown dropdown-acoes-participante">
                             <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -424,15 +426,15 @@ export class ParticipacaoModule {
                     ${tipoReferencia}
                     <div class="col">
                         <div class="form-text">Participação</div>
-                        <label class="form-label text-truncate w-100 lblParticipacao">${participacao_tipo.nome}</label>
+                        <label class="form-label text-truncate w-100 lblParticipacao" title="${participacao_tipo.nome}">${participacao_tipo.nome}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Método</div>
-                        <label class="form-label lblValorTipo">${valor_tipo}</label>
+                        <label class="form-label lblValorTipo" title="${valor_tipo}">${valor_tipo}</label>
                     </div>
                     <div class="col">
                         <div class="form-text">Valor</div>
-                        <label class="form-label text-truncate w-100 lblValor">${valor}</label>
+                        <label class="form-label text-truncate w-100 lblValor" title="${valor}">${valor}</label>
                     </div>
                 </div>
                 <div class="row rowObservacao" style="display: ${displayObservacao};">
@@ -845,6 +847,7 @@ export class ParticipacaoModule {
 
         let nome = '';
         let tipoReferencia = '';
+        let tipoReferenciaTitle = '';
         switch (integrante.participacao_registro_tipo_id) {
             case window.Enums.ParticipacaoRegistroTipoEnum.PERFIL:
 
@@ -859,7 +862,9 @@ export class ParticipacaoModule {
                     default:
                         break;
                 }
-                tipoReferencia = `Perfil <span class="fw-bolder">${integrante.referencia.perfil_tipo.nome}</span>`;
+
+                tipoReferenciaTitle = integrante.referencia.perfil_tipo.nome;
+                tipoReferencia = `Perfil <span class="fw-bolder">${tipoReferenciaTitle}</span>`;
 
                 break;
             default:
@@ -872,7 +877,7 @@ export class ParticipacaoModule {
             <div id="${integrante.idCard}" class="card card-integrante">
                 <div class="card-body">
                     <h5 class="card-title d-flex align-items-center justify-content-between">
-                        <span>${nome}</span>
+                        <span title="${nome}">${nome}</span>
                         <div>
                             <div class="d-grid gap-2 d-flex justify-content-end">
                                 <button type="button" class="btn btn-outline-danger btn-sm btn-delete-integrante border-0">Excluir</button>
@@ -882,7 +887,7 @@ export class ParticipacaoModule {
                     <div class="row">
                         <div class="col">
                             <div class="form-text">Perfil Referência</div>
-                            <label class="form-label">${tipoReferencia}</label>
+                            <label class="form-label" title="${tipoReferenciaTitle}">${tipoReferencia}</label>
                         </div>
                     </div>
                 </div>

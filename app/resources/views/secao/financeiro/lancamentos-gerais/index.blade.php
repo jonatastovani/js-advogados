@@ -1,7 +1,7 @@
 @php
     $sufixo = 'PageLancamentoGeralIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Lançamentos Gerais',
+        'nome' => 'Lançamentos de Despesas',
         'descricao' => [
             [
                 'texto' => 'Agendamento e gerenciamento de lançamentos de caráter geral.',
@@ -93,7 +93,7 @@
         {{-- <button id="btnImprimirConsulta{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">Imprimir
             consulta</button> --}}
         <button id="btnInserirLancamento{{ $sufixo }}" type="button" class="btn btn-outline-primary btn-sm">
-            Inserir lançamento
+            Inserir
         </button>
     </div>
 

@@ -47,12 +47,5 @@ Route::controller(App\Http\Controllers\View\Financeiro\FinanceiroController::cla
 
             Route::get('', 'painelContasIndex')->name('financeiro.painel-contas.index');
         });
-
-        Route::prefix('pagamentos')->group(function () {
-
-            Route::prefix('servicos')->group(function () {
-                Route::get('', 'pagamentosServicosIndex')->name('financeiro.pagamentos-servicos.index');
-            });
-        });
     });
 });

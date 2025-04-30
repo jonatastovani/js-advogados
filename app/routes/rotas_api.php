@@ -23,6 +23,8 @@ Route::group(
         require __DIR__ . '/rotas_api/rotas_pessoa_api.php';
 
         require __DIR__ . '/rotas_api/rotas_referencias_api.php';
+        
+        require __DIR__ . '/rotas_api/rotas_relatorio_api.php';
 
         require __DIR__ . '/rotas_api/rotas_tenant_api.php';
     }

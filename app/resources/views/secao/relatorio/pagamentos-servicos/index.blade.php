@@ -1,7 +1,7 @@
 @php
     $sufixo = 'PagePagamentoServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Pagamentos de Serviços',
+        'nome' => 'Pagamentos Cadastrados',
         'descricao' => [
             [
                 'texto' => "Página destinada à visualização dos pagamentos de serviços cadastrados, juntamente com suas respectivas informações. Nesta seção, é possível, por exemplo, buscar especificamente os pagamentos do tipo 'Condicionado'.",
@@ -125,17 +125,15 @@
 @endsection
 
 @push('modals')
-    <x-modal.financeiro.modal-lancamento-servico-movimentar.modal />
-    <x-modal.servico.modal-lancamento-reagendar.modal />
     <x-modal.tenant.modal-forma-pagamento-tenant.modal />
     <x-modal.tenant.modal-area-juridica-tenant.modal />
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/financeiro/pagamentos-servicos/index.js')
+    @vite('resources/js/views/relatorio/pagamentos-servicos/index.js')
     @component('components.api.api-routes', [
         'routes' => [
-            'basePagamento' => route('api.financeiro.pagamentos'),
+            'basePagamento' => route('api.relatorio.pagamentos'),
             'baseMovimentacaoContaLancamentoServico' => route('api.financeiro.movimentacao-conta.lancamento-servico'),
             'baseAreaJuridicaTenant' => route('api.tenant.area-juridica'),
             'baseFormaPagamento' => route('api.tenant.forma-pagamento'),

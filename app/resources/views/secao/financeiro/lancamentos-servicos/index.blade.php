@@ -1,7 +1,7 @@
 @php
     $sufixo = 'PageLancamentoServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Lançamentos de Serviços',
+        'nome' => 'Lançamentos de Receitas',
     ]);
     Session::put('paginaDados', $paginaDados);
 @endphp

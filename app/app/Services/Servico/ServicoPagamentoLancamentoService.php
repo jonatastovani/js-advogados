@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoTipoEnum;
+use App\Helpers\ParticipacaoOrdenadorHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaJuridica;
 use App\Models\Pessoa\PessoaPerfil;
@@ -239,7 +240,18 @@ class ServicoPagamentoLancamentoService extends Service
     {
         $query = $this->montaConsultaRegistrosLancamentos($requestData, $options);
 
-        return $this->carregarRelacionamentos($query, $requestData, $options);
+        $data = $this->carregarRelacionamentos($query, $requestData, $options);
+
+        // Ordena participantes/integrantes em todos os níveis
+        $data = ParticipacaoOrdenadorHelper::ordenar($data, [
+            'ordem' => 'asc',
+            'chaves_alvo' => [
+                'participantes',
+                'integrantes',
+            ],
+        ]);
+
+        return $data;
     }
 
     public function postConsultaFiltrosObterTotais(Fluent $requestData, array $options = [])
