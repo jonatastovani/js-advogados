@@ -6,6 +6,7 @@ use App\Enums\BalancoRepasseTipoParentEnum;
 use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
+use App\Helpers\PessoaNomeHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Financeiro\MovimentacaoContaParticipante\PostConsultaFiltroFormRequestBalancoRepasse;
 use App\Http\Requests\Financeiro\MovimentacaoConta\PostConsultaFiltroFormRequestMovimentacaoConta;
@@ -192,45 +193,57 @@ class FinanceiroController extends Controller
     {
         $processedData = [];
 
-        foreach ($dataEnv->dados as $value) {
+        foreach ($dataEnv->dados as $movimentacao) {
             $dadosRetorno = new Fluent();
 
-            $dadosRetorno->status = $value['status']['nome'];
-            $dadosRetorno->movimentacao_tipo = $value['movimentacao_tipo']['nome'];
-            $dadosRetorno->valor_movimentado = CurrencyFormatterUtils::toBRL($value['valor_movimentado']);
-            $dadosRetorno->data_movimentacao = (new DateTime($value['data_movimentacao']))->format('d/m/Y');
-            $dadosRetorno->conta = $value['conta_domain']['conta']['nome'];
-            $dadosRetorno->descricao_automatica = $value['descricao_automatica'];
-            $dadosRetorno->observacao = $value['observacao'];
+            $dadosRetorno->status = $movimentacao['status']['nome'];
+            $dadosRetorno->movimentacao_tipo = $movimentacao['movimentacao_tipo']['nome'];
+            $dadosRetorno->valor_movimentado = CurrencyFormatterUtils::toBRL($movimentacao['valor_movimentado']);
+            $dadosRetorno->data_movimentacao = (new DateTime($movimentacao['data_movimentacao']))->format('d/m/Y');
+            $dadosRetorno->conta = $movimentacao['conta_domain']['conta']['nome'];
+            $dadosRetorno->descricao_automatica = $movimentacao['descricao_automatica'];
+            $dadosRetorno->observacao = $movimentacao['observacao'];
 
-            $dadosEspecificos = '';
+            $dadosEspecificos = [];
 
-            switch ($value['referencia_type']) {
+            $referencia = $movimentacao['referencia'];
+
+            switch ($movimentacao['referencia_type']) {
 
                 case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                    // $dadosEspecificos = "NS#{$value['referencia']['pagamento']['servico']['numero_servico']}";
-                    $dadosEspecificos .= "NP#{$value['referencia']['pagamento']['numero_pagamento']}";
-                    $dadosEspecificos .= " - ({$value['referencia']['pagamento']['servico']['area_juridica']['nome']})";
-                    $dadosEspecificos .= " - {$value['referencia']['pagamento']['servico']['titulo']}";
+                    $referenciaPagamento = $referencia['pagamento'];
+                    // $dadosEspecificos[] = "NS#{$referenciaPagamento['servico']['numero_servico']}";
+                    $cliente = $referenciaPagamento['servico']['cliente'];
+
+                    if (count($cliente)) {
+                        $nomes = PessoaNomeHelper::extrairNomes($cliente);
+                        $primeiro = $nomes[0]['nome_completo'] ?? '';
+                        $quantidadeExtra = count($nomes) - 1;
+                        $dadosEspecificos[] = $quantidadeExtra > 0 ? "{$primeiro} + {$quantidadeExtra}" : $primeiro;
+                    }
+
+                    $dadosEspecificos[] = $referenciaPagamento['servico']['titulo'];
+                    $dadosEspecificos[] = $referenciaPagamento['servico']['area_juridica']['nome'];
+                    $dadosEspecificos[] = "NP#{$referenciaPagamento['numero_pagamento']}";
                     break;
 
                 case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
-                    $dadosEspecificos = "NL#{$value['referencia']['numero_lancamento']}";
-                    $dadosEspecificos .= " - ({$value['referencia']['categoria']['nome']})";
-                    $dadosEspecificos .= " - {$value['descricao_automatica']}";
+                    $dadosEspecificos[] = $movimentacao['descricao_automatica'];
+                    $dadosEspecificos[] = $referencia['categoria']['nome'];
+                    $dadosEspecificos[] = "NL#{$referencia['numero_lancamento']}";
                     break;
 
                 case MovimentacaoContaReferenciaEnum::DOCUMENTO_GERADO->value:
-                    $dadosEspecificos = "ND#{$value['referencia']['numero_documento']}";
-                    $dadosEspecificos .= " - {$value['descricao_automatica']}";
+                    $dadosEspecificos[] = $movimentacao['descricao_automatica'];
+                    $dadosEspecificos[] = "ND#{$referencia['numero_documento']}";
                     break;
 
                 default:
                     break;
             }
-            $dadosRetorno->dados_especificos = $dadosEspecificos;
+            $dadosRetorno->dados_especificos = implode(' - ', $dadosEspecificos);
 
-            $dadosRetorno->created_at = (new DateTime($value['created_at']))->format('d/m/Y H:i:s');
+            $dadosRetorno->created_at = (new DateTime($movimentacao['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
         }

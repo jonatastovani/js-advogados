@@ -26,7 +26,7 @@
                     <th class="text-nowrap">Participação</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap" title="Conta de onde o valor será compensado ou debitado">Conta Base</th>
-                    <th class="text-nowrap">Cadastro</th>
+                    {{-- <th class="text-nowrap">Cadastro</th> --}}
                 </tr>
             </thead>
             <tbody>
@@ -39,7 +39,7 @@
                         <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
                         <td>{{ $dado['dados_especificos'] ?? '' }}</td>
                         <td>{{ $dado['conta'] ?? '' }}</td>
-                        <td>{{ $dado['created_at'] ?? '' }}</td>
+                        {{-- <td>{{ $dado['created_at'] ?? '' }}</td> --}}
                     </tr>
                 @endforeach
             </tbody>

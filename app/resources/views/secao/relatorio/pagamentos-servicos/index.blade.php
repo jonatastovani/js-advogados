@@ -4,7 +4,8 @@
         'nome' => 'Pagamentos Cadastrados',
         'descricao' => [
             [
-                'texto' => "Página destinada à visualização dos pagamentos de serviços cadastrados, juntamente com suas respectivas informações. Nesta seção, é possível, por exemplo, buscar especificamente os pagamentos do tipo 'Condicionado'.",
+                'texto' =>
+                    "Página destinada à visualização dos pagamentos de serviços cadastrados, juntamente com suas respectivas informações. Nesta seção, é possível, por exemplo, buscar especificamente os pagamentos do tipo 'Condicionado'.",
             ],
         ],
     ]);
@@ -98,19 +99,19 @@
             <thead>
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
-                    <th class="text-center" title="Número de Serviço">N.S.</th>
-                    <th class="text-center" title="Número do Pagamento">N.P.</th>
-                    <th class="text-nowrap">Titulo Serviço</th>
-                    <th class="text-nowrap">Área Jurídica</th>
+                    <th class="text-nowrap">Status</th>
+                    <th class="text-nowrap">Cliente(s)</th>
+                    <th class="text-nowrap">Valor Total</th>
+                    <th class="text-nowrap">Total Aguardando</th>
+                    <th class="text-nowrap">Total Recebido</th>
+                    <th class="text-nowrap">Total Inadimplente</th>
                     <th class="text-nowrap">Tipo de pagamento</th>
                     <th class="text-nowrap">Forma Pagamento</th>
-                    <th class="text-nowrap">Status</th>
-                    <th class="text-nowrap">Valor Pagamento</th>
-                    <th class="text-nowrap">Total Recebido</th>
-                    <th class="text-nowrap">Total Aguardando</th>
-                    <th class="text-nowrap">Total Inadimplente</th>
                     <th class="text-nowrap">Observação Pagamento</th>
-                    <th class="text-nowrap">Status Pagamento</th>
+                    <th class="text-nowrap">Titulo Serviço</th>
+                    <th class="text-nowrap">Área Jurídica</th>
+                    <th class="text-center" title="Número do Pagamento">N.P.</th>
+                    <th class="text-center" title="Número de Serviço">N.S.</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
                     <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-nowrap">Cadastro</th>

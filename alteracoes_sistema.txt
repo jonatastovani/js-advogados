@@ -29,3 +29,9 @@
 12 - Tentativa de excluir a Faxina ou Faxina Roseli nas Tags
 
 14 - Ordenar as colunas conforme é na planilha
+--- OK
+
+15 - Adicionar Informação da conta de destino no Repasse
+    - Criar categoria de documento Conta Destino
+    - Travar caso não tenha documento
+    - Data do repasse

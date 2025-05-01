@@ -8,6 +8,7 @@ use App\Enums\MovimentacaoContaReferenciaEnum;
 use App\Enums\MovimentacaoContaTipoEnum;
 use App\Enums\PdfMarginPresetsEnum;
 use App\Enums\PessoaTipoEnum;
+use App\Helpers\PessoaNomeHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Documento\DocumentoGerado;
 use App\Services\Financeiro\MovimentacaoContaParticipanteService;
@@ -18,6 +19,7 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class DocumentoGeradoController extends Controller
@@ -89,17 +91,26 @@ class DocumentoGeradoController extends Controller
                     $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
                     $dadosRetorno->valor_parcela = CurrencyFormatterUtils::toBRL($parent['valor_movimentado']);
 
-                    $dadosEspecificos = $parent['descricao_automatica'];
+                    $dadosEspecificos = [];
 
                     switch ($parent['referencia_type']) {
 
                         case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
                             $referenciaPagamento = $parent['referencia']['pagamento'];
+                            $cliente = $referenciaPagamento['servico']['cliente'];
 
-                            // $dadosEspecificos .= " - Serviço {$referenciaPagamento['servico']['numero_servico']}";
-                            $dadosEspecificos .= " - NP#{$referenciaPagamento['numero_pagamento']}";
-                            $dadosEspecificos .= " - ({$referenciaPagamento['servico']['area_juridica']['nome']})";
-                            $dadosEspecificos .= " - {$referenciaPagamento['servico']['titulo']}";
+                            if (count($cliente)) {
+                                $nomes = PessoaNomeHelper::extrairNomes($cliente);
+                                $primeiro = $nomes[0]['nome_completo'] ?? '';
+                                $quantidadeExtra = count($nomes) - 1;
+                                $dadosEspecificos[] = $quantidadeExtra > 0 ? "{$primeiro} + {$quantidadeExtra}" : $primeiro;
+                            }
+
+                            // $dadosEspecificos[] = "Serviço {$referenciaPagamento['servico']['numero_servico']}";
+                            $dadosEspecificos[] = $referenciaPagamento['servico']['titulo'];
+                            $dadosEspecificos[] = $referenciaPagamento['servico']['area_juridica']['nome'];
+                            $dadosEspecificos[] = $parent['descricao_automatica'];
+                            $dadosEspecificos[] = "NP#{$referenciaPagamento['numero_pagamento']}";
                             break;
 
                         default:
@@ -117,10 +128,12 @@ class DocumentoGeradoController extends Controller
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_vencimento']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
 
-                    $dadosEspecificos = $participacao['descricao_automatica'];
-                    $dadosEspecificos .= " - NR#{$parent['numero_lancamento']}";
-                    $dadosEspecificos .= " - ({$parent['categoria']['nome']})";
-                    $dadosEspecificos .= " - {$parent['descricao']}";
+                    $dadosEspecificos = [];
+                    $dadosEspecificos[] = $parent['descricao'];
+                    $dadosEspecificos[] = $parent['categoria']['nome'];
+                    $dadosEspecificos[] = $participacao['descricao_automatica'];
+                    $dadosEspecificos[] = $parent['descricao_automatica'];
+                    $dadosEspecificos[] = "NR#{$parent['numero_lancamento']}";
                     break;
 
                 default:
@@ -128,7 +141,7 @@ class DocumentoGeradoController extends Controller
                     break;
             }
 
-            $dadosRetorno->dados_especificos = $dadosEspecificos;
+            $dadosRetorno->dados_especificos = implode(' - ', $dadosEspecificos);
 
             $processedData[] = $dadosRetorno->toArray();
         }

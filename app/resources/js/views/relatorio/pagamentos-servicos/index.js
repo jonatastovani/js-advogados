@@ -110,12 +110,13 @@ class PagePagamentoServicoIndex extends TemplateSearch {
         const valorInadimplente = item.total_inadimplente ? CommonFunctions.formatNumberToCurrency(item.total_inadimplente) : '***';
         const pagamentoTipo = item.pagamento_tipo_tenant.nome ?? item.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.observacao ?? '***';
-        const statusPagamento = item.status.nome;
 
         const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
                 (item.servico.participantes.length ? item.servico.participantes : [])
         );
+
+        const htmlCliente = self.#htmlRenderCliente(item);
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
         $(tbody).append(`
@@ -125,19 +126,19 @@ class PagePagamentoServicoIndex extends TemplateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap" title="${numero_servico}">${numero_servico}</td>
-                <td class="text-nowrap" title="${numero_pagamento}">${numero_pagamento}</td>
-                <td class="text-truncate" title="${tituloServico}">${tituloServico}</td>
-                <td class="text-nowrap text-truncate" title="${areaJuridica}">${areaJuridica}</td>
+                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
+                <td class="text-nowrap">${htmlCliente}</td>
+                <td class="text-nowrap text-center" title="${valorPagamento}">${valorPagamento}</td>
+                <td class="text-nowrap text-center" title="${valorAguardando}">${valorAguardando}</td>
+                <td class="text-nowrap text-center" title="${valorLiquidado}">${valorLiquidado}</td>
+                <td class="text-nowrap text-center" title="${valorInadimplente}">${valorInadimplente}</td>
                 <td class="text-nowrap text-truncate" title="${pagamentoTipo}">${pagamentoTipo}</td>
                 <td class="text-nowrap" title="${formaPagamento}">${formaPagamento}</td>
-                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
-                <td class="text-nowrap text-center" title="${valorPagamento}">${valorPagamento}</td>
-                <td class="text-nowrap text-center" title="${valorLiquidado}">${valorLiquidado}</td>
-                <td class="text-nowrap text-center" title="${valorAguardando}">${valorAguardando}</td>
-                <td class="text-nowrap text-center" title="${valorInadimplente}">${valorInadimplente}</td>
                 <td class="text-nowrap text-truncate" title="${observacaoPagamento}">${observacaoPagamento}</td>
-                <td class="text-nowrap text-truncate" title="${statusPagamento}">${statusPagamento}</td>
+                <td class="text-truncate" title="${tituloServico}">${tituloServico}</td>
+                <td class="text-nowrap text-truncate" title="${areaJuridica}">${areaJuridica}</td>
+                <td class="text-nowrap" title="${numero_pagamento}">${numero_pagamento}</td>
+                <td class="text-nowrap" title="${numero_servico}">${numero_servico}</td>
                 <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do pagamento ${numero_pagamento}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
@@ -166,6 +167,43 @@ class PagePagamentoServicoIndex extends TemplateSearch {
                 ${strVerServico}
             </ul>`;
     }
+
+    #htmlRenderCliente(pagamento) {
+        const self = this;
+
+        const arrayCliente = pagamento?.servico?.cliente;
+        if (!arrayCliente.length) {
+            return '<span class="fst-italic" title="Nenhum cliente encontrado">Nenhum cliente encontrado</span>';
+        }
+
+        let nomes = [];
+
+        arrayCliente.map(cliente => {
+            const pessoa = cliente.perfil.pessoa;
+            let nome = '';
+
+            switch (pessoa.pessoa_dados_type) {
+                case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                    nome = pessoa.pessoa_dados.nome;
+                    break;
+                case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                    nome = pessoa.pessoa_dados.nome_fantasia;
+                    break;
+
+                default:
+                    nome = `Não implementado - ${pessoa.pessoa_dados_type}`;
+                    console.error(`O tipo de pessoa <b>${pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, cliente);
+
+            }
+            nomes.push(nome);
+        });
+
+        if (nomes.length > 1) {
+            const total = nomes.length;
+            return `<button type="button" class="btn btn-sm btn-outline-info border-0 text-nowrap text-reset" data-bs-toggle="popover" data-bs-title="Cliente(s)" data-bs-html="true" data-bs-content="${nomes.join("<hr class='my-1'>")}">${nomes[0]} + ${total - 1}</button>`
+        }
+        return `<span class="text-nowrap">${nomes[0]}</span>`;
+    };
 
     async #buscarFormaPagamento(selected_id = null) {
         try {

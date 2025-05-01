@@ -143,39 +143,51 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         const movimentacaoTipo = item.movimentacao_tipo.nome;
         const observacaoLancamento = item.observacao ?? '***';
 
-        let dadosEspecificos = ``;
-        let dadosEspecificosTitle = ``;
+        let dadosEspecificos = [];
+        let dadosEspecificosTitle = [];
+
+        const referencia = item.referencia;
 
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                // dadosEspecificos = `NS#${item.referencia.pagamento.servico.numero_servico}`;
-                dadosEspecificosTitle = `Número de Serviço ${item.referencia.pagamento.servico.numero_servico}`;
 
-                dadosEspecificos += `NP#${item.referencia.pagamento.numero_pagamento}`;
-                dadosEspecificosTitle += ` - Número de Pagamento ${item.referencia.pagamento.numero_pagamento}`;
+                const pagamento = referencia.pagamento;
+                const servico = pagamento.servico;
 
-                dadosEspecificos += ` - (${item.referencia.pagamento.servico.area_juridica.nome})`;
-                dadosEspecificosTitle += ` - (Área Jurídica ${item.referencia.pagamento.servico.area_juridica.nome})`;
-                dadosEspecificos += ` - ${item.referencia.pagamento.servico.titulo}`;
-                dadosEspecificosTitle += ` - Título ${item.referencia.pagamento.servico.titulo}`;
+                dadosEspecificos.push(self.#htmlRenderCliente(referencia));
+                dadosEspecificosTitle.push(`Cliente: ${self.#htmlRenderCliente(referencia)}`);
+
+                dadosEspecificos.push(servico.titulo);
+                dadosEspecificosTitle.push(`Título: ${servico.titulo}`);
+
+                dadosEspecificos.push(`(${servico.area_juridica.nome})`);
+                dadosEspecificosTitle.push(`Área Jurídica: ${servico.area_juridica.nome}`);
+
+                dadosEspecificos.push(`NP#${pagamento.numero_pagamento}`);
+                dadosEspecificosTitle.push(`Número de Pagamento ${pagamento.numero_pagamento}`);
+
+                // dadosEspecificos.push(`NS#${servico.numero_servico}`);
+                dadosEspecificosTitle.push(`Número de Serviço: ${servico.numero_servico}`);
                 break;
 
             case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
-                dadosEspecificos = `NL#${item.referencia.numero_lancamento}`;
-                dadosEspecificosTitle = `Número de Lançamento ${item.referencia.numero_lancamento}`;
 
-                dadosEspecificos += ` - (${item.referencia.categoria.nome})`;
-                dadosEspecificosTitle += ` - (Categoria ${item.referencia.categoria.nome})`;
+                dadosEspecificos.push(item.descricao_automatica);
+                dadosEspecificosTitle.push(`Descrição: ${item.descricao_automatica}`);
 
-                dadosEspecificos += ` - ${item.descricao_automatica}`;
-                dadosEspecificosTitle += ` - Descrição ${item.descricao_automatica}`;
+                dadosEspecificos.push(`(${referencia.categoria.nome})`);
+                dadosEspecificosTitle.push(`Categoria: ${referencia.categoria.nome}`);
+
+                dadosEspecificos.push(`NL#${referencia.numero_lancamento}`);
+                dadosEspecificosTitle.push(`Número de Lançamento: ${referencia.numero_lancamento}`);
                 break;
 
             case window.Enums.MovimentacaoContaReferenciaEnum.DOCUMENTO_GERADO:
-                dadosEspecificos = `ND#${item.referencia.numero_documento}`;
-                dadosEspecificosTitle = `Número do Documento ${item.referencia.numero_documento}`;
-                dadosEspecificos += ` - ${item.descricao_automatica}`;
-                dadosEspecificosTitle += ` - Descrição ${item.descricao_automatica}`;
+                dadosEspecificos.push(item.descricao_automatica);
+                dadosEspecificosTitle.push(`Descrição: ${item.descricao_automatica}`);
+
+                dadosEspecificos.push(`ND#${referencia.numero_documento}`);
+                dadosEspecificosTitle.push(`Número do Documento: ${referencia.numero_documento}`);
                 break;
 
             default:
@@ -216,11 +228,11 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
                 <td class="text-nowrap text-center" title="${valorMovimentado}">${valorMovimentado}</td>
                 <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificosTitle.join(' - ')}">${dadosEspecificos.join(' - ')}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${observacaoLancamento}">${observacaoLancamento}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificosTitle}">${dadosEspecificos}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 ${htmlThParticipantesIntegrantes}
+                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -278,6 +290,43 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
             }
         });
     }
+
+    #htmlRenderCliente(lancamentoServico) {
+        const self = this;
+
+        const arrayCliente = lancamentoServico?.pagamento?.servico?.cliente;
+        if (!arrayCliente.length) {
+            return '';
+        }
+
+        let nomes = [];
+
+        arrayCliente.map(cliente => {
+            const pessoa = cliente.perfil.pessoa;
+            let nome = '';
+
+            switch (pessoa.pessoa_dados_type) {
+                case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
+                    nome = pessoa.pessoa_dados.nome;
+                    break;
+                case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
+                    nome = pessoa.pessoa_dados.nome_fantasia;
+                    break;
+
+                default:
+                    nome = `Não implementado - ${pessoa.pessoa_dados_type}`;
+                    console.error(`O tipo de pessoa <b>${pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, cliente);
+
+            }
+            nomes.push(nome);
+        });
+
+        if (nomes.length > 1) {
+            const total = nomes.length;
+            return `${nomes[0]} + ${total - 1}</button>`
+        }
+        return nomes[0];
+    };
 
     async #buscarContas(selected_id = null) {
         try {

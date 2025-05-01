@@ -22,7 +22,7 @@
                     <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Dados Específicos</th>
-                    <th class="text-nowrap">Cadastro</th>
+                    {{-- <th class="text-nowrap">Cadastro</th> --}}
                 </tr>
             </thead>
             <tbody>
@@ -30,12 +30,12 @@
                     <tr>
                         <td>{{ $dado['status'] ?? '' }}</td>
                         <td>{{ $dado['movimentacao_tipo'] ?? '' }}</td>
-                        <td>{{ $dado['valor_movimentado'] ?? '' }}</td>
+                        <td class="text-nowrap">{{ $dado['valor_movimentado'] ?? '' }}</td>
                         <td>{{ $dado['data_movimentacao'] ?? '' }}</td>
                         <td>{{ $dado['conta'] ?? '' }}</td>
                         <td>{{ $dado['descricao_automatica'] ?? '' }}</td>
                         <td>{{ $dado['dados_especificos'] ?? '' }}</td>
-                        <td>{{ $dado['created_at'] ?? '' }}</td>
+                        {{-- <td>{{ $dado['created_at'] ?? '' }}</td> --}}
                     </tr>
                 @endforeach
             </tbody>
