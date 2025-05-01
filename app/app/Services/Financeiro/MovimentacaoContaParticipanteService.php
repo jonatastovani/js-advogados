@@ -626,7 +626,7 @@ class MovimentacaoContaParticipanteService extends Service
         // LogHelper::escreverLogSomenteComQuery($query);
 
         if (!$resources) {
-            RestResponse::createErrorResponse(404, 'Nenhuma participação válida para repasse/compensação foi encontrada com os dados enviados.')->throwResponse();
+            RestResponse::createErrorResponse(404, 'Nenhuma participação válida para repasse foi encontrada com os dados enviados.')->throwResponse();
         }
 
         return $resources;
@@ -669,7 +669,7 @@ class MovimentacaoContaParticipanteService extends Service
                 'documento_gerado' => [$documentoGeradoInserir],
             ];
             $dadosMovimentacao->data_movimentacao = Carbon::now();
-            $dadosMovimentacao->descricao_automatica = "Repasse/Compensação - $nomeParceiro";
+            $dadosMovimentacao->descricao_automatica = "Repasse - $nomeParceiro";
             $dadosMovimentacao->status_id = MovimentacaoContaStatusTipoEnum::FINALIZADA->value;
 
             switch ($perfil['perfil_tipo_id']) {
@@ -696,6 +696,7 @@ class MovimentacaoContaParticipanteService extends Service
                     break;
 
                 default:
+
                     // Remove o sinal de negativo do valor (se existir) e define o tipo de movimentação
                     if ($totalRepasse < 0) {
                         $dadosMovimentacao->valor_movimentado = bcmul($totalRepasse, '-1', 2); // Transforma em positivo
@@ -728,14 +729,13 @@ class MovimentacaoContaParticipanteService extends Service
     private function obterColecaoMovimentacoes(Fluent $requestData, $resources,  array $options = [])
     {
         $retornaCollectContaOrigem = function () use ($resources) {
-            return collect($resources)->groupBy('parent.conta_id');
+            return collect($resources)->groupBy('parent.conta_domain.conta_id');
         };
 
         $first = $resources[0];
 
         // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
         if ($first['referencia']['perfil_tipo_id'] == PessoaPerfilTipoEnum::EMPRESA->value) {
-
             return $retornaCollectContaOrigem();
         } else {
 
@@ -743,11 +743,9 @@ class MovimentacaoContaParticipanteService extends Service
             switch ($requestData->conta_movimentar) {
                 case 'conta_debito':
                     return collect($resources)->groupBy(fn($item) => $requestData->conta_debito_id);
-                    break;
 
                 case 'conta_origem':
                     return $retornaCollectContaOrigem();
-                    break;
 
                 default:
                     throw new Exception('Conta movimentar não configurado.', 500);
@@ -853,7 +851,7 @@ class MovimentacaoContaParticipanteService extends Service
 
         $retornaMovimentacaoPorContaId = function () use ($movimentacoesRepasse, $first) {
             // Só vai existir um repasse por participação
-            return collect($movimentacoesRepasse)->where('conta_id', $first->parent['conta_id'])->pluck('id')->first();
+            return collect($movimentacoesRepasse)->where('conta_domain.conta_id', $first['parent']['conta_domain']['conta_id'])->pluck('id')->first();
         };
 
         // Se for empresa a liberação de crédito é na conta que recebeu a movimentação
@@ -865,7 +863,7 @@ class MovimentacaoContaParticipanteService extends Service
             // Se não for empresa, verifica a conta a debitar
             switch ($requestData->conta_movimentar) {
                 case 'conta_debito':
-                    return collect($movimentacoesRepasse)->where('conta_id', $requestData->conta_debito_id)->pluck('id')->first();
+                    return collect($movimentacoesRepasse)->where('conta_domain.conta_id', $requestData->conta_debito_id)->pluck('id')->first();
                     break;
 
                 case 'conta_origem':

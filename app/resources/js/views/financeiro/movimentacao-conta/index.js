@@ -151,7 +151,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
                 // dadosEspecificos = `NS#${item.referencia.pagamento.servico.numero_servico}`;
                 dadosEspecificosTitle = `Número de Serviço ${item.referencia.pagamento.servico.numero_servico}`;
 
-                dadosEspecificos += ` - NP#${item.referencia.pagamento.numero_pagamento}`;
+                dadosEspecificos += `NP#${item.referencia.pagamento.numero_pagamento}`;
                 dadosEspecificosTitle += ` - Número de Pagamento ${item.referencia.pagamento.numero_pagamento}`;
 
                 dadosEspecificos += ` - (${item.referencia.pagamento.servico.area_juridica.nome})`;
