@@ -15,8 +15,10 @@ use App\Models\Financeiro\LancamentoAgendamento;
 use App\Models\Financeiro\LancamentoGeral;
 use App\Models\Financeiro\LancamentoRessarcimento;
 use App\Traits\ParticipacaoTrait;
+use GuzzleHttp\Promise\AggregateException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LancamentoAgendamentoHelper
@@ -81,127 +83,137 @@ class LancamentoAgendamentoHelper
             return;
         }
 
+        // Acrescenta os campos que não devem ser ocultados
+        $agendamento->addExceptHidden([
+            'tenant_id',
+            'created_user_id',
+            'created_ip',
+            'domain_id'
+        ]);
+
         $hoje = Carbon::today();
 
-        // LogHelper::habilitaQueryLog();
-        if (!$agendamento->recorrente_bln) {
-            // **Agendamento não recorrente**
-            if ($agendamento->data_vencimento && $hoje->diffInDays($agendamento->data_vencimento, false) <= 30) {
-                if (is_null($agendamento->cron_ultima_execucao)) {
-                    try {
-                        if (self::executarLancamento($agendamento, $agendamento->data_vencimento)) {
-                            // Marcar como executado e inativar
-                            $agendamento->cron_ultima_execucao = Carbon::parse($agendamento->data_vencimento)->toDateTimeString();
-                            $agendamento->ativo_bln = false;
-                            $agendamento->save();
+        DB::transaction(function () use ($agendamentoId, $agendamento, $hoje) {
+
+            // LogHelper::habilitaQueryLog();
+            if (!$agendamento->recorrente_bln) {
+                // **Agendamento não recorrente**
+                if ($agendamento->data_vencimento && $hoje->diffInDays($agendamento->data_vencimento, false) <= 30) {
+                    if (is_null($agendamento->cron_ultima_execucao)) {
+                        try {
+                            if (self::executarLancamento($agendamento, $agendamento->data_vencimento)) {
+                                // Marcar como executado e inativar
+                                $agendamento->cron_ultima_execucao = Carbon::parse($agendamento->data_vencimento)->toDateTimeString();
+                                $agendamento->ativo_bln = false;
+                                $agendamento->save();
+                            }
+                        } catch (\Exception $e) {
+                            CommonsFunctions::generateLog("Erro ao lançar agendamento ID {$agendamentoId}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
                         }
-                    } catch (\Exception $e) {
-                        CommonsFunctions::generateLog("Erro ao lançar agendamento ID {$agendamentoId}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
                     }
+                }
+            } else {
+                // **Agendamento recorrente**
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Agendamento recorrente');
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Descrição: ' . $agendamento->descricao);
+
+                $dataInicio = Carbon::parse($agendamento->cron_data_inicio);
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio: ' . $dataInicio);
+
+                $dataFim = $agendamento->cron_data_fim ? Carbon::parse($agendamento->cron_data_fim) : null;
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Data fim: ' . $dataFim);
+
+                $ultimaExecucao = $agendamento->cron_ultima_execucao
+                    ? Carbon::parse($agendamento->cron_ultima_execucao)
+                    : null;
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima execucao: ' . $ultimaExecucao);
+
+                $cron = new CronExpression($agendamento->cron_expressao);
+                // Log::debug('Linha ' . __LINE__ . " Cron {$agendamento->cron_expressao}");
+                $dataLimite = $hoje->copy()->addDays(30);
+                // Log::debug('Linha ' . __LINE__ . ' ' . 'Data limite: ' . $dataLimite);
+
+                $proximasExecucoes = [];
+                try {
+                    if (is_null($ultimaExecucao)) {
+                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima Execução é null  (while 1)');
+                        // Gerar todas as execuções desde o início até o limite
+                        while (true) {
+                            $proximaExecucao = $cron->getNextRunDate($dataInicio)->format('Y-m-d');
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio (while 1): ' . $dataInicio);
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao (while 1): ' . $proximaExecucao);
+
+                            if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao maior que data limite. (while 1)');
+                                break;
+                            } else {
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao menor que data limite (while 1)');
+                            }
+
+                            if (
+                                Carbon::parse($proximaExecucao)->gte($dataInicio) &&
+                                (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
+                            ) {
+                                $proximasExecucoes[] = $proximaExecucao;
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao adicionada (while 1): ' . $proximaExecucao);
+                            }
+
+                            $dataInicio = Carbon::parse($proximaExecucao)->addDay();
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio atualizada (while 1): ' . $dataInicio);
+                        }
+                    } else {
+                        // Gerar execuções a partir da última execução
+                        while (true) {
+                            // Adiciona mais um dia na última execução, porque a última execução é o último dia inserido no lançamento geral
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima Execução NÃO É NULL (while 2)');
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio ultimaExecucao (while 2): ' . $ultimaExecucao);
+                            $ultimaExecucao->addDay();
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio ultimaExecucao atualizada (while 2): ' . $ultimaExecucao);
+                            $proximaExecucao = $cron->getNextRunDate($ultimaExecucao)->format('Y-m-d');
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao (while 2): ' . $proximaExecucao);
+
+                            if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao maior que data limite (while 2)');
+                                break;
+                            } else {
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao menor que data limite (while 2)');
+                            }
+
+                            if (
+                                Carbon::parse($proximaExecucao)->gte($dataInicio) &&
+                                (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
+                            ) {
+                                $proximasExecucoes[] = $proximaExecucao;
+                                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao adicionada (while 2): ' . $proximaExecucao);
+                            }
+
+                            $ultimaExecucao = Carbon::parse($proximaExecucao)->addDay();
+                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio proximaExecucao (while 2): ' . $ultimaExecucao);
+                        }
+                    }
+
+                    // Log::debug('Linha ' . __LINE__ . ' ' . 'Proximas execucoes (Todas a serem rodadas): ' . json_encode($proximasExecucoes));
+                    // Inserir os registros na tabela de lançamentos
+                    foreach ($proximasExecucoes as $dataExecucao) {
+                        if (self::executarLancamento($agendamento, $dataExecucao)) {
+                            // Atualizar a última execução
+                            if (!empty($dataExecucao)) {
+                                $agendamento->cron_ultima_execucao = Carbon::parse($dataExecucao)->toDateTimeString();
+                                $agendamento->updated_user_id = UUIDsHelpers::getAdminTenantUser();
+                                $agendamento->save();
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    CommonsFunctions::generateLog("Erro geral no processamento de agendamento ID {$agendamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
                 }
             }
-        } else {
-            // **Agendamento recorrente**
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Agendamento recorrente');
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Descrição: ' . $agendamento->descricao);
-
-            $dataInicio = Carbon::parse($agendamento->cron_data_inicio);
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio: ' . $dataInicio);
-
-            $dataFim = $agendamento->cron_data_fim ? Carbon::parse($agendamento->cron_data_fim) : null;
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data fim: ' . $dataFim);
-
-            $ultimaExecucao = $agendamento->cron_ultima_execucao
-                ? Carbon::parse($agendamento->cron_ultima_execucao)
-                : null;
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima execucao: ' . $ultimaExecucao);
-
-            $cron = new CronExpression($agendamento->cron_expressao);
-            // Log::debug('Linha ' . __LINE__ . " Cron {$agendamento->cron_expressao}");
-            $dataLimite = $hoje->copy()->addDays(30);
-            // Log::debug('Linha ' . __LINE__ . ' ' . 'Data limite: ' . $dataLimite);
-
-            $proximasExecucoes = [];
-
-            try {
-                if (is_null($ultimaExecucao)) {
-                    // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima Execução é null  (while 1)');
-                    // Gerar todas as execuções desde o início até o limite
-                    while (true) {
-                        $proximaExecucao = $cron->getNextRunDate($dataInicio)->format('Y-m-d');
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio (while 1): ' . $dataInicio);
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao (while 1): ' . $proximaExecucao);
-
-                        if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao maior que data limite. (while 1)');
-                            break;
-                        } else {
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao menor que data limite (while 1)');
-                        }
-
-                        if (
-                            Carbon::parse($proximaExecucao)->gte($dataInicio) &&
-                            (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
-                        ) {
-                            $proximasExecucoes[] = $proximaExecucao;
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao adicionada (while 1): ' . $proximaExecucao);
-                        }
-
-                        $dataInicio = Carbon::parse($proximaExecucao)->addDay();
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio atualizada (while 1): ' . $dataInicio);
-                    }
-                } else {
-                    // Gerar execuções a partir da última execução
-                    while (true) {
-                        // Adiciona mais um dia na última execução, porque a última execução é o último dia inserido no lançamento geral
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Ultima Execução NÃO É NULL (while 2)');
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio ultimaExecucao (while 2): ' . $ultimaExecucao);
-                        $ultimaExecucao->addDay();
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio ultimaExecucao atualizada (while 2): ' . $ultimaExecucao);
-                        $proximaExecucao = $cron->getNextRunDate($ultimaExecucao)->format('Y-m-d');
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao (while 2): ' . $proximaExecucao);
-
-                        if (Carbon::parse($proximaExecucao)->gt($dataLimite)) {
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao maior que data limite (while 2)');
-                            break;
-                        } else {
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao menor que data limite (while 2)');
-                        }
-
-                        if (
-                            Carbon::parse($proximaExecucao)->gte($dataInicio) &&
-                            (!$dataFim || Carbon::parse($proximaExecucao)->lte($dataFim))
-                        ) {
-                            $proximasExecucoes[] = $proximaExecucao;
-                            // Log::debug('Linha ' . __LINE__ . ' ' . 'Proxima execucao adicionada (while 2): ' . $proximaExecucao);
-                        }
-
-                        $ultimaExecucao = Carbon::parse($proximaExecucao)->addDay();
-                        // Log::debug('Linha ' . __LINE__ . ' ' . 'Data inicio proximaExecucao (while 2): ' . $ultimaExecucao);
-                    }
-                }
-
-                // Log::debug('Linha ' . __LINE__ . ' ' . 'Proximas execucoes (Todas a serem rodadas): ' . json_encode($proximasExecucoes));
-                // Inserir os registros na tabela de lançamentos
-                foreach ($proximasExecucoes as $dataExecucao) {
-                    if (self::executarLancamento($agendamento, $dataExecucao)) {
-                        // Atualizar a última execução
-                        if (!empty($dataExecucao)) {
-                            $agendamento->cron_ultima_execucao = Carbon::parse($dataExecucao)->toDateTimeString();
-                            $agendamento->updated_user_id = UUIDsHelpers::getAdminTenantUser();
-                            $agendamento->save();
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                CommonsFunctions::generateLog("Erro geral no processamento de agendamento ID {$agendamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
-            }
-        }
-        // $queries = DB::getQueryLog();
-        // $queries = LogHelper::formatQueryLog($queries);
-        // foreach ($queries as $query) {
-        //     // Log::debug("Query: {$query};\n");
-        // }
+            // $queries = DB::getQueryLog();
+            // $queries = LogHelper::formatQueryLog($queries);
+            // foreach ($queries as $query) {
+            //     // Log::debug("Query: {$query};\n");
+            // }
+        });
     }
 
     /**
@@ -267,6 +279,14 @@ class LancamentoAgendamentoHelper
     {
         foreach ($agendamento->participantes as $participante) {
 
+            // Acrescenta os campos que não devem ser ocultados
+            $participante->addExceptHidden([
+                'tenant_id',
+                'created_user_id',
+                'created_ip',
+                'domain_id'
+            ]);
+
             // Remover o ID e colocar o ID do novo lançamento
             $novoParticipante = (new ParticipacaoParticipante())->fill(
                 Arr::except($participante->toArray(), ['id'])
@@ -274,10 +294,22 @@ class LancamentoAgendamentoHelper
 
             $novoParticipante->parent_id = $novoLancamento->id;
             $novoParticipante->parent_type = $novoLancamento->getMorphClass();
+            $novoParticipante->tenant_id = $participante->tenant_id;
+            $novoParticipante->domain_id = $participante->domain_id;
             $novoParticipante->created_at = $participante->created_at;
+            $novoParticipante->created_user_id = $participante->created_user_id;
+            $novoParticipante->created_ip = $participante->created_ip;
             $novoParticipante->save();
 
             foreach ($participante->integrantes as $integrante) {
+
+                // Acrescenta os campos que não devem ser ocultados
+                $integrante->addExceptHidden([
+                    'tenant_id',
+                    'created_user_id',
+                    'created_ip',
+                    'domain_id'
+                ]);
 
                 // Remover o ID e colocar o ID do novo participante
                 $novoIntegrante =  (new ParticipacaoParticipanteIntegrante())->fill(
@@ -285,6 +317,10 @@ class LancamentoAgendamentoHelper
                 );
                 $novoIntegrante->participante_id = $novoParticipante->id;
                 $novoIntegrante->created_at = $integrante->created_at;
+                $novoIntegrante->tenant_id = $integrante->tenant_id;
+                $novoIntegrante->domain_id = $integrante->domain_id;
+                $novoIntegrante->created_user_id = $integrante->created_user_id;
+                $novoIntegrante->created_ip = $integrante->created_ip;
                 $novoIntegrante->save();
             }
         }
@@ -293,11 +329,24 @@ class LancamentoAgendamentoHelper
     private static function replicarTags(LancamentoAgendamento $agendamento, Model $novoLancamento)
     {
         foreach ($agendamento->tags as $tag) {
+
+            // Acrescenta os campos que não devem ser ocultados
+            $tag->addExceptHidden([
+                'tenant_id',
+                'created_user_id',
+                'created_ip',
+                'domain_id'
+            ]);
+
             $novaTag = new IdentificacaoTags();
             $novaTag->parent_id = $novoLancamento->id;
             $novaTag->parent_type = $novoLancamento->getMorphClass();
             $novaTag->tag_id = $tag->tag_id;
             $novaTag->created_at = $tag->created_at;
+            $novaTag->tenant_id = $tag->tenant_id;
+            $novaTag->domain_id = $tag->domain_id;
+            $novaTag->created_user_id = $tag->created_user_id;
+            $novaTag->created_ip = $tag->created_ip;
             $novaTag->save();
         }
     }

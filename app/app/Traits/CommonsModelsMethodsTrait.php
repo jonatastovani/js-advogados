@@ -30,14 +30,22 @@ trait CommonsModelsMethodsTrait
         'deleted_ip',
         'deleted_at',
     ];
-    
+
+    /**
+     * Flag que permite forçar a atualização da propriedade `$hidden`, mesmo que já esteja definida.
+     * Deve ser usada com cautela quando valores como `exceptHidden` forem atualizados dinamicamente.
+     *
+     * @var bool
+     */
+    protected $forcarAtualizacaoHiddenBln = false;
+
     /**
      * Inicializa a configuração de ocultação na model.
      */
     public function initializeCommonsModelsMethodsTrait()
     {
         // Se a model já definiu $hidden manualmente, não alteramos
-        if (property_exists($this, 'hidden') && !empty($this->hidden)) {
+        if (property_exists($this, 'hidden') && !empty($this->hidden) && !$this->forcarAtualizacaoHiddenBln) {
             return;
         }
 
@@ -76,6 +84,45 @@ trait CommonsModelsMethodsTrait
     {
         return property_exists($this, 'exceptHidden') ? $this->exceptHidden : [];
     }
+    /**
+     * Define explicitamente os campos que devem ser **removidos** da ocultação padrão (`$hidden`),
+     * sobrescrevendo qualquer configuração anterior de exceção.
+     *
+     * Também atualiza imediatamente os campos ocultos da model, sem necessidade de chamar manualmente
+     * `initializeCommonsModelsMethodsTrait()`.
+     *
+     * Exemplo de uso:
+     *   $model->setExceptHidden(['descricao', 'domain_id']);
+     *
+     * @param array $exceptHidden Lista de campos a manter visíveis, mesmo que estejam no padrão de ocultação.
+     */
+    public function setExceptHidden(array $exceptHidden): void
+    {
+        $this->exceptHidden = $exceptHidden;
+        $this->forcarAtualizacaoHiddenBln = true;
+        $this->initializeCommonsModelsMethodsTrait();
+    }
+
+    /**
+     * Adiciona campos à lista de exceções da ocultação padrão (`$hidden`),
+     * recalculando os campos visíveis com base nas novas exceções.
+     *
+     * Útil quando se deseja exibir dinamicamente campos que normalmente seriam ocultos,
+     * como `tenant_id` ou `domain_id`, em determinadas situações (ex: exportação, logs, API).
+     *
+     * Exemplo de uso:
+     *   $model->addExceptHidden(['tenant_id', 'domain_id'])->toArray();
+     *
+     * @param array $fields Campos a serem removidos da ocultação.
+     * @return static Retorna a própria instância para permitir encadeamento.
+     */
+    public function addExceptHidden(array $fields): static
+    {
+        $this->setExceptHidden(
+            array_unique(array_merge($this->getExceptHidden(), $fields))
+        );
+        return $this;
+    }
 
     /**
      * Obtém os campos que devem ser **adicionados** à ocultação.
@@ -108,6 +155,14 @@ trait CommonsModelsMethodsTrait
             'deleted_at',
         ];
     }
+
+    public function scopeWithTenantAndDomain($query)
+    {
+        return $query->tap(function ($q) {
+            $q->getModel()->addExceptHidden(['tenant_id', 'domain_id']);
+        });
+    }
+
     /**
      * Obtém o nome completo da tabela associada ao modelo, incluindo o schema.
      *

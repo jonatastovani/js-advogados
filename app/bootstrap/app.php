@@ -41,10 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new LancamentoAgendamentoJob)
             ->daily()
+            // ->everyMinute()
             ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
 
         $schedule->job(new ServicoPagamentoRecorrenteJob)
             ->daily()
+            // ->everyMinute()
             ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
     })
     ->withExceptions(function (Exceptions $exceptions) {

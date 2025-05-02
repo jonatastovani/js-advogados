@@ -330,7 +330,7 @@ trait ParticipacaoTrait
 
         // Subtrair os valores fixos
         foreach ($participantes as $index => $participante) {
-          
+
             if ($participante['valor_tipo'] === 'valor_fixo') {
                 $possuiParticipanteComValorFixo = true;
 
@@ -403,7 +403,7 @@ trait ParticipacaoTrait
             throw new Exception("Inconsistência detectada no cálculo. Verifique os valores.");
         }
 
-        $adicionarNovoParticipante = function ($dados) use ($modelParticipanteConta) {
+        $adicionarNovoParticipante = function ($dados) use ($modelParticipanteConta, $parent) {
             $newParticipante = new $modelParticipanteConta;
             $newParticipante->parent_id = $dados['parent_id'];
             $newParticipante->parent_type = $dados['parent_type'];
@@ -414,6 +414,13 @@ trait ParticipacaoTrait
             $newParticipante->participacao_tipo_id = $dados['participacao_tipo_id'];
             $newParticipante->participacao_registro_tipo_id = $dados['participacao_registro_tipo_id'];
             $newParticipante->status_id = MovimentacaoContaParticipanteStatusTipoEnum::statusPadraoSalvamento();
+
+            // Inserido por causa dos Processamentos Cron de Recorrentes
+            $newParticipante->created_at = $parent->created_at;
+            $newParticipante->created_user_id = $parent->created_user_id;
+            $newParticipante->created_ip = $parent->created_ip;
+            $newParticipante->domain_id = $parent->domain_id;
+            $newParticipante->tenant_id = $parent->tenant_id;
 
             $newParticipante->save();
             return $newParticipante;

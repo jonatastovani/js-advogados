@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\Referencias\PagamentoTipo;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
@@ -39,7 +40,7 @@ class ServicoPagamentoRecorrenteHelper
                 self::processarServicoPagamentoRecorrentePorTenant($tenant->id);
             } catch (\Exception $e) {
                 // Log do erro no tenant, mas continua com os outros tenants
-                CommonsFunctions::generateLog("Erro ao processar agendamentos do Tenant ID {$tenant->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
+                CommonsFunctions::generateLog("Erro ao processar pagemento recorrente do Tenant ID {$tenant->id}: {$e->getMessage()}", ['channel' => 'processamento_agendamento']);
             }
         }
     }
@@ -54,23 +55,25 @@ class ServicoPagamentoRecorrenteHelper
         $modelServicoPagamento = new ServicoPagamento();
         $modelPagamentoTipo = new PagamentoTipo();
 
+        $asNamePagamento = $modelServicoPagamento->getTableAsName();
+        
         $query = $modelServicoPagamento->query()
             ->withTrashed() // Se deixar sem o withTrashed o deleted_at dá problemas por não ter o alias na coluna
             ->from($modelServicoPagamento->getTableNameAsName())
-            ->select("{$modelServicoPagamento->getTableAsName()}.*");
+            ->select("{$asNamePagamento}.*");
 
         $query = $modelServicoPagamento::joinServico($query);
         $query = $modelServicoPagamento::joinPagamentoTipoTenantAtePagamentoTipo($query);
 
         // Remove o scope de tenant automático
         $query->withoutTenancy();
-        $query->withoutValorServicoPagamentoLiquidado();
-        $query->withoutValorServicoPagamentoAguardando();
-        $query->withoutValorServicoPagamentoInadimplente();
-        $query->withoutValorServicoPagamentoEmAnalise();
-        $query->where("{$modelServicoPagamento->getTableAsName()}.tenant_id", $tenantId);
-        $query->where("{$modelServicoPagamento->getTableAsName()}.status_id", PagamentoStatusTipoEnum::ATIVO);
+        $modelServicoPagamento->removerTodosScopesParaProcessamentoCron($query);
+
+        $query->whereNull("{$asNamePagamento}.deleted_at");
+        $query->where("{$asNamePagamento}.tenant_id", $tenantId);
+        $query->where("{$asNamePagamento}.status_id", PagamentoStatusTipoEnum::ATIVO);
         $query->where("{$modelPagamentoTipo->getTableAsName()}.id", PagamentoTipoEnum::RECORRENTE);
+
         $pagamentos = $query->get();
 
         foreach ($pagamentos as $pagamento) {
@@ -98,54 +101,65 @@ class ServicoPagamentoRecorrenteHelper
             return;
         }
 
-        try {
-            $lancamentos = self::getLancamentosRecorrentesPersonalizadosOuGerados($pagamento);
+        // Acrescenta os campos que não devem ser ocultados
+        $pagamento->addExceptHidden([
+            'tenant_id',
+            'created_user_id',
+            'created_ip',
+            'domain_id'
+        ]);
 
-            $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($pagamento->status_id);
-            if ($pagamento->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
-                $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
-            }
+        DB::transaction(function () use ($pagamentoId, $pagamento, $blnRetornoErroThrow) {
 
-            $tenant = Tenant::find($pagamento->tenant_id);
-            $inicioMesAtual = now()->startOfMonth();
+            try {
+                $lancamentos = self::getLancamentosRecorrentesPersonalizadosOuGerados($pagamento);
 
-            // Inserir os registros na tabela de lancamentos
-            foreach ($lancamentos as $lancamento) {
-                $lancamento = new Fluent($lancamento);
-                $lancamento->pagamento_id = $pagamento->id;
-                $lancamento->status_id = $statusLancamento;
-                $lancamento->tenant_id = $pagamento->tenant_id;
-                $lancamento->domain_id = $pagamento->domain_id;
-                $lancamento->created_user_id = $pagamento->created_user_id;
-                $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? null;
-
-                if ($tenant->lancamento_liquidado_migracao_sistema_bln && self::$liquidadoMigracaoSistemaBln) {
-                    $vencimento = Carbon::parse($lancamento->data_vencimento);
-
-                    // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
-                    if ($vencimento->lessThan($inicioMesAtual)) {
-                        $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
-                        $lancamento->valor_recebido = $lancamento->valor_esperado;
-                        $lancamento->data_recebimento = $lancamento->data_vencimento;
-                        $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? $pagamento->forma_pagamento_id;
-                    }
+                $statusLancamento = LancamentoStatusTipoEnum::statusPadraoSalvamentoServico($pagamento->status_id);
+                if ($pagamento->status_id == PagamentoStatusTipoEnum::ATIVO->value) {
+                    $statusLancamento = LancamentoStatusTipoEnum::AGUARDANDO_PAGAMENTO->value;
                 }
 
-                if (self::executarLancamento($lancamento)) {
-                    // Atualizar a última execução
-                    if (!empty($lancamento->data_vencimento)) {
-                        $pagamento->cron_ultima_execucao = Carbon::parse($lancamento->data_vencimento)->toDateTimeString();
-                        $pagamento->updated_user_id = UUIDsHelpers::getAdminTenantUser();
-                        $pagamento->save();
+                $tenant = Tenant::find($pagamento->tenant_id);
+                $inicioMesAtual = now()->startOfMonth();
+
+                // Inserir os registros na tabela de lancamentos
+                foreach ($lancamentos as $lancamento) {
+                    $lancamento = new Fluent($lancamento);
+                    $lancamento->pagamento_id = $pagamento->id;
+                    $lancamento->status_id = $statusLancamento;
+                    $lancamento->tenant_id = $pagamento->tenant_id;
+                    $lancamento->domain_id = $pagamento->domain_id;
+                    $lancamento->created_user_id = $pagamento->created_user_id;
+                    $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? null;
+
+                    if ($tenant->lancamento_liquidado_migracao_sistema_bln && self::$liquidadoMigracaoSistemaBln) {
+                        $vencimento = Carbon::parse($lancamento->data_vencimento);
+
+                        // Verifica se a data de vencimento é anterior ao mês atual (considerando ano e mês)
+                        if ($vencimento->lessThan($inicioMesAtual)) {
+                            $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value;
+                            $lancamento->valor_recebido = $lancamento->valor_esperado;
+                            $lancamento->data_recebimento = $lancamento->data_vencimento;
+                            $lancamento->forma_pagamento_id = $lancamento->forma_pagamento_id ?? $pagamento->forma_pagamento_id;
+                        }
+                    }
+
+                    if (self::executarLancamento($lancamento)) {
+                        // Atualizar a última execução
+                        if (!empty($lancamento->data_vencimento)) {
+                            $pagamento->cron_ultima_execucao = Carbon::parse($lancamento->data_vencimento)->toDateTimeString();
+                            $pagamento->updated_user_id = UUIDsHelpers::getAdminTenantUser();
+                            $pagamento->save();
+                        }
                     }
                 }
+            } catch (\Exception $e) {
+                if ($blnRetornoErroThrow) {
+                    throw $e;
+                }
+                CommonsFunctions::generateLog("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
             }
-        } catch (\Exception $e) {
-            if ($blnRetornoErroThrow) {
-                throw $e;
-            }
-            CommonsFunctions::generateLog("Erro geral no processamento de agendamento de Pagamento de Serviços Recorrentes ID {$pagamentoId}: {$e->getMessage()}. Detalhes: {$e->getTraceAsString()}", ['channel' => 'processamento_agendamento']);
-        }
+        });
     }
 
     protected static function getLancamentosRecorrentesPersonalizadosOuGerados(ServicoPagamento $pagamento): array

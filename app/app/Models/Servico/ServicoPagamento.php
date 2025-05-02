@@ -123,6 +123,19 @@ class ServicoPagamento extends Model
         return round(($this->valor_total ?? 0) - ($this->total_cancelado ?? 0), 2);
     }
 
+    public function removerTodosScopesParaProcessamentoCron($query): void
+    {
+        // Remove os scopes globais para processamento do cron
+        $query->withoutGlobalScopes([
+            ValorServicoPagamentoLiquidadoScope::class,
+            ValorServicoPagamentoAguardandoScope::class,
+            ValorServicoPagamentoInadimplenteScope::class,
+            ValorServicoPagamentoEmAnaliseScope::class,
+            ValorServicoPagamentoCanceladoScope::class,
+            ValorServicoPagamentoPagamentoSemTotalEComLancamentosScope::class,
+        ]);
+    }
+
     protected static function boot()
     {
         parent::boot();

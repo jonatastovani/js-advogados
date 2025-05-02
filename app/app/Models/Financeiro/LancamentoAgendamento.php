@@ -44,8 +44,12 @@ class LancamentoAgendamento extends Model
         'valor_esperado' => 'float',
     ];
 
-    protected $exceptHidden = [
-        'created_at'
+    public  $exceptHidden = [
+        // 'tenant_id',
+        // 'domain_id',
+        // 'created_user_id',
+        // 'created_ip',
+        'created_at',
     ];
 
     public function movimentacao_tipo()
@@ -72,7 +76,7 @@ class LancamentoAgendamento extends Model
     {
         return $this->morphMany(IdentificacaoTags::class, 'parent');
     }
-    
+
     /**
      * Insere uma cláusula de junção do Lançamento até a TagTenant.
      * 
