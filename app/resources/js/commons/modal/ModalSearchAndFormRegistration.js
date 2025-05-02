@@ -596,7 +596,7 @@ export class ModalSearchAndFormRegistration extends ModalDefault {
                 if (await self._delRecurse(idDel, options)) {
                     CommonFunctions.generateNotification(success, 'success');
                     self.modalCancel();
-                    self._generateQueryFilters();
+                    self._executarBusca();
                 };
             }
         } catch (error) {

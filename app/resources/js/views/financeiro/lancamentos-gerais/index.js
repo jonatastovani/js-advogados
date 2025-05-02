@@ -364,16 +364,16 @@ class PageLancamentoGeralIndex extends TemplateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
-                <td class="text-nowrap ${classCor}" title="${numero_lancamento}">${numero_lancamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorQuitado}">${valorQuitado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataQuitado}">${dataQuitado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${status}">${status}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacao}">${observacao}</td>
+                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
+                <td class="text-nowrap ${classCor}" title="${numero_lancamento}">${numero_lancamento}</td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

@@ -1025,9 +1025,21 @@ class PageServicoForm extends TemplateForm {
                                         <i class="bi bi-three-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><button type="button" class="dropdown-item fs-6 btn-participacao-pagamento ${pagamentoAtivo ? '' : 'disabled'}" title="Inserir/Editar Participação ${pagamento.pagamento_tipo_tenant.nome}">Participação</button></li>
-                                        <li><button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">Editar</button></li>
-                                        <li><button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${pagamento.pagamento_tipo_tenant.nome}">Excluir</button></li>
+                                        <li>
+                                            <button type="button" class="dropdown-item fs-6 btn-participacao-pagamento ${pagamentoAtivo ? '' : 'disabled'}" title="Inserir/Editar Participação ${pagamento.pagamento_tipo_tenant.nome}">
+                                                Participação
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item fs-6 btn-edit" title="Editar pagamento">
+                                                Editar
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item fs-6 btn-delete" title="Excluir pagamento ${pagamento.pagamento_tipo_tenant.nome}">
+                                                Excluir
+                                            </button>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -1178,7 +1190,7 @@ class PageServicoForm extends TemplateForm {
                     idRegister: item.id,
                 });
                 const response = await objModal.modalOpen();
-                if (response.refresh && response.register) {
+                if (response.refresh) {
                     self.#buscarPagamentos();
                 }
             } catch (error) {
@@ -1394,7 +1406,7 @@ class PageServicoForm extends TemplateForm {
         }
 
         if (editParticipante && pagamentoAtivo) {
-            btnDel = `<button type = "button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}" > Excluir</button>`;
+            btnDel = `<button type = "button" class="btn btn-sm btn-outline-danger border-0 ${btnDel}">Excluir</button>`;
         } else {
             btnDel = '';
         }

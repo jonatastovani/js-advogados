@@ -15,10 +15,10 @@
 7 - Repasse filtrando por dia, não por mês - Adicionar intervalo
     - Perfil de referência está sempre como terceiro
 --- OK
-8 - Ordem alfabéticas por nome de cliente na Listagem de Serviços
-
+8 - Ordem alfabéticas por nome de cliente na Listagem de Serviços, Pagamentos Cadastrados
+--- OK
 9 - Permitir exclusão do lançamento livre
-
+--- OK
 10 - Title na Participação - Participante
 --- OK
 11 - Ressarcimento/Auxílios
@@ -27,10 +27,9 @@
     - Btn Inserir Ressarcimentos -> Inserir
 --- OK
 12 - Tentativa de excluir a Faxina ou Faxina Roseli nas Tags
-
+--- OK
 14 - Ordenar as colunas conforme é na planilha
 --- OK
-
 15 - Adicionar Informação da conta de destino no Repasse
     - Criar categoria de documento Conta Destino
     - Travar caso não tenha documento

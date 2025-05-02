@@ -23,19 +23,21 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
-                    'numero_servico' => ['nome' => 'Número de Serviço'],
-                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
+                    'nome_cliente' => ['nome' => 'Nome Cliente'],
                     'titulo' => ['nome' => 'Título'],
-                    'descricao' => ['nome' => 'Descrição'],
                     'nome_participante' => ['nome' => 'Nome Participante'],
                     'nome_grupo' => ['nome' => 'Nome Grupo Participante'],
                     'nome_integrante' => ['nome' => 'Nome Integrante'],
+                    'numero_servico' => ['nome' => 'Número de Serviço'],
+                    'numero_pagamento' => ['nome' => 'Número do Pagamento'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                'arrayCamposChecked' => ['nome_cliente', 'titulo', 'numero_servico', 'numero_pagamento'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
+                    'nome_cliente' => ['nome' => 'Nome Cliente'],
+                    'titulo' => ['nome' => 'Título'],
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'consultaIntervaloBln' => true,

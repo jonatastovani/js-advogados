@@ -5,6 +5,7 @@ namespace App\Models\Servico;
 use App\Helpers\NumeracaoSequencialHelper;
 use App\Models\Comum\DocumentoTenant;
 use App\Models\Comum\ParticipacaoParticipante;
+use App\Models\Pessoa\PessoaPerfil;
 use App\Models\Tenant\AnotacaoLembreteTenant;
 use App\Models\Tenant\AreaJuridicaTenant;
 use App\Scopes\Servico\ValorServicoAguardandoScope;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Fluent;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Servico extends Model
@@ -121,6 +123,20 @@ class Servico extends Model
         );
     }
 
+    // public function removerTodosScopes($query): void
+    // {
+    //     // Remove os scopes globais para processamento
+    //     $query->withoutGlobalScopes([
+    //         ValorServicoPagamentoComTotalEComLancamentosScope::class,
+    //         ValorServicoLiquidadoScope::class,
+    //         ValorServicoAguardandoScope::class,
+    //         ValorServicoInadimplenteScope::class,
+    //         ValorServicoEmAnaliseScope::class,
+    //         ValorServicoCanceladoScope::class,
+    //         ValorServicoPagamentoSemTotalEComLancamentosScope::class,
+    //     ]);
+    // }
+
     /**
      * Intercepta o evento de criação para adicionar o numero de servico, se aplicável.
      */
@@ -155,5 +171,31 @@ class Servico extends Model
                 self::$sequenciaTemporaria = null;
             }
         });
+    }
+
+    /**
+     * Insere uma cláusula de junção com o ServicoCliente
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param array $options O array de opcões de personalização.
+     *              - 'typeJoin' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção. Padrão é 'left'.
+     *              - 'aliasTable' (opcional) Alias da tabela ServicoCliente. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoCliente.
+     *              - 'aliasJoin' (opcional) Alias da tabela que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+     */
+    public static function joinCliente(Builder $query, array $options = [])
+    {
+        // Join com o ServicoCliente
+        $envOptions = new Fluent([]);
+        $modelJoin = new ServicoCliente();
+        $envOptions->aliasJoin = $options['aliasJoin'] ?? $modelJoin->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
+        $aliasTable = $options['aliasTable'] ?? (new self())->getTableAsName();
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+        ];
+
+        $query = (new self())->joinWithConditions($query, "{$modelJoin->getTableName()} as {$envOptions->aliasJoin}", "$aliasTable.id", "=", "{$envOptions->aliasJoin}.servico_id", $envOptions->toArray());
+        return $query;
     }
 }

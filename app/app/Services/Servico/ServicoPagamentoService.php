@@ -25,6 +25,7 @@ use App\Models\Referencias\LancamentoStatusTipo;
 use App\Models\Referencias\PagamentoStatusTipo;
 use App\Models\Referencias\PagamentoTipo;
 use App\Models\Servico\Servico;
+use App\Models\Servico\ServicoCliente;
 use App\Models\Tenant\PagamentoTipoTenant;
 use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
@@ -51,6 +52,8 @@ class ServicoPagamentoService extends Service
         public Servico $modelServico,
         public ParticipacaoParticipante $modelParticipanteServico,
         public ParticipacaoParticipanteIntegrante $modelIntegranteServico,
+
+        public ServicoCliente $modelCliente,
     ) {
         parent::__construct($model);
         $asNameParticipante = (new ParticipacaoParticipante())->getTableAsName();
@@ -76,7 +79,7 @@ class ServicoPagamentoService extends Service
 
             //     return $item;
             // })
-            ;
+        ;
 
         return $resource->toArray();
     }
@@ -127,6 +130,16 @@ class ServicoPagamentoService extends Service
         ];
         $dados = $this->addCamposBuscaGenerico($dados, $config);
 
+        $config = [
+            [
+                'sufixos' => ['razao_social', 'nome_fantasia', 'responsavel_legal'],
+                'campos' => [
+                    'col_nome_cliente',
+                ],
+            ],
+        ];
+        $dados = $this->addCamposBuscaGenerico($dados, $config);
+
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
@@ -152,6 +165,10 @@ class ServicoPagamentoService extends Service
         $integranteServicoAsName = $this->modelIntegranteServico->getTableAsName();
         $pessoaFisicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaFisicaAsName}";
         $pessoaJuridicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaJuridicaAsName}";
+
+        $clienteAsName = $this->modelCliente->getTableAsName();
+        $pessoaFisicaClienteAsName = "{$clienteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaClienteAsName = "{$clienteAsName}_{$pessoaJuridicaAsName}";
 
         $arrayAliasCampos = [
 
@@ -189,6 +206,11 @@ class ServicoPagamentoService extends Service
             'col_nome_integrante_razao_social_servico' => isset($aliasCampos['col_nome_integrante_razao_social_servico']) ? $aliasCampos['col_nome_integrante_razao_social_servico'] : $pessoaJuridicaIntegranteServicoAsName,
             'col_nome_integrante_nome_fantasia_servico' => isset($aliasCampos['col_nome_integrante_nome_fantasia_servico']) ? $aliasCampos['col_nome_integrante_nome_fantasia_servico'] : $pessoaJuridicaIntegranteServicoAsName,
             'col_nome_integrante_responsavel_legal_servico' => isset($aliasCampos['col_nome_integrante_responsavel_legal_servico']) ? $aliasCampos['col_nome_integrante_responsavel_legal_servico'] : $pessoaJuridicaIntegranteServicoAsName,
+
+            'col_nome_cliente' => $aliasCampos['col_nome_cliente'] ?? $pessoaFisicaClienteAsName,
+            'col_nome_cliente_razao_social' => $aliasCampos['col_nome_cliente_razao_social'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_nome_fantasia' => $aliasCampos['col_nome_cliente_nome_fantasia'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_responsavel_legal' => $aliasCampos['col_nome_cliente_responsavel_legal'] ?? $pessoaJuridicaClienteAsName,
         ];
 
         $arrayCampos = [
@@ -225,68 +247,70 @@ class ServicoPagamentoService extends Service
             'col_nome_integrante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_servico'] . '.nome_fantasia'],
             'col_nome_integrante_responsavel_legal_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal_servico'] . '.responsavel_legal'],
 
+            'col_nome_cliente' => ['campo' => $arrayAliasCampos['col_nome_cliente'] . '.nome'],
+            'col_nome_cliente_razao_social' => ['campo' => $arrayAliasCampos['col_nome_cliente_razao_social'] . '.razao_social'],
+            'col_nome_cliente_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_cliente_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_cliente_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_cliente_responsavel_legal'] . '.responsavel_legal'],
         ];
-        // RestResponse::createTestResponse($dados);
+
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
+        $modelAsName = $this->model->getTableAsName();
+        $clienteAsName = $this->modelCliente->getTableAsName();
+        $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaJuridicaAsName = (new PessoaJuridica())->getTableAsName();
+
+        $pessoaFisicaClienteAsName = "{$clienteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaClienteAsName = "{$clienteAsName}_{$pessoaJuridicaAsName}";
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
-        $ordenacao = $requestData->ordenacao ?? [];
-        if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('created_at')) {
-            $requestData->ordenacao = array_merge(
-                $ordenacao,
-                [['campo' => 'created_at', 'direcao' => 'asc']]
-            );
-        }
-
         $datasIntervalo = $requestData->datas_intervalo;
-        $datasIntervalo['campo_data'] = "{$this->model->getTableAsName()}.created_at";
+        $datasIntervalo['campo_data'] = "{$modelAsName}.created_at";
         $requestData->datas_intervalo = $datasIntervalo;
         $query = $this->aplicarFiltroDataIntervalo($query, $requestData);
-
         $query = $this->aplicarScopesPadrao($query, null, $options);
+
+        $query->select(DB::raw(
+            "DISTINCT ON ({$modelAsName}.id) {$modelAsName}.*"
+        ));
+        $query->addSelect(DB::raw(
+            "COALESCE({$pessoaFisicaClienteAsName}.nome, {$pessoaJuridicaClienteAsName}.nome_fantasia) AS nome_cliente"
+        ));
+
+        $this->prepararOrdenacaoPadrao(
+            $requestData,
+            "{$this->model->getTableAsName()}.id",
+            [
+                ['campo' => 'nome_cliente', 'direcao' => 'asc'],
+                ['campo' => "{$pessoaJuridicaClienteAsName}.razao_social", 'direcao' => 'asc'],
+                ['campo' => "{$pessoaJuridicaClienteAsName}.responsavel_legal", 'direcao' => 'asc'],
+                ['campo' => "{$this->modelServico->getTableAsName()}.titulo", 'direcao' => 'asc'],
+                ['campo' => "{$this->model->getTableAsName()}.created_at", 'direcao' => 'asc'],
+            ]
+        );
+
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'created_at',
-            'direcaoOrdenacao' => 'asc',
+            'campoOrdenacao' => 'nome_cliente',
         ], $options));
+
+        $query->groupBy([
+            "{$modelAsName}.id",
+            "{$this->modelServico->getTableAsName()}.id",
+            "nome_cliente",
+            "{$pessoaJuridicaClienteAsName}.razao_social",
+            "{$pessoaJuridicaClienteAsName}.responsavel_legal",
+            "{$this->modelServico->getTableAsName()}.titulo",
+            "{$modelAsName}.created_at",
+        ]);
 
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
-
-    // protected function carregarRelacionamentos(Builder $query, Fluent $requestData, array $options = [])
-    // {
-    //     if ($options['loadFull'] ?? false) {
-    //         $query->with($options['loadFull']);
-    //     } else {
-    //         if (method_exists($this, 'loadFull') && is_array($this->loadFull())) {
-    //             $query->with($this->loadFull($options));
-    //         }
-    //     }
-
-    //     /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
-    //     $paginator = $query->paginate($requestData->perPage ?? 25);
-
-    //     // Ajusta o valor_total da relação pagamento se estiver vazio
-    //     $paginator->getCollection()->transform(function ($item) {
-    //         if (
-    //             isset($item->pagamento) &&
-    //             (empty($item->pagamento->valor_total) || $item->pagamento->valor_total == 0) &&
-    //             !empty($item->pagamento->total_pagamento_sem_total)
-    //         ) {
-    //             $item->pagamento->valor_total = $item->pagamento->total_pagamento_sem_total;
-    //         }
-
-    //         return $item;
-    //     });
-
-    //     return $paginator->toArray();
-    // }
 
     /**
      * Aplica filtros específicos baseados nos campos de busca fornecidos.
@@ -304,6 +328,9 @@ class ServicoPagamentoService extends Service
         $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
 
         $query = $this->model::joinServico($query);
+
+        $query = $this->modelServico::joinCliente($query);
+        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelCliente);
 
         if ($blnParticipanteFiltro || $blnIntegranteFiltro || $blnGrupoParticipanteFiltro) {
             $query = $this->modelParticipante::joinParticipanteAllModels($query, $this->model);

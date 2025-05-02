@@ -118,12 +118,13 @@ class PessoaPerfil extends Model
         // Prefixo obrigatório para os aliases
         $modelAsName = $model->getTableAsName();
 
-        // Join com o Perfil
         $campoFK = isset($options['campoFK']) ? $options['campoFK'] : 'perfil_id';
+
+        // Join com o Perfil
         $envOptions = new Fluent([]);
         $envOptions->aliasJoin = $options['aliasJoin'] ?? "{$modelAsName}_" . (new self())->getTableAsName();
         $envOptions->typeJoin = $options['typeJoin'] ?? 'left';
-        $aliasTable = isset($options['aliasTable']) ? $options['aliasTable'] : $modelAsName;
+        $aliasTable = $options['aliasTable'] ?? $modelAsName;
         $envOptions->wheres = [
             ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
         ];

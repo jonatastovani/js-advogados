@@ -421,6 +421,16 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap ${classCor}" title="${formaPagamento}">${formaPagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
+                <td class="text-center ${classCor}">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
+                <td class="text-center ${classCor}">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
                 <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>
@@ -431,8 +441,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate ${classCor}" title="${pagamentoTipo}">${pagamentoTipo}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoPagamento}">${observacaoPagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${statusPagamento}">${statusPagamento}</td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td class="text-center ${classCor}"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
                 <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
@@ -456,8 +464,6 @@ class PageLancamentoServicoIndex extends TemplateSearch {
     async #atualizaValoresTotais() {
         const self = this;
 
-        // Configurar back para retornar soma da consulta separada da geral (todos pagamentos envolvidos)
-        return;
         // Se não estiver atualizando os valores, então se executa
         if (!self._objConfigs?.atualizandoValores) {
             self._objConfigs.atualizandoValores = true;
@@ -473,13 +479,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 const response = await objConn.envRequest();
 
                 const totais = response.data.totais;
-                // Ativos
-                $(`#valorFinal${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.valor_total));
-                $(`#totalCancelado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_cancelado));
-                $(`#totalAguardando${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_aguardando));
-                $(`#totalEmAnalise${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_analise));
-                $(`#totalLiquidado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_liquidado));
-                $(`#totalInadimplente${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.total_inadimplente));
+                $(`#valorTotalEsperado${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.valor_total_esperado));
+                $(`#valorTotalRecebido${self.getSufixo}`).html(CommonFunctions.formatWithCurrencyCommasOrFraction(totais.valor_total_recebido));
 
             } catch (error) {
                 $(`.campo_totais${self.getSufixo}`).html('0,00');
@@ -786,10 +787,10 @@ class PageLancamentoServicoIndex extends TemplateSearch {
 
     }
 
-    #htmlRenderCliente(item) {
+    #htmlRenderCliente(lancamento) {
         const self = this;
 
-        const arrayCliente = item?.pagamento?.servico?.cliente;
+        const arrayCliente = lancamento?.pagamento?.servico?.cliente;
         if (!arrayCliente.length) {
             return '<span class="fst-italic" title="Nenhum cliente encontrado">Nenhum cliente encontrado</span>';
         }

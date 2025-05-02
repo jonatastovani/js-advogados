@@ -5,6 +5,7 @@ import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoAgendamentoIndex extends TemplateSearch {
@@ -153,6 +154,12 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         let classCor = '';
+        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+            item.participantes.length ? item.participantes :
+                (item.pagamento.participantes.length ? item.pagamento.participantes :
+                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
+                )
+        );
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -163,10 +170,20 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
                 </td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${tipoAgendamento}">${tipoAgendamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
+                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-center ${classCor}">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participante(s) do Agendamento ${descricao}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
+                <td class="text-center ${classCor}">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrante(s) de Grupo(s)" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
                 <td class="text-nowrap text-center ${classCor}" title="${recorrente_bln}">${recorrente_bln}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${ativo_bln}">${ativo_bln}</td>
                 <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
@@ -183,14 +200,11 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
     #retornaTipoAgendamento(agendamento_tipo) {
         switch (agendamento_tipo) {
             case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
-                return 'Lancamento Geral';
-                break;
+                return 'Comum';
             case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
-                return 'Ressarc./Compensação';
-                break;
+                return 'Ressarcimento';
             default:
                 return 'Não configurado';
-                break;
         }
     }
 

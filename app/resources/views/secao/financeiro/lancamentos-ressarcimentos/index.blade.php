@@ -104,16 +104,18 @@
                 <tr>
                     <th class="text-center"><i class="fa-solid fa-fire"></i></th>
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
-                    <th class="text-nowrap">Status</th>
-                    <th class="text-center" title="Número do Ressarcimento">N.R.</th>
-                    <th class="text-nowrap">Descrição</th>
                     <th class="text-nowrap">Categoria</th>
+                    <th class="text-nowrap">Data Quitado</th>
+                    <th class="text-nowrap">Valor Quitado</th>
+                    <th class="text-nowrap">Descrição</th>
+                    <th class="text-nowrap" title="Participante(s)">Participante(s)</th>
+                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
+                    <th class="text-nowrap">Status</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap">Data Vencimento</th>
-                    <th class="text-nowrap">Valor Quitado</th>
-                    <th class="text-nowrap">Data Quitado</th>
-                    <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Observação</th>
+                    <th class="text-nowrap">Conta</th>
+                    <th class="text-center" title="Número do Ressarcimento">N.R.</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>
             </thead>

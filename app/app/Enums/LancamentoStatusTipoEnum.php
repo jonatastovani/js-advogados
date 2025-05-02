@@ -386,6 +386,31 @@ enum LancamentoStatusTipoEnum: int
         ];
     }
 
+    static public function statusSomarComoEsperado(): array
+    {
+        return [
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+            self::AGUARDANDO_PAGAMENTO->value,
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::INADIMPLENTE_EM_ANALISE->value,
+            self::INADIMPLENTE->value,
+            self::CANCELADO_EM_ANALISE->value,
+            self::PAGAMENTO_CANCELADO_EM_ANALISE->value,
+            self::EM_ATRASO_EM_ANALISE->value,
+            self::EM_ATRASO->value,
+        ];
+    }
+
+    static public function statusSomarComoLiquidado(): array
+    {
+        return [
+            self::LIQUIDADO->value,
+            self::LIQUIDADO_PARCIALMENTE->value,
+            self::LIQUIDADO_MIGRACAO_SISTEMA->value,
+        ];
+    }
+
     /**
      * Status para não somar no scope que calcula o valor do total
      * do pagamento conforme os valores dos lançamento.

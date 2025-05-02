@@ -67,7 +67,7 @@ class ServicoPagamentoRecorrenteHelper
 
         // Remove o scope de tenant automático
         $query->withoutTenancy();
-        $modelServicoPagamento->removerTodosScopesParaProcessamentoCron($query);
+        $modelServicoPagamento->removerTodosScopes($query);
 
         $query->whereNull("{$asNamePagamento}.deleted_at");
         $query->where("{$asNamePagamento}.tenant_id", $tenantId);

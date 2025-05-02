@@ -5,6 +5,7 @@ import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { ModalLancamentoCategoriaTipoTenant } from "../../../components/tenant/ModalLancamentoCategoriaTipoTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PageLancamentoRessarcimentoIndex extends TemplateSearch {
@@ -152,6 +153,13 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         const conta = item.conta.nome
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
+        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+            item.participantes.length ? item.participantes :
+                (item.pagamento.participantes.length ? item.pagamento.participantes :
+                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
+                )
+        );
+
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
                 <td class="text-center">
@@ -160,16 +168,27 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
                     </div>
                 </td>
                 <td class="text-nowrap text-truncate" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
-                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
-                <td class="text-nowrap" title="${numero_lancamento}">${numero_lancamento}</td>
-                <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
                 <td class="text-nowrap text-truncate" title="${categoriaTipo}">${categoriaTipo}</td>
+                <td class="text-nowrap text-center" title="${dataQuitado}">${dataQuitado}</td>
+                <td class="text-nowrap text-center" title="${valorQuitado}">${valorQuitado}</td>
+                <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participante(s) do Lançamento ${descricao}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrante(s) de Grupo(s)" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
+                        Ver mais
+                    </button>
+                </td>
+
+                <td class="text-nowrap text-truncate" title="${status}">${status}</td>
                 <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>
-                <td class="text-nowrap text-center" title="${valorQuitado}">${valorQuitado}</td>
-                <td class="text-nowrap text-center" title="${dataQuitado}">${dataQuitado}</td>
-                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
                 <td class="text-nowrap text-truncate" title="${observacao}">${observacao}</td>
+                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
+                <td class="text-nowrap" title="${numero_lancamento}">${numero_lancamento}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

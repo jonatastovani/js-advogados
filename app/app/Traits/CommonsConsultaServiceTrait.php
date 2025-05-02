@@ -193,6 +193,36 @@ trait CommonsConsultaServiceTrait
     }
 
     /**
+     * Prepara ordenações com campos padrão, evitando duplicações e garantindo campo prioritário no início.
+     *
+     * @param Fluent $requestData Referência para os dados da requisição onde será aplicada a ordenação.
+     * @param string $campoPrioritario Campo obrigatório a ser inserido no início da ordenação (ex: 'tabela.id').
+     * @param array $camposFixos Array de campos com direção a serem adicionados no fim, se ainda não existirem.
+     *                           Exemplo: [['campo' => 'nome_cliente', 'direcao' => 'asc']]
+     * @return void
+     */
+    protected function prepararOrdenacaoPadrao(Fluent &$requestData, string $campoPrioritario, array $camposFixos = []): void
+    {
+        $ordenacao = collect($requestData->ordenacao ?? []);
+
+        // Garante que campo prioritário venha primeiro
+        $ordenacao = $ordenacao->reject(fn($item) => $item['campo'] === $campoPrioritario);
+        $ordenacao->prepend([
+            'campo' => $campoPrioritario,
+            'direcao' => 'asc'
+        ]);
+
+        // Adiciona campos fixos se ainda não estiverem presentes
+        foreach ($camposFixos as $fixo) {
+            if (!$ordenacao->pluck('campo')->contains($fixo['campo'])) {
+                $ordenacao->push($fixo);
+            }
+        }
+
+        $requestData->ordenacao = $ordenacao->unique('campo')->values()->toArray();
+    }
+
+    /**
      * Carrega os relacionamentos definidos e retorna os resultados paginados.
      *
      * @param Builder $query Instância do query builder.
@@ -212,6 +242,7 @@ trait CommonsConsultaServiceTrait
         /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
         $paginator = $query->paginate($requestData->perPage ?? 25);
 
+        LogHelper::escreverLogSomenteComQuery($query);
         return $paginator->toArray();
     }
 

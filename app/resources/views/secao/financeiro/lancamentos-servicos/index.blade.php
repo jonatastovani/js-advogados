@@ -17,6 +17,7 @@
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
+                    'nome_cliente' => ['nome' => 'Nome Cliente'],
                     'numero_servico' => ['nome' => 'Número de Serviço'],
                     'numero_pagamento' => ['nome' => 'Número do Pagamento'],
                     'titulo' => ['nome' => 'Título'],
@@ -26,12 +27,13 @@
                     'nome_integrante' => ['nome' => 'Nome Integrante'],
                 ],
                 'direcaoConsultaChecked' => 'asc',
-                'arrayCamposChecked' => ['numero_servico', 'titulo', 'descricao'],
+                'arrayCamposChecked' => ['nome_cliente', 'titulo', 'numero_servico'],
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
                     'data_vencimento' => ['nome' => 'Data Vencimento'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
+                    'nome_cliente' => ['nome' => 'Nome Cliente'],
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'consultaMesAnoBln' => true,
@@ -95,6 +97,8 @@
                     <th class="text-nowrap">Área Jurídica</th>
                     <th class="text-nowrap">Forma Pagamento</th>
                     <th class="text-nowrap">Descrição Lançamento</th>
+                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
+                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-center" title="Número do Pagamento">N.P.</th>
                     <th class="text-nowrap">Observação Lançamento</th>
                     <th class="text-center" title="Número de Serviço">N.S.</th>
@@ -105,52 +109,26 @@
                     <th class="text-nowrap">Tipo de pagamento</th>
                     <th class="text-nowrap">Observação Pagamento</th>
                     <th class="text-nowrap">Status Pagamento</th>
-                    <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
-                    <th class="text-nowrap" title="Integrante(s) de grupo(s)">Integrante(s)</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
-    {{-- <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 text-end">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 text-end">
         <p class="mb-0">
-            Valor final dos pagamentos: R$
-            <span id="valorFinal{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+            Valor total esperado: R$
+            <span id="valorTotalEsperado{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
                 0,00
             </span>
         </p>
         <p class="mb-0">
-            Lançamentos cancelados: R$
-            <span id="totalCancelado{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
+            Valor total Recebido: R$
+            <span id="valorTotalRecebido{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
                 0,00
             </span>
         </p>
-        <p class="mb-0">
-            Lançamentos aguardando: R$
-            <span id="totalAguardando{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
-                0,00
-            </span>
-        </p>
-        <p class="mb-0">
-            Lançamentos em análise: R$
-            <span id="totalEmAnalise{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
-                0,00
-            </span>
-        </p>
-        <p class="mb-0">
-            Lançamentos liquidado: R$
-            <span id="totalLiquidado{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
-                0,00
-            </span>
-        </p>
-        <p class="mb-0">
-            Lançamentos inadimplente: R$
-            <span id="totalInadimplente{{ $sufixo }}" class="campo_totais{{ $sufixo }}">
-                0,00
-            </span>
-        </p>
-    </div> --}}
+    </div>
     <x-consulta.section-paginacao.componente :sufixo="$sufixo" />
 
 @endsection

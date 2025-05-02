@@ -15,6 +15,8 @@ use App\Models\Tenant\AreaJuridicaTenant;
 use App\Models\Servico\Servico;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
+use App\Models\Pessoa\PessoaJuridica;
+use App\Models\Servico\ServicoCliente;
 use App\Services\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,8 +29,11 @@ class ServicoService extends Service
 {
     public function __construct(
         Servico $model,
+
         public ParticipacaoParticipante $modelParticipante,
         public ParticipacaoParticipanteIntegrante $modelIntegrante,
+
+        public ServicoCliente $modelCliente,
     ) {
         parent::__construct($model);
     }
@@ -44,49 +49,140 @@ class ServicoService extends Service
      */
     public function traducaoCampos(array $dados)
     {
+        $config = [
+            [
+                'sufixos' => ['razao_social', 'nome_fantasia', 'responsavel_legal'],
+                'campos' => [
+                    'col_nome_cliente',
+                ],
+            ],
+        ];
+        $dados = $this->addCamposBuscaGenerico($dados, $config);
+
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
-        $participanteAsName = $this->modelParticipante->getTableAsName();
+
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaJuridicaAsName = (new PessoaJuridica())->getTableAsName();
+
+        $participanteAsName = $this->modelParticipante->getTableAsName();
         $pessoaFisicaParticipanteAsName =  "{$participanteAsName}_{$pessoaFisicaAsName}";
-        $pessoaFisicaIntegranteAsName = "{$this->modelIntegrante->getTableAsName()}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaParticipanteAsName = "{$participanteAsName}_{$pessoaFisicaAsName}";
+
+        $integranteAsName = $this->modelIntegrante->getTableAsName();
+        $pessoaFisicaIntegranteAsName = "{$integranteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaIntegranteAsName = "{$integranteAsName}_{$pessoaJuridicaAsName}";
+
+        $clienteAsName = $this->modelCliente->getTableAsName();
+        $pessoaFisicaClienteAsName = "{$clienteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaClienteAsName = "{$clienteAsName}_{$pessoaJuridicaAsName}";
 
         $arrayAliasCampos = [
-            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $modelAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
-            'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $modelAsName,
+            'col_titulo' => $aliasCampos['col_titulo'] ?? $modelAsName,
+            'col_descricao' => $aliasCampos['col_descricao'] ?? $modelAsName,
+            'col_numero_servico' => $aliasCampos['col_numero_servico'] ?? $modelAsName,
 
-            'col_nome_grupo' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
-            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
-            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
-            'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
+            'col_nome_grupo' => $aliasCampos['col_nome_grupo'] ?? $participanteAsName,
+            'col_observacao' => $aliasCampos['col_observacao'] ?? $participanteAsName,
+
+            'col_nome_participante' => $aliasCampos['col_nome_participante'] ?? $pessoaFisicaParticipanteAsName,
+            'col_nome_participante_razao_social' => $aliasCampos['col_nome_participante_razao_social'] ?? $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_nome_fantasia' => $aliasCampos['col_nome_participante_nome_fantasia'] ?? $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_responsavel_legal' => $aliasCampos['col_nome_participante_responsavel_legal'] ?? $pessoaJuridicaParticipanteAsName,
+
+            'col_nome_integrante' => $aliasCampos['col_nome_integrante'] ?? $pessoaFisicaIntegranteAsName,
+            'col_nome_integrante_razao_social' => $aliasCampos['col_nome_integrante_razao_social'] ?? $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_nome_fantasia' => $aliasCampos['col_nome_integrante_nome_fantasia'] ?? $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_responsavel_legal' => $aliasCampos['col_nome_integrante_responsavel_legal'] ?? $pessoaJuridicaIntegranteAsName,
+
+            'col_nome_cliente' => $aliasCampos['col_nome_cliente'] ?? $pessoaFisicaClienteAsName,
+            'col_nome_cliente_razao_social' => $aliasCampos['col_nome_cliente_razao_social'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_nome_fantasia' => $aliasCampos['col_nome_cliente_nome_fantasia'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_responsavel_legal' => $aliasCampos['col_nome_cliente_responsavel_legal'] ?? $pessoaJuridicaClienteAsName,
         ];
 
         $arrayCampos = [
             'col_titulo' => ['campo' => $arrayAliasCampos['col_titulo'] . '.titulo'],
             'col_descricao' => ['campo' => $arrayAliasCampos['col_descricao'] . '.descricao'],
             'col_numero_servico' => ['campo' => $arrayAliasCampos['col_numero_servico'] . '.numero_servico'],
+
+            'col_nome_grupo_participante' => $aliasCampos['col_nome_grupo'] ?? $participanteAsName,
+            'col_observacao_participante' => $aliasCampos['col_observacao'] ?? $participanteAsName,
+
+            'col_nome_participante' => ['campo' => $arrayAliasCampos['col_nome_participante'] . '.nome'],
+            'col_nome_participante_razao_social' => ['campo' => $arrayAliasCampos['col_nome_participante_razao_social'] . '.razao_social'],
+            'col_nome_participante_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_participante_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_participante_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_participante_responsavel_legal'] . '.responsavel_legal'],
+
+            'col_nome_integrante' => ['campo' => $arrayAliasCampos['col_nome_integrante'] . '.nome'],
+            'col_nome_integrante_razao_social' => ['campo' => $arrayAliasCampos['col_nome_integrante_razao_social'] . '.razao_social'],
+            'col_nome_integrante_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_integrante_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal'] . '.responsavel_legal'],
+
+            'col_nome_cliente' => ['campo' => $arrayAliasCampos['col_nome_cliente'] . '.nome'],
+            'col_nome_cliente_razao_social' => ['campo' => $arrayAliasCampos['col_nome_cliente_razao_social'] . '.razao_social'],
+            'col_nome_cliente_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_cliente_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_cliente_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_cliente_responsavel_legal'] . '.responsavel_legal'],
         ];
+
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
     public function postConsultaFiltros(Fluent $requestData, array $options = [])
     {
+        $modelAsName = $this->model->getTableAsName();
+        $clienteAsName = $this->modelCliente->getTableAsName();
+        $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
+        $pessoaJuridicaAsName = (new PessoaJuridica())->getTableAsName();
+
+        $pessoaFisicaClienteAsName = "{$clienteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaClienteAsName = "{$clienteAsName}_{$pessoaJuridicaAsName}";
+
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $filtrosData['query'];
+
         $query->withoutValorServicoAguardandoScope()
             ->withoutValorServicoEmAnaliseScope()
             ->withoutValorServicoInadimplenteScope()
             ->withoutValorServicoLiquidadoScope();
+
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
+
         // $query = $this->aplicarFiltroDataIntervalo($query, $requestData, $options);
-        $query = $this->aplicarFiltroMes($query, $requestData, "{$this->model->getTableAsName()}.created_at");
+        $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.created_at");
         $query = $this->aplicarScopesPadrao($query, null, $options);
+
+        $query->select(DB::raw(
+            "DISTINCT ON ({$modelAsName}.id) {$modelAsName}.*"
+        ));
+        $query->addSelect(DB::raw(
+            "COALESCE({$pessoaFisicaClienteAsName}.nome, {$pessoaJuridicaClienteAsName}.nome_fantasia) AS nome_cliente"
+        ));
+
+        $this->prepararOrdenacaoPadrao(
+            $requestData,
+            "{$modelAsName}.id",
+            [
+                ['campo' => 'nome_cliente', 'direcao' => 'asc'],
+                ['campo' => "{$pessoaJuridicaClienteAsName}.razao_social", 'direcao' => 'asc'],
+                ['campo' => "{$pessoaJuridicaClienteAsName}.responsavel_legal", 'direcao' => 'asc'],
+                ['campo' => "{$modelAsName}.titulo", 'direcao' => 'asc'],
+                ['campo' => "{$modelAsName}.created_at", 'direcao' => 'asc'],
+            ]
+        );
+
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
-            'campoOrdenacao' => 'titulo',
+            'campoOrdenacao' => 'nome_cliente',
         ], $options));
-        // $options = array_merge($options, ['removePrefix' => ['']]);
+
+        $query->groupBy([
+            "{$modelAsName}.id",
+            "nome_cliente",
+            "{$pessoaJuridicaClienteAsName}.razao_social",
+            "{$pessoaJuridicaClienteAsName}.responsavel_legal",
+        ]);
+
         return $this->carregarRelacionamentos($query, $requestData, $options);
     }
 
@@ -112,6 +208,9 @@ class ServicoService extends Service
             $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante);
         }
 
+        $query = $this->model::joinCliente($query);
+        $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelCliente);
+
         foreach ($filtros['campos_busca'] as $key) {
             switch ($key) {
                 case 'col_nome_participante':
@@ -121,8 +220,8 @@ class ServicoService extends Service
                             ['column' => "{$this->modelParticipante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
-
                     break;
+
                 case 'col_nome_integrante':
                     $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelIntegrante, [
                         'campoFK' => "referencia_id",
@@ -130,12 +229,10 @@ class ServicoService extends Service
                             ['column' => "{$this->modelIntegrante->getTableAsName()}.referencia_type", 'operator' => "=", 'value' => PessoaPerfil::class],
                         ]
                     ]);
-
                     break;
             }
         }
 
-        $query->groupBy($this->model->getTableAsName() . '.id');
         return $query;
     }
 

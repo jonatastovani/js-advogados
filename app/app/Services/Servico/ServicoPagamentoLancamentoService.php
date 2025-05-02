@@ -15,6 +15,7 @@ use App\Models\Servico\ServicoPagamento;
 use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Comum\ParticipacaoParticipanteIntegrante;
+use App\Models\Servico\ServicoCliente;
 use App\Services\Service;
 use App\Services\Tenant\FormaPagamentoTenantService;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +40,8 @@ class ServicoPagamentoLancamentoService extends Service
         public Servico $modelServico,
         public ParticipacaoParticipante $modelParticipanteServico,
         public ParticipacaoParticipanteIntegrante $modelIntegranteServico,
+
+        public ServicoCliente $modelCliente,
     ) {
         parent::__construct($model);
         $asNameParticipante = (new ParticipacaoParticipante())->getTableAsName();
@@ -97,6 +100,16 @@ class ServicoPagamentoLancamentoService extends Service
         ];
         $dados = $this->addCamposBuscaGenerico($dados, $config);
 
+        $config = [
+            [
+                'sufixos' => ['razao_social', 'nome_fantasia', 'responsavel_legal'],
+                'campos' => [
+                    'col_nome_cliente',
+                ],
+            ],
+        ];
+        $dados = $this->addCamposBuscaGenerico($dados, $config);
+
         $aliasCampos = $dados['aliasCampos'] ?? [];
         $modelAsName = $this->model->getTableAsName();
         $pessoaFisicaAsName = (new PessoaFisica())->getTableAsName();
@@ -131,56 +144,65 @@ class ServicoPagamentoLancamentoService extends Service
         $pessoaFisicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaFisicaAsName}";
         $pessoaJuridicaIntegranteServicoAsName = "{$integranteServicoAsName}_{$pessoaJuridicaAsName}";
 
+        $clienteAsName = $this->modelCliente->getTableAsName();
+        $pessoaFisicaClienteAsName = "{$clienteAsName}_{$pessoaFisicaAsName}";
+        $pessoaJuridicaClienteAsName = "{$clienteAsName}_{$pessoaJuridicaAsName}";
+
         $arrayAliasCampos = [
 
-            'col_observacao' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $modelAsName,
-            'col_descricao' => isset($aliasCampos['col_descricao']) ? $aliasCampos['col_descricao'] : $modelAsName,
+            'col_observacao' => $aliasCampos['col_observacao'] ?? $modelAsName,
+            'col_descricao' => $aliasCampos['col_descricao'] ?? $modelAsName,
 
-            'col_nome_grupo_participante' => isset($aliasCampos['col_nome_grupo']) ? $aliasCampos['col_nome_grupo'] : $participanteAsName,
-            'col_observacao_participante' => isset($aliasCampos['col_observacao']) ? $aliasCampos['col_observacao'] : $participanteAsName,
+            'col_nome_grupo_participante' => $aliasCampos['col_nome_grupo'] ?? $participanteAsName,
+            'col_observacao_participante' => $aliasCampos['col_observacao'] ?? $participanteAsName,
 
-            'col_nome_participante' => isset($aliasCampos['col_nome_participante']) ? $aliasCampos['col_nome_participante'] : $pessoaFisicaParticipanteAsName,
-            'col_nome_participante_razao_social' => isset($aliasCampos['col_nome_participante_razao_social']) ? $aliasCampos['col_nome_participante_razao_social'] : $pessoaJuridicaParticipanteAsName,
-            'col_nome_participante_nome_fantasia' => isset($aliasCampos['col_nome_participante_nome_fantasia']) ? $aliasCampos['col_nome_participante_nome_fantasia'] : $pessoaJuridicaParticipanteAsName,
-            'col_nome_participante_responsavel_legal' => isset($aliasCampos['col_nome_participante_responsavel_legal']) ? $aliasCampos['col_nome_participante_responsavel_legal'] : $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante' => $aliasCampos['col_nome_participante'] ?? $pessoaFisicaParticipanteAsName,
+            'col_nome_participante_razao_social' => $aliasCampos['col_nome_participante_razao_social'] ?? $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_nome_fantasia' => $aliasCampos['col_nome_participante_nome_fantasia'] ?? $pessoaJuridicaParticipanteAsName,
+            'col_nome_participante_responsavel_legal' => $aliasCampos['col_nome_participante_responsavel_legal'] ?? $pessoaJuridicaParticipanteAsName,
 
-            'col_nome_integrante' => isset($aliasCampos['col_nome_integrante']) ? $aliasCampos['col_nome_integrante'] : $pessoaFisicaIntegranteAsName,
-            'col_nome_integrante_razao_social' => isset($aliasCampos['col_nome_integrante_razao_social']) ? $aliasCampos['col_nome_integrante_razao_social'] : $pessoaJuridicaIntegranteAsName,
-            'col_nome_integrante_nome_fantasia' => isset($aliasCampos['col_nome_integrante_nome_fantasia']) ? $aliasCampos['col_nome_integrante_nome_fantasia'] : $pessoaJuridicaIntegranteAsName,
-            'col_nome_integrante_responsavel_legal' => isset($aliasCampos['col_nome_integrante_responsavel_legal']) ? $aliasCampos['col_nome_integrante_responsavel_legal'] : $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante' => $aliasCampos['col_nome_integrante'] ?? $pessoaFisicaIntegranteAsName,
+            'col_nome_integrante_razao_social' => $aliasCampos['col_nome_integrante_razao_social'] ?? $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_nome_fantasia' => $aliasCampos['col_nome_integrante_nome_fantasia'] ?? $pessoaJuridicaIntegranteAsName,
+            'col_nome_integrante_responsavel_legal' => $aliasCampos['col_nome_integrante_responsavel_legal'] ?? $pessoaJuridicaIntegranteAsName,
 
-            'col_nome_grupo_pagamento' => isset($aliasCampos['col_nome_grupo_pagamento']) ? $aliasCampos['col_nome_grupo_pagamento'] : $participantePagamentoAsName,
-            'col_observacao_pagamento' => isset($aliasCampos['col_observacao_pagamento']) ? $aliasCampos['col_observacao_pagamento'] : $participantePagamentoAsName,
-            'col_numero_pagamento' => isset($aliasCampos['col_numero_pagamento']) ? $aliasCampos['col_numero_pagamento'] : $participantePagamentoAsName,
+            'col_nome_grupo_pagamento' => $aliasCampos['col_nome_grupo_pagamento'] ?? $participantePagamentoAsName,
+            'col_observacao_pagamento' => $aliasCampos['col_observacao_pagamento'] ?? $participantePagamentoAsName,
+            'col_numero_pagamento' => $aliasCampos['col_numero_pagamento'] ?? $participantePagamentoAsName,
 
-            'col_nome_participante_pagamento' => isset($aliasCampos['col_nome_participante_pagamento']) ? $aliasCampos['col_nome_participante_pagamento'] : $pessoaFisicaParticipantePagamentoAsName,
-            'col_nome_participante_razao_social_pagamento' => isset($aliasCampos['col_nome_participante_razao_social_pagamento']) ? $aliasCampos['col_nome_participante_razao_social_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
-            'col_nome_participante_nome_fantasia_pagamento' => isset($aliasCampos['col_nome_participante_nome_fantasia_pagamento']) ? $aliasCampos['col_nome_participante_nome_fantasia_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
-            'col_nome_participante_responsavel_legal_pagamento' => isset($aliasCampos['col_nome_participante_responsavel_legal_pagamento']) ? $aliasCampos['col_nome_participante_responsavel_legal_pagamento'] : $pessoaJuridicaParticipantePagamentoAsName,
+            'col_nome_participante_pagamento' => $aliasCampos['col_nome_participante_pagamento'] ?? $pessoaFisicaParticipantePagamentoAsName,
+            'col_nome_participante_razao_social_pagamento' => $aliasCampos['col_nome_participante_razao_social_pagamento'] ?? $pessoaJuridicaParticipantePagamentoAsName,
+            'col_nome_participante_nome_fantasia_pagamento' => $aliasCampos['col_nome_participante_nome_fantasia_pagamento'] ?? $pessoaJuridicaParticipantePagamentoAsName,
+            'col_nome_participante_responsavel_legal_pagamento' => $aliasCampos['col_nome_participante_responsavel_legal_pagamento'] ?? $pessoaJuridicaParticipantePagamentoAsName,
 
-            'col_nome_integrante_pagamento' => isset($aliasCampos['col_nome_integrante_pagamento']) ? $aliasCampos['col_nome_integrante_pagamento'] : $pessoaFisicaIntegrantePagamentoAsName,
-            'col_nome_integrante_razao_social_pagamento' => isset($aliasCampos['col_nome_integrante_razao_social_pagamento']) ? $aliasCampos['col_nome_integrante_razao_social_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
-            'col_nome_integrante_nome_fantasia_pagamento' => isset($aliasCampos['col_nome_integrante_nome_fantasia_pagamento']) ? $aliasCampos['col_nome_integrante_nome_fantasia_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
-            'col_nome_integrante_responsavel_legal_pagamento' => isset($aliasCampos['col_nome_integrante_responsavel_legal_pagamento']) ? $aliasCampos['col_nome_integrante_responsavel_legal_pagamento'] : $pessoaJuridicaIntegrantePagamentoAsName,
+            'col_nome_integrante_pagamento' => $aliasCampos['col_nome_integrante_pagamento'] ?? $pessoaFisicaIntegrantePagamentoAsName,
+            'col_nome_integrante_razao_social_pagamento' => $aliasCampos['col_nome_integrante_razao_social_pagamento'] ?? $pessoaJuridicaIntegrantePagamentoAsName,
+            'col_nome_integrante_nome_fantasia_pagamento' => $aliasCampos['col_nome_integrante_nome_fantasia_pagamento'] ?? $pessoaJuridicaIntegrantePagamentoAsName,
+            'col_nome_integrante_responsavel_legal_pagamento' => $aliasCampos['col_nome_integrante_responsavel_legal_pagamento'] ?? $pessoaJuridicaIntegrantePagamentoAsName,
 
-            'col_nome_grupo_servico' => isset($aliasCampos['col_nome_grupo_servico']) ? $aliasCampos['col_nome_grupo_servico'] : $participanteServicoAsName,
-            'col_observacao_servico' => isset($aliasCampos['col_observacao_servico']) ? $aliasCampos['col_observacao_servico'] : $participanteServicoAsName,
+            'col_nome_grupo_servico' => $aliasCampos['col_nome_grupo_servico'] ?? $participanteServicoAsName,
+            'col_observacao_servico' => $aliasCampos['col_observacao_servico'] ?? $participanteServicoAsName,
 
-            'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
+            'col_nome_participante_servico' => $aliasCampos['col_nome_participante_servico'] ?? $pessoaFisicaParticipanteServicoAsName,
 
-            'col_titulo' => isset($aliasCampos['col_titulo']) ? $aliasCampos['col_titulo'] : $servicoAsName,
-            'col_descricao_servico' => isset($aliasCampos['col_descricao_servico']) ? $aliasCampos['col_descricao_servico'] : $servicoAsName,
-            'col_numero_servico' => isset($aliasCampos['col_numero_servico']) ? $aliasCampos['col_numero_servico'] : $servicoAsName,
+            'col_titulo' => $aliasCampos['col_titulo'] ?? $servicoAsName,
+            'col_descricao_servico' => $aliasCampos['col_descricao_servico'] ?? $servicoAsName,
+            'col_numero_servico' => $aliasCampos['col_numero_servico'] ?? $servicoAsName,
 
-            'col_nome_participante_servico' => isset($aliasCampos['col_nome_participante_servico']) ? $aliasCampos['col_nome_participante_servico'] : $pessoaFisicaParticipanteServicoAsName,
-            'col_nome_participante_razao_social_servico' => isset($aliasCampos['col_nome_participante_razao_social_servico']) ? $aliasCampos['col_nome_participante_razao_social_servico'] : $pessoaJuridicaParticipanteServicoAsName,
-            'col_nome_participante_nome_fantasia_servico' => isset($aliasCampos['col_nome_participante_nome_fantasia_servico']) ? $aliasCampos['col_nome_participante_nome_fantasia_servico'] : $pessoaJuridicaParticipanteServicoAsName,
-            'col_nome_participante_responsavel_legal_servico' => isset($aliasCampos['col_nome_participante_responsavel_legal_servico']) ? $aliasCampos['col_nome_participante_responsavel_legal_servico'] : $pessoaJuridicaParticipanteServicoAsName,
+            'col_nome_participante_servico' => $aliasCampos['col_nome_participante_servico'] ?? $pessoaFisicaParticipanteServicoAsName,
+            'col_nome_participante_razao_social_servico' => $aliasCampos['col_nome_participante_razao_social_servico'] ?? $pessoaJuridicaParticipanteServicoAsName,
+            'col_nome_participante_nome_fantasia_servico' => $aliasCampos['col_nome_participante_nome_fantasia_servico'] ?? $pessoaJuridicaParticipanteServicoAsName,
+            'col_nome_participante_responsavel_legal_servico' => $aliasCampos['col_nome_participante_responsavel_legal_servico'] ?? $pessoaJuridicaParticipanteServicoAsName,
 
-            'col_nome_integrante_servico' => isset($aliasCampos['col_nome_integrante_servico']) ? $aliasCampos['col_nome_integrante_servico'] : $pessoaFisicaIntegranteServicoAsName,
-            'col_nome_integrante_razao_social_servico' => isset($aliasCampos['col_nome_integrante_razao_social_servico']) ? $aliasCampos['col_nome_integrante_razao_social_servico'] : $pessoaJuridicaIntegranteServicoAsName,
-            'col_nome_integrante_nome_fantasia_servico' => isset($aliasCampos['col_nome_integrante_nome_fantasia_servico']) ? $aliasCampos['col_nome_integrante_nome_fantasia_servico'] : $pessoaJuridicaIntegranteServicoAsName,
-            'col_nome_integrante_responsavel_legal_servico' => isset($aliasCampos['col_nome_integrante_responsavel_legal_servico']) ? $aliasCampos['col_nome_integrante_responsavel_legal_servico'] : $pessoaJuridicaIntegranteServicoAsName,
+            'col_nome_integrante_servico' => $aliasCampos['col_nome_integrante_servico'] ?? $pessoaFisicaIntegranteServicoAsName,
+            'col_nome_integrante_razao_social_servico' => $aliasCampos['col_nome_integrante_razao_social_servico'] ?? $pessoaJuridicaIntegranteServicoAsName,
+            'col_nome_integrante_nome_fantasia_servico' => $aliasCampos['col_nome_integrante_nome_fantasia_servico'] ?? $pessoaJuridicaIntegranteServicoAsName,
+            'col_nome_integrante_responsavel_legal_servico' => $aliasCampos['col_nome_integrante_responsavel_legal_servico'] ?? $pessoaJuridicaIntegranteServicoAsName,
+
+            'col_nome_cliente' => $aliasCampos['col_nome_cliente'] ?? $pessoaFisicaClienteAsName,
+            'col_nome_cliente_razao_social' => $aliasCampos['col_nome_cliente_razao_social'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_nome_fantasia' => $aliasCampos['col_nome_cliente_nome_fantasia'] ?? $pessoaJuridicaClienteAsName,
+            'col_nome_cliente_responsavel_legal' => $aliasCampos['col_nome_cliente_responsavel_legal'] ?? $pessoaJuridicaClienteAsName,
         ];
 
         $arrayCampos = [
@@ -231,8 +253,12 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_integrante_nome_fantasia_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_nome_fantasia_servico'] . '.nome_fantasia'],
             'col_nome_integrante_responsavel_legal_servico' => ['campo' => $arrayAliasCampos['col_nome_integrante_responsavel_legal_servico'] . '.responsavel_legal'],
 
+            'col_nome_cliente' => ['campo' => $arrayAliasCampos['col_nome_cliente'] . '.nome'],
+            'col_nome_cliente_razao_social' => ['campo' => $arrayAliasCampos['col_nome_cliente_razao_social'] . '.razao_social'],
+            'col_nome_cliente_nome_fantasia' => ['campo' => $arrayAliasCampos['col_nome_cliente_nome_fantasia'] . '.nome_fantasia'],
+            'col_nome_cliente_responsavel_legal' => ['campo' => $arrayAliasCampos['col_nome_cliente_responsavel_legal'] . '.responsavel_legal'],
         ];
-        // RestResponse::createTestResponse($dados);
+
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_titulo'], $dados);
     }
 
@@ -256,57 +282,82 @@ class ServicoPagamentoLancamentoService extends Service
 
     public function postConsultaFiltrosObterTotais(Fluent $requestData, array $options = [])
     {
-        $options = array_merge($options, ['arrayCamposSelect' => ['pagamento_id']]);
-        $query = $this->montaConsultaRegistrosLancamentos($requestData, $options);
-        $uniqueIDPagamentos = $query->pluck('pagamento_id')->unique();
-        $queryPagamento = $this->modelPagamento->whereIn('id', $uniqueIDPagamentos)->get();
+        // $options = array_merge($options, ['arrayCamposSelect' => ['pagamento_id']]);
+        // $query = $this->montaConsultaRegistrosLancamentos($requestData, $options);
+        // $uniqueIDPagamentos = $query->pluck('pagamento_id')->unique();
+        // $queryPagamento = $this->modelPagamento->whereIn('id', $uniqueIDPagamentos)->get();
 
-        $somatorias = $this->obterTotaisLancamentos($queryPagamento, $options);
+        $consultas = $this->montaConsultaRegistrosLancamentos($requestData, $options)->get();
+        $somatorias = $this->obterTotaisLancamentos($consultas, $options);
 
         return [
             'totais' => $somatorias->toArray(),
         ];
     }
 
+    /**
+     * Calcula os totais de valores esperados e recebidos com base nos lançamentos e seus status.
+     *
+     * Esta função percorre a coleção de lançamentos e aplica filtros personalizados de acordo com os status definidos
+     * nas constantes da enumeração `LancamentoStatusTipoEnum`. Apenas os lançamentos com status permitidos serão considerados
+     * para somar os campos de valor (`valor_esperado` e `valor_recebido`), retornando os resultados em um objeto `Fluent`.
+     *
+     * @param \Illuminate\Support\Collection $resources
+     *     Coleção de lançamentos que serão processados.
+     * @param array $options
+     *     Opções adicionais para personalizar o comportamento da função (atualmente não utilizado, mas reservado para futura extensão).
+     *
+     * @return \Illuminate\Support\Fluent
+     *     Um objeto contendo os totais calculados, com as seguintes chaves:
+     *     - `valor_total_esperado`: Soma de `valor_esperado` dos lançamentos com status válidos.
+     *     - `valor_total_recebido`: Soma de `valor_recebido` dos lançamentos com status válidos.
+     *
+     * ## Exemplo de retorno
+     * ```php
+     * Fluent {
+     *     valor_total_esperado: 1530.50,
+     *     valor_total_recebido: 980.00
+     * }
+     * ```
+     */
     public function obterTotaisLancamentos(Collection $resources, array $options = []): Fluent
     {
         $totaisASomar = [
-            "valor_total",
-            "total_liquidado",
-            "total_aguardando",
-            "total_inadimplente",
-            "total_analise",
-            "total_cancelado",
-            "total_pagamento_sem_total",
-            "valor_final",
+            [
+                'campo_valor' => 'valor_esperado',
+                'status_somar' => LancamentoStatusTipoEnum::statusSomarComoEsperado(),
+                'chave_soma' => 'valor_total_esperado',
+            ],
+            [
+                'campo_valor' => 'valor_recebido',
+                'status_somar' => LancamentoStatusTipoEnum::statusSomarComoLiquidado(),
+                'chave_soma' => 'valor_total_recebido',
+            ],
         ];
 
         $fluentTotais = new Fluent();
 
-        foreach ($totaisASomar as $campo) {
-            $soma = $resources->sum(function ($item) use ($campo) {
-                return floatval($item->{$campo} ?? 0);
-            });
+        foreach ($totaisASomar as $tipo) {
+            $soma = $resources
+                ->whereIn('status_id', $tipo['status_somar'])
+                ->sum(function ($item) use ($tipo) {
+                    return floatval($item->{$tipo['campo_valor']} ?? 0);
+                });
 
-            // Arredonda para 2 casas e força tipo float
-            $fluentTotais->{$campo} = round($soma, 2);
+            $fluentTotais->{$tipo['chave_soma']} = round($soma, 2);
         }
-
-        // O Chat sugeriu, mas ainda não vou usar
-        // // Valor final = valor_total - total_cancelado
-        // $valorFinal = ($fluentTotais->valor_total ?? 0) - ($fluentTotais->total_cancelado ?? 0);
-        // $fluentTotais->valor_final = round($valorFinal, 2);
 
         return $fluentTotais;
     }
 
     public function montaConsultaRegistrosLancamentos(Fluent $requestData, array $options = [])
     {
+        $modelAsName = $this->model->getTableAsName();
 
         $filtrosData = $this->extrairFiltros($requestData, $options);
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
-        $modelAsName = $this->model->getTableAsName();
+
         // Ordenamento personalizado pelo tenant, ou usará o padrão
         $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', ['column' => "{$modelAsName}.status_id"]);
         $query->orderByRaw($case);
@@ -361,6 +412,7 @@ class ServicoPagamentoLancamentoService extends Service
         $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
         $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
+        $blnClienteFiltro = in_array('col_nome_cliente', $filtros['campos_busca']);
 
         $query = $this->model::joinPagamentoServicoCompleto($query);
 
@@ -374,6 +426,11 @@ class ServicoPagamentoLancamentoService extends Service
             $query = $this->modelParticipante::joinIntegrantes($query, $this->modelIntegrante, ['instanceSelf' => $this->modelParticipante]);
             $query = $this->modelParticipantePagamento::joinIntegrantes($query, $this->modelIntegrantePagamento, ['instanceSelf' => $this->modelParticipantePagamento]);
             $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
+        }
+
+        if ($blnClienteFiltro) {
+            $query = $this->modelServico::joinCliente($query);
+            $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelCliente);
         }
 
         foreach ($filtros['campos_busca'] as $key) {

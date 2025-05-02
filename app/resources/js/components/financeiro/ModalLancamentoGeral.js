@@ -183,11 +183,11 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                 switch (self._dataEnvModal.agendamento_tipo) {
 
                     case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
-                        self._updateModalTitle('Agendamento Geral');
+                        self._updateModalTitle('Agendamento Comum');
                         break;
 
                     case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
-                        self._updateModalTitle('Agend. Ressar./Compensação');
+                        self._updateModalTitle('Agendamento Ressarcimento');
                         self.#configuracaoParticipacaoRessarcimento();
                         break;
 
@@ -426,12 +426,12 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                     switch (self._dataEnvModal.agendamento_tipo) {
 
                         case window.Enums.LancamentoTipoEnum.LANCAMENTO_GERAL:
-                            self._updateModalTitle('Editar Agendamento Geral');
+                            self._updateModalTitle('Editar Agendamento Comum');
                             responseData.participantes.map(item => self.#functionsParticipacao._pushObjetoParticipanteNaTela(item));
                             break;
 
                         case window.Enums.LancamentoTipoEnum.LANCAMENTO_RESSARCIMENTO:
-                            self._updateModalTitle('Editar Agend. Ressar./Compensação');
+                            self._updateModalTitle('Editar Agendamento Ressarcimento');
                             self.#functionsParticipacao._inserirParticipantesEIntegrantes(responseData.participantes);
                             break;
 
@@ -545,13 +545,12 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
         }
     }
 
-    async #buscarMovimentacoesTipo(selected_id = null) {
+    async #buscarMovimentacoesTipo(selected_id = 2) {
         try {
             const arrayOpcoes = window.Statics.TiposMovimentacaoParaLancamentos;
             const self = this;
-            let options = selected_id ? { selectedIdOption: selected_id } : {};
             const select = $(`#movimentacao_tipo_id${self.getSufixo}`);
-            await CommonFunctions.fillSelectArray(select, arrayOpcoes, options);
+            await CommonFunctions.fillSelectArray(select, arrayOpcoes, { selectedIdOption: selected_id });
             return true;
         } catch (error) {
             return false;
