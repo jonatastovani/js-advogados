@@ -13,6 +13,9 @@ Route::group([
     Route::controller(App\Http\Controllers\Pessoa\PessoaController::class)->group(function () {
 
         Route::get('', function () {})->name('api.pessoa');
+
+        Route::get('{uuid}', 'show');
+        Route::get('empresa', 'showEmpresa')->name('api.pessoa.empresa'); // Busca a empresa do domínio   
         Route::delete('{uuid}', 'destroy');
     });
 
@@ -21,9 +24,9 @@ Route::group([
         Route::prefix('perfil')->group(function () {
             Route::get('', function () {})->name('api.pessoa.perfil');
 
-            Route::get('{uuid}', 'show');
+            // Route::get('{uuid}', 'show');
             Route::get('empresa', 'showEmpresa')->name('api.pessoa.perfil.empresa'); // Busca a empresa do domínio
-            Route::delete('{uuid}', 'destroy');
+            // Route::delete('{uuid}', 'destroy');
         });
     });
 

@@ -3,8 +3,10 @@
 namespace App\Services\Pessoa;
 
 use App\Common\RestResponse;
+use App\Enums\PessoaPerfilTipoEnum;
 use App\Enums\PessoaTipoEnum;
 use App\Models\Pessoa\Pessoa;
+use App\Models\Pessoa\PessoaPerfil;
 use App\Services\Service;
 use App\Traits\ConsultaSelect2ServiceTrait;
 use Illuminate\Http\Request;
@@ -18,7 +20,7 @@ class PessoaService extends Service
 
     public function __construct(
         Pessoa $model,
-        public PessoaFisicaService $pessoaFisicaService
+        public PessoaPerfil $modelPessoaPerfil
     ) {
         parent::__construct($model);
     }
@@ -48,6 +50,18 @@ class PessoaService extends Service
             'col_pai' => ['campo' => $arrayAliasCampos['col_pai'] . '.pai'],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
+    }
+
+    public function showEmpresa(Fluent $requestData)
+    {
+        // Se não encontrar o perfil, retorna vazio
+        $perfil = app(PessoaPerfilService::class)->showEmpresa($requestData);
+        if (!$perfil) {
+            return [];
+        }
+
+        $requestData->id = $perfil['pessoa_id'];
+        return $this->show($requestData);;
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

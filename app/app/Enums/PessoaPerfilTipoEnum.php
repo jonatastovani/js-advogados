@@ -175,4 +175,39 @@ enum PessoaPerfilTipoEnum: int
             ],
         ];
     }
+
+    /**
+     * Retorna os perfis aplicáveis à Pessoa Física.
+     *
+     * @return array Lista de arrays com os detalhes dos perfis aplicáveis à Pessoa Física.
+     */
+    public static function perfisParaPessoaFisica(): array
+    {
+        return self::filtrarPorPessoaTipo(PessoaFisica::class);
+    }
+
+    /**
+     * Retorna os perfis aplicáveis à Pessoa Jurídica.
+     *
+     * @return array Lista de arrays com os detalhes dos perfis aplicáveis à Pessoa Jurídica.
+     */
+    public static function perfisParaPessoaJuridica(): array
+    {
+        return self::filtrarPorPessoaTipo(PessoaJuridica::class);
+    }
+
+    /**
+     * Filtra os perfis com base na classe de tipo de pessoa.
+     *
+     * @param string $tipoPessoa Classe da pessoa (PessoaFisica::class ou PessoaJuridica::class).
+     * @return array Lista de arrays com os detalhes dos perfis aplicáveis.
+     */
+    private static function filtrarPorPessoaTipo(string $tipoPessoa): array
+    {
+        return collect(self::cases())
+            ->map(fn(self $perfil) => $perfil->detalhes())
+            ->filter(fn(array $detalhes) => in_array($tipoPessoa, $detalhes['configuracao']['pessoa_tipo_aplicavel']))
+            ->values()
+            ->toArray();
+    }
 }

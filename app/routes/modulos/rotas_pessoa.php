@@ -8,6 +8,10 @@ Route::prefix('pessoa')->group(function () {
 
         Route::prefix('pessoa-fisica')->group(function () {
 
+            Route::get('', 'pessoaFisicaIndex')->name('pessoa.pessoa-fisica.index');
+            Route::get('/form', 'pessoaFisicaForm')->name('pessoa.pessoa-fisica.form');
+            Route::get('/form/{uuid}', 'pessoaFisicaFormEditar');
+
             Route::prefix('cliente')->group(function () {
 
                 Route::get('', 'pessoaFisicaClienteIndex')->name('pessoa.pessoa-fisica.cliente.index');

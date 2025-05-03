@@ -46,6 +46,7 @@
         PagamentoTipoSemprePersonalizaveis: @json(\App\Enums\PagamentoTipoEnum::pagamentoTipoSemprePersonalizaveis()),
         LancamentoTipoQuePermiteLiquidadoMigracao: @json(\App\Enums\LancamentoTipoEnum::lancamentoTipoQuePermiteLiquidadoMigracao()),
         PerfisPermitidoBalancoRepasse: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoBalancoRepasse()),
+        PessoaPerfilTipoPerfisParaPessoaFisica: @json(\App\Enums\PessoaPerfilTipoEnum::perfisParaPessoaFisica()),
     }
 
     window.Details = {
