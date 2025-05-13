@@ -168,8 +168,7 @@ class PessoaFisicaService extends Service
     public function store(Fluent $requestData)
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-        Log::debug("Debug", ['resource' => $resource->toArray(), 'requestData' => $requestData->toArray()]);
-        
+
         try {
             return DB::transaction(function () use ($resource, $requestData) {
 
@@ -187,7 +186,7 @@ class PessoaFisicaService extends Service
 
                 $userDomains = null;
                 // Somente se for update do tipo usuário para verificar domínios
-                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($resource->perfis)->pluck('perfil_tipo_id')->toArray())) {
+                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($perfis)->pluck('perfil_tipo_id')->toArray())) {
                     if ($resource->userDomains) {
                         $userDomains = $resource->userDomains;
                     }
@@ -281,7 +280,7 @@ class PessoaFisicaService extends Service
                 $userDomains = [];
                 $userDomainsExistentes = [];
                 // Somente se for update do tipo usuário para alterar os domínios
-                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($resource->perfis)->pluck('perfil_tipo_id')->toArray())) {
+                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($perfis)->pluck('perfil_tipo_id')->toArray())) {
                     if ($resource->userDomains) {
                         $userDomains = $resource->userDomains;
                     }

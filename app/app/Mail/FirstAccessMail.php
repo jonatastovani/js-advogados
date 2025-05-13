@@ -15,6 +15,8 @@ class FirstAccessMail extends Mailable
 
     public $resetLink;
     public $nomeSistema;
+    public $nomeEmpresa;
+    public $nomeSistemaEmpresa;
 
     /**
      * Create a new message instance.
@@ -23,8 +25,9 @@ class FirstAccessMail extends Mailable
      */
     public function __construct(string $resetLink)
     {
-        $tenantName = tenant('name') ? ' - ' . tenant('name') : '';
-        $this->nomeSistema = env('APP_NAME') . $tenantName;
+        $this->nomeEmpresa = tenant('name');
+        $this->nomeSistema = env('APP_NAME');
+        $this->nomeSistemaEmpresa = env('APP_NAME') . " - {$this->nomeEmpresa}";
         $this->resetLink = $resetLink;
     }
 
@@ -34,7 +37,7 @@ class FirstAccessMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "{$this->nomeSistema} - Acesso Inicial: Defina sua Senha",
+            subject: "{$this->nomeSistemaEmpresa} - Acesso Inicial: Defina sua Senha",
         );
     }
 
@@ -49,7 +52,7 @@ class FirstAccessMail extends Mailable
                 'level' => 'success',
                 'greeting' => 'Bem-vindo ao Sistema ' . $this->nomeSistema . '!',
                 'introLines' => [
-                    "Você foi cadastrado com sucesso no sistema {$this->nomeSistema}.",
+                    "Você foi cadastrado com sucesso para acesssar a Advocacia {$this->nomeEmpresa}.",
                     "Para garantir a segurança do seu acesso, clique no botão abaixo para definir sua senha.",
                     "O link de definição de senha é válido por um período limitado, portanto, recomendamos que você faça isso o quanto antes.",
                 ],
@@ -58,9 +61,9 @@ class FirstAccessMail extends Mailable
                 'displayableActionUrl' => $this->resetLink,
                 'outroLines' => [
                     'Se você não realizou este cadastro ou acredita que foi um engano, desconsidere esta mensagem.',
-                    "Agradecemos por fazer parte da {$this->nomeSistema}!",
+                    "Agradecemos por fazer parte da {$this->nomeEmpresa}!",
                 ],
-                'salutation' => 'Atenciosamente,',
+                'salutation' => "Atenciosamente, Equipe {$this->nomeSistema}.",
             ]
         );
     }

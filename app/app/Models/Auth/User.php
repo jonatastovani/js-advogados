@@ -94,6 +94,7 @@ class User extends Authenticatable
                 'pessoa_perfil_id',
                 'ativo_bln',
                 'email_verified_at',
+                'ativo_bln',
             ]
         );
     }

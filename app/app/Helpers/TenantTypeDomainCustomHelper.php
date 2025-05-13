@@ -37,6 +37,7 @@ class TenantTypeDomainCustomHelper
         // Obtém os domínios do usuário logado
         $acessos = UserTenantDomain::withoutDomain()->with('domain')
             ->where('user_id', Auth::id())
+            ->where('ativo_bln', true)
             ->get();
 
         // Armazena na variável estática

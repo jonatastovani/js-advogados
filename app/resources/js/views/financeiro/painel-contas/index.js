@@ -3,6 +3,7 @@ import { ConnectAjax } from "../../../commons/ConnectAjax";
 import { ModalAjustarSaldo } from "../../../components/financeiro/ModalAjustarSaldo";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
 
 class PagePainelContaIndex {
@@ -24,6 +25,13 @@ class PagePainelContaIndex {
         const self = this;
         self.#addEventosBotoes();
         self.#buscarDados();
+
+        const custom = TenantTypeDomainCustomHelper.getInstanceTenantTypeDomainCustom;
+
+        if (custom.getStatusBlnCustom) {
+            custom.setEnqueueAction(self.#buscarDados.bind(self));
+        }
+
     }
 
     #addEventosBotoes() {

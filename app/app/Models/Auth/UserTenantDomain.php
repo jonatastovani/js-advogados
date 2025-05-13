@@ -49,10 +49,11 @@ class UserTenantDomain extends Model
             self::getCustomColumnsDefault(),
             [
                 'user_id',
+                'ativo_bln',
             ]
         );
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
