@@ -93,8 +93,8 @@
                     <th class="text-nowrap">Dados Específicos</th>
                     <th class="text-nowrap">Observação</th>
                     <th class="text-nowrap">Descrição</th>
-                    <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap" title="Participante(s) do valor a receber">Participante(s)</th>
+                    <th class="text-nowrap">Conta</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>
             </thead>

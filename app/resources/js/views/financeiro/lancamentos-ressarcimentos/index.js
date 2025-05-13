@@ -153,12 +153,9 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
         const conta = item.conta.nome
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
-        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-            item.participantes.length ? item.participantes :
-                (item.pagamento.participantes.length ? item.pagamento.participantes :
-                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-                )
-        );
+        const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(item.participantes ?? [], {
+            titleParticipantes: `Participante(s) do Ressarcimento ${descricao}`,
+        });
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -172,17 +169,8 @@ class PageLancamentoRessarcimentoIndex extends TemplateSearch {
                 <td class="text-nowrap text-center" title="${dataQuitado}">${dataQuitado}</td>
                 <td class="text-nowrap text-center" title="${valorQuitado}">${valorQuitado}</td>
                 <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participante(s) do Lançamento ${descricao}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrante(s) de Grupo(s)" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
-
+                <td class="text-center">${btnsVerMais.btnParticipantes}</td>
+                <td class="text-center">${btnsVerMais.btnIntegrantes}</td>
                 <td class="text-nowrap text-truncate" title="${status}">${status}</td>
                 <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
                 <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>

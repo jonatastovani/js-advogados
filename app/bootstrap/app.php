@@ -31,8 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // $middleware->redirectGuestsTo(fn (Request $request) => route('login'));
         $middleware->alias([
             // 'sanctum.verify' => \App\Http\Middleware\SanctumMiddleware::class,
-            'tenant.rota.tipo' => \App\Http\Middleware\Modulo\RotaEspecificaPorTipoTenantMiddleware::class,
-            'usuario.tenant' => \App\Http\Middleware\Modulo\UsuarioNoTenantMiddleware::class,
+            // 'tenant.rota.tipo' => \App\Http\Middleware\Modulo\RotaEspecificaPorTipoTenantMiddleware::class,
+            // 'usuario.tenant' => \App\Http\Middleware\Modulo\UsuarioNoTenantMiddleware::class,
         ]);
 
         // Substitui o middleware ValidateCsrfToken por CustomVerifyCsrfToken

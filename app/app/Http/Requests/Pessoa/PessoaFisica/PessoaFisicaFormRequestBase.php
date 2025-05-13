@@ -22,7 +22,6 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'sexo_id' => 'nullable|uuid',
             'observacao' => 'nullable|string',
             'ativo_bln' => 'nullable|boolean',
-            'pessoa_perfil_tipo_id' => 'required|integer',
 
             'documentos' => 'nullable|array',
             'documentos.*.id' => 'nullable|uuid',
@@ -33,6 +32,7 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'perfis' => 'required|array|min:1',
             'perfis.*.id' => 'nullable|uuid',
             'perfis.*.perfil_tipo_id' => 'required|integer',
+            'perfis.*.ativo_bln' => 'nullable|boolean',
             
             'enderecos' => 'nullable|array',
             'enderecos.*.id' => 'nullable|uuid',

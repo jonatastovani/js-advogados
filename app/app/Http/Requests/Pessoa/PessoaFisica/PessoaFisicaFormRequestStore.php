@@ -19,15 +19,17 @@ class PessoaFisicaFormRequestStore extends PessoaFisicaFormRequestBase
         $rules =  parent::rules();
         // $rules['perfis'] = 'required|array|min:1';
 
-        switch (request()->input('pessoa_perfil_tipo_id')) {
-            case PessoaPerfilTipoEnum::USUARIO->value:
-                $rules['user'] = 'required|array';
-                $rules['user.name'] = 'required|string|min:3';
-                $rules['user.email'] = 'required|email';
+        if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect(request()->input('perfis'))->pluck('perfil_tipo_id')->toArray())) {
+            $rules = array_merge($rules, [
+                'user' => 'required|array',
+                'user.name' => 'required|string|min:3',
+                'user.email' => 'required|email',
+                'user.ativo_bln' => 'nullable|boolean',
 
-                $rules['user_domains'] = 'nullable|array';
-                $rules['user_domains.*.domain_id'] = 'nullable|integer';
-                break;
+                'user_domains' => 'required|array|min:1',
+                'user_domains.*.domain_id' => 'required|integer',
+                'user_domains.*.ativo_bln' => 'nullable|boolean',
+            ]);
         }
 
         return $rules;

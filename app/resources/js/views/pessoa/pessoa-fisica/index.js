@@ -39,11 +39,11 @@ class PagePessoaFisicaIndex extends TemplateSearch {
         this.initEvents();
     }
 
-    get perfisBusca() {
+    get getPerfisBusca() {
         return this._objConfigs.data.perfis_busca;
     }
 
-    set perfisBusca(val) {
+    set setPerfisBusca(val) {
         this._objConfigs.data.perfis_busca = val;
     }
 
@@ -62,7 +62,7 @@ class PagePessoaFisicaIndex extends TemplateSearch {
             self._executarBusca();
         });
 
-        self.#iniciarEventosPerfisBusca();
+        self.#addEventosPerfisBusca();
     }
 
     /**
@@ -70,12 +70,12 @@ class PagePessoaFisicaIndex extends TemplateSearch {
  * Impede que todos sejam desmarcados e filtra apenas os IDs permitidos.
  * Atualiza self._objConfigs.data.perfis_busca com os valores válidos.
  */
-    #iniciarEventosPerfisBusca() {
+    #addEventosPerfisBusca() {
         const self = this;
         const idsPermitidos = window.Statics.PessoaPerfilTipoPerfisParaPessoaFisica.map(p => p.id);
 
         // Estado inicial com todos os válidos marcados
-        self.perfisBusca = CommonFunctions.clonePure(idsPermitidos);
+        self.setPerfisBusca = CommonFunctions.clonePure(idsPermitidos);
 
         const atualizarBloqueioUltimoCheckbox = () => {
             $('.perfis-busca').prop('disabled', false); // Libera todos
@@ -108,7 +108,7 @@ class PagePessoaFisicaIndex extends TemplateSearch {
                 }
 
                 // Atualização do array de perfis marcados
-                let perfisAtuais = new Set(self.perfisBusca);
+                let perfisAtuais = new Set(self.getPerfisBusca);
 
                 if (estaMarcado) {
                     perfisAtuais.add(valor);
@@ -121,7 +121,7 @@ class PagePessoaFisicaIndex extends TemplateSearch {
                     perfisAtuais.delete(valor);
                 }
 
-                self.perfisBusca = Array.from(perfisAtuais);
+                self.setPerfisBusca = Array.from(perfisAtuais);
 
                 atualizarBloqueioUltimoCheckbox();
             });
@@ -143,7 +143,8 @@ class PagePessoaFisicaIndex extends TemplateSearch {
             }
 
             appendData.perfis_busca = self._objConfigs.data.perfis_busca;
-            return { appendData: appendData };
+            appendData.include_perfis_inativos = true;
+            return { appendData };
         }
 
         BootstrapFunctionsHelper.removeEventPopover();

@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\View\Admin\AdminController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\AddIdentifierRequestMiddleware;
 use App\Http\Middleware\CheckManualInitializationTenantDomain;
 use App\Http\Middleware\ClearModalSessionMiddleware;
-use App\Http\Middleware\HandleTenantDomainForTenantType;
+use App\Http\Middleware\ExistingUserTenantDomainMiddleware;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -59,12 +56,13 @@ Route::middleware([
 
     Route::get('', function () {})->middleware("auth:sanctum");
 
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
     Route::middleware([
         'auth:sanctum',
-        'usuario.tenant',
+        // 'usuario.tenant',
+        ExistingUserTenantDomainMiddleware::class,
     ])->group(function () {
+
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
         Route::prefix('admin')->group(function () {
 

@@ -248,6 +248,28 @@ class MovimentacaoContaService extends Service
 
         $modelParent = $this->modelPagamentoLancamento;
         $idParent = $requestData->referencia_id;
+
+        // Verifica se este lançamento já não foi liquidado ou está com status que impossibilita edição ou recebimento
+        $arrayErrors = new Fluent();
+
+        $lancamento = app(ServicoPagamentoLancamentoService::class)->buscarRecurso(new Fluent(), [
+            'conditions' => [
+                'id' => $requestData->referencia_id,
+            ],
+        ]);
+
+        if (in_array($lancamento->status_id, LancamentoStatusTipoEnum::statusLiquidadoScope())) {
+
+            $arrayErrors->status_liquidado = 'Possui status de lançamento liquidado.';
+        } else if (in_array($lancamento->status_id, LancamentoStatusTipoEnum::statusImpossibilitaEdicaoLancamentoServico())) {
+
+            $arrayErrors->impossibilitado_edicao_exclusao = 'Possui status que impossibilita o recebimento ou edição.';
+        }
+
+        if (count($arrayErrors->toArray()) > 0) {
+            RestResponse::createGenericResponse(["errors" => $arrayErrors], 422, "A liquidação não foi realizada pois o lançamento possui uma ou mais restrições. Atualize a página e tente novamente.")->throwResponse();
+        }
+
         $resource = $this->verificacaoEPreenchimentoRecursoStore($requestData, $modelParent, ['referencia_movimentacao_conta' => 'forma_pagamento']);
 
         try {
@@ -277,7 +299,6 @@ class MovimentacaoContaService extends Service
                         if (!$restricaoDeAlteracaoDeParticipantes) {
                             $this->verificarRegistrosExcluindoParticipanteNaoEnviado($participantes, $idParent, $modelParent);
                         }
-
 
                         $lancamento->forma_pagamento_id = $requestData->forma_pagamento_id;
                         $lancamento->status_id = LancamentoStatusTipoEnum::LIQUIDADO->value;
@@ -527,6 +548,7 @@ class MovimentacaoContaService extends Service
             'id' => $requestData->lancamento_id,
         ]]);
 
+        // No parent_id é registrado o ID do pagamento que foi diluído, gerando um novo lançamento
         $verificaDiluido = $this->modelPagamentoLancamento::where('parent_id', $resourceLancamento->id)->get();
 
         if ($verificaDiluido->count() && $resourceLancamento->status_id == LancamentoStatusTipoEnum::LIQUIDADO_PARCIALMENTE->value) {

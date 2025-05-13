@@ -80,3 +80,10 @@ $opacities: (
         background-color: inherit;
     }
 }
+
+// Classe para listas scrolláveis dentro de popovers
+.popover-scrollable {
+    max-height: var(--popover-max-height, 200px); // Valor padrão 200px, mas pode ser alterado via CSS custom property
+    overflow-y: auto;
+    scrollbar-width: thin; // Barra de rolagem fina (Firefox)
+}

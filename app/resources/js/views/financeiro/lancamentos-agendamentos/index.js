@@ -153,13 +153,9 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
         const conta = item.conta.nome
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
-        let classCor = '';
-        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-            item.participantes.length ? item.participantes :
-                (item.pagamento.participantes.length ? item.pagamento.participantes :
-                    (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-                )
-        );
+        const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(item.participantes ?? [], {
+            titleParticipantes: `Participante(s) do Agendamento ${descricao}`,
+        });
 
         $(tbody).append(`
             <tr id=${item.idTr} data-id="${item.id}">
@@ -168,27 +164,19 @@ class PageLancamentoAgendamentoIndex extends TemplateSearch {
                         ${strBtns}
                     </div>
                 </td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${tipoAgendamento}">${tipoAgendamento}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${categoriaTipo}">${categoriaTipo}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${descricao}">${descricao}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${valorEsperado}">${valorEsperado}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${dataVencimento}">${dataVencimento}</td>
-                <td class="text-center ${classCor}">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participante(s) do Agendamento ${descricao}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
-                <td class="text-center ${classCor}">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrante(s) de Grupo(s)" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
-                <td class="text-nowrap text-center ${classCor}" title="${recorrente_bln}">${recorrente_bln}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${ativo_bln}">${ativo_bln}</td>
-                <td class="text-nowrap text-center ${classCor}" title="${conta}">${conta}</td>
-                <td class="text-nowrap text-truncate ${classCor}" title="${observacao}">${observacao}</td>
-                <td class="text-nowrap ${classCor}" title="${created_at ?? ''}">${created_at ?? ''}</td>
+                <td class="text-nowrap text-truncate" title="${tipoAgendamento}">${tipoAgendamento}</td>
+                <td class="text-nowrap text-truncate" title="${tipoMovimentacao}">${tipoMovimentacao}</td>
+                <td class="text-nowrap text-truncate" title="${categoriaTipo}">${categoriaTipo}</td>
+                <td class="text-nowrap text-truncate" title="${descricao}">${descricao}</td>
+                <td class="text-nowrap text-center" title="${valorEsperado}">${valorEsperado}</td>
+                <td class="text-nowrap text-center" title="${dataVencimento}">${dataVencimento}</td>
+                <td class="text-center">${btnsVerMais.btnParticipantes}</td>
+                <td class="text-center">${btnsVerMais.btnIntegrantes}</td>                
+                <td class="text-nowrap text-center" title="${recorrente_bln}">${recorrente_bln}</td>
+                <td class="text-nowrap text-center" title="${ativo_bln}">${ativo_bln}</td>
+                <td class="text-nowrap text-center" title="${conta}">${conta}</td>
+                <td class="text-nowrap text-truncate" title="${observacao}">${observacao}</td>
+                <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);
 

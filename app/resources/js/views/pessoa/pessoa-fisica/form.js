@@ -9,6 +9,7 @@ import { UUIDHelper } from "../../../helpers/UUIDHelper";
 import { EnderecoModule } from "../../../modules/EnderecoModule";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
+import { UsuarioDomainsModule } from "../../../modules/UsuarioDomainsModule";
 
 export class PagePessoaFisicaForm extends TemplateForm {
 
@@ -23,34 +24,41 @@ export class PagePessoaFisicaForm extends TemplateForm {
             },
             sufixo: 'PagePessoaFisicaForm',
             data: {
-                pessoa_perfil_tipo_id: window.Enums.PessoaPerfilTipoEnum.PARCEIRO,
                 pessoa_tipo_aplicavel: [
                     window.Enums.PessoaTipoEnum.PESSOA_FISICA,
                 ],
                 pessoa_dados_id: undefined,
-                pessoa_tipo_aplicavel: [],
                 documentosNaTela: [],
                 perfisNaTela: [],
                 enderecosNaTela: [],
-                pessoa_dados_type_padrao: window.Enums.PessoaTipoEnum.PESSOA_FISICA,
+                dominiosNaTela: [],
+                user: null,
             },
         };
 
-        super({objConfigs});
+        super({ objConfigs });
 
         this.initEvents();
     }
 
-    async initEvents() {
-        const self = this;
-        await self._carregamentoModulos();
-
-        await self._verificacaoURL();
-
-        self._addEventosBotoes();
+    get getPerfisNaTela() {
+        return this._pessoaPerfilModule.getPerfisNaTela;
     }
 
-    async _verificacaoURL() {
+    get getUsuarioDomainsModule() {
+        return this._usuarioDomainsModule;
+    }
+
+    async initEvents() {
+        const self = this;
+        await self.#carregamentoModulos();
+
+        await self.#verificacaoURL();
+
+        self.#addEventosBotoes();
+    }
+
+    async #verificacaoURL() {
         const self = this;
 
         const uuid = URLHelper.getURLSegment();
@@ -66,12 +74,12 @@ export class PagePessoaFisicaForm extends TemplateForm {
             self.#buscarSexo();
 
             self._action = EnumAction.POST;
-            self._pessoaPerfilModule._inserirPerfilObrigatorio();
+            // self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
 
     }
 
-    async _carregamentoModulos() {
+    async #carregamentoModulos() {
         const self = this;
         const objData = {
             objConfigs: self._objConfigs,
@@ -79,9 +87,10 @@ export class PagePessoaFisicaForm extends TemplateForm {
         self._pessoaDocumentoModule = new PessoaDocumentoModule(self, objData);
         self._pessoaPerfilModule = new PessoaPerfilModule(self, objData);
         self._enderecoModule = new EnderecoModule(self, objData);
+        self._usuarioDomainsModule = new UsuarioDomainsModule(self, objData);
     }
 
-    _addEventosBotoes() {
+    #addEventosBotoes() {
         const self = this;
 
         CommonFunctions.handleModal(self, $(`#btnOpenEstadoCivilTenant${self._objConfigs.sufixo}`), ModalEstadoCivilTenant, self.#buscarEstadoCivil.bind(self));
@@ -135,9 +144,7 @@ export class PagePessoaFisicaForm extends TemplateForm {
             });
         }
 
-        if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
-            await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
-        }
+        self._usuarioDomainsModule._verificaEPreencheDadosUser(responseData);
 
         self.setFocusElement(form.find('input[name="nome"]'));
     }
@@ -185,14 +192,11 @@ export class PagePessoaFisicaForm extends TemplateForm {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
-        data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
-        data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
         data.enderecos = self._enderecoModule._retornaEnderecosNaTelaSaveButonAction();
 
-        if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
-            data = self.saveButtonActionEspecificoPerfilTipo(data);
-        }
+        self._pessoaPerfilModule.saveButtonActionEspecificoPerfil(data);
+        self._usuarioDomainsModule.saveButtonActionEspecificoUsuarioDomains(data);
 
         data = self._tratarValoresNulos(data);
 
@@ -208,9 +212,9 @@ export class PagePessoaFisicaForm extends TemplateForm {
         const self = this;
         let blnSave = CommonFunctions.verificationData(data.nome, { field: formRegistration.find('input[name="nome"]'), messageInvalid: 'O campo <b>nome</b> deve ser informado.', setFocus: true });
 
-        if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
-            blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);
-        }
+        blnSave = self._pessoaPerfilModule.saveVerificationsEspecificoPerfil(data, blnSave == true, blnSave == false);
+
+        blnSave = self._usuarioDomainsModule.saveVerificationsEspecificoUsuarioDomains(data, blnSave == true, blnSave == false);
 
         return blnSave;
     }

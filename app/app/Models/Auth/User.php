@@ -4,6 +4,8 @@ namespace App\Models\Auth;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Pessoa\PessoaPerfil;
+use App\Notifications\ResetPasswordNotification;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -69,6 +71,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function pessoa_perfil()
+    {
+        return $this->belongsTo(PessoaPerfil::class);
+    }
+
     public static function getCustomColumns(): array
     {
         return array_merge(
@@ -106,5 +113,16 @@ class User extends Authenticatable
     public function user_tenant_domains()
     {
         return $this->hasMany(UserTenantDomain::class)->withoutDomain();
+    }
+
+    /**
+     * Envia a notificação para redefinição de senha.
+     *
+     * @param string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

@@ -1,11 +1,15 @@
+// Tipagem apenas para referência, sem carregar o módulo
+/** @typedef {import('../views/pessoa/pessoa-fisica/form').PagePessoaFisicaForm} PagePessoaFisicaForm */
+
 import { CommonFunctions } from "../commons/CommonFunctions";
-import { ModalMessage } from "../components/comum/ModalMessage";
 import { ModalSelecionarPessoaPerfilTipo } from "../components/pessoas/ModalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
+import { UsuarioDomainsModule } from "./UsuarioDomainsModule";
 
 export class PessoaPerfilModule {
 
     _objConfigs;
+    /** @type {PagePessoaFisicaForm} */
     _parentInstance;
     _extraConfigs;
 
@@ -16,10 +20,29 @@ export class PessoaPerfilModule {
         this.#addEventosBotoes();
     }
 
+    //#region Getters e Setters
+
+    set setPerfisNaTela(perfisNaTela) {
+        // Inicializa a estrutura se não existir
+        if (!this._objConfigs.data) this._objConfigs.data = {};
+        // Seta o valor mantendo a referência
+        this._objConfigs.data.perfisNaTela = perfisNaTela;
+    }
+
+    get getPerfisNaTela() {
+        // Inicializa se não existir e retorna a referência
+        if (!this._objConfigs.data) this._objConfigs.data = {};
+        if (!this._objConfigs.data.perfisNaTela) this._objConfigs.data.perfisNaTela = [];
+        return this._objConfigs.data.perfisNaTela;
+    }
+
+    //#endregion
+
     #addEventosBotoes() {
         const self = this;
 
         $(`#btnAdicionarPerfil${self._objConfigs.sufixo}`).on('click', async function () {
+
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
@@ -35,8 +58,9 @@ export class PessoaPerfilModule {
 
                 if (response.refresh && response.register) {
                     const register = response.register;
-                    self.#inserirPessoaDadosTypePadrao(register);
+                    register.perfil_tipo_id = Number(register.perfil_tipo_id);
                     await self._inserirPerfil(register, true);
+                    self.#eventosAposInserirOuRemoverPerfil();
                 }
 
             } catch (error) {
@@ -45,22 +69,6 @@ export class PessoaPerfilModule {
                 CommonFunctions.simulateLoading(btn, false);
             }
         });
-    }
-
-    #inserirPessoaDadosTypePadrao(register) {
-        const self = this;
-
-        // Verifica se o objeto register possui a propriedade pessoa
-        // Se não existir, cria um objeto vazio
-        if (!register.pessoa) {
-            register.pessoa = {};
-        }
-
-        // Verifica se o objeto register.pessoa possui a propriedade pessoa_dados_type
-        // Se não existir, atribui o valor padrão
-        if (!register.pessoa.pessoa_dados_type) {
-            register.pessoa.pessoa_dados_type = self._objConfigs.data.pessoa_dados_type_padrao;
-        }
     }
 
     #verificaPerfilAdicionado(perfilAInserir) {
@@ -80,92 +88,102 @@ export class PessoaPerfilModule {
         return true;
     }
 
-    async _inserirPerfil(item, validarLimite = false, perfilObrigatorio = false) {
+    async _inserirPerfil(perfil, validarLimite = false) {
         const self = this;
         const divPerfil = $(`#divPerfil${self._objConfigs.sufixo}`);
 
-        const nomePerfil = item.perfil_tipo.nome;
+        const nomePerfil = perfil?.perfil_tipo?.nome || 'Perfil Desconhecido';
 
-        if (!item?.idCol) {
-            if (validarLimite) {
-                if (!self.#verificaPerfilAdicionado(item)) {
-                    return false;
-                }
-            }
+        if (validarLimite && !self.#verificaPerfilAdicionado(perfil)) {
+            return false;
+        }
 
-            item.idCol = UUIDHelper.generateUUID();
+        // Gera o ID e define a rota de edição
+        perfil.idCol = UUIDHelper.generateUUID();
+        !perfil.id ? perfil.ativo_bln = true : null;
 
-            const rotaEdit = self.#pesquisarRotaEditPerfil(item);
-            const perfilVigente = item.perfil_tipo_id == self._objConfigs.data.pessoa_perfil_tipo_id;
+        // Botão de status (ativo/inativo)
+        const btnStatus = `
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="ckbAtivo${perfil.idCol}" name="ativo_bln" ${perfil?.ativo_bln || !perfil.id ? 'checked' : ''}>
+                <label class="form-check-label" for="ckbAtivo${perfil.idCol}">Ativo</label>
+            </div>
+        `;
 
-            let strCard = `
-            <div id="${item.idCol}" class="col">
+        // Botão de remoção
+        const btnRemover = !perfil.id ? `
+            <button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Excluir perfil ${nomePerfil}">
+                Remover
+            </button>
+        ` : '';
+
+        // Texto de perfil não cadastrado
+        const textoNaoCadastrado = (!perfil.id) ? `
+            <div class="form-text fst-italic">Perfil ainda não cadastrado</div>
+        ` : '';
+
+        // Montagem do card do perfil
+        const strCard = `
+            <div id="${perfil.idCol}" class="col">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title d-flex align-items-center justify-content-between mb-0">
-                            <span class="text-truncate spanTitle" title="${item.perfil_tipo.descricao}">${nomePerfil}</span>
-                            <div>
-                                ${!perfilVigente ? `<a href="${item.id ? `${rotaEdit}/${item.id}` : '#'}" class="btn btn-outline-primary border-0 btn-sm ${!item.id ? 'disabled' : ''}" ${item.id ? `target="_blank"` : ''}>Editar</a>` : ''}
-                                ${!item.id && !perfilObrigatorio ? `<button type="button" class="btn btn-outline-danger border-0 btn-sm btn-delete" title="Excluir perfil ${nomePerfil}">Remover</button>` : ''}
-                            </div>
+                            <span class="text-truncate spanTitle" title="${perfil.perfil_tipo?.descricao || 'Descrição não disponível'}">${nomePerfil}</span>
+                            <div>${btnRemover}</div>
                         </h5>
-                        ${!item.id ? '<div class="form-text fst-italic">Perfil ainda não cadastrado</div>' : ''}
+                        ${textoNaoCadastrado}
+                        ${btnStatus}
                     </div>
                 </div>
-            </div>`;
+            </div>
+        `;
 
-            divPerfil.append(strCard);
-            self.#addEventosPerfil(item);
-            self._objConfigs.data.perfisNaTela.push(item);
-
-        } else {
-            $(`#${item.idCol}`).find('.spanTitle').html(nomePerfil);
-
-            const indexDoc = self.#pesquisaIndexPerfilNaTela(item);
-            if (indexDoc != -1) {
-                self._objConfigs.data.perfisNaTela[indexDoc] = item;
-            }
-        }
+        // Adiciona o card ao DOM e aos perfis na tela
+        divPerfil.append(strCard);
+        self.#addEventosPerfil(perfil);
+        self.getPerfisNaTela.push(perfil);
 
         return true;
     }
 
-    #pesquisarRotaEditPerfil(perfil) {
-        const rotas = window.Statics.PessoaPerfilTipoRotasPessoaPerfilFormFront;
-        // Encontra o objeto com o perfil_tipo e pessoa_dados_type correspondente
-        const rota = rotas.find(r => r.perfil_tipo == perfil.perfil_tipo_id && r.pessoa_dados_type == perfil.pessoa.pessoa_dados_type);
-
-        // Retorna somente a rota ou null caso não encontre
-        return rota ? rota.rota : null;
+    #eventosAposInserirOuRemoverPerfil() {
+        const self = this;
+        /**@type {UsuarioDomainsModule} */
+        self._parentInstance.getUsuarioDomainsModule._verificaPerfisNaTela();
     }
 
     #pesquisaIndexPerfilNaTela(item, prop = 'idCol') {
         const self = this;
-        return self._objConfigs.data.perfisNaTela.findIndex(doc => doc[prop] === item[prop]);
+        return self.getPerfisNaTela.findIndex(doc => doc[prop] === item[prop]);
     }
 
-    async #addEventosPerfil(item) {
+    async #addEventosPerfil(perfil) {
         const self = this;
 
-        $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
+        $(`#${perfil.idCol}`).find(`.btn-delete`).click(async function () {
             try {
-                const perfNaTela = self._objConfigs.data.perfisNaTela;
-                const indexPerf = self.#pesquisaIndexPerfilNaTela(item);
-                if (indexPerf != -1) {
-                    const perf = perfNaTela[indexPerf] = item;
+                const perfNaTela = self.getPerfisNaTela;
+                const indexPerf = self.#pesquisaIndexPerfilNaTela(perfil);
 
-                    const objMessage = new ModalMessage();
-                    objMessage.setDataEnvModal = {
-                        title: `Remoção de Perfil`,
-                        message: `Confirma a remoção do perfil <b>${perf.perfil_tipo.nome}</b>?`,
-                    };
-                    objMessage.setFocusElementWhenClosingModal = $(this);
-                    const result = await objMessage.modalOpen();
-                    if (result.confirmResult) {
-                        perfNaTela.splice(indexPerf, 1);
-                        $(`#${perf.idCol}`).remove();
-                    }
-                }
+                if (indexPerf === -1) return;
+
+                $(`#${perfNaTela[indexPerf].idCol}`).remove();
+                perfNaTela.splice(indexPerf, 1);
+                self.#eventosAposInserirOuRemoverPerfil();
+            } catch (error) {
+                CommonFunctions.generateNotificationErrorCatch(error);
+            }
+        });
+
+        // Evento de check para inativação de perfil
+        $(`#${perfil.idCol}`).find(`input[name="ativo_bln"]`).change(function () {
+            try {
+                const perfNaTela = self.getPerfisNaTela;
+                const indexPerf = self.#pesquisaIndexPerfilNaTela(perfil);
+
+                if (indexPerf === -1) return;
+
+                perfNaTela[indexPerf].ativo_bln = $(this).is(':checked');
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
             }
@@ -174,22 +192,44 @@ export class PessoaPerfilModule {
 
     _retornaPerfilsNaTelaSaveButonAction() {
         const self = this;
-        return self._objConfigs.data.perfisNaTela.map(item => {
+        return self.getPerfisNaTela.map(i => {
             return {
-                id: item.id,
-                perfil_tipo_id: item.perfil_tipo_id,
+                id: i.id,
+                perfil_tipo_id: i.perfil_tipo_id,
+                ativo_bln: i.ativo_bln,
             }
         });
     }
 
-    _inserirPerfilObrigatorio() {
+    saveButtonActionEspecificoPerfil(data) {
         const self = this;
-        const novoPerfil = {
-            perfil_tipo_id: self._objConfigs.data.pessoa_perfil_tipo_id,
-            perfil_tipo: window.Details.PessoaPerfilTipoEnum.filter(item =>
-                item.id == self._objConfigs.data.pessoa_perfil_tipo_id)[0]
-        }
-        self.#inserirPessoaDadosTypePadrao(novoPerfil);
-        self._inserirPerfil(novoPerfil, false, true);
+
+        data.perfis = self._retornaPerfilsNaTelaSaveButonAction();
+        return data;
     }
+
+    saveVerificationsEspecificoPerfil(data, setFocus, returnForcedFalse) {
+
+        const self = this;
+        let blnSave = !returnForcedFalse;
+
+        if (self.getPerfisNaTela.length === 0) {
+            const focoTabPerfil = $(`#painelPerfil${self._objConfigs.sufixo}-tab`);
+            if (setFocus) focoTabPerfil.trigger('click');
+            CommonFunctions.generateNotification('Nenhum perfil foi selecionado. Por favor, selecione ao menos um perfil.', 'warning');
+            blnSave = false;
+        }
+
+        return blnSave;
+    }
+
+    // _inserirPerfilObrigatorio() {
+    //     const self = this;
+    //     const novoPerfil = {
+    //         perfil_tipo_id: self._objConfigs.data.pessoa_perfil_tipo_id,
+    //         perfil_tipo: window.Details.PessoaPerfilTipoEnum.filter(item =>
+    //             item.id == self._objConfigs.data.pessoa_perfil_tipo_id)[0]
+    //     }
+    //     self._inserirPerfil(novoPerfil, false, true);
+    // }
 }

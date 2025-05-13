@@ -52,6 +52,23 @@ class PessoaService extends Service
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
     }
 
+    public function show(Fluent $requestData)
+    {
+        $resource = $this->buscarRecurso($requestData);
+
+        $relations = $this->loadFull();
+        $resource->load('pessoa_perfil.perfil_tipo');
+        $idsPerfis = $resource->pessoa_perfil->pluck('perfil_tipo_id')->toArray();
+
+        // Carregar dados de usuário somente se ele tiver o perfil de usuário
+        if (in_array(PessoaPerfilTipoEnum::USUARIO->value, $idsPerfis)) {
+            $relations[] = "perfil_usuario.user.user_tenant_domains.domain";
+        }
+        $resource->load($relations);
+
+        return $resource->toArray();
+    }
+
     public function showEmpresa(Fluent $requestData)
     {
         // Se não encontrar o perfil, retorna vazio

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ExistingUserTenantDomainMiddleware;
 use App\Http\Controllers\Comum\CepController;
 use App\Http\Controllers\Referencias\PagamentoTipoController;
 use App\Http\Controllers\Tenant\DocumentoModeloTenantController;
@@ -10,7 +11,8 @@ Route::group([
     'prefix' => 'helper',
     'middleware' => [
         // 'tenant.rota.tipo:4,true,financeiro',
-        'usuario.tenant',
+        // 'usuario.tenant',
+        ExistingUserTenantDomainMiddleware::class,
     ],
 ], function () {
 

@@ -1411,18 +1411,20 @@ class PageServicoForm extends TemplateForm {
             btnDel = '';
         }
 
-        if (item?.participantes && item.participantes.length > 0) {
-            const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
+        if (item?.participantes?.length > 0) {
+
+            const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(item.participantes, {
+                titleParticipantes: title,
+                htmlBtnParticipante: 'Ver participante(s)',
+                htmlBtnIntegrantes: 'Ver integrante(s) do(s) grupo(s)',
+            });
+
             html = `
                 <p class="mb-0">
                     Participação personalizada:
                     ${btnDel}
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="${title}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
-                        Ver
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
-                        Ver integrantes dos grupos
-                    </button>
+                    ${btnsVerMais.btnParticipantes}
+                    ${btnsVerMais.btnIntegrantes}
                 </p>`;
         } else {
             html = `<p class="mb-0 fst-italic">${empty}</p>`;

@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Middleware\ExistingUserTenantDomainMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'referencias',
+    // 'usuario.tenant',
+    ExistingUserTenantDomainMiddleware::class,
 ], function () {
 
     Route::prefix('conta-subtipo')->group(function () {

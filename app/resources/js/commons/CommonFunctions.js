@@ -963,7 +963,9 @@ export class CommonFunctions {
      * @param {Object} [options={}] - Opções para personalizar a verificação.
      * @param {jQuery} [options.field=undefined] - O elemento jQuery que será aplicado a identificação visual de válido ou inválido.
      * @param {string} [options.messageInvalid=null] - A mensagem a ser exibida se o valor editado for considerado inválido.
+     * @param {string} [options.typeNotification='warning'] - O tipo de notificação a ser exibido.
      * @param {boolean} [options.setFocus=false] - Setar o foco para o elemento enviado caso a verificação retornar inválida.
+     * @param {function} [options.executeBeforeEventFocusElement=null] - Função a ser executada antes de definir o foco no elemento.
      * @param {boolean} [options.returnForcedFalse=false] - Retorna o valor falso de maneira forçada para caso de verificação em massa no chamador desta função.
      * @returns {boolean} - Retorna True se a validação está OK, caso contrário retornará False.
      */
@@ -973,20 +975,33 @@ export class CommonFunctions {
             messageInvalid = null,
             typeNotification = 'warning',
             setFocus = false,
+            executeBeforeEventFocusElement = null,
             returnForcedFalse = false
         } = options;
+
+        // Verifica se o valor é inválido
         if (CommonFunctions.getInvalidsDefaultValuesGenerateFilters().includes(data)) {
+            // Gera notificação se a mensagem inválida foi passada
             if (messageInvalid) {
                 CommonFunctions.generateNotification(messageInvalid, typeNotification);
             }
+
+            // Verifica o campo e aplica a classe de erro
             if (field) {
                 $(field).removeClass('is-valid').addClass('is-invalid');
+
+                // Se o foco deve ser definido
                 if (setFocus) {
+                    // Executa a função antes do foco, se for válida
+                    if (typeof executeBeforeEventFocusElement === 'function') {
+                        executeBeforeEventFocusElement();
+                    }
                     $(field).focus();
                 }
             }
             return false;
         } else {
+            // Aplica a classe de sucesso ao campo, se houver
             if (field) {
                 $(field).removeClass('is-invalid').addClass('is-valid');
             }

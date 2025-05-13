@@ -1,12 +1,14 @@
 <?php
 
+use App\Http\Middleware\ExistingUserTenantDomainMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'relatorio',
     'middleware' => [
         // 'tenant.rota.tipo:4,true,relatorio',
-        'usuario.tenant',
+        // 'usuario.tenant',
+        ExistingUserTenantDomainMiddleware::class,
     ],
 ], function () {
 

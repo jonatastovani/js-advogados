@@ -111,11 +111,10 @@ class PagePagamentoServicoIndex extends TemplateSearch {
         const pagamentoTipo = item.pagamento_tipo_tenant.nome ?? item.pagamento_tipo_tenant.pagamento_tipo.nome
         const observacaoPagamento = item.observacao ?? '***';
 
-        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
-            item.participantes.length ? item.participantes :
-                (item.servico.participantes.length ? item.servico.participantes : [])
-        );
-
+        const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(item.participantes.length ? item.participantes :
+            (item.servico.participantes.length ? item.servico.participantes : []), {
+            titleParticipantes: `Participante(s) do Pagamento`,
+        });
         const htmlCliente = self.#htmlRenderCliente(item);
 
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
@@ -139,8 +138,8 @@ class PagePagamentoServicoIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap" title="${numero_servico}">${numero_servico}</td>
-                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do pagamento ${numero_pagamento}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td class="text-center">${btnsVerMais.btnParticipantes}</td>
+                <td class="text-center">${btnsVerMais.btnIntegrantes}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

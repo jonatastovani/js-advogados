@@ -387,12 +387,13 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         const observacaoPagamento = item.pagamento.observacao ?? '***';
         const statusPagamento = item.pagamento.status.nome;
 
-        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(
+        const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
                 (item.pagamento.participantes.length ? item.pagamento.participantes :
                     (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
-                )
-        );
+                ), {
+            titleParticipantes: `Participante(s) do Lançamento ${descricaoAutomatica}`,
+        });
 
         let classCor = '';
         for (const StatusLancamento of Object.values(self.#objConfigs.data.configAcoes)) {
@@ -421,16 +422,8 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate ${classCor}" title="${areaJuridica}">${areaJuridica}</td>
                 <td class="text-nowrap ${classCor}" title="${formaPagamento}">${formaPagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-center ${classCor}">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do Lançamento ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
-                <td class="text-center ${classCor}">
-                    <button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">
-                        Ver mais
-                    </button>
-                </td>
+                <td class="text-center ${classCor}">${btnsVerMais.btnParticipantes}</td>
+                <td class="text-center ${classCor}">${btnsVerMais.btnIntegrantes}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_pagamento}">${numero_pagamento}</td>
                 <td class="text-nowrap text-truncate ${classCor}" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap ${classCor}" title="${numero_servico}">${numero_servico}</td>

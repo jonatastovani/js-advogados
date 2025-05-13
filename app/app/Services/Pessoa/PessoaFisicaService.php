@@ -25,6 +25,7 @@ use App\Traits\UserDomainMethodsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class PessoaFisicaService extends Service
@@ -129,6 +130,11 @@ class PessoaFisicaService extends Service
 
         $query->whereIn("{$this->modelPessoaPerfil->getTableAsName()}.perfil_tipo_id", $requestData->perfis_busca);
 
+        // Filtrar somente os perfis ativos, caso não seja enviado o parâmetro include_perfis_inativos
+        if (!$requestData->include_perfis_inativos) {
+            $query->where("{$this->modelPessoaPerfil->getTableAsName()}.ativo_bln", true);
+        }
+
         if (isset($requestData->ativo_bln)) {
             $query->where("{$this->model->getTableAsName()}.ativo_bln", $requestData->ativo_bln);
         }
@@ -162,7 +168,8 @@ class PessoaFisicaService extends Service
     public function store(Fluent $requestData)
     {
         $resource = $this->verificacaoEPreenchimentoRecursoStoreUpdate($requestData);
-
+        Log::debug("Debug", ['resource' => $resource->toArray(), 'requestData' => $requestData->toArray()]);
+        
         try {
             return DB::transaction(function () use ($resource, $requestData) {
 
@@ -180,12 +187,12 @@ class PessoaFisicaService extends Service
 
                 $userDomains = null;
                 // Somente se for update do tipo usuário para verificar domínios
-                if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($resource->perfis)->pluck('perfil_tipo_id')->toArray())) {
                     if ($resource->userDomains) {
                         $userDomains = $resource->userDomains;
                     }
-                    unset($resource->userDomains);
                 }
+                unset($resource->userDomains);
 
                 $enderecos = $resource->enderecos;
                 unset($resource->enderecos);
@@ -274,14 +281,14 @@ class PessoaFisicaService extends Service
                 $userDomains = [];
                 $userDomainsExistentes = [];
                 // Somente se for update do tipo usuário para alterar os domínios
-                if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+                if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($resource->perfis)->pluck('perfil_tipo_id')->toArray())) {
                     if ($resource->userDomains) {
                         $userDomains = $resource->userDomains;
                     }
                     // Busca os dominios existentes
                     $userDomainsExistentes = $resource->pessoa->perfil_usuario->user->user_tenant_domains ?? [];
-                    unset($resource->userDomains);
                 }
+                unset($resource->userDomains);
 
                 // Obter e remover do resource os enderecos
                 $enderecos = $resource->enderecos;
@@ -337,7 +344,7 @@ class PessoaFisicaService extends Service
         $arrayErrors = $perfisProcessados->arrayErrors;
 
         // Verificação específica para tipo de perfil USUARIO
-        if ($requestData->pessoa_perfil_tipo_id === PessoaPerfilTipoEnum::USUARIO->value) {
+        if (in_array(PessoaPerfilTipoEnum::USUARIO->value, collect($resource->perfis)->pluck('perfil_tipo_id')->toArray())) {
 
             // Verifica e processa domínios
             $userDomainsProcessados = $this->verificacaoUserDomains($requestData, $resource, $arrayErrors);

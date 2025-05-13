@@ -21,6 +21,7 @@ class PostConsultaFiltroFormRequestPessoaFisica extends PostConsultaFiltroFormRe
             'ativo_bln' => 'nullable|boolean',
             'perfis_busca' => 'required|array',
             'perfis_busca.*' => 'required|integer',
+            'include_perfis_inativos' => 'nullable|boolean',
         ]);
 
         return $rules;

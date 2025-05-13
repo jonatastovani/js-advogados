@@ -103,19 +103,42 @@ export class BootstrapFunctionsHelper {
         return id;
     }
 
-    static addEventTooltip() {
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    /**
+     * Inicializa tooltips em elementos com atributo data-bs-toggle="tooltip".
+     * @param {Object} options - Opções para personalizar os tooltips.
+     */
+    static addEventTooltip(options = {}) {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        [...tooltipTriggerList].forEach(tooltipTriggerEl => {
+            const tooltipInstance = new bootstrap.Tooltip(tooltipTriggerEl, this.#processOptions(options));
+            this.#applyCustomStyles(tooltipTriggerEl, options);
+        });
     }
 
-    static addEventPopover() {
-        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+    /**
+     * Inicializa popovers em elementos com atributo data-bs-toggle="popover".
+     * @param {Object} options - Opções para personalizar os popovers.
+     */
+    static addEventPopover(options = {}) {
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+        [...popoverTriggerList].forEach(popoverTriggerEl => {
+            const popoverInstance = new bootstrap.Popover(popoverTriggerEl, this.#processOptions(options));
+
+            // Evento para aplicar customizações após a exibição
+            popoverTriggerEl.addEventListener('shown.bs.popover', () => {
+                const popoverBody = document.querySelector('.popover-body');
+                if (popoverBody && options['add-css-body']) {
+                    this.#applyCustomStyles(popoverBody, options['add-css-body']);
+                }
+            });
+        });
     }
 
+    /**
+     * Remove todos os eventos de popover.
+     */
     static removeEventPopover() {
         const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-
         popoverTriggerList.forEach(popoverTriggerEl => {
             const popoverInstance = bootstrap.Popover.getInstance(popoverTriggerEl);
             if (popoverInstance) {
@@ -124,4 +147,66 @@ export class BootstrapFunctionsHelper {
         });
     }
 
+    /**
+     * Processa as opções para os componentes Bootstrap.
+     * @param {Object} options - Objeto com as opções fornecidas.
+     * @returns {Object} - Objeto com as opções formatadas.
+     */
+    static #processOptions(options) {
+        return {
+            html: options.html ?? true,
+            trigger: options.trigger ?? 'click',
+            placement: options.placement ?? 'auto',
+            container: options.container ?? 'body',
+            customClass: options.customClass ?? '',
+            sanitize: options.sanitize ?? false,
+            ...options.bootstrapOptions, // Permite enviar opções do Bootstrap diretamente
+        };
+    }
+
+    /**
+     * Aplica estilos personalizados a um elemento.
+     * @param {HTMLElement} element - O elemento a ser estilizado.
+     * @param {Object} cssOptions - Objeto com as propriedades CSS.
+     */
+    static #applyCustomStyles(element, cssOptions) {
+        if (!cssOptions) return;
+        Object.entries(cssOptions).forEach(([property, value]) => {
+            element.style[property] = value;
+        });
+    }
+
+    /**
+     * Gera um conteúdo HTML com estilo scrollable.
+     * @param {string} content - O conteúdo HTML a ser exibido.
+     * @param {string} maxHeight - A altura máxima para a área scrollable.
+     * @returns {string} - O HTML formatado para scroll.
+     */
+    static createScrollableContent(content, maxHeight = '50vh') {
+        return `
+            <div class='popover-scrollable' style='max-height: ${maxHeight}; overflow-y: auto;'>
+                ${content}
+            </div>`;
+    }
+
+    // static addEventTooltip() {
+    //     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    //     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    // }
+
+    // static addEventPopover() {
+    //     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    //     const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+    // }
+
+    // static removeEventPopover() {
+    //     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+
+    //     popoverTriggerList.forEach(popoverTriggerEl => {
+    //         const popoverInstance = bootstrap.Popover.getInstance(popoverTriggerEl);
+    //         if (popoverInstance) {
+    //             popoverInstance.dispose();
+    //         }
+    //     });
+    // }
 }

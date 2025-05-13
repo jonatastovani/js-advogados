@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'nome' => 'ByteForge Sistemas',
+    'nome' => env('APP_NAME'),
     'sigla' => 'ByForSis',
     'sigla_front' => 'BFS',
     'logo' => 'img/logo-js-sem-fundo-1600x1600-ico.ico',

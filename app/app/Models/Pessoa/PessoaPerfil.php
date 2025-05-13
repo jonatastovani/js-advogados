@@ -33,6 +33,7 @@ class PessoaPerfil extends Model
         'id',
         'pessoa_id',
         'perfil_tipo_id',
+        'ativo_bln',
     ];
 
     protected $exceptHidden = [

@@ -7,6 +7,7 @@
 @endphp
 
 @extends('layouts.layout-guest')
+@section('title', 'Redefinição de Senha')
 
 @section('conteudo')
     <div class="row justify-content-center align-items-center h-100">

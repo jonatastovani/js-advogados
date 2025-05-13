@@ -13,6 +13,8 @@ class PasswordResetRequestMail extends Mailable
     use Queueable, SerializesModels;
 
     public $resetLink;
+    public $nomeSistema;
+    public $tempoExpiracao;
 
     /**
      * Create a new message instance.
@@ -21,6 +23,9 @@ class PasswordResetRequestMail extends Mailable
      */
     public function __construct(string $resetLink)
     {
+        $tenantName = tenant('name') ? ' - ' . tenant('name') : '';
+        $this->nomeSistema = env('APP_NAME') . $tenantName;
+        $this->tempoExpiracao = config('auth.passwords.' . config('auth.defaults.passwords') . '.expire');
         $this->resetLink = $resetLink;
     }
 
@@ -30,7 +35,7 @@ class PasswordResetRequestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Solicitação de Redefinição de Senha',
+            subject: "{$this->nomeSistema} - Solicitação de Redefinição de Senha",
         );
     }
 
@@ -40,19 +45,22 @@ class PasswordResetRequestMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'vendor.notifications.email', // Usa a estrutura padrão do Laravel
+            markdown: 'vendor.notifications.email',
             with: [
                 'level' => 'info',
                 'greeting' => 'Olá!',
                 'introLines' => [
-                    'Recebemos uma solicitação para redefinir sua senha. Se você deseja redefinir sua senha, clique no botão abaixo.',
+                    "Recebemos uma solicitação para redefinir sua senha no sistema {$this->nomeSistema}.",
+                    "Se você deseja redefinir sua senha, clique no botão abaixo. O link é válido por um período limitado de {$this->tempoExpiracao} minutos, então recomendamos que faça isso o quanto antes.",
                 ],
                 'actionText' => 'Redefinir Senha',
                 'actionUrl' => $this->resetLink,
                 'displayableActionUrl' => $this->resetLink,
                 'outroLines' => [
                     'Se você não solicitou esta redefinição, pode ignorar este e-mail com segurança.',
+                    "Caso tenha dúvidas, entre em contato com o suporte da {$this->nomeSistema}.",
                 ],
+                'salutation' => 'Atenciosamente, Equipe ' . $this->nomeSistema,
             ]
         );
     }

@@ -85,8 +85,9 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
                 <button type="button" class="btn btn-outline-success btn-sm btn-select" title="Selecionar registro"><i class="bi bi-check-lg"></i></button>
             </div>`;
 
-        const arrays = ParticipacaoHelpers.htmlRenderParticipantesEIntegrantes(item.participantes);
-
+        const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(item.participantes ?? [], {
+            titleParticipantes: `Participante(s) do Preset`,
+        });
         const created_at = DateTimeHelper.retornaDadosDataHora(item.created_at, 12);
 
         $(tbody).append(`
@@ -98,8 +99,8 @@ export class ModalParticipacaoPreset extends ModalSearchAndFormRegistration {
                 </td>
                 <td class="text-nowrap" title="${item.nome ?? ''}">${item.nome}</td>
                 <td class="text-nowrap text-truncate" style="max-width: 10rem" title="${item.descricao ?? ''}">${item.descricao ?? ''}</td>
-                <td><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes do ${item.nome}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
-                <td><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Integrantes de Grupos" data-bs-html="true" data-bs-content="${arrays.arrayIntegrantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                <td class="text-center">${btnsVerMais.btnParticipantes}</td>
+                <td class="text-center">${btnsVerMais.btnIntegrantes}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
         `);

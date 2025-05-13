@@ -17,4 +17,7 @@ return [
     'password' => 'A senha informada está incorreta.',
     'throttle' => 'Muitas tentativas de login. Tente novamente em :seconds segundos.',
 
+    'user_inactive' => 'Seu acesso ao sistema está bloqueado. Por favor, entre em contato com o administrador.',
+    'profile_inactive' => 'Seu perfil de usuário está inativo. Por favor, entre em contato com o administrador.',
+
 ];

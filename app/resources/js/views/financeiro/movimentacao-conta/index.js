@@ -203,12 +203,16 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
         switch (item.referencia_type) {
             case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
             case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
-                if (item.movimentacao_conta_participante && item.movimentacao_conta_participante.length &&
+                if (item?.movimentacao_conta_participante?.length &&
                     (window.Statics.StatusServicoLancamentoComParticipantes.findIndex(status => status == item.status_id) != -1)
                 ) {
-                    const arrays = ParticipacaoHelpers.htmlRenderParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante);
+                    const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnVerMaisParticipantesMovimentacaoContaParticipante(item.movimentacao_conta_participante, {
+                        titleParticipantes: `Participante(s) da Movimentação`,
+                    });
                     htmlThParticipantesIntegrantes = `
-                        <td class="text-center"><button type="button" class="btn btn-sm btn-outline-info border-0" data-bs-toggle="popover" data-bs-title="Participantes da Movimentação ${descricaoAutomatica}" data-bs-html="true" data-bs-content="${arrays.arrayParticipantes.join("<hr class='my-1'>")}">Ver mais</button></td>
+                        <td class="text-center">
+                            ${btnsVerMais.btnParticipantes}
+                        </td>
                     `;
                 }
                 break;
@@ -323,7 +327,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
 
         if (nomes.length > 1) {
             const total = nomes.length;
-            return `${nomes[0]} + ${total - 1}</button>`
+            return `${nomes[0]} + ${total - 1}`
         }
         return nomes[0];
     };

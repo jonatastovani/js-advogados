@@ -88,7 +88,7 @@
 
     <div class="row">
         <div class="col mt-2">
-            <a href="{{ route('pessoa.pessoa-fisica.cliente.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+            <a href="{{ route('pessoa.pessoa-fisica.form') }}" class="btn btn-outline-primary">Cadastrar</a>
         </div>
     </div>
 

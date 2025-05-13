@@ -14,7 +14,7 @@ class FirstAccessMail extends Mailable
     use Queueable, SerializesModels;
 
     public $resetLink;
-    public $nomeEmpresa;
+    public $nomeSistema;
 
     /**
      * Create a new message instance.
@@ -23,7 +23,8 @@ class FirstAccessMail extends Mailable
      */
     public function __construct(string $resetLink)
     {
-        $this->nomeEmpresa = tenant('name') ?? "Sistema Byteforge";
+        $tenantName = tenant('name') ? ' - ' . tenant('name') : '';
+        $this->nomeSistema = env('APP_NAME') . $tenantName;
         $this->resetLink = $resetLink;
     }
 
@@ -32,9 +33,8 @@ class FirstAccessMail extends Mailable
      */
     public function envelope(): Envelope
     {
-
         return new Envelope(
-            subject: "{$this->nomeEmpresa} - Defina sua senha no primeiro acesso",
+            subject: "{$this->nomeSistema} - Acesso Inicial: Defina sua Senha",
         );
     }
 
@@ -44,19 +44,23 @@ class FirstAccessMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'vendor.notifications.email', // Usa a estrutura padrão do Laravel
+            markdown: 'vendor.notifications.email',
             with: [
                 'level' => 'success',
-                'greeting' => 'Bem-vindo ao Sistema!',
+                'greeting' => 'Bem-vindo ao Sistema ' . $this->nomeSistema . '!',
                 'introLines' => [
-                    "Você foi cadastrado no sistema {$this->nomeEmpresa}. Clique no botão abaixo para definir sua senha no primeiro acesso.",
+                    "Você foi cadastrado com sucesso no sistema {$this->nomeSistema}.",
+                    "Para garantir a segurança do seu acesso, clique no botão abaixo para definir sua senha.",
+                    "O link de definição de senha é válido por um período limitado, portanto, recomendamos que você faça isso o quanto antes.",
                 ],
-                'actionText' => 'Definir Senha',
+                'actionText' => 'Definir Senha Agora',
                 'actionUrl' => $this->resetLink,
                 'displayableActionUrl' => $this->resetLink,
                 'outroLines' => [
-                    'Se você não solicitou este cadastro, entre em contato com o suporte.',
+                    'Se você não realizou este cadastro ou acredita que foi um engano, desconsidere esta mensagem.',
+                    "Agradecemos por fazer parte da {$this->nomeSistema}!",
                 ],
+                'salutation' => 'Atenciosamente,',
             ]
         );
     }

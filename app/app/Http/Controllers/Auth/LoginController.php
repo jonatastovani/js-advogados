@@ -5,36 +5,27 @@ namespace App\Http\Controllers\Auth;
 use App\Helpers\UUIDsHelpers;
 use App\Http\Controllers\Controller;
 use App\Models\Auth\User;
+use App\Traits\AuthControllerTrait;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
+    use AuthenticatesUsers, AuthControllerTrait;
 
     /**
-     * Where to redirect users after login.
+     * Redirecionamento após login.
      *
      * @var string
      */
     protected $redirectTo = '/home';
 
     /**
-     * Create a new controller instance.
+     * Construtor do controlador.
      *
-     * @return void
+     * Define os middlewares necessários para as rotas de login e logout.
      */
     public function __construct()
     {
@@ -43,7 +34,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Get the needed authorization credentials from the request.
+     * Obtém as credenciais de login a partir da requisição.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array
@@ -52,19 +43,75 @@ class LoginController extends Controller
     {
         $userAdmin = User::find(UUIDsHelpers::getAdmin());
 
-        // Verifica se o usuário é o administrador pelo ID
-        if ($request->get('email') === $userAdmin->email) {
+        // Verifica se o usuário é o administrador pelo e-mail
+        if ($userAdmin && $request->get('email') === $userAdmin->email) {
             return [
                 'email' => $request->get('email'),
                 'password' => $request->get('password'),
             ];
         }
 
-        // Adiciona o filtro de tenant_id para outros usuários
+        // Retorna as credenciais padrão com verificação de tenant e usuário ativo
         return [
             'email' => $request->get('email'),
             'password' => $request->get('password'),
             'tenant_id' => tenant('id'),
+            'ativo_bln' => true,
         ];
+    }
+
+    /**
+     * Ação realizada após o usuário ser autenticado.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        // Verifica se o perfil do usuário está ativo após a autenticação
+        if (!$this->isPerfilUsuarioAtivo($user)) {
+            $this->guard()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $message = trans('auth.profile_inactive');
+
+            return $request->wantsJson()
+                ? new JsonResponse(['message' => $message], 403)
+                : redirect()->route('login')->withErrors(['email' => $message]);
+        }
+    }
+
+    /**
+     * Envia a resposta após uma tentativa de login malsucedida.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        $user = User::where('email', $request->get('email'))
+            ->where('tenant_id', tenant('id'))
+            ->first();
+
+        // Verifica se o usuário está inativo
+        if ($user && !$user->ativo_bln) {
+            return back()->withErrors([
+                'email' => trans('auth.user_inactive'),
+            ]);
+        }
+
+        // Verifica se o perfil do usuário está inativo
+        if ($user && $user->pessoa_perfil && !$user->pessoa_perfil->ativo_bln) {
+            return back()->withErrors([
+                'email' => trans('auth.profile_inactive'),
+            ]);
+        }
+
+        // Retorno padrão para falha de login
+        return back()->withErrors([
+            'email' => trans('auth.failed'),
+        ]);
     }
 }

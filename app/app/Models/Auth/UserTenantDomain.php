@@ -34,6 +34,7 @@ class UserTenantDomain extends Model
         'user_id',
         'tenant_id',
         'domain_id',
+        'ativo_bln',
     ];
 
     protected $exceptHidden = [
