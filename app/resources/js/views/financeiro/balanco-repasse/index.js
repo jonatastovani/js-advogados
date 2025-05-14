@@ -190,6 +190,15 @@ class PageBalancoRepasseIndex extends TemplateSearch {
             self.#addEventosDomainCustom();
         }
         self.#statusCampos(false);
+
+        // Evento para manter as datas no mesmo mês
+        const dataInicio = $(`#formDataSearch${self.getSufixo}`).find('input[name="data_inicio"]');
+        const dataFim = $(`#formDataSearch${self.getSufixo}`).find('input[name="data_fim"]');
+
+        DateTimeHelper.ajustarDatasComIntervalo(dataInicio, dataFim, {
+            onError: (mensagem) => CommonFunctions.generateNotification(mensagem, 'warning'), // Callback para erro
+        });
+
     }
 
     #addEventosDomainCustom() {

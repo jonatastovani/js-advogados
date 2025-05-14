@@ -6,9 +6,8 @@
     <h3 class="text-center">Balanço de Repasse de Parceiro</h3>
     <div class="row">
         <div class="col-sm-5">
-            <p class="mb-0">Parceiro: {{ $dataEnv['dados_participante']['referencia']['pessoa']['pessoa_dados']['nome'] }}
+            <p class="mb-0">{{ $dataEnv['participante_perfil_nome'] }}: {{ $dataEnv['participante_nome'] }}
             </p>
-            <p>Perfil referência: {{ $dataEnv['dados_participante']['referencia']['perfil_tipo']['nome'] }}</p>
         </div>
         <div class="col-sm-6 text-right">
             <p class="mb-0">Mês referência: {{ $dataEnv['mes_ano'] }}</p>

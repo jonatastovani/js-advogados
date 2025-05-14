@@ -54,7 +54,9 @@
                     </ul>
 
                 </div>
-                <p class="form-text text-end fw-bolder my-1 mx-3">By {{ config('sistema.nome') }}</p>
+                <div class="form-text text-end fw-bolder mt-1 mx-3">By {{ config('sistema.nome') }}</div>
+                <div class="form-text text-end text-muted fst-italic mt-0 mb-1 mx-3">Versão
+                    {{ env('APP_VERSION_IMAGE', 'latest') }}</div>
                 <div class="card-footer p-0 border-top border-translucent">
                     <div class="px-3">
                         <form action="{{ route('logout') }}" method="post">

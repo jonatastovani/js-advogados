@@ -139,7 +139,10 @@ class FinanceiroController extends Controller
 
         // Cria a chave `processedData` no objeto Fluent
         $dataEnv->processedData = $processedData;
-        $dataEnv->dados_participante = $dataEnv->dados[0];
+
+        $dataEnv->participante_nome = PessoaNomeHelper::extrairNome($dataEnv->dados[0]['referencia'])['nome_completo'];
+        $dataEnv->participante_perfil_nome = $dataEnv->dados[0]['referencia']['perfil_tipo']['nome'];
+
         $dataEnv->somatorias = CurrencyFormatterUtils::convertArrayToBRL($dataEnv->somatorias->toArray());
 
         return $dataEnv;

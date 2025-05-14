@@ -6,7 +6,7 @@
     <h3 class="text-center">{{ $dataEnv['title'] }}</h3>
     <div class="row">
         <div class="col-sm-5">
-            <h5 class="mb-0">Parceiro: {{ $dataEnv['nome_participante'] }}</h4>
+            <h5 class="mb-0">{{ $dataEnv['participante_perfil_nome'] }}: {{ $dataEnv['participante_nome'] }}</h4>
         </div>
         <div class="col-sm-6 text-right">
             <p class="mb-0">Mês referência: {{ $dataEnv['mes_ano'] }}</p>

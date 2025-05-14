@@ -95,7 +95,9 @@
                                 </a>
                             @endif
                         </div>
-                        <p class="form-text text-end fw-bolder my-1">By {{ config('sistema.nome') }}</p>
+                        <div class="form-text text-end fw-bolder mt-1">By {{ config('sistema.nome') }}</div>
+                        <div class="form-text text-end text-muted fst-italic mt-0">Versão
+                            {{ env('APP_VERSION_IMAGE', 'latest') }}</div>
                     </form>
                 </div>
             </div>

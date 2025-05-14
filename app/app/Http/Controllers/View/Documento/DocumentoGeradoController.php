@@ -149,26 +149,16 @@ class DocumentoGeradoController extends Controller
         // Cria a chave `processedData` no objeto Fluent
         $dataEnv->processedData = $processedData;
 
-        $nomeParticipante = '';
-        $pessoa = $dadosParticipantes[0]['referencia']['pessoa'];
-        switch ($pessoa['pessoa_dados_type']) {
-            case PessoaTipoEnum::PESSOA_FISICA->value:
-                $nomeParticipante = $pessoa['pessoa_dados']['nome'];
-                break;
-
-            case PessoaTipoEnum::PESSOA_JURIDICA->value:
-                $nomeParticipante = $pessoa['pessoa_dados']['nome_fantasia'];
-                break;
-        }
+        $dataEnv->participante_nome = PessoaNomeHelper::extrairNome($dadosParticipantes[0]['referencia'])['nome_completo'];
+        $dataEnv->participante_perfil_nome = $dadosParticipantes[0]['referencia']['perfil_tipo']['nome'];
 
         $dataEnv->title = $dataEnv->dados['documento_gerado_tipo']['nome'];
-        $dataEnv->nome_participante = $nomeParticipante;
         $dataEnv->mes_ano = Carbon::parse($mes_ano_movimentacao)->translatedFormat('F/Y');
         $dataEnv->data_documento = Carbon::parse($dataEnv->dados['created_at'])->translatedFormat('d/F/Y H:i:s');
 
         $dataEnv->somatorias = CurrencyFormatterUtils::convertArrayToBRL($dataEnv->somatorias->toArray());
 
-        $dataEnv->pessoa = $pessoa;
+        $dataEnv->pessoa = $dadosParticipantes[0]['referencia']['pessoa'];
 
         return $dataEnv;
     }
