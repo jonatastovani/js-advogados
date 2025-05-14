@@ -15,11 +15,6 @@
         <div class="parent-wrapper">
             <ul class="nav parent collapse" id="nv-sistema" style="">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('sistema.dados-da-empresa.form') }}">
-                        <span class="nav-link-text">Dados da Empresa</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="{{ route('sistema.configuracao.form') }}">
                         <span class="nav-link-text">Configurações do Sistema</span>
                     </a>

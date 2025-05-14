@@ -1,10 +1,10 @@
-import { CommonFunctions } from "../../../../commons/CommonFunctions";
-import { TemplateSearch } from "../../../../commons/templates/TemplateSearch";
-import { BootstrapFunctionsHelper } from "../../../../helpers/BootstrapFunctionsHelper";
-import { DateTimeHelper } from "../../../../helpers/DateTimeHelper";
-import { MasksAndValidateHelpers } from "../../../../helpers/MasksAndValidateHelpers";
+import { CommonFunctions } from "../../../commons/CommonFunctions";
+import { TemplateSearch } from "../../../commons/templates/TemplateSearch";
+import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
+import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { MasksAndValidateHelpers } from "../../../helpers/MasksAndValidateHelpers";
 
-class PageTerceiroPJIndex extends TemplateSearch {
+class PagePessoaJuridicaIndex extends TemplateSearch {
 
     #objConfigs = {
         querys: {
@@ -17,23 +17,28 @@ class PageTerceiroPJIndex extends TemplateSearch {
         url: {
             base: window.apiRoutes.basePessoaJuridica,
             basePessoa: window.apiRoutes.basePessoa,
-            basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
-            baseFrontPessoaJuridicaTerceiroForm: window.frontRoutes.baseFrontPessoaJuridicaTerceiroForm
+            baseFrontPessoaJuridicaForm: window.frontRoutes.baseFrontPessoaJuridicaForm,
         },
         data: {
-            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
-            perfis_busca: [
-                window.Enums.PessoaPerfilTipoEnum.TERCEIRO,
-            ],
+            perfil_referencia_id: window.Enums.PessoaPerfilTipoEnum.CLIENTE,
+            perfis_busca: [],
             // Pré carregamento de dados vindo da URL
             preload: {}
         }
     };
 
     constructor() {
-        super({ sufixo: 'PageTerceiroPJIndex' });
-        this._objConfigs = Object.assign(this._objConfigs, this.#objConfigs);
+        super({ sufixo: 'PagePessoaJuridicaIndex' });
+        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
         this.initEvents();
+    }
+
+    get getPerfisBusca() {
+        return this._objConfigs.data.perfis_busca;
+    }
+
+    set setPerfisBusca(val) {
+        this._objConfigs.data.perfis_busca = val;
     }
 
     async initEvents() {
@@ -50,6 +55,73 @@ class PageTerceiroPJIndex extends TemplateSearch {
             e.preventDefault();
             self._executarBusca();
         });
+
+        self.#addEventosPerfisBusca();
+    }
+
+    /**
+     * Inicializa eventos dos checkboxes de perfis com a classe 'perfis-busca'.
+     * Impede que todos sejam desmarcados e filtra apenas os IDs permitidos.
+     * Atualiza self._objConfigs.data.perfis_busca com os valores válidos.
+     */
+    #addEventosPerfisBusca() {
+        const self = this;
+        const idsPermitidos = window.Statics.PessoaPerfilTipoPerfisParaPessoaJuridica.map(p => p.id);
+
+        // Estado inicial com todos os válidos marcados
+        self.setPerfisBusca = CommonFunctions.clonePure(idsPermitidos);
+
+        const atualizarBloqueioUltimoCheckbox = () => {
+            $('.perfis-busca').prop('disabled', false); // Libera todos
+            const marcados = $('.perfis-busca:checked');
+            if (marcados.length === 1) {
+                marcados.prop('disabled', true);
+            }
+        };
+
+        $(`#${self.getSufixo} .perfis-busca`).each(function () {
+            const $checkbox = $(this);
+            const valor = Number($checkbox.val());
+
+            $checkbox.prop('disabled', false);
+
+            $checkbox.on('change', function (e) {
+                const estaMarcado = $checkbox.is(':checked');
+
+                // Validação: o ID deve estar dentro dos permitidos
+                if (!idsPermitidos.includes(valor)) {
+                    CommonFunctions.generateNotification(
+                        'Perfil inválido selecionado.',
+                        'warning',
+                        { itensArray: [`O ID ${valor} não é um perfil permitido para Pessoa Jurídica.`] }
+                    );
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    $checkbox.prop('checked', !estaMarcado);
+                    return;
+                }
+
+                // Atualização do array de perfis marcados
+                let perfisAtuais = new Set(self.getPerfisBusca);
+
+                if (estaMarcado) {
+                    perfisAtuais.add(valor);
+                } else {
+                    if (perfisAtuais.size <= 1) {
+                        $checkbox.prop('checked', true);
+                        $checkbox.prop('disabled', true);
+                        return;
+                    }
+                    perfisAtuais.delete(valor);
+                }
+
+                self.setPerfisBusca = Array.from(perfisAtuais);
+
+                atualizarBloqueioUltimoCheckbox();
+            });
+        });
+
+        atualizarBloqueioUltimoCheckbox();
     }
 
     async _executarBusca() {
@@ -65,7 +137,8 @@ class PageTerceiroPJIndex extends TemplateSearch {
             }
 
             appendData.perfis_busca = self._objConfigs.data.perfis_busca;
-            return { appendData: appendData };
+            appendData.include_perfis_inativos = true;
+            return { appendData };
         }
 
         BootstrapFunctionsHelper.removeEventPopover();
@@ -95,9 +168,6 @@ class PageTerceiroPJIndex extends TemplateSearch {
             perfis = pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
         }
 
-        // Seleciona somente o perfil de referência desta página
-        pessoaDados.pessoa_perfil_referencia = pessoa.pessoa_perfil.filter(perfil => perfil.perfil_tipo_id == self.#objConfigs.data.perfil_referencia_id)[0];
-
         let strBtns = self.#htmlBtns(pessoaDados);
 
         const ativo = pessoaDados.ativo_bln ? 'Ativo' : 'Inativo';
@@ -106,7 +176,7 @@ class PageTerceiroPJIndex extends TemplateSearch {
         let classCor = !ativo ? 'text-danger' : '';
 
         $(tbody).append(`
-            <tr id=${pessoaDados.idTr} data-id-perfil="${pessoaDados.pessoa_perfil_referencia.id}">
+            <tr id=${pessoaDados.idTr}>
                 <td class="text-center">
                     <div class="btn-group btnsAcao" role="group">
                         ${strBtns}
@@ -126,29 +196,23 @@ class PageTerceiroPJIndex extends TemplateSearch {
             </tr>
         `);
 
-        self.#addEventosRegistrosConsulta(item);
+        self.#addEventosRegistrosConsulta(pessoaDados);
         BootstrapFunctionsHelper.addEventPopover();
         return true;
     }
 
     #htmlBtns(pessoaDados) {
         const self = this;
-        const perfil = pessoaDados.pessoa_perfil_referencia;
 
         let strBtns = `
             <li>
-                <a href="${self._objConfigs.url.baseFrontPessoaJuridicaTerceiroForm}/${pessoaDados.pessoa_perfil_referencia.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa jurídica ${pessoaDados.nome_fantasia}.">
+                <a href="${self._objConfigs.url.baseFrontPessoaJuridicaForm}/${pessoaDados.pessoa.id}" class="dropdown-item fs-6 btn-edit" title="Editar pessoa jurídica ${pessoaDados.nome_fantasia}.">
                     Editar
                 </a>
             </li>
-            <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete-perfil text-danger" title="Excluir perfil ${perfil.perfil_tipo.nome}.">
-                    Excluir perfil ${perfil.perfil_tipo.nome}
-                </button>
-            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-danger" title="Excluir pessoa jurídica ${pessoaDados.nome_fantasia}.">
+                <button type="button" class="dropdown-item fs-6 btn-delete-pessoa text-bg-danger" title="Excluir pessoa jurídica ${pessoaDados.nome_fantasia}.">
                     Excluir Pessoa
                 </button>
             </li>`;
@@ -163,7 +227,6 @@ class PageTerceiroPJIndex extends TemplateSearch {
 
         return strBtns;
     }
-
 
     #addEventosRegistrosConsulta(pessoaDados) {
         const self = this;
@@ -186,29 +249,9 @@ class PageTerceiroPJIndex extends TemplateSearch {
             });
 
         });
-
-        $(`#${pessoaDados.idTr}`).find(`.btn-delete-perfil`).on('click', async function () {
-
-            const perfil = pessoaDados.pessoa_perfil_referencia;
-            const perfilNome = perfil.perfil_tipo.nome;
-
-            self._delButtonAction(perfil.id, perfilNome, {
-                title: `Exclusão de Perfil`,
-                message: `
-                    <p>Tem certeza de que deseja excluir o perfil <b>${perfilNome}</b> da Pessoa Física <b>${pessoaDados.nome_fantasia}</b>?</p>
-                    <div class="alert alert-danger blink-75">
-                        Atenção: caso este seja o único perfil vinculado a esta pessoa, todas as informações associadas serão excluídas permanentemente.
-                    </div>`,
-                success: `Perfil <b>${perfilNome}</b> excluído com sucesso!`,
-                button: this,
-                urlApi: self._objConfigs.url.basePessoaPerfil,
-            });
-
-        });
-
     }
 }
 
 $(function () {
-    new PageTerceiroPJIndex();
+    new PagePessoaJuridicaIndex();
 });

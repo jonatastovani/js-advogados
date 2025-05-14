@@ -137,46 +137,6 @@ enum PessoaPerfilTipoEnum: int
     }
 
     /**
-     * Retorna as rotas de form de pessoa física para cada perfil, para uso de redirecionamento para o form no front.
-     * @return array
-     */
-    static public function rotasPessoaPerfilFormFront(): array
-    {
-        return [
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
-                'perfil_tipo' => self::CLIENTE->value,
-                'rota' => route('pessoa.pessoa-fisica.cliente.form')
-            ],
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_JURIDICA->value,
-                'perfil_tipo' => self::CLIENTE->value,
-                'rota' => route('pessoa.pessoa-juridica.cliente.form')
-            ],
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
-                'perfil_tipo' => self::PARCEIRO->value,
-                'rota' => route('pessoa.pessoa-fisica.parceiro.form')
-            ],
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
-                'perfil_tipo' => self::USUARIO->value,
-                'rota' => route('pessoa.pessoa-fisica.usuario.form')
-            ],
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_FISICA->value,
-                'perfil_tipo' => self::TERCEIRO->value,
-                'rota' => route('pessoa.pessoa-fisica.terceiro.form')
-            ],
-            [
-                'pessoa_dados_type' => PessoaTipoEnum::PESSOA_JURIDICA->value,
-                'perfil_tipo' => self::TERCEIRO->value,
-                'rota' => route('pessoa.pessoa-juridica.terceiro.form')
-            ],
-        ];
-    }
-
-    /**
      * Retorna os perfis aplicáveis à Pessoa Física.
      *
      * @return array Lista de arrays com os detalhes dos perfis aplicáveis à Pessoa Física.
@@ -197,17 +157,18 @@ enum PessoaPerfilTipoEnum: int
     }
 
     /**
-     * Filtra os perfis com base na classe de tipo de pessoa.
+     * Filtra os perfis com base na classe de tipo de pessoa e ordena por nome.
      *
      * @param string $tipoPessoa Classe da pessoa (PessoaFisica::class ou PessoaJuridica::class).
-     * @return array Lista de arrays com os detalhes dos perfis aplicáveis.
+     * @return array Lista de arrays com os detalhes dos perfis aplicáveis, ordenados por nome.
      */
     private static function filtrarPorPessoaTipo(string $tipoPessoa): array
     {
         return collect(self::cases())
             ->map(fn(self $perfil) => $perfil->detalhes())
             ->filter(fn(array $detalhes) => in_array($tipoPessoa, $detalhes['configuracao']['pessoa_tipo_aplicavel']))
-            ->values()
+            ->sortBy('nome') // Ordena por nome
+            ->values() // Reindexa os índices do array
             ->toArray();
     }
 }

@@ -1,9 +1,12 @@
 @php
-    $sufixo = 'PageTerceiroPJIndex';
+    $sufixo = 'PagePessoaJuridicaIndex';
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => 'Listagem de Terceiros PJ',
+        'nome' => 'Listagem de Pessoas Jurídicas',
+        'sufixo' => $sufixo,
     ]);
     Session::put('paginaDados', $paginaDados);
+
+    $perfisExistentes = \App\Enums\PessoaPerfilTipoEnum::perfisParaPessoaJuridica();
 @endphp
 
 @extends('layouts.layout')
@@ -13,7 +16,28 @@
 
     @component('components.pagina.dados-pagina', ['paginaDados' => $paginaDados])
     @endcomponent
-    <div class="row">
+
+    <div class="col-12 mt-2">
+        <label class="form-label fw-semibold">Tipos de Perfis</label>
+        <div class="d-grid gap-1" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+
+            @foreach ($perfisExistentes as $item)
+                <div class="form-check form-check-inline">
+
+                    <input class="form-check-input perfis-busca" type="checkbox" name="perfis_selecionados"
+                        id="perfil_{{ $item['id'] }}{{ $sufixo }}" value="{{ $item['id'] }}" checked>
+                    <label class="form-check-label" for="perfil_{{ $item['id'] }}{{ $sufixo }}"
+                        title="{{ $item['descricao'] }}">
+                        {{ $item['nome'] }}
+                    </label>
+
+                </div>
+            @endforeach
+
+        </div>
+    </div>
+
+    <div class="row mt-2">
         @php
             $dados = new Illuminate\Support\Fluent([
                 'camposFiltrados' => [
@@ -27,8 +51,8 @@
                 'dadosSelectTratamento' => ['selecionado' => 'texto_dividido'],
                 'dadosSelectFormaBusca' => ['selecionado' => 'iniciado_por'],
                 'arrayCamposOrdenacao' => [
-                    'razao_social' => ['nome' => 'Razão social'],
                     'nome_fantasia' => ['nome' => 'Nome fantasia'],
+                    'razao_social' => ['nome' => 'Razão social'],
                     'responsavel_legal' => ['nome' => 'Responsável legal'],
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
@@ -48,13 +72,13 @@
                                 'id' => "rbStatusAtivo{$sufixo}",
                                 'valor' => '1',
                                 'label' => 'Ativos',
-                                'title' => 'Terceiros ativos',
+                                'title' => 'Clientes ativos',
                             ],
                             [
                                 'id' => "rbStatusInativo{$sufixo}",
                                 'valor' => '0',
                                 'label' => 'Inativos',
-                                'title' => 'Terceiros inativos',
+                                'title' => 'Clientes inativos',
                             ],
                         ],
                     ],
@@ -66,7 +90,7 @@
 
     <div class="row">
         <div class="col mt-2">
-            <a href="{{ route('pessoa.pessoa-juridica.terceiro.form') }}" class="btn btn-outline-primary">Cadastrar</a>
+            <a href="{{ route('pessoa.pessoa-juridica.form') }}" class="btn btn-outline-primary">Cadastrar</a>
         </div>
     </div>
 
@@ -96,13 +120,12 @@
 
 @endsection
 
-
 @push('modals')
     <x-modal.tenant.modal-conta-tenant.modal />
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/pessoa/pessoa-juridica/terceiro/index.js')
+    @vite('resources/js/views/pessoa/pessoa-juridica/index.js')
     @component('components.api.api-routes', [
         'routes' => [
             'basePessoa' => route('api.pessoa'),
@@ -113,7 +136,8 @@
     @endcomponent
     @component('components.pagina.front-routes', [
         'routes' => [
-            'baseFrontPessoaJuridicaTerceiroForm' => route('pessoa.pessoa-juridica.terceiro.form'),
+            'baseFrontPessoaJuridicaForm' => route('pessoa.pessoa-juridica.form'),
+            // 'baseFrontImpressao' => route('financeiro.movimentacao-conta.impressao'),
         ],
     ])
     @endcomponent

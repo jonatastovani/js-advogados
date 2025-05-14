@@ -37,7 +37,7 @@
                         <label for="cpf_responsavel{{ $sufixo }}" class="form-label"
                             title="CPF do responsável legal">CPF do Responsável</label>
                         <input type="text" id="cpf_responsavel{{ $sufixo }}" name="cpf_responsavel"
-                            class="form-control campo-cpf">
+                            class="form-control text-center campo-cpf">
                     </div>
                     <div class="col mt-2">
                         <label for="capital_social{{ $sufixo }}" class="form-label"

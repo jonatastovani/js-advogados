@@ -33,7 +33,6 @@
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoGeral: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoGeral()),
         LancamentoStatusTipoStatusParaFiltrosFrontEndLancamentoRessarcimento: @json(\App\Enums\LancamentoStatusTipoEnum::statusParaFiltrosFrontEndLancamentoRessarcimento()),
         MovimentacaoContaStatusTipoStatusMostrarBalancoRepasseFrontEnd: @json(\App\Enums\MovimentacaoContaStatusTipoEnum::statusMostrarBalancoRepasseFrontEnd()),
-        PessoaPerfilTipoRotasPessoaPerfilFormFront: @json(\App\Enums\PessoaPerfilTipoEnum::rotasPessoaPerfilFormFront()),
         PerfisPermitidoClienteServico: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoClienteServico()),
         StatusParaNovosPagamentosServicos: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaNovosPagamentosServicos()),
         StatusParaPagamentosServicosExistentes: @json(\App\Enums\PagamentoStatusTipoEnum::statusParaPagamentosServicosExistentes()),
@@ -47,6 +46,7 @@
         LancamentoTipoQuePermiteLiquidadoMigracao: @json(\App\Enums\LancamentoTipoEnum::lancamentoTipoQuePermiteLiquidadoMigracao()),
         PerfisPermitidoBalancoRepasse: @json(\App\Enums\PessoaPerfilTipoEnum::perfisPermitidoBalancoRepasse()),
         PessoaPerfilTipoPerfisParaPessoaFisica: @json(\App\Enums\PessoaPerfilTipoEnum::perfisParaPessoaFisica()),
+        PessoaPerfilTipoPerfisParaPessoaJuridica: @json(\App\Enums\PessoaPerfilTipoEnum::perfisParaPessoaJuridica()),
     }
 
     window.Details = {

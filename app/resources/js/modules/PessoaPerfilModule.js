@@ -4,7 +4,6 @@
 import { CommonFunctions } from "../commons/CommonFunctions";
 import { ModalSelecionarPessoaPerfilTipo } from "../components/pessoas/ModalSelecionarPessoaPerfilTipo";
 import { UUIDHelper } from "../helpers/UUIDHelper";
-import { UsuarioDomainsModule } from "./UsuarioDomainsModule";
 
 export class PessoaPerfilModule {
 
@@ -148,8 +147,18 @@ export class PessoaPerfilModule {
 
     #eventosAposInserirOuRemoverPerfil() {
         const self = this;
-        /**@type {UsuarioDomainsModule} */
-        self._parentInstance.getUsuarioDomainsModule._verificaPerfisNaTela();
+
+        // Verifica se o _parentInstance existe e se tem o método getUsuarioDomainsModule
+        if (self._parentInstance && typeof self._parentInstance.getUsuarioDomainsModule === 'function') {
+            const usuarioDomainsModule = self._parentInstance.getUsuarioDomainsModule;
+
+            // Verifica se o retorno possui a função _verificaPerfisNaTela
+            if (usuarioDomainsModule && typeof usuarioDomainsModule._verificaPerfisNaTela === 'function') {
+                usuarioDomainsModule._verificaPerfisNaTela();
+            } else {
+                console.warn('A função _verificaPerfisNaTela não está disponível no objeto retornado por getUsuarioDomainsModule.');
+            }
+        }
     }
 
     #pesquisaIndexPerfilNaTela(item, prop = 'idCol') {

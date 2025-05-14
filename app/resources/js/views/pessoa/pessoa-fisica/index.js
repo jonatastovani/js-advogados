@@ -175,9 +175,6 @@ class PagePessoaFisicaIndex extends TemplateSearch {
             perfis = pessoa.pessoa_perfil.map(perfil => perfil.perfil_tipo.nome).join(', ');
         }
 
-        // Seleciona somente o perfil de referência desta página
-        pessoaDados.pessoa_perfil_referencia = pessoa.pessoa_perfil.filter(perfil => perfil.perfil_tipo_id == self.#objConfigs.data.perfil_referencia_id)[0];
-
         let strBtns = self.#htmlBtns(pessoaDados);
 
         const ativo = pessoaDados.ativo_bln ? 'Ativo' : 'Inativo';
@@ -214,7 +211,6 @@ class PagePessoaFisicaIndex extends TemplateSearch {
 
     #htmlBtns(pessoaDados) {
         const self = this;
-        const perfil = pessoaDados.pessoa_perfil_referencia;
 
         let strBtns = `
             <li>

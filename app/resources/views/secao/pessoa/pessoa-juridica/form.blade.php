@@ -1,11 +1,11 @@
 @php
-    $sufixo = 'PagePessoaFisicaForm';
+    $sufixo = 'PagePessoaJuridicaForm';
     $recurso = isset($recurso) ? $recurso : null;
     $paginaDados = new Illuminate\Support\Fluent([
-        'nome' => $recurso ? 'Editar Pessoa Física' : 'Cadastrar Pessoa Física',
+        'nome' => $recurso ? 'Editar Pessoa Jurídica' : 'Cadastrar Pessoa Jurídica',
         'descricao' => [
             [
-                'texto' => 'Cadastro de Pessoa Física.',
+                'texto' => 'Cadastro de Pessoa Jurídica.',
             ],
         ],
         'sufixo' => $sufixo,
@@ -52,13 +52,6 @@
                         Perfis
                     </button>
                 </li>
-                <li class="nav-item campos-dados-usuario" role="presentation" style="display: none">
-                    <button class="nav-link px-2" id="painelDadosUsuario{{ $sufixo }}-tab" data-bs-toggle="tab"
-                        data-bs-target="#painelDadosUsuario{{ $sufixo }}-tab-pane" type="button" role="tab"
-                        aria-controls="painelDadosUsuario{{ $sufixo }}-tab-pane" aria-selected="false" disabled>
-                        Usuário Sistema
-                    </button>
-                </li>
             </ul>
         </div>
     </div>
@@ -66,24 +59,24 @@
         <div class="col tab-content overflow-auto" id="myTabContent">
             <div class="tab-pane fade h-100 show active" id="painelDados{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelDados{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-fisica.form.painel-dados')
+                @include('secao.pessoa.pessoa-juridica.form.painel-dados')
             </div>
             <div class="tab-pane fade h-100" id="painelEnderecos{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelEnderecos{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-fisica.form.painel-enderecos')
+                @include('secao.pessoa.pessoa-juridica.form.painel-enderecos')
             </div>
             <div class="tab-pane fade h-100" id="painelDocumentoPessoa{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelDocumentoPessoa{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-fisica.form.painel-documento-pessoa')
+                @include('secao.pessoa.pessoa-juridica.form.painel-documento-pessoa')
             </div>
             <div class="tab-pane fade h-100" id="painelPerfil{{ $sufixo }}-tab-pane" role="tabpanel"
                 aria-labelledby="painelPerfil{{ $sufixo }}-tab" tabindex="0">
-                @include('secao.pessoa.pessoa-fisica.form.painel-perfil')
+                @include('secao.pessoa.pessoa-juridica.form.painel-perfil')
             </div>
             <div class="tab-pane fade h-100 campos-dados-usuario" id="painelDadosUsuario{{ $sufixo }}-tab-pane"
                 role="tabpanel" aria-labelledby="painelDadosUsuario{{ $sufixo }}-tab" tabindex="0"
                 style="display: none">
-                @include('secao.pessoa.pessoa-fisica.form.painel-dominio')
+                @include('secao.pessoa.pessoa-juridica.form.painel-dominio')
             </div>
         </div>
     </div>
@@ -113,12 +106,12 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/views/pessoa/pessoa-fisica/form.js')
+    @vite('resources/js/views/pessoa/pessoa-juridica/form.js')
 
     @component('components.api.api-routes', [
         'routes' => [
             'basePessoa' => route('api.pessoa'),
-            'basePessoaFisica' => route('api.pessoa.pessoa-fisica'),
+            'basePessoaJuridica' => route('api.pessoa.pessoa-juridica'),
             'baseEscolaridadeTenant' => route('api.tenant.escolaridade'),
             'baseEstadoCivilTenant' => route('api.tenant.estado-civil'),
             'baseSexoTenant' => route('api.tenant.sexo'),
@@ -128,7 +121,7 @@
 
     @component('components.pagina.front-routes', [
         'routes' => [
-            'frontRedirectForm' => route('pessoa.pessoa-fisica.index'),
+            'frontRedirectForm' => route('pessoa.pessoa-juridica.index'),
         ],
     ])
     @endcomponent

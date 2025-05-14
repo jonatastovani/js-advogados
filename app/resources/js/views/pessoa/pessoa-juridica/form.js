@@ -8,38 +8,48 @@ import { EnderecoModule } from "../../../modules/EnderecoModule";
 import { PessoaDocumentoModule } from "../../../modules/PessoaDocumentoModule";
 import { PessoaPerfilModule } from "../../../modules/PessoaPerfilModule";
 
-export class TemplateFormPessoaJuridica extends TemplateForm {
+export class PagePessoaJuridicaForm extends TemplateForm {
 
-    constructor(objSuper) {
+    constructor() {
         const objConfigs = {
             url: {
-                basePessoaPerfil: window.apiRoutes.basePessoaPerfil,
+                base: window.apiRoutes.basePessoaJuridica,
+                basePessoa: window.apiRoutes.basePessoa,
+                baseEstadoCivilTenant: window.apiRoutes.baseEstadoCivilTenant,
+                baseEscolaridadeTenant: window.apiRoutes.baseEscolaridadeTenant,
+                baseSexoTenant: window.apiRoutes.baseSexoTenant,
             },
+            sufixo: 'PagePessoaJuridicaForm',
             data: {
+                pessoa_tipo_aplicavel: [
+                    window.Enums.PessoaTipoEnum.PESSOA_JURIDICA,
+                ],
                 pessoa_dados_id: undefined,
-                pessoa_perfil_tipo_id: undefined,
-                pessoa_tipo_aplicavel: [],
                 documentosNaTela: [],
                 perfisNaTela: [],
                 enderecosNaTela: [],
-                pessoa_dados_type_padrao: window.Enums.PessoaTipoEnum.PESSOA_JURIDICA,
             },
         };
 
-        objSuper.objConfigs = CommonFunctions.deepMergeObject(objConfigs, objSuper.objConfigs ?? {});
-        super(objSuper);
+        super({ objConfigs });
+
+        this.initEvents();
+    }
+
+    get getPerfisNaTela() {
+        return this._pessoaPerfilModule.getPerfisNaTela;
     }
 
     async initEvents() {
         const self = this;
-        await self._carregamentoModulos();
+        await self.#carregamentoModulos();
 
-        await self._verificacaoURL();
+        await self.#verificacaoURL();
 
-        self._addEventosBotoes();
+        self.#addEventosBotoes();
     }
 
-    async _verificacaoURL() {
+    async #verificacaoURL() {
         const self = this;
 
         const uuid = URLHelper.getURLSegment();
@@ -47,16 +57,15 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
             self._idRegister = uuid;
             self._action = EnumAction.PUT;
             await self._buscarDados({
-                urlApi: self._objConfigs.url.basePessoaPerfil,
+                urlApi: self._objConfigs.url.basePessoa,
             });
         } else {
             self._action = EnumAction.POST;
-            self._pessoaPerfilModule._inserirPerfilObrigatorio();
         }
 
     }
 
-    async _carregamentoModulos() {
+    async #carregamentoModulos() {
         const self = this;
         const objData = {
             objConfigs: self._objConfigs,
@@ -66,16 +75,12 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         self._enderecoModule = new EnderecoModule(self, objData);
     }
 
-    _addEventosBotoes() {
-        const self = this;
+    #addEventosBotoes() {
 
         CommonFunctions.applyCustomNumberMask($('.campo-monetario'), { format: '#.##0,00', reverse: true });
         MasksAndValidateHelpers.cpfMask($('.campo-cpf'));
         MasksAndValidateHelpers.addEventCheckCPF({ selector: $('.campo-cpf'), event: 'focusout' });
 
-        if (typeof self.addEventosBotoesEspecificoPerfilTipo === 'function') {
-            self.addEventosBotoesEspecificoPerfilTipo();
-        }
     }
 
     async preenchimentoDados(response, options = {}) {
@@ -83,7 +88,7 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         const form = $(options.form);
 
         const responseData = response.data;
-        const pessoaDados = responseData.pessoa.pessoa_dados;
+        const pessoaDados = responseData.pessoa_dados;
 
         self._objConfigs.data.pessoa_dados_id = pessoaDados.id;
         form.find('input[name="razao_social"]').val(pessoaDados.razao_social);
@@ -100,46 +105,40 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         form.find('textarea[name="observacao"]').val(pessoaDados.observacao);
         form.find('input[name="ativo_bln"]').prop('checked', pessoaDados.ativo_bln);
 
-        if (responseData.pessoa?.documentos.length) {
-            responseData.pessoa.documentos.map(documento => {
+        if (responseData?.documentos.length) {
+            responseData.documentos.map(documento => {
                 // Não verifica se o limite de documentos foi atingido porque está vindo direto do banco
                 self._pessoaDocumentoModule._inserirDocumento(documento);
             });
         }
-        if (responseData.pessoa?.pessoa_perfil.length) {
-            responseData.pessoa.pessoa_perfil.map(perfil => {
+
+        if (responseData?.pessoa_perfil.length) {
+            responseData.pessoa_perfil.map(perfil => {
                 // Envia a pessoa para ser identificado o tipo de pessoa e perfil e fornecer a rota de redirecionamento para edição do perfil
-                perfil.pessoa = CommonFunctions.clonePure(responseData.pessoa);
+                perfil.pessoa = CommonFunctions.clonePure(responseData);
                 // Não verifica se o perfil existe porque está vindo direto do banco
                 self._pessoaPerfilModule._inserirPerfil(perfil);
             });
         }
 
-        if (responseData.pessoa?.enderecos.length) {
-            responseData.pessoa.enderecos.map(endereco => {
+        if (responseData?.enderecos.length) {
+            responseData.enderecos.map(endereco => {
                 self._enderecoModule._inserirEndereco(endereco, false);
             });
         }
 
-        if (typeof self.preenchimentoEspecificoBuscaPerfilTipo === 'function') {
-            await self.preenchimentoEspecificoBuscaPerfilTipo(responseData);
-        }
-
+        self.setFocusElement(form.find('input[name="razao_social"]'));
     }
 
     saveButtonAction() {
         const self = this;
         const formRegistration = $(`#form${self._objConfigs.sufixo}`);
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
-        data.pessoa_perfil_tipo_id = self._objConfigs.data.pessoa_perfil_tipo_id;
         data.documentos = self._pessoaDocumentoModule._retornaDocumentosNaTelaSaveButonAction();
-        data.perfis = self._pessoaPerfilModule._retornaPerfilsNaTelaSaveButonAction();
-        data.capital_social = data.capital_social ? CommonFunctions.removeCommasFromCurrencyOrFraction(data.capital_social) : null;
         data.enderecos = self._enderecoModule._retornaEnderecosNaTelaSaveButonAction();
+        data.capital_social = data.capital_social ? CommonFunctions.removeCommasFromCurrencyOrFraction(data.capital_social) : null;
 
-        if (typeof self.saveButtonActionEspecificoPerfilTipo === 'function') {
-            data = self.saveButtonActionEspecificoPerfilTipo(data);
-        }
+        self._pessoaPerfilModule.saveButtonActionEspecificoPerfil(data);
 
         data = self._tratarValoresNulos(data);
 
@@ -155,12 +154,14 @@ export class TemplateFormPessoaJuridica extends TemplateForm {
         const self = this;
         let blnSave = CommonFunctions.verificationData(data.razao_social, { field: formRegistration.find('input[name="razao_social"]'), messageInvalid: 'O campo <b>Razão Social</b> deve ser informado.', setFocus: true });
 
-        blnSave = CommonFunctions.verificationData(data.nome_fantasia, { field: formRegistration.find('input[name="nome_fantasia"]'), messageInvalid: 'O campo <b>Nome Fantasia</b> deve ser informado.', setFocus: true });
+        blnSave = CommonFunctions.verificationData(data.nome_fantasia, { field: formRegistration.find('input[name="nome_fantasia"]'), messageInvalid: 'O campo <b>Nome Fantasia</b> deve ser informado.', setFocus: blnSave == true, returnForcedFalse: blnSave == false });
 
-        if (typeof self.saveVerificationsEspecificoPerfilTipo === 'function') {
-            blnSave = self.saveVerificationsEspecificoPerfilTipo(data, blnSave == false, blnSave == false);
-        }
+        blnSave = self._pessoaPerfilModule.saveVerificationsEspecificoPerfil(data, blnSave == true, blnSave == false);
 
         return blnSave;
     }
 }
+
+$(function () {
+    new PagePessoaJuridicaForm();
+});

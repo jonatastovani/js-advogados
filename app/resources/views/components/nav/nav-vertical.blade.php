@@ -39,25 +39,19 @@
                             @component('components.nav.nav-admin')
                             @endcomponent
                         @else
-                            @component('components.nav.nav-vertical-secao.nav-cliente')
-                            @endcomponent
                             {{-- @component('components.nav.nav-vertical-secao.nav-documento')
                             @endcomponent --}}
                             @component('components.nav.nav-vertical-secao.nav-financeiro')
                             @endcomponent
-                            @component('components.nav.nav-vertical-secao.nav-parceiro')
-                            @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-participacao')
+                            @endcomponent
+                            @component('components.nav.nav-vertical-secao.nav-pessoa')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-relatorio')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-servico')
                             @endcomponent
                             @component('components.nav.nav-vertical-secao.nav-sistema')
-                            @endcomponent
-                            @component('components.nav.nav-vertical-secao.nav-terceiro')
-                            @endcomponent
-                            @component('components.nav.nav-vertical-secao.nav-usuario')
                             @endcomponent
                         @endif
                     </ul>

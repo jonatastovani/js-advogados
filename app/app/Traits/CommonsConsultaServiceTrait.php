@@ -242,7 +242,7 @@ trait CommonsConsultaServiceTrait
         /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
         $paginator = $query->paginate($requestData->perPage ?? 25);
 
-        LogHelper::escreverLogSomenteComQuery($query);
+        // LogHelper::escreverLogSomenteComQuery($query);
         return $paginator->toArray();
     }
 

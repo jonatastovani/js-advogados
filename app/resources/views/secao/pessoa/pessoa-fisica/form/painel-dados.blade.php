@@ -8,9 +8,6 @@
                         <input type="text" id="nome{{ $sufixo }}" name="nome" class="form-control">
                     </div>
                 </div>
-                @if ($paginaDados->perfil_tipo == 'usuario')
-                    @include('secao.pessoa.pessoa-fisica.form.painel.painel-dados.painel-usuario')
-                @endif
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 row-cols-xl-2">
                     <div class="col mt-2">
                         <label for="mae{{ $sufixo }}" class="form-label">Mãe</label>
