@@ -29,6 +29,7 @@ services:
             - DB_PASSWORD=${DB_PASSWORD}
             - DB_HOST_LOCAL=${DB_HOST_LOCAL}
             - REDIS_HOST_LOCAL=${REDIS_HOST_LOCAL}
+            - APP_VERSION_IMAGE=${APP_VERSION_IMAGE}
 
     # Serviço Nginx
     nginx:

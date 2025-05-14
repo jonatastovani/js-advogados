@@ -29,6 +29,7 @@ services:
             - DB_DATABASE=${DB_DATABASE}
             - DB_USERNAME=${DB_USERNAME}
             - DB_PASSWORD=${DB_PASSWORD}
+            - APP_VERSION_IMAGE=${APP_VERSION_IMAGE}
 
     # Serviço Nginx
     nginx:
