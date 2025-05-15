@@ -304,6 +304,8 @@ class PageBalancoRepasseIndex extends TemplateSearch {
             tbody,
         } = options;
 
+        // console.log('insertTableData', item);
+
         let strBtns = self.#htmlBtns(item);
 
         const parent = item.parent;

@@ -1,0 +1,2 @@
+[2025-05-14T18:08:03.565270-03:00] local.ERROR: CSRF token inválido ou sessão expirada. {"session_token":"anP7xdCP4WIfPIV73eBOYBRMvjTkcE8NylEbxfua","request_token":null,"url":"http://jsadvogados.byteforge.com.br/api/financeiro/movimentacao-conta/consulta-filtros","method":"POST"} []
+[2025-05-14T23:41:21.292367-03:00] local.ERROR: CSRF token inválido ou sessão expirada. {"session_token":"M6nkmvrYUxntAQT8m1xvlMtnY1ijXc84G1f2tpiX","request_token":"bNkhCjhLe92RJTNq3KLPA6gPcDxC710Pukfv0BHx","url":"http://jsadvogados.byteforge.com.br/login","method":"POST"} []

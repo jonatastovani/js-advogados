@@ -1156,6 +1156,16 @@ class MovimentacaoContaService extends Service
                 $relationships = $carregarReferenciaPorTipo(LancamentoGeralService::class, $relationships);
                 break;
 
+            case MovimentacaoContaReferenciaEnum::DOCUMENTO_GERADO->value:
+                // Pega somente os campos que vamos usar. Se trazer tudo, sobrecarrega com registros desnecessários
+                $relationships = array_merge(
+                    $relationships,
+                    [
+                        'referencia:id,documento_gerado_tipo_id,domain_id,numero_documento,created_at',
+                    ]
+                );
+                break;
+
             default:
                 $relationships = array_merge(
                     $relationships,

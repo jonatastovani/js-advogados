@@ -16,6 +16,7 @@ services:
             restart_policy:
                 condition: on-failure
         volumes:
+            # - ./app:/var/www/app # teste
             - app_data:/var/www/app # Volume nomeado para a aplicação
             # - ./app/database/migrations:/var/www/app/database/migrations # Volume para as migrations
         depends_on:
@@ -25,6 +26,7 @@ services:
         environment:
             # APP_ENV é definido aqui, isso vai influenciar as configurações do Laravel
             - APP_ENV=${APP_ENV}
+            - APP_DEBUG=${APP_DEBUG}
             - DB_HOST=${DB_HOST}
             - DB_DATABASE=${DB_DATABASE}
             - DB_USERNAME=${DB_USERNAME}
@@ -118,12 +120,12 @@ services:
     pgbackup:
         image: postgres:16.3
         deploy:
-            replicas: 0  # só inicia manualmente quando você quiser
+            replicas: 0 # só inicia manualmente quando você quiser
             restart_policy:
                 condition: none
         networks:
-        - laravel
-        entrypoint: ["sleep", "infinity"]  # fica parado, aguardando seu comando
+            - laravel
+        entrypoint: ["sleep", "infinity"] # fica parado, aguardando seu comando
 
 networks:
     laravel:

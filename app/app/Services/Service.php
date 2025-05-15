@@ -375,28 +375,97 @@ abstract class Service
         }
     }
 
-    protected function gerarLogExceptionErroSalvar(Exception $e)
+    /**
+     * Gera logs e retorna uma resposta estruturada para exceções genéricas.
+     *
+     * @param \Throwable $e Exceção capturada.
+     * @param array $options Opções adicionais:
+     *     - 'mensagem' (string): Mensagem de erro personalizada.
+     *     - 'codigo' (int): Código HTTP a ser retornado (padrão: 500).
+     *     - 'contexto' (array): Dados adicionais para o log.
+     * @return \Illuminate\Http\JsonResponse Resposta estruturada com o log do erro.
+     */
+    protected function gerarLogExceptionGenerico(\Throwable $e, array $options = [])
     {
-        // Só faz rollback se a transação ainda estiver ativa
+        $codigo = $options['codigo'] ?? 500;
+        $mensagem = $options['mensagem'] ?? "Erro interno no servidor.";
+        $contexto = $options['contexto'] ?? [];
+
+        // Monta a mensagem detalhada do erro
+        $dadosLocalizacaoErro = "Arquivo: {$e->getFile()} | Linha: {$e->getLine()}";
+        $detalhesErro = [
+            'erro' => $e->getMessage(),
+            'codigo' => $e->getCode(),
+            'localizacao' => $dadosLocalizacaoErro,
+            'trace' => $e->getTraceAsString(),
+            'contexto' => $contexto,
+        ];
+
+        // Gera o log detalhado
+        $traceId = CommonsFunctions::generateLog(
+            "$codigo | $mensagem | Errors: " . json_encode($detalhesErro)
+        );
+
+        // Cria a resposta estruturada
+        $response = RestResponse::createGenericResponse(
+            ['error' => $e->getMessage(), 'trace_id' => $traceId],
+            $codigo,
+            $mensagem,
+            $traceId
+        );
+
+        // Retorna a resposta com o status HTTP
+        return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
+    }
+
+    /**
+     * Gera logs e retorna uma resposta estruturada para exceções ao salvar.
+     *
+     * @param \Exception $e Exceção capturada.
+     * @return \Illuminate\Http\JsonResponse Resposta estruturada com o log do erro.
+     */
+    protected function gerarLogExceptionErroSalvar(\Exception $e)
+    {
+        // Verifica se a transação está ativa e realiza o rollback
         if (DB::transactionLevel() > 0) {
             DB::rollBack();
         }
 
-        // Se a exceção for uma HttpResponseException, lançar diretamente como throw,
-        // pois se entrou aqui é uma exceção dentro do try catch dentro da transação;
+        // Se for uma exceção HTTP, lança diretamente
         if ($e instanceof HttpResponseException) {
             throw $e;
         }
 
-        // Gerar um log
-        $codigo = 422;
-        $mensagem = "A requisição não pôde ser processada.";
-        $dadosLocalizacaoErro = "Arquivo erro: {$e->getFile()} | Linha erro: {$e->getLine()}";
-        $traceId = CommonsFunctions::generateLog("$codigo | $mensagem | Errors: " . json_encode($e->getMessage()) . " | $dadosLocalizacaoErro");
-
-        $response = RestResponse::createGenericResponse(['error' => $e->getMessage()], 422, $mensagem, $traceId);
-        return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
+        // Chama a função genérica para tratar o erro
+        return $this->gerarLogExceptionGenerico($e, [
+            'mensagem' => "A requisição não pôde ser processada.",
+            'codigo' => 422,
+            'contexto' => ['tipo' => 'Erro ao salvar dados'],
+        ]);
     }
+
+    // protected function gerarLogExceptionErroSalvar(Exception $e)
+    // {
+    //     // Só faz rollback se a transação ainda estiver ativa
+    //     if (DB::transactionLevel() > 0) {
+    //         DB::rollBack();
+    //     }
+
+    //     // Se a exceção for uma HttpResponseException, lançar diretamente como throw,
+    //     // pois se entrou aqui é uma exceção dentro do try catch dentro da transação;
+    //     if ($e instanceof HttpResponseException) {
+    //         throw $e;
+    //     }
+
+    //     // Gerar um log
+    //     $codigo = 422;
+    //     $mensagem = "A requisição não pôde ser processada.";
+    //     $dadosLocalizacaoErro = "Arquivo erro: {$e->getFile()} | Linha erro: {$e->getLine()}";
+    //     $traceId = CommonsFunctions::generateLog("$codigo | $mensagem | Errors: " . json_encode($e->getMessage()) . " | $dadosLocalizacaoErro");
+
+    //     $response = RestResponse::createGenericResponse(['error' => $e->getMessage()], 422, $mensagem, $traceId);
+    //     return response()->json($response->toArray(), $response->getStatusCode())->throwResponse();
+    // }
 
     /**
      * Carrega os relacionamentos completos da service, aplicando manipulação dinâmica.
