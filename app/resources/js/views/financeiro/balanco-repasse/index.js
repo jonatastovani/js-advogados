@@ -7,6 +7,7 @@ import { ModalPessoa } from "../../../components/pessoas/ModalPessoa";
 import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
+import { PessoaNomeHelper } from "../../../helpers/PessoaNomeHelper";
 import TenantTypeDomainCustomHelper from "../../../helpers/TenantTypeDomainCustomHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -318,33 +319,39 @@ class PageBalancoRepasseIndex extends TemplateSearch {
         const descricaoAutomatica = item.descricao_automatica;
         let conta = 'Erro Conta';
 
-        let dadosEspecificos = '';
-        let dadosEspecificosTitle = '';
+        let dadosEspecificos = [];
+        let dadosEspecificosTitle = [];
 
         switch (item.parent_type) {
             case window.Enums.BalancoRepasseTipoParentEnum.MOVIMENTACAO_CONTA:
 
                 dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_movimentacao, 2);
                 movimentacaoTipo = parent.movimentacao_tipo.nome;
-
-                dadosEspecificos = parent.descricao_automatica;
-                dadosEspecificosTitle = `Descrição ${parent.descricao_automatica}`;
                 conta = parent.conta_domain.conta.nome;
 
                 switch (parent.referencia_type) {
 
                     case window.Enums.MovimentacaoContaReferenciaEnum.SERVICO_LANCAMENTO:
-                        // dadosEspecificos = `NS#${parent.referencia.pagamento.servico.numero_servico}`;
-                        dadosEspecificosTitle = `Número de Serviço ${parent.referencia.pagamento.servico.numero_servico}`;
 
-                        dadosEspecificos += ` - NP#${parent.referencia.pagamento.numero_pagamento}`;
-                        dadosEspecificosTitle += ` - Número do Pagamento ${parent.referencia.pagamento.numero_pagamento}`;
+                        const referencia = parent.referencia;
+                        const pagamento = referencia.pagamento;
+                        const servico = pagamento.servico;
 
-                        dadosEspecificos += ` - (${parent.referencia.pagamento.servico.area_juridica.nome})`;
-                        dadosEspecificosTitle += ` - (Área Jurídica ${parent.referencia.pagamento.servico.area_juridica.nome})`;
+                        const clientesRender = self.#htmlRenderCliente(referencia);
+                        dadosEspecificos.push(`<span class="fw-bold">${clientesRender}</span>`);
+                        dadosEspecificosTitle.push(`Cliente: ${clientesRender}`);
 
-                        dadosEspecificos += ` - ${parent.referencia.pagamento.servico.titulo}`;
-                        dadosEspecificosTitle += ` - Título ${parent.referencia.pagamento.servico.titulo}`;
+                        dadosEspecificos.push(servico.titulo);
+                        dadosEspecificosTitle.push(`Título: ${servico.titulo}`);
+
+                        dadosEspecificos.push(`(${servico.area_juridica.nome})`);
+                        dadosEspecificosTitle.push(`Área Jurídica: ${servico.area_juridica.nome}`);
+
+                        dadosEspecificos.push(parent.descricao_automatica);
+                        dadosEspecificosTitle.push(`Descrição: ${parent.descricao_automatica}`);
+
+                        dadosEspecificos.push(`NP#${pagamento.numero_pagamento}`);
+                        dadosEspecificosTitle.push(`Número de Pagamento ${pagamento.numero_pagamento}`);
                         break;
 
                     // case window.Enums.MovimentacaoContaReferenciaEnum.LANCAMENTO_GERAL:
@@ -364,17 +371,17 @@ class PageBalancoRepasseIndex extends TemplateSearch {
                 dataMovimentacao = DateTimeHelper.retornaDadosDataHora(parent.data_vencimento, 2);
                 movimentacaoTipo = parent.parceiro_movimentacao_tipo.nome;
 
-                dadosEspecificos = item.descricao_automatica;
-                dadosEspecificosTitle = `Descrição Automática: ${item.descricao_automatica}`;
+                dadosEspecificos.push(item.descricao_automatica);
+                dadosEspecificosTitle.push(`Descrição Automática: ${item.descricao_automatica}`);
 
-                dadosEspecificos += ` - NR#${parent.numero_lancamento}`;
-                dadosEspecificosTitle += ` - Número do Ressarcimento ${parent.numero_lancamento}`;
+                dadosEspecificos.push(`NR#${parent.numero_lancamento}`);
+                dadosEspecificosTitle.push(`Número do Ressarcimento ${parent.numero_lancamento}`);
 
-                dadosEspecificos += ` - (${parent.categoria.nome})`;
-                dadosEspecificosTitle += ` - (Categoria ${parent.categoria.nome})`;
+                dadosEspecificos.push(`(${parent.categoria.nome})`);
+                dadosEspecificosTitle.push(`(Categoria ${parent.categoria.nome})`);
 
-                dadosEspecificos += ` - ${parent.descricao}`;
-                dadosEspecificosTitle += ` - Descrição: ${parent.descricao}`;
+                dadosEspecificos.push(`${parent.descricao}`);
+                dadosEspecificosTitle.push(`Descrição: ${parent.descricao}`);
 
                 conta = parent.conta.nome;
 
@@ -401,8 +408,8 @@ class PageBalancoRepasseIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
                 <td class="text-nowrap text-center" title="${valorParticipante}">${valorParticipante}</td>
                 <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-45" title="${dadosEspecificosTitle.join(' - ')}">${dadosEspecificos.join(' - ')}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${dadosEspecificosTitle}">${dadosEspecificos}</td>
                 <td class="text-nowrap text-truncate" title="${conta}">${conta}</td>
                 <td class="text-nowrap" title="${created_at ?? ''}">${created_at ?? ''}</td>
             </tr>
@@ -423,6 +430,23 @@ class PageBalancoRepasseIndex extends TemplateSearch {
         const self = this;
         self.#atualizaValoresTotais();
     }
+
+    #htmlRenderCliente(lancamentoServico) {
+
+        const arrayCliente = lancamentoServico?.pagamento?.servico?.cliente;
+        if (!arrayCliente || !arrayCliente.length) {
+            return '';
+        }
+
+        // Utilizando o helper para obter os nomes completos
+        const nomes = PessoaNomeHelper.extrairNomes(arrayCliente.map(cliente => ({ perfil: cliente.perfil })));
+
+        if (nomes.length > 1) {
+            const total = nomes.length;
+            return `${nomes[0].nome_completo} + ${total - 1}`;
+        }
+        return nomes[0]?.nome_completo || 'Nome não encontrado';
+    };
 
     async #atualizaValoresTotais() {
         const self = this;

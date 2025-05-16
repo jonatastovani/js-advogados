@@ -11,7 +11,7 @@
 5 - Relatórios de Metas (Desenvolver)
 ***NOVO***
 6 - Pessoas unificadas -> Alterar nome para Participantes
-
+--- OK
 7 - Repasse filtrando por dia, não por mês - Adicionar intervalo
     - Perfil de referência está sempre como terceiro
 --- OK

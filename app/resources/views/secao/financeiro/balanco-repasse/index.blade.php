@@ -139,8 +139,8 @@
                     <th class="text-nowrap" title="Tipo de movimentação">Tipo Mov.</th>
                     <th class="text-nowrap">Valor</th>
                     <th class="text-nowrap" title="Data Movimentação">Data Mov.</th>
-                    <th class="text-nowrap">Participação</th>
                     <th class="text-nowrap">Descrição</th>
+                    <th class="text-nowrap">Participação</th>
                     <th class="text-nowrap" title="Conta de onde o valor será compensado ou debitado">Conta Base</th>
                     <th class="text-nowrap">Cadastro</th>
                 </tr>

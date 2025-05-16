@@ -5,6 +5,7 @@ import { ModalContaTenant } from "../../../components/tenant/ModalContaTenant";
 import { BootstrapFunctionsHelper } from "../../../helpers/BootstrapFunctionsHelper";
 import { DateTimeHelper } from "../../../helpers/DateTimeHelper";
 import { ParticipacaoHelpers } from "../../../helpers/ParticipacaoHelpers";
+import { PessoaNomeHelper } from "../../../helpers/PessoaNomeHelper";
 import { RedirectHelper } from "../../../helpers/RedirectHelper";
 import { URLHelper } from "../../../helpers/URLHelper";
 import { UUIDHelper } from "../../../helpers/UUIDHelper";
@@ -154,11 +155,15 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
                 const pagamento = referencia.pagamento;
                 const servico = pagamento.servico;
 
-                dadosEspecificos.push(self.#htmlRenderCliente(referencia));
-                dadosEspecificosTitle.push(`Cliente: ${self.#htmlRenderCliente(referencia)}`);
+                const clientesRender = self.#htmlRenderCliente(referencia);
+                dadosEspecificos.push(`<span class="fw-bold">${clientesRender}</span>`);
+                dadosEspecificosTitle.push(`Cliente: ${clientesRender}`);
 
                 dadosEspecificos.push(servico.titulo);
                 dadosEspecificosTitle.push(`Título: ${servico.titulo}`);
+
+                dadosEspecificos.push(referencia.descricao_automatica);
+                dadosEspecificosTitle.push(`Descrição: ${referencia.descricao_automatica}`);
 
                 dadosEspecificos.push(`(${servico.area_juridica.nome})`);
                 dadosEspecificosTitle.push(`Área Jurídica: ${servico.area_juridica.nome}`);
@@ -232,7 +237,7 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${movimentacaoTipo}">${movimentacaoTipo}</td>
                 <td class="text-nowrap text-center" title="${valorMovimentado}">${valorMovimentado}</td>
                 <td class="text-nowrap text-center" title="${dataMovimentacao}">${dataMovimentacao}</td>
-                <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${dadosEspecificosTitle.join(' - ')}">${dadosEspecificos.join(' - ')}</td>
+                <td class="text-nowrap text-truncate campo-tabela-truncate-45" title="${dadosEspecificosTitle.join(' - ')}">${dadosEspecificos.join(' - ')}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-30" title="${observacaoLancamento}">${observacaoLancamento}</td>
                 <td class="text-nowrap text-truncate campo-tabela-truncate-35" title="${descricaoAutomatica}">${descricaoAutomatica}</td>
                 ${htmlThParticipantesIntegrantes}
@@ -296,40 +301,20 @@ class PageMovimentacaoContaIndex extends TemplateSearch {
     }
 
     #htmlRenderCliente(lancamentoServico) {
-        const self = this;
 
         const arrayCliente = lancamentoServico?.pagamento?.servico?.cliente;
-        if (!arrayCliente.length) {
+        if (!arrayCliente || !arrayCliente.length) {
             return '';
         }
 
-        let nomes = [];
-
-        arrayCliente.map(cliente => {
-            const pessoa = cliente.perfil.pessoa;
-            let nome = '';
-
-            switch (pessoa.pessoa_dados_type) {
-                case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
-                    nome = pessoa.pessoa_dados.nome;
-                    break;
-                case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
-                    nome = pessoa.pessoa_dados.nome_fantasia;
-                    break;
-
-                default:
-                    nome = `Não implementado - ${pessoa.pessoa_dados_type}`;
-                    console.error(`O tipo de pessoa <b>${pessoa.pessoa_dados_type}</b> ainda não foi implementado.`, cliente);
-
-            }
-            nomes.push(nome);
-        });
+        // Utilizando o helper para obter os nomes completos
+        const nomes = PessoaNomeHelper.extrairNomes(arrayCliente.map(cliente => ({ perfil: cliente.perfil })));
 
         if (nomes.length > 1) {
             const total = nomes.length;
-            return `${nomes[0]} + ${total - 1}`
+            return `${nomes[0].nome_completo} + ${total - 1}`;
         }
-        return nomes[0];
+        return nomes[0]?.nome_completo || 'Nome não encontrado';
     };
 
     async #buscarContas(selected_id = null) {

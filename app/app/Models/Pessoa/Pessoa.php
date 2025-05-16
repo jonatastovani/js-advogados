@@ -4,6 +4,7 @@ namespace App\Models\Pessoa;
 
 use App\Enums\PessoaPerfilTipoEnum;
 use App\Models\Comum\Endereco;
+use App\Scopes\Pessoa\NomePessoaPessoaScope;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Fluent;
+use Nette\Utils\Random;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Pessoa extends Model
@@ -89,4 +91,68 @@ class Pessoa extends Model
 
         return $query;
     }
+
+    /**
+     * Insere uma cláusula de junção com a PessoaFisica e PessoaJuridica.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query A instância do construtor de consultas.
+     * @param array $options O array de opcões de personalização.
+     *              - 'aliasTable' (opcional) Alias da tabela ServicoPagamentoLancamento. Padrão está definido no atributo protegido 'tableAsName' da App\Models\Servico\ServicoPagamentoLancamento.
+     *              - 'typeJoinFisica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaFisica. Padrão é 'left'.
+     *              - 'aliasJoinFisica' (opcional) Alias da tabela PessoaFisica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     *              - 'typeJoinJuridica' (opcional) => 'inner', 'left' ou 'right' para definir o tipo de junção da tabela PessoaJuridica. Padrão é 'left'.
+     *              - 'aliasJoinJuridica' (opcional) Alias da tabela PessoaJuridica que irá ser juntada. Padrão está definido no atributo protegido 'tableAsName' da model informada.
+     * @return \Illuminate\Database\Eloquent\Builder A instância do construtor de consultas. 
+     */
+    public static function joinPessoaDados(Builder $query, array $options = [])
+    {
+
+        $envOptions = new Fluent([]);
+
+        // Join com a PessoaFisica
+        $modelTipo = new PessoaFisica();
+        $aliasTable = $options['aliasTable'] ?? (new self())->getTableAsName();
+        $envOptions->aliasJoin = $options['aliasJoinFisica'] ?? $modelTipo->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoinFisica'] ?? 'left';
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => $modelTipo::class],
+        ];
+
+        $query = (new self())->joinWithConditions(
+            $query,
+            $modelTipo->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.pessoa_dados_id",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
+
+        // Ativar quando criar as colunas da pessoa juridica
+        // Join com a PessoaJuridica
+        $modelTipo = new PessoaJuridica();
+        $envOptions->aliasJoin = $options['aliasJoinJuridica'] ?? $modelTipo->getTableAsName();
+        $envOptions->typeJoin = $options['typeJoinJuridica'] ?? 'left';
+        $envOptions->wheres = [
+            ['column' => "{$envOptions->aliasJoin}.deleted_at", 'operator' => "is", 'value' => 'null'],
+            ['column' => "{$aliasTable}.pessoa_dados_type", 'operator' => "=", 'value' => $modelTipo::class],
+        ];
+
+        $query = (new self())->joinWithConditions(
+            $query,
+            $modelTipo->getTableName() . " as {$envOptions->aliasJoin}",
+            "$aliasTable.pessoa_dados_id",
+            "=",
+            "{$envOptions->aliasJoin}.id",
+            $envOptions->toArray()
+        );
+
+        return $query;
+    }
+
+    // public static function boot()
+    // {
+    //     parent::boot();
+    //     static::addGlobalScope(new NomePessoaPessoaScope());
+    // }
 }
