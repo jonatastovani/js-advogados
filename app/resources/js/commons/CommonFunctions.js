@@ -218,7 +218,8 @@ export class CommonFunctions {
      * @param {Object} options.envData - Os dados da solicitação (por exemplo, os dados de envio).
      * @param {boolean} [options.outInstanceParentBln=false] - Valor boleano que verifica se é isento o envio da instância da Classe que chama a função. Padrão: false, indicando que é necessário.
      * @param {class} options.instanceParent - Instância da Classe que chama a função.
-     * @returns {Promise} - Uma promessa que é resolvida quando o elemento selecionado é preenchido ou rejeitado por erro.
+       * @param {string} [options.trigger=undefined] - O evento a ser aplicado após a inserção dos dados.
+   * @returns {Promise} - Uma promessa que é resolvida quando o elemento selecionado é preenchido ou rejeitado por erro.
      */
     static async fillSelect(elem, urlApi, options = {}) {
         const {
@@ -231,6 +232,7 @@ export class CommonFunctions {
             envData = {},
             outInstanceParentBln = false,
             instanceParent = undefined,
+            trigger = undefined,
         } = options;
 
         try {
@@ -274,6 +276,9 @@ export class CommonFunctions {
             });
 
             elem.html(strOptions);
+            if (trigger) {
+                elem.trigger(trigger);
+            }
             return Promise.resolve({ response });
         } catch (error) {
             elem.html(`<option>'Erro ao preencher'</option>`);

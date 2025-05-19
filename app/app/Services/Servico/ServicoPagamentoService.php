@@ -867,8 +867,11 @@ class ServicoPagamentoService extends Service
 
     protected function alterarStatusDeTodosLancamentosPorPagamento(ServicoPagamento $resource, $statusAtribuir)
     {
+        $statusQueNaoSeraoAlteradosAqui = LancamentoStatusTipoEnum::statusImpossibilitaExclusao();
+        $statusQueNaoSeraoAlteradosAqui = array_merge($statusQueNaoSeraoAlteradosAqui, [LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value]);
+
         $lancamentos = $resource->lancamentos()
-            ->whereNotIn('status_id', LancamentoStatusTipoEnum::statusImpossibilitaExclusao())
+            ->whereNotIn('status_id',  $statusQueNaoSeraoAlteradosAqui)
             ->get();
 
         foreach ($lancamentos as $lancamento) {
@@ -898,6 +901,9 @@ class ServicoPagamentoService extends Service
     {
         switch ($lancamento->status_id) {
             case LancamentoStatusTipoEnum::LIQUIDADO_MIGRACAO_SISTEMA->value:
+
+                $statusValue = $statusAtribuir;
+
                 // Se o novo status for de cancelamento e o tenant permitir o cancelamento automático de liquidações por migração
                 if (
                     in_array($statusAtribuir, [
@@ -905,7 +911,7 @@ class ServicoPagamentoService extends Service
                         LancamentoStatusTipoEnum::PAGAMENTO_CANCELADO_EM_ANALISE->value,
                     ]) && tenant('cancelar_liquidado_migracao_sistema_automatico_bln')
                 ) {
-                    $statusAtribuir = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
+                    $statusValue = LancamentoStatusTipoEnum::CANCELADO_LIQUIDADO_MIGRACAO_SISTEMA->value;
                 }
 
                 $lancamento->valor_recebido = null;
@@ -913,7 +919,7 @@ class ServicoPagamentoService extends Service
                 $lancamento->forma_pagamento_id = null;
 
                 // Se não atender às condições acima, aplica o novo status normalmente
-                $lancamento->status_id = $statusAtribuir;
+                $lancamento->status_id = $statusValue;
                 break;
 
             // Geralmente quando tem este status é porque o cancelamento foi feito automaticamente pelo pagamento, nas ocasiões de pagamento cancelado ou tentativa de excluir o pagamento e o mesmo não podendo ser excluído)

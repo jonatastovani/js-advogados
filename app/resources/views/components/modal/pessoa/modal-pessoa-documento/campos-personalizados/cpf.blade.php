@@ -1,6 +1,4 @@
 @php
-    use Carbon\Carbon;
-
     if (!isset($sufixo)) {
         $sufixo = 'ModalPessoaDocumento';
     }

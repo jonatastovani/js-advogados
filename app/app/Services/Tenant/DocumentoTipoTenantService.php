@@ -58,7 +58,13 @@ class DocumentoTipoTenantService extends Service
                 $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.cnpj', compact('requestData'))->render();
                 break;
 
+            case DocumentoTipoEnum::CHAVE_PIX->value:
+                $html = view('components.modal.pessoa.modal-pessoa-documento.campos-personalizados.chave-pix', compact('requestData'))->render();
+                break;
+
             case DocumentoTipoEnum::RG->value:
+            case DocumentoTipoEnum::TITULO_ELEITORAL->value:
+            case DocumentoTipoEnum::PASSAPORTE->value:
             case DocumentoTipoEnum::INSCRICAO_ESTADUAL->value:
             case DocumentoTipoEnum::INSCRICAO_MUNICIPAL->value:
             case DocumentoTipoEnum::CNAE->value:

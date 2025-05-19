@@ -4,21 +4,37 @@ namespace App\Services\Validacao\Documentos;
 
 class CPFValidacao
 {
-    public static function executa($cpf)
+    /**
+     * Valida um CPF.
+     *
+     * @param string $cpf O CPF a ser validado.
+     * @return bool Retorna true se o CPF for válido, caso contrário, false.
+     */
+    public static function executa($cpf): bool
     {
-        $cpf = preg_replace('/[^0-9]/', '', $cpf);
-        if (strlen($cpf) != 11 || preg_match('/(\d)\1{10}/', $cpf)) {
+        // Remove todos os caracteres que não sejam dígitos
+        $cpf = preg_replace('/\D/', '', $cpf);
+
+        // Verifica se o CPF tem 11 dígitos ou é uma sequência repetida
+        if (strlen($cpf) !== 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
             return false;
         }
-        for ($t = 9; $t < 11; $t++) {
-            for ($d = 0, $c = 0; $c < $t; $c++) {
-                $d += $cpf[$c] * (($t + 1) - $c);
+
+        // Função para calcular o dígito verificador
+        $calculaDigito = function ($cpf, $tamanho) {
+            $soma = 0;
+            for ($c = 0; $c < $tamanho; $c++) {
+                $soma += $cpf[$c] * (($tamanho + 1) - $c);
             }
-            $d = ((10 * $d) % 11) % 10;
-            if ($cpf[$c] != $d) {
-                return false;
-            }
-        }
-        return true;
+            $resto = ($soma * 10) % 11;
+            return $resto === 10 ? 0 : $resto;
+        };
+
+        // Calcula os dois dígitos verificadores
+        $digito1 = $calculaDigito($cpf, 9);
+        $digito2 = $calculaDigito($cpf, 10);
+
+        // Verifica se os dígitos calculados conferem com os do CPF
+        return $cpf[9] == $digito1 && $cpf[10] == $digito2;
     }
 }

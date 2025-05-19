@@ -18,6 +18,7 @@
         LancamentoTipoEnum: @json(\App\Enums\LancamentoTipoEnum::toArray()),
         DocumentoModeloTipoEnum: @json(\App\Enums\DocumentoModeloTipoEnum::toArray()),
         DocumentoTipoEnum: @json(\App\Enums\DocumentoTipoEnum::toArray()),
+        ChavePixTipoEnum: @json(\App\Enums\ChavePixTipoEnum::toArray()),
     };
 
     window.Statics = {

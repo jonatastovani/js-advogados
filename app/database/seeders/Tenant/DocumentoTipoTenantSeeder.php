@@ -80,6 +80,11 @@ class DocumentoTipoTenantSeeder extends Seeder
                 'documento_tipo_id' => DocumentoTipoEnum::OAB->value,
                 'quantidade_permitida' => 1,
             ],
+            [
+                'id' => "9eecfa3d-1b2b-46cb-9503-2d7270e20ce3",
+                'nome' => 'Chave Pix',
+                'documento_tipo_id' => DocumentoTipoEnum::CHAVE_PIX->value,
+            ],
         ];
 
         // Chama o método genérico para inserção/atualização

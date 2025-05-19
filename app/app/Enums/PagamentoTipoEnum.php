@@ -172,33 +172,33 @@ enum PagamentoTipoEnum: int
                         'nome' => 'parcela_mes_ano_inicio',
                         'nome_exibir' => 'Primeiro mês',
                         'form_request_rule_helper' => 'required|date|date_format:"Y-m"',
-                        'front_by_pass' => [
-                            'save' => 'nullable'
-                        ],
+                        // 'front_by_pass' => [
+                        //     'save' => 'nullable'
+                        // ],
                     ],
                     [
                         'nome' => 'parcela_quantidade',
                         'nome_exibir' => 'Quantidade de parcelas',
                         'form_request_rule_helper' => 'required|integer|min:1',
-                        'front_by_pass' => [
-                            'save' => 'nullable'
-                        ],
+                        // 'front_by_pass' => [
+                        //     'save' => 'nullable'
+                        // ],
                     ],
                     [
                         'nome' => 'parcela_vencimento_dia',
                         'nome_exibir' => 'Dia de vencimento',
                         'form_request_rule_helper' => 'required|integer|min:1|max:31',
-                        'front_by_pass' => [
-                            'save' => 'nullable'
-                        ],
+                        // 'front_by_pass' => [
+                        //     'save' => 'nullable'
+                        // ],
                     ],
                     [
                         'nome' => 'parcela_valor',
                         'nome_exibir' => 'Valor da parcela',
                         'form_request_rule_helper' => 'required|numeric|min:1',
-                        'front_by_pass' => [
-                            'save' => 'nullable'
-                        ],
+                        // 'front_by_pass' => [
+                        //     'save' => 'nullable'
+                        // ],
                     ],
                 ],
                 'helper' => [

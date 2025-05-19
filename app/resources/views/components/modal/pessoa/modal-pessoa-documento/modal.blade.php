@@ -65,6 +65,7 @@
 @component('components.api.api-routes', [
     'routes' => [
         'baseDocumentoTipoTenants' => route('api.tenant.documento-tipo-tenant'),
+        'baseChavePix' => route('api.referencias.chave-pix-tipo'),
     ],
 ])
 @endcomponent

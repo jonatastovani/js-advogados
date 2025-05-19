@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Validacao;
 
+use App\Enums\DocumentoTipoEnum;
+use App\Helpers\DocumentoTipoHelper;
 use App\Http\Requests\BaseFormRequest;
 
 class ValidacaoCPFValidacaoFormRequest extends BaseFormRequest
@@ -14,10 +16,8 @@ class ValidacaoCPFValidacaoFormRequest extends BaseFormRequest
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
-        return [
-            'texto' => 'required|string',
-        ];
+        return DocumentoTipoHelper::montarRegrasDocumentoPorDocumentoTipo(DocumentoTipoEnum::CPF->value);
     }
 }

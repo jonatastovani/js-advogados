@@ -17,6 +17,24 @@ export class PessoaDocumentoModule {
         this.#addEventosBotoes();
     }
 
+    //#region Getters e Setters
+
+    set setDocumentosNaTela(documentosNaTela) {
+        // Inicializa a estrutura se não existir
+        if (!this._objConfigs.data) this._objConfigs.data = {};
+        // Seta o valor mantendo a referência
+        this._objConfigs.data.documentosNaTela = documentosNaTela;
+    }
+
+    get getDocumentosNaTela() {
+        // Inicializa se não existir e retorna a referência
+        if (!this._objConfigs.data) this._objConfigs.data = {};
+        if (!this._objConfigs.data.documentosNaTela) this._objConfigs.data.documentosNaTela = [];
+        return this._objConfigs.data.documentosNaTela;
+    }
+
+    //#endregion
+
     #addEventosBotoes() {
         const self = this;
 
@@ -44,7 +62,7 @@ export class PessoaDocumentoModule {
 
     #verificaDocumentoQuantidadePermitida(documentoAInserir) {
         const self = this;
-        const docsNaTela = self._objConfigs.data.documentosNaTela;
+        const docsNaTela = self.getDocumentosNaTela;
 
         // Obtém a quantidade permitida para este tipo de documento
         const quantidadePermitida = documentoAInserir.documento_tipo_tenant.quantidade_permitida;
@@ -57,13 +75,11 @@ export class PessoaDocumentoModule {
 
             // Verifica se ultrapassou o limite permitido
             if (documentosComMesmoTipo.length >= quantidadePermitida) {
-                if (quantidadePermitida === 1) {
-                    CommonFunctions.generateNotification(`Este documento já foi adicionado.`, 'warning');
-                    return false;
-                } else {
-                    CommonFunctions.generateNotification(`O limite de ${quantidadePermitida} documentos para este tipo foi atingido.`, 'warning');
-                    return false;
-                }
+                CommonFunctions.generateNotification(
+                    quantidadePermitida == 1 ?
+                        `Este documento já foi adicionado.` :
+                        `O limite de ${quantidadePermitida} documentos para este tipo foi atingido.`, 'warning');
+                return false;
             }
         }
         return true;
@@ -112,14 +128,14 @@ export class PessoaDocumentoModule {
 
             divDocumentoPessoa.append(strCard);
             self.#addEventosDocumento(item);
-            self._objConfigs.data.documentosNaTela.push(item);
+            self.getDocumentosNaTela.push(item);
         } else {
             $(`#${item.idCol}`).find('.spanTitle').html(nomeDoc);
             $(`#${item.idCol}`).find('.pNumero').html(numero);
 
             const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
             if (indexDoc != -1) {
-                self._objConfigs.data.documentosNaTela[indexDoc] = item;
+                self.getDocumentosNaTela[indexDoc] = item;
             }
         }
 
@@ -128,14 +144,14 @@ export class PessoaDocumentoModule {
 
     #pesquisaIndexDocumentoNaTela(item, prop = 'idCol') {
         const self = this;
-        return self._objConfigs.data.documentosNaTela.findIndex(doc => doc[prop] === item[prop]);
+        return self.getDocumentosNaTela.findIndex(doc => doc[prop] === item[prop]);
     }
 
     async #addEventosDocumento(item) {
         const self = this;
 
         $(`#${item.idCol}`).find('.btn-edit').on('click', async function () {
-            const docNaTela = self._objConfigs.data.documentosNaTela;
+            const docNaTela = self.getDocumentosNaTela;
             const btn = $(this);
             CommonFunctions.simulateLoading(btn);
             try {
@@ -167,7 +183,7 @@ export class PessoaDocumentoModule {
 
         $(`#${item.idCol}`).find(`.btn-delete`).click(async function () {
             try {
-                const docNaTela = self._objConfigs.data.documentosNaTela;
+                const docNaTela = self.getDocumentosNaTela;
                 const indexDoc = self.#pesquisaIndexDocumentoNaTela(item);
                 if (indexDoc != -1) {
                     const doc = docNaTela[indexDoc] = item;
@@ -192,13 +208,10 @@ export class PessoaDocumentoModule {
 
     _retornaDocumentosNaTelaSaveButonAction() {
         const self = this;
-        return self._objConfigs.data.documentosNaTela.map(item => {
-            return {
-                id: item.id,
-                documento_tipo_tenant_id: item.documento_tipo_tenant_id,
-                numero: item.numero,
-                // campos_adicionais: item.campos_adicionais,
-            }
+        return self.getDocumentosNaTela.map(i => {
+            delete i.documento_tipo_tenant;
+            delete i.documento_tipo;
+            return i;
         });
     }
 }

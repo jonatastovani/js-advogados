@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Validacao;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Validacao\ValidacaoChavePixValidacaoFormRequest;
 use App\Http\Requests\Validacao\ValidacaoCNPJValidacaoFormRequest;
 use App\Http\Requests\Validacao\ValidacaoCPFValidacaoFormRequest;
 use App\Services\Validacao\CNPJValidacao;
@@ -27,5 +28,11 @@ class ValidacaoController extends Controller
     {
         $fluentData = $this->makeFluent($formRequest->validated());
         return $this->retornoPadrao($this->service->CNPJValidacao($fluentData));
+    }
+
+    public function ChavePixValidacao(ValidacaoChavePixValidacaoFormRequest $formRequest)
+    {
+        $fluentData = $this->makeFluent($formRequest->validated());
+        return $this->retornoPadrao($this->service->ChavePixValidacao($fluentData));
     }
 }

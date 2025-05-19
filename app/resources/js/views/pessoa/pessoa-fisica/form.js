@@ -1,6 +1,7 @@
 import { CommonFunctions } from "../../../commons/CommonFunctions";
 import { EnumAction } from "../../../commons/EnumAction";
 import { TemplateForm } from "../../../commons/templates/TemplateForm";
+import { ModalPessoaDocumento } from "../../../components/pessoas/ModalPessoaDocumento";
 import { ModalEscolaridadeTenant } from "../../../components/tenant/ModalEscolaridadeTenant";
 import { ModalEstadoCivilTenant } from "../../../components/tenant/ModalEstadoCivilTenant";
 import { ModalSexoTenant } from "../../../components/tenant/ModalSexoTenant";
@@ -56,8 +57,16 @@ export class PagePessoaFisicaForm extends TemplateForm {
         await self.#verificacaoURL();
 
         self.#addEventosBotoes();
+        // self.abrirDocumento();
     }
 
+    async abrirDocumento() {
+        const modal = new ModalPessoaDocumento();
+        modal.setDataEnvModal = {
+            documento_tipo_tenant_id: "9eecfa3d-1b2b-46cb-9503-2d7270e20ce3"
+        };
+        console.warn(await modal.modalOpen());
+    }
     async #verificacaoURL() {
         const self = this;
 

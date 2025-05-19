@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Pessoa\PessoaFisica;
 
+use App\Helpers\DocumentoTipoHelper;
 use App\Http\Requests\BaseFormRequest;
 
 class PessoaFisicaFormRequestBase extends BaseFormRequest
 {
+
     public function rules()
     {
-        return [
+         $rules =  [
             'nome' => 'required|string|min:3',
             'mae' => 'nullable|string',
             'pai' => 'nullable|string',
@@ -26,14 +28,12 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'documentos' => 'nullable|array',
             'documentos.*.id' => 'nullable|uuid',
             'documentos.*.documento_tipo_tenant_id' => 'required|uuid',
-            'documentos.*.numero' => 'required|string',
-            // 'documentos.*.campos_adicionais' => 'nullable|string',
 
             'perfis' => 'required|array|min:1',
             'perfis.*.id' => 'nullable|uuid',
             'perfis.*.perfil_tipo_id' => 'required|integer',
             'perfis.*.ativo_bln' => 'nullable|boolean',
-            
+
             'enderecos' => 'nullable|array',
             'enderecos.*.id' => 'nullable|uuid',
             'enderecos.*.cep' => 'nullable|string',
@@ -47,6 +47,12 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
             'enderecos.*.pais' => 'nullable|string',
             'enderecos.*.observacao' => 'nullable|string',
         ];
+
+        // Gera as regras dinâmicas para documentos
+        $documentos = $this->input('documentos', []);
+        $rules = array_merge($rules, DocumentoTipoHelper::montarRegrasArrayTodosDocumentos($documentos));
+
+        return $rules;
     }
 
     protected function customAttributeNames(): array

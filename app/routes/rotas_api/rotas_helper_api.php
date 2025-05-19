@@ -56,6 +56,7 @@ Route::group([
 
             Route::post('cpf', 'CPFValidacao')->name('api.helper.validacao.documento.cpf');
             Route::post('cnpj', 'CNPJValidacao')->name('api.helper.validacao.documento.cnpj');
+            Route::post('chave-pix', 'ChavePixValidacao')->name('api.helper.validacao.documento.chave-pix');
         });
     });
 });

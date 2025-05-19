@@ -74,4 +74,16 @@ Route::group([
             Route::get('{id}', 'show');
         });
     });
+
+    Route::prefix('chave-pix-tipo')->group(function () {
+
+        Route::controller(App\Http\Controllers\Referencias\ChavePixTipoController::class)->group(function () {
+
+            // Route::post('select2', 'select2');
+            // Route::post('consulta-filtros', 'postConsultaFiltros');
+
+            Route::get('', 'index')->name('api.referencias.chave-pix-tipo');
+            Route::get('{id}', 'show');
+        });
+    });
 });

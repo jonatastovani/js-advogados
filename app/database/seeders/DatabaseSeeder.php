@@ -18,6 +18,7 @@ use Database\Seeders\Pessoa\PessoaPerfilClienteSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilEmpresaSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroSeeder;
 use Database\Seeders\Pessoa\PessoaPerfilParceiroClienteSeeder;
+use Database\Seeders\Referencias\ChavePixTipoSeeder;
 use Database\Seeders\Tenant\PagamentoTipoTenantSeeder;
 use Database\Seeders\Tenant\AreaJuridicaTenantSeeder;
 use Database\Seeders\Referencias\ContaStatusTipoSeeder;
@@ -95,6 +96,7 @@ class DatabaseSeeder extends Seeder
                 DocumentoGeradoTipoSeeder::class,
                 ParticipacaoRegistroTipoSeeder::class,
                 MovimentacaoContaTipoSeeder::class,
+                ChavePixTipoSeeder::class,
             ]);
 
             $this->call([
@@ -127,10 +129,11 @@ class DatabaseSeeder extends Seeder
         } else {
 
             $this->call([
-                // DocumentoTipoSeeder::class,
-                // DocumentoTipoTenantSeeder::class,
+                DocumentoTipoSeeder::class,
+                DocumentoTipoTenantSeeder::class,
+                ChavePixTipoSeeder::class,
+                PagamentoTipoSeeder::class,
                 // PessoaPerfilTipoSeeder::class,
-                // PagamentoTipoTenantSeeder::class,
             ]);
         }
     }
