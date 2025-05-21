@@ -154,7 +154,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
                 console.warn('registerData', CommonFunctions.clonePure(registerData));
 
-                for (const campo of documentoTipo.campos_obrigatorios) {
+                for (const campo of documentoTipo.campos) {
 
                     let rules = campo?.form_request_rule ?? '';
                     if (Array.isArray(rules)) {
@@ -163,11 +163,13 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                     rules = rules.split('|').filter(Boolean);
 
                     let valor = registerData[campo.nome];
+                    console.log(campo, valor);
+
                     if (rules.find(rule => rule === 'numeric')) {
                         valor = CommonFunctions.formatWithCurrencyCommasOrFraction(valor);
                     }
                     const elementFound = form.find(`#${campo.nome}${self.getSufixo}`);
-                 
+
                     if (elementFound.length) {
                         console.log('elementFound', elementFound);
                         console.log("elementFound.is('select')", elementFound.is('select'));
@@ -233,7 +235,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const documentoTipo = self._objConfigs.data.documento_tipo_tenant.documento_tipo;
         let blnSave = true;
 
-        for (const campo of documentoTipo.campos_obrigatorios) {
+        for (const campo of documentoTipo.campos) {
             let rules = campo?.form_request_rule ?? '';
             if (Array.isArray(rules)) {
                 rules = rules.join('|');

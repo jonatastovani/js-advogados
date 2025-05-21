@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Referencias\DocumentoTipo;
 use App\Models\Tenant\DocumentoTipoTenant;
+use Illuminate\Support\Facades\Log;
 
 class DocumentoTipoHelper
 {
@@ -16,10 +17,10 @@ class DocumentoTipoHelper
     /**
      * Busca e armazena o tipo de documento do tenant no cache.
      *
-     * @param int $documentoTipoTenantId
+     * @param string $documentoTipoTenantId
      * @return array|null
      */
-    public static function obterDocumentoTipoTenant(int $documentoTipoTenantId): ?array
+    public static function obterDocumentoTipoTenant(string $documentoTipoTenantId): ?array
     {
         if (!isset(self::$cacheDocumentoTipoTenant[$documentoTipoTenantId])) {
             $documentoTipoTenant = DocumentoTipoTenant::with('documento_tipo')->find($documentoTipoTenantId)->toArray();
@@ -39,7 +40,7 @@ class DocumentoTipoHelper
                     return null;
                 }
 
-                self::$cacheDocumentoTipo[$documentoTipoId] = $documentoTipoTenant;
+                self::$cacheDocumentoTipo[$documentoTipoId] = $documentoTipo;
             }
         }
 
@@ -71,11 +72,11 @@ class DocumentoTipoHelper
     /**
      * Monta as regras de validação para um tipo de documento.
      *
-     * @param int $documentoTipoTenantId
+     * @param string $documentoTipoTenantId
      * @param int $index
      * @return array
      */
-    public static function montarRegrasDocumentosComIndex(int $documentoTipoTenantId, int $index): array
+    public static function montarRegrasDocumentosComIndex(string $documentoTipoTenantId, int $index): array
     {
         $documentoTipoTenant = self::obterDocumentoTipoTenant($documentoTipoTenantId);
 
@@ -90,12 +91,19 @@ class DocumentoTipoHelper
         }
 
         $rules = [];
-        foreach ($documentoTipo['campos_obrigatorios'] as $campo) {
-            // Adiciona o required_if para garantir a validação condicional
-            $rule = "required_if:documentos.{$index}.documento_tipo_tenant_id,{$documentoTipoTenantId}";
-            $rule .= '|' . ($campo['form_request_rule'] ?? 'nullable|string');
 
-            $rules["documentos.{$index}." . $campo['nome']] = $rule;
+        foreach ($documentoTipo['campos'] as $campo) {
+            $rawRule = $campo['form_request_rule'] ?? ['nullable', 'string', 'max:255'];
+            $ruleArray = is_array($rawRule) ? $rawRule : explode('|', $rawRule);
+
+            // Substitui 'required' por 'required_if' em qualquer posição
+            foreach ($ruleArray as &$singleRule) {
+                if ($singleRule === 'required') {
+                    $singleRule = "required_if:documentos.{$index}.documento_tipo_tenant_id,{$documentoTipoTenantId}";
+                }
+            }
+
+            $rules["documentos.{$index}." . $campo['nome']] = $ruleArray;
         }
 
         return $rules;
@@ -113,7 +121,7 @@ class DocumentoTipoHelper
         foreach ($documentos as $index => $documento) {
             $tipoId = $documento['documento_tipo_tenant_id'] ?? null;
             if ($tipoId) {
-                $tipoId = (int) $tipoId;
+                $tipoId = (string) $tipoId;
                 $regrasDocumento = self::montarRegrasDocumentosComIndex($tipoId, $index);
                 $rules = array_merge($rules, $regrasDocumento);
             }
@@ -133,7 +141,7 @@ class DocumentoTipoHelper
         $documentoTipo = self::obterDocumentoTipo($documentoTipoId);
         $rules = [];
 
-        foreach ($documentoTipo['campos_obrigatorios'] as $value) {
+        foreach ($documentoTipo['campos'] as $value) {
             $rules[$value['nome']] = $value['form_request_rule_helper'] ?? $value['form_request_rule'];
         }
 

@@ -27,7 +27,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::CPF->value,
                 'nome' => 'CPF',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -43,7 +43,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::CNPJ->value,
                 'nome' => 'CNPJ',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -59,7 +59,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::RG->value,
                 'nome' => 'RG',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -70,7 +70,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::TITULO_ELEITORAL->value,
                 'nome' => 'Título Eleitoral',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -96,7 +96,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::PASSAPORTE->value,
                 'nome' => 'Passaporte',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -108,7 +108,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::INSCRICAO_ESTADUAL->value,
                 'nome' => 'Inscrição Estadual',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -120,7 +120,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::INSCRICAO_MUNICIPAL->value,
                 'nome' => 'Inscrição Municipal',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -132,7 +132,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::CNAE->value,
                 'nome' => 'CNAE',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_JURIDICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -144,7 +144,7 @@ enum DocumentoTipoEnum: int
                 'id' => self::OAB->value,
                 'nome' => 'OAB',
                 'pessoa_tipo_aplicavel' => [PessoaTipoEnum::PESSOA_FISICA->value],
-                'campos_obrigatorios' => [
+                'campos' => [
                     [
                         'nome' => 'numero',
                         'nome_exibir' => 'Número',
@@ -159,7 +159,7 @@ enum DocumentoTipoEnum: int
                     PessoaTipoEnum::PESSOA_FISICA->value,
                     PessoaTipoEnum::PESSOA_JURIDICA->value
                 ],
-                'campos_obrigatorios' => [
+                'campos' => [
                     // Colocar o tipo_chave primeiro, pois no front é executado
                     [
                         'nome' => 'tipo_chave',
@@ -169,10 +169,16 @@ enum DocumentoTipoEnum: int
                             ->implode(','),
                     ],
                     [
-
                         'nome' => 'numero',
                         'nome_exibir' => 'Chave',
                         'form_request_rule' => 'required|string:max:255',
+                    ],
+                ],
+                'campos_opcionais' => [
+                    [
+                        'nome' => 'observacao',
+                        'nome_exibir' => 'Observações',
+                        'form_request_rule' => 'nullable|string:max:255',
                     ],
                 ],
                 'helper' => [
