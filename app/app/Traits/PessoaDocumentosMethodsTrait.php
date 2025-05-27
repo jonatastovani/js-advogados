@@ -10,7 +10,7 @@ use Illuminate\Support\Fluent;
 
 trait PessoaDocumentosMethodsTrait
 {
-   
+
     public function atualizarDocumentosEnviados($resource, $documentosExistentes, $documentosEnviados, $options = [])
     {
         // IDs dos documentos já salvos
@@ -34,6 +34,7 @@ trait PessoaDocumentosMethodsTrait
             if ($documento->id) {
                 $documentoUpdate = $this->modelPessoaDocumento::find($documento->id);
                 $documentoUpdate->fill($documento->toArray());
+                $this->preencherCamposAdicionaisNoDocumento($documentoUpdate, $documento->toArray());
             } else {
                 $documentoUpdate = $documento;
                 $documentoUpdate->pessoa_id = $resource->pessoa->id;
@@ -89,6 +90,7 @@ trait PessoaDocumentosMethodsTrait
 
                 $newDocumento = new $this->modelPessoaDocumento;
                 $newDocumento->fill($documento->toArray());
+                $this->preencherCamposAdicionaisNoDocumento($newDocumento, $documento->toArray());
                 array_push($documentos, $newDocumento);
             }
         }
@@ -98,5 +100,37 @@ trait PessoaDocumentosMethodsTrait
         $retorno->arrayErrors = $arrayErrors;
 
         return $retorno;
+    }
+
+    /**
+     * Preenche os campos adicionais no model documento.
+     *
+     * @param Model $documentoModel
+     * @param array $dadosDocumento
+     * @return void
+     */
+    protected function preencherCamposAdicionaisNoDocumento(Model $documentoModel, array $dadosDocumento)
+    {
+        $documentoTipoTenantId = $dadosDocumento['documento_tipo_tenant_id'];
+        $documentoTipoTenant = \App\Helpers\DocumentoTipoHelper::obterDocumentoTipoTenant($documentoTipoTenantId);
+
+        if (!$documentoTipoTenant) {
+            return;
+        }
+
+        $documentoTipo = \App\Helpers\DocumentoTipoHelper::obterDocumentoTipo($documentoTipoTenant['documento_tipo_id']);
+
+        if (!$documentoTipo) {
+            return;
+        }
+
+        foreach ($documentoTipo['campos'] as $campo) {
+            $nomeCampo = $campo['nome'];
+            if (!in_array($nomeCampo, $documentoModel->getFillable())) {
+                if (isset($dadosDocumento[$nomeCampo])) {
+                    $documentoModel->{$nomeCampo} = $dadosDocumento[$nomeCampo];
+                }
+            }
+        }
     }
 }

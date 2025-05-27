@@ -4,6 +4,7 @@ namespace App\Http\Requests\Pessoa\PessoaFisica;
 
 use App\Helpers\DocumentoTipoHelper;
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PessoaFisicaFormRequestBase extends BaseFormRequest
 {
@@ -52,6 +53,7 @@ class PessoaFisicaFormRequestBase extends BaseFormRequest
         $documentos = $this->input('documentos', []);
         $rules = array_merge($rules, DocumentoTipoHelper::montarRegrasArrayTodosDocumentos($documentos));
 
+        Log::debug("rules", ['rules' => $rules]);
         return $rules;
     }
 

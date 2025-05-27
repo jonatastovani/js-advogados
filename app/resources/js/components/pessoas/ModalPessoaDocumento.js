@@ -45,6 +45,14 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         this._objConfigs.url.base = options.urlApi;
     }
 
+    set setDocumentoTipoTenant(documentoTipoTenant) {
+        this._objConfigs.data.documento_tipo_tenant = documentoTipoTenant;
+    }
+
+    get getDocumentoTipoTenant() {
+        return this._objConfigs.data.documento_tipo_tenant ?? {};
+    }
+
     async modalOpen() {
         const self = this;
         await CommonFunctions.loadingModalDisplay(true, { message: 'Carregando informações do documento...' });
@@ -80,12 +88,13 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const self = this;
         try {
             const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoTipoTenants);
-            objConn.setParam(self._dataEnvModal.documento_tipo_tenant_id);
+            const documentoTipoTenantId = self._dataEnvModal?.register?.documento_tipo_tenant_id ?? self._dataEnvModal.documento_tipo_tenant_id;
+            objConn.setParam(documentoTipoTenantId);
             const response = await objConn.getRequest();
 
             const responseData = response.data;
             if (responseData.campos_html) {
-                self._objConfigs.data.documento_tipo_tenant = responseData;
+                self.setDocumentoTipoTenant = responseData;
                 self._objConfigs.data.documento_tipo_tenant_id = responseData.id;
                 self._updateModalTitle(`${responseData.nome}`);
                 $(`#divCamposDocumento${self.getSufixo}`).html(responseData.campos_html);
@@ -125,8 +134,8 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const self = this;
         const modal = $(self.getIdModal);
 
-        // MasksAndValidateHelpers.cpfMask(modal.find('.campo-cpf'));
-        // MasksAndValidateHelpers.addEventCheckCPF({ selector: modal.find('.campo-cpf'), event: 'focusout' });
+        MasksAndValidateHelpers.cpfMask(modal.find('.campo-cpf'));
+        MasksAndValidateHelpers.addEventCheckCPF({ selector: modal.find('.campo-cpf'), event: 'focusout' });
 
         MasksAndValidateHelpers.cnpjMask(modal.find('.campo-cnpj'));
         MasksAndValidateHelpers.addEventCheckCNPJ({ selector: modal.find('.campo-cnpj'), event: 'focusout' });
@@ -143,13 +152,13 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
             if (!registerData) return false;
 
-            const documentoTipoTenant = registerData.documento_tipo_tenant;
-            const documentoTipo = documentoTipoTenant.documento_tipo;
-
-            self._updateModalTitle(`Alterar: <b>${documentoTipoTenant.nome}</b>`);
-            self._dataEnvModal.documento_tipo_tenant_id = documentoTipoTenant.id;
-
             if (await self.#buscarDadosDocumentoTipo()) {
+
+                const documentoTipoTenant = registerData.documento_tipo_tenant;
+                const documentoTipo = documentoTipoTenant.documento_tipo;
+
+                self._updateModalTitle(`Alterar: <b>${documentoTipoTenant.nome}</b>`);
+                self._dataEnvModal.documento_tipo_tenant_id = documentoTipoTenant.id;
                 const form = $(self.getIdModal).find('.formRegistration');
 
                 console.warn('registerData', CommonFunctions.clonePure(registerData));
@@ -200,6 +209,21 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         });
     }
 
+    async #buscarDocumentoTipoTenant(selected_id = null) {
+        const self = this;
+        let options = {
+            outInstanceParentBln: true,
+            typeRequest: EnumAction.POST,
+            envData: {
+                pessoa_tipo_aplicavel: self._dataEnvModal.pessoa_tipo_aplicavel,
+            }
+        };
+
+        selected_id ? options.selectedIdOption = selected_id : null;
+        const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
+        return await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+    }
+
     async saveButtonAction() {
         const self = this;
         const data = self.#obterDadosSave();
@@ -216,12 +240,9 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const formRegistration = $(self.getIdModal).find('.formRegistration');
         let data = CommonFunctions.getInputsValues(formRegistration[0]);
 
-        const documentoTipoTenant = self._objConfigs.data.documento_tipo_tenant;
-        const documentoTipo = documentoTipoTenant.documento_tipo;
-
-        data.documento_tipo_tenant = documentoTipoTenant;
-        data.documento_tipo_tenant_id = documentoTipoTenant.id;
-        data.documento_tipo_id = documentoTipo.id;
+        data.documento_tipo_tenant = self.getDocumentoTipoTenant;
+        data.documento_tipo_tenant_id = self.getDocumentoTipoTenant.id;
+        data.documento_tipo_id = self.getDocumentoTipoTenant.documento_tipo.id;
 
         if (self._dataEnvModal.register) {
             data = CommonFunctions.deepMergeObject(self._dataEnvModal.register, data);
@@ -232,7 +253,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
     async #saveVerifications(data) {
         const self = this;
         const formRegistration = $(self.getIdModal).find('.formRegistration');
-        const documentoTipo = self._objConfigs.data.documento_tipo_tenant.documento_tipo;
+        const documentoTipo = self.getDocumentoTipoTenant.documento_tipo;
         let blnSave = true;
 
         for (const campo of documentoTipo.campos) {
@@ -284,11 +305,10 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         return blnSave;
     }
 
-
     // async #saveVerifications(data) {
     //     const self = this;
     //     const formRegistration = $(self.getIdModal).find('.formRegistration');
-    //     const documentoTipo = self._objConfigs.data.documento_tipo_tenant.documento_tipo;
+    //     const documentoTipo = self.getDocumentoTipoTenant.documento_tipo;
 
     //     const inputNumero = formRegistration.find('input[name="numero"]');
     //     let blnSave = CommonFunctions.verificationData(data.numero, { field: inputNumero, messageInvalid: 'O campo <b>número</b> deve ser preenchido.', setFocus: true });

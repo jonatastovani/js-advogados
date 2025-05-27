@@ -76,8 +76,6 @@ enum DocumentoTipoEnum: int
                         'nome_exibir' => 'Número',
                         'form_request_rule' => ['required', 'regex:/^\d{12}$|^\d{4}\.\d{4}\.\d{4}$/'],
                     ],
-                ],
-                'campos_adicionais' => [
                     [
                         'nome' => 'zona_eleitoral',
                         'nome_exibir' => 'Zona Eleitoral',
@@ -173,8 +171,6 @@ enum DocumentoTipoEnum: int
                         'nome_exibir' => 'Chave',
                         'form_request_rule' => 'required|string:max:255',
                     ],
-                ],
-                'campos_opcionais' => [
                     [
                         'nome' => 'observacao',
                         'nome_exibir' => 'Observações',

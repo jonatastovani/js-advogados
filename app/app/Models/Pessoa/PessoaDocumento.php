@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\HasDataColumn;
 
 class PessoaDocumento extends Model
 {
@@ -16,7 +17,8 @@ class PessoaDocumento extends Model
         HasUuids,
         CommonsModelsMethodsTrait,
         ModelsLogsTrait,
-        BelongsToTenant;
+        BelongsToTenant,
+        HasDataColumn;
 
     protected $table = 'pessoa.pessoa_documentos';
     protected $tableAsName = 'pess_doc';
@@ -26,13 +28,22 @@ class PessoaDocumento extends Model
         'pessoa_id',
         'documento_tipo_tenant_id',
         'numero',
-        'campos_adicionais',
         'observacao',
     ];
 
     protected $casts = [
-        'campos_adicionais' => 'array',
+        'tipo_chave' => 'int',
     ];
+
+    public static function getCustomColumns(): array
+    {
+        return array_merge(self::getCustomColumnsDefault(), [
+            'pessoa_id',
+            'documento_tipo_tenant_id',
+            'numero',
+            'observacao',
+        ]);
+    }
 
     public function pessoa()
     {
