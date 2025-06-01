@@ -608,7 +608,7 @@ class ServicoPagamentoLancamentoService extends Service
 
         $relationships = [
             // 'pagamento',
-            'movimentacao_conta',
+            'movimentacao_conta.movimentacao_conta_participante',
             'status',
             'forma_pagamento.conta',
             'participantes.participacao_tipo',

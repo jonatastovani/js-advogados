@@ -10,6 +10,7 @@ use App\Models\Servico\ServicoPagamentoLancamento;
 use App\Models\Tenant\ContaTenant;
 use App\Models\Tenant\ContaTenantDomain;
 use App\Traits\BelongsToDomain;
+use App\Traits\CacheTenantShortCacheable;
 use App\Traits\CommonsModelsMethodsTrait;
 use App\Traits\ModelsLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,13 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class MovimentacaoConta extends Model
 {
-    use HasFactory, HasUuids, CommonsModelsMethodsTrait, ModelsLogsTrait, BelongsToTenant, BelongsToDomain;
+    use HasFactory,
+        HasUuids,
+        CommonsModelsMethodsTrait,
+        ModelsLogsTrait,
+        BelongsToTenant,
+        BelongsToDomain,
+        CacheTenantShortCacheable;
 
     protected $table = 'financeiro.movimentacao_contas';
     protected $tableAsName = 'mov_conta';
