@@ -1,29 +1,8 @@
 import { CommonFunctions } from "../commons/CommonFunctions";
 import { BootstrapFunctionsHelper } from "./BootstrapFunctionsHelper";
+import { PessoaNomeHelper } from "./PessoaNomeHelper";
 
 export class ParticipacaoHelpers {
-
-    /**
-     * Formata o nome do participante de acordo com o tipo da pessoa (física ou jurídica).
-     * @private
-     * @param {Object} referencia - Objeto que contém os dados da pessoa.
-     * @returns {string} Nome formatado do participante.
-     */
-    static #formatarNomeParticipante(referencia) {
-        switch (referencia.pessoa.pessoa_dados_type) {
-            case window.Enums.PessoaTipoEnum.PESSOA_FISICA:
-                return referencia.pessoa.pessoa_dados.nome;
-            case window.Enums.PessoaTipoEnum.PESSOA_JURIDICA:
-                return referencia.pessoa.pessoa_dados.nome_fantasia;
-            default:
-                CommonFunctions.generateNotification(
-                    `O tipo de pessoa <b>${referencia.pessoa.pessoa_dados_type}</b> ainda não foi implementado.`,
-                    'error'
-                );
-                console.error('Tipo de pessoa não implementado.', referencia);
-                return 'Tipo não implementado';
-        }
-    }
 
     /**
      * Gera um valor formatado de acordo com o tipo (percentual ou fixo).
@@ -49,16 +28,17 @@ export class ParticipacaoHelpers {
         for (const participante of participantes) {
             const valor = this.#formatarValor(participante.valor, participante.valor_tipo);
             const participacao = participante.participacao_tipo.nome;
-            let nomeParticipante = '';
+            let dadosParticipante = '';
 
             if (participante.participacao_registro_tipo_id === window.Enums.ParticipacaoRegistroTipoEnum.PERFIL) {
-                const nome = this.#formatarNomeParticipante(participante.referencia);
-                nomeParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${nome} > <b>${participacao}</b> - <b>${valor}</b>`;
-                arrayParticipantes.push(nomeParticipante);
+                const nome = PessoaNomeHelper.extrairNome(participante.referencia).nome_completo;
+                dadosParticipante = `<b>${participante.referencia.perfil_tipo.nome}</b> - ${nome} > <b>${participacao}</b> - <b>${valor}</b>`;
+                arrayParticipantes.push(dadosParticipante);
             } else if (participante.participacao_registro_tipo_id === window.Enums.ParticipacaoRegistroTipoEnum.GRUPO) {
-                nomeParticipante = `<b>Grupo</b> - ${participante.nome_grupo}</b>`;
+                dadosParticipante = `<b>Grupo</b> - ${participante.nome_grupo}</b> > <b>${participacao}</b> - <b>${valor}</b>`;
+                arrayParticipantes.push(dadosParticipante);
                 for (const integrante of participante.integrantes) {
-                    const nomeIntegrante = this.#formatarNomeParticipante(integrante.referencia);
+                    const nomeIntegrante = PessoaNomeHelper.extrairNome(integrante.referencia).nome_completo;
                     arrayIntegrantes.push(`<b>${participante.nome_grupo}</b> - ${nomeIntegrante}`);
                 }
             }
@@ -114,7 +94,7 @@ export class ParticipacaoHelpers {
         for (const participante of participantes) {
             const valor = `R$ ${CommonFunctions.formatWithCurrencyCommasOrFraction(participante.valor_participante)}`;
             const descricaoAutomatica = participante.descricao_automatica;
-            const nomeParticipante = `${this.#formatarNomeParticipante(participante.referencia)} > <b>${descricaoAutomatica}</b> - ${valor}`;
+            const nomeParticipante = `${PessoaNomeHelper.extrairNome(participante.referencia).nome_completo} > <b>${descricaoAutomatica}</b> - ${valor}`;
 
             arrayParticipantes.push(nomeParticipante);
         }
@@ -122,7 +102,7 @@ export class ParticipacaoHelpers {
         if (!arrayParticipantes.length) arrayParticipantes.push('Não há nada para ver aqui');
         return { arrayParticipantes };
     }
-    
+
     /**
      * Gera botões com popovers para exibir participantes e integrantes.
      * @param {Array} participantes - Lista de participantes.

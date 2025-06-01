@@ -29,6 +29,7 @@ export class PessoaNomeHelper {
 
             default:
                 nomeCompleto = 'Desconhecido';
+                console.error('Tipo de pessoa inválido.', perfil);
                 break;
         }
 

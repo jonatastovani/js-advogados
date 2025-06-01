@@ -690,7 +690,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 }
                 const response = await objModal.modalOpen();
                 if (response.refresh) {
-                    await self._generateQueryFilters();
+                    await self._executarBusca();
                 }
             } catch (error) {
                 CommonFunctions.generateNotificationErrorCatch(error);
@@ -736,7 +736,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                     });
                     const response = await objConn.envRequest();
                     if (response.data) {
-                        await self._generateQueryFilters();
+                        await self._executarBusca();
                     }
                 }
             } catch (error) {
@@ -771,7 +771,7 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                                 data_atual: item.data_vencimento
                             });
                             const response = await modal.modalOpen();
-                            if (response.refresh) await self._generateQueryFilters();
+                            if (response.refresh) await self._executarBusca();
                             break;
                     }
                 });

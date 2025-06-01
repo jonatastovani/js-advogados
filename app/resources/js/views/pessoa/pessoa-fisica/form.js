@@ -67,6 +67,7 @@ export class PagePessoaFisicaForm extends TemplateForm {
         };
         console.warn(await modal.modalOpen());
     }
+    
     async #verificacaoURL() {
         const self = this;
 

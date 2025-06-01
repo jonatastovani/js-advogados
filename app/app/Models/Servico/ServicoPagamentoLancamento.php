@@ -2,6 +2,7 @@
 
 namespace App\Models\Servico;
 
+use App\Enums\MovimentacaoContaStatusTipoEnum;
 use App\Models\Comum\ParticipacaoParticipante;
 use App\Models\Financeiro\MovimentacaoConta;
 use App\Models\Referencias\LancamentoStatusTipo;
@@ -75,7 +76,9 @@ class ServicoPagamentoLancamento extends Model
 
     public function movimentacao_conta()
     {
-        return $this->morphMany(MovimentacaoConta::class, 'referencia');
+        return $this->morphMany(MovimentacaoConta::class, 'referencia')
+            ->whereIn('status_id', MovimentacaoContaStatusTipoEnum::statusServicoLancamentoComParticipantes())
+        ;
     }
 
     /**
