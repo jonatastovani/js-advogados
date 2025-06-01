@@ -2,8 +2,8 @@
 
 return [
     'nome' => env('APP_NAME'),
-    'sigla' => 'ByForSis',
-    'sigla_front' => 'BFS',
+    'sigla' => 'GesAd',
+    'sigla_front' => 'GesAd',
     'logo' => 'img/logo-js-sem-fundo-1600x1600-ico.ico',
     // 'versao' => '1.0',
     // 'urlApi' => 'http://prisonguardpro.test/api',
