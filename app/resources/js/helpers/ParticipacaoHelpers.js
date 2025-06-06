@@ -17,15 +17,27 @@ export class ParticipacaoHelpers {
     }
 
     /**
-     * Gera um array com os participantes e integrantes formatados para exibição.
-     * @param {Array} participantes - Lista de participantes.
-     * @returns {Object} Objeto contendo os arrays 'arrayParticipantes' e 'arrayIntegrantes'.
-     */
-    static htmlRenderArrayParticipantesEIntegrantes(participantes) {
+  * Gera arrays formatados em HTML com os participantes, integrantes e valores reais recebidos.
+  * 
+  * @param {Array} participantes - Lista de participantes com relacionamentos carregados.
+  * @param {Object} options - Opções adicionais.
+  * @param {Array} [options.movimentacaoContaParticipante] - Lista de valores reais recebidos por perfil.
+  * @returns {{ arrayParticipantes: string[], arrayIntegrantes: string[], arrayParticipantesValorReal: string[] }}
+  */
+    static htmlRenderArrayParticipantesEIntegrantes(participantes, options = {}) {
         const arrayParticipantes = [];
         const arrayIntegrantes = [];
+        const arrayParticipantesValorReal = [];
+        const { movimentacaoContaParticipante = [] } = options;
+
+        // Map para facilitar busca por referência + tipo
+        const mapaParticipantesPorReferenciaTipo = new Map();
 
         for (const participante of participantes) {
+            const key = `${participante.referencia_id ?? ''}::${participante.participacao_tipo_id}`;
+            mapaParticipantesPorReferenciaTipo.set(key, participante);
+
+            // Renderização padrão
             const valor = this.#formatarValor(participante.valor, participante.valor_tipo);
             const participacao = participante.participacao_tipo.nome;
             let dadosParticipante = '';
@@ -40,28 +52,58 @@ export class ParticipacaoHelpers {
                 for (const integrante of participante.integrantes) {
                     const nomeIntegrante = PessoaNomeHelper.extrairNome(integrante.referencia).nome_completo;
                     arrayIntegrantes.push(`<b>${participante.nome_grupo}</b> - ${nomeIntegrante}`);
+                    const keyIntegrante = `${integrante.referencia_id}::${participante.participacao_tipo_id}`;
+                    mapaParticipantesPorReferenciaTipo.set(keyIntegrante, integrante);
                 }
             }
         }
 
+        // Participantes com valor real recebido
+        for (const mov of movimentacaoContaParticipante) {
+            const key = `${mov.referencia_id}::${mov.participacao_tipo_id}`;
+            const participante = mapaParticipantesPorReferenciaTipo.get(key);
+
+            if (!participante) continue;
+
+            const nome = PessoaNomeHelper.extrairNome(participante.referencia).nome_completo;
+            const valor = `R$ ${CommonFunctions.formatWithCurrencyCommasOrFraction(mov.valor_participante)}`;
+            const descricao = mov.descricao_automatica || 'Recebimento';
+
+            arrayParticipantesValorReal.push(`<b>${nome}</b> > ${descricao} - <b>${valor}</b>`);
+        }
+
         if (!arrayParticipantes.length) arrayParticipantes.push('Não há nada para ver aqui');
         if (!arrayIntegrantes.length) arrayIntegrantes.push('Não há nada para ver aqui');
-        return { arrayParticipantes, arrayIntegrantes };
+        // if (!arrayParticipantesValorReal.length) arrayParticipantesValorReal.push('Não há valores recebidos para exibir');
+
+        return {
+            arrayParticipantes,
+            arrayIntegrantes,
+            arrayParticipantesValorReal,
+        };
     }
 
     /**
-     * Gera botões com popovers para exibir participantes e integrantes.
+     * Gera um array com os participantes e integrantes formatados para exibição.
      * @param {Array} participantes - Lista de participantes.
-     * @param {Object} options - Opções para personalizar o botão e o título.
-     * @returns {Object} Objeto contendo os botões 'btnParticipantes' e 'btnIntegrantes'.
-     */
+     * @param {Array} [options.movimentacaoContaParticipante] - Lista de valores reais recebidos por perfil.
+     * @returns {{ arrayParticipantes: string[], arrayIntegrantes: string[], arrayParticipantesValorReal: string[] }} Arrays com dados renderizados.
+  */
     static htmlRenderBtnsVerMaisParticipantesEIntegrantes(participantes, options = {}) {
-        const arrays = this.htmlRenderArrayParticipantesEIntegrantes(participantes);
+        const arrays = this.htmlRenderArrayParticipantesEIntegrantes(participantes, options);
         const {
             titleParticipantes = 'Participante(s) do Lançamento',
             htmlBtnParticipante = 'Ver mais',
             htmlBtnIntegrantes = 'Ver mais',
         } = options;
+
+        const renderArrayParticipantes = arrays.arrayParticipantes.join("<hr class='my-1'>");
+        const renderArrayIntegrantes = arrays.arrayIntegrantes.join("<hr class='my-1'>");
+
+        let renderArrayParticipantesValorReal = '';
+        if (arrays.arrayParticipantesValorReal.length) {
+            renderArrayParticipantesValorReal = `<hr class='border border-warning border-2 opacity-50'><p class='text-warning'>Participação Real</p>` + arrays.arrayParticipantesValorReal.join("<hr class='my-1'>");
+        }
 
         return {
             btnParticipantes: `
@@ -69,7 +111,7 @@ export class ParticipacaoHelpers {
                     data-bs-toggle="popover"
                     data-bs-title="${titleParticipantes}"
                     data-bs-html="true"
-                    data-bs-content="${BootstrapFunctionsHelper.createScrollableContent(arrays.arrayParticipantes.join("<hr class='my-1'>"))}">
+                    data-bs-content="${BootstrapFunctionsHelper.createScrollableContent(`${renderArrayParticipantes}${renderArrayParticipantesValorReal}`)}">
                     ${htmlBtnParticipante}
                 </button>`,
             btnIntegrantes: `
@@ -77,7 +119,7 @@ export class ParticipacaoHelpers {
                     data-bs-toggle="popover"
                     data-bs-title="Integrantes de Grupos"
                     data-bs-html="true"
-                    data-bs-content="${BootstrapFunctionsHelper.createScrollableContent(arrays.arrayIntegrantes.join("<hr class='my-1'>"))}">
+                    data-bs-content="${BootstrapFunctionsHelper.createScrollableContent(renderArrayIntegrantes)}">
                     ${htmlBtnIntegrantes}
                 </button>`,
         };

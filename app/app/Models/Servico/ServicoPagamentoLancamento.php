@@ -76,7 +76,12 @@ class ServicoPagamentoLancamento extends Model
 
     public function movimentacao_conta()
     {
-        return $this->morphMany(MovimentacaoConta::class, 'referencia')
+        return $this->morphMany(MovimentacaoConta::class, 'referencia');
+    }
+
+    public function movimentacao_conta_participantes_liquidado()
+    {
+        return $this->morphOne(MovimentacaoConta::class, 'referencia')
             ->whereIn('status_id', MovimentacaoContaStatusTipoEnum::statusServicoLancamentoComParticipantes())
         ;
     }

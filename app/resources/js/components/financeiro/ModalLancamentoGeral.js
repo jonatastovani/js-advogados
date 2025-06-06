@@ -66,9 +66,9 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
             idModal: "#ModalLancamentoGeral",
         });
 
-        this._objConfigs = CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
-        this._promisseReturnValue = CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
-        this._dataEnvModal = CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
+        CommonFunctions.deepMergeObject(this._objConfigs, this.#objConfigs);
+        CommonFunctions.deepMergeObject(this._promisseReturnValue, this.#promisseReturnValue);
+        CommonFunctions.deepMergeObject(this._dataEnvModal, this.#dataEnvModal);
         this._action = EnumAction.POST;
         const objData = {
             objConfigs: this._objConfigs,
@@ -126,7 +126,7 @@ export class ModalLancamentoGeral extends ModalRegistrationAndEditing {
                 await self.#buscarLancamentoCategoriaTipoTenant();
 
                 if (!self.#functionsParticipacao.getExibirPainelParticipantesPersonalizaveisBln) {
-                    self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
+                    await self.#functionsParticipacao._inserirParticipanteObrigatorioEmpresaParticipacaoGeral();
                 }
             }
 

@@ -1095,10 +1095,6 @@ export class ParticipacaoModule {
                 idRegister: 'empresa',
                 urlApi: self._objConfigs.url.basePessoaPerfil
             });
-            const responseEmpresa = await self.#getRecurse({
-                idRegister: responsePerfilEmpresa.data.id,
-                urlApi: self._objConfigs.url.basePessoaPerfil
-            });
             const responseParticipacaoEmpresa = await self.#getRecurse({
                 idRegister: 'empresa-geral',
                 urlApi: self._objConfigs.url.baseParticipacaoTipo
@@ -1109,8 +1105,8 @@ export class ParticipacaoModule {
 
             self[nomeFuncao]({
                 participacao_registro_tipo_id: window.Enums.ParticipacaoRegistroTipoEnum.PERFIL,
-                referencia_id: responseEmpresa.data.id,
-                referencia: responseEmpresa.data,
+                referencia_id: responsePerfilEmpresa.data.id,
+                referencia: responsePerfilEmpresa.data,
                 participacao_tipo_id: responseParticipacaoEmpresa.data.id,
                 participacao_tipo: responseParticipacaoEmpresa.data,
                 valor: 100,
@@ -1118,6 +1114,7 @@ export class ParticipacaoModule {
             })
         } catch (error) {
             CommonFunctions.generateNotificationErrorCatch(error);
+            throw error;
         }
 
     }

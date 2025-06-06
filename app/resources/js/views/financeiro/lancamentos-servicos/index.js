@@ -387,12 +387,17 @@ class PageLancamentoServicoIndex extends TemplateSearch {
         const observacaoPagamento = item.pagamento.observacao ?? '***';
         const statusPagamento = item.pagamento.status.nome;
 
+        const movimentacaoContaParticipante =
+            item.movimentacao_conta_participantes_liquidado?.movimentacao_conta_participante?.length ?
+                item.movimentacao_conta_participantes_liquidado.movimentacao_conta_participante : [];
+
         const btnsVerMais = ParticipacaoHelpers.htmlRenderBtnsVerMaisParticipantesEIntegrantes(
             item.participantes.length ? item.participantes :
                 (item.pagamento.participantes.length ? item.pagamento.participantes :
                     (item.pagamento.servico.participantes.length ? item.pagamento.servico.participantes : [])
                 ), {
             titleParticipantes: `Participante(s) do Lançamento ${descricaoAutomatica}`,
+            movimentacaoContaParticipante,
         });
 
         let classCor = '';

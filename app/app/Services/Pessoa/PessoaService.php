@@ -78,7 +78,7 @@ class PessoaService extends Service
         }
 
         $requestData->id = $perfil['pessoa_id'];
-        return $this->show($requestData);;
+        return $this->show($requestData);
     }
 
     public function buscarRecurso(Fluent $requestData, array $options = [])

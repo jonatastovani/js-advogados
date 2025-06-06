@@ -111,6 +111,7 @@
         'baseLancamentoRessarcimento' => route('api.financeiro.lancamentos.lancamento-ressarcimento'),
         'baseContas' => route('api.tenant.conta'),
         'baseLancamentoCategoriaTipoTenant' => route('api.tenant.lancamento-categoria-tipo-tenant'),
+        'baseParticipacaoTipoTenant' => route('api.tenant.participacao-tipo-tenant'),
         'basePessoaPerfil' => route('api.pessoa.perfil'),
         'baseTagTenant' => route('api.tenant.tag-tenant'),
     ],

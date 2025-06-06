@@ -581,26 +581,34 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
     #mensagemValidacaoSomaLancamentos() {
         const self = this;
 
-        if (!window.Statics.PagamentoTipoComConferenciaDeValorTotal.includes(self._objConfigs.data.pagamento_tipo_tenant.pagamento_tipo.id)) return '';
-        const lancamentos = self._objConfigs.data.lancamentos_na_tela || [];
+        const pagamentoTipo = self._objConfigs?.data?.pagamento_tipo_tenant?.pagamento_tipo?.id;
+        if (!window.Statics.PagamentoTipoComConferenciaDeValorTotal.includes(pagamentoTipo)) return '';
 
-        const somaLancamentos = lancamentos.reduce((acc, l) => acc + parseFloat(l.valor_esperado || 0), 0);
+        const lancamentos = Array.isArray(self._objConfigs?.data?.lancamentos_na_tela) ? self._objConfigs.data.lancamentos_na_tela : [];
 
-        const valorTotal = CommonFunctions.removeCommasFromCurrencyOrFraction(
-            $(`${self.getIdModal} input[name="valor_total"]`).val() ?? 0
-        );
+        const somaLancamentos = lancamentos.reduce((acc, l) => {
+            const valor = parseFloat(l?.valor_esperado ?? 0);
+            return acc + (isNaN(valor) ? 0 : valor);
+        }, 0);
+
+        const valorInput = $(`${self.getIdModal} input[name="valor_total"]`).val();
+        const valorTotal = parseFloat(CommonFunctions.removeCommasFromCurrencyOrFraction(valorInput ?? '0'));
+
+        if (!isFinite(somaLancamentos) || !isFinite(valorTotal)) return '';
 
         const diferenca = somaLancamentos - valorTotal;
 
+        // ✅ Ignora renderização se a diferença for zero (ou muito próxima)
+        if (Math.abs(diferenca) < 0.005) return '';
+
+        // Só formata se realmente for necessário renderizar a mensagem
         const formatado = (v) => CommonFunctions.formatWithCurrencyCommasOrFraction(v, { decimalPlaces: 2 });
 
         if (diferenca > 0) {
             return `A soma dos lançamentos (<strong>R$ ${formatado(somaLancamentos)}</strong>) ultrapassa o valor total (<strong>R$ ${formatado(valorTotal)}</strong>) em <strong>R$ ${formatado(diferenca)}</strong>.`;
-        } else if (diferenca < 0) {
+        } else {
             return `A soma dos lançamentos (<strong>R$ ${formatado(somaLancamentos)}</strong>) está abaixo do valor total (<strong>R$ ${formatado(valorTotal)}</strong>) em <strong>R$ ${formatado(Math.abs(diferenca))}</strong>.`;
         }
-
-        return ''; // Tudo certo
     }
 
     async #validarSomaLancamentosComValorTotal() {
@@ -717,7 +725,7 @@ export class ModalServicoPagamento extends ModalRegistrationAndEditing {
 
                 await self.#buscarDadosPagamentoTipo(true);
                 await self.#verificaLancamentos(responseData);
-                await self.#verificaPersonalizarLancamentos();
+                self.#verificaPersonalizarLancamentos();
                 await self.#verificaLiquidadoMigracaoPagamentoSemprePersonalizaveis();
 
                 const form = $(self.getIdModal).find('.formRegistration');

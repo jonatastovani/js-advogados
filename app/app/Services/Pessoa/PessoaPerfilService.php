@@ -67,7 +67,12 @@ class PessoaPerfilService extends Service
     {
         // Se não encontrar o perfil, retorna vazio
         $resource = PessoaPerfil::where('perfil_tipo_id', PessoaPerfilTipoEnum::EMPRESA->value)->orderBy('created_at', 'asc')->first();
-        return $resource ? $resource->toArray() : [];
+
+        if ($resource) {
+            $resource->load($this->loadFull(['caseTipoPessoa' => PessoaTipoEnum::PESSOA_JURIDICA->value]));
+            return $resource->toArray();
+        }
+        return [];
     }
 
     public function destroy(Fluent $requestData)
