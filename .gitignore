@@ -28,3 +28,10 @@ app/.vscode
 app/.docker
 dumps
 ~$*.xlsx
+
+# Ignorar arquivos do Certbot (mantém o leia-me/README.md)
+docker/certbot/conf/*
+!docker/certbot/conf/README.md
+
+docker/certbot/logs/*
+!docker/certbot/logs/README.md
