@@ -57,6 +57,27 @@ export class TemplateSearch {
     }
 
     /**
+     * Getter para retornar as URLs.
+     * 
+     * @returns {Object} Objeto contendo as URLs.
+     */
+    get getUrls() {
+        this._objConfigs ??= {};
+        this._objConfigs.url ??= {};
+        return this._objConfigs.url;
+    }
+
+    /**
+     * Retorna o objeto data do _objConfigs.
+     * @returns {object}
+     */
+    get getConfigData() {
+        this._objConfigs ??= {};
+        this._objConfigs.data ??= {};
+        return this._objConfigs.data;
+    }
+
+    /**
      * Aplica foco a um elemento da página após um tempo determinado.
      *
      * Esta função é útil para garantir que o elemento esteja renderizado antes de receber o foco,

@@ -49,34 +49,66 @@ trait ConsultaSelect2ServiceTrait
         return $this->model->newQuery();
     }
 
+    // /**
+    //  * Aplica os filtros baseados no texto e campos de busca fornecidos.
+    //  *
+    //  * @param Builder $query A query na qual os filtros serão aplicados
+    //  * @param Fluent $requestData A requisição HTTP
+    //  * @param Fluent|null $dados Os dados fornecidos com os campos de filtros
+    //  * @return Builder A query com os filtros aplicados
+    //  */
+    // protected function applyFilters(Builder $query, Fluent $requestData, Fluent $dados = null): Builder
+    // {
+    //     if (isset($dados->camposFiltros) && is_array($dados->camposFiltros)) {
+    //         $arrFields = $dados->camposFiltros;
+
+    //         if ($requestData->text && !empty($requestData->text)) {
+    //             $textoBusca = $requestData->text;
+    //             // $textoBusca = StringHelper::removeAccents($textoBusca);
+
+    //             // Adiciona os filtros de texto na query usando ILIKE
+    //             $query->where(function (Builder $query) use ($arrFields, $textoBusca) {
+    //                 foreach ($arrFields as $field) {
+    //                     // $query->orWhereRaw("{$field} ILIKE ?", ["%{$textoBusca}%"]);
+    //                     //     $query->orWhereRaw("
+    //                     //     REGEXP_REPLACE(LOWER($field), '[^a-z0-9]', '', 'g') ILIKE REGEXP_REPLACE(?, '[^a-z0-9]', '', 'g')
+    //                     // ", ["%{$textoBusca}%"]);
+    //                     $query->orWhereRaw("
+    //                         TRANSLATE(LOWER({$field}), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn') 
+    //                         LIKE TRANSLATE(LOWER(?), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn')
+    //                     ", ["%{$textoBusca}%"]);
+    //                 }
+    //             });
+    //         }
+    //     }
+
+    //     return $query;
+    // }
+
     /**
-     * Aplica os filtros baseados no texto e campos de busca fornecidos.
+     * Aplica filtros com base no texto fornecido pelo usuário,
+     * buscando nos campos configurados, com suporte a remoção de acentos.
      *
-     * @param Builder $query A query na qual os filtros serão aplicados
-     * @param Fluent $requestData A requisição HTTP
-     * @param Fluent|null $dados Os dados fornecidos com os campos de filtros
-     * @return Builder A query com os filtros aplicados
+     * @param Builder $query Query base que será modificada.
+     * @param Fluent $requestData Dados da requisição (deve conter 'text').
+     * @param Fluent|null $dados Dados adicionais que contêm os campos de filtros.
+     * @return Builder Query com os filtros aplicados.
      */
     protected function applyFilters(Builder $query, Fluent $requestData, Fluent $dados = null): Builder
     {
         if (isset($dados->camposFiltros) && is_array($dados->camposFiltros)) {
             $arrFields = $dados->camposFiltros;
 
-            if ($requestData->text && !empty($requestData->text)) {
-                $textoBusca = $requestData->text;
-                // $textoBusca = StringHelper::removeAccents($textoBusca);
+            if (!empty($requestData->text)) {
+                $textoBusca = mb_strtolower(StringHelper::removeAccents($requestData->text));
+                [$originais, $semAcento] = StringHelper::getTranslatePostgresAcentos();
 
-                // Adiciona os filtros de texto na query usando ILIKE
-                $query->where(function (Builder $query) use ($arrFields, $textoBusca) {
+                $query->where(function (Builder $query) use ($arrFields, $textoBusca, $originais, $semAcento) {
                     foreach ($arrFields as $field) {
-                        // $query->orWhereRaw("{$field} ILIKE ?", ["%{$textoBusca}%"]);
-                        //     $query->orWhereRaw("
-                        //     REGEXP_REPLACE(LOWER($field), '[^a-z0-9]', '', 'g') ILIKE REGEXP_REPLACE(?, '[^a-z0-9]', '', 'g')
-                        // ", ["%{$textoBusca}%"]);
                         $query->orWhereRaw("
-                            TRANSLATE(LOWER({$field}), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn') 
-                            LIKE TRANSLATE(LOWER(?), 'áàãâäéèêëíìîïóòõôöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn')
-                        ", ["%{$textoBusca}%"]);
+                        TRANSLATE(LOWER({$field}), '{$originais}', '{$semAcento}')
+                        LIKE ?
+                    ", ["%{$textoBusca}%"]);
                     }
                 });
             }

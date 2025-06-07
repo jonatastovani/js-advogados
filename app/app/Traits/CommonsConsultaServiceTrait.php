@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Helpers\LogHelper;
+use App\Helpers\StringHelper;
 use App\Helpers\TenantTypeDomainCustomHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -109,30 +110,72 @@ trait CommonsConsultaServiceTrait
         return compact('query', 'filtros', 'arrayCamposFiltros', 'arrayTexto', 'parametrosLike');
     }
 
+    // /**
+    //  * Aplica filtros textuais usando os campos e valores fornecidos.
+    //  *
+    //  * @param Builder $query Instância do query builder.
+    //  * @param array $arrayTexto Textos extraídos para a busca.
+    //  * @param array $arrayCamposFiltros Campos de filtros traduzidos.
+    //  * @param array $parametrosLike Parâmetros configurados para buscas usando LIKE.
+    //  * @param array $options Opcionalmente, define parâmetros adicionais.
+    //  * @return Builder Retorna a query modificada com os filtros textuais aplicados.
+    //  */
+    // protected function aplicarFiltrosTexto(Builder $query, array $arrayTexto, array $arrayCamposFiltros, array $parametrosLike, array $options = [])
+    // {
+    //     if (count($arrayTexto) && $arrayTexto[0] != '') {
+    //         $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike) {
+    //             foreach ($arrayTexto as $texto) {
+    //                 foreach ($arrayCamposFiltros as $campo) {
+    //                     if (isset($campo['tratamento'])) {
+    //                         $trait = $this->tratamentoDeTextoPorTipoDeCampo($texto, $campo);
+    //                         $texto = $trait['texto'];
+    //                         $campoNome = DB::raw($trait['campo']);
+    //                     } else {
+    //                         $campoNome = DB::raw("CAST({$campo['campo']} AS TEXT)");
+    //                     }
+    //                     $subQuery->orWhere($campoNome, $parametrosLike['conectivo'], $parametrosLike['curinga_inicio_caractere'] . $texto . $parametrosLike['curinga_final_caractere']);
+    //                 }
+    //             }
+    //         });
+    //     }
+
+    //     return $query;
+    // }
+
     /**
-     * Aplica filtros textuais usando os campos e valores fornecidos.
+     * Aplica filtros textuais usando os campos e valores fornecidos,
+     * incluindo remoção de acentos e insensibilidade a maiúsculas/minúsculas.
      *
      * @param Builder $query Instância do query builder.
-     * @param array $arrayTexto Textos extraídos para a busca.
-     * @param array $arrayCamposFiltros Campos de filtros traduzidos.
-     * @param array $parametrosLike Parâmetros configurados para buscas usando LIKE.
-     * @param array $options Opcionalmente, define parâmetros adicionais.
-     * @return Builder Retorna a query modificada com os filtros textuais aplicados.
+     * @param array $arrayTexto Lista de textos utilizados na busca.
+     * @param array $arrayCamposFiltros Campos de filtros com estrutura ['campo' => ..., 'tratamento' => ... (opcional)].
+     * @param array $parametrosLike Parâmetros da busca: conectivo ('LIKE' ou 'ILIKE'), curingas de início/fim.
+     * @param array $options Parâmetros adicionais opcionais.
+     * @return Builder Query modificada com os filtros aplicados.
      */
     protected function aplicarFiltrosTexto(Builder $query, array $arrayTexto, array $arrayCamposFiltros, array $parametrosLike, array $options = [])
     {
-        if (count($arrayTexto) && $arrayTexto[0] != '') {
-            $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike) {
-                foreach ($arrayTexto as $texto) {
+        if (!empty($arrayTexto) && $arrayTexto[0] !== '') {
+            [$originais, $semAcento] = StringHelper::getTranslatePostgresAcentos();
+
+            $query->where(function ($subQuery) use ($arrayTexto, $arrayCamposFiltros, $parametrosLike, $originais, $semAcento) {
+                foreach ($arrayTexto as $textoOriginal) {
+                    // Pré-tratamento no PHP: remove acento e força minúsculas
+                    $textoBusca = mb_strtolower(StringHelper::removeAccents($textoOriginal));
+
                     foreach ($arrayCamposFiltros as $campo) {
                         if (isset($campo['tratamento'])) {
-                            $trait = $this->tratamentoDeTextoPorTipoDeCampo($texto, $campo);
-                            $texto = $trait['texto'];
-                            $campoNome = DB::raw($trait['campo']);
+                            $trait = $this->tratamentoDeTextoPorTipoDeCampo($textoBusca, $campo);
+                            $textoBusca = $trait['texto']; // já tratado
+                            $campoSql = $trait['campo'];   // já montado com tratamento SQL completo
                         } else {
-                            $campoNome = DB::raw("CAST({$campo['campo']} AS TEXT)");
+                            $campoSql = "TRANSLATE(LOWER(CAST({$campo['campo']} AS TEXT)), '{$originais}', '{$semAcento}')";
                         }
-                        $subQuery->orWhere($campoNome, $parametrosLike['conectivo'], $parametrosLike['curinga_inicio_caractere'] . $texto . $parametrosLike['curinga_final_caractere']);
+
+                        $subQuery->orWhereRaw(
+                            "$campoSql {$parametrosLike['conectivo']} ?",
+                            [$parametrosLike['curinga_inicio_caractere'] . $textoBusca . $parametrosLike['curinga_final_caractere']]
+                        );
                     }
                 }
             });

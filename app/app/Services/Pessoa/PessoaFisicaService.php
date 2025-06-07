@@ -76,7 +76,8 @@ class PessoaFisicaService extends Service
             'col_mae' => ['campo' => $arrayAliasCampos['col_mae'] . '.mae'],
             'col_pai' => ['campo' => $arrayAliasCampos['col_pai'] . '.pai'],
 
-            'col_documento' => ['campo' => $arrayAliasCampos['col_documento'] . '.numero'],
+            // 'col_documento' => ['campo' => $arrayAliasCampos['col_documento'] . '.numero'],
+            'col_documento' => ['campo' => $arrayAliasCampos['col_documento'] . '.numero', 'tratamento' => ['personalizado' => 'documento']],
         ];
         return $this->tratamentoCamposTraducao($arrayCampos, ['col_nome'], $dados);
     }

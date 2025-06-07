@@ -109,6 +109,27 @@ export class ModalDefault {
     }
 
     /**
+     * Getter para retornar as URLs.
+     * 
+     * @returns {Object} Objeto contendo as URLs.
+     */
+    get getUrls() {
+        this._objConfigs ??= {};
+        this._objConfigs.url ??= {};
+        return this._objConfigs.url;
+    }
+
+    /**
+     * Retorna o objeto data do _objConfigs.
+     * @returns {object}
+     */
+    get getConfigData() {
+        this._objConfigs ??= {};
+        this._objConfigs.data ??= {};
+        return this._objConfigs.data;
+    }
+
+    /**
      * Retorna o ID do Modal.
      */
     get getIdModal() {
@@ -237,7 +258,7 @@ export class ModalDefault {
                 self.saveButtonAction();
             }
         });
-        
+
         if (self._hotkeyManager) {
             self._hotkeyManager.registrar(self.getIdModal, ['ctrl+s', 'ctrl+shift+s'], acaoSalvar);
             self._hotkeyManager.ativarEscopo(self.getIdModal);

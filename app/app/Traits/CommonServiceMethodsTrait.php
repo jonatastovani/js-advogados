@@ -2,52 +2,83 @@
 
 namespace App\Traits;
 
+use App\Helpers\StringHelper;
+
+/**
+ * Trait que fornece métodos auxiliares comuns para serviços.
+ */
 trait CommonServiceMethodsTrait
 {
+    /**
+     * Realiza o tratamento do texto e do campo baseado nas regras definidas no array de dados.
+     * Utilizado para gerar filtros com regras específicas como remoção de espaços, pontuação, 
+     * conversão para maiúsculo/minúsculo ou tratamento personalizado.
+     *
+     * @param string $texto Texto original da busca.
+     * @param array $dados Array contendo o campo e as regras de tratamento.
+     *     - 'campo': nome do campo no banco.
+     *     - 'tratamento': array com as regras, podendo conter:
+     *         - 'personalizado': 'documento' (remove pontuações).
+     *         - 'remove_espacos': true.
+     *         - 'maiusculo': true.
+     *         - 'minusculo': true.
+     *
+     * @return array Retorna um array com:
+     *     - 'texto': texto tratado.
+     *     - 'campo': expressão SQL para o campo tratado.
+     */
     protected function tratamentoDeTextoPorTipoDeCampo(string $texto, array $dados): array
     {
         $tratamento = $dados['tratamento'] ?? [];
         $campo = $dados['campo'] ?? '';
-        // echo "Texto: $texto <br>";
-        // echo "Tratamento: <pre>";
-        // print_r($tratamento);
-        // echo "</pre>";
 
         if (isset($tratamento['personalizado'])) {
             switch ($tratamento['personalizado']) {
-                case 'matricula_e_documento':
+                case 'documento':
                     // Remove espaços e pontuação do texto e do campo
                     $texto = preg_replace('/\s+/', '', $texto);
                     $texto = preg_replace('/[^\w]/', '', $texto);
                     $campo = "regexp_replace(CAST($campo AS TEXT), '[[:punct:]]', '', 'g')";
                     break;
-
                 default:
+                    // Outros tratamentos personalizados podem ser adicionados aqui futuramente
                     break;
             }
         }
 
-        if (isset($tratamento['remove_espacos']) && $tratamento['remove_espacos']) {
+        if (!empty($tratamento['remove_espacos'])) {
             // Remove espaços do texto e do campo
             $texto = preg_replace('/\s+/', '', $texto);
             $campo = "regexp_replace(CAST($campo AS TEXT), '\\s+', '', 'g')";
         }
 
-        if (isset($tratamento['maiusculo']) && $tratamento['maiusculo']) {
-            // Converte o texto e o campo para maiúsculas
-            $texto = strtoupper($texto);
-            $campo = "UPPER(CAST($campo AS TEXT))";
-        }
-
-        if (isset($tratamento['minusculo']) && $tratamento['minusculo']) {
-            // Converte o texto e o campo para minúsculas
-            $texto = strtolower($texto);
-            $campo = "LOWER(CAST($campo AS TEXT))";
+        if (!empty($tratamento['maiusculo'])) {
+            // Remove acentos e converte o texto para maiúsculo
+            $texto = mb_strtoupper(StringHelper::removeAccents($texto));
+            [$originais, $semAcento] = StringHelper::getTranslatePostgresAcentos();
+            $campo = "TRANSLATE(UPPER(CAST($campo AS TEXT)), '{$originais}', '{$semAcento}')";
+        } elseif (!empty($tratamento['minusculo'])) {
+            // Remove acentos e converte o texto para minúsculo
+            $texto = mb_strtolower(StringHelper::removeAccents($texto));
+            [$originais, $semAcento] = StringHelper::getTranslatePostgresAcentos();
+            $campo = "TRANSLATE(LOWER(CAST($campo AS TEXT)), '{$originais}', '{$semAcento}')";
         }
 
         return ['texto' => $texto, 'campo' => $campo];
     }
 
+    /**
+     * Traduz os campos informados no array para os campos que devem ser utilizados no filtro,
+     * com base na configuração de filtros recebidos.
+     *
+     * @param array $arrayCampos Campos disponíveis para filtro (key => config).
+     * @param array $arrayCamposPadroes Campos padrão a serem utilizados caso nenhum seja informado.
+     * @param array $dados Dados recebidos contendo a configuração de quais campos buscar.
+     *     - 'campos_busca': campos específicos informados.
+     *     - 'campos_busca_todos': se verdadeiro, ignora filtro de campos.
+     *
+     * @return array Campos traduzidos prontos para aplicar filtro.
+     */
     protected function tratamentoCamposTraducao(array $arrayCampos, array $arrayCamposPadroes, array $dados): array
     {
         $todosCampos = $dados['campos_busca_todos'] ?? false;
@@ -64,16 +95,17 @@ trait CommonServiceMethodsTrait
     }
 
     /**
-     * Carrega relacionamentos de outra service, com manipulação dinâmica.
+     * Mescla dois arrays de relacionamentos, aplicando opções de remoção, substituição e prefixação.
+     * Utilizado para compor dinamicamente as relações carregadas em services.
      *
-     * @param array $relationships Array base de relacionamentos.
-     * @param array $additionalRelationships Array de relacionamentos adicionais de outra service.
-     * @param array $options Opções para manipulação de relacionamentos.
-     *     - 'removePrefix' (array|string|null): Itens a serem removidos completamente com base nos prefixos.
-     *     - 'removeExact' (array|string|null): Nomes completos a serem removidos.
-     *     - 'stripPrefix' (array|string|null): Prefixos a serem removidos, mantendo o restante do valor.
-     *     - 'addPrefix' (string|null): Prefixo a ser adicionado.
-     * @return array Array combinado e manipulado de relacionamentos.
+     * @param array $relationships Array principal de relacionamentos.
+     * @param array $additionalRelationships Array adicional a ser mesclado.
+     * @param array $options Opções de manipulação:
+     *     - 'removePrefix': prefixos para excluir totalmente.
+     *     - 'removeExact': nomes exatos para excluir.
+     *     - 'stripPrefix': prefixos a remover mantendo o restante.
+     *     - 'addPrefix': prefixo a adicionar nos valores restantes.
+     * @return array Array final mesclado e tratado.
      */
     protected function mergeRelationships(array $relationships, array $additionalRelationships, array $options = []): array
     {

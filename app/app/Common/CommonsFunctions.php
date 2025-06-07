@@ -383,7 +383,7 @@ class CommonsFunctions
             'curinga_inicio_caractere' => '',
             'curinga_final_bln' => false,
             'curinga_final_caractere' => '',
-            'conectivo' => 'ilike',
+            'conectivo' => 'like',
         ];
 
         $parametrosLike = $dados['parametros_like'] ?? [];
@@ -395,7 +395,7 @@ class CommonsFunctions
                 (isset($parametrosLike['curinga_inicio_caractere']) ? in_array($parametrosLike['curinga_inicio_caractere'], ['%', '_']) : '%') : '';
             $parametros['curinga_final_caractere'] = isset($parametrosLike['curinga_final_bln']) && in_array($parametrosLike['curinga_final_bln'], [true, 1]) ?
                 (isset($parametrosLike['curinga_final_caractere']) ? in_array($parametrosLike['curinga_final_caractere'], ['%', '_']) : '%') : '';
-            $parametros['conectivo'] = $parametrosLike['conectivo'] ?? 'ilike';
+            $parametros['conectivo'] = $parametrosLike['conectivo'] ?? 'like';
         }
 
         return $parametros;

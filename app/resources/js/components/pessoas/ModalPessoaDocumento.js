@@ -45,12 +45,29 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         this._objConfigs.url.base = options.urlApi;
     }
 
+    /**
+     * Define o tipo de documento do tenant.
+     *
+     * @param {Object} documentoTipoTenant - O objeto representando o tipo de documento do tenant.
+     * @param {string|number} documentoTipoTenant.id - O identificador do tipo de documento do tenant.
+     */
     set setDocumentoTipoTenant(documentoTipoTenant) {
-        this._objConfigs.data.documento_tipo_tenant = documentoTipoTenant;
+        this.getConfigData.documento_tipo_tenant = documentoTipoTenant;
+        this.getConfigData.documento_tipo_tenant_id = documentoTipoTenant.id;
     }
 
+    /**
+     * Retorna o tipo de documento do tenant armazenado.
+     * 
+     * Caso o tipo de documento do tenant não tenha sido definido, retorna um objeto vazio.
+     * 
+     * @returns {Object} O objeto representando o tipo de documento do tenant.
+     */
     get getDocumentoTipoTenant() {
-        return this._objConfigs.data.documento_tipo_tenant ?? {};
+        if (this._dataEnvModal.register?.documento_tipo_tenant?.id && this._dataEnvModal.register?.documento_tipo_tenant?.documento_tipo?.id) {
+            return this._dataEnvModal.register.documento_tipo_tenant;
+        }
+        return this.getConfigData.documento_tipo_tenant ?? {};
     }
 
     async modalOpen() {
@@ -87,7 +104,13 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
     async #buscarDadosDocumentoTipo() {
         const self = this;
         try {
-            const objConn = new ConnectAjax(self._objConfigs.url.baseDocumentoTipoTenants);
+
+            // Se encontrar os registros, nos dados enviados, não precisa buscar os dados do tenant novamente
+            if (self.getDocumentoTipoTenant?.id && self.getDocumentoTipoTenant?.documento_tipo?.id) {
+                return true;
+            }
+
+            const objConn = new ConnectAjax(self.getUrls.baseDocumentoTipoTenants);
             const documentoTipoTenantId = self._dataEnvModal?.register?.documento_tipo_tenant_id ?? self._dataEnvModal.documento_tipo_tenant_id;
             objConn.setParam(documentoTipoTenantId);
             const response = await objConn.getRequest();
@@ -95,7 +118,6 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
             const responseData = response.data;
             if (responseData.campos_html) {
                 self.setDocumentoTipoTenant = responseData;
-                self._objConfigs.data.documento_tipo_tenant_id = responseData.id;
                 self._updateModalTitle(`${responseData.nome}`);
                 $(`#divCamposDocumento${self.getSufixo}`).html(responseData.campos_html);
                 self.#addEventosCamposPersonalizados();
@@ -154,16 +176,10 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
             if (await self.#buscarDadosDocumentoTipo()) {
 
-                const documentoTipoTenant = registerData.documento_tipo_tenant;
-                const documentoTipo = documentoTipoTenant.documento_tipo;
-
-                self._updateModalTitle(`Alterar: <b>${documentoTipoTenant.nome}</b>`);
-                self._dataEnvModal.documento_tipo_tenant_id = documentoTipoTenant.id;
+                self._updateModalTitle(`Alterar: <b>${self.getDocumentoTipoTenant.nome}</b>`);
                 const form = $(self.getIdModal).find('.formRegistration');
 
-                console.warn('registerData', CommonFunctions.clonePure(registerData));
-
-                for (const campo of documentoTipo.campos) {
+                for (const campo of self.getDocumentoTipoTenant.documento_tipo.campos) {
 
                     let rules = campo?.form_request_rule ?? '';
                     if (Array.isArray(rules)) {
@@ -172,7 +188,6 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                     rules = rules.split('|').filter(Boolean);
 
                     let valor = registerData[campo.nome];
-                    console.log(campo, valor);
 
                     if (rules.find(rule => rule === 'numeric')) {
                         valor = CommonFunctions.formatWithCurrencyCommasOrFraction(valor);
@@ -180,11 +195,8 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
                     const elementFound = form.find(`#${campo.nome}${self.getSufixo}`);
 
                     if (elementFound.length) {
-                        console.log('elementFound', elementFound);
-                        console.log("elementFound.is('select')", elementFound.is('select'));
                         const eventTrigger = elementFound.is('select') ? 'change' : 'input';
                         elementFound.val(valor).trigger(eventTrigger);
-                        console.log('valor', elementFound.val());
                     }
                 }
 
@@ -201,7 +213,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
     async #buscarTiposChavePix(selected_id = null) {
         const self = this;
         const select = $(self.getIdModal).find('select[name="tipo_chave"]');
-        return await CommonFunctions.fillSelect(select, self._objConfigs.url.baseChavePix, {
+        return await CommonFunctions.fillSelect(select, self.getUrls.baseChavePix, {
             outInstanceParentBln: true,
             firstOptionValue: 0,
             'trigger': 'change',
@@ -221,7 +233,7 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
 
         selected_id ? options.selectedIdOption = selected_id : null;
         const select = $(self.getIdModal).find('select[name="documento_tipo_tenant_id"]');
-        return await CommonFunctions.fillSelect(select, self._objConfigs.url.base, options);
+        return await CommonFunctions.fillSelect(select, self.getUrls.base, options);
     }
 
     async saveButtonAction() {

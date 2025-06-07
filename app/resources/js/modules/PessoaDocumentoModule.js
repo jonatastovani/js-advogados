@@ -208,7 +208,10 @@ export class PessoaDocumentoModule {
 
     _retornaDocumentosNaTelaSaveButonAction() {
         const self = this;
-        return self.getDocumentosNaTela.map(i => {
+        const copia = CommonFunctions.clonePure(self.getDocumentosNaTela);
+        if (!Array.isArray(copia)) return [];
+
+        return copia.map(i => {
             delete i.documento_tipo_tenant;
             delete i.documento_tipo;
             return i;

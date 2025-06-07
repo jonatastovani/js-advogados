@@ -135,6 +135,7 @@ class ServicoPagamentoLancamentoService extends Service
         $pessoaFisicaParticipanteServicoAsName = "{$participanteServicoAsName}_{$pessoaFisicaAsName}";
 
         $servicoAsName = $this->modelServico->getTableAsName();
+        $pagamentoAsName = $this->modelPagamento->getTableAsName();
 
         $participanteServicoAsName = $this->modelParticipanteServico->getTableAsName();
         $pessoaFisicaParticipanteServicoAsName = "{$participanteServicoAsName}_{$pessoaFisicaAsName}";
@@ -166,9 +167,9 @@ class ServicoPagamentoLancamentoService extends Service
             'col_nome_integrante_nome_fantasia' => $aliasCampos['col_nome_integrante_nome_fantasia'] ?? $pessoaJuridicaIntegranteAsName,
             'col_nome_integrante_responsavel_legal' => $aliasCampos['col_nome_integrante_responsavel_legal'] ?? $pessoaJuridicaIntegranteAsName,
 
-            'col_nome_grupo_pagamento' => $aliasCampos['col_nome_grupo_pagamento'] ?? $participantePagamentoAsName,
-            'col_observacao_pagamento' => $aliasCampos['col_observacao_pagamento'] ?? $participantePagamentoAsName,
-            'col_numero_pagamento' => $aliasCampos['col_numero_pagamento'] ?? $participantePagamentoAsName,
+            'col_nome_grupo_pagamento' => $aliasCampos['col_nome_grupo_pagamento'] ?? $pagamentoAsName,
+            'col_observacao_pagamento' => $aliasCampos['col_observacao_pagamento'] ?? $pagamentoAsName,
+            'col_numero_pagamento' => $aliasCampos['col_numero_pagamento'] ?? $pagamentoAsName,
 
             'col_nome_participante_pagamento' => $aliasCampos['col_nome_participante_pagamento'] ?? $pessoaFisicaParticipantePagamentoAsName,
             'col_nome_participante_razao_social_pagamento' => $aliasCampos['col_nome_participante_razao_social_pagamento'] ?? $pessoaJuridicaParticipantePagamentoAsName,

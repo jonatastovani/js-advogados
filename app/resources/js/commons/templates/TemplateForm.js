@@ -59,6 +59,8 @@ export class TemplateForm {
         this._queueCheckDomainCustom.enqueue(() => TenantTypeDomainCustomHelper.checkElementsDomainCustom(this, { stop_variable: true }));
     }
 
+    //#region Getters e Setters
+
     /**
      * Retorna o sufixo da página.
      */
@@ -68,6 +70,27 @@ export class TemplateForm {
 
     get getIdSufixo() {
         return `#${this.getSufixo}`;
+    }
+
+    /**
+     * Getter para retornar as URLs.
+     * 
+     * @returns {Object} Objeto contendo as URLs.
+     */
+    get getUrls() {
+        this._objConfigs ??= {};
+        this._objConfigs.url ??= {};
+        return this._objConfigs.url;
+    }
+
+    /**
+     * Retorna o objeto data do _objConfigs.
+     * @returns {object}
+     */
+    get getConfigData() {
+        this._objConfigs ??= {};
+        this._objConfigs.data ??= {};
+        return this._objConfigs.data;
     }
 
     /**
@@ -110,6 +133,8 @@ export class TemplateForm {
     get getForcedDomainIdBlockedChanges() {
         return this._objConfigs.domainCustom.domain_id;
     }
+
+    //#endregion
 
     //#region Campos para verificação de TenantTypeDomainCustom
 

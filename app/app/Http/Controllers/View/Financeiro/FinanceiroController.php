@@ -83,6 +83,8 @@ class FinanceiroController extends Controller
             $dadosRetorno->valor_participante = CurrencyFormatterUtils::toBRL($participacao['valor_participante']);
             $dadosRetorno->descricao_automatica = $participacao['descricao_automatica'];
 
+            $dadosEspecificos = [];
+
             switch ($participacao['parent_type']) {
 
                 case BalancoRepasseTipoParentEnum::MOVIMENTACAO_CONTA->value:
@@ -90,16 +92,19 @@ class FinanceiroController extends Controller
                     $dadosRetorno->data_movimentacao = (new DateTime($parent['data_movimentacao']))->format('d/m/Y');
                     $dadosRetorno->movimentacao_tipo = $parent['movimentacao_tipo']['nome'];
                     $dadosRetorno->conta = $parent['conta_domain']['conta']['nome'];
-
-                    $dadosEspecificos = $parent['descricao_automatica'];
+                    $referencia = $parent['referencia'];
+                    $pagamento = $referencia['pagamento'];
+                    $servico = $pagamento['servico'];
 
                     switch ($participacao['parent']['referencia_type']) {
 
                         case MovimentacaoContaReferenciaEnum::SERVICO_LANCAMENTO->value:
-                            // $dadosEspecificos .= " - Serviço {$parent['referencia']['pagamento']['servico']['numero_servico']}";
-                            $dadosEspecificos .= " - NP#{$parent['referencia']['pagamento']['numero_pagamento']}";
-                            $dadosEspecificos .= " - ({$parent['referencia']['pagamento']['servico']['area_juridica']['nome']})";
-                            $dadosEspecificos .= " - {$parent['referencia']['pagamento']['servico']['titulo']}";
+
+                            $dadosEspecificos[] = $this->htmlRenderCliente($referencia);
+                            $dadosEspecificos[] = $servico['titulo'];
+                            $dadosEspecificos[] = "({$servico['area_juridica']['nome']})";
+                            $dadosEspecificos[] = $parent['descricao_automatica'];
+                            $dadosEspecificos[] = "NP#{$pagamento['numero_pagamento']}";
                             break;
 
                         // case MovimentacaoContaReferenciaEnum::LANCAMENTO_GERAL->value:
@@ -120,10 +125,10 @@ class FinanceiroController extends Controller
                     $dadosRetorno->movimentacao_tipo = $parent['parceiro_movimentacao_tipo']['nome'];
                     $dadosRetorno->conta = $parent['conta']['nome'];
 
-                    $dadosEspecificos = $participacao['descricao_automatica'];
-                    $dadosEspecificos .= " - NR#{$parent['numero_lancamento']}";
-                    $dadosEspecificos .= " - ({$parent['categoria']['nome']})";
-                    $dadosEspecificos .= " - {$parent['descricao']}";
+                    $dadosEspecificos[] = $participacao['descricao_automatica'];
+                    $dadosEspecificos[] = "NR#{$parent['numero_lancamento']}";
+                    $dadosEspecificos[] = "({$parent['categoria']['nome']})";
+                    $dadosEspecificos[] = "{$parent['descricao']}";
                     break;
 
                 default:
@@ -131,7 +136,7 @@ class FinanceiroController extends Controller
                     break;
             }
 
-            $dadosRetorno->dados_especificos = $dadosEspecificos;
+            $dadosRetorno->dados_especificos = implode(' - ', $dadosEspecificos);
             $dadosRetorno->created_at = (new DateTime($parent['created_at']))->format('d/m/Y H:i:s');
 
             $processedData[] = $dadosRetorno->toArray();
@@ -146,6 +151,36 @@ class FinanceiroController extends Controller
         $dataEnv->somatorias = CurrencyFormatterUtils::convertArrayToBRL($dataEnv->somatorias->toArray());
 
         return $dataEnv;
+    }
+
+    /**
+     * Renderiza o nome do cliente a partir de um lançamento de serviço.
+     * Se houver mais de um cliente, mostra o primeiro nome seguido de "+ N".
+     *
+     * @param array $lancamentoServico Array contendo as relações de pagamento > servico > cliente.
+     * @return string Nome renderizado ou mensagem padrão.
+     */
+    private function htmlRenderCliente(array $lancamentoServico): string
+    {
+        $clientes = $lancamentoServico['pagamento']['servico']['cliente'] ?? [];
+
+        if (empty($clientes)) {
+            return '';
+        }
+
+        // Extrai nomes usando a PessoaNomeHelper (espera array com chave 'perfil')
+        $perfis = array_map(function ($cliente) {
+            return ['perfil' => $cliente['perfil'] ?? null];
+        }, $clientes);
+
+        $nomes = PessoaNomeHelper::extrairNomes($perfis); // Deve retornar array com 'nome_completo'
+
+        if (count($nomes) > 1) {
+            $total = count($nomes);
+            return $nomes[0]['nome_completo'] . ' + ' . ($total - 1);
+        }
+
+        return $nomes[0]['nome_completo'] ?? 'Nome não encontrado';
     }
 
     public function lancamentosGeraisIndex()
