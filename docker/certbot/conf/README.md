@@ -1,0 +1,1 @@
+É necessário ter essa pasta para funcionar o registro ssl do certbot
