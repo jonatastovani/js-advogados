@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Models\Auth\Tenant;
 use App\Traits\EnumTrait;
 
 enum LancamentoStatusTipoEnum: int
@@ -451,12 +452,12 @@ enum LancamentoStatusTipoEnum: int
     {
         switch ($tipo) {
             case 'edicao':
-                $array_tipo = 'order_by_servicos_lancamentos_edicao_array';
+                $array_tipo = TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_EDICAO_ARRAY->value;
                 break;
 
             case 'listagem':
             default:
-                $array_tipo = 'order_by_servicos_lancamentos_listagem_array';
+                $array_tipo = TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_LISTAGEM_ARRAY->value;
                 break;
         }
         $column = $options['column'] ?? 'status_id';
@@ -473,5 +474,38 @@ enum LancamentoStatusTipoEnum: int
         $case .= ' ELSE 999 END';
 
         return $case;
+    }
+
+    /**
+     * Retorna os status que podem ser alterados para "Em Atraso" quando a data de vencimento ultrapassar o dia atual,
+     * mas ainda estiver dentro do mês de vencimento.
+     *
+     * @return int[]
+     */
+    public static function statusPassiveisDeSeremMarcadosComoEmAtraso(): array
+    {
+        return [
+            self::LIQUIDADO_EM_ANALISE->value,
+            self::LIQUIDADO_PARCIALMENTE_EM_ANALISE->value,
+            self::AGUARDANDO_PAGAMENTO_EM_ANALISE->value,
+            self::AGUARDANDO_PAGAMENTO->value,
+            self::REAGENDADO_EM_ANALISE->value,
+        ];
+    }
+
+    /**
+     * Retorna os status que podem ser alterados para "Inadimplente" na virada do mês seguinte ao vencimento.
+     *
+     * @return int[]
+     */
+    public static function statusPassiveisDeSeremMarcadosComoInadimplente(): array
+    {
+        return array_merge(
+            self::statusPassiveisDeSeremMarcadosComoEmAtraso(),
+            [
+                self::EM_ATRASO_EM_ANALISE->value,
+                self::EM_ATRASO->value,
+            ]
+        );
     }
 }

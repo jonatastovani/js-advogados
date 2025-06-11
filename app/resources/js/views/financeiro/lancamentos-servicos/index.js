@@ -351,6 +351,10 @@ class PageLancamentoServicoIndex extends TemplateSearch {
                 appendData.area_juridica_id = data.area_juridica_id;
             }
 
+            if (data.status_extras && Array.isArray(data.status_extras)) {
+                appendData.status_extras = data.status_extras;
+            }
+
             return { appendData: appendData };
         }
 

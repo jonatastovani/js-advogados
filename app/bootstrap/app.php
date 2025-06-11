@@ -1,8 +1,6 @@
 <?php
 
 use App\Common\RestResponse;
-use App\Jobs\LancamentoAgendamentoJob;
-use App\Jobs\ServicoPagamentoRecorrenteJob;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
@@ -39,12 +37,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->replaceInGroup('web', \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class, \App\Http\Middleware\CustomVerifyCsrfToken::class);
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new LancamentoAgendamentoJob)
+        $schedule->job(new \App\Jobs\LancamentoAgendamentoJob)
             ->daily()
             // ->everyMinute()
             ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
 
-        $schedule->job(new ServicoPagamentoRecorrenteJob)
+        $schedule->job(new \App\Jobs\AtualizarStatusLancamentosServicoJob)
+            ->daily()
+            // ->everyMinute()
+            ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior
+
+        $schedule->job(new \App\Jobs\ServicoPagamentoRecorrenteJob)
             ->daily()
             // ->everyMinute()
             ->withoutOverlapping(); // Garante que o job não será executado novamente antes de terminar o anterior

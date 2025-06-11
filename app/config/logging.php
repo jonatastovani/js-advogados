@@ -159,6 +159,12 @@ return [
             'level' => 'debug',
         ],
 
+        'byteforge_app_processamento_lancamento_servico_file' => [
+            'driver' => 'custom',
+            'via' => App\Logging\ByteForge\ByteForgeProcessamentoLancamentoServicoLogger::class,
+            'level' => 'debug',
+        ],
+
     ],
 
 ];

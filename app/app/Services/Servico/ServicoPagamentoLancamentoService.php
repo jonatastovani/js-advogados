@@ -6,6 +6,7 @@ use App\Common\CommonsFunctions;
 use App\Common\RestResponse;
 use App\Enums\LancamentoStatusTipoEnum;
 use App\Enums\PagamentoTipoEnum;
+use App\Helpers\LogHelper;
 use App\Helpers\ParticipacaoOrdenadorHelper;
 use App\Models\Pessoa\PessoaFisica;
 use App\Models\Pessoa\PessoaJuridica;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Fluent;
 
 class ServicoPagamentoLancamentoService extends Service
@@ -359,43 +361,57 @@ class ServicoPagamentoLancamentoService extends Service
         $query = $this->aplicarFiltrosEspecificos($filtrosData['query'], $filtrosData['filtros'], $requestData, $options);
         $query = $this->aplicarFiltrosTexto($query, $filtrosData['arrayTexto'], $filtrosData['arrayCamposFiltros'], $filtrosData['parametrosLike'], $options);
 
-        // Ordenamento personalizado pelo tenant, ou usará o padrão
-        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', ['column' => "{$modelAsName}.status_id"]);
+        // Ordenamento personalizado baseado no CASE do status_id
+        $case = LancamentoStatusTipoEnum::renderizarCasesStatusLancamentoServico('listagem', [
+            'column' => "{$modelAsName}.status_id"
+        ]);
         $query->orderByRaw($case);
 
-        $ordenacao = $requestData->ordenacao ?? [];
-        if (!count($ordenacao) || !collect($ordenacao)->pluck('campo')->contains('data_vencimento')) {
-            $requestData->ordenacao = array_merge(
-                $ordenacao,
-                [['campo' => 'data_vencimento', 'direcao' => 'asc']]
-            );
+        // Prepara ordenação enviada + adiciona garantidamente 'data_recebimento' e 'data_vencimento'
+        $ordenacao = collect($requestData->ordenacao ?? []);
+
+        if (!$ordenacao->pluck('campo')->contains('data_recebimento')) {
+            $ordenacao->push(['campo' => 'data_recebimento', 'direcao' => 'asc']);
+        }
+        if (!$ordenacao->pluck('campo')->contains('data_vencimento')) {
+            $ordenacao->push(['campo' => 'data_vencimento', 'direcao' => 'asc']);
         }
 
-        // Condições para o filtro de data e a exibição dos registros baseado na data de recebimento e vencimento
-        $query->where(function ($query) use ($modelAsName, $requestData) {
+        // Removido porque retora mais registros por causa que pode haver mais que um cliente por serviço
+        // // Ordenação especial por nome_cliente, tratando física/jurídica
+        // if ($ordenacao->pluck('campo')->contains('nome_cliente')) {
+        //     $modelClienteAsName = $this->modelCliente->getTableAsName();
+        //     $modelPessoaFisicaAsName = "{$modelClienteAsName}_" . app(PessoaFisica::class)->getTableAsName();
+        //     $modelPessoaJuridicaAsName = "{$modelClienteAsName}_" . app(PessoaJuridica::class)->getTableAsName();
 
-            // Trazer registros que tem a data de vencimento dentro do mês informado e estão com a data de recebimento vazia ou com a data de recebimento dentro do mês informado
-            $query->where(function ($query) use ($modelAsName, $requestData) {
+        //     $query->addSelect(DB::raw("COALESCE({$modelPessoaFisicaAsName}.nome, {$modelPessoaJuridicaAsName}.nome_fantasia, {$modelPessoaJuridicaAsName}.razao_social) as nome_cliente_ord"));
 
-                // Registros com a data de vencimento dentro do mês informado
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_vencimento");
+        //     $direcao = strtolower($ordenacao->firstWhere('campo', 'nome_cliente')['direcao'] ?? 'asc');
+        //     $direcao = in_array($direcao, ['asc', 'desc']) ? $direcao : 'asc';
 
-                // Registro com data de recebimento vazia
-                $query->whereNull("{$modelAsName}.data_recebimento");
-            });
+        //     // Adiciona a ordenação pelo campo calculado
+        //     $query->orderBy('nome_cliente_ord', $direcao);
 
-            $query->orWhere(function ($query) use ($modelAsName, $requestData) {
-                // Registros com a data de recebimento dentro do mês informado
-                $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_recebimento");
-            });
-        });
+        //     // Adiciona os campos envolvidos ao GROUP BY (requisito do PostgreSQL)
+        //     $query->groupByRaw("
+        //     {$modelPessoaFisicaAsName}.nome,
+        //     {$modelPessoaJuridicaAsName}.nome_fantasia,
+        //     {$modelPessoaJuridicaAsName}.razao_social
+        // ");
 
+        //     // Remove da lista de ordenações para evitar duplicidade de tratamento
+        //     $ordenacao = $ordenacao->filter(fn($item) => $item['campo'] !== 'nome_cliente');
+        // }
+
+        // Atualiza a ordenação final sem o campo nome_cliente
+        $requestData->ordenacao = $ordenacao->values()->toArray();
+
+        // Escopos e ordenações padrões (por outros campos)
         $query = $this->aplicarScopesPadrao($query, null, $options);
         $query = $this->aplicarOrdenacoes($query, $requestData, array_merge([
             'campoOrdenacao' => 'data_vencimento',
         ], $options));
 
-        /** @var Builder */
         return $query;
     }
 
@@ -410,6 +426,8 @@ class ServicoPagamentoLancamentoService extends Service
      */
     private function aplicarFiltrosEspecificos(Builder $query, $filtros, $requestData, array $options = [])
     {
+        $modelAsName = $this->model->getTableAsName();
+
         $blnParticipanteFiltro = in_array('col_nome_participante', $filtros['campos_busca']);
         $blnGrupoParticipanteFiltro = in_array('col_nome_grupo', $filtros['campos_busca']);
         $blnIntegranteFiltro = in_array('col_nome_integrante', $filtros['campos_busca']);
@@ -429,7 +447,7 @@ class ServicoPagamentoLancamentoService extends Service
             $query = $this->modelParticipanteServico::joinIntegrantes($query, $this->modelIntegranteServico, ['instanceSelf' => $this->modelParticipanteServico]);
         }
 
-        if ($blnClienteFiltro) {
+        if ($blnClienteFiltro || collect($requestData->ordenacao)->pluck('campo')->contains('nome_cliente')) {
             $query = $this->modelServico::joinCliente($query);
             $query = PessoaPerfil::joinPerfilPessoaCompleto($query, $this->modelCliente);
         }
@@ -480,20 +498,74 @@ class ServicoPagamentoLancamentoService extends Service
         }
 
         if ($requestData->forma_pagamento_id) {
-            $query->where(function ($query) use ($requestData) {
-                $query->where("{$this->model->getTableAsName()}.forma_pagamento_id", $requestData->forma_pagamento_id);
+            $query->where(function ($query) use ($requestData, $modelAsName) {
+                $query->where("{$modelAsName}.forma_pagamento_id", $requestData->forma_pagamento_id);
                 $query->orWhere("{$this->modelPagamento->getTableAsName()}.forma_pagamento_id", $requestData->forma_pagamento_id);
             });
         }
 
-        if ($requestData->lancamento_status_tipo_id) {
-            $query->where("{$this->model->getTableAsName()}.status_id", $requestData->lancamento_status_tipo_id);
-        }
         if ($requestData->area_juridica_id) {
             $query->where("{$this->modelServico->getTableAsName()}.area_juridica_id", $requestData->area_juridica_id);
         }
 
-        $query->groupBy($this->model->getTableAsName() . '.id');
+        // Aplicar condições de data da consulta e os filtros por status
+        $query->where(function ($query) use ($modelAsName, $requestData) {
+
+            $query->where(function ($query) use ($modelAsName, $requestData) {
+                // Condições para o filtro de data e a exibição dos registros baseado na data de recebimento e vencimento
+                $query->where(function ($query) use ($modelAsName, $requestData) {
+
+                    // Trazer registros que tem a data de vencimento dentro do mês informado e estão com a data de recebimento vazia ou com a data de recebimento dentro do mês informado
+                    $query->where(function ($query) use ($modelAsName, $requestData) {
+
+                        // Registros com a data de vencimento dentro do mês informado
+                        $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_vencimento");
+
+                        // Registro com data de recebimento vazia
+                        $query->whereNull("{$modelAsName}.data_recebimento");
+                    });
+
+                    $query->orWhere(function ($query) use ($modelAsName, $requestData) {
+                        // Registros com a data de recebimento dentro do mês informado
+                        $query = $this->aplicarFiltroMes($query, $requestData, "{$modelAsName}.data_recebimento");
+                    });
+                });
+
+                /**Colocamos os status para os filtros do mês em consulta, onde será enviado o status na chave 
+                 * 'lancamento_status_tipo_id'.
+                 */
+                if ($requestData->lancamento_status_tipo_id) {
+                    $query->where("{$modelAsName}.status_id", $requestData->lancamento_status_tipo_id);
+                }
+            });
+
+            /**Para o filtro de extatus extras de outros meses, enviamos o array de status extras na chave 'status_extras'
+             */
+            if ($requestData->status_extras && is_array($requestData->status_extras)) {
+
+                $statusPermitidos = [LancamentoStatusTipoEnum::INADIMPLENTE->value];
+                $statusFiltrados = collect($requestData->status_extras)
+                    ->filter() // remove valores nulos ou vazios ("" ou false)
+                    ->map(fn($val) => (int) $val) // força para inteiro
+                    ->filter(fn($status) => in_array($status, $statusPermitidos)) // garante que é permitido
+                    ->unique() // remove duplicados
+                    ->values() // reindexa (opcional)
+                    ->toArray(); // retorna como array puro
+
+                $query->when(count($statusFiltrados), function ($query) use ($modelAsName, $requestData, $statusFiltrados) {
+
+                    $query->orWhere(function ($query) use ($modelAsName, $requestData, $statusFiltrados) {
+
+                        $query->whereIn("{$modelAsName}.status_id", $statusFiltrados);
+                        $query->whereDate("{$modelAsName}.data_vencimento", '<', Carbon::parse($requestData->mes_ano)->startOfMonth()->format('Y-m-d'));
+                    });
+                });
+            }
+        });
+
+        // Sempre agrupar por ID do registro base
+        $query->groupBy("{$modelAsName}.id");
+
         return $query;
     }
 

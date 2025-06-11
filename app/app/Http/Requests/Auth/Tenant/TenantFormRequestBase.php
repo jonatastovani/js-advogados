@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth\Tenant;
 
+use App\Enums\TenantConfigExtrasEnum;
 use App\Http\Requests\BaseFormRequest;
 
 class TenantFormRequestBase extends BaseFormRequest
@@ -21,8 +22,8 @@ class TenantFormRequestBase extends BaseFormRequest
             'domains.*.name' => 'required|string|max:30',
             'lancamento_liquidado_migracao_sistema_bln' => 'nullable|boolean',
             'cancelar_liquidado_migracao_sistema_automatico_bln' => 'nullable|boolean',
-            'order_by_servicos_lancamentos_listagem_array' => 'nullable|array',
-            'order_by_servicos_lancamentos_edicao_array' => 'nullable|array',
+            TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_EDICAO_ARRAY->value => 'nullable|array',
+            TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_LISTAGEM_ARRAY->value => 'nullable|array',
         ];
 
         return $rules;

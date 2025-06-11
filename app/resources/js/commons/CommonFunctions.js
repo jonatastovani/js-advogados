@@ -15,79 +15,82 @@ export class CommonFunctions {
     static returnsOnlyNumber(num) {
         return String(num).replace(/\D/g, '');
     }
-
     /**
-     * Gets the values ​​of a form's elements and returns an object or formatted string.
+     * Coleta os valores de todos os inputs, selects e textareas dentro de um container HTML.
      *
-     * @param {string} container - Container to be processed.
-     * @param {number} returnType - The desired return type: 1 for object, 2 for string.
-     * @param {boolean} blnDisabled - Indicates whether disabled elements should be included (true) or excluded (false).
-     * @param {boolean} keyId - Defines whether the "name" attribute (keyId=false) or the "id" attribute (keyId=true) should be used as a key in the return object.
+     * @param {string} container - Seletor do container (ex: '#formulario').
+     * @param {number} [returnType=1] - Tipo de retorno: 1 para objeto, 2 para string formatada.
+     * @param {boolean} [blnDisabled=false] - Define se os elementos desabilitados devem ser incluídos (true) ou ignorados (false).
+     * @param {boolean} [keyId=false] - Define se a chave do objeto será o 'id' (true) ou o 'name' (false) do campo.
      *
-     * @returns {object|string} - An object with the values ​​of the form elements (returnType 1)
-     *                            or a string formatted with the element values ​​(returnType 2).
+     * @returns {object|string} - Um objeto com os valores dos campos (returnType 1)
+     *                            ou uma string com os pares chave:valor (returnType 2).
      */
     static getInputsValues(container, returnType = 1, blnDisabled = false, keyId = false) {
         const formData = {};
         let strReturn = '';
 
+        // Coleta todos os campos input, select e textarea do container informado
         const elemInput = $(container).find('input, select, textarea');
 
         elemInput.each(function () {
-            const element = $(this)[0];
+            const element = this; // DOM element
             const id = element.id;
             const name = element.name;
-            const val = element.value;
+            const val = (element.value || '').trim();
             const disabled = element.disabled;
 
-            if (blnDisabled || (!blnDisabled && !disabled)) {
-                if (element.type === 'radio') {
-                    if (element.checked) {
-                        if ((id && keyId)) {
-                            formData[id] = val.trim();
-                            strReturn += `${id}:${val.trim()}\n`;
-                        } else if ((name && !keyId)) {
-                            formData[name] = val.trim();
-                            strReturn += `${name}:${val.trim()}\n`;
+            // Ignora elementos desabilitados, exceto se for permitido via parâmetro
+            if (!blnDisabled && disabled) return;
+
+            // Define a chave do objeto (por ID ou por NAME)
+            const key = keyId ? id : name;
+
+            // RADIO BUTTONS: apenas o selecionado entra
+            if (element.type === 'radio') {
+                if (element.checked && key) {
+                    formData[key] = val;
+                    strReturn += `${key}:${val}\n`;
+                }
+            }
+
+            // CHECKBOXES: trata tanto simples quanto múltiplos com []
+            else if (element.type === 'checkbox') {
+                if (!key) return;
+
+                const isArray = name.endsWith('[]');
+                const arrayKey = isArray ? name.slice(0, -2) : name;
+
+                if (keyId) {
+                    formData[id] = element.checked;
+                    strReturn += `${id}:${element.checked}\n`;
+                } else {
+                    if (isArray) {
+                        if (!formData[arrayKey]) {
+                            formData[arrayKey] = [];
                         }
-                    }
-                } else if (element.type === 'checkbox') {
-                    if (element.checked) {
-                        if ((id && keyId)) {
-                            formData[id] = true;
-                            strReturn += `${id}:${true}\n`;
-                        } else if ((name && !keyId)) {
-                            formData[name] = true;
-                            strReturn += `${name}:${true}\n`;
+                        if (element.checked) {
+                            formData[arrayKey].push(val);
+                            strReturn += `${arrayKey}:${val}\n`;
                         }
                     } else {
-                        if ((id && keyId)) {
-                            formData[id] = false;
-                            strReturn += `${id}:${false}\n`;
-                        } else if ((name && !keyId)) {
-                            formData[name] = false;
-                            strReturn += `${name}:${false}\n`;
-                        }
+                        formData[name] = element.checked;
+                        strReturn += `${name}:${element.checked}\n`;
                     }
-                } else {
-                    if ((id && keyId)) {
-                        formData[id] = val.trim();
-                        strReturn += `${id}:${val.trim()}\n`;
-                    } else if ((name && !keyId)) {
-                        formData[name] = val.trim();
-                        strReturn += `${name}:${val.trim()}\n`;
-                    }
+                }
+            }
+
+            // DEMAIS CAMPOS (text, number, select, textarea, etc.)
+            else {
+                if (key) {
+                    formData[key] = val;
+                    strReturn += `${key}:${val}\n`;
                 }
             }
         });
 
-        switch (returnType) {
-            case 1:
-                return formData;
-
-            case 2:
-                return strReturn;
-        }
+        // Retorna como objeto ou string, conforme configurado
+        return returnType === 2 ? strReturn : formData;
     }
 
     /**

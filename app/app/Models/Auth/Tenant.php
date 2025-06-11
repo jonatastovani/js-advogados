@@ -2,6 +2,7 @@
 
 namespace App\Models\Auth;
 
+use App\Enums\TenantConfigExtrasEnum;
 use App\Traits\CommonsModelsMethodsTrait;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
@@ -25,8 +26,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'created_user_id',
         'lancamento_liquidado_migracao_sistema_bln',
         'cancelar_liquidado_migracao_sistema_automatico_bln',
-        'order_by_servicos_lancamentos_listagem_array',
-        'order_by_servicos_lancamentos_edicao_array',
+        TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_EDICAO_ARRAY->value,
+        TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_LISTAGEM_ARRAY->value,
     ];
 
     public static function getCustomColumns(): array

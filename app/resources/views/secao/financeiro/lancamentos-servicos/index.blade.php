@@ -1,4 +1,6 @@
 @php
+    use App\Enums\LancamentoStatusTipoEnum;
+
     $sufixo = 'PageLancamentoServicoIndex';
     $paginaDados = new Illuminate\Support\Fluent([
         'nome' => 'Lançamentos de Receitas',
@@ -33,7 +35,7 @@
                 'arrayCamposOrdenacao' => [
                     'data_vencimento' => ['nome' => 'Data Vencimento'],
                     'data_recebimento' => ['nome' => 'Data Recebimento'],
-                    'nome_cliente' => ['nome' => 'Nome Cliente'],
+                    // 'nome_cliente' => ['nome' => 'Nome Cliente'], // Retorna mais linha por causa que pode ter mais de um cliente por serviço
                     'created_at' => ['nome' => 'Data cadastro'],
                 ],
                 'consultaMesAnoBln' => true,
@@ -73,6 +75,18 @@
                             'after' => [
                                 "<button id='openModalFormaPagamento{$sufixo}' type='button' class='btn btn-outline-secondary'>
                             <i class='bi bi-search'></i></button>",
+                            ],
+                        ],
+                    ],
+                    [
+                        'tipo' => 'checkbox',
+                        'nome' => 'status_extras',
+                        'multiplo' => true, // IMPORTANTE
+                        'opcoes' => [
+                            [
+                                'valor' => LancamentoStatusTipoEnum::INADIMPLENTE->value,
+                                'label' => 'Incluir inadimplentes',
+                                'title' => 'Selecione para incluir os inadimplentes dos meses anteriores.',
                             ],
                         ],
                     ],

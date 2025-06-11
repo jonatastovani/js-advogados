@@ -30,6 +30,8 @@ class PostConsultaFiltroFormRequestServicoPagamentoLancamento extends PostConsul
             'forma_pagamento_id' => 'nullable|uuid',
             'lancamento_status_tipo_id' => 'nullable|integer',
             'area_juridica_id' => 'nullable|uuid',
+            'status_extras' => 'nullable|array',
+            'status_extras.*' => 'nullable|integer',
         ]);
         return $rules;
     }

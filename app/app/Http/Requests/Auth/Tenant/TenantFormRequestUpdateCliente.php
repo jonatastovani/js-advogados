@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth\Tenant;
 
+use App\Enums\TenantConfigExtrasEnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -22,8 +23,8 @@ class TenantFormRequestUpdateCliente extends TenantFormRequestBase
             'sigla',
             'lancamento_liquidado_migracao_sistema_bln',
             'cancelar_liquidado_migracao_sistema_automatico_bln',
-            'order_by_servicos_lancamentos_listagem_array',
-            'order_by_servicos_lancamentos_edicao_array',
+            TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_EDICAO_ARRAY->value,
+            TenantConfigExtrasEnum::ORDER_BY_SERVICOS_LANCAMENTOS_LISTAGEM_ARRAY->value,
             'domains',
             'domains.*.id',
             'domains.*.name',

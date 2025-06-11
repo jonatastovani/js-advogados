@@ -23,4 +23,13 @@ enum TenantConfigExtrasEnum: string
      */
     case PERFIS_PERMITIDO_PARTICIPACAO_SERVICO = 'perfis_permitido_participacao_servico';
     
+    /**
+     * Ordenação por status dos lançamentos de serviço na tela de Editar Serviço, dentro do Painel de Pagamentos
+     */
+    case ORDER_BY_SERVICOS_LANCAMENTOS_EDICAO_ARRAY = 'order_by_servicos_lancamentos_edicao_array';
+
+    /**
+     * Ordenação por status dos lançamentos de serviço na tela de Listagem de Receitas
+     */
+    case ORDER_BY_SERVICOS_LANCAMENTOS_LISTAGEM_ARRAY = 'order_by_servicos_lancamentos_listagem_array';
 }
