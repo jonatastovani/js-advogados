@@ -1,6 +1,6 @@
 services:
     web:
-        image: tovanijonatas/php839-jsadvogados:v1.4
+        image: tovanijonatas/php839-jsadvogados:v1.5
         container_name: web
         build:
             context: .

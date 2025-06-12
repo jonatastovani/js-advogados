@@ -105,17 +105,12 @@ export class ModalPessoaDocumento extends ModalRegistrationAndEditing {
         const self = this;
         try {
 
-            // Se encontrar os registros, nos dados enviados, não precisa buscar os dados do tenant novamente
-            if (self.getDocumentoTipoTenant?.id && self.getDocumentoTipoTenant?.documento_tipo?.id) {
-                return true;
-            }
-
             const objConn = new ConnectAjax(self.getUrls.baseDocumentoTipoTenants);
             const documentoTipoTenantId = self._dataEnvModal?.register?.documento_tipo_tenant_id ?? self._dataEnvModal.documento_tipo_tenant_id;
             objConn.setParam(documentoTipoTenantId);
             const response = await objConn.getRequest();
-
             const responseData = response.data;
+
             if (responseData.campos_html) {
                 self.setDocumentoTipoTenant = responseData;
                 self._updateModalTitle(`${responseData.nome}`);
